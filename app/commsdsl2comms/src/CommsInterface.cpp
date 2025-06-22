@@ -109,7 +109,7 @@ void readCustomCodeInternal(const std::string& codePath, std::string& code)
 } // namespace 
     
 
-CommsInterface::CommsInterface(CommsGenerator& generator, commsdsl::parse::Interface dslObj, Elem* parent) :
+CommsInterface::CommsInterface(CommsGenerator& generator, commsdsl::parse::ParseInterface dslObj, Elem* parent) :
     Base(generator, dslObj, parent)
 {
 }   
@@ -503,7 +503,7 @@ std::string CommsInterface::commsDefExtraOptionsInternal() const
             m_commsFields.begin(), m_commsFields.end(),
             [](auto& f)
             {
-                return f->field().dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Version;
+                return f->field().dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::Version;
             });
 
     if (iter != m_commsFields.end()) {

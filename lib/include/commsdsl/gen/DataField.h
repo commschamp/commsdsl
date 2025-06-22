@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/DataField.h"
+#include "commsdsl/parse/ParseDataField.h"
 #include "commsdsl/gen/Field.h"
 
 #include <memory>
@@ -34,7 +34,7 @@ class COMMSDSL_API DataField : public Field
     using Base = Field;
 public:
 
-    DataField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    DataField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent = nullptr);
     virtual ~DataField();
 
     Field* externalPrefixField();
@@ -47,7 +47,7 @@ protected:
     virtual bool prepareImpl() override;
     virtual void setReferencedImpl() override;
     
-    commsdsl::parse::DataField dataDslObj() const;
+    commsdsl::parse::ParseDataField dataDslObj() const;
 
 private:
     std::unique_ptr<DataFieldImpl> m_impl;

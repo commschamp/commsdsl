@@ -67,7 +67,7 @@ ToolsQtFrame::ToolsQtLayersList toolsTransformLayersList(const commsdsl::gen::Fr
 } // namespace 
     
 
-ToolsQtFrame::ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::Frame dslObj, commsdsl::gen::Elem* parent) :
+ToolsQtFrame::ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent)
 {
 }
@@ -473,7 +473,7 @@ unsigned ToolsQtFrame::toolsCalcBackPayloadOffsetInternal() const
             m_toolsLayers.rbegin(), m_toolsLayers.rend(),
             [](auto* l)
             {
-                return l->layer().dslObj().kind() == commsdsl::parse::Layer::Kind::Payload;
+                return l->layer().dslObj().kind() == commsdsl::parse::ParseLayer::Kind::Payload;
             });
     assert(payloadIter != m_toolsLayers.rend());
 
@@ -581,7 +581,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::
                 m_toolsLayers.begin(), m_toolsLayers.end(),
                 [](auto* l)
                 {
-                    return l->layer().dslObj().kind() == commsdsl::parse::Layer::Kind::Payload;
+                    return l->layer().dslObj().kind() == commsdsl::parse::ParseLayer::Kind::Payload;
                 });
 
         assert(payloadIter != m_toolsLayers.end());
@@ -775,7 +775,7 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::I
             m_toolsLayers.begin(), m_toolsLayers.end(),
             [](auto* l)
             {
-                using Kind = commsdsl::parse::Layer::Kind;
+                using Kind = commsdsl::parse::ParseLayer::Kind;
                 auto kind = l->layer().dslObj().kind();
                 if (kind == Kind::Id) {
                     return true;
@@ -785,7 +785,7 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::I
                     return false;
                 }
 
-                auto customKind = commsdsl::parse::CustomLayer(l->layer().dslObj()).semanticLayerType();
+                auto customKind = commsdsl::parse::ParseCustomLayer(l->layer().dslObj()).semanticLayerType();
                 return (customKind == Kind::Id);
             });
 

@@ -28,7 +28,7 @@ class CommsDataField final : public commsdsl::gen::DataField, public CommsField
     using Base = commsdsl::gen::DataField;
     using CommsBase = CommsField;
 public:
-    CommsDataField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    CommsDataField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

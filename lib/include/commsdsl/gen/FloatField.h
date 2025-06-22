@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/FloatField.h"
+#include "commsdsl/parse/ParseFloatField.h"
 #include "commsdsl/gen/Field.h"
 
 #include <memory>
@@ -34,10 +34,10 @@ class COMMSDSL_API FloatField : public Field
 {
     using Base = Field;
 public:
-    using SpecialsListElem = std::pair<std::string, commsdsl::parse::FloatField::SpecialValueInfo>;
+    using SpecialsListElem = std::pair<std::string, commsdsl::parse::ParseFloatField::SpecialValueInfo>;
     using SpecialsList = std::vector<SpecialsListElem>;
 
-    FloatField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    FloatField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent = nullptr);
     virtual ~FloatField();
 
     const SpecialsList& specialsSortedByValue() const;
@@ -46,7 +46,7 @@ protected:
     virtual bool prepareImpl() override;
     virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override final;
     
-    commsdsl::parse::FloatField floatDslObj() const;
+    commsdsl::parse::ParseFloatField floatDslObj() const;
 
 private:
     std::unique_ptr<FloatFieldImpl> m_impl;

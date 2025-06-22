@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/Layer.h"
+#include "commsdsl/parse/ParseLayer.h"
 #include "commsdsl/gen/Layer.h"
 
 #include <memory>
@@ -34,13 +34,13 @@ class COMMSDSL_API ChecksumLayer : public Layer
     using Base = Layer;
 public:
 
-    ChecksumLayer(Generator& generator, commsdsl::parse::Layer dslObj, Elem* parent = nullptr);
+    ChecksumLayer(Generator& generator, commsdsl::parse::ParseLayer dslObj, Elem* parent = nullptr);
     virtual ~ChecksumLayer();
 
 protected:    
     virtual bool forceCommsOrderImpl(LayersAccessList& layers, bool& success) const override final;
     
-    commsdsl::parse::ChecksumLayer checksumDslObj() const;
+    commsdsl::parse::ParseChecksumLayer checksumDslObj() const;
 };
 
 } // namespace gen

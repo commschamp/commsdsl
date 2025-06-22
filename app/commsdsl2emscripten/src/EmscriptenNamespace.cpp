@@ -50,7 +50,7 @@ void emscriptenAddSourceFilesInternal(const TList& list, util::StringsList& sour
 } // namespace 
     
 
-EmscriptenNamespace::EmscriptenNamespace(EmscriptenGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
+EmscriptenNamespace::EmscriptenNamespace(EmscriptenGenerator& generator, commsdsl::parse::ParseNamespace dslObj, Elem* parent) :
     Base(generator, dslObj, parent),
     m_msgId(generator, *this),
     m_handler(generator, *this),

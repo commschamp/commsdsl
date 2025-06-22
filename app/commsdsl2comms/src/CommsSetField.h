@@ -29,7 +29,7 @@ class CommsSetField final : public commsdsl::gen::SetField, public CommsField
     using Base = commsdsl::gen::SetField;
     using CommsBase = CommsField;
 public:
-    CommsSetField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    CommsSetField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

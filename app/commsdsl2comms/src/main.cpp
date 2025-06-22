@@ -80,11 +80,11 @@ int main(int argc, const char* argv[])
         auto& logger = generator.logger();
 
         if (options.quietRequested()) {
-            logger.setMinLevel(commsdsl::parse::ErrorLevel_Warning);
+            logger.setMinLevel(commsdsl::parse::ParseErrorLevel_Warning);
         }
 
         if (options.debugRequested()) {
-            logger.setMinLevel(commsdsl::parse::ErrorLevel_Debug);
+            logger.setMinLevel(commsdsl::parse::ParseErrorLevel_Debug);
         }        
 
         if (options.warnAsErrRequested()) {

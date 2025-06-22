@@ -29,7 +29,7 @@ class EmscriptenSyncLayer final : public commsdsl::gen::SyncLayer, public Emscri
     using Base = commsdsl::gen::SyncLayer;
     using EmscriptenBase = EmscriptenLayer;
 public:
-    EmscriptenSyncLayer(EmscriptenGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenSyncLayer(EmscriptenGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 };
 
 } // namespace commsdsl2emscripten

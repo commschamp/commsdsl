@@ -26,10 +26,10 @@ namespace commsdsl
 namespace gen
 {
 
-ValueLayer::ValueLayer(Generator& generator, commsdsl::parse::Layer dslObj, Elem* parent) :
+ValueLayer::ValueLayer(Generator& generator, commsdsl::parse::ParseLayer dslObj, Elem* parent) :
     Base(generator, dslObj, parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Value);
+    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Value);
 }
 
 ValueLayer::~ValueLayer() = default;
@@ -52,9 +52,9 @@ bool ValueLayer::isInterfaceSupported(const Interface* iFace) const
             });  
 }
 
-commsdsl::parse::ValueLayer ValueLayer::valueDslObj() const
+commsdsl::parse::ParseValueLayer ValueLayer::valueDslObj() const
 {
-    return commsdsl::parse::ValueLayer(dslObj());
+    return commsdsl::parse::ParseValueLayer(dslObj());
 }
 
 } // namespace gen

@@ -28,7 +28,7 @@ class EmscriptenOptionalField final : public commsdsl::gen::OptionalField, publi
     using Base = commsdsl::gen::OptionalField;
     using EmscriptenBase = EmscriptenField;
 public:
-    EmscriptenOptionalField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenOptionalField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
     static const std::string& emscriptenHeaderCommonModeFuncs();
 

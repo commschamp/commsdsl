@@ -39,21 +39,21 @@ namespace commsdsl2comms
 namespace 
 {
 
-bool hasOrigCode(commsdsl::parse::OverrideType value)
+bool hasOrigCode(commsdsl::parse::ParseOverrideType value)
 {
-    return (value != commsdsl::parse::OverrideType_Replace);
+    return (value != commsdsl::parse::ParseOverrideType_Replace);
 }    
 
-bool isOverrideCodeAllowed(commsdsl::parse::OverrideType value)
+bool isOverrideCodeAllowed(commsdsl::parse::ParseOverrideType value)
 {
-    return (value != commsdsl::parse::OverrideType_None);
+    return (value != commsdsl::parse::ParseOverrideType_None);
 }
 
-bool isOverrideCodeRequired(commsdsl::parse::OverrideType value)
+bool isOverrideCodeRequired(commsdsl::parse::ParseOverrideType value)
 {
     return 
-        (value == commsdsl::parse::OverrideType_Replace) || 
-        (value == commsdsl::parse::OverrideType_Extend);
+        (value == commsdsl::parse::ParseOverrideType_Replace) || 
+        (value == commsdsl::parse::ParseOverrideType_Extend);
 }
 
 void readCustomCodeInternal(const std::string& codePath, std::string& code)
@@ -228,7 +228,7 @@ std::size_t CommsField::commsMinLength() const
 
 std::size_t CommsField::commsMaxLength() const
 {
-    if (m_field.dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) {
+    if (m_field.dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::Length) {
         return comms::maxPossibleLength();
     }
     
@@ -465,12 +465,12 @@ const CommsField* CommsField::commsFindSibling(const std::string& name) const
 
     auto* parentField = static_cast<const commsdsl::gen::Field*>(parent);
     auto fieldKind = parentField->dslObj().kind();
-    if (fieldKind == commsdsl::parse::Field::Kind::Bitfield) {
+    if (fieldKind == commsdsl::parse::ParseField::Kind::Bitfield) {
         auto* bitfield = static_cast<const CommsBitfieldField*>(parentField);
         return findFieldFunc(bitfield->commsMembers());
     }
 
-    if (fieldKind == commsdsl::parse::Field::Kind::Bundle) {
+    if (fieldKind == commsdsl::parse::ParseField::Kind::Bundle) {
         auto* bundle = static_cast<const CommsBundleField*>(parentField);
         return findFieldFunc(bundle->commsMembers());
     }    
@@ -729,15 +729,15 @@ std::string CommsField::commsCommonNameFuncCode() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsField::commsFieldBaseParams(commsdsl::parse::Endian endian) const
+std::string CommsField::commsFieldBaseParams(commsdsl::parse::ParseEndian endian) const
 {
     auto& schema = commsdsl::gen::Generator::schemaOf(m_field);
     auto schemaEndian = schema.schemaEndian();
-    assert(endian < commsdsl::parse::Endian_NumOfValues);
-    assert(schemaEndian < commsdsl::parse::Endian_NumOfValues);
+    assert(endian < commsdsl::parse::ParseEndian_NumOfValues);
+    assert(schemaEndian < commsdsl::parse::ParseEndian_NumOfValues);
 
     if ((schemaEndian == endian) ||
-        (commsdsl::parse::Endian_NumOfValues <= endian)) {
+        (commsdsl::parse::ParseEndian_NumOfValues <= endian)) {
         return strings::emptyString();
     }
 
@@ -856,7 +856,7 @@ bool CommsField::copyCodeFromInternal()
 }
 
 bool CommsField::commsPrepareOverrideInternal(
-    commsdsl::parse::OverrideType type, 
+    commsdsl::parse::ParseOverrideType type, 
     std::string& codePathPrefix, 
     const std::string& suffix,
     std::string& customCode,
@@ -1231,7 +1231,7 @@ std::string CommsField::commsOptionalDefCodeInternal() const
 
         std::string versionOpt = "ExistsSinceVersion<" + util::numToString(dslObj.sinceVersion()) + '>';
         if (dslObj.isDeprecatedRemoved()) {
-            assert(dslObj.deprecatedSince() < commsdsl::parse::Protocol::notYetDeprecated());
+            assert(dslObj.deprecatedSince() < commsdsl::parse::ParseProtocol::notYetDeprecated());
             if (dslObj.sinceVersion() == 0U) {
                 versionOpt = "ExistsUntilVersion<" + util::numToString(dslObj.deprecatedSince() - 1) + '>';
             }

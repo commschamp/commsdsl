@@ -2,6 +2,9 @@
 
 #include "CommonTestSuite.h"
 
+#include "commsdsl/parse/ParseBundleField.h"
+#include "commsdsl/parse/ParseOptionalField.h"
+
 class OptionalTestSuite : public CommonTestSuite, public CxxTest::TestSuite
 {
 public:
@@ -79,14 +82,14 @@ void OptionalTestSuite::test1()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Opt1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Optional);
     TS_ASSERT_EQUALS(field.minLength(), 0U);
     TS_ASSERT_EQUALS(field.maxLength(), 1U);
     TS_ASSERT_EQUALS(field.bitLength(), 0U);
 
-    commsdsl::parse::OptionalField optField(field);
+    commsdsl::parse::ParseOptionalField optField(field);
     auto wrappedField = optField.field();
-    TS_ASSERT_EQUALS(wrappedField.kind(), commsdsl::parse::Field::Kind::Int);
+    TS_ASSERT_EQUALS(wrappedField.kind(), commsdsl::parse::ParseField::Kind::Int);
 
     TS_ASSERT(!optField.cond().valid());
 }
@@ -107,14 +110,14 @@ void OptionalTestSuite::test2()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "Opt1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Optional);
     TS_ASSERT_EQUALS(field.minLength(), 0U);
     TS_ASSERT_EQUALS(field.maxLength(), 1U);
     TS_ASSERT_EQUALS(field.bitLength(), 0U);
 
-    commsdsl::parse::OptionalField optField(field);
+    commsdsl::parse::ParseOptionalField optField(field);
     auto wrappedField = optField.field();
-    TS_ASSERT_EQUALS(wrappedField.kind(), commsdsl::parse::Field::Kind::Int);
+    TS_ASSERT_EQUALS(wrappedField.kind(), commsdsl::parse::ParseField::Kind::Int);
 
     TS_ASSERT(!optField.cond().valid());
 }
@@ -135,35 +138,35 @@ void OptionalTestSuite::test3()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), 4U);
     TS_ASSERT_EQUALS(field.bitLength(), 0U);
 
 
-    commsdsl::parse::BundleField bundleField(field);
+    commsdsl::parse::ParseBundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 3U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
     auto& mem3 = members[2];
 
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Set);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Optional);
-    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::Optional)
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Optional);
+    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::ParseField::Kind::Optional)
 
-    commsdsl::parse::OptionalField opt1(mem2);
+    commsdsl::parse::ParseOptionalField opt1(mem2);
     auto cond1 = opt1.cond();
-    TS_ASSERT_EQUALS(cond1.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr exprCond1(cond1);
+    TS_ASSERT_EQUALS(cond1.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr exprCond1(cond1);
     TS_ASSERT(exprCond1.left().empty());
     TS_ASSERT(exprCond1.op().empty());
     TS_ASSERT_EQUALS(exprCond1.right(), "$Mem1.b0");
 
-    commsdsl::parse::OptionalField opt2(mem3);
+    commsdsl::parse::ParseOptionalField opt2(mem3);
     auto cond2 = opt2.cond();
-    TS_ASSERT_EQUALS(cond2.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr exprCond2(cond2);
+    TS_ASSERT_EQUALS(cond2.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr exprCond2(cond2);
     TS_ASSERT(exprCond2.left().empty());
     TS_ASSERT_EQUALS(exprCond2.op(), "!");
     TS_ASSERT_EQUALS(exprCond2.right(), "$Mem1.b0");
@@ -171,7 +174,7 @@ void OptionalTestSuite::test3()
 
 void OptionalTestSuite::test4()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
@@ -179,7 +182,7 @@ void OptionalTestSuite::test4()
 
 void OptionalTestSuite::test5()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
@@ -201,25 +204,25 @@ void OptionalTestSuite::test6()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), 2U);
 
-    commsdsl::parse::BundleField bundleField(field);
+    commsdsl::parse::ParseBundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Int);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField optField(mem2);
+    commsdsl::parse::ParseOptionalField optField(mem2);
     auto wrappedField = optField.field();
-    TS_ASSERT_EQUALS(wrappedField.kind(), commsdsl::parse::Field::Kind::Int);
+    TS_ASSERT_EQUALS(wrappedField.kind(), commsdsl::parse::ParseField::Kind::Int);
     auto cond = optField.cond();
     TS_ASSERT(optField.cond().valid());
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr exprCond(cond);
     TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
     TS_ASSERT_EQUALS(exprCond.op(), "=");
     TS_ASSERT_EQUALS(exprCond.right(), "5");
@@ -241,25 +244,25 @@ void OptionalTestSuite::test7()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), 2U);
 
-    commsdsl::parse::BundleField bundleField(field);
+    commsdsl::parse::ParseBundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Int);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField optField(mem2);
+    commsdsl::parse::ParseOptionalField optField(mem2);
     auto wrappedField = optField.field();
-    TS_ASSERT_EQUALS(wrappedField.kind(), commsdsl::parse::Field::Kind::Int);
+    TS_ASSERT_EQUALS(wrappedField.kind(), commsdsl::parse::ParseField::Kind::Int);
     auto cond = optField.cond();
     TS_ASSERT(optField.cond().valid());
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr exprCond(cond);
     TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
     TS_ASSERT_EQUALS(exprCond.op(), "<=");
     TS_ASSERT_EQUALS(exprCond.right(), "5");
@@ -281,27 +284,27 @@ void OptionalTestSuite::test8()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 2U);
     TS_ASSERT_EQUALS(field.maxLength(), 3U);
 
-    commsdsl::parse::BundleField bundleField(field);
+    commsdsl::parse::ParseBundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 3U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
     auto& mem3 = members[2];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Int);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Ref);
-    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Ref);
+    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField optField(mem3);
+    commsdsl::parse::ParseOptionalField optField(mem3);
     auto wrappedField = optField.field();
-    TS_ASSERT_EQUALS(wrappedField.kind(), commsdsl::parse::Field::Kind::Int);
+    TS_ASSERT_EQUALS(wrappedField.kind(), commsdsl::parse::ParseField::Kind::Int);
     auto cond = optField.cond();
     TS_ASSERT(optField.cond().valid());
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr exprCond(cond);
     TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
     TS_ASSERT_EQUALS(exprCond.op(), "!=");
     TS_ASSERT_EQUALS(exprCond.right(), "$Mem2");
@@ -323,23 +326,23 @@ void OptionalTestSuite::test9()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), 2U);
 
-    commsdsl::parse::BundleField bundleField(field);
+    commsdsl::parse::ParseBundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Int);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField optField(mem2);
+    commsdsl::parse::ParseOptionalField optField(mem2);
     auto cond = optField.cond();
     TS_ASSERT(optField.cond().valid());
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr exprCond(cond);
     TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
     TS_ASSERT_EQUALS(exprCond.op(), ">=");
     TS_ASSERT_EQUALS(exprCond.right(), "Enum1.V2");
@@ -361,23 +364,23 @@ void OptionalTestSuite::test10()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), 2U);
 
-    commsdsl::parse::BundleField bundleField(field);
+    commsdsl::parse::ParseBundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Enum);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField optField(mem2);
+    commsdsl::parse::ParseOptionalField optField(mem2);
     auto cond = optField.cond();
     TS_ASSERT(optField.cond().valid());
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr exprCond(cond);
     TS_ASSERT_EQUALS(exprCond.left(), "$Enum1");
     TS_ASSERT_EQUALS(exprCond.op(), "<=");
     TS_ASSERT_EQUALS(exprCond.right(), "2");
@@ -399,23 +402,23 @@ void OptionalTestSuite::test11()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), 2U);
 
-    commsdsl::parse::BundleField bundleField(field);
+    commsdsl::parse::ParseBundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Enum);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField optField(mem2);
+    commsdsl::parse::ParseOptionalField optField(mem2);
     auto cond = optField.cond();
     TS_ASSERT(optField.cond().valid());
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr exprCond(cond);
     TS_ASSERT_EQUALS(exprCond.left(), "$Enum1");
     TS_ASSERT_EQUALS(exprCond.op(), "<=");
     TS_ASSERT_EQUALS(exprCond.right(), "V2");
@@ -437,23 +440,23 @@ void OptionalTestSuite::test12()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), 2U);
 
-    commsdsl::parse::BundleField bundleField(field);
+    commsdsl::parse::ParseBundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Int);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField optField(mem2);
+    commsdsl::parse::ParseOptionalField optField(mem2);
     auto cond = optField.cond();
     TS_ASSERT(optField.cond().valid());
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr exprCond(cond);
     TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
     TS_ASSERT_EQUALS(exprCond.op(), "!=");
     TS_ASSERT_EQUALS(exprCond.right(), "S1");
@@ -461,7 +464,7 @@ void OptionalTestSuite::test12()
 
 void OptionalTestSuite::test13()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
     TS_ASSERT(protocol);
@@ -483,23 +486,23 @@ void OptionalTestSuite::test14()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), 2U);
 
-    commsdsl::parse::BundleField bundleField(field);
+    commsdsl::parse::ParseBundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Ref);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Ref);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField optField(mem2);
+    commsdsl::parse::ParseOptionalField optField(mem2);
     auto cond = optField.cond();
     TS_ASSERT(optField.cond().valid());
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr exprCond(cond);
     TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
     TS_ASSERT_EQUALS(exprCond.op(), "<");
     TS_ASSERT_EQUALS(exprCond.right(), "S1");
@@ -521,23 +524,23 @@ void OptionalTestSuite::test15()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 4U);
     TS_ASSERT_EQUALS(field.maxLength(), 5U);
 
-    commsdsl::parse::BundleField bundleField(field);
+    commsdsl::parse::ParseBundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Float);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Float);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField optField(mem2);
+    commsdsl::parse::ParseOptionalField optField(mem2);
     auto cond = optField.cond();
     TS_ASSERT(optField.cond().valid());
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr exprCond(cond);
     TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
     TS_ASSERT_EQUALS(exprCond.op(), "=");
     TS_ASSERT_EQUALS(exprCond.right(), "Nan");
@@ -559,25 +562,25 @@ void OptionalTestSuite::test16()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 12U);
     TS_ASSERT_EQUALS(field.maxLength(), 13U);
 
-    commsdsl::parse::BundleField bundleField(field);
+    commsdsl::parse::ParseBundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 3U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
     auto& mem3 = members[2];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Float);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Float);
-    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Float);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Float);
+    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField optField(mem3);
+    commsdsl::parse::ParseOptionalField optField(mem3);
     auto cond = optField.cond();
     TS_ASSERT(optField.cond().valid());
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr exprCond(cond);
     TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
     TS_ASSERT_EQUALS(exprCond.op(), "!=");
     TS_ASSERT_EQUALS(exprCond.right(), "$Mem2");
@@ -599,23 +602,23 @@ void OptionalTestSuite::test17()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 4U);
     TS_ASSERT_EQUALS(field.maxLength(), 5U);
 
-    commsdsl::parse::BundleField bundleField(field);
+    commsdsl::parse::ParseBundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Float);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Float);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField optField(mem2);
+    commsdsl::parse::ParseOptionalField optField(mem2);
     auto cond = optField.cond();
     TS_ASSERT(optField.cond().valid());
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr exprCond(cond);
     TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
     TS_ASSERT_EQUALS(exprCond.op(), ">");
     TS_ASSERT_EQUALS(exprCond.right(), "3.5");
@@ -637,37 +640,37 @@ void OptionalTestSuite::test18()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 8U);
     TS_ASSERT_EQUALS(field.maxLength(), 9U);
 
-    commsdsl::parse::BundleField bundleField(field);
+    commsdsl::parse::ParseBundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 3U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
     auto& mem3 = members[2];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Float);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Int);
-    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Float);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField optField(mem3);
+    commsdsl::parse::ParseOptionalField optField(mem3);
     auto cond = optField.cond();
     TS_ASSERT(optField.cond().valid());
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::List);
-    commsdsl::parse::OptCondList listCond(cond);
-    TS_ASSERT_EQUALS(listCond.type(), commsdsl::parse::OptCondList::Type::And);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::List);
+    commsdsl::parse::ParseOptCondList listCond(cond);
+    TS_ASSERT_EQUALS(listCond.type(), commsdsl::parse::ParseOptCondList::Type::And);
     auto conditions = listCond.conditions();
     TS_ASSERT_EQUALS(conditions.size(), 2U);
     auto& cond1 = conditions[0];
     auto& cond2 = conditions[1];
-    TS_ASSERT_EQUALS(cond1.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    TS_ASSERT_EQUALS(cond2.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr expr1(cond1);
+    TS_ASSERT_EQUALS(cond1.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    TS_ASSERT_EQUALS(cond2.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr expr1(cond1);
     TS_ASSERT_EQUALS(expr1.left(), "$Mem1");
     TS_ASSERT_EQUALS(expr1.op(), "=");
     TS_ASSERT_EQUALS(expr1.right(), "NAN");
-    commsdsl::parse::OptCondExpr expr2(cond2);
+    commsdsl::parse::ParseOptCondExpr expr2(cond2);
     TS_ASSERT_EQUALS(expr2.left(), "$Mem2");
     TS_ASSERT_EQUALS(expr2.op(), "!=");
     TS_ASSERT_EQUALS(expr2.right(), "0");
@@ -689,35 +692,35 @@ void OptionalTestSuite::test19()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), 2U);
 
-    commsdsl::parse::BundleField bundleField(field);
+    commsdsl::parse::ParseBundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Set);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField optField(mem2);
+    commsdsl::parse::ParseOptionalField optField(mem2);
     auto cond = optField.cond();
     TS_ASSERT(optField.cond().valid());
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::List);
-    commsdsl::parse::OptCondList listCond(cond);
-    TS_ASSERT_EQUALS(listCond.type(), commsdsl::parse::OptCondList::Type::Or);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::List);
+    commsdsl::parse::ParseOptCondList listCond(cond);
+    TS_ASSERT_EQUALS(listCond.type(), commsdsl::parse::ParseOptCondList::Type::Or);
     auto conditions = listCond.conditions();
     TS_ASSERT_EQUALS(conditions.size(), 2U);
     auto& cond1 = conditions[0];
     auto& cond2 = conditions[1];
-    TS_ASSERT_EQUALS(cond1.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    TS_ASSERT_EQUALS(cond2.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr expr1(cond1);
+    TS_ASSERT_EQUALS(cond1.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    TS_ASSERT_EQUALS(cond2.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr expr1(cond1);
     TS_ASSERT(expr1.left().empty());
     TS_ASSERT(expr1.op().empty());
     TS_ASSERT_EQUALS(expr1.right(), "$Set1.b0");
-    commsdsl::parse::OptCondExpr expr2(cond2);
+    commsdsl::parse::ParseOptCondExpr expr2(cond2);
     TS_ASSERT(expr2.left().empty());
     TS_ASSERT_EQUALS(expr2.op(), "!");
     TS_ASSERT_EQUALS(expr2.right(), "$Set1.b1");
@@ -739,46 +742,46 @@ void OptionalTestSuite::test20()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 2U);
     TS_ASSERT_EQUALS(field.maxLength(), 3U);
 
-    commsdsl::parse::BundleField bundleField(field);
+    commsdsl::parse::ParseBundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 3U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
     auto& mem3 = members[2];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Set);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Int);
-    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField optField(mem3);
+    commsdsl::parse::ParseOptionalField optField(mem3);
     auto cond = optField.cond();
     TS_ASSERT(optField.cond().valid());
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::List);
-    commsdsl::parse::OptCondList listCond(cond);
-    TS_ASSERT_EQUALS(listCond.type(), commsdsl::parse::OptCondList::Type::And);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::List);
+    commsdsl::parse::ParseOptCondList listCond(cond);
+    TS_ASSERT_EQUALS(listCond.type(), commsdsl::parse::ParseOptCondList::Type::And);
     auto conditions = listCond.conditions();
     TS_ASSERT_EQUALS(conditions.size(), 2U);
     auto& cond1 = conditions[0];
     auto& cond2 = conditions[1];
-    TS_ASSERT_EQUALS(cond1.kind(), commsdsl::parse::OptCond::Kind::List);
-    TS_ASSERT_EQUALS(cond2.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondList listCond2(cond1);
-    TS_ASSERT_EQUALS(listCond2.type(), commsdsl::parse::OptCondList::Type::Or);
+    TS_ASSERT_EQUALS(cond1.kind(), commsdsl::parse::ParseOptCond::Kind::List);
+    TS_ASSERT_EQUALS(cond2.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondList listCond2(cond1);
+    TS_ASSERT_EQUALS(listCond2.type(), commsdsl::parse::ParseOptCondList::Type::Or);
     auto subConditions = listCond2.conditions();
     auto& subCond1 = subConditions[0];
     auto& subCond2 = subConditions[1];
-    commsdsl::parse::OptCondExpr expr1(subCond1);
+    commsdsl::parse::ParseOptCondExpr expr1(subCond1);
     TS_ASSERT(expr1.left().empty());
     TS_ASSERT(expr1.op().empty());
     TS_ASSERT_EQUALS(expr1.right(), "$Set1.b0");
-    commsdsl::parse::OptCondExpr expr2(subCond2);
+    commsdsl::parse::ParseOptCondExpr expr2(subCond2);
     TS_ASSERT(expr2.left().empty());
     TS_ASSERT_EQUALS(expr2.op(), "!");
     TS_ASSERT_EQUALS(expr2.right(), "$Set1.b1");
-    commsdsl::parse::OptCondExpr expr3(cond2);
+    commsdsl::parse::ParseOptCondExpr expr3(cond2);
     TS_ASSERT_EQUALS(expr3.left(), "$I1");
     TS_ASSERT_EQUALS(expr3.op(), "=");
     TS_ASSERT_EQUALS(expr3.right(), "0");
@@ -800,34 +803,34 @@ void OptionalTestSuite::test21()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), 2U);
 
-    commsdsl::parse::BundleField bundleField(field);
+    commsdsl::parse::ParseBundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
 
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Set);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField opt(mem2);
+    commsdsl::parse::ParseOptionalField opt(mem2);
     auto cond = opt.cond();
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr exprCond(cond);
     TS_ASSERT(exprCond.left().empty());
     TS_ASSERT_EQUALS(exprCond.op(), "!");
     TS_ASSERT_EQUALS(exprCond.right(), "$Set1.b0");
 
     auto optField = opt.field();
-    TS_ASSERT_EQUALS(optField.kind(), commsdsl::parse::Field::Kind::Ref);
+    TS_ASSERT_EQUALS(optField.kind(), commsdsl::parse::ParseField::Kind::Ref);
 }
 
 void OptionalTestSuite::test22()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
     TS_ASSERT(protocol);
@@ -835,7 +838,7 @@ void OptionalTestSuite::test22()
 
 void OptionalTestSuite::test23()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
     TS_ASSERT(protocol);
@@ -843,7 +846,7 @@ void OptionalTestSuite::test23()
 
 void OptionalTestSuite::test24()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
     TS_ASSERT(protocol);
@@ -851,7 +854,7 @@ void OptionalTestSuite::test24()
 
 void OptionalTestSuite::test25()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema25.xml");
     TS_ASSERT(protocol);
@@ -865,7 +868,7 @@ void OptionalTestSuite::test26()
 
 void OptionalTestSuite::test27()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema27.xml");
     TS_ASSERT(protocol);
@@ -873,7 +876,7 @@ void OptionalTestSuite::test27()
 
 void OptionalTestSuite::test28()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema28.xml");
     TS_ASSERT(protocol);
@@ -901,19 +904,19 @@ void OptionalTestSuite::test29()
     auto& f1 = fields[0];
     auto& f2 = fields[1];
 
-    TS_ASSERT_EQUALS(f1.kind(), commsdsl::parse::Field::Kind::Ref);
-    TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(f1.kind(), commsdsl::parse::ParseField::Kind::Ref);
+    TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField opt(f2);
+    commsdsl::parse::ParseOptionalField opt(f2);
     auto cond = opt.cond();
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr exprCond(cond);
     TS_ASSERT(exprCond.left().empty());
     TS_ASSERT(exprCond.op().empty());
     TS_ASSERT_EQUALS(exprCond.right(), "$S1.B0");
 
     auto optField = opt.field();
-    TS_ASSERT_EQUALS(optField.kind(), commsdsl::parse::Field::Kind::Int);
+    TS_ASSERT_EQUALS(optField.kind(), commsdsl::parse::ParseField::Kind::Int);
 }
 
 void OptionalTestSuite::test30()
@@ -938,19 +941,19 @@ void OptionalTestSuite::test30()
     auto& f1 = fields[0];
     auto& f2 = fields[1];
 
-    TS_ASSERT_EQUALS(f1.kind(), commsdsl::parse::Field::Kind::Bundle);
-    TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(f1.kind(), commsdsl::parse::ParseField::Kind::Bundle);
+    TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-    commsdsl::parse::OptionalField opt(f2);
+    commsdsl::parse::ParseOptionalField opt(f2);
     auto cond = opt.cond();
-    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr exprCond(cond);
     TS_ASSERT_EQUALS(exprCond.left(), "$B1");
     TS_ASSERT_EQUALS(exprCond.op(), "!=");
     TS_ASSERT_EQUALS(exprCond.right(), "0");
 
     auto optField = opt.field();
-    TS_ASSERT_EQUALS(optField.kind(), commsdsl::parse::Field::Kind::String);
+    TS_ASSERT_EQUALS(optField.kind(), commsdsl::parse::ParseField::Kind::String);
 }
 
 void OptionalTestSuite::test31()
@@ -969,9 +972,9 @@ void OptionalTestSuite::test31()
         TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());
 
         auto& o1 = fields[0];
-        TS_ASSERT_EQUALS(o1.kind(), commsdsl::parse::Field::Kind::Optional);
+        TS_ASSERT_EQUALS(o1.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-        commsdsl::parse::OptionalField opt(o1);
+        commsdsl::parse::ParseOptionalField opt(o1);
         TS_ASSERT(opt.missingOnReadFail());
         TS_ASSERT(!opt.missingOnInvalid());
     } while (false);
@@ -980,9 +983,9 @@ void OptionalTestSuite::test31()
         TS_ASSERT_LESS_THAN_EQUALS(2U, fields.size());
 
         auto& o2 = fields[1];
-        TS_ASSERT_EQUALS(o2.kind(), commsdsl::parse::Field::Kind::Optional);
+        TS_ASSERT_EQUALS(o2.kind(), commsdsl::parse::ParseField::Kind::Optional);
 
-        commsdsl::parse::OptionalField opt(o2);
+        commsdsl::parse::ParseOptionalField opt(o2);
         TS_ASSERT(!opt.missingOnReadFail());
         TS_ASSERT(opt.missingOnInvalid());
     } while (false);
@@ -991,7 +994,7 @@ void OptionalTestSuite::test31()
 
 void OptionalTestSuite::test32()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema32.xml");
     TS_ASSERT(protocol);
@@ -1015,12 +1018,12 @@ void OptionalTestSuite::test33()
     auto fields = m1.fields();
 
     auto& o1 = fields[1];
-    TS_ASSERT_EQUALS(o1.kind(), commsdsl::parse::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(o1.kind(), commsdsl::parse::ParseField::Kind::Optional);
 }
 
 void OptionalTestSuite::test34()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema34.xml");
     TS_ASSERT(protocol);
@@ -1028,7 +1031,7 @@ void OptionalTestSuite::test34()
 
 void OptionalTestSuite::test35()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema35.xml");
     TS_ASSERT(protocol);
@@ -1052,12 +1055,12 @@ void OptionalTestSuite::test36()
     auto fields = m1.fields();
 
     auto& o1 = fields[0];
-    TS_ASSERT_EQUALS(o1.kind(), commsdsl::parse::Field::Kind::Optional);    
+    TS_ASSERT_EQUALS(o1.kind(), commsdsl::parse::ParseField::Kind::Optional);    
 
-    commsdsl::parse::OptionalField optField(o1);
+    commsdsl::parse::ParseOptionalField optField(o1);
     auto cond1 = optField.cond();
-    TS_ASSERT_EQUALS(cond1.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr expr1(cond1);
+    TS_ASSERT_EQUALS(cond1.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr expr1(cond1);
     TS_ASSERT(expr1.left().empty());
     TS_ASSERT(expr1.op().empty());
     TS_ASSERT_EQUALS(expr1.right(), "%Flags.B0");
@@ -1067,12 +1070,12 @@ void OptionalTestSuite::test36()
     TS_ASSERT_EQUALS(m2_fields.size(), 2U);
 
     auto& m2_o2 = m2_fields[1];
-    TS_ASSERT_EQUALS(m2_o2.kind(), commsdsl::parse::Field::Kind::Optional);    
+    TS_ASSERT_EQUALS(m2_o2.kind(), commsdsl::parse::ParseField::Kind::Optional);    
 
-    commsdsl::parse::OptionalField m2_o2_optField(m2_o2);
+    commsdsl::parse::ParseOptionalField m2_o2_optField(m2_o2);
     auto m2_cond2 = m2_o2_optField.cond();
-    TS_ASSERT_EQUALS(m2_cond2.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr m2_expr2(m2_cond2);
+    TS_ASSERT_EQUALS(m2_cond2.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr m2_expr2(m2_cond2);
     TS_ASSERT_EQUALS(m2_expr2.left(), "%Bundle.M0");
     TS_ASSERT_EQUALS(m2_expr2.op(), "<");
     TS_ASSERT_EQUALS(m2_expr2.right(), "%Bundle.M1");    
@@ -1080,7 +1083,7 @@ void OptionalTestSuite::test36()
 
 void OptionalTestSuite::test37()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema37.xml");
     TS_ASSERT(protocol);
@@ -1088,7 +1091,7 @@ void OptionalTestSuite::test37()
 
 void OptionalTestSuite::test38()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema38.xml");
     TS_ASSERT(protocol);
@@ -1114,7 +1117,7 @@ void OptionalTestSuite::test39()
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& f2 = fields[1];
-    TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::Field::Kind::Optional);    
+    TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::ParseField::Kind::Optional);    
 }
 
 void OptionalTestSuite::test40()
@@ -1136,15 +1139,15 @@ void OptionalTestSuite::test40()
     TS_ASSERT_EQUALS(fields.size(), 3U);
 
     auto& f2 = fields[1];
-    TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::Field::Kind::Optional);    
+    TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::ParseField::Kind::Optional);    
 
     auto& f3 = fields[2];
-    TS_ASSERT_EQUALS(f3.kind(), commsdsl::parse::Field::Kind::Optional);    
+    TS_ASSERT_EQUALS(f3.kind(), commsdsl::parse::ParseField::Kind::Optional);    
 }
 
 void OptionalTestSuite::test41()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema41.xml");
     TS_ASSERT(protocol);
@@ -1170,42 +1173,42 @@ void OptionalTestSuite::test42()
         TS_ASSERT_LESS_THAN_EQUALS(3U, fields.size());
 
         auto& f2 = fields[1];
-        TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::Field::Kind::Optional);    
+        TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::ParseField::Kind::Optional);    
 
-        commsdsl::parse::OptionalField optF2(f2);
+        commsdsl::parse::ParseOptionalField optF2(f2);
         auto condF2 = optF2.cond();
 
-        TS_ASSERT_EQUALS(condF2.kind(), commsdsl::parse::OptCond::Kind::Expr);
-        commsdsl::parse::OptCondExpr exprCondF2(condF2);
+        TS_ASSERT_EQUALS(condF2.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+        commsdsl::parse::ParseOptCondExpr exprCondF2(condF2);
 
         auto exprCondF2LeftInfo = exprCondF2.leftInfo();
         auto exprCondF2RightInfo = exprCondF2.rightInfo();
-        TS_ASSERT_EQUALS(exprCondF2LeftInfo.m_type, commsdsl::parse::OptCondExpr::OperandType::SiblingRef);
-        TS_ASSERT_EQUALS(exprCondF2LeftInfo.m_mode, commsdsl::parse::OptCondExpr::AccMode::Size);
+        TS_ASSERT_EQUALS(exprCondF2LeftInfo.m_type, commsdsl::parse::ParseOptCondExpr::OperandType::SiblingRef);
+        TS_ASSERT_EQUALS(exprCondF2LeftInfo.m_mode, commsdsl::parse::ParseOptCondExpr::AccMode::Size);
         TS_ASSERT_EQUALS(exprCondF2LeftInfo.m_access, "F1");
 
-        TS_ASSERT_EQUALS(exprCondF2RightInfo.m_type, commsdsl::parse::OptCondExpr::OperandType::Value);
-        TS_ASSERT_EQUALS(exprCondF2RightInfo.m_mode, commsdsl::parse::OptCondExpr::AccMode::Itself);
+        TS_ASSERT_EQUALS(exprCondF2RightInfo.m_type, commsdsl::parse::ParseOptCondExpr::OperandType::Value);
+        TS_ASSERT_EQUALS(exprCondF2RightInfo.m_mode, commsdsl::parse::ParseOptCondExpr::AccMode::Itself);
         TS_ASSERT_EQUALS(exprCondF2RightInfo.m_access, "0");        
 
         auto& f3 = fields[2];
-        TS_ASSERT_EQUALS(f3.kind(), commsdsl::parse::Field::Kind::Optional);    
+        TS_ASSERT_EQUALS(f3.kind(), commsdsl::parse::ParseField::Kind::Optional);    
         TS_ASSERT_EQUALS(f3.name(), "F3");    
 
-        commsdsl::parse::OptionalField optF3(f3);
+        commsdsl::parse::ParseOptionalField optF3(f3);
         auto condF3 = optF3.cond();
 
-        TS_ASSERT_EQUALS(condF3.kind(), commsdsl::parse::OptCond::Kind::Expr);
-        commsdsl::parse::OptCondExpr exprCondF3(condF3);
+        TS_ASSERT_EQUALS(condF3.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+        commsdsl::parse::ParseOptCondExpr exprCondF3(condF3);
 
         auto exprCondF3LeftInfo = exprCondF3.leftInfo();
         auto exprCondF3RightInfo = exprCondF3.rightInfo();
-        TS_ASSERT_EQUALS(exprCondF3LeftInfo.m_type, commsdsl::parse::OptCondExpr::OperandType::Invalid);
-        TS_ASSERT_EQUALS(exprCondF3LeftInfo.m_mode, commsdsl::parse::OptCondExpr::AccMode::Itself);
+        TS_ASSERT_EQUALS(exprCondF3LeftInfo.m_type, commsdsl::parse::ParseOptCondExpr::OperandType::Invalid);
+        TS_ASSERT_EQUALS(exprCondF3LeftInfo.m_mode, commsdsl::parse::ParseOptCondExpr::AccMode::Itself);
         TS_ASSERT(exprCondF3LeftInfo.m_access.empty());
 
-        TS_ASSERT_EQUALS(exprCondF3RightInfo.m_type, commsdsl::parse::OptCondExpr::OperandType::SiblingRef);
-        TS_ASSERT_EQUALS(exprCondF3RightInfo.m_mode, commsdsl::parse::OptCondExpr::AccMode::Exists);
+        TS_ASSERT_EQUALS(exprCondF3RightInfo.m_type, commsdsl::parse::ParseOptCondExpr::OperandType::SiblingRef);
+        TS_ASSERT_EQUALS(exprCondF3RightInfo.m_mode, commsdsl::parse::ParseOptCondExpr::AccMode::Exists);
         TS_ASSERT_EQUALS(exprCondF3RightInfo.m_access, "F2");        
 
     } while (false);
@@ -1217,23 +1220,23 @@ void OptionalTestSuite::test42()
         TS_ASSERT_LESS_THAN_EQUALS(2U, fields.size());
 
         auto& f2 = fields[1];
-        TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::Field::Kind::Optional);    
+        TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::ParseField::Kind::Optional);    
 
-        commsdsl::parse::OptionalField optF2(f2);
+        commsdsl::parse::ParseOptionalField optF2(f2);
         auto condF2 = optF2.cond();
 
-        TS_ASSERT_EQUALS(condF2.kind(), commsdsl::parse::OptCond::Kind::Expr);
-        commsdsl::parse::OptCondExpr exprCondF2(condF2);
+        TS_ASSERT_EQUALS(condF2.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+        commsdsl::parse::ParseOptCondExpr exprCondF2(condF2);
 
         auto exprCondF2LeftInfo = exprCondF2.leftInfo();
         auto exprCondF2RightInfo = exprCondF2.rightInfo();
-        TS_ASSERT_EQUALS(exprCondF2LeftInfo.m_type, commsdsl::parse::OptCondExpr::OperandType::Invalid);
-        TS_ASSERT_EQUALS(exprCondF2LeftInfo.m_mode, commsdsl::parse::OptCondExpr::AccMode::Itself);
+        TS_ASSERT_EQUALS(exprCondF2LeftInfo.m_type, commsdsl::parse::ParseOptCondExpr::OperandType::Invalid);
+        TS_ASSERT_EQUALS(exprCondF2LeftInfo.m_mode, commsdsl::parse::ParseOptCondExpr::AccMode::Itself);
         TS_ASSERT(exprCondF2LeftInfo.m_access.empty());
 
 
-        TS_ASSERT_EQUALS(exprCondF2RightInfo.m_type, commsdsl::parse::OptCondExpr::OperandType::SiblingRef);
-        TS_ASSERT_EQUALS(exprCondF2RightInfo.m_mode, commsdsl::parse::OptCondExpr::AccMode::Exists);
+        TS_ASSERT_EQUALS(exprCondF2RightInfo.m_type, commsdsl::parse::ParseOptCondExpr::OperandType::SiblingRef);
+        TS_ASSERT_EQUALS(exprCondF2RightInfo.m_mode, commsdsl::parse::ParseOptCondExpr::AccMode::Exists);
         TS_ASSERT_EQUALS(exprCondF2RightInfo.m_access, "F1");        
     } while (false);   
 
@@ -1244,29 +1247,29 @@ void OptionalTestSuite::test42()
         TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());
 
         auto& f1 = fields[0];
-        TS_ASSERT_EQUALS(f1.kind(), commsdsl::parse::Field::Kind::Optional);    
+        TS_ASSERT_EQUALS(f1.kind(), commsdsl::parse::ParseField::Kind::Optional);    
 
-        commsdsl::parse::OptionalField optF1(f1);
+        commsdsl::parse::ParseOptionalField optF1(f1);
         auto condF1 = optF1.cond();
 
-        TS_ASSERT_EQUALS(condF1.kind(), commsdsl::parse::OptCond::Kind::Expr);
-        commsdsl::parse::OptCondExpr exprCondF1(condF1);
+        TS_ASSERT_EQUALS(condF1.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+        commsdsl::parse::ParseOptCondExpr exprCondF1(condF1);
 
         auto exprCondF1LeftInfo = exprCondF1.leftInfo();
         auto exprCondF1RightInfo = exprCondF1.rightInfo();
-        TS_ASSERT_EQUALS(exprCondF1LeftInfo.m_type, commsdsl::parse::OptCondExpr::OperandType::InterfaceRef);
-        TS_ASSERT_EQUALS(exprCondF1LeftInfo.m_mode, commsdsl::parse::OptCondExpr::AccMode::Size);
+        TS_ASSERT_EQUALS(exprCondF1LeftInfo.m_type, commsdsl::parse::ParseOptCondExpr::OperandType::InterfaceRef);
+        TS_ASSERT_EQUALS(exprCondF1LeftInfo.m_mode, commsdsl::parse::ParseOptCondExpr::AccMode::Size);
         TS_ASSERT_EQUALS(exprCondF1LeftInfo.m_access, "Data");
 
-        TS_ASSERT_EQUALS(exprCondF1RightInfo.m_type, commsdsl::parse::OptCondExpr::OperandType::Value);
-        TS_ASSERT_EQUALS(exprCondF1RightInfo.m_mode, commsdsl::parse::OptCondExpr::AccMode::Itself);
+        TS_ASSERT_EQUALS(exprCondF1RightInfo.m_type, commsdsl::parse::ParseOptCondExpr::OperandType::Value);
+        TS_ASSERT_EQUALS(exprCondF1RightInfo.m_mode, commsdsl::parse::ParseOptCondExpr::AccMode::Itself);
         TS_ASSERT_EQUALS(exprCondF1RightInfo.m_access, "1");       
     } while (false);        
 }
 
 void OptionalTestSuite::test43()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema43.xml");
     TS_ASSERT(protocol);
@@ -1274,7 +1277,7 @@ void OptionalTestSuite::test43()
 
 void OptionalTestSuite::test44()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema44.xml");
     TS_ASSERT(protocol);

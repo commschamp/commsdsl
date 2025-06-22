@@ -21,10 +21,10 @@
 #include "commsdsl/gen/Message.h"
 #include "commsdsl/gen/Namespace.h"
 
-#include "commsdsl/parse/Endian.h"
-#include "commsdsl/parse/IntField.h"
-#include "commsdsl/parse/FloatField.h"
-#include "commsdsl/parse/Units.h"
+#include "commsdsl/parse/ParseEndian.h"
+#include "commsdsl/parse/ParseIntField.h"
+#include "commsdsl/parse/ParseFloatField.h"
+#include "commsdsl/parse/ParseUnits.h"
 
 #include <string>
 
@@ -159,9 +159,9 @@ std::string namespaceEndFor(
 
 void prepareIncludeStatement(std::vector<std::string>& includes); 
 
-const std::string& cppIntTypeFor(commsdsl::parse::IntField::Type value, std::size_t len);
-std::string cppIntChangedSignTypeFor(commsdsl::parse::IntField::Type value, std::size_t len);
-const std::string& cppFloatTypeFor(commsdsl::parse::FloatField::Type value);
+const std::string& cppIntTypeFor(commsdsl::parse::ParseIntField::Type value, std::size_t len);
+std::string cppIntChangedSignTypeFor(commsdsl::parse::ParseIntField::Type value, std::size_t len);
+const std::string& cppFloatTypeFor(commsdsl::parse::ParseFloatField::Type value);
 
 bool isGlobalField(const Elem& elem);
 bool isInterfaceDeepMemberField(const Elem& elem);
@@ -171,9 +171,9 @@ bool isVersionOptionalField(const Elem& elem, const Generator& generator);
 
 unsigned sinceVersionOf(const Elem& elem);
 
-const std::string& dslEndianToOpt(commsdsl::parse::Endian value);
+const std::string& dslEndianToOpt(commsdsl::parse::ParseEndian value);
 
-const std::string& dslUnitsToOpt(commsdsl::parse::Units value);
+const std::string& dslUnitsToOpt(commsdsl::parse::ParseUnits value);
 
 std::size_t maxPossibleLength();
 

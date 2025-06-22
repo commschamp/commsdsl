@@ -32,7 +32,7 @@ class FloatFieldImpl
 public:
     using SpecialsList = FloatField::SpecialsList;
 
-    bool prepare(commsdsl::parse::FloatField dslObj)
+    bool prepare(commsdsl::parse::ParseFloatField dslObj)
     {
         auto& dslSpecials = dslObj.specialValues();
         m_specialsSorted.reserve(dslSpecials.size());
@@ -109,11 +109,11 @@ private:
     SpecialsList m_specialsSorted;
 };       
 
-FloatField::FloatField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
+FloatField::FloatField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent) :
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<FloatFieldImpl>())
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Float);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Float);
 }
 
 FloatField::~FloatField() = default;
@@ -145,9 +145,9 @@ FloatField::FieldRefInfo FloatField::processInnerRefImpl(const std::string& refS
     return info;    
 }
 
-commsdsl::parse::FloatField FloatField::floatDslObj() const
+commsdsl::parse::ParseFloatField FloatField::floatDslObj() const
 {
-    return commsdsl::parse::FloatField(dslObj());
+    return commsdsl::parse::ParseFloatField(dslObj());
 }
 
 } // namespace gen

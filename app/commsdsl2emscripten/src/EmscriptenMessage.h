@@ -32,7 +32,7 @@ class EmscriptenMessage final: public commsdsl::gen::Message
 public:
     using StringsList = commsdsl::gen::util::StringsList;
     
-    explicit EmscriptenMessage(EmscriptenGenerator& generator, commsdsl::parse::Message dslObj, Elem* parent);
+    explicit EmscriptenMessage(EmscriptenGenerator& generator, commsdsl::parse::ParseMessage dslObj, Elem* parent);
     virtual ~EmscriptenMessage();
 
     static const EmscriptenMessage* cast(const commsdsl::gen::Message* i)

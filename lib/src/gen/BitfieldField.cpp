@@ -30,7 +30,7 @@ class BitfieldFieldImpl
 public:
     using FieldsList = BitfieldField::FieldsList;
 
-    BitfieldFieldImpl(Generator& generator, commsdsl::parse::BitfieldField dslObj, Elem* parent) :
+    BitfieldFieldImpl(Generator& generator, commsdsl::parse::ParseBitfieldField dslObj, Elem* parent) :
         m_generator(generator),
         m_dslObj(dslObj),
         m_parent(parent)
@@ -72,16 +72,16 @@ public:
 
 private:
     Generator& m_generator;
-    commsdsl::parse::BitfieldField m_dslObj;
+    commsdsl::parse::ParseBitfieldField m_dslObj;
     Elem* m_parent = nullptr;
     FieldsList m_members;
 };
 
-BitfieldField::BitfieldField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
+BitfieldField::BitfieldField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent) :
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<BitfieldFieldImpl>(generator, bitfieldDslObj(), this))
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Bitfield);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Bitfield);
 }
 
 BitfieldField::~BitfieldField() = default;
@@ -112,9 +112,9 @@ BitfieldField::FieldRefInfo BitfieldField::processInnerRefImpl(const std::string
 }
 
 
-commsdsl::parse::BitfieldField BitfieldField::bitfieldDslObj() const
+commsdsl::parse::ParseBitfieldField BitfieldField::bitfieldDslObj() const
 {
-    return commsdsl::parse::BitfieldField(dslObj());
+    return commsdsl::parse::ParseBitfieldField(dslObj());
 }
 
 } // namespace gen

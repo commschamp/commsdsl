@@ -35,7 +35,7 @@ namespace gen
 namespace 
 {
 
-std::uintmax_t maxTypeValueInternal(commsdsl::parse::EnumField::Type val)
+std::uintmax_t maxTypeValueInternal(commsdsl::parse::ParseEnumField::Type val)
 {
     static const std::uintmax_t Map[] = {
         /* Int8 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int8_t>::max()),
@@ -51,13 +51,13 @@ std::uintmax_t maxTypeValueInternal(commsdsl::parse::EnumField::Type val)
     };
     static const std::size_t MapSize =
             std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::EnumField::Type::NumOfValues),
+    static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::ParseEnumField::Type::NumOfValues),
             "Invalid map");
 
-    if (commsdsl::parse::EnumField::Type::NumOfValues <= val) {
+    if (commsdsl::parse::ParseEnumField::Type::NumOfValues <= val) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
-        val = commsdsl::parse::EnumField::Type::Uint64;
+        val = commsdsl::parse::ParseEnumField::Type::Uint64;
     }
     return Map[static_cast<unsigned>(val)];
 }
@@ -72,14 +72,14 @@ public:
     using RevValueInfo = EnumField::RevValueInfo;
     using SortedRevValues = EnumField::SortedRevValues;
 
-    explicit EnumFieldImpl(commsdsl::parse::EnumField dslObj) : m_dslObj(dslObj) {}
+    explicit EnumFieldImpl(commsdsl::parse::ParseEnumField dslObj) : m_dslObj(dslObj) {}
 
     bool prepare()
     {
         auto type = m_dslObj.type();
         m_bigUnsigned =
-            (type == commsdsl::parse::EnumField::Type::Uint64) ||
-            (type == commsdsl::parse::EnumField::Type::Uintvar);
+            (type == commsdsl::parse::ParseEnumField::Type::Uint64) ||
+            (type == commsdsl::parse::ParseEnumField::Type::Uintvar);
 
         for (auto& v : m_dslObj.revValues()) {
             m_sortedRevValues.push_back(std::make_pair(v.first, &v.second));
@@ -167,16 +167,16 @@ private:
         val[0] = static_cast<char>(std::tolower(val[0]));
     }
 
-    commsdsl::parse::EnumField m_dslObj;
+    commsdsl::parse::ParseEnumField m_dslObj;
     SortedRevValues m_sortedRevValues;       
     bool m_bigUnsigned = false;
 };    
 
-EnumField::EnumField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
+EnumField::EnumField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent) :
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<EnumFieldImpl>(enumDslObj()))
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Enum);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Enum);
 }
 
 EnumField::~EnumField() = default;
@@ -208,9 +208,9 @@ std::string EnumField::adjustName(const std::string& val) const
     return m_impl->adjustName(val);
 }
 
-commsdsl::parse::EnumField EnumField::enumDslObj() const
+commsdsl::parse::ParseEnumField EnumField::enumDslObj() const
 {
-    return commsdsl::parse::EnumField(dslObj());
+    return commsdsl::parse::ParseEnumField(dslObj());
 }
 
 const EnumField::SortedRevValues& EnumField::sortedRevValues() const

@@ -32,7 +32,7 @@ class SwigInterface final: public commsdsl::gen::Interface
 public:
     using StringsList = commsdsl::gen::util::StringsList;
     
-    explicit SwigInterface(SwigGenerator& generator, commsdsl::parse::Interface dslObj, Elem* parent);
+    explicit SwigInterface(SwigGenerator& generator, commsdsl::parse::ParseInterface dslObj, Elem* parent);
     virtual ~SwigInterface();
 
     void swigAddCodeIncludes(StringsList& list) const; 

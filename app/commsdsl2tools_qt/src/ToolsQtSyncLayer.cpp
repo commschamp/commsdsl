@@ -28,7 +28,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2tools_qt
 {
 
-ToolsQtSyncLayer::ToolsQtSyncLayer(ToolsQtGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) :
+ToolsQtSyncLayer::ToolsQtSyncLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent),
     ToolsBase(static_cast<Base&>(*this))
 {

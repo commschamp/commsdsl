@@ -31,7 +31,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenDataField::EmscriptenDataField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
+EmscriptenDataField::EmscriptenDataField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent) : 
     Base(generator, dslObj, parent),
     EmscriptenBase(static_cast<Base&>(*this))
 {

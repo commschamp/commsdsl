@@ -55,7 +55,7 @@ const std::string& optsTemplInternal(bool defaultNs)
 } // namespace 
 
 
-CommsNamespace::CommsNamespace(CommsGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
+CommsNamespace::CommsNamespace(CommsGenerator& generator, commsdsl::parse::ParseNamespace dslObj, Elem* parent) :
     Base(generator, dslObj, parent),
     m_dispatch(generator, *this),
     m_factory(generator, *this),
@@ -254,7 +254,7 @@ bool CommsNamespace::commsHasReferencedMsgId() const
             {
                 return 
                     (f->field().isReferenced()) && 
-                    (f->field().dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId);
+                    (f->field().dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::MessageId);
             });
 }
 

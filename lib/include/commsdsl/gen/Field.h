@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/Field.h"
+#include "commsdsl/parse/ParseField.h"
 #include "commsdsl/gen/Elem.h"
 
 #include <memory>
@@ -57,13 +57,13 @@ public:
 
     virtual ~Field();
 
-    static Ptr create(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);    
+    static Ptr create(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent = nullptr);    
 
     bool isPrepared() const;
     bool prepare();
     bool write() const;
 
-    const commsdsl::parse::Field& dslObj() const;    
+    const commsdsl::parse::ParseField& dslObj() const;    
 
     Generator& generator();
     const Generator& generator() const;
@@ -81,7 +81,7 @@ public:
     const Namespace* parentNamespace() const;
 
 protected:    
-    Field(Generator& generator, const commsdsl::parse::Field& dslObj, Elem* parent = nullptr);
+    Field(Generator& generator, const commsdsl::parse::ParseField& dslObj, Elem* parent = nullptr);
 
     virtual Type elemTypeImpl() const override final;
     virtual bool prepareImpl();

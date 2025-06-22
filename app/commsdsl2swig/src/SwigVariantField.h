@@ -29,7 +29,7 @@ class SwigVariantField final : public commsdsl::gen::VariantField, public SwigFi
     using Base = commsdsl::gen::VariantField;
     using SwigBase = SwigField;
 public:
-    SwigVariantField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    SwigVariantField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
     const SwigFieldsList& swigMembers() const
     {

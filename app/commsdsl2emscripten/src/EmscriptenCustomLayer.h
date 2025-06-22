@@ -29,7 +29,7 @@ class EmscriptenCustomLayer final : public commsdsl::gen::CustomLayer, public Em
     using Base = commsdsl::gen::CustomLayer;
     using EmscriptenBase = EmscriptenLayer;
 public:
-    EmscriptenCustomLayer(EmscriptenGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenCustomLayer(EmscriptenGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 };
 
 } // namespace commsdsl2emscripten

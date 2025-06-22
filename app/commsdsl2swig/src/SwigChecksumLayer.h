@@ -29,7 +29,7 @@ class SwigChecksumLayer final : public commsdsl::gen::ChecksumLayer, public Swig
     using Base = commsdsl::gen::ChecksumLayer;
     using SwigBase = SwigLayer;
 public:
-    SwigChecksumLayer(SwigGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    SwigChecksumLayer(SwigGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 };
 
 } // namespace commsdsl2swig

@@ -30,7 +30,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigSyncLayer::SwigSyncLayer(SwigGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) : 
+SwigSyncLayer::SwigSyncLayer(SwigGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent) : 
     Base(generator, dslObj, parent),
     SwigBase(static_cast<Base&>(*this))
 {

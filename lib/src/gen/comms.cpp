@@ -860,7 +860,7 @@ void prepareIncludeStatement(std::vector<std::string>& includes)
     }
 }
 
-const std::string& cppIntTypeFor(commsdsl::parse::IntField::Type value, std::size_t len)
+const std::string& cppIntTypeFor(commsdsl::parse::ParseIntField::Type value, std::size_t len)
 {
     static const std::string TypeMap[] = {
         /* Int8 */ "std::int8_t",
@@ -876,7 +876,7 @@ const std::string& cppIntTypeFor(commsdsl::parse::IntField::Type value, std::siz
     };
 
     static const std::size_t TypeMapSize = std::extent<decltype(TypeMap)>::value;
-    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::parse::IntField::Type::NumOfValues),
+    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::parse::ParseIntField::Type::NumOfValues),
             "Incorrect map");
 
     std::size_t idx = static_cast<std::size_t>(value);
@@ -891,24 +891,24 @@ const std::string& cppIntTypeFor(commsdsl::parse::IntField::Type value, std::siz
     }
 
     // Variable length
-    auto offset = idx - static_cast<decltype(idx)>(commsdsl::parse::IntField::Type::Intvar);
+    auto offset = idx - static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::Type::Intvar);
     assert(offset < 2U);
 
     if (len <= 2U) {
-        auto base = static_cast<decltype(idx)>(commsdsl::parse::IntField::Type::Int16);
+        auto base = static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::Type::Int16);
         return TypeMap[base + offset];
     }
 
     if (len <= 4U) {
-        auto base = static_cast<decltype(idx)>(commsdsl::parse::IntField::Type::Int32);
+        auto base = static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::Type::Int32);
         return TypeMap[base + offset];
     }
 
-    auto base = static_cast<decltype(idx)>(commsdsl::parse::IntField::Type::Int64);
+    auto base = static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::Type::Int64);
     return TypeMap[base + offset];    
 }
 
-std::string cppIntChangedSignTypeFor(commsdsl::parse::IntField::Type value, std::size_t len)
+std::string cppIntChangedSignTypeFor(commsdsl::parse::ParseIntField::Type value, std::size_t len)
 {
     auto str = cppIntTypeFor(value, len);
     assert(str.find("std::") == 0U);
@@ -928,7 +928,7 @@ std::string cppIntChangedSignTypeFor(commsdsl::parse::IntField::Type value, std:
     return str;    
 }
 
-const std::string& cppFloatTypeFor(commsdsl::parse::FloatField::Type value)
+const std::string& cppFloatTypeFor(commsdsl::parse::ParseFloatField::Type value)
 {
     static const std::string TypeMap[] = {
         /* Float */ "float",
@@ -936,7 +936,7 @@ const std::string& cppFloatTypeFor(commsdsl::parse::FloatField::Type value)
     };
 
     static const std::size_t TypeMapSize = std::extent<decltype(TypeMap)>::value;
-    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::parse::FloatField::Type::NumOfValues),
+    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::parse::ParseFloatField::Type::NumOfValues),
             "Incorrect map");
 
     std::size_t idx = static_cast<std::size_t>(value);
@@ -1022,7 +1022,7 @@ bool isVersionOptionalField(const Elem& elem, const Generator& generator)
         return true;
     }
 
-    if ((dslObj.deprecatedSince() < commsdsl::parse::Protocol::notYetDeprecated()) &&
+    if ((dslObj.deprecatedSince() < commsdsl::parse::ParseProtocol::notYetDeprecated()) &&
         (dslObj.isDeprecatedRemoved())) {
         return true;
     }
@@ -1047,7 +1047,7 @@ unsigned sinceVersionOf(const Elem& elem)
     return 0U;
 }
 
-const std::string& dslEndianToOpt(commsdsl::parse::Endian value)
+const std::string& dslEndianToOpt(commsdsl::parse::ParseEndian value)
 {
     static const std::string Map[] = {
         "comms::option::def::LittleEndian",
@@ -1057,21 +1057,21 @@ const std::string& dslEndianToOpt(commsdsl::parse::Endian value)
     static const std::size_t MapSize =
             std::extent<decltype(Map)>::value;
 
-    static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::Endian_NumOfValues),
+    static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::ParseEndian_NumOfValues),
         "Invalid map");
 
-    if (commsdsl::parse::Endian_NumOfValues <= value) {
+    if (commsdsl::parse::ParseEndian_NumOfValues <= value) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
-        value = commsdsl::parse::Endian_Little;
+        value = commsdsl::parse::ParseEndian_Little;
     }
 
     return Map[value];
 }
 
-const std::string& dslUnitsToOpt(commsdsl::parse::Units value)
+const std::string& dslUnitsToOpt(commsdsl::parse::ParseUnits value)
 {
-    if (commsdsl::parse::Units::NumOfValues <= value) {
+    if (commsdsl::parse::ParseUnits::NumOfValues <= value) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return strings::emptyString();
@@ -1124,7 +1124,7 @@ const std::string& dslUnitsToOpt(commsdsl::parse::Units value)
     };
 
     static const std::size_t UnitsMapSize = std::extent<decltype(UnitsMap)>::value;
-    static_assert(static_cast<std::size_t>(commsdsl::parse::Units::NumOfValues) == UnitsMapSize,
+    static_assert(static_cast<std::size_t>(commsdsl::parse::ParseUnits::NumOfValues) == UnitsMapSize,
         "Invalid Map");
 
     auto idx = static_cast<unsigned>(value);

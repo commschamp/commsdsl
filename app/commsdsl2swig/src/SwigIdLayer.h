@@ -29,7 +29,7 @@ class SwigIdLayer final : public commsdsl::gen::IdLayer, public SwigLayer
     using Base = commsdsl::gen::IdLayer;
     using SwigBase = SwigLayer;
 public:
-    SwigIdLayer(SwigGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    SwigIdLayer(SwigGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // SwigBase overrides

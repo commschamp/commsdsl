@@ -28,7 +28,7 @@ class EmscriptenDataField final : public commsdsl::gen::DataField, public Emscri
     using Base = commsdsl::gen::DataField;
     using EmscriptenBase = EmscriptenField;
 public:
-    EmscriptenDataField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenDataField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

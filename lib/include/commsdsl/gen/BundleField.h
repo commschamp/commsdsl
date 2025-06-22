@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/BundleField.h"
+#include "commsdsl/parse/ParseBundleField.h"
 #include "commsdsl/gen/Field.h"
 
 #include <memory>
@@ -35,7 +35,7 @@ class COMMSDSL_API BundleField : public Field
     using Base = Field;
 public:
 
-    BundleField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    BundleField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent = nullptr);
     virtual ~BundleField();
 
     const FieldsList& members() const;
@@ -45,7 +45,7 @@ protected:
     virtual void setReferencedImpl() override;
     virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override final;
     
-    commsdsl::parse::BundleField bundleDslObj() const;
+    commsdsl::parse::ParseBundleField bundleDslObj() const;
 
 private:
     std::unique_ptr<BundleFieldImpl> m_impl;

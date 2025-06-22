@@ -59,7 +59,7 @@ public:
     using MessagesList = Namespace::MessagesList;
     using FramesList = Namespace::FramesList;
 
-    NamespaceImpl(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
+    NamespaceImpl(Generator& generator, commsdsl::parse::ParseNamespace dslObj, Elem* parent) :
         m_generator(generator),
         m_dslObj(dslObj),
         m_parent(parent)
@@ -104,7 +104,7 @@ public:
             writeElements(m_frames);
     }
 
-    commsdsl::parse::Namespace dslObj() const
+    commsdsl::parse::ParseNamespace dslObj() const
     {
         return m_dslObj;
     }
@@ -202,7 +202,7 @@ public:
                 {
                     return 
                         (f->isReferenced()) && 
-                        (f->dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId);
+                        (f->dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::MessageId);
                 });   
 
         if (hasInFields) {
@@ -434,7 +434,7 @@ private:
     }
 
     Generator& m_generator;
-    commsdsl::parse::Namespace m_dslObj;
+    commsdsl::parse::ParseNamespace m_dslObj;
     Elem* m_parent = nullptr;
     NamespacesList m_namespaces;
     FieldsList m_fields;
@@ -443,7 +443,7 @@ private:
     FramesList m_frames;
 }; 
 
-Namespace::Namespace(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
+Namespace::Namespace(Generator& generator, commsdsl::parse::ParseNamespace dslObj, Elem* parent) :
     Base(parent),
     m_impl(std::make_unique<NamespaceImpl>(generator, dslObj, this))
 {
@@ -470,7 +470,7 @@ bool Namespace::write() const
     return writeImpl();
 }
 
-commsdsl::parse::Namespace Namespace::dslObj() const
+commsdsl::parse::ParseNamespace Namespace::dslObj() const
 {
     return m_impl->dslObj();
 }
@@ -529,12 +529,12 @@ Namespace::FieldsAccessList Namespace::findMessageIdFields() const
 {
     FieldsAccessList result;
     for (auto& f : fields()) {
-        if (f->dslObj().semanticType() != commsdsl::parse::Field::SemanticType::MessageId) {
+        if (f->dslObj().semanticType() != commsdsl::parse::ParseField::SemanticType::MessageId) {
             continue;
         }
 
-        if ((f->dslObj().kind() != commsdsl::parse::Field::Kind::Enum) &&
-            (f->dslObj().kind() != commsdsl::parse::Field::Kind::Int)) {
+        if ((f->dslObj().kind() != commsdsl::parse::ParseField::Kind::Enum) &&
+            (f->dslObj().kind() != commsdsl::parse::ParseField::Kind::Int)) {
             [[maybe_unused]] static constexpr bool Unexpected_kind = false;
             assert(Unexpected_kind);  
             continue;
@@ -847,7 +847,7 @@ Interface* Namespace::addDefaultInterface()
         }
     }
 
-    auto iter = intList.insert(intList.begin(), generator().createInterface(commsdsl::parse::Interface(nullptr), this));
+    auto iter = intList.insert(intList.begin(), generator().createInterface(commsdsl::parse::ParseInterface(nullptr), this));
     (*iter)->setReferenced(true);
     if (!(*iter)->prepare()) {
         intList.erase(iter);

@@ -33,7 +33,7 @@ class CommsInterface final: public commsdsl::gen::Interface
 public:
     using CommsFieldsList = CommsField::CommsFieldsList;
 
-    explicit CommsInterface(CommsGenerator& generator, commsdsl::parse::Interface dslObj, Elem* parent);
+    explicit CommsInterface(CommsGenerator& generator, commsdsl::parse::ParseInterface dslObj, Elem* parent);
     virtual ~CommsInterface();
 
     static const CommsInterface* cast(const commsdsl::gen::Interface* value)

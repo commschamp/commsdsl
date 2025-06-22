@@ -143,7 +143,7 @@ const std::string& SwigGenerator::swigConvertCppType(const std::string& str) con
     return iter->second;
 }
 
-const std::string& SwigGenerator::swigConvertIntType(commsdsl::parse::IntField::Type value, std::size_t len) const
+const std::string& SwigGenerator::swigConvertIntType(commsdsl::parse::ParseIntField::Type value, std::size_t len) const
 {
     return swigConvertCppType(comms::cppIntTypeFor(value, len));
 }
@@ -263,122 +263,122 @@ SwigInterface* SwigGenerator::swigMainInterface()
     return const_cast<SwigInterface*>(static_cast<const SwigGenerator*>(this)->swigMainInterface());
 }
 
-SwigGenerator::SchemaPtr SwigGenerator::createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent)
+SwigGenerator::SchemaPtr SwigGenerator::createSchemaImpl(commsdsl::parse::ParseSchema dslObj, Elem* parent)
 {
     return std::make_unique<SwigSchema>(*this, dslObj, parent);
 }
 
-SwigGenerator::NamespacePtr SwigGenerator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
+SwigGenerator::NamespacePtr SwigGenerator::createNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, Elem* parent)
 {
     return std::make_unique<SwigNamespace>(*this, dslObj, parent);
 }
 
-SwigGenerator::InterfacePtr SwigGenerator::createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent)
+SwigGenerator::InterfacePtr SwigGenerator::createInterfaceImpl(commsdsl::parse::ParseInterface dslObj, Elem* parent)
 {
     return std::make_unique<SwigInterface>(*this, dslObj, parent);
 }
 
-SwigGenerator::MessagePtr SwigGenerator::createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent)
+SwigGenerator::MessagePtr SwigGenerator::createMessageImpl(commsdsl::parse::ParseMessage dslObj, Elem* parent)
 {
     return std::make_unique<SwigMessage>(*this, dslObj, parent);
 }
 
-SwigGenerator::FramePtr SwigGenerator::createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent)
+SwigGenerator::FramePtr SwigGenerator::createFrameImpl(commsdsl::parse::ParseFrame dslObj, Elem* parent)
 {
     return std::make_unique<SwigFrame>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+SwigGenerator::FieldPtr SwigGenerator::createIntFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<SwigIntField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+SwigGenerator::FieldPtr SwigGenerator::createEnumFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<SwigEnumField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createSetFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+SwigGenerator::FieldPtr SwigGenerator::createSetFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<SwigSetField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createFloatFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+SwigGenerator::FieldPtr SwigGenerator::createFloatFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<SwigFloatField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createBitfieldFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+SwigGenerator::FieldPtr SwigGenerator::createBitfieldFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<SwigBitfieldField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createBundleFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+SwigGenerator::FieldPtr SwigGenerator::createBundleFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<SwigBundleField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createStringFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+SwigGenerator::FieldPtr SwigGenerator::createStringFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<SwigStringField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createDataFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+SwigGenerator::FieldPtr SwigGenerator::createDataFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<SwigDataField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createListFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+SwigGenerator::FieldPtr SwigGenerator::createListFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<SwigListField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createRefFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+SwigGenerator::FieldPtr SwigGenerator::createRefFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<SwigRefField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createOptionalFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+SwigGenerator::FieldPtr SwigGenerator::createOptionalFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<SwigOptionalField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+SwigGenerator::FieldPtr SwigGenerator::createVariantFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<SwigVariantField>(*this, dslObj, parent);
 }
 
-SwigGenerator::LayerPtr SwigGenerator::createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+SwigGenerator::LayerPtr SwigGenerator::createCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<SwigCustomLayer>(*this, dslObj, parent);
 }
 
-SwigGenerator::LayerPtr SwigGenerator::createSyncLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+SwigGenerator::LayerPtr SwigGenerator::createSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<SwigSyncLayer>(*this, dslObj, parent);
 }
 
-SwigGenerator::LayerPtr SwigGenerator::createSizeLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+SwigGenerator::LayerPtr SwigGenerator::createSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<SwigSizeLayer>(*this, dslObj, parent);
 }
 
-SwigGenerator::LayerPtr SwigGenerator::createIdLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+SwigGenerator::LayerPtr SwigGenerator::createIdLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<SwigIdLayer>(*this, dslObj, parent);
 }
 
-SwigGenerator::LayerPtr SwigGenerator::createValueLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+SwigGenerator::LayerPtr SwigGenerator::createValueLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<SwigValueLayer>(*this, dslObj, parent);
 }
 
-SwigGenerator::LayerPtr SwigGenerator::createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+SwigGenerator::LayerPtr SwigGenerator::createPayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<SwigPayloadLayer>(*this, dslObj, parent);
 }
 
-SwigGenerator::LayerPtr SwigGenerator::createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+SwigGenerator::LayerPtr SwigGenerator::createChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<SwigChecksumLayer>(*this, dslObj, parent);
 }

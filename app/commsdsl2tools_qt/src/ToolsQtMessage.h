@@ -31,7 +31,7 @@ public:
     using StringsList = commsdsl::gen::util::StringsList;
     using IncludesList = StringsList;
 
-    explicit ToolsQtMessage(ToolsQtGenerator& generator, commsdsl::parse::Message dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtMessage(ToolsQtGenerator& generator, commsdsl::parse::ParseMessage dslObj, commsdsl::gen::Elem* parent);
 
     std::string toolsHeaderPath(const commsdsl::gen::Interface& iFace) const;
     StringsList toolsSourceFiles(const commsdsl::gen::Interface& iFace) const;

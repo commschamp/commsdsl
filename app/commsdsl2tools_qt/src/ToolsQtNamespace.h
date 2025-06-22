@@ -32,7 +32,7 @@ class ToolsQtNamespace final : public commsdsl::gen::Namespace
 public:
     using StringsList = commsdsl::gen::util::StringsList;
 
-    explicit ToolsQtNamespace(ToolsQtGenerator& generator, commsdsl::parse::Namespace dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtNamespace(ToolsQtGenerator& generator, commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::Elem* parent);
 
     StringsList toolsSourceFiles(const ToolsQtInterface& interface) const;
 

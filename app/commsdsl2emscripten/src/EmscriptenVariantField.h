@@ -28,7 +28,7 @@ class EmscriptenVariantField final : public commsdsl::gen::VariantField, public 
     using Base = commsdsl::gen::VariantField;
     using EmscriptenBase = EmscriptenField;
 public:
-    EmscriptenVariantField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenVariantField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

@@ -33,7 +33,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigEnumField::SwigEnumField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
+SwigEnumField::SwigEnumField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent) : 
     Base(generator, dslObj, parent),
     SwigBase(static_cast<Base&>(*this))
 {
@@ -158,7 +158,7 @@ std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
         {"TYPE", type}
     };
 
-    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
+    if (dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::MessageId) {
         std::string valTempl = 
             "#^#TYPE#$#\n"
             "const ValueType& getValue() const\n"

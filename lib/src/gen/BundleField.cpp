@@ -30,7 +30,7 @@ class BundleFieldImpl
 public:
     using FieldsList = BundleField::FieldsList;
 
-    BundleFieldImpl(Generator& generator, commsdsl::parse::BundleField dslObj, Elem* parent) :
+    BundleFieldImpl(Generator& generator, commsdsl::parse::ParseBundleField dslObj, Elem* parent) :
         m_generator(generator),
         m_dslObj(dslObj),
         m_parent(parent)
@@ -72,16 +72,16 @@ public:
 
 private:
     Generator& m_generator;
-    commsdsl::parse::BundleField m_dslObj;
+    commsdsl::parse::ParseBundleField m_dslObj;
     Elem* m_parent = nullptr;
     FieldsList m_members;
 };
 
-BundleField::BundleField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
+BundleField::BundleField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent) :
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<BundleFieldImpl>(generator, bundleDslObj(), this))
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Bundle);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Bundle);
 }
 
 BundleField::~BundleField() = default;
@@ -111,9 +111,9 @@ BundleField::FieldRefInfo BundleField::processInnerRefImpl(const std::string& re
     return Base::processInnerRefImpl(refStr);
 }
 
-commsdsl::parse::BundleField BundleField::bundleDslObj() const
+commsdsl::parse::ParseBundleField BundleField::bundleDslObj() const
 {
-    return commsdsl::parse::BundleField(dslObj());
+    return commsdsl::parse::ParseBundleField(dslObj());
 }
 
 } // namespace gen

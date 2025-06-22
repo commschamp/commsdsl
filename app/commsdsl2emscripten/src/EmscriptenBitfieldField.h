@@ -28,7 +28,7 @@ class EmscriptenBitfieldField final : public commsdsl::gen::BitfieldField, publi
     using Base = commsdsl::gen::BitfieldField;
     using EmscriptenBase = EmscriptenField;
 public:
-    EmscriptenBitfieldField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenBitfieldField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

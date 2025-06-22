@@ -39,7 +39,7 @@ const std::string FieldClassNameSuffix("Field");
 } // namespace 
     
 
-EmscriptenPayloadLayer::EmscriptenPayloadLayer(EmscriptenGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) : 
+EmscriptenPayloadLayer::EmscriptenPayloadLayer(EmscriptenGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent) : 
     Base(generator, dslObj, parent),
     EmscriptenBase(static_cast<Base&>(*this))
 {

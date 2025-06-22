@@ -28,7 +28,7 @@ class CommsChecksumLayer final : public commsdsl::gen::ChecksumLayer, public Com
     using Base = commsdsl::gen::ChecksumLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsChecksumLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    CommsChecksumLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     virtual bool prepareImpl() override;

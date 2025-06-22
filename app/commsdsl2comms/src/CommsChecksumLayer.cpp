@@ -32,7 +32,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsChecksumLayer::CommsChecksumLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) :
+CommsChecksumLayer::CommsChecksumLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {
@@ -66,7 +66,7 @@ CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() cons
     };
 
     const std::size_t ChecksumMapSize = std::extent<decltype(ChecksumMap)>::value;
-    static_assert(ChecksumMapSize == static_cast<std::size_t>(commsdsl::parse::ChecksumLayer::Alg::NumOfValues),
+    static_assert(ChecksumMapSize == static_cast<std::size_t>(commsdsl::parse::ParseChecksumLayer::Alg::NumOfValues),
             "Invalid map");
 
     auto idx = static_cast<std::size_t>(obj.alg());
@@ -126,7 +126,7 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
     };
 
     const std::size_t ClassMapSize = std::extent<decltype(ClassMap)>::value;
-    static_assert(ClassMapSize == static_cast<std::size_t>(commsdsl::parse::ChecksumLayer::Alg::NumOfValues),
+    static_assert(ClassMapSize == static_cast<std::size_t>(commsdsl::parse::ParseChecksumLayer::Alg::NumOfValues),
             "Invalid map");
 
 
@@ -146,8 +146,8 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
     }
 
     auto str = "comms::frame::checksum::" + ClassMap[idx];
-    if ((alg != commsdsl::parse::ChecksumLayer::Alg::Sum) &&
-        (alg != commsdsl::parse::ChecksumLayer::Alg::Xor)) {
+    if ((alg != commsdsl::parse::ParseChecksumLayer::Alg::Sum) &&
+        (alg != commsdsl::parse::ParseChecksumLayer::Alg::Xor)) {
         return str;
     }
 

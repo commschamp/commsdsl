@@ -29,7 +29,7 @@ class SwigEnumField final : public commsdsl::gen::EnumField, public SwigField
     using Base = commsdsl::gen::EnumField;
     using SwigBase = SwigField;
 public:
-    SwigEnumField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    SwigEnumField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
     StringsList swigEnumValues() const;
 

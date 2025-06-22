@@ -64,7 +64,7 @@ const std::string& hasSpecialsFuncTempl()
 
 CommsIntField::CommsIntField(
     CommsGenerator& generator, 
-    commsdsl::parse::Field dslObj, 
+    commsdsl::parse::ParseField dslObj, 
     commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
@@ -298,8 +298,8 @@ std::string CommsIntField::commsDefValidFuncBodyImpl() const
 
     auto type = obj.type();
     bool bigUnsigned =
-        (type == commsdsl::parse::IntField::Type::Uint64) ||
-        (type == commsdsl::parse::IntField::Type::Uintvar);
+        (type == commsdsl::parse::ParseIntField::Type::Uint64) ||
+        (type == commsdsl::parse::ParseIntField::Type::Uintvar);
 
     std::string rangesChecks;
     for (auto& r : validRanges) {
@@ -329,7 +329,7 @@ std::string CommsIntField::commsDefValidFuncBodyImpl() const
             conds.push_back('(' + util::numToString(r.m_sinceVersion) + " <= Base::getVersion())");
         }
 
-        if (r.m_deprecatedSince < commsdsl::parse::Protocol::notYetDeprecated()) {
+        if (r.m_deprecatedSince < commsdsl::parse::ParseProtocol::notYetDeprecated()) {
             conds.push_back("(Base::getVersion() < " + util::numToString(r.m_deprecatedSince) + ")");
         }
 
@@ -519,8 +519,8 @@ std::string CommsIntField::commsCommonSpecialsCodeInternal() const
         std::string specVal;
         auto obj = intDslObj();
         auto type = obj.type();
-        if ((type == commsdsl::parse::IntField::Type::Uint64) ||
-            (type == commsdsl::parse::IntField::Type::Uintvar)) {
+        if ((type == commsdsl::parse::ParseIntField::Type::Uint64) ||
+            (type == commsdsl::parse::ParseIntField::Type::Uintvar)) {
             specVal = util::numToString(static_cast<std::uintmax_t>(s.second.m_value));
         }
         else {
@@ -748,8 +748,8 @@ void CommsIntField::commsAddLengthOptInternal(StringsList& opts) const
 {
     auto obj = intDslObj();
     auto type = obj.type();
-    if ((type == commsdsl::parse::IntField::Type::Intvar) ||
-        (type == commsdsl::parse::IntField::Type::Uintvar)) {
+    if ((type == commsdsl::parse::ParseIntField::Type::Intvar) ||
+        (type == commsdsl::parse::ParseIntField::Type::Uintvar)) {
         auto str =
             "comms::option::def::VarLength<" +
             util::numToString(obj.minLength()) +
@@ -788,7 +788,7 @@ void CommsIntField::commsAddLengthOptInternal(StringsList& opts) const
     };
 
     static const std::size_t LengthMapSize = std::extent<decltype(LengthMap)>::value;
-    static_assert(LengthMapSize == static_cast<std::size_t>(commsdsl::parse::IntField::Type::NumOfValues),
+    static_assert(LengthMapSize == static_cast<std::size_t>(commsdsl::parse::ParseIntField::Type::NumOfValues),
             "Incorrect map");
 
     std::size_t idx = static_cast<std::size_t>(type);
@@ -881,7 +881,7 @@ void CommsIntField::commsAddDefaultValueOptInternal(StringsList& opts) const
     auto obj = intDslObj();
     auto defaultValue = obj.defaultValue();
     if ((defaultValue == 0) &&
-        (obj.semanticType() == commsdsl::parse::Field::SemanticType::Version)) {
+        (obj.semanticType() == commsdsl::parse::ParseField::SemanticType::Version)) {
         std::string str = "comms::option::def::DefaultNumValue<";
         str += util::numToString(generator().schemaOf(*this).schemaVersion());
         str += '>';
@@ -895,7 +895,7 @@ void CommsIntField::commsAddDefaultValueOptInternal(StringsList& opts) const
 
     auto type = obj.type();
     if ((defaultValue < 0) &&
-        ((type == commsdsl::parse::IntField::Type::Uint64) || (type == commsdsl::parse::IntField::Type::Uintvar))) {
+        ((type == commsdsl::parse::ParseIntField::Type::Uint64) || (type == commsdsl::parse::ParseIntField::Type::Uintvar))) {
         auto str =
             "comms::option::def::DefaultBigUnsignedNumValue<" +
             util::numToString(static_cast<std::uintmax_t>(defaultValue)) +
@@ -921,8 +921,8 @@ void CommsIntField::commsAddValidRangesOptInternal(StringsList& opts) const
 
     auto type = obj.type();
     bool bigUnsigned =
-        (type == commsdsl::parse::IntField::Type::Uint64) ||
-        ((type != commsdsl::parse::IntField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
+        (type == commsdsl::parse::ParseIntField::Type::Uint64) ||
+        ((type != commsdsl::parse::ParseIntField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
 
     bool validCheckVersion =
         generator().schemaOf(*this).versionDependentCode() &&

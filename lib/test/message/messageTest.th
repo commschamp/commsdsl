@@ -2,6 +2,8 @@
 
 #include "CommonTestSuite.h"
 
+#include "commsdsl/parse/ParseMessage.h"
+
 class MessageTestSuite : public CommonTestSuite, public CxxTest::TestSuite
 {
 public:
@@ -95,7 +97,7 @@ void MessageTestSuite::test2()
     auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
     auto& f1 = fields[0];
-    TS_ASSERT_EQUALS(f1.semanticType(), commsdsl::parse::Field::SemanticType::MessageId);
+    TS_ASSERT_EQUALS(f1.semanticType(), commsdsl::parse::ParseField::SemanticType::MessageId);
 
     auto messages = ns.messages();
     TS_ASSERT_EQUALS(messages.size(), 2U);
@@ -119,7 +121,7 @@ void MessageTestSuite::test2()
 
 void MessageTestSuite::test3()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
@@ -165,12 +167,12 @@ void MessageTestSuite::test4()
     auto fields3 = msg3.fields();
     TS_ASSERT_EQUALS(fields3.size(), 3U);   
 
-    TS_ASSERT_EQUALS(fields3[1].kind(), commsdsl::parse::Field::Kind::Enum); 
+    TS_ASSERT_EQUALS(fields3[1].kind(), commsdsl::parse::ParseField::Kind::Enum); 
 }
 
 void MessageTestSuite::test5()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
@@ -203,7 +205,7 @@ void MessageTestSuite::test6()
 
 void MessageTestSuite::test7()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
@@ -211,7 +213,7 @@ void MessageTestSuite::test7()
 
 void MessageTestSuite::test8()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
     TS_ASSERT(protocol);
@@ -219,7 +221,7 @@ void MessageTestSuite::test8()
 
 void MessageTestSuite::test9()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
     TS_ASSERT(protocol);
@@ -260,7 +262,7 @@ void MessageTestSuite::test10()
 
 void MessageTestSuite::test11()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
     TS_ASSERT(protocol);
@@ -268,8 +270,8 @@ void MessageTestSuite::test11()
 
 void MessageTestSuite::test12()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
     TS_ASSERT(protocol);
 
@@ -303,7 +305,7 @@ void MessageTestSuite::test12()
 void MessageTestSuite::test13()
 {
     m_status.m_preValidateFunc =
-        [](commsdsl::parse::Protocol& p)
+        [](commsdsl::parse::ParseProtocol& p)
         {
             p.addExpectedExtraPrefix("prefix.");
         };
@@ -394,7 +396,7 @@ void MessageTestSuite::test15()
 
 void MessageTestSuite::test16()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
     TS_ASSERT(protocol);
@@ -402,7 +404,7 @@ void MessageTestSuite::test16()
 
 void MessageTestSuite::test17()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
     TS_ASSERT(protocol);
@@ -431,16 +433,16 @@ void MessageTestSuite::test18()
     TS_ASSERT_EQUALS(msg3.name(), "Msg3");
     TS_ASSERT_EQUALS(msg4.name(), "Msg4");
 
-    TS_ASSERT_EQUALS(msg1.sender(), commsdsl::parse::Message::Sender::Both);
+    TS_ASSERT_EQUALS(msg1.sender(), commsdsl::parse::ParseMessage::Sender::Both);
     TS_ASSERT(!msg1.isCustomizable());
 
-    TS_ASSERT_EQUALS(msg2.sender(), commsdsl::parse::Message::Sender::Both);
+    TS_ASSERT_EQUALS(msg2.sender(), commsdsl::parse::ParseMessage::Sender::Both);
     TS_ASSERT(!msg2.isCustomizable());
 
-    TS_ASSERT_EQUALS(msg3.sender(), commsdsl::parse::Message::Sender::Client);
+    TS_ASSERT_EQUALS(msg3.sender(), commsdsl::parse::ParseMessage::Sender::Client);
     TS_ASSERT(msg3.isCustomizable());
 
-    TS_ASSERT_EQUALS(msg4.sender(), commsdsl::parse::Message::Sender::Server);
+    TS_ASSERT_EQUALS(msg4.sender(), commsdsl::parse::ParseMessage::Sender::Server);
     TS_ASSERT(!msg1.isCustomizable());
 }
 
@@ -500,8 +502,8 @@ void MessageTestSuite::test21()
 
     auto& msg1 = messages[0];
     auto msg1Construct = msg1.construct();
-    TS_ASSERT_EQUALS(msg1Construct.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr msg1ConstructExpr(msg1Construct);
+    TS_ASSERT_EQUALS(msg1Construct.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr msg1ConstructExpr(msg1Construct);
     TS_ASSERT(msg1ConstructExpr.left().empty());
     TS_ASSERT(msg1ConstructExpr.op().empty());
     TS_ASSERT_EQUALS(msg1ConstructExpr.right(), "%Flags.M1.B0");
@@ -509,14 +511,14 @@ void MessageTestSuite::test21()
 
     auto& msg2 = messages[1];
     auto msg2Construct = msg2.construct();
-    TS_ASSERT_EQUALS(msg2Construct.kind(), commsdsl::parse::OptCond::Kind::List);
-    commsdsl::parse::OptCondList msg2ConstructExpr(msg2Construct);
-    TS_ASSERT_EQUALS(msg2ConstructExpr.type(), commsdsl::parse::OptCondList::Type::And);
+    TS_ASSERT_EQUALS(msg2Construct.kind(), commsdsl::parse::ParseOptCond::Kind::List);
+    commsdsl::parse::ParseOptCondList msg2ConstructExpr(msg2Construct);
+    TS_ASSERT_EQUALS(msg2ConstructExpr.type(), commsdsl::parse::ParseOptCondList::Type::And);
 }
 
 void MessageTestSuite::test22()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
     TS_ASSERT(protocol);
@@ -524,7 +526,7 @@ void MessageTestSuite::test22()
 
 void MessageTestSuite::test23()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
     TS_ASSERT(protocol);
@@ -532,7 +534,7 @@ void MessageTestSuite::test23()
 
 void MessageTestSuite::test24()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
     TS_ASSERT(protocol);
@@ -540,7 +542,7 @@ void MessageTestSuite::test24()
 
 void MessageTestSuite::test25()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema25.xml");
     TS_ASSERT(protocol);
@@ -562,8 +564,8 @@ void MessageTestSuite::test26()
 
     auto& msg1 = messages[0];
     auto msg1ReadCond = msg1.readCond();
-    TS_ASSERT_EQUALS(msg1ReadCond.kind(), commsdsl::parse::OptCond::Kind::Expr);
-    commsdsl::parse::OptCondExpr msg1ReadCondExpr(msg1ReadCond);
+    TS_ASSERT_EQUALS(msg1ReadCond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    commsdsl::parse::ParseOptCondExpr msg1ReadCondExpr(msg1ReadCond);
     TS_ASSERT(msg1ReadCondExpr.left().empty());
     TS_ASSERT(msg1ReadCondExpr.op().empty());
     TS_ASSERT_EQUALS(msg1ReadCondExpr.right(), "%Flags.M1.B0");
@@ -571,9 +573,9 @@ void MessageTestSuite::test26()
 
     auto& msg2 = messages[1];
     auto msg2ReadCond = msg2.readCond();
-    TS_ASSERT_EQUALS(msg2ReadCond.kind(), commsdsl::parse::OptCond::Kind::List);
-    commsdsl::parse::OptCondList msg2ReadCondExpr(msg2ReadCond);
-    TS_ASSERT_EQUALS(msg2ReadCondExpr.type(), commsdsl::parse::OptCondList::Type::And);
+    TS_ASSERT_EQUALS(msg2ReadCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);
+    commsdsl::parse::ParseOptCondList msg2ReadCondExpr(msg2ReadCond);
+    TS_ASSERT_EQUALS(msg2ReadCondExpr.type(), commsdsl::parse::ParseOptCondList::Type::And);
 }
 
 void MessageTestSuite::test27()
@@ -592,9 +594,9 @@ void MessageTestSuite::test27()
 
     auto& msg1 = messages[0];
     auto msg1Construct = msg1.construct();
-    TS_ASSERT_EQUALS(msg1Construct.kind(), commsdsl::parse::OptCond::Kind::Expr);
+    TS_ASSERT_EQUALS(msg1Construct.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
     auto msg1ReadCond = msg1.readCond();
-    TS_ASSERT_EQUALS(msg1ReadCond.kind(), commsdsl::parse::OptCond::Kind::Expr);
+    TS_ASSERT_EQUALS(msg1ReadCond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
 }
 
 void MessageTestSuite::test28()
@@ -613,14 +615,14 @@ void MessageTestSuite::test28()
 
     auto& msg1 = messages[0];
     auto msg1Construct = msg1.construct();
-    TS_ASSERT_EQUALS(msg1Construct.kind(), commsdsl::parse::OptCond::Kind::Expr);
+    TS_ASSERT_EQUALS(msg1Construct.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
     auto msg1ValidCond = msg1.validCond();
-    TS_ASSERT_EQUALS(msg1ValidCond.kind(), commsdsl::parse::OptCond::Kind::Expr);
+    TS_ASSERT_EQUALS(msg1ValidCond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
 }
 
 void MessageTestSuite::test29()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema29.xml");
     TS_ASSERT(protocol);
@@ -642,11 +644,11 @@ void MessageTestSuite::test30()
 
     auto& msg1 = messages[0];
     auto msg1Construct = msg1.construct();
-    TS_ASSERT_EQUALS(msg1Construct.kind(), commsdsl::parse::OptCond::Kind::Expr);
+    TS_ASSERT_EQUALS(msg1Construct.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
     auto msg1ValidCond = msg1.validCond();
-    TS_ASSERT_EQUALS(msg1ValidCond.kind(), commsdsl::parse::OptCond::Kind::Expr);
+    TS_ASSERT_EQUALS(msg1ValidCond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
     auto msg1ReadCond = msg1.readCond();
-    TS_ASSERT_EQUALS(msg1ReadCond.kind(), commsdsl::parse::OptCond::Kind::Expr);
+    TS_ASSERT_EQUALS(msg1ReadCond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
 }
 
 
@@ -667,7 +669,7 @@ void MessageTestSuite::test31()
     auto& msg1 = messages[0];
     TS_ASSERT(msg1.isFailOnInvalid());
     auto msg1ValidCond = msg1.validCond();
-    TS_ASSERT_EQUALS(msg1ValidCond.kind(), commsdsl::parse::OptCond::Kind::List);
+    TS_ASSERT_EQUALS(msg1ValidCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);
 }
 
 void MessageTestSuite::test32()
@@ -689,7 +691,7 @@ void MessageTestSuite::test32()
         TS_ASSERT(msg1.isFailOnInvalid());
         TS_ASSERT_EQUALS(msg1.fields().size(), 2U);
         auto validCond = msg1.validCond();
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);
     }
     
     {
@@ -700,7 +702,7 @@ void MessageTestSuite::test32()
         TS_ASSERT_EQUALS(msg2.fields().size(), 3U);
         TS_ASSERT_EQUALS(msg2.copyCodeFrom(), "Msg1");
         auto validCond = msg2.validCond();
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);
     }    
 
     {
@@ -710,15 +712,15 @@ void MessageTestSuite::test32()
         TS_ASSERT_EQUALS(msg3.name(), "Msg3");
         auto constructCond = msg3.construct();
         TS_ASSERT(constructCond.valid());
-        TS_ASSERT_EQUALS(constructCond.kind(), commsdsl::parse::OptCond::Kind::List);
+        TS_ASSERT_EQUALS(constructCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);
 
         auto validCond = msg3.validCond();
         TS_ASSERT(validCond.valid());
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);
 
         auto readCond = msg3.validCond();
         TS_ASSERT(readCond.valid());
-        TS_ASSERT_EQUALS(readCond.kind(), commsdsl::parse::OptCond::Kind::List);        
+        TS_ASSERT_EQUALS(readCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);        
     }     
 
     {
@@ -728,15 +730,15 @@ void MessageTestSuite::test32()
         TS_ASSERT_EQUALS(msg4.name(), "Msg4");
         auto constructCond = msg4.construct();
         TS_ASSERT(constructCond.valid());
-        TS_ASSERT_EQUALS(constructCond.kind(), commsdsl::parse::OptCond::Kind::Expr);
+        TS_ASSERT_EQUALS(constructCond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
 
         auto validCond = msg4.validCond();
         TS_ASSERT(validCond.valid());
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::Expr);
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
 
         auto readCond = msg4.readCond();
         TS_ASSERT(readCond.valid());
-        TS_ASSERT_EQUALS(readCond.kind(), commsdsl::parse::OptCond::Kind::List);        
+        TS_ASSERT_EQUALS(readCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);        
     }     
 }
 
@@ -758,15 +760,15 @@ void MessageTestSuite::test33()
         auto& msg = messages[0];
         auto construct = msg.construct();
         TS_ASSERT(construct.valid());
-        TS_ASSERT_EQUALS(construct.kind(), commsdsl::parse::OptCond::Kind::List);
+        TS_ASSERT_EQUALS(construct.kind(), commsdsl::parse::ParseOptCond::Kind::List);
 
         auto readCond = msg.readCond();
         TS_ASSERT(readCond.valid());
-        TS_ASSERT_EQUALS(readCond.kind(), commsdsl::parse::OptCond::Kind::List);   
+        TS_ASSERT_EQUALS(readCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);   
 
         auto validCond = msg.validCond();
         TS_ASSERT(validCond.valid());
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);             
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);             
     }
     
     {
@@ -775,7 +777,7 @@ void MessageTestSuite::test33()
         auto& msg = messages[1];
         auto construct = msg.construct();
         TS_ASSERT(construct.valid());
-        TS_ASSERT_EQUALS(construct.kind(), commsdsl::parse::OptCond::Kind::List);
+        TS_ASSERT_EQUALS(construct.kind(), commsdsl::parse::ParseOptCond::Kind::List);
 
         auto readCond = msg.readCond();
         TS_ASSERT(!readCond.valid());
@@ -793,7 +795,7 @@ void MessageTestSuite::test33()
 
         auto readCond = msg.readCond();
         TS_ASSERT(readCond.valid());
-        TS_ASSERT_EQUALS(readCond.kind(), commsdsl::parse::OptCond::Kind::List);   
+        TS_ASSERT_EQUALS(readCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);   
 
         auto validCond = msg.validCond();
         TS_ASSERT(!validCond.valid());
@@ -811,7 +813,7 @@ void MessageTestSuite::test33()
 
         auto validCond = msg.validCond();
         TS_ASSERT(validCond.valid());
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);          
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);          
     }    
 
     {
@@ -826,6 +828,6 @@ void MessageTestSuite::test33()
 
         auto validCond = msg.validCond();
         TS_ASSERT(validCond.valid());
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);          
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);          
     }      
 }

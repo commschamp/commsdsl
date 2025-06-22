@@ -29,7 +29,7 @@ public:
     using StringsList = commsdsl::gen::util::StringsList;
     using IncludesList = StringsList;
 
-    explicit ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse::Interface dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::Elem* parent);
 
     std::string toolsClassScope() const;
     std::string toolsHeaderFilePath() const;

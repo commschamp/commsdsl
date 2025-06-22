@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/BitfieldField.h"
+#include "commsdsl/parse/ParseBitfieldField.h"
 #include "commsdsl/gen/Field.h"
 
 #include <memory>
@@ -34,7 +34,7 @@ class COMMSDSL_API BitfieldField : public Field
 {
     using Base = Field;
 public:
-    BitfieldField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    BitfieldField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent = nullptr);
     virtual ~BitfieldField();
 
     const FieldsList& members() const;
@@ -44,7 +44,7 @@ protected:
     virtual void setReferencedImpl() override;
     virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override final;
 
-    commsdsl::parse::BitfieldField bitfieldDslObj() const;
+    commsdsl::parse::ParseBitfieldField bitfieldDslObj() const;
 
 private:
     std::unique_ptr<BitfieldFieldImpl> m_impl;

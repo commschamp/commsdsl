@@ -35,7 +35,7 @@ namespace commsdsl2swig
 {
 
 
-SwigNamespace::SwigNamespace(SwigGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
+SwigNamespace::SwigNamespace(SwigGenerator& generator, commsdsl::parse::ParseNamespace dslObj, Elem* parent) :
     Base(generator, dslObj, parent),
     m_msgId(generator, *this)
 {

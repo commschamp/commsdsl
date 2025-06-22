@@ -56,25 +56,25 @@ std::string limitToString(double val)
     return Prefix + Inf;
 }
 
-double getLowest(commsdsl::parse::FloatField::Type type)
+double getLowest(commsdsl::parse::ParseFloatField::Type type)
 {
-    if (type == commsdsl::parse::FloatField::Type::Float) {
+    if (type == commsdsl::parse::ParseFloatField::Type::Float) {
         return double(std::numeric_limits<float>::lowest());
     }
 
     return std::numeric_limits<double>::lowest();
 }
 
-double getMax(commsdsl::parse::FloatField::Type type)
+double getMax(commsdsl::parse::ParseFloatField::Type type)
 {
-    if (type == commsdsl::parse::FloatField::Type::Float) {
+    if (type == commsdsl::parse::ParseFloatField::Type::Float) {
         return double(std::numeric_limits<float>::max());
     }
 
     return std::numeric_limits<double>::max();
 }
 
-std::string valueToString(double val, commsdsl::parse::FloatField::Type type)
+std::string valueToString(double val, commsdsl::parse::ParseFloatField::Type type)
 {
     if (isLimit(val)) {
         return limitToString(val);
@@ -93,7 +93,7 @@ std::string valueToString(double val, commsdsl::parse::FloatField::Type type)
     return "static_cast<ValueType>(" + std::to_string(val) + ")";
 }
 
-std::string cmpToString(double val, commsdsl::parse::FloatField::Type type)
+std::string cmpToString(double val, commsdsl::parse::ParseFloatField::Type type)
 {
     if (std::isnan(val)) {
         return "std::isnan(Base::getValue())";
@@ -163,7 +163,7 @@ void addRangeComparison(
     util::StringsList& condList,
     double min,
     double max,
-    commsdsl::parse::FloatField::Type type)
+    commsdsl::parse::ParseFloatField::Type type)
 {
     static const std::string RangeComparisonTemplate =
         "(#^#MIN#$# <= Base::getValue()) &&\n"
@@ -190,7 +190,7 @@ void addRangeComparison(
 
 CommsFloatField::CommsFloatField(
     CommsGenerator& generator, 
-    commsdsl::parse::Field dslObj, 
+    commsdsl::parse::ParseField dslObj, 
     commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
@@ -847,10 +847,10 @@ CommsFloatField::StringsList CommsFloatField::commsValidVersionBasedConditionsIn
 
         auto* templ = &VersionConditionTemplate;
         if (fromVersion == 0) {
-            assert(untilVersion < commsdsl::parse::Protocol::notYetDeprecated());
+            assert(untilVersion < commsdsl::parse::ParseProtocol::notYetDeprecated());
             templ = &UntilVersionConditionTemplate;
         }
-        else if (commsdsl::parse::Protocol::notYetDeprecated() <= untilVersion) {
+        else if (commsdsl::parse::ParseProtocol::notYetDeprecated() <= untilVersion) {
             templ = &FromVersionConditionTemplate;
         }
 

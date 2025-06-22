@@ -28,7 +28,7 @@ class CommsFloatField final : public commsdsl::gen::FloatField, public CommsFiel
     using Base = commsdsl::gen::FloatField;
     using CommsBase = CommsField;
 public:
-    CommsFloatField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    CommsFloatField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

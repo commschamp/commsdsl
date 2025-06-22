@@ -108,7 +108,7 @@ std::string EmscriptenMsgId::emscriptenIdsInternal() const
 
     if (allMsgIdFields.size() == 1U) {  
         auto* msgIdField = allMsgIdFields.front();
-        assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
+        assert(msgIdField->dslObj().kind() == commsdsl::parse::ParseField::Kind::Enum);
         auto* castedMsgIdField = EmscriptenEnumField::cast(msgIdField);
         return castedMsgIdField->emscriptenBindValues(&m_parent);        
     }

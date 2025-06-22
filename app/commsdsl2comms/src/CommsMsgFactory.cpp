@@ -448,7 +448,7 @@ bool CommsMsgFactory::commsWriteClientMsgFactoryInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::Message& msg)
         {
-            return msg.dslObj().sender() != commsdsl::parse::Message::Sender::Client;
+            return msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client;
         };
 
     auto dynMemWrite = 
@@ -468,7 +468,7 @@ bool CommsMsgFactory::commsWriteServerMsgFactoryInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::Message& msg)
         {
-            return msg.dslObj().sender() != commsdsl::parse::Message::Sender::Server;
+            return msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server;
         };
 
     auto dynMemWrite = 
@@ -523,7 +523,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
             {
                 return 
                     platformCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Client);
+                    (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client);
             };
 
         auto clientDynMemWrite = 
@@ -544,7 +544,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
             {
                 return 
                     platformCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Server);
+                    (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server);
             };
 
         auto serverDynMemWrite = 
@@ -599,7 +599,7 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
             {
                 return 
                     bundleCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Client);
+                    (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client);
             };
 
         auto clientDynMemWrite = 
@@ -620,7 +620,7 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
             {
                 return 
                     bundleCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Server);
+                    (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server);
             };
 
         auto serverDynMemWrite = 

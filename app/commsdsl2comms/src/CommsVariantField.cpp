@@ -53,7 +53,7 @@ bool intIsValidPropKeyInternal(const CommsIntField& intField)
         return false;
     }
 
-    auto intDslObj = commsdsl::parse::IntField(obj);
+    auto intDslObj = commsdsl::parse::ParseIntField(obj);
     auto& validRanges = intDslObj.validRanges();
     if (validRanges.size() != 1U) {
         return false;
@@ -79,7 +79,7 @@ const CommsField* bundleGetValidPropKeyInternal(const CommsBundleField& bundle)
     }
 
     auto& first = members.front();
-    if (first->field().dslObj().kind() != commsdsl::parse::Field::Kind::Int) {
+    if (first->field().dslObj().kind() != commsdsl::parse::ParseField::Kind::Int) {
         return nullptr;
     }
 
@@ -98,7 +98,7 @@ const CommsField* bundleGetValidPropKeyInternal(const CommsBundleField& bundle)
 
 std::string propKeyTypeInternal(const CommsField& field)
 {
-    assert(field.field().dslObj().kind() == commsdsl::parse::Field::Kind::Int);
+    assert(field.field().dslObj().kind() == commsdsl::parse::ParseField::Kind::Int);
 
     auto& keyField = static_cast<const CommsIntField&>(field);
     return keyField.commsVariantPropKeyType();
@@ -106,7 +106,7 @@ std::string propKeyTypeInternal(const CommsField& field)
 
 std::string propKeyValueStrInternal(const CommsField& field)
 {
-    assert(field.field().dslObj().kind() == commsdsl::parse::Field::Kind::Int);
+    assert(field.field().dslObj().kind() == commsdsl::parse::ParseField::Kind::Int);
 
     auto& keyField = static_cast<const CommsIntField&>(field);
     return keyField.commsVariantPropKeyValueStr();
@@ -114,15 +114,15 @@ std::string propKeyValueStrInternal(const CommsField& field)
 
 bool propKeysEquivalent(const CommsField& first, const CommsField& second)
 {
-    assert(first.field().dslObj().kind() == commsdsl::parse::Field::Kind::Int);
-    assert(second.field().dslObj().kind() == commsdsl::parse::Field::Kind::Int);
+    assert(first.field().dslObj().kind() == commsdsl::parse::ParseField::Kind::Int);
+    assert(second.field().dslObj().kind() == commsdsl::parse::ParseField::Kind::Int);
 
     return static_cast<const CommsIntField&>(first).commsVariantIsPropKeyEquivalent(static_cast<const CommsIntField&>(second));
 }
 
 const CommsField* getReferenceFieldInternal(const CommsField* field)
 {
-    while (field->field().dslObj().kind() == commsdsl::parse::Field::Kind::Ref) {
+    while (field->field().dslObj().kind() == commsdsl::parse::ParseField::Kind::Ref) {
         auto& refField = static_cast<const CommsRefField&>(*field);
         field = dynamic_cast<decltype(field)>(refField.referencedField());
         assert(field != nullptr);
@@ -136,7 +136,7 @@ const CommsField* getReferenceFieldInternal(const CommsField* field)
 
 CommsVariantField::CommsVariantField(
     CommsGenerator& generator, 
-    commsdsl::parse::Field dslObj, 
+    commsdsl::parse::ParseField dslObj, 
     commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
@@ -346,12 +346,12 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
     bool hasDefault = false;
     for (auto* memPtr : m_commsMembers) {
         auto* m = getReferenceFieldInternal(memPtr);
-        assert(m->field().dslObj().kind() == commsdsl::parse::Field::Kind::Bundle);
+        assert(m->field().dslObj().kind() == commsdsl::parse::ParseField::Kind::Bundle);
         auto& bundle = static_cast<const CommsBundleField&>(*m);
         auto& bundleMembers = bundle.commsMembers();
         assert(!bundleMembers.empty());
         auto* first = bundleMembers.front();
-        assert(first->field().dslObj().kind() == commsdsl::parse::Field::Kind::Int);
+        assert(first->field().dslObj().kind() == commsdsl::parse::ParseField::Kind::Int);
         auto& keyField = static_cast<const CommsIntField&>(*first);
         auto bundleAccName = comms::accessName(memPtr->field().dslObj().name());
         auto keyAccName = comms::accessName(keyField.field().dslObj().name());
@@ -1087,7 +1087,7 @@ std::string CommsVariantField::commsOptimizedReadKeyInternal() const
 
     for (auto* m : m_commsMembers) {
         const auto* memPtr = getReferenceFieldInternal(m);
-        if (memPtr->field().dslObj().kind() != commsdsl::parse::Field::Kind::Bundle) {
+        if (memPtr->field().dslObj().kind() != commsdsl::parse::ParseField::Kind::Bundle) {
             return result;
         }
 

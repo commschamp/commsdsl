@@ -28,7 +28,7 @@ class CommsPayloadLayer final : public commsdsl::gen::PayloadLayer, public Comms
     using Base = commsdsl::gen::PayloadLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsPayloadLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    CommsPayloadLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     virtual bool prepareImpl() override;

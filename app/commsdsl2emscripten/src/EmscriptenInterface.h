@@ -32,7 +32,7 @@ class EmscriptenInterface final: public commsdsl::gen::Interface
 public:
     using StringsList = commsdsl::gen::util::StringsList;
     
-    explicit EmscriptenInterface(EmscriptenGenerator& generator, commsdsl::parse::Interface dslObj, Elem* parent);
+    explicit EmscriptenInterface(EmscriptenGenerator& generator, commsdsl::parse::ParseInterface dslObj, Elem* parent);
     virtual ~EmscriptenInterface();
 
     static const EmscriptenInterface* cast(const commsdsl::gen::Interface* i)

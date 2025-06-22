@@ -36,7 +36,7 @@ namespace commsdsl2emscripten
 {
 
 
-EmscriptenMessage::EmscriptenMessage(EmscriptenGenerator& generator, commsdsl::parse::Message dslObj, Elem* parent) :
+EmscriptenMessage::EmscriptenMessage(EmscriptenGenerator& generator, commsdsl::parse::ParseMessage dslObj, Elem* parent) :
     Base(generator, dslObj, parent)
 {
 }   

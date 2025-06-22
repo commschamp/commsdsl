@@ -345,7 +345,7 @@ bool CommsDispatch::commsWriteClientDispatchInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::Message& msg) noexcept
         {
-            return msg.dslObj().sender() != commsdsl::parse::Message::Sender::Client;
+            return msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client;
         };
 
     util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -364,7 +364,7 @@ bool CommsDispatch::commsWriteServerDispatchInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::Message& msg) noexcept
         {
-            return msg.dslObj().sender() != commsdsl::parse::Message::Sender::Server;
+            return msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server;
         };
 
     util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -427,7 +427,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 {
                     return 
                         platformCheckFunc(msg) &&
-                        (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Client);
+                        (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client);
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -456,7 +456,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 {
                     return 
                         platformCheckFunc(msg) &&
-                        (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Server);
+                        (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server);
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -528,7 +528,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 {
                     return 
                         bundleCheckFunc(msg) &&
-                        (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Client);
+                        (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client);
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -557,7 +557,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 {
                     return 
                         bundleCheckFunc(msg) &&
-                        (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Server);
+                        (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server);
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);

@@ -35,7 +35,7 @@ class CommsNamespace final: public commsdsl::gen::Namespace
     using Base = commsdsl::gen::Namespace;
 
 public:
-    explicit CommsNamespace(CommsGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent);
+    explicit CommsNamespace(CommsGenerator& generator, commsdsl::parse::ParseNamespace dslObj, Elem* parent);
     virtual ~CommsNamespace();
 
     static const CommsNamespace* cast(const commsdsl::gen::Namespace* ptr)

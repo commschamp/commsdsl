@@ -32,7 +32,7 @@ class SwigSchema final: public commsdsl::gen::Schema
 public:
     using StringsList = commsdsl::gen::util::StringsList;
 
-    explicit SwigSchema(SwigGenerator& generator, commsdsl::parse::Schema dslObj, Elem* parent);
+    explicit SwigSchema(SwigGenerator& generator, commsdsl::parse::ParseSchema dslObj, Elem* parent);
     virtual ~SwigSchema();
 
     bool swigHasAnyMessage() const;

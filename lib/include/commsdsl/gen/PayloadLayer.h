@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/Layer.h"
+#include "commsdsl/parse/ParseLayer.h"
 #include "commsdsl/gen/Layer.h"
 
 #include <memory>
@@ -34,11 +34,11 @@ class COMMSDSL_API PayloadLayer : public Layer
     using Base = Layer;
 public:
 
-    PayloadLayer(Generator& generator, commsdsl::parse::Layer dslObj, Elem* parent = nullptr);
+    PayloadLayer(Generator& generator, commsdsl::parse::ParseLayer dslObj, Elem* parent = nullptr);
     virtual ~PayloadLayer();
 
 protected:    
-    commsdsl::parse::PayloadLayer payloadDslObj() const;
+    commsdsl::parse::ParsePayloadLayer payloadDslObj() const;
 };
 
 } // namespace gen

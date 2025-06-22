@@ -41,21 +41,21 @@ namespace commsdsl2comms
 namespace 
 {
 
-bool hasOrigCode(commsdsl::parse::OverrideType value)
+bool hasOrigCode(commsdsl::parse::ParseOverrideType value)
 {
-    return (value != commsdsl::parse::OverrideType_Replace);
+    return (value != commsdsl::parse::ParseOverrideType_Replace);
 }    
 
-bool isOverrideCodeAllowed(commsdsl::parse::OverrideType value)
+bool isOverrideCodeAllowed(commsdsl::parse::ParseOverrideType value)
 {
-    return (value != commsdsl::parse::OverrideType_None);
+    return (value != commsdsl::parse::ParseOverrideType_None);
 }
 
-bool isOverrideCodeRequired(commsdsl::parse::OverrideType value)
+bool isOverrideCodeRequired(commsdsl::parse::ParseOverrideType value)
 {
     return 
-        (value == commsdsl::parse::OverrideType_Replace) || 
-        (value == commsdsl::parse::OverrideType_Extend);
+        (value == commsdsl::parse::ParseOverrideType_Replace) || 
+        (value == commsdsl::parse::ParseOverrideType_Extend);
 }
 
 void readCustomCodeInternal(const std::string& codePath, std::string& code)
@@ -90,7 +90,7 @@ std::string interfaceFieldAccStrInternal(const CommsField& field)
     return strings::transportFieldAccessPrefixStr() + comms::accessName(field.field().dslObj().name()) + "()";
 }
 
-void updateConstructBoolInternal(const CommsGenerator& generator, const commsdsl::parse::OptCondExpr& cond, util::StringsList& code)
+void updateConstructBoolInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCondExpr& cond, util::StringsList& code)
 {
     assert(cond.op().empty() || (cond.op() == "!"));
     auto& right = cond.right();
@@ -131,7 +131,7 @@ void updateConstructBoolInternal(const CommsGenerator& generator, const commsdsl
     code.push_back(util::processTemplate(Templ, repl));
 }
 
-void updateConstructExprInternal(const CommsGenerator& generator, const commsdsl::parse::OptCondExpr& cond, util::StringsList& code)
+void updateConstructExprInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCondExpr& cond, util::StringsList& code)
 {
     auto& left = cond.left();
     if (left.empty()) {
@@ -180,18 +180,18 @@ void updateConstructExprInternal(const CommsGenerator& generator, const commsdsl
     code.push_back(util::processTemplate(Templ, repl));
 }
 
-void updateConstructCodeInternal(const CommsGenerator& generator, const commsdsl::parse::OptCond& cond, util::StringsList& code)
+void updateConstructCodeInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCond& cond, util::StringsList& code)
 {
     assert(cond.valid());
-    if (cond.kind() == commsdsl::parse::OptCond::Kind::Expr) {
-        commsdsl::parse::OptCondExpr exprCond(cond);
+    if (cond.kind() == commsdsl::parse::ParseOptCond::Kind::Expr) {
+        commsdsl::parse::ParseOptCondExpr exprCond(cond);
         updateConstructExprInternal(generator, exprCond, code);
         return;
     }
 
-    assert(cond.kind() == commsdsl::parse::OptCond::Kind::List);
-    commsdsl::parse::OptCondList listCond(cond);
-    assert(listCond.type() == commsdsl::parse::OptCondList::Type::And);
+    assert(cond.kind() == commsdsl::parse::ParseOptCond::Kind::List);
+    commsdsl::parse::ParseOptCondList listCond(cond);
+    assert(listCond.type() == commsdsl::parse::ParseOptCondList::Type::And);
     auto conditions = listCond.conditions();
     for (auto& c : conditions) {
         updateConstructCodeInternal(generator, c, code);
@@ -201,7 +201,7 @@ void updateConstructCodeInternal(const CommsGenerator& generator, const commsdsl
 } // namespace 
     
 
-CommsMessage::CommsMessage(CommsGenerator& generator, commsdsl::parse::Message dslObj, Elem* parent) :
+CommsMessage::CommsMessage(CommsGenerator& generator, commsdsl::parse::ParseMessage dslObj, Elem* parent) :
     Base(generator, dslObj, parent)
 {
 }   
@@ -307,7 +307,7 @@ bool CommsMessage::copyCodeFromInternal()
 }
 
 bool CommsMessage::commsPrepareOverrideInternal(
-    commsdsl::parse::OverrideType type, 
+    commsdsl::parse::ParseOverrideType type, 
     std::string& codePathPrefix, 
     const std::string& suffix,
     std::string& customCode,
@@ -1417,7 +1417,7 @@ bool CommsMessage::commsIsCustomizableInternal() const
         return false;
     }
 
-    return dslObj().sender() != commsdsl::parse::Message::Sender::Both;
+    return dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Both;
 }
 
 std::string CommsMessage::commsCustomizationOptionsInternal(
@@ -1619,18 +1619,18 @@ std::string CommsMessage::commsDefValidFuncInternal() const
 CommsMessage::StringsList CommsMessage::commsClientExtraCustomizationOptionsInternal() const
 {
     auto sender = dslObj().sender();
-    if (sender == commsdsl::parse::Message::Sender::Both) {
+    if (sender == commsdsl::parse::ParseMessage::Sender::Both) {
         return StringsList();
     }
 
-    if (sender == commsdsl::parse::Message::Sender::Client) {
+    if (sender == commsdsl::parse::ParseMessage::Sender::Client) {
         return StringsList{
             "comms::option::app::NoReadImpl",
             "comms::option::app::NoDispatchImpl"
         };
     }
 
-    assert (sender == commsdsl::parse::Message::Sender::Server);
+    assert (sender == commsdsl::parse::ParseMessage::Sender::Server);
     return StringsList{
         "comms::option::app::NoWriteImpl",
         "comms::option::app::NoRefreshImpl"
@@ -1640,18 +1640,18 @@ CommsMessage::StringsList CommsMessage::commsClientExtraCustomizationOptionsInte
 CommsMessage::StringsList CommsMessage::commsServerExtraCustomizationOptionsInternal() const
 {
     auto sender = dslObj().sender();
-    if (sender == commsdsl::parse::Message::Sender::Both) {
+    if (sender == commsdsl::parse::ParseMessage::Sender::Both) {
         return StringsList();
     }
 
-    if (sender == commsdsl::parse::Message::Sender::Client) {
+    if (sender == commsdsl::parse::ParseMessage::Sender::Client) {
         return StringsList{
             "comms::option::app::NoWriteImpl",
             "comms::option::app::NoRefreshImpl"
         };
     }
 
-    assert (sender == commsdsl::parse::Message::Sender::Server);
+    assert (sender == commsdsl::parse::ParseMessage::Sender::Server);
     return StringsList{
         "comms::option::app::NoReadImpl",
         "comms::option::app::NoDispatchImpl"

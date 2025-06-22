@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/SetField.h"
+#include "commsdsl/parse/ParseSetField.h"
 #include "commsdsl/gen/Field.h"
 
 #include <memory>
@@ -34,11 +34,11 @@ class COMMSDSL_API SetField : public Field
     using Base = Field;
 public:
 
-    SetField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    SetField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent = nullptr);
     virtual ~SetField();
 
 protected:    
-    commsdsl::parse::SetField setDslObj() const;
+    commsdsl::parse::ParseSetField setDslObj() const;
 
 private:
 };

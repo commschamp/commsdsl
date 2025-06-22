@@ -46,15 +46,15 @@ bool hasIdLayerInternal(const CommsFrame::CommsLayersList& commsLayers)
             commsLayers.begin(), commsLayers.end(),
             [](auto* l)
             {
-                if (l->layer().dslObj().kind() == commsdsl::parse::Layer::Kind::Id) {
+                if (l->layer().dslObj().kind() == commsdsl::parse::ParseLayer::Kind::Id) {
                     return true;
                 }
 
-                if (l->layer().dslObj().kind() != commsdsl::parse::Layer::Kind::Custom) {
+                if (l->layer().dslObj().kind() != commsdsl::parse::ParseLayer::Kind::Custom) {
                     return false;
                 }
 
-                using LayerKind = commsdsl::parse::Layer::Kind;
+                using LayerKind = commsdsl::parse::ParseLayer::Kind;
                 return (static_cast<const CommsCustomLayer&>(l->layer()).customDslObj().semanticLayerType() == LayerKind::Id);
     });
 }
@@ -62,7 +62,7 @@ bool hasIdLayerInternal(const CommsFrame::CommsLayersList& commsLayers)
 } // namespace 
    
 
-CommsFrame::CommsFrame(CommsGenerator& generator, commsdsl::parse::Frame dslObj, Elem* parent) :
+CommsFrame::CommsFrame(CommsGenerator& generator, commsdsl::parse::ParseFrame dslObj, Elem* parent) :
     Base(generator, dslObj, parent)
 {
 }   

@@ -32,7 +32,7 @@ public:
     using StringsList = commsdsl::gen::util::StringsList;
     using ToolsQtLayersList = std::vector<ToolsQtLayer*>;
 
-    explicit ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::Frame dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::Elem* parent);
 
     std::string toolsHeaderFilePath(const commsdsl::gen::Interface& iFace) const;
     StringsList toolsSourceFiles(const commsdsl::gen::Interface& iFace) const;

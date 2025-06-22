@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/IntField.h"
+#include "commsdsl/parse/ParseIntField.h"
 #include "commsdsl/gen/Field.h"
 
 #include <memory>
@@ -36,13 +36,13 @@ class COMMSDSL_API IntField : public Field
     using Base = Field;
 public:
 
-    using SpecialsListElem = std::pair<std::string, commsdsl::parse::IntField::SpecialValueInfo>;
+    using SpecialsListElem = std::pair<std::string, commsdsl::parse::ParseIntField::SpecialValueInfo>;
     using SpecialsList = std::vector<SpecialsListElem>;
 
-    IntField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    IntField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent = nullptr);
     virtual ~IntField();
 
-    static bool isUnsignedType(commsdsl::parse::IntField::Type value);
+    static bool isUnsignedType(commsdsl::parse::ParseIntField::Type value);
     bool isUnsignedType() const;
 
     const SpecialsList& specialsSortedByValue() const;
@@ -51,7 +51,7 @@ protected:
     virtual bool prepareImpl() override;
     virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override final;
 
-    commsdsl::parse::IntField intDslObj() const;
+    commsdsl::parse::ParseIntField intDslObj() const;
 
 private:
     std::unique_ptr<IntFieldImpl> m_impl;    

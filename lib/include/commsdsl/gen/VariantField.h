@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/VariantField.h"
+#include "commsdsl/parse/ParseVariantField.h"
 #include "commsdsl/gen/Field.h"
 
 #include <memory>
@@ -34,7 +34,7 @@ class COMMSDSL_API VariantField : public Field
     using Base = Field;
 
 public:
-    VariantField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    VariantField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent = nullptr);
     virtual ~VariantField();
 
     const FieldsList& members() const;
@@ -44,7 +44,7 @@ protected:
     virtual void setReferencedImpl() override;
     virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override final;
 
-    commsdsl::parse::VariantField variantDslObj() const;
+    commsdsl::parse::ParseVariantField variantDslObj() const;
 
 private:
     std::unique_ptr<VariantFieldImpl> m_impl;

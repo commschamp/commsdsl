@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/Message.h"
+#include "commsdsl/parse/ParseMessage.h"
 #include "commsdsl/gen/Elem.h"
 #include "commsdsl/gen/Field.h"
 
@@ -40,7 +40,7 @@ public:
     using Ptr = std::unique_ptr<Message>;
     using FieldsList = Field::FieldsList;
 
-    explicit Message(Generator& generator, commsdsl::parse::Message dslObj, Elem* parent = nullptr);
+    explicit Message(Generator& generator, commsdsl::parse::ParseMessage dslObj, Elem* parent = nullptr);
     virtual ~Message();
 
     bool createAll();
@@ -50,7 +50,7 @@ public:
     bool isReferenced() const;
     void setReferenced(bool value);
 
-    commsdsl::parse::Message dslObj() const;
+    commsdsl::parse::ParseMessage dslObj() const;
 
     const FieldsList& fields() const;
 

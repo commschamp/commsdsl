@@ -33,7 +33,7 @@ class SwigNamespace final: public commsdsl::gen::Namespace
 public:
     using StringsList = commsdsl::gen::util::StringsList;
 
-    explicit SwigNamespace(SwigGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent);
+    explicit SwigNamespace(SwigGenerator& generator, commsdsl::parse::ParseNamespace dslObj, Elem* parent);
     virtual ~SwigNamespace();
 
     void swigAddCodeIncludes(StringsList& list) const; 

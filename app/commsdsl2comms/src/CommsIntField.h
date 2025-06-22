@@ -28,7 +28,7 @@ class CommsIntField final : public commsdsl::gen::IntField, public CommsField
     using Base = commsdsl::gen::IntField;
     using CommsBase = CommsField;
 public:
-    CommsIntField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    CommsIntField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
     std::string commsVariantPropKeyType() const;
     std::string commsVariantPropKeyValueStr() const;

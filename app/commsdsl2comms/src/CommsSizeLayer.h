@@ -28,7 +28,7 @@ class CommsSizeLayer final : public commsdsl::gen::SizeLayer, public CommsLayer
     using Base = commsdsl::gen::SizeLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsSizeLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    CommsSizeLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     virtual bool prepareImpl() override;

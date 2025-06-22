@@ -28,7 +28,7 @@ class CommsSyncLayer final : public commsdsl::gen::SyncLayer, public CommsLayer
     using Base = commsdsl::gen::SyncLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsSyncLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    CommsSyncLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     virtual bool prepareImpl() override;

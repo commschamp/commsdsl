@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/OptionalField.h"
+#include "commsdsl/parse/ParseOptionalField.h"
 #include "commsdsl/gen/Field.h"
 
 #include <memory>
@@ -34,7 +34,7 @@ class COMMSDSL_API OptionalField : public Field
     using Base = Field;
 public:
 
-    OptionalField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    OptionalField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent = nullptr);
     virtual ~OptionalField();
 
     Field* externalField();
@@ -47,7 +47,7 @@ protected:
     virtual bool prepareImpl() override;
     virtual void setReferencedImpl() override;
 
-    commsdsl::parse::OptionalField optionalDslObj() const;
+    commsdsl::parse::ParseOptionalField optionalDslObj() const;
 
 private:
     std::unique_ptr<OptionalFieldImpl> m_impl;

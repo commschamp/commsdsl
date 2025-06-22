@@ -22,9 +22,9 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::string&
 
 CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::vector<std::string>& schemas, bool enableMultipleSchemas)
 {
-    ProtocolPtr protocol(new commsdsl::parse::Protocol);
+    ProtocolPtr protocol(new commsdsl::parse::ParseProtocol);
     protocol->setErrorReportCallback(
-        [this](commsdsl::parse::ErrorLevel level, const std::string& msg)
+        [this](commsdsl::parse::ParseErrorLevel level, const std::string& msg)
         {
             static const std::string LevelMap[] = {
                 "[DEBUG]: ",
@@ -35,22 +35,22 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::vector<
             static const std::size_t LevelMapSize =
                     std::extent<decltype(LevelMap)>::value;
 
-            static_assert(LevelMapSize == commsdsl::parse::ErrorLevel_NumOfValues, "Invalid Map");
+            static_assert(LevelMapSize == commsdsl::parse::ParseErrorLevel_NumOfValues, "Invalid Map");
 
             if ((level < static_cast<decltype(level)>(0)) ||
-                (commsdsl::parse::ErrorLevel_NumOfValues <= level)) {
-                level = commsdsl::parse::ErrorLevel_Error;
+                (commsdsl::parse::ParseErrorLevel_NumOfValues <= level)) {
+                level = commsdsl::parse::ParseErrorLevel_Error;
             }
 
             auto errMsg = LevelMap[level] + msg;
             TS_TRACE(errMsg);
 
             if (m_status.m_expErrors.empty()) {
-                TS_ASSERT(level < commsdsl::parse::ErrorLevel_Warning);
+                TS_ASSERT(level < commsdsl::parse::ParseErrorLevel_Warning);
                 return;
             }
 
-            if (level < commsdsl::parse::ErrorLevel_Warning) {
+            if (level < commsdsl::parse::ParseErrorLevel_Warning) {
                 return;
             }
 

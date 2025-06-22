@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/RefField.h"
+#include "commsdsl/parse/ParseRefField.h"
 #include "commsdsl/gen/Field.h"
 
 #include <memory>
@@ -34,7 +34,7 @@ class COMMSDSL_API RefField : public Field
     using Base = Field;
 public:
 
-    RefField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    RefField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent = nullptr);
     virtual ~RefField();
 
     Field* referencedField();
@@ -45,7 +45,7 @@ protected:
     virtual void setReferencedImpl() override;
     virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override final;
 
-    commsdsl::parse::RefField refDslObj() const;
+    commsdsl::parse::ParseRefField refDslObj() const;
 
 private:
     std::unique_ptr<RefFieldImpl> m_impl;

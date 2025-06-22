@@ -31,7 +31,7 @@ namespace gen
 class FieldImpl
 {
 public:
-    FieldImpl(Generator& generator, const commsdsl::parse::Field& dslObj) : 
+    FieldImpl(Generator& generator, const commsdsl::parse::ParseField& dslObj) : 
         m_generator(generator),
         m_dslObj(dslObj)
     {
@@ -47,7 +47,7 @@ public:
         m_prepared = true;
     }
 
-    const commsdsl::parse::Field& dslObj() const
+    const commsdsl::parse::ParseField& dslObj() const
     {
         return m_dslObj;
     } 
@@ -74,12 +74,12 @@ public:
 
 private:
     Generator& m_generator;
-    commsdsl::parse::Field m_dslObj;
+    commsdsl::parse::ParseField m_dslObj;
     bool m_prepared = false;
     bool m_referenced = false;
 };    
 
-Field::Field(Generator& generator, const commsdsl::parse::Field& dslObj, Elem* parent) :
+Field::Field(Generator& generator, const commsdsl::parse::ParseField& dslObj, Elem* parent) :
     Base(parent),
     m_impl(std::make_unique<FieldImpl>(generator, dslObj))
 {
@@ -87,9 +87,9 @@ Field::Field(Generator& generator, const commsdsl::parse::Field& dslObj, Elem* p
 
 Field::~Field() = default;
 
-Field::Ptr Field::create(Generator& generator, commsdsl::parse::Field dslobj, Elem* parent)
+Field::Ptr Field::create(Generator& generator, commsdsl::parse::ParseField dslobj, Elem* parent)
 {
-    using CreateFunc = FieldPtr (Generator::*)(commsdsl::parse::Field dslobj, Elem* parent);
+    using CreateFunc = FieldPtr (Generator::*)(commsdsl::parse::ParseField dslobj, Elem* parent);
     static const CreateFunc Map[] = {
         /* Int */ &Generator::createIntField,
         /* Enum */ &Generator::createEnumField,
@@ -106,7 +106,7 @@ Field::Ptr Field::create(Generator& generator, commsdsl::parse::Field dslobj, El
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::Field::Kind::NumOfValues), "Invalid map");
+    static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::ParseField::Kind::NumOfValues), "Invalid map");
 
     auto idx = static_cast<std::size_t>(dslobj.kind());
     if (MapSize <= idx) {
@@ -148,7 +148,7 @@ bool Field::write() const
     return writeImpl();
 }
 
-const commsdsl::parse::Field& Field::dslObj() const
+const commsdsl::parse::ParseField& Field::dslObj() const
 {
     return m_impl->dslObj();
 }

@@ -29,7 +29,7 @@ class SwigFloatField final : public commsdsl::gen::FloatField, public SwigField
     using Base = commsdsl::gen::FloatField;
     using SwigBase = SwigField;
 public:
-    SwigFloatField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    SwigFloatField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

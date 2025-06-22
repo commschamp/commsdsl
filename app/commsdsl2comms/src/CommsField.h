@@ -18,7 +18,7 @@
 #include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/util.h"
 
-#include "commsdsl/parse/Endian.h"
+#include "commsdsl/parse/ParseEndian.h"
 
 #include <string>
 #include <vector>
@@ -137,7 +137,7 @@ protected:
     virtual bool commsMustDefineDefaultConstructorImpl() const;
 
     std::string commsCommonNameFuncCode() const;
-    std::string commsFieldBaseParams(commsdsl::parse::Endian endian) const;
+    std::string commsFieldBaseParams(commsdsl::parse::ParseEndian endian) const;
     void commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts, bool tempFieldObj = false) const;
     void commsAddFieldTypeOption(commsdsl::gen::util::StringsList& opts) const;
     bool commsIsExtended() const;
@@ -166,7 +166,7 @@ private:
 
     bool copyCodeFromInternal();
     bool commsPrepareOverrideInternal(
-        commsdsl::parse::OverrideType type, 
+        commsdsl::parse::ParseOverrideType type, 
         std::string& codePathPrefix, 
         const std::string& suffix,
         std::string& customCode,

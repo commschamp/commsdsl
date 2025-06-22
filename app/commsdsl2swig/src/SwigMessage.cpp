@@ -36,7 +36,7 @@ namespace commsdsl2swig
 {
 
 
-SwigMessage::SwigMessage(SwigGenerator& generator, commsdsl::parse::Message dslObj, Elem* parent) :
+SwigMessage::SwigMessage(SwigGenerator& generator, commsdsl::parse::ParseMessage dslObj, Elem* parent) :
     Base(generator, dslObj, parent)
 {
 }   

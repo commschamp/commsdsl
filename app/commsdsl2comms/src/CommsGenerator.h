@@ -68,32 +68,32 @@ public:
 protected:
     virtual bool prepareImpl() override;
 
-    virtual SchemaPtr createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent) override;
-    virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent) override;
-    virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent) override;
-    virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent) override;
-    virtual FramePtr createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent) override;
+    virtual SchemaPtr createSchemaImpl(commsdsl::parse::ParseSchema dslObj, Elem* parent) override;
+    virtual NamespacePtr createNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, Elem* parent) override;
+    virtual InterfacePtr createInterfaceImpl(commsdsl::parse::ParseInterface dslObj, Elem* parent) override;
+    virtual MessagePtr createMessageImpl(commsdsl::parse::ParseMessage dslObj, Elem* parent) override;
+    virtual FramePtr createFrameImpl(commsdsl::parse::ParseFrame dslObj, Elem* parent) override;
 
-    virtual FieldPtr createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createSetFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createFloatFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createBitfieldFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createBundleFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createStringFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createDataFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createListFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createRefFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createOptionalFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
+    virtual FieldPtr createIntFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent) override;
+    virtual FieldPtr createEnumFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent) override;
+    virtual FieldPtr createSetFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent) override;
+    virtual FieldPtr createFloatFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent) override;
+    virtual FieldPtr createBitfieldFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent) override;
+    virtual FieldPtr createBundleFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent) override;
+    virtual FieldPtr createStringFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent) override;
+    virtual FieldPtr createDataFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent) override;
+    virtual FieldPtr createListFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent) override;
+    virtual FieldPtr createRefFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent) override;
+    virtual FieldPtr createOptionalFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent) override;
+    virtual FieldPtr createVariantFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent) override;
 
-    virtual LayerPtr createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
-    virtual LayerPtr createSyncLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
-    virtual LayerPtr createSizeLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
-    virtual LayerPtr createIdLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
-    virtual LayerPtr createValueLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
-    virtual LayerPtr createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
-    virtual LayerPtr createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
+    virtual LayerPtr createCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent) override;
+    virtual LayerPtr createSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent) override;
+    virtual LayerPtr createSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent) override;
+    virtual LayerPtr createIdLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent) override;
+    virtual LayerPtr createValueLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent) override;
+    virtual LayerPtr createPayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent) override;
+    virtual LayerPtr createChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent) override;
 
     virtual bool writeImpl() override;    
 

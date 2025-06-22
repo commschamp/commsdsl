@@ -107,7 +107,7 @@ std::string CommsMsgId::commsTypeInternal() const
     auto allMsgIdFields = m_parent.findMessageIdFields();
     if (allMsgIdFields.size() == 1U) {
         auto* msgIdField = allMsgIdFields.front();
-        assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
+        assert(msgIdField->dslObj().kind() == commsdsl::parse::ParseField::Kind::Enum);
         auto* castedMsgIdField = static_cast<const CommsEnumField*>(msgIdField);
         auto dslObj = castedMsgIdField->enumDslObj();
         return comms::cppIntTypeFor(dslObj.type(), dslObj.maxLength());
@@ -150,7 +150,7 @@ std::string CommsMsgId::commsIdsInternal() const
 
     if (allMsgIdFields.size() == 1U) {    
         auto* msgIdField = allMsgIdFields.front();
-        assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
+        assert(msgIdField->dslObj().kind() == commsdsl::parse::ParseField::Kind::Enum);
         auto* castedMsgIdField = static_cast<const CommsEnumField*>(msgIdField);
         auto enumValues = castedMsgIdField->commsEnumValues();
         static const std::string CommentPrefix("// ---");

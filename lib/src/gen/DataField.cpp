@@ -29,7 +29,7 @@ class DataFieldImpl
 {
 public:
 
-    DataFieldImpl(Generator& generator, commsdsl::parse::DataField dslObj, Elem* parent): 
+    DataFieldImpl(Generator& generator, commsdsl::parse::ParseDataField dslObj, Elem* parent): 
         m_generator(generator),
         m_dslObj(dslObj),
         m_parent(parent)
@@ -85,17 +85,17 @@ public:
 
 private:
     Generator& m_generator;
-    commsdsl::parse::DataField m_dslObj;
+    commsdsl::parse::ParseDataField m_dslObj;
     Elem* m_parent = nullptr;
     Field* m_externalPrefixField = nullptr;
     FieldPtr m_memberPrefixField;
 };    
 
-DataField::DataField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
+DataField::DataField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent) :
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<DataFieldImpl>(generator, dataDslObj(), this))
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Data);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Data);
 }
 
 DataField::~DataField() = default;
@@ -130,9 +130,9 @@ void DataField::setReferencedImpl()
     m_impl->setReferenced();
 }
 
-commsdsl::parse::DataField DataField::dataDslObj() const
+commsdsl::parse::ParseDataField DataField::dataDslObj() const
 {
-    return commsdsl::parse::DataField(dslObj());
+    return commsdsl::parse::ParseDataField(dslObj());
 }
 
 } // namespace gen

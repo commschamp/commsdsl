@@ -28,7 +28,7 @@ class SwigBundleField final : public commsdsl::gen::BundleField, public SwigFiel
     using Base = commsdsl::gen::BundleField;
     using SwigBase = SwigField;
 public:
-    SwigBundleField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    SwigBundleField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
     const SwigFieldsList& swigMembers() const
     {

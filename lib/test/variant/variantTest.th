@@ -2,6 +2,10 @@
 
 #include "CommonTestSuite.h"
 
+#include "commsdsl/parse/ParseBundleField.h"
+#include "commsdsl/parse/ParseIntField.h"
+#include "commsdsl/parse/ParseVariantField.h"
+
 class BundleTestSuite : public CommonTestSuite, public CxxTest::TestSuite
 {
 public:
@@ -42,18 +46,18 @@ void BundleTestSuite::test1()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Variant1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Variant);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Variant);
     TS_ASSERT_EQUALS(field.minLength(), 0U);
     TS_ASSERT_EQUALS(field.maxLength(), 5U);
     TS_ASSERT_EQUALS(field.bitLength(), 0U);
 
-    commsdsl::parse::VariantField variantField(field);
+    commsdsl::parse::ParseVariantField variantField(field);
     auto members = variantField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Bundle);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Bundle);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_LESS_THAN_EQUALS(members.size(), variantField.defaultMemberIdx());
 }
 
@@ -73,18 +77,18 @@ void BundleTestSuite::test2()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Variant1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Variant);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Variant);
     TS_ASSERT_EQUALS(field.minLength(), 0U);
     TS_ASSERT_EQUALS(field.maxLength(), 5U);
     TS_ASSERT_EQUALS(field.bitLength(), 0U);
 
-    commsdsl::parse::VariantField variantField(field);
+    commsdsl::parse::ParseVariantField variantField(field);
     auto members = variantField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Bundle);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::ParseField::Kind::Bundle);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::ParseField::Kind::Bundle);
     TS_ASSERT_EQUALS(variantField.defaultMemberIdx(), 0U);
 }
 
@@ -104,9 +108,9 @@ void BundleTestSuite::test3()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Variant1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Variant);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Variant);
 
-    commsdsl::parse::VariantField variantField(field);
+    commsdsl::parse::ParseVariantField variantField(field);
     auto members = variantField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     TS_ASSERT_EQUALS(variantField.defaultMemberIdx(), 1U);
@@ -128,9 +132,9 @@ void BundleTestSuite::test4()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "Variant2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Variant);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Variant);
 
-    commsdsl::parse::VariantField variantField(field);
+    commsdsl::parse::ParseVariantField variantField(field);
     auto members = variantField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     TS_ASSERT_LESS_THAN_EQUALS(members.size(), variantField.defaultMemberIdx());
@@ -138,7 +142,7 @@ void BundleTestSuite::test4()
 
 void BundleTestSuite::test5()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
@@ -146,7 +150,7 @@ void BundleTestSuite::test5()
 
 void BundleTestSuite::test6()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
@@ -168,27 +172,27 @@ void BundleTestSuite::test7()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "Variant2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Variant);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Variant);
 
-    commsdsl::parse::VariantField variantField(field);
+    commsdsl::parse::ParseVariantField variantField(field);
     auto members = variantField.members();
     TS_ASSERT_EQUALS(members.size(), 3U);
     TS_ASSERT_EQUALS(variantField.defaultMemberIdx(), 2);
 
     auto& p2 = members[1];
-    TS_ASSERT_EQUALS(p2.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(p2.kind(), commsdsl::parse::ParseField::Kind::Bundle);
 
-    commsdsl::parse::BundleField bundleP2Field(p2);
+    commsdsl::parse::ParseBundleField bundleP2Field(p2);
     auto p2Members = bundleP2Field.members();
     TS_ASSERT_EQUALS(p2Members.size(), 2U);
 
     auto& p2Key = p2Members[0];
-    TS_ASSERT_EQUALS(p2Key.kind(), commsdsl::parse::Field::Kind::Int);
+    TS_ASSERT_EQUALS(p2Key.kind(), commsdsl::parse::ParseField::Kind::Int);
     TS_ASSERT(p2Key.isFixedValue());    
     
     auto& p2Val = p2Members[1];
-    TS_ASSERT_EQUALS(p2Val.kind(), commsdsl::parse::Field::Kind::Int);
+    TS_ASSERT_EQUALS(p2Val.kind(), commsdsl::parse::ParseField::Kind::Int);
 
-    commsdsl::parse::IntField p2ValField(p2Val);
-    TS_ASSERT_EQUALS(p2ValField.type(), commsdsl::parse::IntField::Type::Uint16);
+    commsdsl::parse::ParseIntField p2ValField(p2Val);
+    TS_ASSERT_EQUALS(p2ValField.type(), commsdsl::parse::ParseIntField::Type::Uint16);
 }

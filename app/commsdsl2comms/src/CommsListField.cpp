@@ -34,7 +34,7 @@ namespace commsdsl2comms
 
 CommsListField::CommsListField(
     CommsGenerator& generator, 
-    commsdsl::parse::Field dslObj, 
+    commsdsl::parse::ParseField dslObj, 
     commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))

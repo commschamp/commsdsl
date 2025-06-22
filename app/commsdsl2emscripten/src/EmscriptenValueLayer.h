@@ -29,7 +29,7 @@ class EmscriptenValueLayer final : public commsdsl::gen::ValueLayer, public Emsc
     using Base = commsdsl::gen::ValueLayer;
     using EmscriptenBase = EmscriptenLayer;
 public:
-    EmscriptenValueLayer(EmscriptenGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenValueLayer(EmscriptenGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     virtual bool emscriptenIsMainInterfaceSupportedImpl() const override;

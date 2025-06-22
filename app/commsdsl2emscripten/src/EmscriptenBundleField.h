@@ -28,7 +28,7 @@ class EmscriptenBundleField final : public commsdsl::gen::BundleField, public Em
     using Base = commsdsl::gen::BundleField;
     using EmscriptenBase = EmscriptenField;
 public:
-    EmscriptenBundleField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenBundleField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

@@ -35,7 +35,7 @@ public:
     using CommsFieldsList = CommsField::CommsFieldsList;
     using StringsList = commsdsl::gen::util::StringsList;
 
-    explicit CommsMessage(CommsGenerator& generator, commsdsl::parse::Message dslObj, Elem* parent);
+    explicit CommsMessage(CommsGenerator& generator, commsdsl::parse::ParseMessage dslObj, Elem* parent);
     virtual ~CommsMessage();
 
     const CommsFieldsList& commsFields() const
@@ -77,7 +77,7 @@ private:
 
     bool copyCodeFromInternal();
     bool commsPrepareOverrideInternal(
-        commsdsl::parse::OverrideType type, 
+        commsdsl::parse::ParseOverrideType type, 
         std::string& codePathPrefix, 
         const std::string& suffix,
         std::string& customCode,

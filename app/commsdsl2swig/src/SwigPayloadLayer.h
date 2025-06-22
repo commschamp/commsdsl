@@ -29,7 +29,7 @@ class SwigPayloadLayer final : public commsdsl::gen::PayloadLayer, public SwigLa
     using Base = commsdsl::gen::PayloadLayer;
     using SwigBase = SwigLayer;
 public:
-    SwigPayloadLayer(SwigGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    SwigPayloadLayer(SwigGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // SwigBase overrides

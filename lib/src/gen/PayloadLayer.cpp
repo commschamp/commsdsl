@@ -25,17 +25,17 @@ namespace commsdsl
 namespace gen
 {
 
-PayloadLayer::PayloadLayer(Generator& generator, commsdsl::parse::Layer dslObj, Elem* parent) :
+PayloadLayer::PayloadLayer(Generator& generator, commsdsl::parse::ParseLayer dslObj, Elem* parent) :
     Base(generator, dslObj, parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Payload);
+    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Payload);
 }
 
 PayloadLayer::~PayloadLayer() = default;
 
-commsdsl::parse::PayloadLayer PayloadLayer::payloadDslObj() const
+commsdsl::parse::ParsePayloadLayer PayloadLayer::payloadDslObj() const
 {
-    return commsdsl::parse::PayloadLayer(dslObj());
+    return commsdsl::parse::ParsePayloadLayer(dslObj());
 }
 
 } // namespace gen

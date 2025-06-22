@@ -30,7 +30,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenBitfieldField::EmscriptenBitfieldField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
+EmscriptenBitfieldField::EmscriptenBitfieldField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent) : 
     Base(generator, dslObj, parent),
     EmscriptenBase(static_cast<Base&>(*this))
 {
@@ -53,7 +53,7 @@ bool EmscriptenBitfieldField::writeImpl() const
 
 std::string EmscriptenBitfieldField::emscriptenHeaderValueAccImpl() const
 {
-    if (dslObj().semanticType() != commsdsl::parse::Field::SemanticType::Length) {
+    if (dslObj().semanticType() != commsdsl::parse::ParseField::SemanticType::Length) {
         return strings::emptyString();
     }
     
@@ -67,7 +67,7 @@ std::string EmscriptenBitfieldField::emscriptenHeaderExtraPublicFuncsImpl() cons
 
 std::string EmscriptenBitfieldField::emscriptenSourceBindValueAccImpl() const
 {
-    if (dslObj().semanticType() != commsdsl::parse::Field::SemanticType::Length) {
+    if (dslObj().semanticType() != commsdsl::parse::ParseField::SemanticType::Length) {
         return strings::emptyString();
     }
 

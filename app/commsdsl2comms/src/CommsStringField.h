@@ -28,7 +28,7 @@ class CommsStringField final : public commsdsl::gen::StringField, public CommsFi
     using Base = commsdsl::gen::StringField;
     using CommsBase = CommsField;
 public:
-    CommsStringField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    CommsStringField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

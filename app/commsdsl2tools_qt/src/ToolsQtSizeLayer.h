@@ -28,7 +28,7 @@ class ToolsQtSizeLayer final : public commsdsl::gen::SizeLayer, public ToolsQtLa
     using Base = commsdsl::gen::SizeLayer;
     using ToolsBase = ToolsQtLayer;
 public:
-    explicit ToolsQtSizeLayer(ToolsQtGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtSizeLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

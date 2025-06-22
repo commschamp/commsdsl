@@ -23,7 +23,7 @@
 #include "commsdsl/gen/Layer.h"
 #include "commsdsl/gen/Message.h"
 #include "commsdsl/gen/Namespace.h"
-#include "commsdsl/parse/Schema.h"
+#include "commsdsl/parse/ParseSchema.h"
 
 #include <memory>
 
@@ -48,13 +48,13 @@ public:
     using FramesAccessList = Namespace::FramesAccessList;
     using FieldsAccessList = Namespace::FieldsAccessList;
 
-    Schema(Generator& generator, commsdsl::parse::Schema dslObj, Elem* parent = nullptr);
+    Schema(Generator& generator, commsdsl::parse::ParseSchema dslObj, Elem* parent = nullptr);
     virtual ~Schema();
 
-    const commsdsl::parse::Schema& dslObj() const;
+    const commsdsl::parse::ParseSchema& dslObj() const;
 
     const std::string& schemaName() const;
-    parse::Endian schemaEndian() const;
+    parse::ParseEndian schemaEndian() const;
     unsigned schemaVersion() const;
 
     FieldsAccessList getAllMessageIdFields() const;

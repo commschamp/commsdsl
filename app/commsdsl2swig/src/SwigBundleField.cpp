@@ -30,7 +30,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigBundleField::SwigBundleField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
+SwigBundleField::SwigBundleField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent) : 
     Base(generator, dslObj, parent),
     SwigBase(static_cast<Base&>(*this))
 {
@@ -68,7 +68,7 @@ std::string SwigBundleField::swigMembersDeclImpl() const
 
 std::string SwigBundleField::swigValueAccDeclImpl() const
 {
-    if (dslObj().semanticType() != commsdsl::parse::Field::SemanticType::Length) {
+    if (dslObj().semanticType() != commsdsl::parse::ParseField::SemanticType::Length) {
         return strings::emptyString();
     }
 
@@ -124,7 +124,7 @@ std::string SwigBundleField::swigExtraPublicFuncsCodeImpl() const
     }
 
     std::string valueAccCode;
-    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) {
+    if (dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::Length) {
         valueAccCode = swigSemanticTypeLengthValueAccCode();
     }
 

@@ -31,7 +31,7 @@ class CommsBitfieldField final : public commsdsl::gen::BitfieldField, public Com
     using Base = commsdsl::gen::BitfieldField;
     using CommsBase = CommsField;
 public:
-    CommsBitfieldField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    CommsBitfieldField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
     const CommsFieldsList& commsMembers() const
     {

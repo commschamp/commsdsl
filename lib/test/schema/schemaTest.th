@@ -2,6 +2,8 @@
 
 #include "CommonTestSuite.h"
 
+#include "commsdsl/parse/ParseSchema.h"
+
 class SchemaTestSuite : public CommonTestSuite, public CxxTest::TestSuite
 {
 public:
@@ -36,7 +38,7 @@ void SchemaTestSuite::test1()
     TS_ASSERT_EQUALS(schema.id(), 1);
     TS_ASSERT_EQUALS(schema.version(), 5);
     TS_ASSERT_EQUALS(schema.dslVersion(), 0);
-    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::Endian_Big);
+    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT(schema.nonUniqueMsgIdAllowed());
     TS_ASSERT(schema.extraAttributes().empty());
     TS_ASSERT(schema.extraElements().empty());
@@ -44,8 +46,8 @@ void SchemaTestSuite::test1()
 
 void SchemaTestSuite::test2()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
 
@@ -54,7 +56,7 @@ void SchemaTestSuite::test2()
     TS_ASSERT_EQUALS(schema.description(), "Some Description");
     TS_ASSERT_EQUALS(schema.id(), 1);
     TS_ASSERT_EQUALS(schema.version(), 5);
-    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::Endian_Big);
+    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT(schema.nonUniqueMsgIdAllowed());
     auto& extraAttrs = schema.extraAttributes();
     auto& extraChildren = schema.extraElements();
@@ -68,7 +70,7 @@ void SchemaTestSuite::test2()
 void SchemaTestSuite::test3()
 {
     m_status.m_preValidateFunc =
-        [](commsdsl::parse::Protocol& p)
+        [](commsdsl::parse::ParseProtocol& p)
         {
             p.addExpectedExtraPrefix("prefix.");
         };
@@ -81,7 +83,7 @@ void SchemaTestSuite::test3()
     TS_ASSERT_EQUALS(schema.description(), "Some Description");
     TS_ASSERT_EQUALS(schema.id(), 1);
     TS_ASSERT_EQUALS(schema.version(), 5);
-    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::Endian_Big);
+    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT(schema.nonUniqueMsgIdAllowed());
     auto& extraAttrs = schema.extraAttributes();
     auto& extraChildren = schema.extraElements();
@@ -102,7 +104,7 @@ void SchemaTestSuite::test4()
     TS_ASSERT_EQUALS(schema.description(), "Some Description");
     TS_ASSERT_EQUALS(schema.id(), 1);
     TS_ASSERT_EQUALS(schema.version(), 5);
-    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::Endian_Big);
+    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT(!schema.nonUniqueMsgIdAllowed());
     TS_ASSERT(schema.extraAttributes().empty());
     TS_ASSERT(schema.extraElements().empty());
@@ -115,7 +117,7 @@ void SchemaTestSuite::test4()
 
 void SchemaTestSuite::test5()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
 
@@ -123,7 +125,7 @@ void SchemaTestSuite::test5()
     TS_ASSERT_EQUALS(schema.name(), "Schema5");
     TS_ASSERT_EQUALS(schema.id(), 1);
     TS_ASSERT_EQUALS(schema.version(), 5);
-    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::Endian_Big);
+    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT(!schema.nonUniqueMsgIdAllowed());
     TS_ASSERT(schema.extraAttributes().empty());
     TS_ASSERT(schema.extraElements().empty());
@@ -142,7 +144,7 @@ void SchemaTestSuite::test6()
     TS_ASSERT_EQUALS(schema.name(), "Schema6");
     TS_ASSERT_EQUALS(schema.version(), 5);
     TS_ASSERT_EQUALS(schema.dslVersion(), 3);
-    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::Endian_Big);
+    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT(!schema.nonUniqueMsgIdAllowed());
     TS_ASSERT(schema.extraAttributes().empty());
     TS_ASSERT(schema.extraElements().empty());

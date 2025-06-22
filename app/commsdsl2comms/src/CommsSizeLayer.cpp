@@ -26,7 +26,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsSizeLayer::CommsSizeLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) :
+CommsSizeLayer::CommsSizeLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {

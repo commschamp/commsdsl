@@ -25,17 +25,17 @@ namespace commsdsl
 namespace gen
 {
 
-SetField::SetField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
+SetField::SetField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent) :
     Base(generator, dslObj, parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Set);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Set);
 }
 
 SetField::~SetField() = default;
 
-commsdsl::parse::SetField SetField::setDslObj() const
+commsdsl::parse::ParseSetField SetField::setDslObj() const
 {
-    return commsdsl::parse::SetField(dslObj());
+    return commsdsl::parse::ParseSetField(dslObj());
 }
 
 } // namespace gen

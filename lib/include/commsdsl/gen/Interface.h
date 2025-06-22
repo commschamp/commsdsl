@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/Interface.h"
+#include "commsdsl/parse/ParseInterface.h"
 #include "commsdsl/gen/Elem.h"
 #include "commsdsl/gen/Field.h"
 
@@ -40,7 +40,7 @@ public:
     using Ptr = std::unique_ptr<Interface>;
     using FieldsList = Field::FieldsList;
 
-    explicit Interface(Generator& generator, commsdsl::parse::Interface dslObj, Elem* parent = nullptr);
+    explicit Interface(Generator& generator, commsdsl::parse::ParseInterface dslObj, Elem* parent = nullptr);
     virtual ~Interface();
 
     bool createAll();
@@ -48,7 +48,7 @@ public:
     bool write() const;
 
     const FieldsList& fields() const;
-    commsdsl::parse::Interface dslObj() const;
+    commsdsl::parse::ParseInterface dslObj() const;
     std::string adjustedExternalRef() const;
     const std::string& adjustedName() const;
 

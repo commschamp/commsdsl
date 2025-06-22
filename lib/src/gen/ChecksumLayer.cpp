@@ -26,10 +26,10 @@ namespace commsdsl
 namespace gen
 {
 
-ChecksumLayer::ChecksumLayer(Generator& generator, commsdsl::parse::Layer dslObj, Elem* parent) :
+ChecksumLayer::ChecksumLayer(Generator& generator, commsdsl::parse::ParseLayer dslObj, Elem* parent) :
     Base(generator, dslObj, parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Checksum);
+    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Checksum);
 }
 
 ChecksumLayer::~ChecksumLayer() = default;
@@ -70,7 +70,7 @@ bool ChecksumLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success)
             return false;
         }
 
-        if ((*untilIter)->dslObj().kind() != commsdsl::parse::Layer::Kind::Payload) {
+        if ((*untilIter)->dslObj().kind() != commsdsl::parse::ParseLayer::Kind::Payload) {
             generator().logger().error("Checksum prefix must be until payload layer");
             success = false;
             return false;
@@ -120,9 +120,9 @@ bool ChecksumLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success)
     return true;    
 }
 
-commsdsl::parse::ChecksumLayer ChecksumLayer::checksumDslObj() const
+commsdsl::parse::ParseChecksumLayer ChecksumLayer::checksumDslObj() const
 {
-    return commsdsl::parse::ChecksumLayer(dslObj());
+    return commsdsl::parse::ParseChecksumLayer(dslObj());
 }
 
 } // namespace gen

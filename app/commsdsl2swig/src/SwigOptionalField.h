@@ -29,7 +29,7 @@ class SwigOptionalField final : public commsdsl::gen::OptionalField, public Swig
     using Base = commsdsl::gen::OptionalField;
     using SwigBase = SwigField;
 public:
-    SwigOptionalField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    SwigOptionalField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
     static std::string swigDeclFuncs(const SwigGenerator& generator, const std::string& fieldType);
 

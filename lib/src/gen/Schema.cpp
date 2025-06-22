@@ -19,7 +19,7 @@
 #include "commsdsl/gen/Generator.h"
 #include "commsdsl/gen/util.h"
 
-#include "commsdsl/parse/Protocol.h"
+#include "commsdsl/parse/ParseProtocol.h"
 #include "commsdsl/version.h"
 
 #include <cassert>
@@ -48,14 +48,14 @@ public:
     using PlatformNamesList = Schema::PlatformNamesList;
     using FieldsAccessList = Schema::FieldsAccessList;
 
-    explicit SchemaImpl(Generator& generator, commsdsl::parse::Schema dslObj, Elem* parent) :
+    explicit SchemaImpl(Generator& generator, commsdsl::parse::ParseSchema dslObj, Elem* parent) :
         m_generator(generator),
         m_dslObj(dslObj),
         m_parent(parent)
     {
     }
 
-    const commsdsl::parse::Schema& dslObj() const
+    const commsdsl::parse::ParseSchema& dslObj() const
     {
         return m_dslObj;
     }
@@ -75,7 +75,7 @@ public:
         return m_dslObj.name();
     }
 
-    parse::Endian schemaEndian() const
+    parse::ParseEndian schemaEndian() const
     {
         return m_dslObj.endian();
     }
@@ -354,7 +354,7 @@ public:
                                         fields.begin(), fields.end(),
                                         [](auto& f)
                                         {
-                                            return f->dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Version;
+                                            return f->dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::Version;
                                         });
 
                             });
@@ -426,7 +426,7 @@ public:
             return true;
         }
 
-        if (deprecatedRemoved && (deprecatedSince < commsdsl::parse::Protocol::notYetDeprecated())) {
+        if (deprecatedRemoved && (deprecatedSince < commsdsl::parse::ParseProtocol::notYetDeprecated())) {
             return true;
         }
 
@@ -487,7 +487,7 @@ public:
 
 private:
     Generator& m_generator;
-    commsdsl::parse::Schema m_dslObj;
+    commsdsl::parse::ParseSchema m_dslObj;
     Elem* m_parent = nullptr;
     NamespacesList m_namespaces;
     int m_forcedSchemaVersion = -1;
@@ -499,7 +499,7 @@ private:
     bool m_versionDependentCode = false;
 }; 
 
-Schema::Schema(Generator& generator, commsdsl::parse::Schema dslObj, Elem* parent) : 
+Schema::Schema(Generator& generator, commsdsl::parse::ParseSchema dslObj, Elem* parent) : 
     Base(parent),
     m_impl(std::make_unique<SchemaImpl>(generator, dslObj, this))
 {
@@ -507,7 +507,7 @@ Schema::Schema(Generator& generator, commsdsl::parse::Schema dslObj, Elem* paren
 
 Schema::~Schema() = default;
 
-const commsdsl::parse::Schema& Schema::dslObj() const
+const commsdsl::parse::ParseSchema& Schema::dslObj() const
 {
     return m_impl->dslObj();
 }
@@ -517,7 +517,7 @@ const std::string& Schema::schemaName() const
     return m_impl->schemaName();
 }
 
-parse::Endian Schema::schemaEndian() const
+parse::ParseEndian Schema::schemaEndian() const
 {
     return m_impl->schemaEndian();
 }
@@ -718,7 +718,7 @@ Namespace* Schema::addDefaultNamespace()
         }
     }
 
-    auto iter = nsList.insert(nsList.begin(), m_impl->generator().createNamespace(commsdsl::parse::Namespace(nullptr), this));
+    auto iter = nsList.insert(nsList.begin(), m_impl->generator().createNamespace(commsdsl::parse::ParseNamespace(nullptr), this));
     return iter->get();
 }
 

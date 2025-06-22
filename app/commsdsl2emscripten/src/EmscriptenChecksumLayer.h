@@ -29,7 +29,7 @@ class EmscriptenChecksumLayer final : public commsdsl::gen::ChecksumLayer, publi
     using Base = commsdsl::gen::ChecksumLayer;
     using EmscriptenBase = EmscriptenLayer;
 public:
-    EmscriptenChecksumLayer(EmscriptenGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenChecksumLayer(EmscriptenGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 };
 
 } // namespace commsdsl2emscripten

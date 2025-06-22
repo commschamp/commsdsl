@@ -28,7 +28,7 @@ class ToolsQtPayloadLayer final : public commsdsl::gen::PayloadLayer, public Too
     using Base = commsdsl::gen::PayloadLayer;
     using ToolsBase = ToolsQtLayer;
 public:
-    explicit ToolsQtPayloadLayer(ToolsQtGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtPayloadLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

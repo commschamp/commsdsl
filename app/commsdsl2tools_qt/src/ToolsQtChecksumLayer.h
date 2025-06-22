@@ -28,7 +28,7 @@ class ToolsQtChecksumLayer final : public commsdsl::gen::ChecksumLayer, public T
     using Base = commsdsl::gen::ChecksumLayer;
     using ToolsBase = ToolsQtLayer;
 public:
-    explicit ToolsQtChecksumLayer(ToolsQtGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtChecksumLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

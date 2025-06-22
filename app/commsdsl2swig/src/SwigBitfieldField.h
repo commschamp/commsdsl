@@ -29,7 +29,7 @@ class SwigBitfieldField final : public commsdsl::gen::BitfieldField, public Swig
     using Base = commsdsl::gen::BitfieldField;
     using SwigBase = SwigField;
 public:
-    SwigBitfieldField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    SwigBitfieldField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
     const SwigFieldsList& swigMembers() const
     {

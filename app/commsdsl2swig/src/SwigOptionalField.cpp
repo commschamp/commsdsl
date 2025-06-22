@@ -29,7 +29,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigOptionalField::SwigOptionalField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
+SwigOptionalField::SwigOptionalField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent) : 
     Base(generator, dslObj, parent),
     SwigBase(static_cast<Base&>(*this))
 {

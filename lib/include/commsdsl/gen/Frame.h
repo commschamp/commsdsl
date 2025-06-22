@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/Frame.h"
+#include "commsdsl/parse/ParseFrame.h"
 #include "commsdsl/gen/Elem.h"
 #include "commsdsl/gen/Layer.h"
 
@@ -41,13 +41,13 @@ public:
     using LayersList = std::vector<LayerPtr>;
     using LayersAccessList = Layer::LayersAccessList;
 
-    explicit Frame(Generator& generator, commsdsl::parse::Frame dslObj, Elem* parent = nullptr);
+    explicit Frame(Generator& generator, commsdsl::parse::ParseFrame dslObj, Elem* parent = nullptr);
     virtual ~Frame();
 
     bool prepare();
     bool write() const;
 
-    commsdsl::parse::Frame dslObj() const;
+    commsdsl::parse::ParseFrame dslObj() const;
     const LayersList& layers() const;
 
     Generator& generator();

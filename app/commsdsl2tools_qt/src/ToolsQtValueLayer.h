@@ -28,7 +28,7 @@ class ToolsQtValueLayer final : public commsdsl::gen::ValueLayer, public ToolsQt
     using Base = commsdsl::gen::ValueLayer;
     using ToolsBase = ToolsQtLayer;
 public:
-    explicit ToolsQtValueLayer(ToolsQtGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtValueLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

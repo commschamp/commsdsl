@@ -32,7 +32,7 @@ class MessageImpl
 public:
     using FieldsList = Message::FieldsList;
 
-    MessageImpl(Generator& generator, commsdsl::parse::Message dslObj, Elem* parent) :
+    MessageImpl(Generator& generator, commsdsl::parse::ParseMessage dslObj, Elem* parent) :
         m_generator(generator),
         m_dslObj(dslObj),
         m_parent(parent)
@@ -105,7 +105,7 @@ public:
         return result;
     }
 
-    commsdsl::parse::Message dslObj() const
+    commsdsl::parse::ParseMessage dslObj() const
     {
         return m_dslObj;
     }
@@ -137,14 +137,14 @@ public:
 
 private:
     Generator& m_generator;
-    commsdsl::parse::Message m_dslObj;
+    commsdsl::parse::ParseMessage m_dslObj;
     Elem* m_parent = nullptr;
     FieldsList m_fields;
     bool m_prepared = false;
     bool m_referenced = false;
 }; 
 
-Message::Message(Generator& generator, commsdsl::parse::Message dslObj, Elem* parent) :
+Message::Message(Generator& generator, commsdsl::parse::ParseMessage dslObj, Elem* parent) :
     Base(parent),
     m_impl(std::make_unique<MessageImpl>(generator, dslObj, this))
 {
@@ -206,7 +206,7 @@ void Message::setReferenced(bool value = true)
     m_impl->setReferenced(value);
 }
 
-commsdsl::parse::Message Message::dslObj() const
+commsdsl::parse::ParseMessage Message::dslObj() const
 {
     return m_impl->dslObj();
 }

@@ -32,7 +32,7 @@ class SwigMessage final: public commsdsl::gen::Message
 public:
     using StringsList = commsdsl::gen::util::StringsList;
 
-    explicit SwigMessage(SwigGenerator& generator, commsdsl::parse::Message dslObj, Elem* parent);
+    explicit SwigMessage(SwigGenerator& generator, commsdsl::parse::ParseMessage dslObj, Elem* parent);
     virtual ~SwigMessage();
 
     void swigAddCodeIncludes(StringsList& list) const;

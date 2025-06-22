@@ -28,7 +28,7 @@ class CommsRefField final : public commsdsl::gen::RefField, public CommsField
     using Base = commsdsl::gen::RefField;
     using CommsBase = CommsField;
 public:
-    CommsRefField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    CommsRefField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

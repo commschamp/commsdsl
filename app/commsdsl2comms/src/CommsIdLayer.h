@@ -28,7 +28,7 @@ class CommsIdLayer final : public commsdsl::gen::IdLayer, public CommsLayer
     using Base = commsdsl::gen::IdLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsIdLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    CommsIdLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     virtual bool prepareImpl() override;

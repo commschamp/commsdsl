@@ -30,7 +30,7 @@ class EmscriptenEnumField final : public commsdsl::gen::EnumField, public Emscri
     using Base = commsdsl::gen::EnumField;
     using EmscriptenBase = EmscriptenField;
 public:
-    EmscriptenEnumField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenEnumField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
     static const EmscriptenEnumField* cast(const commsdsl::gen::Field* f)
     {

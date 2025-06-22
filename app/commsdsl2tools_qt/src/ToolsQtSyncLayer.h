@@ -28,7 +28,7 @@ class ToolsQtSyncLayer final : public commsdsl::gen::SyncLayer, public ToolsQtLa
     using Base = commsdsl::gen::SyncLayer;
     using ToolsBase = ToolsQtLayer;
 public:
-    explicit ToolsQtSyncLayer(ToolsQtGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtSyncLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

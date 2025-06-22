@@ -29,7 +29,7 @@ class SwigValueLayer final : public commsdsl::gen::ValueLayer, public SwigLayer
     using Base = commsdsl::gen::ValueLayer;
     using SwigBase = SwigLayer;
 public:
-    SwigValueLayer(SwigGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    SwigValueLayer(SwigGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // SwigBase overrides

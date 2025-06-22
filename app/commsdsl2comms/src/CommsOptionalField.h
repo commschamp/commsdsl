@@ -28,12 +28,12 @@ class CommsOptionalField final : public commsdsl::gen::OptionalField, public Com
     using Base = commsdsl::gen::OptionalField;
     using CommsBase = CommsField;
 public:
-    CommsOptionalField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    CommsOptionalField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
     static std::string commsDslCondToString(
         const CommsGenerator& generator, 
         const CommsFieldsList& siblings, 
-        const commsdsl::parse::OptCond& cond, 
+        const commsdsl::parse::ParseOptCond& cond, 
         bool bracketsWrap = false);
 
 protected:
@@ -69,7 +69,7 @@ private:
     void commsAddMissingOnReadFailOptInternal(StringsList& opts) const;
     void commsAddMissingOnInvalidOptInternal(StringsList& opts) const;
 
-    std::string commsDslCondToStringInternal(const CommsFieldsList& siblings, const commsdsl::parse::OptCond& cond, bool bracketsWrap = false) const;
+    std::string commsDslCondToStringInternal(const CommsFieldsList& siblings, const commsdsl::parse::ParseOptCond& cond, bool bracketsWrap = false) const;
     std::string commsMemberAccessStringInternal(const std::string& accStr) const;
     static std::string commsDslCondToStringFieldValueCompInternal(
         const CommsField* field, 

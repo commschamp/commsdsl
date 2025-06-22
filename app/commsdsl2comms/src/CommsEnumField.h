@@ -33,7 +33,7 @@ class CommsEnumField final : public commsdsl::gen::EnumField, public CommsField
     using Base = commsdsl::gen::EnumField;
     using CommsBase = CommsField;
 public:
-    CommsEnumField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    CommsEnumField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
     commsdsl::gen::util::StringsList commsEnumValues() const;
 
@@ -62,7 +62,7 @@ private:
         std::intmax_t m_min = 0;
         std::intmax_t m_max = 0;
         unsigned m_sinceVersion = 0;
-        unsigned m_deprecatedSince = commsdsl::parse::Protocol::notYetDeprecated();
+        unsigned m_deprecatedSince = commsdsl::parse::ParseProtocol::notYetDeprecated();
     };
 
     using ValidRangesList = std::vector<RangeInfo>;

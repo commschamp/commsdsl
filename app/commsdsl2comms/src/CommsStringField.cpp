@@ -34,7 +34,7 @@ namespace commsdsl2comms
 
 CommsStringField::CommsStringField(
     CommsGenerator& generator, 
-    commsdsl::parse::Field dslObj, 
+    commsdsl::parse::ParseField dslObj, 
     commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
@@ -411,7 +411,7 @@ std::string CommsStringField::commsCompPrepValueStrImpl(const std::string& accSt
                 break;
             }
 
-            if (refField->dslObj().kind() != commsdsl::parse::Field::Kind::String) {
+            if (refField->dslObj().kind() != commsdsl::parse::ParseField::Kind::String) {
                 generator().logger().warning("Not referencing <string> field: " + value);
                 break;                
             }

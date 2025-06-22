@@ -29,7 +29,7 @@ class EmscriptenIdLayer final : public commsdsl::gen::IdLayer, public Emscripten
     using Base = commsdsl::gen::IdLayer;
     using EmscriptenBase = EmscriptenLayer;
 public:
-    EmscriptenIdLayer(EmscriptenGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenIdLayer(EmscriptenGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 };
 
 } // namespace commsdsl2emscripten

@@ -29,7 +29,7 @@ class CommsVariantField final : public commsdsl::gen::VariantField, public Comms
     using Base = commsdsl::gen::VariantField;
     using CommsBase = CommsField;
 public:
-    CommsVariantField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    CommsVariantField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

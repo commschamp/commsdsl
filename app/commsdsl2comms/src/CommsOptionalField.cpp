@@ -96,10 +96,10 @@ const CommsField* findInterfaceFieldInternal(const commsdsl::gen::Generator& gen
     return nullptr;
 }
 
-bool hasInterfaceReferenceInternal(const commsdsl::parse::OptCond& cond)
+bool hasInterfaceReferenceInternal(const commsdsl::parse::ParseOptCond& cond)
 {
-    if (cond.kind() == commsdsl::parse::OptCond::Kind::Expr) {
-        commsdsl::parse::OptCondExpr exprCond(cond);
+    if (cond.kind() == commsdsl::parse::ParseOptCond::Kind::Expr) {
+        commsdsl::parse::ParseOptCondExpr exprCond(cond);
         auto& left = exprCond.left();
         auto& right = exprCond.right();
 
@@ -108,13 +108,13 @@ bool hasInterfaceReferenceInternal(const commsdsl::parse::OptCond& cond)
             ((!right.empty()) && (right[0] == strings::interfaceFieldRefPrefix()));
     }
 
-    if ((cond.kind() != commsdsl::parse::OptCond::Kind::List)) {
+    if ((cond.kind() != commsdsl::parse::ParseOptCond::Kind::List)) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return false;
     }    
 
-    commsdsl::parse::OptCondList listCond(cond);
+    commsdsl::parse::ParseOptCondList listCond(cond);
     auto conditions = listCond.conditions();
 
     return 
@@ -131,7 +131,7 @@ bool hasInterfaceReferenceInternal(const commsdsl::parse::OptCond& cond)
 
 CommsOptionalField::CommsOptionalField(
     CommsGenerator& generator, 
-    commsdsl::parse::Field dslObj, 
+    commsdsl::parse::ParseField dslObj, 
     commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
@@ -141,10 +141,10 @@ CommsOptionalField::CommsOptionalField(
 std::string CommsOptionalField::commsDslCondToString(
     const CommsGenerator& generator, 
     const CommsFieldsList& siblings, 
-    const commsdsl::parse::OptCond& cond,
+    const commsdsl::parse::ParseOptCond& cond,
     bool bracketsWrap) 
 {
-    if (cond.kind() == commsdsl::parse::OptCond::Kind::Expr) {
+    if (cond.kind() == commsdsl::parse::ParseOptCond::Kind::Expr) {
         auto findSiblingFieldFunc =
             [&siblings](const std::string& name) -> const CommsField*
             {
@@ -172,13 +172,13 @@ std::string CommsOptionalField::commsDslCondToString(
                 return val;
             };
 
-        commsdsl::parse::OptCondExpr exprCond(cond);
+        commsdsl::parse::ParseOptCondExpr exprCond(cond);
         auto leftInfo = exprCond.leftInfo();
         auto& op = opFunc(exprCond.op());
         auto rightInfo = exprCond.rightInfo();
 
-        using OperandType = commsdsl::parse::OptCondExpr::OperandType;
-        using AccMode = commsdsl::parse::OptCondExpr::AccMode;
+        using OperandType = commsdsl::parse::ParseOptCondExpr::OperandType;
+        using AccMode = commsdsl::parse::ParseOptCondExpr::AccMode;
         if (leftInfo.m_type != OperandType::Invalid) {
             assert(!op.empty());
             assert(rightInfo.m_type != OperandType::Invalid);
@@ -285,24 +285,24 @@ std::string CommsOptionalField::commsDslCondToString(
         return util::strListToString(checks, " &&\n", "");
     }
 
-    if ((cond.kind() != commsdsl::parse::OptCond::Kind::List)) {
+    if ((cond.kind() != commsdsl::parse::ParseOptCond::Kind::List)) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return strings::emptyString();
     }
 
-    commsdsl::parse::OptCondList listCond(cond);
+    commsdsl::parse::ParseOptCondList listCond(cond);
     auto type = listCond.type();
 
     static const std::string AndOp = " &&\n";
     static const std::string OrOp = " ||\n";
 
     auto* op = &AndOp;
-    if (type == commsdsl::parse::OptCondList::Type::Or) {
+    if (type == commsdsl::parse::ParseOptCondList::Type::Or) {
         op = &OrOp;
     }
     else {
-        assert(type == commsdsl::parse::OptCondList::Type::And);
+        assert(type == commsdsl::parse::ParseOptCondList::Type::And);
     }
 
     auto conditions = listCond.conditions();
@@ -649,7 +649,7 @@ void CommsOptionalField::commsAddModeOptInternal(StringsList& opts) const
     static const std::size_t MapSize =
             std::extent<decltype(Map)>::value;
 
-    static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::OptionalField::Mode::NumOfValues), "Invalid map");
+    static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::ParseOptionalField::Mode::NumOfValues), "Invalid map");
 
     auto obj = optionalDslObj();
     auto mode = obj.defaultMode();
@@ -692,7 +692,7 @@ void CommsOptionalField::commsAddMissingOnInvalidOptInternal(StringsList& opts) 
 
 std::string CommsOptionalField::commsDslCondToStringInternal(
     const CommsFieldsList& siblings, 
-    const commsdsl::parse::OptCond& cond,
+    const commsdsl::parse::ParseOptCond& cond,
     bool bracketsWrap) const 
 {
     return commsDslCondToString(CommsGenerator::cast(generator()), siblings, cond, bracketsWrap);

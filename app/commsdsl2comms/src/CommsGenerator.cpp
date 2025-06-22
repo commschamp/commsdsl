@@ -159,122 +159,122 @@ bool CommsGenerator::prepareImpl()
         commsPrepareExtraMessageBundlesInternal();
 }
 
-CommsGenerator::SchemaPtr CommsGenerator::createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent)
+CommsGenerator::SchemaPtr CommsGenerator::createSchemaImpl(commsdsl::parse::ParseSchema dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsSchema>(*this, dslObj, parent);
 }
 
-CommsGenerator::NamespacePtr CommsGenerator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
+CommsGenerator::NamespacePtr CommsGenerator::createNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsNamespace>(*this, dslObj, parent);
 }
 
-CommsGenerator::InterfacePtr CommsGenerator::createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent)
+CommsGenerator::InterfacePtr CommsGenerator::createInterfaceImpl(commsdsl::parse::ParseInterface dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsInterface>(*this, dslObj, parent);
 }
 
-CommsGenerator::MessagePtr CommsGenerator::createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent)
+CommsGenerator::MessagePtr CommsGenerator::createMessageImpl(commsdsl::parse::ParseMessage dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsMessage>(*this, dslObj, parent);
 }
 
-CommsGenerator::FramePtr CommsGenerator::createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent)
+CommsGenerator::FramePtr CommsGenerator::createFrameImpl(commsdsl::parse::ParseFrame dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsFrame>(*this, dslObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::FieldPtr CommsGenerator::createIntFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsIntField>(*this, dslObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::FieldPtr CommsGenerator::createEnumFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsEnumField>(*this, dslObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createSetFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::FieldPtr CommsGenerator::createSetFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsSetField>(*this, dslObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createFloatFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::FieldPtr CommsGenerator::createFloatFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsFloatField>(*this, dslObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createBitfieldFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::FieldPtr CommsGenerator::createBitfieldFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsBitfieldField>(*this, dslObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createBundleFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::FieldPtr CommsGenerator::createBundleFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsBundleField>(*this, dslObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createStringFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::FieldPtr CommsGenerator::createStringFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsStringField>(*this, dslObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createDataFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::FieldPtr CommsGenerator::createDataFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsDataField>(*this, dslObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createListFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::FieldPtr CommsGenerator::createListFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsListField>(*this, dslObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createRefFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::FieldPtr CommsGenerator::createRefFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsRefField>(*this, dslObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createOptionalFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::FieldPtr CommsGenerator::createOptionalFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsOptionalField>(*this, dslObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::FieldPtr CommsGenerator::createVariantFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsVariantField>(*this, dslObj, parent);
 }
 
-CommsGenerator::LayerPtr CommsGenerator::createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+CommsGenerator::LayerPtr CommsGenerator::createCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsCustomLayer>(*this, dslObj, parent);
 }
 
-CommsGenerator::LayerPtr CommsGenerator::createSyncLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+CommsGenerator::LayerPtr CommsGenerator::createSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsSyncLayer>(*this, dslObj, parent);
 }
 
-CommsGenerator::LayerPtr CommsGenerator::createSizeLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+CommsGenerator::LayerPtr CommsGenerator::createSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsSizeLayer>(*this, dslObj, parent);
 }
 
-CommsGenerator::LayerPtr CommsGenerator::createIdLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+CommsGenerator::LayerPtr CommsGenerator::createIdLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsIdLayer>(*this, dslObj, parent);
 }
 
-CommsGenerator::LayerPtr CommsGenerator::createValueLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+CommsGenerator::LayerPtr CommsGenerator::createValueLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsValueLayer>(*this, dslObj, parent);
 }
 
-CommsGenerator::LayerPtr CommsGenerator::createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+CommsGenerator::LayerPtr CommsGenerator::createPayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsPayloadLayer>(*this, dslObj, parent);
 }
 
-CommsGenerator::LayerPtr CommsGenerator::createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+CommsGenerator::LayerPtr CommsGenerator::createChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsChecksumLayer>(*this, dslObj, parent);
 }

@@ -29,7 +29,7 @@ class SwigIntField final : public commsdsl::gen::IntField, public SwigField
     using Base = commsdsl::gen::IntField;
     using SwigBase = SwigField;
 public:
-    SwigIntField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    SwigIntField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

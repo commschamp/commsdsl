@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/EnumField.h"
+#include "commsdsl/parse/ParseEnumField.h"
 #include "commsdsl/gen/Field.h"
 
 #include <memory>
@@ -35,7 +35,7 @@ class COMMSDSL_API EnumField : public Field
     using Base = Field;
 public:
 
-    EnumField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    EnumField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent = nullptr);
     virtual ~EnumField();
 
     bool isUnsignedUnderlyingType() const;
@@ -43,7 +43,7 @@ public:
     std::string valueName(std::intmax_t value) const;
     std::string adjustName(const std::string& val) const;
 
-    commsdsl::parse::EnumField enumDslObj() const;
+    commsdsl::parse::ParseEnumField enumDslObj() const;
 
     using RevValueInfo = std::pair<std::intmax_t, const std::string*>;
     using SortedRevValues = std::vector<RevValueInfo>;

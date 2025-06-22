@@ -29,7 +29,7 @@ class VariantFieldImpl
 public:
     using FieldsList = VariantField::FieldsList;
 
-    VariantFieldImpl(Generator& generator, commsdsl::parse::VariantField dslObj, Elem* parent) :
+    VariantFieldImpl(Generator& generator, commsdsl::parse::ParseVariantField dslObj, Elem* parent) :
         m_generator(generator),
         m_dslObj(dslObj),
         m_parent(parent)
@@ -71,16 +71,16 @@ public:
 
 private:
     Generator& m_generator;
-    commsdsl::parse::VariantField m_dslObj;
+    commsdsl::parse::ParseVariantField m_dslObj;
     Elem* m_parent = nullptr;
     FieldsList m_members;
 };
 
-VariantField::VariantField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
+VariantField::VariantField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent) :
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<VariantFieldImpl>(generator, variantDslObj(), this))
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Variant);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Variant);
 }
 
 VariantField::~VariantField() = default;
@@ -110,9 +110,9 @@ VariantField::FieldRefInfo VariantField::processInnerRefImpl(const std::string& 
     return Base::processInnerRefImpl(refStr);
 }
 
-commsdsl::parse::VariantField VariantField::variantDslObj() const
+commsdsl::parse::ParseVariantField VariantField::variantDslObj() const
 {
-    return commsdsl::parse::VariantField(dslObj());
+    return commsdsl::parse::ParseVariantField(dslObj());
 }
 
 } // namespace gen

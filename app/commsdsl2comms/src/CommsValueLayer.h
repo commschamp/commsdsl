@@ -28,7 +28,7 @@ class CommsValueLayer final : public commsdsl::gen::ValueLayer, public CommsLaye
     using Base = commsdsl::gen::ValueLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsValueLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    CommsValueLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     virtual bool prepareImpl() override;

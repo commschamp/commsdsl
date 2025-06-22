@@ -29,7 +29,7 @@ class EmscriptenSizeLayer final : public commsdsl::gen::SizeLayer, public Emscri
     using Base = commsdsl::gen::SizeLayer;
     using EmscriptenBase = EmscriptenLayer;
 public:
-    EmscriptenSizeLayer(EmscriptenGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenSizeLayer(EmscriptenGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 };
 
 } // namespace commsdsl2emscripten

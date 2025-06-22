@@ -29,7 +29,7 @@ class SwigSizeLayer final : public commsdsl::gen::SizeLayer, public SwigLayer
     using Base = commsdsl::gen::SizeLayer;
     using SwigBase = SwigLayer;
 public:
-    SwigSizeLayer(SwigGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    SwigSizeLayer(SwigGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // SwigBase overrides

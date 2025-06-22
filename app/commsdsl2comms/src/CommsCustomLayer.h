@@ -28,7 +28,7 @@ class CommsCustomLayer final : public commsdsl::gen::CustomLayer, public CommsLa
     using Base = commsdsl::gen::CustomLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsCustomLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    CommsCustomLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     virtual bool prepareImpl() override;

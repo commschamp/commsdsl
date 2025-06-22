@@ -27,9 +27,9 @@ namespace gen
 class LoggerImpl
 {
 public:
-    using ErrorLevel = Logger::ErrorLevel;
+    using ParseErrorLevel = Logger::ParseErrorLevel;
 
-    void log(ErrorLevel level, const std::string& msg)
+    void log(ParseErrorLevel level, const std::string& msg)
     {
         static const std::string PrefixMap[] = {
             "[DEBUG]: ",
@@ -40,25 +40,25 @@ public:
 
         static const std::size_t PrefixMapSize = std::extent<decltype(PrefixMap)>::value;
 
-        static_assert(PrefixMapSize == commsdsl::parse::ErrorLevel_NumOfValues, "Wrong map");
-        if (commsdsl::parse::ErrorLevel_NumOfValues <= level) {
-            level = commsdsl::parse::ErrorLevel_Error;
+        static_assert(PrefixMapSize == commsdsl::parse::ParseErrorLevel_NumOfValues, "Wrong map");
+        if (commsdsl::parse::ParseErrorLevel_NumOfValues <= level) {
+            level = commsdsl::parse::ParseErrorLevel_Error;
         }
 
         std::ostream* stream = &std::cerr;
-        if (level < commsdsl::parse::ErrorLevel_Warning) {
+        if (level < commsdsl::parse::ParseErrorLevel_Warning) {
             stream = &std::cout;
         }
 
         *stream << PrefixMap[level] << msg << std::endl;
     }
 
-    ErrorLevel getMinLevel() const
+    ParseErrorLevel getMinLevel() const
     {
         return m_minLevel;
     }
 
-    void setMinLevel(ErrorLevel level)
+    void setMinLevel(ParseErrorLevel level)
     {
         m_minLevel = level;
     }
@@ -84,7 +84,7 @@ public:
     }
 
 private:
-    commsdsl::parse::ErrorLevel m_minLevel = commsdsl::parse::ErrorLevel_Info;
+    commsdsl::parse::ParseErrorLevel m_minLevel = commsdsl::parse::ParseErrorLevel_Info;
     bool m_warnAsErr = false;
     bool m_hadWarning = false;
 };
@@ -96,13 +96,13 @@ Logger::Logger() :
 
 Logger::~Logger() = default;
 
-void Logger::log(commsdsl::parse::ErrorLevel level, const std::string& msg) const
+void Logger::log(commsdsl::parse::ParseErrorLevel level, const std::string& msg) const
 {
     if (level < m_impl->getMinLevel()) {
         return;
     }
 
-    if (m_impl->getWarnAsErr() && (level == commsdsl::parse::ErrorLevel_Warning)) {
+    if (m_impl->getWarnAsErr() && (level == commsdsl::parse::ParseErrorLevel_Warning)) {
         m_impl->setHadWarning();
     }
 
@@ -111,25 +111,25 @@ void Logger::log(commsdsl::parse::ErrorLevel level, const std::string& msg) cons
 
 void Logger::error(const std::string& msg) const
 {
-    log(commsdsl::parse::ErrorLevel_Error, msg);
+    log(commsdsl::parse::ParseErrorLevel_Error, msg);
 }
 
 void Logger::warning(const std::string& msg) const
 {
-    log(commsdsl::parse::ErrorLevel_Warning, msg);
+    log(commsdsl::parse::ParseErrorLevel_Warning, msg);
 }
 
 void Logger::info(const std::string& msg) const
 {
-    log(commsdsl::parse::ErrorLevel_Info, msg);
+    log(commsdsl::parse::ParseErrorLevel_Info, msg);
 }
 
 void Logger::debug(const std::string& msg) const
 {
-    log(commsdsl::parse::ErrorLevel_Debug, msg);
+    log(commsdsl::parse::ParseErrorLevel_Debug, msg);
 }
 
-void Logger::setMinLevel(ErrorLevel level)
+void Logger::setMinLevel(ParseErrorLevel level)
 {
     m_impl->setMinLevel(level);
 }
@@ -144,7 +144,7 @@ bool Logger::hadWarning() const
     return m_impl->getHadWarning();
 }
 
-void Logger::logImpl(commsdsl::parse::ErrorLevel level, const std::string& msg) const
+void Logger::logImpl(commsdsl::parse::ParseErrorLevel level, const std::string& msg) const
 {
     m_impl->log(level, msg);
 }

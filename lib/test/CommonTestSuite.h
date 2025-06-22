@@ -6,7 +6,7 @@
 #include <functional>
 
 #include "cxxtest/TestSuite.h"
-#include "commsdsl/parse/commsdsl.h"
+#include "commsdsl/parse/ParseProtocol.h"
 
 #ifndef SCHEMAS_DIR
 #define SCHEMAS_DIR "."
@@ -20,9 +20,9 @@ public:
     void commonTearDown();
 
 protected:
-    using ProtocolPtr = std::unique_ptr<commsdsl::parse::Protocol>;
-    using ErrLevelList = std::vector<commsdsl::parse::ErrorLevel>;
-    using PreValidateFunc = std::function<void (commsdsl::parse::Protocol& protocol)>;
+    using ProtocolPtr = std::unique_ptr<commsdsl::parse::ParseProtocol>;
+    using ErrLevelList = std::vector<commsdsl::parse::ParseErrorLevel>;
+    using PreValidateFunc = std::function<void (commsdsl::parse::ParseProtocol& protocol)>;
 
 
     ProtocolPtr prepareProtocol(const std::string& schema, bool enableMultipleSchemas = false);

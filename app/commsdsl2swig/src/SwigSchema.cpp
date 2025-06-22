@@ -32,7 +32,7 @@ namespace commsdsl2swig
 {
 
 
-SwigSchema::SwigSchema(SwigGenerator& generator, commsdsl::parse::Schema dslObj, Elem* parent) :
+SwigSchema::SwigSchema(SwigGenerator& generator, commsdsl::parse::ParseSchema dslObj, Elem* parent) :
     Base(generator, dslObj, parent)
 {
 }   

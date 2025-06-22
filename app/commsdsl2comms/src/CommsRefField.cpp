@@ -32,7 +32,7 @@ namespace commsdsl2comms
 
 CommsRefField::CommsRefField(
     CommsGenerator& generator, 
-    commsdsl::parse::Field dslObj, 
+    commsdsl::parse::ParseField dslObj, 
     commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
@@ -50,8 +50,8 @@ bool CommsRefField::prepareImpl()
     m_commsReferencedField = dynamic_cast<CommsField*>(refField);
     assert(m_commsReferencedField != nullptr);
 
-    if ((refDslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) && 
-        (refField->dslObj().semanticType() != commsdsl::parse::Field::SemanticType::Length) &&
+    if ((refDslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::Length) && 
+        (refField->dslObj().semanticType() != commsdsl::parse::ParseField::SemanticType::Length) &&
         (!commsHasCustomValue()) && 
         (!m_commsReferencedField->commsHasCustomValue())) {
         generator().logger().warning(

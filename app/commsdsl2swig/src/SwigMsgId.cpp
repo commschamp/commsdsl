@@ -121,7 +121,7 @@ std::string SwigMsgId::swigTypeInternal() const
     auto allMsgIds = m_generator.currentSchema().getAllMessageIdFields();
     if (allMsgIds.size() == 1U) {
         auto* msgIdField = allMsgIds.front();
-        assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
+        assert(msgIdField->dslObj().kind() == commsdsl::parse::ParseField::Kind::Enum);
         auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
         auto dslObj = castedMsgIdField->enumDslObj();
         return comms::cppIntTypeFor(dslObj.type(), dslObj.maxLength());
@@ -164,7 +164,7 @@ std::string SwigMsgId::swigIdsInternal() const
 
     if (allMsgIds.size() == 1U) {
         auto* msgIdField = allMsgIds.front();    
-        assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
+        assert(msgIdField->dslObj().kind() == commsdsl::parse::ParseField::Kind::Enum);
         auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
         auto enumValues = castedMsgIdField->swigEnumValues();
         static const std::string CommentPrefix("// ---");
@@ -211,7 +211,7 @@ std::string SwigMsgId::swigCodeInternal() const
 
     if (allMsgIds.size() == 1U) {
         auto* msgIdField = allMsgIds.front();      
-        assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
+        assert(msgIdField->dslObj().kind() == commsdsl::parse::ParseField::Kind::Enum);
         auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
         auto enumValues = castedMsgIdField->swigEnumValues();
 

@@ -35,7 +35,7 @@ namespace gen
 class LayerImpl
 {
 public:    
-    LayerImpl(Generator& generator, const commsdsl::parse::Layer& dslObj, Elem* parent) :
+    LayerImpl(Generator& generator, const commsdsl::parse::ParseLayer& dslObj, Elem* parent) :
         m_generator(generator),
         m_dslObj(dslObj),
         m_parent(parent)
@@ -46,7 +46,7 @@ public:
     {
         auto dslField = m_dslObj.field();
         if (!dslField.valid()) {
-            if (m_dslObj.kind() != commsdsl::parse::Layer::Kind::Payload) {
+            if (m_dslObj.kind() != commsdsl::parse::ParseLayer::Kind::Payload) {
                 m_generator.logger().error("Layer field definition is missing.");
                 [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
@@ -82,7 +82,7 @@ public:
         return true;
     }
 
-    commsdsl::parse::Layer dslObj() const
+    commsdsl::parse::ParseLayer dslObj() const
     {
         return m_dslObj;
     }
@@ -120,13 +120,13 @@ public:
 
 private:
     Generator& m_generator;
-    commsdsl::parse::Layer m_dslObj;
+    commsdsl::parse::ParseLayer m_dslObj;
     Elem* m_parent = nullptr;
     Field* m_externalField = nullptr;
     FieldPtr m_memberField;    
 };
 
-Layer::Layer(Generator& generator, const commsdsl::parse::Layer& dslObj, Elem* parent) :
+Layer::Layer(Generator& generator, const commsdsl::parse::ParseLayer& dslObj, Elem* parent) :
     Base(parent),
     m_impl(std::make_unique<LayerImpl>(generator, dslObj, this))
 {
@@ -134,9 +134,9 @@ Layer::Layer(Generator& generator, const commsdsl::parse::Layer& dslObj, Elem* p
 
 Layer::~Layer() = default;
 
-Layer::Ptr Layer::create(Generator& generator, commsdsl::parse::Layer dslobj, Elem* parent)
+Layer::Ptr Layer::create(Generator& generator, commsdsl::parse::ParseLayer dslobj, Elem* parent)
 {
-    using CreateFunc = LayerPtr (Generator::*)(commsdsl::parse::Layer dslobj, Elem* parent);
+    using CreateFunc = LayerPtr (Generator::*)(commsdsl::parse::ParseLayer dslobj, Elem* parent);
     static const CreateFunc Map[] = {
         /* Custom */ &Generator::createCustomLayer,
         /* Sync */ &Generator::createSyncLayer,
@@ -148,7 +148,7 @@ Layer::Ptr Layer::create(Generator& generator, commsdsl::parse::Layer dslobj, El
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::Layer::Kind::NumOfValues), "Invalid map");
+    static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::ParseLayer::Kind::NumOfValues), "Invalid map");
 
     auto idx = static_cast<std::size_t>(dslobj.kind());
     if (MapSize <= idx) {
@@ -175,7 +175,7 @@ bool Layer::write() const
     return m_impl->write() && writeImpl();
 }
 
-commsdsl::parse::Layer Layer::dslObj() const
+commsdsl::parse::ParseLayer Layer::dslObj() const
 {
     return m_impl->dslObj();
 }
@@ -264,18 +264,18 @@ std::string Layer::templateScopeOfComms(const std::string& iFaceStr, const std::
 
     for (auto iterTmp = iter; iterTmp != allLayers.end(); ++iterTmp) {
         auto kind = (*iterTmp)->dslObj().kind();
-        if (kind == commsdsl::parse::Layer::Kind::Id) {
+        if (kind == commsdsl::parse::ParseLayer::Kind::Id) {
             addIdParams();
             break;
         }
 
-        if (kind != commsdsl::parse::Layer::Kind::Custom) {
+        if (kind != commsdsl::parse::ParseLayer::Kind::Custom) {
             continue;
         }
 
         auto& customLayer = static_cast<const CustomLayer&>(**iterTmp);
         auto customKind = customLayer.customDslObj().semanticLayerType();
-        if (customKind == commsdsl::parse::Layer::Kind::Id) {
+        if (customKind == commsdsl::parse::ParseLayer::Kind::Id) {
             addIdParams();
             break;            
         }

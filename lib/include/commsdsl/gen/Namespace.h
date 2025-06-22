@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/Namespace.h"
+#include "commsdsl/parse/ParseNamespace.h"
 #include "commsdsl/gen/Elem.h"
 #include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/Frame.h"
@@ -50,14 +50,14 @@ public:
     using FramesAccessList = std::vector<const Frame*>;
     using FieldsAccessList = std::vector<const Field*>;
 
-    explicit Namespace(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);
+    explicit Namespace(Generator& generator, commsdsl::parse::ParseNamespace dslObj, Elem* parent = nullptr);
     virtual ~Namespace();
 
     bool createAll();
     bool prepare();
     bool write() const;
 
-    commsdsl::parse::Namespace dslObj() const;
+    commsdsl::parse::ParseNamespace dslObj() const;
     std::string adjustedExternalRef() const;
 
     const NamespacesList& namespaces() const;

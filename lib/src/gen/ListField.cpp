@@ -30,7 +30,7 @@ namespace gen
 class ListFieldImpl
 {
 public:
-    ListFieldImpl(Generator& generator, commsdsl::parse::ListField dslObj, Elem* parent): 
+    ListFieldImpl(Generator& generator, commsdsl::parse::ParseListField dslObj, Elem* parent): 
         m_generator(generator),
         m_dslObj(dslObj),
         m_parent(parent)
@@ -289,7 +289,7 @@ public:
 
 private:
     Generator& m_generator;
-    commsdsl::parse::ListField m_dslObj;
+    commsdsl::parse::ParseListField m_dslObj;
     Elem* m_parent = nullptr;
     Field* m_externalElementField = nullptr;
     FieldPtr m_memberElementField;
@@ -303,11 +303,11 @@ private:
     FieldPtr m_memberTermSuffixField = nullptr;
 };    
 
-ListField::ListField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
+ListField::ListField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent) :
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<ListFieldImpl>(generator, listDslObj(), this))
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::List);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::List);
 }
 
 ListField::~ListField() = default;
@@ -422,9 +422,9 @@ void ListField::setReferencedImpl()
     m_impl->setReferenced();
 }
 
-commsdsl::parse::ListField ListField::listDslObj() const
+commsdsl::parse::ParseListField ListField::listDslObj() const
 {
-    return commsdsl::parse::ListField(dslObj());
+    return commsdsl::parse::ParseListField(dslObj());
 }
 
 } // namespace gen

@@ -28,7 +28,7 @@ class ToolsQtCustomLayer final : public commsdsl::gen::CustomLayer, public Tools
     using Base = commsdsl::gen::CustomLayer;
     using ToolsBase = ToolsQtLayer;
 public:
-    explicit ToolsQtCustomLayer(ToolsQtGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtCustomLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

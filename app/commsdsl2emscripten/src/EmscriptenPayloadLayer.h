@@ -29,7 +29,7 @@ class EmscriptenPayloadLayer final : public commsdsl::gen::PayloadLayer, public 
     using Base = commsdsl::gen::PayloadLayer;
     using EmscriptenBase = EmscriptenLayer;
 public:
-    EmscriptenPayloadLayer(EmscriptenGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenPayloadLayer(EmscriptenGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     virtual std::string emscriptenHeaderFieldDefImpl() const override;

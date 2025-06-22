@@ -26,23 +26,23 @@ namespace commsdsl
 namespace gen
 {
 
-CustomLayer::CustomLayer(Generator& generator, commsdsl::parse::Layer dslObj, Elem* parent) :
+CustomLayer::CustomLayer(Generator& generator, commsdsl::parse::ParseLayer dslObj, Elem* parent) :
     Base(generator, dslObj, parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Custom);
+    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Custom);
 }
 
 CustomLayer::~CustomLayer() = default;
 
-commsdsl::parse::CustomLayer CustomLayer::customDslObj() const
+commsdsl::parse::ParseCustomLayer CustomLayer::customDslObj() const
 {
-    return commsdsl::parse::CustomLayer(dslObj());
+    return commsdsl::parse::ParseCustomLayer(dslObj());
 }
 
 bool CustomLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success) const
 {
     auto obj = customDslObj();
-    if (obj.semanticLayerType() != commsdsl::parse::Layer::Kind::Checksum) {
+    if (obj.semanticLayerType() != commsdsl::parse::ParseLayer::Kind::Checksum) {
         success = true;
         return false;
     }
@@ -80,7 +80,7 @@ bool CustomLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success) c
             return false;
         }
 
-        if ((*untilIter)->dslObj().kind() != commsdsl::parse::Layer::Kind::Payload) {
+        if ((*untilIter)->dslObj().kind() != commsdsl::parse::ParseLayer::Kind::Payload) {
             generator().logger().error("Custom checksum prefix must be until payload layer");
             success = false;
             return false;

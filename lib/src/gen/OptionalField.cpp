@@ -28,7 +28,7 @@ namespace gen
 class OptionalFieldImpl
 {
 public:
-    OptionalFieldImpl(Generator& generator, commsdsl::parse::OptionalField dslObj, Elem* parent): 
+    OptionalFieldImpl(Generator& generator, commsdsl::parse::ParseOptionalField dslObj, Elem* parent): 
         m_generator(generator),
         m_dslObj(dslObj),
         m_parent(parent)
@@ -83,17 +83,17 @@ public:
 
 private:
     Generator& m_generator;
-    commsdsl::parse::OptionalField m_dslObj;
+    commsdsl::parse::ParseOptionalField m_dslObj;
     Elem* m_parent = nullptr;
     Field* m_externalField = nullptr;
     FieldPtr m_memberField;
 }; 
 
-OptionalField::OptionalField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
+OptionalField::OptionalField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent) :
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<OptionalFieldImpl>(generator, optionalDslObj(), this))
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Optional);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Optional);
 }
 
 OptionalField::~OptionalField() = default;
@@ -128,9 +128,9 @@ void OptionalField::setReferencedImpl()
     m_impl->setReferenced();
 }
 
-commsdsl::parse::OptionalField OptionalField::optionalDslObj() const
+commsdsl::parse::ParseOptionalField OptionalField::optionalDslObj() const
 {
-    return commsdsl::parse::OptionalField(dslObj());
+    return commsdsl::parse::ParseOptionalField(dslObj());
 }
 
 } // namespace gen

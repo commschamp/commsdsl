@@ -34,7 +34,7 @@ class InterfaceImpl
 public:
     using FieldsList = Interface::FieldsList;
 
-    InterfaceImpl(Generator& generator, commsdsl::parse::Interface dslObj, Elem* parent) :
+    InterfaceImpl(Generator& generator, commsdsl::parse::ParseInterface dslObj, Elem* parent) :
         m_generator(generator),
         m_dslObj(dslObj),
         m_parent(parent)
@@ -102,7 +102,7 @@ public:
         return m_fields;
     }
 
-    commsdsl::parse::Interface dslObj() const
+    commsdsl::parse::ParseInterface dslObj() const
     {
         return m_dslObj;
     }
@@ -129,13 +129,13 @@ public:
 
 private:
     Generator& m_generator;
-    commsdsl::parse::Interface m_dslObj;
+    commsdsl::parse::ParseInterface m_dslObj;
     Elem* m_parent = nullptr;
     FieldsList m_fields;
     bool m_referenced = false;
 }; 
 
-Interface::Interface(Generator& generator, commsdsl::parse::Interface dslObj, Elem* parent) :
+Interface::Interface(Generator& generator, commsdsl::parse::ParseInterface dslObj, Elem* parent) :
     Base(parent),
     m_impl(std::make_unique<InterfaceImpl>(generator, dslObj, this))
 {
@@ -179,7 +179,7 @@ const Interface::FieldsList& Interface::fields() const
     return m_impl->fields();
 }
 
-commsdsl::parse::Interface Interface::dslObj() const
+commsdsl::parse::ParseInterface Interface::dslObj() const
 {
     return m_impl->dslObj();
 }
@@ -224,7 +224,7 @@ bool Interface::hasVersionField() const
             fList.begin(), fList.end(),
             [](auto& f)
             {
-                return f->dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Version;
+                return f->dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::Version;
             });    
 }
 

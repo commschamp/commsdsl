@@ -43,7 +43,7 @@ const auto MaxBits = std::numeric_limits<std::uintmax_t>::digits;
 
 CommsSetField::CommsSetField(
     CommsGenerator& generator, 
-    commsdsl::parse::Field dslObj, 
+    commsdsl::parse::ParseField dslObj, 
     commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
@@ -219,10 +219,10 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
 
         auto* condTempl = &VersionBothCondTempl;
         if (std::get<0>(info.first) == 0U) {
-            assert(std::get<1>(info.first) != commsdsl::parse::Protocol::notYetDeprecated());
+            assert(std::get<1>(info.first) != commsdsl::parse::ParseProtocol::notYetDeprecated());
             condTempl = &VersionUntilCondTempl;
         }
-        else if (commsdsl::parse::Protocol::notYetDeprecated() <= std::get<1>(info.first)) {
+        else if (commsdsl::parse::ParseProtocol::notYetDeprecated() <= std::get<1>(info.first)) {
             condTempl = &VersionFromCondTempl;
         }
 
@@ -755,7 +755,7 @@ void CommsSetField::commsAddDefaultValueOptInternal(commsdsl::gen::util::Strings
     }
 
     auto type = obj.type();
-    if ((type == commsdsl::parse::SetField::Type::Uint64) || (type == commsdsl::parse::SetField::Type::Uintvar)) {
+    if ((type == commsdsl::parse::ParseSetField::Type::Uint64) || (type == commsdsl::parse::ParseSetField::Type::Uintvar)) {
         auto str =
             "comms::option::def::DefaultBigUnsignedNumValue<" +
             util::numToString(static_cast<std::uintmax_t>(defaultValue), true) +

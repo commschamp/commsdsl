@@ -33,7 +33,7 @@ class FrameImpl
 public:
     using LayersList = Frame::LayersList;
 
-    FrameImpl(Generator& generator, commsdsl::parse::Frame dslObj, Elem* parent) :
+    FrameImpl(Generator& generator, commsdsl::parse::ParseFrame dslObj, Elem* parent) :
         m_generator(generator),
         m_dslObj(dslObj),
         m_parent(parent)
@@ -74,7 +74,7 @@ public:
         return result;
     }
 
-    commsdsl::parse::Frame dslObj() const
+    commsdsl::parse::ParseFrame dslObj() const
     {
         return m_dslObj;
     }
@@ -101,12 +101,12 @@ public:
 
 private:
     Generator& m_generator;
-    commsdsl::parse::Frame m_dslObj;
+    commsdsl::parse::ParseFrame m_dslObj;
     Elem* m_parent = nullptr;
     LayersList m_layers;
 }; 
 
-Frame::Frame(Generator& generator, commsdsl::parse::Frame dslObj, Elem* parent) :
+Frame::Frame(Generator& generator, commsdsl::parse::ParseFrame dslObj, Elem* parent) :
     Base(parent),
     m_impl(std::make_unique<FrameImpl>(generator, dslObj, this))
 {
@@ -132,7 +132,7 @@ bool Frame::write() const
     return writeImpl();
 }
 
-commsdsl::parse::Frame Frame::dslObj() const
+commsdsl::parse::ParseFrame Frame::dslObj() const
 {
     return m_impl->dslObj();
 }

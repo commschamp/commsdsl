@@ -36,7 +36,7 @@ namespace commsdsl2comms
 
 CommsBitfieldField::CommsBitfieldField(
     CommsGenerator& generator, 
-    commsdsl::parse::Field dslObj, 
+    commsdsl::parse::ParseField dslObj, 
     commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
@@ -333,7 +333,7 @@ bool CommsBitfieldField::commsPrepareInternal()
 {
     m_members = commsTransformFieldsList(members());
 
-    if ((bitfieldDslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) && 
+    if ((bitfieldDslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::Length) && 
         (!commsHasCustomValue())) {
         generator().logger().warning(
             "Field \"" + comms::scopeFor(*this, generator()) + "\" is used as \"length\" field (semanticType=\"length\"), but custom value "

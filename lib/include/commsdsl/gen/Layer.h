@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/Layer.h"
+#include "commsdsl/parse/ParseLayer.h"
 #include "commsdsl/gen/Elem.h"
 #include "commsdsl/gen/Field.h"
 
@@ -40,12 +40,12 @@ public:
 
     virtual ~Layer();
 
-    static Ptr create(Generator& generator, commsdsl::parse::Layer dslObj, Elem* parent = nullptr);    
+    static Ptr create(Generator& generator, commsdsl::parse::ParseLayer dslObj, Elem* parent = nullptr);    
 
     bool prepare();
     bool write() const;
 
-    commsdsl::parse::Layer dslObj() const;
+    commsdsl::parse::ParseLayer dslObj() const;
 
     Field* externalField();
     const Field* externalField() const;
@@ -61,7 +61,7 @@ public:
     std::string templateScopeOfComms(const std::string& iFaceStr, const std::string& allMessagesStr, const std::string& protOptionsStr) const;
 
 protected:    
-    Layer(Generator& generator, const commsdsl::parse::Layer& dslObj, Elem* parent = nullptr);
+    Layer(Generator& generator, const commsdsl::parse::ParseLayer& dslObj, Elem* parent = nullptr);
 
     virtual Type elemTypeImpl() const override final;
     virtual bool prepareImpl();

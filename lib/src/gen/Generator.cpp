@@ -39,7 +39,7 @@
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
-#include "commsdsl/parse/Protocol.h"
+#include "commsdsl/parse/ParseProtocol.h"
 
 #include <cassert>
 #include <algorithm>
@@ -318,7 +318,7 @@ public:
     bool prepare(const FilesList& files, CreateCompleteFunc createCompleteCb = CreateCompleteFunc())
     {
         m_protocol.setErrorReportCallback(
-            [this](commsdsl::parse::ErrorLevel level, const std::string& msg)
+            [this](commsdsl::parse::ParseErrorLevel level, const std::string& msg)
             {
                 assert(m_logger);
                 m_logger->log(level, msg);
@@ -441,7 +441,7 @@ public:
         m_createdDirectories.push_back(path);
     }
 
-    const commsdsl::parse::Protocol& protocol() const
+    const commsdsl::parse::ParseProtocol& protocol() const
     {
         return m_protocol;
     }
@@ -533,7 +533,7 @@ private:
     }
 
     Generator& m_generator;
-    commsdsl::parse::Protocol m_protocol;
+    commsdsl::parse::ParseProtocol m_protocol;
     LoggerPtr m_logger;
     SchemasList m_schemas;
     Schema* m_currentSchema = nullptr;
@@ -914,142 +914,142 @@ bool Generator::isCurrentProtocolSchema() const
     return &currentSchema() == &protocolSchema();
 }
 
-SchemaPtr Generator::createSchema(commsdsl::parse::Schema dslObj, Elem* parent)
+SchemaPtr Generator::createSchema(commsdsl::parse::ParseSchema dslObj, Elem* parent)
 {
     return createSchemaImpl(dslObj, parent);
 }
 
-NamespacePtr Generator::createNamespace(commsdsl::parse::Namespace dslObj, Elem* parent)
+NamespacePtr Generator::createNamespace(commsdsl::parse::ParseNamespace dslObj, Elem* parent)
 {
     return createNamespaceImpl(dslObj, parent);
 }
 
-InterfacePtr Generator::createInterface(commsdsl::parse::Interface dslObj, Elem* parent)
+InterfacePtr Generator::createInterface(commsdsl::parse::ParseInterface dslObj, Elem* parent)
 {
     return createInterfaceImpl(dslObj, parent);
 }
 
-MessagePtr Generator::createMessage(commsdsl::parse::Message dslObj, Elem* parent)
+MessagePtr Generator::createMessage(commsdsl::parse::ParseMessage dslObj, Elem* parent)
 {
     return createMessageImpl(dslObj, parent);
 }
 
-FramePtr Generator::createFrame(commsdsl::parse::Frame dslObj, Elem* parent)
+FramePtr Generator::createFrame(commsdsl::parse::ParseFrame dslObj, Elem* parent)
 {
     return createFrameImpl(dslObj, parent);
 }
 
-FieldPtr Generator::createIntField(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createIntField(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Int);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Int);
     return createIntFieldImpl(dslObj, parent);
 }
 
-FieldPtr Generator::createEnumField(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createEnumField(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Enum);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Enum);
     return createEnumFieldImpl(dslObj, parent);
 }
 
-FieldPtr Generator::createSetField(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createSetField(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Set);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Set);
     return createSetFieldImpl(dslObj, parent);
 }
 
-FieldPtr Generator::createFloatField(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createFloatField(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Float);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Float);
     return createFloatFieldImpl(dslObj, parent);
 }
 
-FieldPtr Generator::createBitfieldField(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createBitfieldField(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Bitfield);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Bitfield);
     return createBitfieldFieldImpl(dslObj, parent);
 }
 
-FieldPtr Generator::createBundleField(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createBundleField(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Bundle);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Bundle);
     return createBundleFieldImpl(dslObj, parent);
 }
 
-FieldPtr Generator::createStringField(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createStringField(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::String);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::String);
     return createStringFieldImpl(dslObj, parent);
 }
 
-FieldPtr Generator::createDataField(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createDataField(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Data);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Data);
     return createDataFieldImpl(dslObj, parent);
 }
 
-FieldPtr Generator::createListField(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createListField(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::List);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::List);
     return createListFieldImpl(dslObj, parent);
 }
 
-FieldPtr Generator::createRefField(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createRefField(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Ref);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Ref);
     return createRefFieldImpl(dslObj, parent);
 }
 
-FieldPtr Generator::createOptionalField(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createOptionalField(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Optional);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Optional);
     return createOptionalFieldImpl(dslObj, parent);
 }
 
-FieldPtr Generator::createVariantField(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createVariantField(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Variant);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Variant);
     return createVariantFieldImpl(dslObj, parent);
 }
 
-LayerPtr Generator::createCustomLayer(commsdsl::parse::Layer dslObj, Elem* parent)
+LayerPtr Generator::createCustomLayer(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Custom);
+    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Custom);
     return createCustomLayerImpl(dslObj, parent);
 }
 
-LayerPtr Generator::createSyncLayer(commsdsl::parse::Layer dslObj, Elem* parent)
+LayerPtr Generator::createSyncLayer(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Sync);
+    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Sync);
     return createSyncLayerImpl(dslObj, parent);
 }
 
-LayerPtr Generator::createSizeLayer(commsdsl::parse::Layer dslObj, Elem* parent)
+LayerPtr Generator::createSizeLayer(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Size);
+    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Size);
     return createSizeLayerImpl(dslObj, parent);
 }
 
-LayerPtr Generator::createIdLayer(commsdsl::parse::Layer dslObj, Elem* parent)
+LayerPtr Generator::createIdLayer(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Id);
+    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Id);
     return createIdLayerImpl(dslObj, parent);
 }
 
-LayerPtr Generator::createValueLayer(commsdsl::parse::Layer dslObj, Elem* parent)
+LayerPtr Generator::createValueLayer(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Value);
+    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Value);
     return createValueLayerImpl(dslObj, parent);
 }
 
-LayerPtr Generator::createPayloadLayer(commsdsl::parse::Layer dslObj, Elem* parent)
+LayerPtr Generator::createPayloadLayer(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Payload);
+    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Payload);
     return createPayloadLayerImpl(dslObj, parent);
 }
 
-LayerPtr Generator::createChecksumLayer(commsdsl::parse::Layer dslObj, Elem* parent)
+LayerPtr Generator::createChecksumLayer(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Checksum);
+    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Checksum);
     return createChecksumLayerImpl(dslObj, parent);
 }
 
@@ -1141,122 +1141,122 @@ bool Generator::prepareImpl()
     return true;
 }
 
-SchemaPtr Generator::createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent)
+SchemaPtr Generator::createSchemaImpl(commsdsl::parse::ParseSchema dslObj, Elem* parent)
 {
     return std::make_unique<Schema>(*this, dslObj, parent);
 }
 
-NamespacePtr Generator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
+NamespacePtr Generator::createNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, Elem* parent)
 {
     return std::make_unique<Namespace>(*this, dslObj, parent);
 }
 
-InterfacePtr Generator::createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent)
+InterfacePtr Generator::createInterfaceImpl(commsdsl::parse::ParseInterface dslObj, Elem* parent)
 {
     return std::make_unique<Interface>(*this, dslObj, parent);
 }
 
-MessagePtr Generator::createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent)
+MessagePtr Generator::createMessageImpl(commsdsl::parse::ParseMessage dslObj, Elem* parent)
 {
     return std::make_unique<Message>(*this, dslObj, parent);
 }
 
-FramePtr Generator::createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent)
+FramePtr Generator::createFrameImpl(commsdsl::parse::ParseFrame dslObj, Elem* parent)
 {
     return std::make_unique<Frame>(*this, dslObj, parent);
 }
 
-FieldPtr Generator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createIntFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<IntField>(*this, dslObj, parent);
 }
 
-FieldPtr Generator::createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createEnumFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<EnumField>(*this, dslObj, parent);
 }
 
-FieldPtr Generator::createSetFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createSetFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<SetField>(*this, dslObj, parent);
 }
 
-FieldPtr Generator::createFloatFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createFloatFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<FloatField>(*this, dslObj, parent);
 }
 
-FieldPtr Generator::createBitfieldFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createBitfieldFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<BitfieldField>(*this, dslObj, parent);
 }
 
-FieldPtr Generator::createBundleFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createBundleFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<BundleField>(*this, dslObj, parent);
 }
 
-FieldPtr Generator::createStringFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createStringFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<StringField>(*this, dslObj, parent);
 }
 
-FieldPtr Generator::createDataFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createDataFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<DataField>(*this, dslObj, parent);
 }
 
-FieldPtr Generator::createListFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createListFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<ListField>(*this, dslObj, parent);
 }
 
-FieldPtr Generator::createRefFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createRefFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<RefField>(*this, dslObj, parent);
 }
 
-FieldPtr Generator::createOptionalFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createOptionalFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<OptionalField>(*this, dslObj, parent);
 }
 
-FieldPtr Generator::createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+FieldPtr Generator::createVariantFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
 {
     return std::make_unique<VariantField>(*this, dslObj, parent);
 }
 
-LayerPtr Generator::createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+LayerPtr Generator::createCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<CustomLayer>(*this, dslObj, parent);
 }
 
-LayerPtr Generator::createSyncLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+LayerPtr Generator::createSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<SyncLayer>(*this, dslObj, parent);
 }
 
-LayerPtr Generator::createSizeLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+LayerPtr Generator::createSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<SizeLayer>(*this, dslObj, parent);
 }
 
-LayerPtr Generator::createIdLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+LayerPtr Generator::createIdLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<IdLayer>(*this, dslObj, parent);
 }
 
-LayerPtr Generator::createValueLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+LayerPtr Generator::createValueLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<ValueLayer>(*this, dslObj, parent);
 }
 
-LayerPtr Generator::createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+LayerPtr Generator::createPayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<PayloadLayer>(*this, dslObj, parent);
 }
 
-LayerPtr Generator::createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+LayerPtr Generator::createChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
 {
     return std::make_unique<ChecksumLayer>(*this, dslObj, parent);
 }

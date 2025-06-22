@@ -48,7 +48,7 @@ unsigned getHexMsgIdWidthInternal(const commsdsl::gen::Interface& interface)
     }
 
     auto* msgIdField = allMsgIdFields.front();
-    if (msgIdField->dslObj().kind() != commsdsl::parse::Field::Kind::Enum) {
+    if (msgIdField->dslObj().kind() != commsdsl::parse::ParseField::Kind::Enum) {
         return 0U;
     }
 
@@ -59,7 +59,7 @@ unsigned getHexMsgIdWidthInternal(const commsdsl::gen::Interface& interface)
 } // namespace 
     
 
-ToolsQtInterface::ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse::Interface dslObj, commsdsl::gen::Elem* parent) :
+ToolsQtInterface::ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent)
 {
 }

@@ -33,7 +33,7 @@ public:
     using StringsList = commsdsl::gen::util::StringsList;
     using SwigLayersList = SwigLayer::SwigLayersList;
 
-    explicit SwigFrame(SwigGenerator& generator, commsdsl::parse::Frame dslObj, Elem* parent);
+    explicit SwigFrame(SwigGenerator& generator, commsdsl::parse::ParseFrame dslObj, Elem* parent);
     virtual ~SwigFrame();
 
     void swigAddCodeIncludes(StringsList& list) const;

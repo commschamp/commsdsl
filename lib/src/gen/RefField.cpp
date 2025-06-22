@@ -29,7 +29,7 @@ class RefFieldImpl
 {
 public:
 
-    RefFieldImpl(Generator& generator, commsdsl::parse::RefField dslObj): 
+    RefFieldImpl(Generator& generator, commsdsl::parse::ParseRefField dslObj): 
         m_generator(generator),
         m_dslObj(dslObj)
     {
@@ -81,15 +81,15 @@ public:
 
 private:
     Generator& m_generator;
-    commsdsl::parse::RefField m_dslObj;
+    commsdsl::parse::ParseRefField m_dslObj;
     Field* m_referencedField = nullptr;
 };       
 
-RefField::RefField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
+RefField::RefField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent) :
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<RefFieldImpl>(generator, refDslObj()))
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Ref);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Ref);
 }
 
 RefField::~RefField() = default;
@@ -121,9 +121,9 @@ RefField::FieldRefInfo RefField::processInnerRefImpl(const std::string& refStr) 
     return field->processInnerRef(refStr);
 }
 
-commsdsl::parse::RefField RefField::refDslObj() const
+commsdsl::parse::ParseRefField RefField::refDslObj() const
 {
-    return commsdsl::parse::RefField(dslObj());
+    return commsdsl::parse::ParseRefField(dslObj());
 }
 
 } // namespace gen

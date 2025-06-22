@@ -30,7 +30,7 @@ class StringFieldImpl
     using Base = Field;
 public:
 
-    StringFieldImpl(Generator& generator, commsdsl::parse::StringField dslObj, Elem* parent): 
+    StringFieldImpl(Generator& generator, commsdsl::parse::ParseStringField dslObj, Elem* parent): 
         m_generator(generator),
         m_dslObj(dslObj),
         m_parent(parent)
@@ -86,18 +86,18 @@ public:
 
 private:
     Generator& m_generator;
-    commsdsl::parse::StringField m_dslObj;
+    commsdsl::parse::ParseStringField m_dslObj;
     Elem* m_parent = nullptr;
     Field* m_externalPrefixField = nullptr;
     FieldPtr m_memberPrefixField;
 };
 
 
-StringField::StringField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
+StringField::StringField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent) :
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<StringFieldImpl>(generator, stringDslObj(), this))
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::String);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::String);
 }
 
 StringField::~StringField() = default;
@@ -132,9 +132,9 @@ void StringField::setReferencedImpl()
     m_impl->setReferenced();
 }
 
-commsdsl::parse::StringField StringField::stringDslObj() const
+commsdsl::parse::ParseStringField StringField::stringDslObj() const
 {
-    return commsdsl::parse::StringField(dslObj());
+    return commsdsl::parse::ParseStringField(dslObj());
 }
 
 } // namespace gen

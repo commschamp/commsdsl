@@ -28,7 +28,7 @@ class EmscriptenFloatField final : public commsdsl::gen::FloatField, public Emsc
     using Base = commsdsl::gen::FloatField;
     using EmscriptenBase = EmscriptenField;
 public:
-    EmscriptenFloatField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenFloatField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

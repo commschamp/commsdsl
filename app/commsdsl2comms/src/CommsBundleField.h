@@ -31,7 +31,7 @@ class CommsBundleField final : public commsdsl::gen::BundleField, public CommsFi
     using Base = commsdsl::gen::BundleField;
     using CommsBase = CommsField;
 public:
-    CommsBundleField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    CommsBundleField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
     const CommsFieldsList& commsMembers() const
     {

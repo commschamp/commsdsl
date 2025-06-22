@@ -28,7 +28,7 @@ class EmscriptenIntField final : public commsdsl::gen::IntField, public Emscript
     using Base = commsdsl::gen::IntField;
     using EmscriptenBase = EmscriptenField;
 public:
-    EmscriptenIntField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenIntField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

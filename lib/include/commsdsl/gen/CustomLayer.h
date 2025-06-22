@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/Layer.h"
+#include "commsdsl/parse/ParseLayer.h"
 #include "commsdsl/gen/Layer.h"
 
 #include <memory>
@@ -34,10 +34,10 @@ class COMMSDSL_API CustomLayer : public Layer
     using Base = Layer;
 public:
 
-    CustomLayer(Generator& generator, commsdsl::parse::Layer dslObj, Elem* parent = nullptr);
+    CustomLayer(Generator& generator, commsdsl::parse::ParseLayer dslObj, Elem* parent = nullptr);
     virtual ~CustomLayer();
 
-    commsdsl::parse::CustomLayer customDslObj() const;
+    commsdsl::parse::ParseCustomLayer customDslObj() const;
 
 protected:
     virtual bool forceCommsOrderImpl(LayersAccessList& layers, bool& success) const override final;    

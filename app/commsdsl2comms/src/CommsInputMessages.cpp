@@ -192,7 +192,7 @@ bool CommsInputMessages::commsWriteClientInputMessagesInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::Message& msg)
         {
-            return msg.dslObj().sender() != commsdsl::parse::Message::Sender::Client;
+            return msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client;
         };
 
     return 
@@ -209,7 +209,7 @@ bool CommsInputMessages::commsWriteServerInputMessagesInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::Message& msg)
         {
-            return msg.dslObj().sender() != commsdsl::parse::Message::Sender::Server;
+            return msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server;
         };
 
     return 
@@ -252,7 +252,7 @@ bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
             {
                 return 
                     platformCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Client);
+                    (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client);
             };
 
         if (!writeFileInternal(comms::className(p) + ClientInputSuffixStr, "Client input " + p + " platform", m_generator, m_parent, clientCheckFunc)) {
@@ -264,7 +264,7 @@ bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
             {
                 return 
                     platformCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Server);
+                    (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server);
             };
 
         if (!writeFileInternal(comms::className(p) + ServerInputSuffixStr, "Server input " + p + " platform", m_generator, m_parent, serverCheckFunc)) {
@@ -301,7 +301,7 @@ bool CommsInputMessages::commsWriteExtraInputMessagesInternal() const
             {
                 return 
                     bundleCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Client);
+                    (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client);
             };
 
         if (!writeFileInternal(comms::className(b.first) + ClientInputSuffixStr, "Client input " + b.first + " bundle", m_generator, m_parent, clientCheckFunc)) {
@@ -313,7 +313,7 @@ bool CommsInputMessages::commsWriteExtraInputMessagesInternal() const
             {
                 return 
                     bundleCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Server);
+                    (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server);
             };
 
         if (!writeFileInternal(comms::className(b.first) + ServerInputSuffixStr, "Server input " + b.first + " bundle", m_generator, m_parent, serverCheckFunc)) {

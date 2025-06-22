@@ -31,7 +31,7 @@ class IntFieldImpl
 public:
     using SpecialsList = IntField::SpecialsList;
 
-    bool prepare(commsdsl::parse::IntField dslObj)
+    bool prepare(commsdsl::parse::ParseIntField dslObj)
     {
         auto& dslSpecials = dslObj.specialValues();
         m_specialsSorted.reserve(dslSpecials.size());
@@ -67,23 +67,23 @@ private:
     SpecialsList m_specialsSorted;
 };   
 
-IntField::IntField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
+IntField::IntField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent) :
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<IntFieldImpl>())
 {
-    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Int);
+    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Int);
 }
 
 IntField::~IntField() = default;
 
-bool IntField::isUnsignedType(commsdsl::parse::IntField::Type value)
+bool IntField::isUnsignedType(commsdsl::parse::ParseIntField::Type value)
 {
-    static const commsdsl::parse::IntField::Type Map[] = {
-        commsdsl::parse::IntField::Type::Uint8,
-        commsdsl::parse::IntField::Type::Uint16,
-        commsdsl::parse::IntField::Type::Uint32,
-        commsdsl::parse::IntField::Type::Uint64,
-        commsdsl::parse::IntField::Type::Uintvar,
+    static const commsdsl::parse::ParseIntField::Type Map[] = {
+        commsdsl::parse::ParseIntField::Type::Uint8,
+        commsdsl::parse::ParseIntField::Type::Uint16,
+        commsdsl::parse::ParseIntField::Type::Uint32,
+        commsdsl::parse::ParseIntField::Type::Uint64,
+        commsdsl::parse::ParseIntField::Type::Uintvar,
     };
 
     auto iter = std::find(std::begin(Map), std::end(Map), value);
@@ -122,9 +122,9 @@ IntField::FieldRefInfo IntField::processInnerRefImpl(const std::string& refStr) 
     return info;    
 }
 
-commsdsl::parse::IntField IntField::intDslObj() const
+commsdsl::parse::ParseIntField IntField::intDslObj() const
 {
-    return commsdsl::parse::IntField(dslObj());
+    return commsdsl::parse::ParseIntField(dslObj());
 }
 
 } // namespace gen

@@ -29,7 +29,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsCustomLayer::CommsCustomLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) :
+CommsCustomLayer::CommsCustomLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {
@@ -66,7 +66,7 @@ std::string CommsCustomLayer::commsDefBaseTypeImpl(const std::string& prevName) 
         {"EXTRA_OPT", commsDefExtraOpts()},
     };
 
-    if (customDslObj().semanticLayerType() == commsdsl::parse::Layer::Kind::Id) {
+    if (customDslObj().semanticLayerType() == commsdsl::parse::ParseLayer::Kind::Id) {
         repl["ID_TEMPLATE_PARAMS"] = "TMessage,\nTAllMessages,";
     }
 
@@ -79,7 +79,7 @@ std::string CommsCustomLayer::commsDefBaseTypeImpl(const std::string& prevName) 
 
 bool CommsCustomLayer::commsDefHasInputMessagesImpl() const
 {
-    return (customDslObj().semanticLayerType() == commsdsl::parse::Layer::Kind::Id);
+    return (customDslObj().semanticLayerType() == commsdsl::parse::ParseLayer::Kind::Id);
 }
 
 bool CommsCustomLayer::commsIsCustomizableImpl() const

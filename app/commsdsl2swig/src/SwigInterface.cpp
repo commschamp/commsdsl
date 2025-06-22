@@ -37,7 +37,7 @@ namespace commsdsl2swig
 {
 
 
-SwigInterface::SwigInterface(SwigGenerator& generator, commsdsl::parse::Interface dslObj, Elem* parent) :
+SwigInterface::SwigInterface(SwigGenerator& generator, commsdsl::parse::ParseInterface dslObj, Elem* parent) :
     Base(generator, dslObj, parent)
 {
 }   

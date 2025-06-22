@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/parse/ErrorLevel.h"
+#include "commsdsl/parse/ParseErrorLevel.h"
 
 #include <string>
 #include <memory>
@@ -30,23 +30,23 @@ class LoggerImpl;
 class Logger
 {
 public:
-    using ErrorLevel = commsdsl::parse::ErrorLevel;
+    using ParseErrorLevel = commsdsl::parse::ParseErrorLevel;
     Logger();
     Logger(const Logger&) = delete;
     virtual ~Logger();
 
-    void log(ErrorLevel level, const std::string& msg) const;
+    void log(ParseErrorLevel level, const std::string& msg) const;
 
     void error(const std::string& msg) const;
     void warning(const std::string& msg) const;
     void info(const std::string& msg) const;
     void debug(const std::string& msg) const;
-    void setMinLevel(ErrorLevel level);
+    void setMinLevel(ParseErrorLevel level);
     void setWarnAsError();
     bool hadWarning() const;
 
 protected:
-    virtual void logImpl(ErrorLevel level, const std::string& msg) const;    
+    virtual void logImpl(ParseErrorLevel level, const std::string& msg) const;    
 
 private:
     mutable std::unique_ptr<LoggerImpl> m_impl;

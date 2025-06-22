@@ -29,7 +29,7 @@ class SwigCustomLayer final : public commsdsl::gen::CustomLayer, public SwigLaye
     using Base = commsdsl::gen::CustomLayer;
     using SwigBase = SwigLayer;
 public:
-    SwigCustomLayer(SwigGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    SwigCustomLayer(SwigGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 };
 
 } // namespace commsdsl2swig

@@ -28,7 +28,7 @@ class ToolsQtIdLayer final : public commsdsl::gen::IdLayer, public ToolsQtLayer
     using Base = commsdsl::gen::IdLayer;
     using ToolsBase = ToolsQtLayer;
 public:
-    explicit ToolsQtIdLayer(ToolsQtGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtIdLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides

@@ -17,7 +17,7 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/StringField.h"
+#include "commsdsl/parse/ParseStringField.h"
 #include "commsdsl/gen/Field.h"
 
 #include <memory>
@@ -34,7 +34,7 @@ class COMMSDSL_API StringField : public Field
     using Base = Field;
 public:
 
-    StringField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    StringField(Generator& generator, commsdsl::parse::ParseField dslObj, Elem* parent = nullptr);
     virtual ~StringField();
 
     Field* externalPrefixField();
@@ -43,7 +43,7 @@ public:
     Field* memberPrefixField();
     const Field* memberPrefixField() const;
 
-    commsdsl::parse::StringField stringDslObj() const;
+    commsdsl::parse::ParseStringField stringDslObj() const;
 
 protected:    
     virtual bool prepareImpl() override;

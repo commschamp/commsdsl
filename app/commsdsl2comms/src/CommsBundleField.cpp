@@ -37,7 +37,7 @@ namespace commsdsl2comms
 
 CommsBundleField::CommsBundleField(
     CommsGenerator& generator, 
-    commsdsl::parse::Field dslObj, 
+    commsdsl::parse::ParseField dslObj, 
     commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
@@ -373,7 +373,7 @@ bool CommsBundleField::commsPrepareInternal()
         m_bundledRefreshCodes.push_back(m->commsDefBundledRefreshFuncBody(m_members));
     }
 
-    if ((bundleDslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) && 
+    if ((bundleDslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::Length) && 
         (!commsHasCustomValue())) {
         generator().logger().warning(
             "Field \"" + comms::scopeFor(*this, generator()) + "\" is used as \"length\" field (semanticType=\"length\"), but custom value "
@@ -668,7 +668,7 @@ void CommsBundleField::commsAddRemLengthMemberOptInternal(StringsList& opts) con
             m_members.begin(), m_members.end(),
             [](auto* m) {
                 assert(m != nullptr);
-                return m->field().dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length;
+                return m->field().dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::Length;
             });   
 
     if (lengthFieldIter != m_members.end()) {
