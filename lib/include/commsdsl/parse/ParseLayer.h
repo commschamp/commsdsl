@@ -57,8 +57,8 @@ public:
     bool hasField() const;
     ParseField field() const;
 
-    const AttributesMap& extraAttributes() const;
-    const ElementsList& extraElements() const;
+    const AttributesMap& parseExtraAttributes() const;
+    const ElementsList& parseExtraElements() const;
 
 protected:
     const ParseLayerImpl* m_pImpl;

@@ -57,8 +57,8 @@ public:
     FramesList frames() const;
     std::string externalRef(bool schemaRef = true) const;
 
-    const AttributesMap& extraAttributes() const;
-    const ElementsList& extraElements() const;
+    const AttributesMap& parseExtraAttributes() const;
+    const ElementsList& parseExtraElements() const;
 
 private:
     const ParseNamespaceImpl* m_pImpl;

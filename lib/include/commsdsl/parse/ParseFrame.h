@@ -46,8 +46,8 @@ public:
     LayersList layers() const;
     std::string externalRef(bool schemaRef = true) const;
 
-    const AttributesMap& extraAttributes() const;
-    const ElementsList& extraElements() const;
+    const AttributesMap& parseExtraAttributes() const;
+    const ElementsList& parseExtraElements() const;
 
 protected:
     const ParseFrameImpl* m_pImpl;

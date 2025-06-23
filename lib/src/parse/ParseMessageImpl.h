@@ -91,7 +91,7 @@ public:
 
     std::string externalRef(bool schemaRef) const;
 
-    const PropsMap& extraAttributes() const
+    const PropsMap& parseExtraAttributes() const
     {
         return m_extraAttrs;
     }

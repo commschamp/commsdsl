@@ -93,12 +93,12 @@ public:
         return extraPropsNamesImpl();
     }
 
-    const PropsMap& extraAttributes() const
+    const PropsMap& parseExtraAttributes() const
     {
         return m_extraAttrs;
     }
 
-    PropsMap& extraAttributes()
+    PropsMap& parseExtraAttributes()
     {
         return m_extraAttrs;
     }

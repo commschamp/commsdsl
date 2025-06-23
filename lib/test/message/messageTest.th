@@ -291,8 +291,8 @@ void MessageTestSuite::test12()
     TS_ASSERT_EQUALS(msg1.minLength(), 0U);
     TS_ASSERT_EQUALS(msg1.maxLength(), 0U);
     TS_ASSERT(msg1.fields().empty());
-    auto& extraAttrs = msg1.extraAttributes();
-    auto& extraChildren = msg1.extraElements();
+    auto& extraAttrs = msg1.parseExtraAttributes();
+    auto& extraChildren = msg1.parseExtraElements();
 
     TS_ASSERT_EQUALS(extraAttrs.size(), 1);
     TS_ASSERT_EQUALS(extraAttrs.begin()->first, "extraAttr");
@@ -329,8 +329,8 @@ void MessageTestSuite::test13()
     TS_ASSERT_EQUALS(msg1.minLength(), 0U);
     TS_ASSERT_EQUALS(msg1.maxLength(), 0U);
     TS_ASSERT(msg1.fields().empty());
-    auto& extraAttrs = msg1.extraAttributes();
-    auto& extraChildren = msg1.extraElements();
+    auto& extraAttrs = msg1.parseExtraAttributes();
+    auto& extraChildren = msg1.parseExtraElements();
 
     TS_ASSERT_EQUALS(extraAttrs.size(), 1);
     TS_ASSERT_EQUALS(extraAttrs.begin()->first, "prefix.extraAttr");

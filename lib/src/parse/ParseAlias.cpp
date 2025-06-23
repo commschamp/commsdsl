@@ -51,13 +51,13 @@ const std::string& ParseAlias::fieldName() const
     return m_pImpl->fieldName();
 }
 
-const ParseAlias::AttributesMap& ParseAlias::extraAttributes() const
+const ParseAlias::AttributesMap& ParseAlias::parseExtraAttributes() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->extraAttributes();
+    return m_pImpl->parseExtraAttributes();
 }
 
-const ParseAlias::ElementsList& ParseAlias::extraElements() const
+const ParseAlias::ElementsList& ParseAlias::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->extraChildren();

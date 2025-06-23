@@ -74,13 +74,13 @@ const std::string& ParseInterface::copyCodeFrom() const
     return m_pImpl->copyCodeFrom();
 }
 
-const ParseInterface::AttributesMap& ParseInterface::extraAttributes() const
+const ParseInterface::AttributesMap& ParseInterface::parseExtraAttributes() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->extraAttributes();
+    return m_pImpl->parseExtraAttributes();
 }
 
-const ParseInterface::ElementsList& ParseInterface::extraElements() const
+const ParseInterface::ElementsList& ParseInterface::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->extraChildren();

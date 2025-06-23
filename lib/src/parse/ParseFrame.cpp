@@ -62,13 +62,13 @@ std::string ParseFrame::externalRef(bool schemaRef) const
     return m_pImpl->externalRef(schemaRef);
 }
 
-const ParseFrame::AttributesMap& ParseFrame::extraAttributes() const
+const ParseFrame::AttributesMap& ParseFrame::parseExtraAttributes() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->extraAttributes();
+    return m_pImpl->parseExtraAttributes();
 }
 
-const ParseFrame::ElementsList& ParseFrame::extraElements() const
+const ParseFrame::ElementsList& ParseFrame::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->extraChildren();

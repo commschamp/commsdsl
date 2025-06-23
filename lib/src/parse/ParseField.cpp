@@ -200,13 +200,13 @@ bool ParseField::isValidInnerRef(const std::string& refStr) const
     return m_pImpl->isValidInnerRef(refStr);
 }
 
-const ParseField::AttributesMap& ParseField::extraAttributes() const
+const ParseField::AttributesMap& ParseField::parseExtraAttributes() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->extraAttributes();
+    return m_pImpl->parseExtraAttributes();
 }
 
-const ParseField::ElementsList& ParseField::extraElements() const
+const ParseField::ElementsList& ParseField::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->extraChildren();

@@ -544,11 +544,11 @@ bool ParseNamespaceImpl::processNamespace(::xmlNodePtr node)
             }
         }
 
-        if (!nsToProcess->extraAttributes().empty()) {
-            for (auto& a : nsToProcess->extraAttributes()) {
-                auto attIter = realNs->extraAttributes().find(a.first);
-                if (attIter == realNs->extraAttributes().end()) {
-                    realNs->extraAttributes().insert(a);
+        if (!nsToProcess->parseExtraAttributes().empty()) {
+            for (auto& a : nsToProcess->parseExtraAttributes()) {
+                auto attIter = realNs->parseExtraAttributes().find(a.first);
+                if (attIter == realNs->parseExtraAttributes().end()) {
+                    realNs->parseExtraAttributes().insert(a);
                 }
                 else if (a.second != attIter->second) {
                     logWarning() << ParseXmlWrap::logPrefix(nsToProcess->getNode()) <<

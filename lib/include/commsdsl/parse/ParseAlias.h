@@ -42,8 +42,8 @@ public:
     const std::string& description() const;
     const std::string& fieldName() const;
 
-    const AttributesMap& extraAttributes() const;
-    const ElementsList& extraElements() const;
+    const AttributesMap& parseExtraAttributes() const;
+    const ElementsList& parseExtraElements() const;
 
 protected:
     const ParseAliasImpl* m_pImpl;

@@ -50,8 +50,8 @@ public:
     std::string externalRef(bool schemaRef = true) const;
     const std::string& copyCodeFrom() const;
 
-    const AttributesMap& extraAttributes() const;
-    const ElementsList& extraElements() const;
+    const AttributesMap& parseExtraAttributes() const;
+    const ElementsList& parseExtraElements() const;
 
 protected:
     const ParseInterfaceImpl* m_pImpl;

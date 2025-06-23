@@ -40,8 +40,8 @@ void SchemaTestSuite::test1()
     TS_ASSERT_EQUALS(schema.dslVersion(), 0);
     TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT(schema.nonUniqueMsgIdAllowed());
-    TS_ASSERT(schema.extraAttributes().empty());
-    TS_ASSERT(schema.extraElements().empty());
+    TS_ASSERT(schema.parseExtraAttributes().empty());
+    TS_ASSERT(schema.parseExtraElements().empty());
 }
 
 void SchemaTestSuite::test2()
@@ -58,8 +58,8 @@ void SchemaTestSuite::test2()
     TS_ASSERT_EQUALS(schema.version(), 5);
     TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT(schema.nonUniqueMsgIdAllowed());
-    auto& extraAttrs = schema.extraAttributes();
-    auto& extraChildren = schema.extraElements();
+    auto& extraAttrs = schema.parseExtraAttributes();
+    auto& extraChildren = schema.parseExtraElements();
     TS_ASSERT_EQUALS(extraAttrs.size(), 1U);
     TS_ASSERT_EQUALS(extraAttrs.begin()->first, "extraAttr");
     TS_ASSERT_EQUALS(extraAttrs.begin()->second, "hello");
@@ -85,8 +85,8 @@ void SchemaTestSuite::test3()
     TS_ASSERT_EQUALS(schema.version(), 5);
     TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT(schema.nonUniqueMsgIdAllowed());
-    auto& extraAttrs = schema.extraAttributes();
-    auto& extraChildren = schema.extraElements();
+    auto& extraAttrs = schema.parseExtraAttributes();
+    auto& extraChildren = schema.parseExtraElements();
     TS_ASSERT_EQUALS(extraAttrs.size(), 1U);
     TS_ASSERT_EQUALS(extraAttrs.begin()->first, "prefix.extraAttr");
     TS_ASSERT_EQUALS(extraAttrs.begin()->second, "hello");
@@ -106,8 +106,8 @@ void SchemaTestSuite::test4()
     TS_ASSERT_EQUALS(schema.version(), 5);
     TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT(!schema.nonUniqueMsgIdAllowed());
-    TS_ASSERT(schema.extraAttributes().empty());
-    TS_ASSERT(schema.extraElements().empty());
+    TS_ASSERT(schema.parseExtraAttributes().empty());
+    TS_ASSERT(schema.parseExtraElements().empty());
     auto& platforms = protocol->lastParsedSchema().platforms();
     TS_ASSERT_EQUALS(platforms.size(), 3U);
     TS_ASSERT_EQUALS(platforms[0], "plat1");
@@ -127,8 +127,8 @@ void SchemaTestSuite::test5()
     TS_ASSERT_EQUALS(schema.version(), 5);
     TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT(!schema.nonUniqueMsgIdAllowed());
-    TS_ASSERT(schema.extraAttributes().empty());
-    TS_ASSERT(schema.extraElements().empty());
+    TS_ASSERT(schema.parseExtraAttributes().empty());
+    TS_ASSERT(schema.parseExtraElements().empty());
     auto& platforms = protocol->lastParsedSchema().platforms();
     TS_ASSERT_EQUALS(platforms.size(), 2U);
     TS_ASSERT_EQUALS(platforms[0], "plat1");
@@ -146,6 +146,6 @@ void SchemaTestSuite::test6()
     TS_ASSERT_EQUALS(schema.dslVersion(), 3);
     TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT(!schema.nonUniqueMsgIdAllowed());
-    TS_ASSERT(schema.extraAttributes().empty());
-    TS_ASSERT(schema.extraElements().empty());
+    TS_ASSERT(schema.parseExtraAttributes().empty());
+    TS_ASSERT(schema.parseExtraElements().empty());
 }

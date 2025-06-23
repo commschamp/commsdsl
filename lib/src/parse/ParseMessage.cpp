@@ -194,13 +194,13 @@ ParseOptCond ParseMessage::validCond() const
     return m_pImpl->validCond();
 }
 
-const ParseMessage::AttributesMap& ParseMessage::extraAttributes() const
+const ParseMessage::AttributesMap& ParseMessage::parseExtraAttributes() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->extraAttributes();
+    return m_pImpl->parseExtraAttributes();
 }
 
-const ParseMessage::ElementsList& ParseMessage::extraElements() const
+const ParseMessage::ElementsList& ParseMessage::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->extraChildren();

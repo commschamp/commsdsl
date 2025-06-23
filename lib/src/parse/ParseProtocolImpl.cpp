@@ -561,8 +561,8 @@ bool ParseProtocolImpl::validateSchema(::xmlNodePtr node)
         }
     }
 
-    auto& attrs = schema->extraAttributes();
-    auto& origAttrs = m_currSchema->extraAttributes();
+    auto& attrs = schema->parseExtraAttributes();
+    auto& origAttrs = m_currSchema->parseExtraAttributes();
     for (auto& a : attrs) {
         auto iter = origAttrs.find(a.first);
         if (iter == origAttrs.end()) {
@@ -701,11 +701,11 @@ bool ParseProtocolImpl::validateNamespaces(::xmlNodePtr root)
                     }
                 }
 
-                if (!nsToProcess->extraAttributes().empty()) {
-                    for (auto& a : nsToProcess->extraAttributes()) {
-                        auto attIter = realNs->extraAttributes().find(a.first);
-                        if (attIter == realNs->extraAttributes().end()) {
-                            realNs->extraAttributes().insert(a);
+                if (!nsToProcess->parseExtraAttributes().empty()) {
+                    for (auto& a : nsToProcess->parseExtraAttributes()) {
+                        auto attIter = realNs->parseExtraAttributes().find(a.first);
+                        if (attIter == realNs->parseExtraAttributes().end()) {
+                            realNs->parseExtraAttributes().insert(a);
                         }
                         else if (a.second != attIter->second) {
                             logWarning() << ParseXmlWrap::logPrefix(nsToProcess->getNode()) <<

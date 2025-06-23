@@ -95,8 +95,8 @@ public:
     const std::string& copyCodeFrom() const;
     bool isValidInnerRef(const std::string& refStr) const;
 
-    const AttributesMap& extraAttributes() const;
-    const ElementsList& extraElements() const;
+    const AttributesMap& parseExtraAttributes() const;
+    const ElementsList& parseExtraElements() const;
 
 protected:
     const ParseFieldImpl* m_pImpl;

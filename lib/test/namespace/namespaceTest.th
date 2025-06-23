@@ -40,8 +40,8 @@ void MessageTestSuite::test1()
     TS_ASSERT(ns.namespaces().empty());
     TS_ASSERT_EQUALS(ns.fields().size(), 2U);
     TS_ASSERT(ns.messages().empty());
-    TS_ASSERT(ns.extraAttributes().empty());
-    TS_ASSERT(ns.extraElements().empty());
+    TS_ASSERT(ns.parseExtraAttributes().empty());
+    TS_ASSERT(ns.parseExtraElements().empty());
 }
 
 void MessageTestSuite::test2()
@@ -59,8 +59,8 @@ void MessageTestSuite::test2()
     TS_ASSERT(ns.namespaces().empty());
     TS_ASSERT_EQUALS(ns.fields().size(), 3U);
     TS_ASSERT(ns.messages().empty());
-    TS_ASSERT(ns.extraAttributes().empty());
-    TS_ASSERT(ns.extraElements().empty());
+    TS_ASSERT(ns.parseExtraAttributes().empty());
+    TS_ASSERT(ns.parseExtraElements().empty());
 }
 
 void MessageTestSuite::test3()
@@ -81,8 +81,8 @@ void MessageTestSuite::test3()
     TS_ASSERT(ns.namespaces().empty());
     TS_ASSERT_EQUALS(ns.fields().size(), 3U);
     TS_ASSERT(ns.messages().empty());
-    auto& extraAttrs = ns.extraAttributes();
-    auto& extraChildren = ns.extraElements();
+    auto& extraAttrs = ns.parseExtraAttributes();
+    auto& extraChildren = ns.parseExtraElements();
     TS_ASSERT_EQUALS(extraAttrs.size(), 2U);
     TS_ASSERT_EQUALS(extraAttrs.begin()->first, "extraAttr1");
     TS_ASSERT_EQUALS((++extraAttrs.begin())->first, "extraAttr2");
@@ -111,8 +111,8 @@ void MessageTestSuite::test4()
     TS_ASSERT(ns.namespaces().empty());
     TS_ASSERT_EQUALS(ns.fields().size(), 3U);
     TS_ASSERT(ns.messages().empty());
-    auto& extraAttrs = ns.extraAttributes();
-    auto& extraChildren = ns.extraElements();
+    auto& extraAttrs = ns.parseExtraAttributes();
+    auto& extraChildren = ns.parseExtraElements();
     TS_ASSERT_EQUALS(extraAttrs.size(), 2U);
     TS_ASSERT_EQUALS(extraAttrs.begin()->first, "prefix.extraAttr1");
     TS_ASSERT_EQUALS((++extraAttrs.begin())->first, "prefix.extraAttr2");
@@ -145,8 +145,8 @@ void MessageTestSuite::test5()
     TS_ASSERT(ns.namespaces().empty());
     TS_ASSERT_EQUALS(ns.fields().size(), 3U);
     TS_ASSERT(ns.messages().empty());
-    auto& extraAttrs = ns.extraAttributes();
-    auto& extraChildren = ns.extraElements();
+    auto& extraAttrs = ns.parseExtraAttributes();
+    auto& extraChildren = ns.parseExtraElements();
     TS_ASSERT_EQUALS(extraAttrs.size(), 2U);
     TS_ASSERT_EQUALS(extraAttrs.begin()->first, "extraAttr1");
     TS_ASSERT_EQUALS((++extraAttrs.begin())->first, "extraAttr2");

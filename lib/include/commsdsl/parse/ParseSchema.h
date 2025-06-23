@@ -57,9 +57,9 @@ public:
 
     bool nonUniqueMsgIdAllowed() const;
 
-    const AttributesMap& extraAttributes() const;
+    const AttributesMap& parseExtraAttributes() const;
 
-    const ElementsList& extraElements() const;
+    const ElementsList& parseExtraElements() const;
 
     NamespacesList namespaces() const;
 

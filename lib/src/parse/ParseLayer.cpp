@@ -98,13 +98,13 @@ ParseField ParseLayer::field() const
     return m_pImpl->field();
 }
 
-const ParseLayer::AttributesMap& ParseLayer::extraAttributes() const
+const ParseLayer::AttributesMap& ParseLayer::parseExtraAttributes() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->extraAttributes();
+    return m_pImpl->parseExtraAttributes();
 }
 
-const ParseLayer::ElementsList& ParseLayer::extraElements() const
+const ParseLayer::ElementsList& ParseLayer::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->extraChildren();

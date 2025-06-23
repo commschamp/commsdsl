@@ -51,12 +51,12 @@ public:
         return m_state.m_fieldName;
     }
 
-    const PropsMap& extraAttributes() const
+    const PropsMap& parseExtraAttributes() const
     {
         return m_state.m_extraAttrs;
     }
 
-    PropsMap& extraAttributes()
+    PropsMap& parseExtraAttributes()
     {
         return m_state.m_extraAttrs;
     }

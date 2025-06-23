@@ -116,7 +116,7 @@ bool ParseSchema::nonUniqueMsgIdAllowed() const
     return m_pImpl->nonUniqueMsgIdAllowed();
 }
 
-const ParseSchema::AttributesMap& ParseSchema::extraAttributes() const
+const ParseSchema::AttributesMap& ParseSchema::parseExtraAttributes() const
 {
     if (!valid()) {
         assert(Unexpected_call_on_invalid_schema_object);
@@ -124,10 +124,10 @@ const ParseSchema::AttributesMap& ParseSchema::extraAttributes() const
         return Map;
     }
 
-    return m_pImpl->extraAttributes();
+    return m_pImpl->parseExtraAttributes();
 }
 
-const ParseSchema::ElementsList& ParseSchema::extraElements() const
+const ParseSchema::ElementsList& ParseSchema::parseExtraElements() const
 {
     if (!valid()) {
         assert(Unexpected_call_on_invalid_schema_object);

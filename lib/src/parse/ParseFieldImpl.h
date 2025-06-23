@@ -215,12 +215,12 @@ public:
     bool isComparableToValue(const std::string& val) const;
     bool isComparableToField(const ParseFieldImpl& field) const;
 
-    const PropsMap& extraAttributes() const
+    const PropsMap& parseExtraAttributes() const
     {
         return m_state.m_extraAttrs;
     }
 
-    PropsMap& extraAttributes()
+    PropsMap& parseExtraAttributes()
     {
         return m_state.m_extraAttrs;
     }

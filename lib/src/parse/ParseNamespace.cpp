@@ -93,13 +93,13 @@ std::string ParseNamespace::externalRef(bool schemaRef) const
     return m_pImpl->externalRef(schemaRef);
 }
 
-const ParseNamespace::AttributesMap& ParseNamespace::extraAttributes() const
+const ParseNamespace::AttributesMap& ParseNamespace::parseExtraAttributes() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->extraAttributes();
+    return m_pImpl->parseExtraAttributes();
 }
 
-const ParseNamespace::ElementsList& ParseNamespace::extraElements() const
+const ParseNamespace::ElementsList& ParseNamespace::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->extraChildren();

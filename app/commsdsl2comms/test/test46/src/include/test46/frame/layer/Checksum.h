@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <limits>
 
-#include "comms/frame/GenChecksumLayer.h"
+#include "comms/frame/ChecksumLayer.h"
 #include "comms/options.h"
 #include "comms/frame/checksum/BasicSum.h"
 #include "comms/frame/checksum/Crc.h"
@@ -19,10 +19,10 @@ namespace frame
 namespace layer
 {
 
-/// @brief Customizing the GenChecksumLayer
+/// @brief Customizing the ChecksumLayer
 template<typename TField, typename TNextLayer, typename... TOptions>
 class Checksum : public
-    comms::frame::GenChecksumLayer<
+    comms::frame::ChecksumLayer<
         TField,
         comms::frame::checksum::Crc_32, // Not really used, but the parameter needs to be populated
         TNextLayer,
@@ -32,7 +32,7 @@ class Checksum : public
 {
     // Repeat base type
     using Base = 
-        comms::frame::GenChecksumLayer<
+        comms::frame::ChecksumLayer<
             TField,
             comms::frame::checksum::Crc_32,
             TNextLayer,

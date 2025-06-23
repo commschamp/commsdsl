@@ -49,7 +49,7 @@ CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() cons
     auto obj = checksumDslObj();
     if (!obj.fromLayer().empty()) {
         assert(obj.untilLayer().empty());
-        result.push_back("comms/frame/GenChecksumLayer.h");
+        result.push_back("comms/frame/ChecksumLayer.h");
     }
     else {
         assert(!obj.untilLayer().empty());
