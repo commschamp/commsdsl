@@ -17,19 +17,19 @@
 
 #include "SwigLayer.h"
 
-#include "commsdsl/gen/SizeLayer.h"
+#include "commsdsl/gen/GenSizeLayer.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigSizeLayer final : public commsdsl::gen::SizeLayer, public SwigLayer
+class SwigSizeLayer final : public commsdsl::gen::GenSizeLayer, public SwigLayer
 {
-    using Base = commsdsl::gen::SizeLayer;
+    using Base = commsdsl::gen::GenSizeLayer;
     using SwigBase = SwigLayer;
 public:
-    SwigSizeLayer(SwigGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
+    SwigSizeLayer(SwigGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
 
 protected:
     // SwigBase overrides

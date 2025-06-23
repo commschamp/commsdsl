@@ -17,19 +17,19 @@
 
 #include "CommsField.h"
 
-#include "commsdsl/gen/SetField.h"
+#include "commsdsl/gen/GenSetField.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsSetField final : public commsdsl::gen::SetField, public CommsField
+class CommsSetField final : public commsdsl::gen::GenSetField, public CommsField
 {
-    using Base = commsdsl::gen::SetField;
+    using Base = commsdsl::gen::GenSetField;
     using CommsBase = CommsField;
 public:
-    CommsSetField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
+    CommsSetField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
 protected:
     // Base overrides

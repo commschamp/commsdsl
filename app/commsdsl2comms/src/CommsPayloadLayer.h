@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/PayloadLayer.h"
+#include "commsdsl/gen/GenPayloadLayer.h"
 
 #include "CommsLayer.h"
 
@@ -23,12 +23,12 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsPayloadLayer final : public commsdsl::gen::PayloadLayer, public CommsLayer
+class CommsPayloadLayer final : public commsdsl::gen::GenPayloadLayer, public CommsLayer
 {
-    using Base = commsdsl::gen::PayloadLayer;
+    using Base = commsdsl::gen::GenPayloadLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsPayloadLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
+    CommsPayloadLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
 
 protected:
     virtual bool prepareImpl() override;

@@ -43,7 +43,7 @@ namespace
 
 const std::string ProtTransportMsgSuffix("ProtTransportMessage");
 
-ToolsQtFrame::ToolsQtLayersList toolsTransformLayersList(const commsdsl::gen::Frame::LayersList& layers)
+ToolsQtFrame::ToolsQtLayersList toolsTransformLayersList(const commsdsl::gen::GenFrame::LayersList& layers)
 {
     ToolsQtFrame::ToolsQtLayersList result;
     result.reserve(layers.size());
@@ -67,17 +67,17 @@ ToolsQtFrame::ToolsQtLayersList toolsTransformLayersList(const commsdsl::gen::Fr
 } // namespace 
     
 
-ToolsQtFrame::ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::Elem* parent) :
+ToolsQtFrame::ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent)
 {
 }
 
-std::string ToolsQtFrame::toolsHeaderFilePath(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtFrame::toolsHeaderFilePath(const commsdsl::gen::GenInterface& iFace) const
 {
     return toolsRelPathInternal(iFace) + strings::cppHeaderSuffixStr();
 }
 
-ToolsQtFrame::StringsList ToolsQtFrame::toolsSourceFiles(const commsdsl::gen::Interface& iFace) const
+ToolsQtFrame::StringsList ToolsQtFrame::toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const
 {
     auto& gen = ToolsQtGenerator::cast(generator());
     auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
@@ -98,7 +98,7 @@ ToolsQtFrame::StringsList ToolsQtFrame::toolsSourceFiles(const commsdsl::gen::In
         };
 }
 
-std::string ToolsQtFrame::toolsClassScope(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtFrame::toolsClassScope(const commsdsl::gen::GenInterface& iFace) const
 {
     auto& gen = ToolsQtGenerator::cast(generator());
     return gen.toolsScopePrefixForInterface(iFace) + comms::scopeFor(*this, gen);    
@@ -271,8 +271,8 @@ bool ToolsQtFrame::toolsWriteSrcInternal() const
     auto& logger = gen.logger();
 
     auto* parent = getParent();
-    assert((parent != nullptr) && (parent->elemType() == commsdsl::gen::Elem::Type_Namespace));
-    auto* parentNs = ToolsQtNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(parent));
+    assert((parent != nullptr) && (parent->elemType() == commsdsl::gen::GenElem::Type_Namespace));
+    auto* parentNs = ToolsQtNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
 
     auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
     for (auto& info : selectedFrames) {
@@ -487,12 +487,12 @@ unsigned ToolsQtFrame::toolsCalcBackPayloadOffsetInternal() const
                 }));
 }
 
-std::string ToolsQtFrame::toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtFrame::toolsRelPathInternal(const commsdsl::gen::GenInterface& iFace) const
 {
     return util::strReplace(toolsClassScope(iFace), "::", "/");
 }
 
-std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::GenInterface& iFace) const
 {
     static const std::string Templ = 
         "template <typename TOpt>\n"
@@ -560,13 +560,13 @@ std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::
     return util::processTemplate(Templ, repl);
 }
 
-std::string ToolsQtFrame::toolsProtTransportMsgHeaderExtraIncInternal(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtFrame::toolsProtTransportMsgHeaderExtraIncInternal(const commsdsl::gen::GenInterface& iFace) const
 {
     auto incFile = generator().getCodeDir() + '/' + toolsRelPathInternal(iFace) + ProtTransportMsgSuffix + strings::cppHeaderSuffixStr() + strings::incFileSuffixStr();
     return util::readFileContents(incFile);
 }
 
-std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::gen::GenInterface& iFace) const
 {
     std::string readCode;
     do {
@@ -663,7 +663,7 @@ std::string ToolsQtFrame::toolsTransportMsgHeaderDefInternal() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::GenInterface& iFace) const
 {
     static const std::string Templ = 
         "class #^#CLASS_NAME#$#Impl : public\n"
@@ -833,7 +833,7 @@ std::string ToolsQtFrame::toolsFrameHeaderDefInternal() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string ToolsQtFrame::toolsFrameSrcDefInternal(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtFrame::toolsFrameSrcDefInternal(const commsdsl::gen::GenInterface& iFace) const
 {
     static const std::string Templ = 
         "namespace\n"
@@ -897,8 +897,8 @@ std::string ToolsQtFrame::toolsFrameSrcDefInternal(const commsdsl::gen::Interfac
 
     auto& gen = ToolsQtGenerator::cast(generator());
     auto* parent = getParent();
-    assert((parent != nullptr) && (parent->elemType() == commsdsl::gen::Elem::Type_Namespace));
-    auto* parentNs = ToolsQtNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(parent));
+    assert((parent != nullptr) && (parent->elemType() == commsdsl::gen::GenElem::Type_Namespace));
+    auto* parentNs = ToolsQtNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
     util::ReplacementMap repl = {
         {"CLASS_NAME", comms::className(dslObj().name())},
         {"INTERFACE", ToolsQtInterface::cast(iFace).toolsClassScope()},

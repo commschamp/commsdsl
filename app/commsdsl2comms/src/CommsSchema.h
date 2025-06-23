@@ -18,26 +18,26 @@
 
 #include "CommsField.h"
 
-#include "commsdsl/gen/Schema.h"
+#include "commsdsl/gen/GenSchema.h"
 
 namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsSchema final: public commsdsl::gen::Schema
+class CommsSchema final: public commsdsl::gen::GenSchema
 {
-    using Base = commsdsl::gen::Schema;
+    using Base = commsdsl::gen::GenSchema;
 
 public:
-    explicit CommsSchema(CommsGenerator& generator, commsdsl::parse::ParseSchema dslObj, Elem* parent);
+    explicit CommsSchema(CommsGenerator& generator, commsdsl::parse::ParseSchema dslObj, commsdsl::gen::GenElem* parent);
     virtual ~CommsSchema();
 
-    static const CommsSchema* cast(const commsdsl::gen::Schema* ptr)
+    static const CommsSchema* cast(const commsdsl::gen::GenSchema* ptr)
     {
         return static_cast<const CommsSchema*>(ptr);
     }
 
-    static const CommsSchema& cast(const commsdsl::gen::Schema& ref)
+    static const CommsSchema& cast(const commsdsl::gen::GenSchema& ref)
     {
         return static_cast<const CommsSchema&>(ref);
     }

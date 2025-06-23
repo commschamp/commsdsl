@@ -19,7 +19,7 @@
 #include "ToolsQtGenerator.h"
 #include "ToolsQtVersion.h"
 
-#include "commsdsl/gen/EnumField.h"
+#include "commsdsl/gen/GenEnumField.h"
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -39,7 +39,7 @@ namespace commsdsl2tools_qt
 namespace 
 {
 
-unsigned getHexMsgIdWidthInternal(const commsdsl::gen::Interface& interface)
+unsigned getHexMsgIdWidthInternal(const commsdsl::gen::GenInterface& interface)
 {
     auto* parentNs = interface.parentNamespace();
     auto allMsgIdFields = parentNs->findMessageIdFields();
@@ -52,14 +52,14 @@ unsigned getHexMsgIdWidthInternal(const commsdsl::gen::Interface& interface)
         return 0U;
     }
 
-    auto* enumMsgIdField = static_cast<const commsdsl::gen::EnumField*>(msgIdField);
+    auto* enumMsgIdField = static_cast<const commsdsl::gen::GenEnumField*>(msgIdField);
     return enumMsgIdField->hexWidth();
 }
 
 } // namespace 
     
 
-ToolsQtInterface::ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::Elem* parent) :
+ToolsQtInterface::ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent)
 {
 }

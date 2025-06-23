@@ -201,7 +201,7 @@ void updateConstructCodeInternal(const CommsGenerator& generator, const commsdsl
 } // namespace 
     
 
-CommsMessage::CommsMessage(CommsGenerator& generator, commsdsl::parse::ParseMessage dslObj, Elem* parent) :
+CommsMessage::CommsMessage(CommsGenerator& generator, commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent)
 {
 }   

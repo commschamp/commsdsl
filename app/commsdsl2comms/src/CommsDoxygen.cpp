@@ -568,7 +568,7 @@ std::string CommsDoxygen::commsFrameDocInternal() const
 
     util::StringsList messagesList;
     auto addToMessagesListFunc =
-        [this, &messagesList](const std::string& name, const commsdsl::gen::Namespace& ns)
+        [this, &messagesList](const std::string& name, const commsdsl::gen::GenNamespace& ns)
         {
             auto scope = comms::scopeForInput(name, m_generator, ns);
             auto file = comms::relHeaderForInput(name, m_generator, ns);
@@ -644,7 +644,7 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
     util::StringsList list;
     util::StringsList dispatcherList;
     auto addToListFunc =
-        [this, &list, &dispatcherList](const std::string& name, const commsdsl::gen::Namespace& ns)
+        [this, &list, &dispatcherList](const std::string& name, const commsdsl::gen::GenNamespace& ns)
         {
             static const std::string Prefix("Dispatch");
             static const std::string Suffix("Message");
@@ -673,7 +673,7 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
         };
 
     auto addPlatformFunc =
-        [&addToListFunc](const std::string& platform, const commsdsl::gen::Namespace& ns)
+        [&addToListFunc](const std::string& platform, const commsdsl::gen::GenNamespace& ns)
         {
             addToListFunc(platform, ns);
             addToListFunc(platform + ServerInputPrefixStr, ns);

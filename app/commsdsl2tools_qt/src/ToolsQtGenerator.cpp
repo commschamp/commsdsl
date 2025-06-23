@@ -91,7 +91,7 @@ ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFilesForInterface(con
     return result;
 }
 
-const ToolsQtGenerator::FramesAccessList& ToolsQtGenerator::toolsGetSelectedFramesForInterface(const commsdsl::gen::Interface& interface)
+const ToolsQtGenerator::FramesAccessList& ToolsQtGenerator::toolsGetSelectedFramesForInterface(const commsdsl::gen::GenInterface& interface)
 {
     auto iter = m_selectedFramesPerInterface.find(&interface);
     if (iter == m_selectedFramesPerInterface.end()) {
@@ -140,7 +140,7 @@ const std::string& ToolsQtGenerator::toolsNamespaceEnd()
     return Str;
 }
 
-std::string ToolsQtGenerator::toolsNamespaceBeginForInterface(const commsdsl::gen::Interface& interface) const
+std::string ToolsQtGenerator::toolsNamespaceBeginForInterface(const commsdsl::gen::GenInterface& interface) const
 {
     std::string ref = strings::messageClassStr();
     if (interface.dslObj().valid()) {
@@ -160,7 +160,7 @@ std::string ToolsQtGenerator::toolsNamespaceBeginForInterface(const commsdsl::ge
     return result;
 }
 
-std::string ToolsQtGenerator::toolsNamespaceEndForInterface(const commsdsl::gen::Interface& interface) const
+std::string ToolsQtGenerator::toolsNamespaceEndForInterface(const commsdsl::gen::GenInterface& interface) const
 {
     std::string ref = strings::messageClassStr();
     if (interface.dslObj().valid()) {
@@ -187,7 +187,7 @@ const std::string& ToolsQtGenerator::toolsScopePrefix()
     return Str;
 }
 
-std::string ToolsQtGenerator::toolsScopePrefixForInterface(const commsdsl::gen::Interface& interface) const
+std::string ToolsQtGenerator::toolsScopePrefixForInterface(const commsdsl::gen::GenInterface& interface) const
 {
     auto scopeStr = comms::scopeFor(interface, *this, false, true);
     return toolsScopePrefix() + scopeStr + "::";
@@ -262,57 +262,57 @@ bool ToolsQtGenerator::prepareImpl()
             });
 }
 
-ToolsQtGenerator::NamespacePtr ToolsQtGenerator::createNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, Elem* parent)
+ToolsQtGenerator::NamespacePtr ToolsQtGenerator::createNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtNamespace>(*this, dslObj, parent);
 }
 
-ToolsQtGenerator::InterfacePtr ToolsQtGenerator::createInterfaceImpl(commsdsl::parse::ParseInterface dslObj, Elem* parent)
+ToolsQtGenerator::InterfacePtr ToolsQtGenerator::createInterfaceImpl(commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtInterface>(*this, dslObj, parent);
 }
 
-ToolsQtGenerator::MessagePtr ToolsQtGenerator::createMessageImpl(commsdsl::parse::ParseMessage dslObj, Elem* parent)
+ToolsQtGenerator::MessagePtr ToolsQtGenerator::createMessageImpl(commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtMessage>(*this, dslObj, parent);
 }
 
-ToolsQtGenerator::FramePtr ToolsQtGenerator::createFrameImpl(commsdsl::parse::ParseFrame dslObj, Elem* parent)
+ToolsQtGenerator::FramePtr ToolsQtGenerator::createFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtFrame>(*this, dslObj, parent);
 }
 
-ToolsQtGenerator::LayerPtr ToolsQtGenerator::createCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
+ToolsQtGenerator::LayerPtr ToolsQtGenerator::createCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtCustomLayer>(*this, dslObj, parent);
 }
 
-ToolsQtGenerator::LayerPtr ToolsQtGenerator::createSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
+ToolsQtGenerator::LayerPtr ToolsQtGenerator::createSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtSyncLayer>(*this, dslObj, parent);
 }
 
-ToolsQtGenerator::LayerPtr ToolsQtGenerator::createSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
+ToolsQtGenerator::LayerPtr ToolsQtGenerator::createSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtSizeLayer>(*this, dslObj, parent);
 }
 
-ToolsQtGenerator::LayerPtr ToolsQtGenerator::createIdLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
+ToolsQtGenerator::LayerPtr ToolsQtGenerator::createIdLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtIdLayer>(*this, dslObj, parent);
 }
 
-ToolsQtGenerator::LayerPtr ToolsQtGenerator::createValueLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
+ToolsQtGenerator::LayerPtr ToolsQtGenerator::createValueLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtValueLayer>(*this, dslObj, parent);
 }
 
-ToolsQtGenerator::LayerPtr ToolsQtGenerator::createPayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
+ToolsQtGenerator::LayerPtr ToolsQtGenerator::createPayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtPayloadLayer>(*this, dslObj, parent);
 }
 
-ToolsQtGenerator::LayerPtr ToolsQtGenerator::createChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
+ToolsQtGenerator::LayerPtr ToolsQtGenerator::createChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtChecksumLayer>(*this, dslObj, parent);
 }

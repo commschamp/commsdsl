@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/ListField.h"
+#include "commsdsl/gen/GenListField.h"
 
 #include "CommsField.h"
 
@@ -23,12 +23,12 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsListField final : public commsdsl::gen::ListField, public CommsField
+class CommsListField final : public commsdsl::gen::GenListField, public CommsField
 {
-    using Base = commsdsl::gen::ListField;
+    using Base = commsdsl::gen::GenListField;
     using CommsBase = CommsField;
 public:
-    CommsListField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
+    CommsListField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
 protected:
     // Base overrides

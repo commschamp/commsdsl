@@ -109,7 +109,7 @@ void readCustomCodeInternal(const std::string& codePath, std::string& code)
 } // namespace 
     
 
-CommsInterface::CommsInterface(CommsGenerator& generator, commsdsl::parse::ParseInterface dslObj, Elem* parent) :
+CommsInterface::CommsInterface(CommsGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent)
 {
 }   
@@ -142,7 +142,7 @@ const CommsField* CommsInterface::findValidReferencedField(const std::string& re
 
     if ((info.m_field != nullptr) &&
         (info.m_valueName.empty()) &&
-        (info.m_refType == commsdsl::gen::Field::FieldRefType_Field)) {
+        (info.m_refType == commsdsl::gen::GenField::FieldRefType_Field)) {
         return *iter;
     }
 
@@ -382,7 +382,7 @@ std::string CommsInterface::commsDefIncludesInternal() const
     util::StringsList includes = {
         "comms/Message.h",
         "comms/options.h",
-        comms::relHeaderForMsgId(strings::msgIdEnumNameStr(), gen, *static_cast<const commsdsl::gen::Namespace*>(getParent())),
+        comms::relHeaderForMsgId(strings::msgIdEnumNameStr(), gen, *static_cast<const commsdsl::gen::GenNamespace*>(getParent())),
     };
 
     if (!m_commsFields.empty()) {
@@ -471,10 +471,10 @@ std::string CommsInterface::commsDefBaseClassInternal() const
     auto& schema = gen.schemaOf(*this);
 
     assert(getParent() != nullptr);
-    assert(getParent()->elemType() == commsdsl::gen::Elem::Type_Namespace);
+    assert(getParent()->elemType() == commsdsl::gen::GenElem::Type_Namespace);
     util::ReplacementMap repl = {
         {"ENDIAN", comms::dslEndianToOpt(schema.schemaEndian())},
-        {"MSG_ID_TYPE", comms::scopeForMsgId(strings::msgIdEnumNameStr(), gen, *static_cast<const commsdsl::gen::Namespace*>(getParent()))},
+        {"MSG_ID_TYPE", comms::scopeForMsgId(strings::msgIdEnumNameStr(), gen, *static_cast<const commsdsl::gen::GenNamespace*>(getParent()))},
         {"EXTRA_OPTS", commsDefExtraOptionsInternal()}
     };
 

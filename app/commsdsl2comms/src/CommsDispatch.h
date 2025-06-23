@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/Message.h"
+#include "commsdsl/gen/GenMessage.h"
 
 #include <cstdint>
 #include <functional>
@@ -34,8 +34,8 @@ public:
     bool commsWrite() const;
 
 private:
-    using CheckMsgFunc = std::function<bool (const commsdsl::gen::Message& msg)>;
-    using MessagesList = std::vector<const commsdsl::gen::Message*>;
+    using CheckMsgFunc = std::function<bool (const commsdsl::gen::GenMessage& msg)>;
+    using MessagesList = std::vector<const commsdsl::gen::GenMessage*>;
     using MessagesMap = std::map<std::uintmax_t, MessagesList>;
 
     bool commsWriteDispatchInternal() const;

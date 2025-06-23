@@ -55,12 +55,12 @@ bool ToolsQtMsgFactory::toolsWrite() const
         toolsWriteSourceInternal();
 }
 
-std::string ToolsQtMsgFactory::toolsRelHeaderPath(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtMsgFactory::toolsRelHeaderPath(const commsdsl::gen::GenInterface& iFace) const
 {
     return toolsRelPathInternal(iFace) + strings::cppHeaderSuffixStr();
 }
 
-ToolsQtMsgFactory::StringsList ToolsQtMsgFactory::toolsSourceFiles(const commsdsl::gen::Interface& iFace) const
+ToolsQtMsgFactory::StringsList ToolsQtMsgFactory::toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const
 {
     StringsList result = {
         toolsRelPathInternal(iFace) + strings::cppSourceSuffixStr()
@@ -69,12 +69,12 @@ ToolsQtMsgFactory::StringsList ToolsQtMsgFactory::toolsSourceFiles(const commsds
     return result;
 }
 
-std::string ToolsQtMsgFactory::toolsClassScope(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtMsgFactory::toolsClassScope(const commsdsl::gen::GenInterface& iFace) const
 {
     return m_generator.toolsScopePrefixForInterface(iFace) + comms::scopeForFactory(MsgFactoryName, m_generator, m_parent);
 }
 
-std::string ToolsQtMsgFactory::toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtMsgFactory::toolsRelPathInternal(const commsdsl::gen::GenInterface& iFace) const
 {
     return util::strReplace(toolsClassScope(iFace), "::", "/");
 }
@@ -225,7 +225,7 @@ std::string ToolsQtMsgFactory::toolsHeaderCodeInternal() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string ToolsQtMsgFactory::toolsSourceCodeInternal(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtMsgFactory::toolsSourceCodeInternal(const commsdsl::gen::GenInterface& iFace) const
 {
     const std::string Templ = 
         "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#() = default;\n"
@@ -255,7 +255,7 @@ std::string ToolsQtMsgFactory::toolsSourceCodeInternal(const commsdsl::gen::Inte
     return util::processTemplate(Templ, repl);
 }
 
-std::string ToolsQtMsgFactory::toolsSourceIncludesInternal(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtMsgFactory::toolsSourceIncludesInternal(const commsdsl::gen::GenInterface& iFace) const
 {
     util::StringsList includes;
     auto allMessages = m_generator.getAllMessagesIdSorted();

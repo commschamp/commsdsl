@@ -17,19 +17,19 @@
 
 #include "SwigField.h"
 
-#include "commsdsl/gen/VariantField.h"
+#include "commsdsl/gen/GenVariantField.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigVariantField final : public commsdsl::gen::VariantField, public SwigField
+class SwigVariantField final : public commsdsl::gen::GenVariantField, public SwigField
 {
-    using Base = commsdsl::gen::VariantField;
+    using Base = commsdsl::gen::GenVariantField;
     using SwigBase = SwigField;
 public:
-    SwigVariantField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
+    SwigVariantField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
     const SwigFieldsList& swigMembers() const
     {

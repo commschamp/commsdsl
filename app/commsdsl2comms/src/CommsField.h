@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/Field.h"
+#include "commsdsl/gen/GenField.h"
 #include "commsdsl/gen/util.h"
 
 #include "commsdsl/parse/ParseEndian.h"
@@ -34,10 +34,10 @@ public:
     using CommsFieldsList = std::vector<CommsField*>;
     using FieldOptsFunc = std::string (CommsField::*)() const;
 
-    explicit CommsField(commsdsl::gen::Field& field);
+    explicit CommsField(commsdsl::gen::GenField& field);
     virtual ~CommsField();
 
-    static CommsFieldsList commsTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields);
+    static CommsFieldsList commsTransformFieldsList(const commsdsl::gen::GenField::FieldsList& fields);
 
     bool commsPrepare();
     bool commsWrite() const;
@@ -77,7 +77,7 @@ public:
         m_forcedPseudo = true;
     }
 
-    const commsdsl::gen::Field& field() const
+    const commsdsl::gen::GenField& field() const
     {
         return m_field;
     }
@@ -209,7 +209,7 @@ private:
     StringsList commsExtraDataViewDefaultOptionsInternal() const;
     StringsList commsExtraBareMetalDefaultOptionsInternal() const;
 
-    commsdsl::gen::Field& m_field;
+    commsdsl::gen::GenField& m_field;
     CustomCode m_customCode;
     std::string m_customConstruct;
     bool m_forcedFailOnInvalid = false;

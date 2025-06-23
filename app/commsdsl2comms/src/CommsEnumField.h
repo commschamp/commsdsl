@@ -17,7 +17,7 @@
 
 #include "CommsField.h"
 
-#include "commsdsl/gen/EnumField.h"
+#include "commsdsl/gen/GenEnumField.h"
 #include "commsdsl/gen/util.h"
 
 #include <vector>
@@ -28,12 +28,12 @@ namespace commsdsl2comms
 class CommsGenerator;
 class CommsNamespace;
 
-class CommsEnumField final : public commsdsl::gen::EnumField, public CommsField
+class CommsEnumField final : public commsdsl::gen::GenEnumField, public CommsField
 {
-    using Base = commsdsl::gen::EnumField;
+    using Base = commsdsl::gen::GenEnumField;
     using CommsBase = CommsField;
 public:
-    CommsEnumField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
+    CommsEnumField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
     commsdsl::gen::util::StringsList commsEnumValues() const;
 

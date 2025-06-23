@@ -79,7 +79,7 @@ const std::string& EmscriptenGenerator::fileGeneratedComment()
     return Str;
 }
 
-std::string EmscriptenGenerator::emscriptenClassName(const Elem& elem) const
+std::string EmscriptenGenerator::emscriptenClassName(const commsdsl::gen::GenElem& elem) const
 {
     bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
     auto str = comms::scopeFor(elem, *this, addMainNamespace);
@@ -176,32 +176,32 @@ std::string EmscriptenGenerator::emscriptenSchemaRelSourceForRoot(unsigned schem
     return str;
 }
 
-std::string EmscriptenGenerator::emscriptenRelHeaderFor(const Elem& elem) const
+std::string EmscriptenGenerator::emscriptenRelHeaderFor(const commsdsl::gen::GenElem& elem) const
 {
     return getTopNamespace() + '/' + comms::relHeaderPathFor(elem, *this);
 }
 
-std::string EmscriptenGenerator::emscriptenAbsHeaderFor(const Elem& elem) const
+std::string EmscriptenGenerator::emscriptenAbsHeaderFor(const commsdsl::gen::GenElem& elem) const
 {
     return getOutputDir() + '/' + strings::includeDirStr() + '/' + emscriptenRelHeaderFor(elem);
 }
 
-std::string EmscriptenGenerator::emscriptenRelSourceFor(const Elem& elem) const
+std::string EmscriptenGenerator::emscriptenRelSourceFor(const commsdsl::gen::GenElem& elem) const
 {
     return getTopNamespace() + '/' + comms::relSourcePathFor(elem, *this);
 }
 
-std::string EmscriptenGenerator::emscriptenAbsSourceFor(const Elem& elem) const
+std::string EmscriptenGenerator::emscriptenAbsSourceFor(const commsdsl::gen::GenElem& elem) const
 {
     return getOutputDir() + '/' + emscriptenRelSourceFor(elem);
 }
 
-std::string EmscriptenGenerator::emspriptenInputAbsHeaderFor(const Elem& elem) const
+std::string EmscriptenGenerator::emspriptenInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const
 {
     return getCodeDir() + '/' + strings::includeDirStr() + '/' + emscriptenRelHeaderFor(elem);
 }
 
-std::string EmscriptenGenerator::emspriptenInputAbsSourceFor(const Elem& elem) const
+std::string EmscriptenGenerator::emspriptenInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const
 {
     return getCodeDir() + '/' + emscriptenRelSourceFor(elem);
 }
@@ -315,122 +315,122 @@ EmscriptenInterface* EmscriptenGenerator::emscriptenMainInterface()
     return const_cast<EmscriptenInterface*>(static_cast<const EmscriptenGenerator*>(this)->emscriptenMainInterface());
 }
 
-EmscriptenGenerator::SchemaPtr EmscriptenGenerator::createSchemaImpl(commsdsl::parse::ParseSchema dslObj, Elem* parent)
+EmscriptenGenerator::SchemaPtr EmscriptenGenerator::createSchemaImpl(commsdsl::parse::ParseSchema dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenSchema>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::NamespacePtr EmscriptenGenerator::createNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, Elem* parent)
+EmscriptenGenerator::NamespacePtr EmscriptenGenerator::createNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenNamespace>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::InterfacePtr EmscriptenGenerator::createInterfaceImpl(commsdsl::parse::ParseInterface dslObj, Elem* parent)
+EmscriptenGenerator::InterfacePtr EmscriptenGenerator::createInterfaceImpl(commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenInterface>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::MessagePtr EmscriptenGenerator::createMessageImpl(commsdsl::parse::ParseMessage dslObj, Elem* parent)
+EmscriptenGenerator::MessagePtr EmscriptenGenerator::createMessageImpl(commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenMessage>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FramePtr EmscriptenGenerator::createFrameImpl(commsdsl::parse::ParseFrame dslObj, Elem* parent)
+EmscriptenGenerator::FramePtr EmscriptenGenerator::createFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenFrame>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createIntFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
+EmscriptenGenerator::FieldPtr EmscriptenGenerator::createIntFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenIntField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createEnumFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
+EmscriptenGenerator::FieldPtr EmscriptenGenerator::createEnumFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenEnumField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createSetFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
+EmscriptenGenerator::FieldPtr EmscriptenGenerator::createSetFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenSetField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createFloatFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
+EmscriptenGenerator::FieldPtr EmscriptenGenerator::createFloatFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenFloatField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createBitfieldFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
+EmscriptenGenerator::FieldPtr EmscriptenGenerator::createBitfieldFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenBitfieldField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createBundleFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
+EmscriptenGenerator::FieldPtr EmscriptenGenerator::createBundleFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenBundleField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createStringFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
+EmscriptenGenerator::FieldPtr EmscriptenGenerator::createStringFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenStringField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createDataFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
+EmscriptenGenerator::FieldPtr EmscriptenGenerator::createDataFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenDataField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createListFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
+EmscriptenGenerator::FieldPtr EmscriptenGenerator::createListFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenListField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createRefFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
+EmscriptenGenerator::FieldPtr EmscriptenGenerator::createRefFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenRefField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createOptionalFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
+EmscriptenGenerator::FieldPtr EmscriptenGenerator::createOptionalFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenOptionalField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createVariantFieldImpl(commsdsl::parse::ParseField dslObj, Elem* parent)
+EmscriptenGenerator::FieldPtr EmscriptenGenerator::createVariantFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenVariantField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::LayerPtr EmscriptenGenerator::createCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
+EmscriptenGenerator::LayerPtr EmscriptenGenerator::createCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenCustomLayer>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::LayerPtr EmscriptenGenerator::createSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
+EmscriptenGenerator::LayerPtr EmscriptenGenerator::createSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenSyncLayer>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::LayerPtr EmscriptenGenerator::createSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
+EmscriptenGenerator::LayerPtr EmscriptenGenerator::createSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenSizeLayer>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::LayerPtr EmscriptenGenerator::createIdLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
+EmscriptenGenerator::LayerPtr EmscriptenGenerator::createIdLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenIdLayer>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::LayerPtr EmscriptenGenerator::createValueLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
+EmscriptenGenerator::LayerPtr EmscriptenGenerator::createValueLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenValueLayer>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::LayerPtr EmscriptenGenerator::createPayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
+EmscriptenGenerator::LayerPtr EmscriptenGenerator::createPayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenPayloadLayer>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::LayerPtr EmscriptenGenerator::createChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent)
+EmscriptenGenerator::LayerPtr EmscriptenGenerator::createChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenChecksumLayer>(*this, dslObj, parent);
 }

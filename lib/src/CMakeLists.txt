@@ -144,36 +144,36 @@ set (
 
 set (
     gen_src
-    gen/BitfieldField.cpp
-    gen/BundleField.cpp
-    gen/ChecksumLayer.cpp
-    gen/CustomLayer.cpp
-    gen/DataField.cpp
-    gen/Elem.cpp
-    gen/EnumField.cpp
-    gen/Field.cpp
-    gen/FloatField.cpp
-    gen/Frame.cpp
-    gen/Generator.cpp
-    gen/IdLayer.cpp
-    gen/IntField.cpp
-    gen/Interface.cpp
-    gen/Layer.cpp
-    gen/ListField.cpp
-    gen/Logger.cpp
-    gen/Message.cpp
-    gen/Namespace.cpp
-    gen/OptionalField.cpp
-    gen/ProgramOptions.cpp
-    gen/PayloadLayer.cpp
-    gen/RefField.cpp
-    gen/Schema.cpp
-    gen/SetField.cpp
-    gen/SizeLayer.cpp
-    gen/StringField.cpp
-    gen/SyncLayer.cpp
-    gen/ValueLayer.cpp
-    gen/VariantField.cpp
+    gen/GenBitfieldField.cpp
+    gen/GenBundleField.cpp
+    gen/GenChecksumLayer.cpp
+    gen/GenCustomLayer.cpp
+    gen/GenDataField.cpp
+    gen/GenElem.cpp
+    gen/GenEnumField.cpp
+    gen/GenField.cpp
+    gen/GenFloatField.cpp
+    gen/GenFrame.cpp
+    gen/GenGenerator.cpp
+    gen/GenIdLayer.cpp
+    gen/GenIntField.cpp
+    gen/GenInterface.cpp
+    gen/GenLayer.cpp
+    gen/GenListField.cpp
+    gen/GenLogger.cpp
+    gen/GenMessage.cpp
+    gen/GenNamespace.cpp
+    gen/GenOptionalField.cpp
+    gen/GenProgramOptions.cpp
+    gen/GenPayloadLayer.cpp
+    gen/GenRefField.cpp
+    gen/GenSchema.cpp
+    gen/GenSetField.cpp
+    gen/GenSizeLayer.cpp
+    gen/GenStringField.cpp
+    gen/GenSyncLayer.cpp
+    gen/GenValueLayer.cpp
+    gen/GenVariantField.cpp
     gen/comms.cpp
     gen/strings.cpp
     gen/util.cpp

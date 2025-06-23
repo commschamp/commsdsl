@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/OptionalField.h"
+#include "commsdsl/gen/GenOptionalField.h"
 
 #include "CommsField.h"
 
@@ -23,12 +23,12 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsOptionalField final : public commsdsl::gen::OptionalField, public CommsField
+class CommsOptionalField final : public commsdsl::gen::GenOptionalField, public CommsField
 {
-    using Base = commsdsl::gen::OptionalField;
+    using Base = commsdsl::gen::GenOptionalField;
     using CommsBase = CommsField;
 public:
-    CommsOptionalField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
+    CommsOptionalField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
     static std::string commsDslCondToString(
         const CommsGenerator& generator, 

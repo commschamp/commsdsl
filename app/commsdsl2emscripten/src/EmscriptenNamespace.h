@@ -21,24 +21,24 @@
 #include "EmscriptenMsgHandler.h"
 #include "EmscriptenMsgId.h"
 
-#include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/GenNamespace.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenNamespace final: public commsdsl::gen::Namespace
+class EmscriptenNamespace final: public commsdsl::gen::GenNamespace
 {
-    using Base = commsdsl::gen::Namespace;
+    using Base = commsdsl::gen::GenNamespace;
 
 public:
     using StringsList = commsdsl::gen::util::StringsList;
 
-    explicit EmscriptenNamespace(EmscriptenGenerator& generator, commsdsl::parse::ParseNamespace dslObj, Elem* parent);
+    explicit EmscriptenNamespace(EmscriptenGenerator& generator, commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent);
     virtual ~EmscriptenNamespace();
 
-    static const EmscriptenNamespace* cast(const commsdsl::gen::Namespace* schema)
+    static const EmscriptenNamespace* cast(const commsdsl::gen::GenNamespace* schema)
     {
         return static_cast<const EmscriptenNamespace*>(schema);
     }

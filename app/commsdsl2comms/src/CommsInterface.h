@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/Interface.h"
+#include "commsdsl/gen/GenInterface.h"
 
 #include "CommsField.h"
 
@@ -27,16 +27,16 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsInterface final: public commsdsl::gen::Interface
+class CommsInterface final: public commsdsl::gen::GenInterface
 {
-    using Base = commsdsl::gen::Interface;
+    using Base = commsdsl::gen::GenInterface;
 public:
     using CommsFieldsList = CommsField::CommsFieldsList;
 
-    explicit CommsInterface(CommsGenerator& generator, commsdsl::parse::ParseInterface dslObj, Elem* parent);
+    explicit CommsInterface(CommsGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent);
     virtual ~CommsInterface();
 
-    static const CommsInterface* cast(const commsdsl::gen::Interface* value)
+    static const CommsInterface* cast(const commsdsl::gen::GenInterface* value)
     {
         return static_cast<const CommsInterface*>(value);
     }

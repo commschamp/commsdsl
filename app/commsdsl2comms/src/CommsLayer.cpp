@@ -18,7 +18,7 @@
 #include "CommsGenerator.h"
 #include "CommsNamespace.h"
 
-#include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/GenNamespace.h"
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -34,7 +34,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsLayer::CommsLayer(commsdsl::gen::Layer& layer) :
+CommsLayer::CommsLayer(commsdsl::gen::GenLayer& layer) :
     m_layer(layer)
 {
 }
@@ -324,18 +324,18 @@ std::string CommsLayer::commsDefExtraOpts() const
     return util::strListToString(opts, ",\n", "");
 }
 
-std::string CommsLayer::commsMsgFactoryAliasInOptions(const commsdsl::gen::Elem* parent)
+std::string CommsLayer::commsMsgFactoryAliasInOptions(const commsdsl::gen::GenElem* parent)
 {
     do {
         if (parent == nullptr) {
             return std::string();
         }
 
-        if (parent->elemType() != commsdsl::gen::Elem::Type_Namespace) {
+        if (parent->elemType() != commsdsl::gen::GenElem::Type_Namespace) {
             break;
         }
 
-        auto type = CommsNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(parent))->commsMsgFactoryAliasType();
+        auto type = CommsNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>(parent))->commsMsgFactoryAliasType();
         if (type.empty()) {
             break;
         }

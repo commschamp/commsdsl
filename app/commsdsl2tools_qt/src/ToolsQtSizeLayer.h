@@ -17,18 +17,18 @@
 
 #include "ToolsQtLayer.h"
 
-#include "commsdsl/gen/SizeLayer.h"
+#include "commsdsl/gen/GenSizeLayer.h"
 
 namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator;
-class ToolsQtSizeLayer final : public commsdsl::gen::SizeLayer, public ToolsQtLayer
+class ToolsQtSizeLayer final : public commsdsl::gen::GenSizeLayer, public ToolsQtLayer
 {
-    using Base = commsdsl::gen::SizeLayer;
+    using Base = commsdsl::gen::GenSizeLayer;
     using ToolsBase = ToolsQtLayer;
 public:
-    explicit ToolsQtSizeLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtSizeLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
 
 protected:
     // Base overrides

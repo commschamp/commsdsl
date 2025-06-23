@@ -17,18 +17,18 @@
 
 #include "ToolsQtLayer.h"
 
-#include "commsdsl/gen/IdLayer.h"
+#include "commsdsl/gen/GenIdLayer.h"
 
 namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator;
-class ToolsQtIdLayer final : public commsdsl::gen::IdLayer, public ToolsQtLayer
+class ToolsQtIdLayer final : public commsdsl::gen::GenIdLayer, public ToolsQtLayer
 {
-    using Base = commsdsl::gen::IdLayer;
+    using Base = commsdsl::gen::GenIdLayer;
     using ToolsBase = ToolsQtLayer;
 public:
-    explicit ToolsQtIdLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtIdLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
 
 protected:
     // Base overrides

@@ -17,19 +17,19 @@
 
 #include "SwigField.h"
 
-#include "commsdsl/gen/StringField.h"
+#include "commsdsl/gen/GenStringField.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigStringField final : public commsdsl::gen::StringField, public SwigField
+class SwigStringField final : public commsdsl::gen::GenStringField, public SwigField
 {
-    using Base = commsdsl::gen::StringField;
+    using Base = commsdsl::gen::GenStringField;
     using SwigBase = SwigField;
 public:
-    SwigStringField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
+    SwigStringField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
 protected:
     // Base overrides

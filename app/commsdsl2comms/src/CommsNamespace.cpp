@@ -55,7 +55,7 @@ const std::string& optsTemplInternal(bool defaultNs)
 } // namespace 
 
 
-CommsNamespace::CommsNamespace(CommsGenerator& generator, commsdsl::parse::ParseNamespace dslObj, Elem* parent) :
+CommsNamespace::CommsNamespace(CommsGenerator& generator, commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent),
     m_dispatch(generator, *this),
     m_factory(generator, *this),

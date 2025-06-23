@@ -58,7 +58,7 @@ const std::string getFieldTypePrefixInternal(const CommsField& field)
     return Str;
 }
 
-const CommsField* findInterfaceFieldInternal(const commsdsl::gen::Generator& generator, const std::string refStr)
+const CommsField* findInterfaceFieldInternal(const commsdsl::gen::GenGenerator& generator, const std::string refStr)
 {
     if (refStr.empty()) {
         return nullptr;
@@ -132,7 +132,7 @@ bool hasInterfaceReferenceInternal(const commsdsl::parse::ParseOptCond& cond)
 CommsOptionalField::CommsOptionalField(
     CommsGenerator& generator, 
     commsdsl::parse::ParseField dslObj, 
-    commsdsl::gen::Elem* parent) :
+    commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {

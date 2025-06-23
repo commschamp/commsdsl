@@ -24,21 +24,21 @@
 #include "CommsMsgFactory.h"
 #include "CommsMsgId.h"
 
-#include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/GenNamespace.h"
 
 namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsNamespace final: public commsdsl::gen::Namespace
+class CommsNamespace final: public commsdsl::gen::GenNamespace
 {
-    using Base = commsdsl::gen::Namespace;
+    using Base = commsdsl::gen::GenNamespace;
 
 public:
-    explicit CommsNamespace(CommsGenerator& generator, commsdsl::parse::ParseNamespace dslObj, Elem* parent);
+    explicit CommsNamespace(CommsGenerator& generator, commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent);
     virtual ~CommsNamespace();
 
-    static const CommsNamespace* cast(const commsdsl::gen::Namespace* ptr)
+    static const CommsNamespace* cast(const commsdsl::gen::GenNamespace* ptr)
     {
         return static_cast<const CommsNamespace*>(ptr);
     }

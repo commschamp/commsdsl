@@ -351,7 +351,7 @@ const std::string& doxygenPrefixStr()
 
 const std::string& versionOptionalFieldSuffixStr()
 {
-    static const std::string Str("Field");
+    static const std::string Str("GenField");
     return Str;      
 }
 

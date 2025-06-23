@@ -68,14 +68,14 @@ void readCustomCodeInternal(const std::string& codePath, std::string& code)
 } // namespace 
     
 
-CommsField::CommsField(commsdsl::gen::Field& field) :
+CommsField::CommsField(commsdsl::gen::GenField& field) :
     m_field(field)
 {
 }
 
 CommsField::~CommsField() = default;
 
-CommsField::CommsFieldsList CommsField::commsTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields)
+CommsField::CommsFieldsList CommsField::commsTransformFieldsList(const commsdsl::gen::GenField::FieldsList& fields)
 {
     CommsFieldsList result;
     result.reserve(fields.size());
@@ -133,7 +133,7 @@ bool CommsField::commsWrite() const
     } 
 
     auto type = parent->elemType();
-    if (type != commsdsl::gen::Elem::Type::Type_Namespace)
+    if (type != commsdsl::gen::GenElem::Type::Type_Namespace)
     {
         // Skip write for non-global fields,
         // The code generation will be driven by other means
@@ -449,21 +449,21 @@ const CommsField* CommsField::commsFindSibling(const std::string& name) const
         };
 
     auto elemType = parent->elemType();
-    if (elemType == commsdsl::gen::Elem::Type_Message) {
+    if (elemType == commsdsl::gen::GenElem::Type_Message) {
         auto* msg = static_cast<const CommsMessage*>(parent);
         return findFieldFunc(msg->commsFields());
     }
 
-    if (elemType == commsdsl::gen::Elem::Type_Interface) {
+    if (elemType == commsdsl::gen::GenElem::Type_Interface) {
         auto* iFace = static_cast<const CommsInterface*>(parent);
         return findFieldFunc(iFace->commsFields());
     }    
 
-    if (elemType != commsdsl::gen::Elem::Type_Field) {
+    if (elemType != commsdsl::gen::GenElem::Type_Field) {
         return nullptr;
     }    
 
-    auto* parentField = static_cast<const commsdsl::gen::Field*>(parent);
+    auto* parentField = static_cast<const commsdsl::gen::GenField*>(parent);
     auto fieldKind = parentField->dslObj().kind();
     if (fieldKind == commsdsl::parse::ParseField::Kind::Bitfield) {
         auto* bitfield = static_cast<const CommsBitfieldField*>(parentField);
@@ -731,7 +731,7 @@ std::string CommsField::commsCommonNameFuncCode() const
 
 std::string CommsField::commsFieldBaseParams(commsdsl::parse::ParseEndian endian) const
 {
-    auto& schema = commsdsl::gen::Generator::schemaOf(m_field);
+    auto& schema = commsdsl::gen::GenGenerator::schemaOf(m_field);
     auto schemaEndian = schema.schemaEndian();
     assert(endian < commsdsl::parse::ParseEndian_NumOfValues);
     assert(schemaEndian < commsdsl::parse::ParseEndian_NumOfValues);

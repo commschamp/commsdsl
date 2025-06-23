@@ -37,7 +37,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2emscripten
 {
 
-EmscriptenFrame::EmscriptenFrame(EmscriptenGenerator& generator, commsdsl::parse::ParseFrame dslObj, Elem* parent) :
+EmscriptenFrame::EmscriptenFrame(EmscriptenGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent)
 {
 }   
@@ -57,22 +57,22 @@ void EmscriptenFrame::emscriptenAddSourceFiles(StringsList& sources) const
 const EmscriptenNamespace* EmscriptenFrame::emscriptenFindInputNamespace() const
 {
     auto* ns = getParent();
-    assert(ns->elemType() == commsdsl::gen::Elem::Type_Namespace);
+    assert(ns->elemType() == commsdsl::gen::GenElem::Type_Namespace);
 
     while (ns != nullptr) {
-        if (ns->elemType() != commsdsl::gen::Elem::Type_Namespace) {
+        if (ns->elemType() != commsdsl::gen::GenElem::Type_Namespace) {
             ns = nullptr;
             break;
         }
 
-        if (EmscriptenNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(ns))->emscriptenHasInput()) {
+        if (EmscriptenNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>(ns))->emscriptenHasInput()) {
             break;
         }
 
         ns = ns->getParent();
     }
 
-    return EmscriptenNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(ns));
+    return EmscriptenNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>(ns));
 }
 
 bool EmscriptenFrame::prepareImpl()
@@ -207,7 +207,7 @@ std::string EmscriptenFrame::emscriptenHeaderIncludesInternal() const
     auto interfaceNs = iFace->parentNamespace();
     auto* inputNs = emscriptenFindInputNamespace();
     if (inputNs == nullptr) {
-        inputNs = EmscriptenNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(interfaceNs));
+        inputNs = EmscriptenNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>(interfaceNs));
         assert(inputNs->emscriptenHasInput());
     }    
 
@@ -316,7 +316,7 @@ std::string EmscriptenFrame::emscriptenHeaderClassInternal() const
 
     auto* inputNs = emscriptenFindInputNamespace();
     if (inputNs == nullptr) {
-        inputNs = EmscriptenNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(interfaceNs));
+        inputNs = EmscriptenNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>(interfaceNs));
         assert(inputNs->emscriptenHasInput());
     }       
 

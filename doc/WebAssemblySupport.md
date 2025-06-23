@@ -545,7 +545,7 @@ For example:
     <message name="Msg1" id="1">
         <list name="F1">
             <element>
-                <int name="Elem" type="uint32" />
+                <int name="commsdsl::gen::GenElem" type="uint32" />
             </element>
             <countPrefix>
                 <int name="Count" type="uint8" />

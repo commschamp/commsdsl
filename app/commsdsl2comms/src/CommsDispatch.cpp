@@ -18,7 +18,7 @@
 #include "CommsGenerator.h"
 #include "CommsNamespace.h"
 
-#include "commsdsl/gen/EnumField.h"
+#include "commsdsl/gen/GenEnumField.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 #include "commsdsl/gen/comms.h"
@@ -87,7 +87,7 @@ const std::string& dispatchTempl()
     return Templ;
 }
 
-util::ReplacementMap initialRepl(const CommsGenerator& generator, const commsdsl::gen::Elem& elem)
+util::ReplacementMap initialRepl(const CommsGenerator& generator, const commsdsl::gen::GenElem& elem)
 {
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
@@ -324,7 +324,7 @@ bool CommsDispatch::commsWrite() const
 bool CommsDispatch::commsWriteDispatchInternal() const
 {
     auto checkFunc = 
-        [](const commsdsl::gen::Message& msg) noexcept
+        [](const commsdsl::gen::GenMessage& msg) noexcept
         {
             static_cast<void>(msg);
             return true;
@@ -343,7 +343,7 @@ bool CommsDispatch::commsWriteDispatchInternal() const
 bool CommsDispatch::commsWriteClientDispatchInternal() const
 {
     auto checkFunc = 
-        [](const commsdsl::gen::Message& msg) noexcept
+        [](const commsdsl::gen::GenMessage& msg) noexcept
         {
             return msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client;
         };
@@ -362,7 +362,7 @@ bool CommsDispatch::commsWriteClientDispatchInternal() const
 bool CommsDispatch::commsWriteServerDispatchInternal() const
 {
     auto checkFunc = 
-        [](const commsdsl::gen::Message& msg) noexcept
+        [](const commsdsl::gen::GenMessage& msg) noexcept
         {
             return msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server;
         };
@@ -384,7 +384,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
     for (auto& p : platforms) {
 
         auto platformCheckFunc = 
-            [&p](const commsdsl::gen::Message& msg)
+            [&p](const commsdsl::gen::GenMessage& msg)
             {
                 auto& msgPlatforms = msg.dslObj().platforms();
                 if (msgPlatforms.empty()) {
@@ -396,7 +396,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
 
         do {
             auto allCheckFunc = 
-                [&platformCheckFunc](const commsdsl::gen::Message& msg)
+                [&platformCheckFunc](const commsdsl::gen::GenMessage& msg)
                 {
                     return platformCheckFunc(msg);
                 };
@@ -423,7 +423,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
 
         do {
             auto clientCheckFunc = 
-                [&platformCheckFunc](const commsdsl::gen::Message& msg)
+                [&platformCheckFunc](const commsdsl::gen::GenMessage& msg)
                 {
                     return 
                         platformCheckFunc(msg) &&
@@ -452,7 +452,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
 
         do {
             auto serverCheckFunc = 
-                [&platformCheckFunc](const commsdsl::gen::Message& msg)
+                [&platformCheckFunc](const commsdsl::gen::GenMessage& msg)
                 {
                     return 
                         platformCheckFunc(msg) &&
@@ -490,14 +490,14 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
     for (auto& b : extraBundles) {
 
         auto bundleCheckFunc = 
-            [&b](const commsdsl::gen::Message& msg)
+            [&b](const commsdsl::gen::GenMessage& msg)
             {
                 return std::find(b.second.begin(), b.second.end(), &msg) != b.second.end();
             };
 
         do {
             auto allCheckFunc = 
-                [&bundleCheckFunc](const commsdsl::gen::Message& msg)
+                [&bundleCheckFunc](const commsdsl::gen::GenMessage& msg)
                 {
                     return bundleCheckFunc(msg);
                 };
@@ -524,7 +524,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
 
         do {
             auto clientCheckFunc = 
-                [&bundleCheckFunc](const commsdsl::gen::Message& msg)
+                [&bundleCheckFunc](const commsdsl::gen::GenMessage& msg)
                 {
                     return 
                         bundleCheckFunc(msg) &&
@@ -553,7 +553,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
 
         do {
             auto serverCheckFunc = 
-                [&bundleCheckFunc](const commsdsl::gen::Message& msg)
+                [&bundleCheckFunc](const commsdsl::gen::GenMessage& msg)
                 {
                     return 
                         bundleCheckFunc(msg) &&
@@ -602,8 +602,8 @@ std::string CommsDispatch::commsDispatchCodeInternal(const std::string& name, Ch
     MessagesMap map;
     auto allMessages = m_parent.getAllMessagesIdSorted();
     bool hasMultipleMessagesWithSameId = false;
-    const commsdsl::gen::Message* firstMsg = nullptr;
-    const commsdsl::gen::Message* secondMsg = nullptr;
+    const commsdsl::gen::GenMessage* firstMsg = nullptr;
+    const commsdsl::gen::GenMessage* secondMsg = nullptr;
     for (auto* m : allMessages) {
         assert(m != nullptr);
         if (!func(*m)) {

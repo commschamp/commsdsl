@@ -17,7 +17,7 @@
 
 #include "CommsField.h"
 
-#include "commsdsl/gen/BundleField.h"
+#include "commsdsl/gen/GenBundleField.h"
 #include "commsdsl/gen/util.h"
 
 #include <utility>
@@ -26,12 +26,12 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsBundleField final : public commsdsl::gen::BundleField, public CommsField
+class CommsBundleField final : public commsdsl::gen::GenBundleField, public CommsField
 {
-    using Base = commsdsl::gen::BundleField;
+    using Base = commsdsl::gen::GenBundleField;
     using CommsBase = CommsField;
 public:
-    CommsBundleField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
+    CommsBundleField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
     const CommsFieldsList& commsMembers() const
     {

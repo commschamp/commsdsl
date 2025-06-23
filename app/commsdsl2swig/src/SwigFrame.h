@@ -18,29 +18,29 @@
 
 #include "SwigLayer.h"
 
-#include "commsdsl/gen/Frame.h"
+#include "commsdsl/gen/GenFrame.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigFrame final: public commsdsl::gen::Frame
+class SwigFrame final: public commsdsl::gen::GenFrame
 {
-    using Base = commsdsl::gen::Frame;
+    using Base = commsdsl::gen::GenFrame;
 
 public:
     using StringsList = commsdsl::gen::util::StringsList;
     using SwigLayersList = SwigLayer::SwigLayersList;
 
-    explicit SwigFrame(SwigGenerator& generator, commsdsl::parse::ParseFrame dslObj, Elem* parent);
+    explicit SwigFrame(SwigGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent);
     virtual ~SwigFrame();
 
     void swigAddCodeIncludes(StringsList& list) const;
     void swigAddCode(StringsList& list) const;
     void swigAddDef(StringsList& list) const;
 
-    static const SwigFrame* cast(const commsdsl::gen::Frame* i)
+    static const SwigFrame* cast(const commsdsl::gen::GenFrame* i)
     {
         return static_cast<const SwigFrame*>(i);
     }        

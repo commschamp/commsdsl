@@ -35,14 +35,14 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigLayer::SwigLayer(commsdsl::gen::Layer& layer) :
+SwigLayer::SwigLayer(commsdsl::gen::GenLayer& layer) :
     m_layer(layer)
 {
 }
 
 SwigLayer::~SwigLayer() = default;
 
-const SwigLayer* SwigLayer::cast(const commsdsl::gen::Layer* layer)
+const SwigLayer* SwigLayer::cast(const commsdsl::gen::GenLayer* layer)
 {
     if (layer == nullptr) {
         return nullptr;

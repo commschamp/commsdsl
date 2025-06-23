@@ -48,13 +48,13 @@ const std::string AllMessagesDesc("all the");
 const std::string ClientDesc("the client input");
 const std::string ServerDesc("the server input");
 
-using MessagesAccessList = std::vector<const commsdsl::gen::Message*>;
+using MessagesAccessList = std::vector<const commsdsl::gen::GenMessage*>;
 using MessagesMap = std::map<std::uintmax_t, MessagesAccessList>;
 
-using CheckFunction = std::function<bool (const commsdsl::gen::Message&)>;
-using CodeFunction = std::function<std::string (const commsdsl::gen::Message&, const CommsGenerator&, int)>;
+using CheckFunction = std::function<bool (const commsdsl::gen::GenMessage&)>;
+using CodeFunction = std::function<std::string (const commsdsl::gen::GenMessage&, const CommsGenerator&, int)>;
 
-std::string commsDynMemAllocCodeFuncInternal(const commsdsl::gen::Message& msg, const CommsGenerator& generator, int idx)
+std::string commsDynMemAllocCodeFuncInternal(const commsdsl::gen::GenMessage& msg, const CommsGenerator& generator, int idx)
 {
     if (idx < 0) {
         static const std::string Templ = 
@@ -81,7 +81,7 @@ std::string commsDynMemAllocCodeFuncInternal(const commsdsl::gen::Message& msg, 
 }
 
 std::string commsInPlaceAllocCodeFuncInternal(
-    [[maybe_unused]] const commsdsl::gen::Message& msg, 
+    [[maybe_unused]] const commsdsl::gen::GenMessage& msg, 
     [[maybe_unused]] const CommsGenerator& generator, 
     [[maybe_unused]] int idx)
 {
@@ -425,7 +425,7 @@ std::string CommsMsgFactory::commsRelHeaderPath(const std::string& prefix) const
 bool CommsMsgFactory::commsWriteAllMsgFactoryInternal() const
 {
     auto checkFunc = 
-        [](const commsdsl::gen::Message& msg) noexcept
+        [](const commsdsl::gen::GenMessage& msg) noexcept
         {
             static_cast<void>(msg);
             return true;
@@ -446,7 +446,7 @@ bool CommsMsgFactory::commsWriteAllMsgFactoryInternal() const
 bool CommsMsgFactory::commsWriteClientMsgFactoryInternal() const
 {
     auto checkFunc = 
-        [](const commsdsl::gen::Message& msg)
+        [](const commsdsl::gen::GenMessage& msg)
         {
             return msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client;
         };
@@ -466,7 +466,7 @@ bool CommsMsgFactory::commsWriteClientMsgFactoryInternal() const
 bool CommsMsgFactory::commsWriteServerMsgFactoryInternal() const
 {
     auto checkFunc = 
-        [](const commsdsl::gen::Message& msg)
+        [](const commsdsl::gen::GenMessage& msg)
         {
             return msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server;
         };
@@ -489,7 +489,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
     for (auto& p : platforms) {
 
         auto platformCheckFunc = 
-            [&p](const commsdsl::gen::Message& msg)
+            [&p](const commsdsl::gen::GenMessage& msg)
             {
                 auto& msgPlatforms = msg.dslObj().platforms();
                 if (msgPlatforms.empty()) {
@@ -500,7 +500,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
             };
 
         auto allCheckFunc = 
-            [&platformCheckFunc](const commsdsl::gen::Message& msg)
+            [&platformCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
                 return platformCheckFunc(msg);
             };
@@ -519,7 +519,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
         }
 
         auto clientCheckFunc = 
-            [&platformCheckFunc](const commsdsl::gen::Message& msg)
+            [&platformCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
                 return 
                     platformCheckFunc(msg) &&
@@ -540,7 +540,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
         }            
 
         auto serverCheckFunc = 
-            [&platformCheckFunc](const commsdsl::gen::Message& msg)
+            [&platformCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
                 return 
                     platformCheckFunc(msg) &&
@@ -570,13 +570,13 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
     for (auto& b : extraBundles) {
 
         auto bundleCheckFunc = 
-            [&b](const commsdsl::gen::Message& msg)
+            [&b](const commsdsl::gen::GenMessage& msg)
             {
                 return std::find(b.second.begin(), b.second.end(), &msg) != b.second.end();
             };
 
         auto allCheckFunc = 
-            [&bundleCheckFunc](const commsdsl::gen::Message& msg)
+            [&bundleCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
                 return bundleCheckFunc(msg);
             };
@@ -595,7 +595,7 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
         }            
 
         auto clientCheckFunc = 
-            [&bundleCheckFunc](const commsdsl::gen::Message& msg)
+            [&bundleCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
                 return 
                     bundleCheckFunc(msg) &&
@@ -616,7 +616,7 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
         }            
 
         auto serverCheckFunc = 
-            [&bundleCheckFunc](const commsdsl::gen::Message& msg)
+            [&bundleCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
                 return 
                     bundleCheckFunc(msg) &&

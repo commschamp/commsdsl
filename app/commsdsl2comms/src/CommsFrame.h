@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/Frame.h"
+#include "commsdsl/gen/GenFrame.h"
 
 #include "CommsLayer.h"
 
@@ -27,13 +27,13 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsFrame final: public commsdsl::gen::Frame
+class CommsFrame final: public commsdsl::gen::GenFrame
 {
-    using Base = commsdsl::gen::Frame;
+    using Base = commsdsl::gen::GenFrame;
 public:
     using CommsLayersList = CommsLayer::CommsLayersList;
 
-    explicit CommsFrame(CommsGenerator& generator, commsdsl::parse::ParseFrame dslObj, Elem* parent);
+    explicit CommsFrame(CommsGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent);
     virtual ~CommsFrame();
 
     std::string commsDefaultOptions() const;

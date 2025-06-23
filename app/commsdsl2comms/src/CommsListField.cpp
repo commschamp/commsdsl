@@ -35,7 +35,7 @@ namespace commsdsl2comms
 CommsListField::CommsListField(
     CommsGenerator& generator, 
     commsdsl::parse::ParseField dslObj, 
-    commsdsl::gen::Elem* parent) :
+    commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {
@@ -46,7 +46,7 @@ bool CommsListField::prepareImpl()
     bool result = Base::prepareImpl() && commsPrepare();
     if (result) {
         auto castField = 
-            [](Field* field) -> CommsField*
+            [](commsdsl::gen::GenField* field) -> CommsField*
             {
                 if (field == nullptr) {
                     return nullptr;

@@ -17,19 +17,19 @@
 
 #include "EmscriptenLayer.h"
 
-#include "commsdsl/gen/ValueLayer.h"
+#include "commsdsl/gen/GenValueLayer.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenValueLayer final : public commsdsl::gen::ValueLayer, public EmscriptenLayer
+class EmscriptenValueLayer final : public commsdsl::gen::GenValueLayer, public EmscriptenLayer
 {
-    using Base = commsdsl::gen::ValueLayer;
+    using Base = commsdsl::gen::GenValueLayer;
     using EmscriptenBase = EmscriptenLayer;
 public:
-    EmscriptenValueLayer(EmscriptenGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenValueLayer(EmscriptenGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
 
 protected:
     virtual bool emscriptenIsMainInterfaceSupportedImpl() const override;

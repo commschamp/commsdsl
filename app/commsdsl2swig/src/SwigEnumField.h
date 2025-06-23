@@ -17,19 +17,19 @@
 
 #include "SwigField.h"
 
-#include "commsdsl/gen/EnumField.h"
+#include "commsdsl/gen/GenEnumField.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigEnumField final : public commsdsl::gen::EnumField, public SwigField
+class SwigEnumField final : public commsdsl::gen::GenEnumField, public SwigField
 {
-    using Base = commsdsl::gen::EnumField;
+    using Base = commsdsl::gen::GenEnumField;
     using SwigBase = SwigField;
 public:
-    SwigEnumField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
+    SwigEnumField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
     StringsList swigEnumValues() const;
 

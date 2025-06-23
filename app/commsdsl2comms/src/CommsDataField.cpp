@@ -57,7 +57,7 @@ std::string bytesToString(const std::vector<std::uint8_t> value)
 CommsDataField::CommsDataField(
     CommsGenerator& generator, 
     commsdsl::parse::ParseField dslObj, 
-    commsdsl::gen::Elem* parent) :
+    commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {

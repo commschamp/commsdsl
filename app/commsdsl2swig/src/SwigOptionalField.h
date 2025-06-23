@@ -17,19 +17,19 @@
 
 #include "SwigField.h"
 
-#include "commsdsl/gen/OptionalField.h"
+#include "commsdsl/gen/GenOptionalField.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigOptionalField final : public commsdsl::gen::OptionalField, public SwigField
+class SwigOptionalField final : public commsdsl::gen::GenOptionalField, public SwigField
 {
-    using Base = commsdsl::gen::OptionalField;
+    using Base = commsdsl::gen::GenOptionalField;
     using SwigBase = SwigField;
 public:
-    SwigOptionalField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
+    SwigOptionalField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
     static std::string swigDeclFuncs(const SwigGenerator& generator, const std::string& fieldType);
 

@@ -50,7 +50,7 @@ std::uintmax_t asBigUnsigned(std::intmax_t val)
 CommsEnumField::CommsEnumField(
     CommsGenerator& generator, 
     commsdsl::parse::ParseField dslObj, 
-    commsdsl::gen::Elem* parent) :
+    commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {
@@ -1406,12 +1406,12 @@ const CommsNamespace* CommsEnumField::commsNamespaceForMsgId() const
             break;
         }
 
-        if (parentTmp->elemType() != commsdsl::gen::Elem::Type_Namespace) {
+        if (parentTmp->elemType() != commsdsl::gen::GenElem::Type_Namespace) {
             parentNs = nullptr;
             break;
         }
 
-        parentNs = CommsNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(parentTmp));
+        parentNs = CommsNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>(parentTmp));
     }
 
     if (parentNs == nullptr) {

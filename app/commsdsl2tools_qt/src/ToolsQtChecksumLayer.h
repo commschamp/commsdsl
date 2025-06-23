@@ -17,18 +17,18 @@
 
 #include "ToolsQtLayer.h"
 
-#include "commsdsl/gen/ChecksumLayer.h"
+#include "commsdsl/gen/GenChecksumLayer.h"
 
 namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator;
-class ToolsQtChecksumLayer final : public commsdsl::gen::ChecksumLayer, public ToolsQtLayer
+class ToolsQtChecksumLayer final : public commsdsl::gen::GenChecksumLayer, public ToolsQtLayer
 {
-    using Base = commsdsl::gen::ChecksumLayer;
+    using Base = commsdsl::gen::GenChecksumLayer;
     using ToolsBase = ToolsQtLayer;
 public:
-    explicit ToolsQtChecksumLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtChecksumLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
 
 protected:
     // Base overrides

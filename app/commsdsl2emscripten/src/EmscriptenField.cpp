@@ -36,14 +36,14 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2emscripten
 {
 
-EmscriptenField::EmscriptenField(commsdsl::gen::Field& field) :
+EmscriptenField::EmscriptenField(commsdsl::gen::GenField& field) :
     m_field(field)
 {
 }
 
 EmscriptenField::~EmscriptenField() = default;
 
-const EmscriptenField* EmscriptenField::cast(const commsdsl::gen::Field* field)
+const EmscriptenField* EmscriptenField::cast(const commsdsl::gen::GenField* field)
 {
     if (field == nullptr) {
         return nullptr;
@@ -54,7 +54,7 @@ const EmscriptenField* EmscriptenField::cast(const commsdsl::gen::Field* field)
     return emscriptenField;
 }
 
-EmscriptenField* EmscriptenField::cast(commsdsl::gen::Field* field)
+EmscriptenField* EmscriptenField::cast(commsdsl::gen::GenField* field)
 {
     if (field == nullptr) {
         return nullptr;
@@ -65,7 +65,7 @@ EmscriptenField* EmscriptenField::cast(commsdsl::gen::Field* field)
     return emscriptenField;
 }
 
-EmscriptenField::EmscriptenFieldsList EmscriptenField::emscriptenTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields)
+EmscriptenField::EmscriptenFieldsList EmscriptenField::emscriptenTransformFieldsList(const commsdsl::gen::GenField::FieldsList& fields)
 {
     EmscriptenFieldsList result;
     result.reserve(fields.size());
@@ -209,12 +209,12 @@ std::string EmscriptenField::emscriptenSourceBindExtraImpl() const
     return strings::emptyString();
 }
 
-void EmscriptenField::emscriptenAssignMembers(const commsdsl::gen::Field::FieldsList& fields)
+void EmscriptenField::emscriptenAssignMembers(const commsdsl::gen::GenField::FieldsList& fields)
 {
     m_members = emscriptenTransformFieldsList(fields);
 }
 
-void EmscriptenField::emscriptenAddMember(commsdsl::gen::Field* field)
+void EmscriptenField::emscriptenAddMember(commsdsl::gen::GenField* field)
 {
     if (field == nullptr) {
         return;

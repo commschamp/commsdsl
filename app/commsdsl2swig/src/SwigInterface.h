@@ -18,28 +18,28 @@
 
 #include "SwigField.h"
 
-#include "commsdsl/gen/Interface.h"
+#include "commsdsl/gen/GenInterface.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigInterface final: public commsdsl::gen::Interface
+class SwigInterface final: public commsdsl::gen::GenInterface
 {
-    using Base = commsdsl::gen::Interface;
+    using Base = commsdsl::gen::GenInterface;
 
 public:
     using StringsList = commsdsl::gen::util::StringsList;
     
-    explicit SwigInterface(SwigGenerator& generator, commsdsl::parse::ParseInterface dslObj, Elem* parent);
+    explicit SwigInterface(SwigGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent);
     virtual ~SwigInterface();
 
     void swigAddCodeIncludes(StringsList& list) const; 
     void swigAddCode(StringsList& list) const; 
     void swigAddDef(StringsList& list) const;
 
-    static const SwigInterface* cast(const commsdsl::gen::Interface* i)
+    static const SwigInterface* cast(const commsdsl::gen::GenInterface* i)
     {
         return static_cast<const SwigInterface*>(i);
     }

@@ -37,7 +37,7 @@ namespace commsdsl2swig
 {
 
 
-SwigInterface::SwigInterface(SwigGenerator& generator, commsdsl::parse::ParseInterface dslObj, Elem* parent) :
+SwigInterface::SwigInterface(SwigGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent)
 {
 }   
@@ -246,8 +246,8 @@ std::string SwigInterface::swigClassDeclInternal() const
 
     auto* parent = getParent();
     assert(parent != nullptr);
-    assert(parent->elemType() == commsdsl::gen::Elem::Type_Namespace);
-    auto* parentNs = SwigNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(parent));
+    assert(parent->elemType() == commsdsl::gen::GenElem::Type_Namespace);
+    auto* parentNs = SwigNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
 
     auto& gen = SwigGenerator::cast(generator());
     util::ReplacementMap repl = {

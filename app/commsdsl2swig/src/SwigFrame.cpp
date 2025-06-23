@@ -38,7 +38,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigFrame::SwigFrame(SwigGenerator& generator, commsdsl::parse::ParseFrame dslObj, Elem* parent) :
+SwigFrame::SwigFrame(SwigGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent)
 {
 }   

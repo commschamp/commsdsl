@@ -17,7 +17,7 @@
 
 #include "EmscriptenField.h"
 
-#include "commsdsl/gen/EnumField.h"
+#include "commsdsl/gen/GenEnumField.h"
 
 namespace commsdsl2emscripten
 {
@@ -25,14 +25,14 @@ namespace commsdsl2emscripten
 class EmscriptenGenerator;
 class EmscriptenNamespace;
 
-class EmscriptenEnumField final : public commsdsl::gen::EnumField, public EmscriptenField
+class EmscriptenEnumField final : public commsdsl::gen::GenEnumField, public EmscriptenField
 {
-    using Base = commsdsl::gen::EnumField;
+    using Base = commsdsl::gen::GenEnumField;
     using EmscriptenBase = EmscriptenField;
 public:
-    EmscriptenEnumField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenEnumField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
-    static const EmscriptenEnumField* cast(const commsdsl::gen::Field* f)
+    static const EmscriptenEnumField* cast(const commsdsl::gen::GenField* f)
     {
         return static_cast<const EmscriptenEnumField*>(f);
     }

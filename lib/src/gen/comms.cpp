@@ -16,9 +16,9 @@
 
 #include "commsdsl/gen/comms.h"
 
-#include "commsdsl/gen/EnumField.h"
-#include "commsdsl/gen/Field.h"
-#include "commsdsl/gen/Message.h"
+#include "commsdsl/gen/GenEnumField.h"
+#include "commsdsl/gen/GenField.h"
+#include "commsdsl/gen/GenMessage.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
@@ -47,7 +47,7 @@ const std::size_t MaxPossibleLength = std::numeric_limits<std::size_t>::max();
 
 std::string scopeForElement(
     const std::string& name, 
-    const Generator& generator, 
+    const GenGenerator& generator, 
     const std::vector<std::string>& subElems,
     bool addMainNamespace, 
     bool addElement,
@@ -77,60 +77,60 @@ std::string scopeForElement(
 }
 
 void addElemNamespaceScopeInternal(
-    Elem::Type elemType,
-    const Elem* parent,
+    GenElem::Type elemType,
+    const GenElem* parent,
     const std::string& sep,
     std::string& str)
 {
-    if ((elemType == Elem::Type_Field) && (parent->elemType() == Elem::Type_Namespace)) {
+    if ((elemType == GenElem::Type_Field) && (parent->elemType() == GenElem::Type_Namespace)) {
         // Global fields reside in appropriate namespace
         str.append(strings::fieldNamespaceStr() + sep);
     }
 
-    if (elemType == Elem::Type_Message) {
-        assert(parent->elemType() == Elem::Type_Namespace);
+    if (elemType == GenElem::Type_Message) {
+        assert(parent->elemType() == GenElem::Type_Namespace);
         str.append(strings::messageNamespaceStr() + sep);
     }     
 
-    if (elemType == Elem::Type_Frame) {
-        assert(parent->elemType() == Elem::Type_Namespace);
+    if (elemType == GenElem::Type_Frame) {
+        assert(parent->elemType() == GenElem::Type_Namespace);
         str.append(strings::frameNamespaceStr() + sep);
     }  
 }
 
 void addFieldScopeSuffixInternal(
-    Elem::Type elemType, 
+    GenElem::Type elemType, 
     bool isLeaf, 
     std::string& str)
 {
-    if ((elemType == Elem::Type_Message) ||
-        (elemType == Elem::Type_Interface)) {
+    if ((elemType == GenElem::Type_Message) ||
+        (elemType == GenElem::Type_Interface)) {
         str.append(strings::fieldsSuffixStr());
         return;
     }      
 
-    if (elemType == Elem::Type_Layer) {
+    if (elemType == GenElem::Type_Layer) {
         str.append(strings::membersSuffixStr());
         return;
     }  
 
-    if (elemType == Elem::Type_Frame) {
+    if (elemType == GenElem::Type_Frame) {
         str.append(strings::layersSuffixStr());
         return;
     }   
 
-    if ((elemType == Elem::Type_Field) && (!isLeaf)) {
+    if ((elemType == GenElem::Type_Field) && (!isLeaf)) {
         str.append(strings::membersSuffixStr());
         return;
     }  
 }
 
 void addNonFieldElemScopeSuffixInternal(
-    Elem::Type elemType, 
-    Elem::Type leafElemType,
+    GenElem::Type elemType, 
+    GenElem::Type leafElemType,
     std::string& str)
 {
-    if ((elemType == Elem::Type_Frame) && (leafElemType != elemType)) {
+    if ((elemType == GenElem::Type_Frame) && (leafElemType != elemType)) {
         str.append(strings::layersSuffixStr());
         return;
     }  
@@ -153,23 +153,23 @@ void addNamespaceScopeInernal(
 }
 
 std::string scopeForInternal(
-    const Elem& elem, 
-    const Generator& generator, 
+    const GenElem& elem, 
+    const GenGenerator& generator, 
     bool addMainNamespace, 
     bool addElement,
     const std::string& sep,
-    const Elem* leaf = nullptr)
+    const GenElem* leaf = nullptr)
 {
     std::string result;
     if (leaf == nullptr) {
         leaf = &elem;
     }
 
-    auto fieldTypeScope = (leaf->elemType() == Elem::Type_Field) && (sep == ScopeSep);
+    auto fieldTypeScope = (leaf->elemType() == GenElem::Type_Field) && (sep == ScopeSep);
 
     auto* parent = elem.getParent();
     assert(parent != nullptr);
-    if (parent->elemType() != Elem::Type_Schema) {
+    if (parent->elemType() != GenElem::Type_Schema) {
         result = scopeForInternal(*parent, generator, addMainNamespace, true, sep, leaf);
     }
     else if (addMainNamespace) {
@@ -195,7 +195,7 @@ std::string scopeForInternal(
         
         auto& elemName = elem.name();
 
-        if (elemType == Elem::Type_Namespace) {
+        if (elemType == GenElem::Type_Namespace) {
             addNamespaceScopeInernal(elemName, sep, result);
             break;
         }
@@ -205,7 +205,7 @@ std::string scopeForInternal(
         }            
 
         auto name = className(elemName);
-        if ((name.empty()) && (elemType == Elem::Type_Interface)) {
+        if ((name.empty()) && (elemType == GenElem::Type_Interface)) {
             name = strings::messageClassStr();
         }    
 
@@ -226,12 +226,12 @@ std::string scopeForInternal(
 }
 
 std::string commonScopeForInternal(
-    const Elem& elem, 
-    const Generator& generator, 
+    const GenElem& elem, 
+    const GenGenerator& generator, 
     bool addMainNamespace, 
     bool addElement,
     const std::string& sep,
-    const Elem* leaf = nullptr)
+    const GenElem* leaf = nullptr)
 {
     std::string result;
 
@@ -239,11 +239,11 @@ std::string commonScopeForInternal(
         leaf = &elem;
     }
 
-    auto fieldTypeScope = (leaf->elemType() == Elem::Type_Field) && (sep == ScopeSep);
+    auto fieldTypeScope = (leaf->elemType() == GenElem::Type_Field) && (sep == ScopeSep);
 
     auto* parent = elem.getParent();
     assert(parent != nullptr);
-    if (parent->elemType() != Elem::Type_Schema) {
+    if (parent->elemType() != GenElem::Type_Schema) {
         result = commonScopeForInternal(*parent, generator, addMainNamespace, true, sep, leaf);
     }
     else if (addMainNamespace) {
@@ -257,7 +257,7 @@ std::string commonScopeForInternal(
 
         auto elemType = elem.elemType();
         auto& elemName = elem.name();
-        if (elemType == Elem::Type_Namespace) {
+        if (elemType == GenElem::Type_Namespace) {
             addNamespaceScopeInernal(elemName, sep, result);
             break;
         }
@@ -274,11 +274,11 @@ std::string commonScopeForInternal(
             addFieldScopeSuffixInternal(elemType, &elem == leaf, result);
         }
 
-        if ((elemType == Elem::Type_Field) || 
-            (elemType == Elem::Type_Message) || 
-            (elemType == Elem::Type_Interface) ||
-            (elemType == Elem::Type_Layer) ||
-            (elemType == Elem::Type_Frame)) {
+        if ((elemType == GenElem::Type_Field) || 
+            (elemType == GenElem::Type_Message) || 
+            (elemType == GenElem::Type_Interface) ||
+            (elemType == GenElem::Type_Layer) ||
+            (elemType == GenElem::Type_Frame)) {
             result.append(strings::commonSuffixStr());
         }
 
@@ -310,12 +310,12 @@ std::string accessName(const std::string& name)
     return result;
 }
 
-std::string fullNameFor(const Elem& elem)
+std::string fullNameFor(const GenElem& elem)
 {
     std::string result;
     auto* parent = elem.getParent();
     assert(parent != nullptr);
-    if (parent->elemType() != Elem::Type_Schema) {
+    if (parent->elemType() != GenElem::Type_Schema) {
         result = fullNameFor(*parent);
     }
 
@@ -325,7 +325,7 @@ std::string fullNameFor(const Elem& elem)
 
     auto elemType = elem.elemType();
     do {
-        if (elemType == Elem::Type_Namespace) {
+        if (elemType == GenElem::Type_Namespace) {
             result.append(elem.name());
             break;
         }
@@ -336,8 +336,8 @@ std::string fullNameFor(const Elem& elem)
 }
 
 std::string scopeFor(
-    const Elem& elem, 
-    const Generator& generator, 
+    const GenElem& elem, 
+    const GenGenerator& generator, 
     bool addMainNamespace, 
     bool addElement)
 {
@@ -345,8 +345,8 @@ std::string scopeFor(
 }
 
 std::string commonScopeFor(
-    const Elem& elem, 
-    const Generator& generator, 
+    const GenElem& elem, 
+    const GenGenerator& generator, 
     bool addMainNamespace, 
     bool addElement)
 {
@@ -355,7 +355,7 @@ std::string commonScopeFor(
 
 std::string scopeForOptions(
     const std::string& name, 
-    const Generator& generator, 
+    const GenGenerator& generator, 
     bool addMainNamespace, 
     bool addElement)
 {
@@ -368,8 +368,8 @@ std::string scopeForOptions(
 
 std::string scopeForInput(
     const std::string& name, 
-    const Generator& generator, 
-    const Namespace& ns,
+    const GenGenerator& generator, 
+    const GenNamespace& ns,
     bool addMainNamespace, 
     bool addElement)
 {
@@ -384,8 +384,8 @@ std::string scopeForInput(
 
 std::string scopeForFactory(
     const std::string& name, 
-    const Generator& generator, 
-    const Namespace& ns,
+    const GenGenerator& generator, 
+    const GenNamespace& ns,
     bool addMainNamespace, 
     bool addElement)
 {
@@ -400,8 +400,8 @@ std::string scopeForFactory(
 
 std::string scopeForDispatch(
     const std::string& name, 
-    const Generator& generator, 
-    const Namespace& ns,
+    const GenGenerator& generator, 
+    const GenNamespace& ns,
     bool addMainNamespace, 
     bool addElement)
 {
@@ -417,8 +417,8 @@ std::string scopeForDispatch(
 // TODO: remove
 std::string scopeForMsgId(
     const std::string& name, 
-    const Generator& generator, 
-    const Namespace& ns,
+    const GenGenerator& generator, 
+    const GenNamespace& ns,
     bool addMainNamespace, 
     bool addElement)
 {
@@ -427,8 +427,8 @@ std::string scopeForMsgId(
 
 std::string scopeForNamespaceMember(
     const std::string& name, 
-    const Generator& generator, 
-    const Namespace& ns,
+    const GenGenerator& generator, 
+    const GenNamespace& ns,
     bool addMainNamespace, 
     bool addElement)
 {
@@ -442,7 +442,7 @@ std::string scopeForNamespaceMember(
 
 std::string scopeForRoot(
     const std::string& name, 
-    const Generator& generator, 
+    const GenGenerator& generator, 
     bool addMainNamespace, 
     bool addElement)
 {
@@ -452,7 +452,7 @@ std::string scopeForRoot(
 
 std::string scopeForChecksum(
     const std::string& name, 
-    const Generator& generator, 
+    const GenGenerator& generator, 
     bool addMainNamespace, 
     bool addElement)
 {
@@ -464,8 +464,8 @@ std::string scopeForChecksum(
 }
 
 std::string scopeForCustomLayer(
-    const Elem& elem, 
-    const Generator& generator, 
+    const GenElem& elem, 
+    const GenGenerator& generator, 
     bool addMainNamespace, 
     bool addElement)
 {
@@ -477,22 +477,22 @@ std::string scopeForCustomLayer(
     return scopeForElement(elem.name(), generator, SubElems, addMainNamespace, addElement, ScopeSep); 
 }
 
-std::string relHeaderPathFor(const Elem& elem, const Generator& generator, bool addMainNamespace)
+std::string relHeaderPathFor(const GenElem& elem, const GenGenerator& generator, bool addMainNamespace)
 {
     return scopeForInternal(elem, generator, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();    
 }
 
-std::string relSourcePathFor(const Elem& elem, const Generator& generator, bool addMainNamespace)
+std::string relSourcePathFor(const GenElem& elem, const GenGenerator& generator, bool addMainNamespace)
 {
     return scopeForInternal(elem, generator, addMainNamespace, true, PathSep) + strings::cppSourceSuffixStr();    
 }
 
-std::string relCommonHeaderPathFor(const Elem& elem, const Generator& generator)
+std::string relCommonHeaderPathFor(const GenElem& elem, const GenGenerator& generator)
 {
     return commonScopeForInternal(elem, generator, true, true, PathSep) + strings::cppHeaderSuffixStr();    
 }
 
-std::string relHeaderPathForField(const std::string& name, const Generator& generator)
+std::string relHeaderPathForField(const std::string& name, const GenGenerator& generator)
 {
     static const std::vector<std::string> SubElems = {
         strings::fieldNamespaceStr()
@@ -501,7 +501,7 @@ std::string relHeaderPathForField(const std::string& name, const Generator& gene
     return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
-std::string relHeaderForOptions(const std::string& name, const Generator& generator, bool addMainNamespace)
+std::string relHeaderForOptions(const std::string& name, const GenGenerator& generator, bool addMainNamespace)
 {
     static const std::vector<std::string> SubElems = {
         strings::optionsNamespaceStr()
@@ -510,7 +510,7 @@ std::string relHeaderForOptions(const std::string& name, const Generator& genera
     return scopeForElement(name, generator, SubElems, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
-std::string relHeaderForDispatch(const std::string& name, const Generator& generator, const Namespace& ns)
+std::string relHeaderForDispatch(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
 {
     std::vector<std::string> subElems;
     if (!ns.name().empty()) {
@@ -521,7 +521,7 @@ std::string relHeaderForDispatch(const std::string& name, const Generator& gener
     return scopeForElement(name, generator, subElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
-std::string relHeaderForFactory(const std::string& name, const Generator& generator, const Namespace& ns)
+std::string relHeaderForFactory(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
 {
     std::vector<std::string> subElems;
     if (!ns.name().empty()) {
@@ -533,12 +533,12 @@ std::string relHeaderForFactory(const std::string& name, const Generator& genera
 }
 
 // TODO: remove
-std::string relHeaderForMsgId(const std::string& name, const Generator& generator, const Namespace& ns)
+std::string relHeaderForMsgId(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
 {
     return relHeaderForNamespaceMember(name, generator, ns);
 }
 
-std::string relHeaderForNamespaceMember(const std::string& name, const Generator& generator, const Namespace& ns)
+std::string relHeaderForNamespaceMember(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
 {
     std::vector<std::string> subElems;
     if (!ns.name().empty()) {
@@ -548,7 +548,7 @@ std::string relHeaderForNamespaceMember(const std::string& name, const Generator
     return scopeForElement(name, generator, subElems, true, true, PathSep) + strings::cppHeaderSuffixStr();    
 }
 
-std::string relSourceForNamespaceMember(const std::string& name, const Generator& generator, const Namespace& ns)
+std::string relSourceForNamespaceMember(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
 {
     std::vector<std::string> subElems;
     if (!ns.name().empty()) {
@@ -558,7 +558,7 @@ std::string relSourceForNamespaceMember(const std::string& name, const Generator
     return scopeForElement(name, generator, subElems, true, true, PathSep) + strings::cppSourceSuffixStr();    
 }
 
-std::string relHeaderForLayer(const std::string& name, const Generator& generator)
+std::string relHeaderForLayer(const std::string& name, const GenGenerator& generator)
 {
     static const std::vector<std::string> SubElems = {
         strings::frameNamespaceStr(),
@@ -568,7 +568,7 @@ std::string relHeaderForLayer(const std::string& name, const Generator& generato
     return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
-std::string relHeaderForChecksum(const std::string& name, const Generator& generator)
+std::string relHeaderForChecksum(const std::string& name, const GenGenerator& generator)
 {
     static const std::vector<std::string> SubElems = {
         strings::frameNamespaceStr(),
@@ -578,7 +578,7 @@ std::string relHeaderForChecksum(const std::string& name, const Generator& gener
     return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
-std::string relHeaderForInput(const std::string& name, const Generator& generator, const Namespace& ns, bool addMainNamespace)
+std::string relHeaderForInput(const std::string& name, const GenGenerator& generator, const GenNamespace& ns, bool addMainNamespace)
 {
     std::vector<std::string> subElems;
     if (!ns.name().empty()) {
@@ -590,79 +590,79 @@ std::string relHeaderForInput(const std::string& name, const Generator& generato
     return scopeForElement(name, generator, subElems, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
-std::string relHeaderForRoot(const std::string& name, const Generator& generator, bool addMainNamespace)
+std::string relHeaderForRoot(const std::string& name, const GenGenerator& generator, bool addMainNamespace)
 {
     static const std::vector<std::string> SubElems;
     return scopeForElement(name, generator, SubElems, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
-std::string relSourceForRoot(const std::string& name, const Generator& generator, bool addMainNamespace)
+std::string relSourceForRoot(const std::string& name, const GenGenerator& generator, bool addMainNamespace)
 {
     static const std::vector<std::string> SubElems;
     return scopeForElement(name, generator, SubElems, addMainNamespace, true, PathSep) + strings::cppSourceSuffixStr();
 }
 
-std::string headerPathFor(const Elem& elem, const Generator& generator)
+std::string headerPathFor(const GenElem& elem, const GenGenerator& generator)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderPathFor(elem, generator);
 }
 
-std::string sourcePathFor(const Elem& elem, const Generator& generator)
+std::string sourcePathFor(const GenElem& elem, const GenGenerator& generator)
 {
     return generator.getOutputDir() + '/' + strings::srcDirStr() + '/' + relSourcePathFor(elem, generator);
 }
 
-std::string headerPathForField(const std::string& name, const Generator& generator)
+std::string headerPathForField(const std::string& name, const GenGenerator& generator)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderPathForField(name, generator);
 }
 
-std::string headerPathForInput(const std::string& name, const Generator& generator, const Namespace& ns)
+std::string headerPathForInput(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForInput(name, generator, ns);
 }
 
-std::string headerPathForOptions(const std::string& name, const Generator& generator)
+std::string headerPathForOptions(const std::string& name, const GenGenerator& generator)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForOptions(name, generator);
 }
 
-std::string headerPathForDispatch(const std::string& name, const Generator& generator, const Namespace& ns)
+std::string headerPathForDispatch(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForDispatch(name, generator, ns);
 }
 
-std::string headerPathForFactory(const std::string& name, const Generator& generator, const Namespace& ns)
+std::string headerPathForFactory(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForFactory(name, generator, ns);
 }
 
-std::string headerPathForMsgId(const std::string& name, const Generator& generator, const Namespace& ns)
+std::string headerPathForMsgId(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForMsgId(name, generator, ns);
 }
 
-std::string commonHeaderPathFor(const Elem& elem, const Generator& generator)
+std::string commonHeaderPathFor(const GenElem& elem, const GenGenerator& generator)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relCommonHeaderPathFor(elem, generator);
 }
 
-std::string headerPathRoot(const std::string& name, const Generator& generator)
+std::string headerPathRoot(const std::string& name, const GenGenerator& generator)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForRoot(name, generator);
 }
 
-std::string sourcePathRoot(const std::string& name, const Generator& generator)
+std::string sourcePathRoot(const std::string& name, const GenGenerator& generator)
 {
     return generator.getOutputDir() + '/' + strings::srcDirStr() + '/' + relSourceForRoot(name, generator);
 }
 
-std::string pathForDoc(const std::string& name, const Generator& generator)
+std::string pathForDoc(const std::string& name, const GenGenerator& generator)
 {
     return generator.getOutputDir() + '/' + strings::docDirStr() + '/' + name;    
 }
 
-std::string inputCodePathFor(const Elem& elem, const Generator& generator)
+std::string inputCodePathFor(const GenElem& elem, const GenGenerator& generator)
 {
     return 
         generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + 
@@ -670,7 +670,7 @@ std::string inputCodePathFor(const Elem& elem, const Generator& generator)
         comms::relHeaderPathFor(elem, generator, false);
 }
 
-std::string inputCodePathForRoot(const std::string& name, const Generator& generator)
+std::string inputCodePathForRoot(const std::string& name, const GenGenerator& generator)
 {
     return 
         generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + 
@@ -678,12 +678,12 @@ std::string inputCodePathForRoot(const std::string& name, const Generator& gener
         comms::relHeaderForRoot(name, generator, false);
 }
 
-std::string inputCodePathForDoc(const std::string& name, const Generator& generator)
+std::string inputCodePathForDoc(const std::string& name, const GenGenerator& generator)
 {
     return generator.getCodeDir() + '/' + strings::docDirStr() + '/' + name;
 }
 
-std::string inputCodePathForOptions(const std::string& name, const Generator& generator)
+std::string inputCodePathForOptions(const std::string& name, const GenGenerator& generator)
 {
     return 
         generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + 
@@ -691,7 +691,7 @@ std::string inputCodePathForOptions(const std::string& name, const Generator& ge
         comms::relHeaderForOptions(name, generator, false);
 }
 
-std::string inputCodePathForInput(const std::string& name, const Generator& generator, const Namespace& ns)
+std::string inputCodePathForInput(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
 {
     return 
         generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + 
@@ -699,7 +699,7 @@ std::string inputCodePathForInput(const std::string& name, const Generator& gene
         comms::relHeaderForInput(name, generator, ns, false);
 }
 
-std::string inputCodePathForFactory(const std::string& name, const Generator& generator, const Namespace& ns)
+std::string inputCodePathForFactory(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
 {
     return 
         generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + 
@@ -708,8 +708,8 @@ std::string inputCodePathForFactory(const std::string& name, const Generator& ge
 }
 
 std::string namespaceBeginFor(
-    const Elem& elem, 
-    const Generator& generator)
+    const GenElem& elem, 
+    const GenGenerator& generator)
 {
     std::string result;
 
@@ -722,7 +722,7 @@ std::string namespaceBeginFor(
     auto* parent = elem.getParent();
     assert(parent != nullptr);
     do {
-        if (parent->elemType() != Elem::Type_Schema) {
+        if (parent->elemType() != GenElem::Type_Schema) {
             result += namespaceBeginFor(*parent, generator);
             break;
         }
@@ -736,26 +736,26 @@ std::string namespaceBeginFor(
     } while (false);
 
     auto elemType = elem.elemType();
-    if ((elemType == Elem::Type_Field) && (parent->elemType() == Elem::Type_Namespace)) {
+    if ((elemType == GenElem::Type_Field) && (parent->elemType() == GenElem::Type_Namespace)) {
         appendToResultFunc(strings::fieldNamespaceStr());
     }   
 
-    if (elemType == Elem::Type_Message) {
-        assert(parent->elemType() == Elem::Type_Namespace);
+    if (elemType == GenElem::Type_Message) {
+        assert(parent->elemType() == GenElem::Type_Namespace);
         appendToResultFunc(strings::messageNamespaceStr());
     }
 
-    if (elemType == Elem::Type_Frame) {
-        assert(parent->elemType() == Elem::Type_Namespace);
+    if (elemType == GenElem::Type_Frame) {
+        assert(parent->elemType() == GenElem::Type_Namespace);
         appendToResultFunc(strings::frameNamespaceStr());
     }
 
-    if (elemType == Elem::Type_Layer) {
-        assert(parent->elemType() == Elem::Type_Frame);
+    if (elemType == GenElem::Type_Layer) {
+        assert(parent->elemType() == GenElem::Type_Frame);
         appendToResultFunc(strings::layerNamespaceStr());
     }        
 
-    if (elem.elemType() != Elem::Type_Namespace) {
+    if (elem.elemType() != GenElem::Type_Namespace) {
         return result;
     }
 
@@ -769,8 +769,8 @@ std::string namespaceBeginFor(
 }       
 
 std::string namespaceEndFor(
-    const Elem& elem, 
-    const Generator& generator)
+    const GenElem& elem, 
+    const GenGenerator& generator)
 {
     std::string result;
 
@@ -784,24 +784,24 @@ std::string namespaceEndFor(
     assert(parent != nullptr);
 
     auto elemType = elem.elemType();
-    if (elemType != Elem::Type_Namespace) {
+    if (elemType != GenElem::Type_Namespace) {
         assert(parent != nullptr);
-        if ((elemType == Elem::Type_Field) && (parent->elemType() == Elem::Type_Namespace)) {
+        if ((elemType == GenElem::Type_Field) && (parent->elemType() == GenElem::Type_Namespace)) {
             appendToResultFunc(strings::fieldNamespaceStr());
         }
 
-        if (elemType == Elem::Type_Message) {
-            assert(parent->elemType() == Elem::Type_Namespace);
+        if (elemType == GenElem::Type_Message) {
+            assert(parent->elemType() == GenElem::Type_Namespace);
             appendToResultFunc(strings::messageNamespaceStr());
         }
 
-        if (elemType == Elem::Type_Frame) {
-            assert(parent->elemType() == Elem::Type_Namespace);
+        if (elemType == GenElem::Type_Frame) {
+            assert(parent->elemType() == GenElem::Type_Namespace);
             appendToResultFunc(strings::frameNamespaceStr());
         }
 
-        if (elemType == Elem::Type_Layer) {
-            assert(parent->elemType() == Elem::Type_Frame);
+        if (elemType == GenElem::Type_Layer) {
+            assert(parent->elemType() == GenElem::Type_Frame);
             appendToResultFunc(strings::layerNamespaceStr());
         }        
 
@@ -817,7 +817,7 @@ std::string namespaceEndFor(
     }
     
     do {
-        if (parent->elemType() != Elem::Type_Schema) {
+        if (parent->elemType() != GenElem::Type_Schema) {
             result += namespaceEndFor(*parent, generator);
             break;
         }
@@ -949,26 +949,26 @@ const std::string& cppFloatTypeFor(commsdsl::parse::ParseFloatField::Type value)
     return TypeMap[idx];    
 }
 
-bool isGlobalField(const Elem& elem)
+bool isGlobalField(const GenElem& elem)
 {
-    if (elem.elemType() != Elem::Type_Field) {
+    if (elem.elemType() != GenElem::Type_Field) {
         return false;
     }
 
     auto* parent = elem.getParent();
     assert(parent != nullptr);
-    return parent->elemType() == Elem::Type_Namespace;
+    return parent->elemType() == GenElem::Type_Namespace;
 }
 
-bool isInterfaceDeepMemberField(const Elem& elem)
+bool isInterfaceDeepMemberField(const GenElem& elem)
 {
-    if (elem.elemType() != Elem::Type_Field) {
+    if (elem.elemType() != GenElem::Type_Field) {
         return false;
     }
 
     auto* parent = elem.getParent();
     while (parent != nullptr) {
-        if (parent->elemType() == Elem::Type_Interface) {
+        if (parent->elemType() == GenElem::Type_Interface) {
             return true;
         }
 
@@ -977,31 +977,31 @@ bool isInterfaceDeepMemberField(const Elem& elem)
     return false;
 }
 
-bool isInterfaceShallowMemberField(const Elem& elem)
+bool isInterfaceShallowMemberField(const GenElem& elem)
 {
-    if (elem.elemType() != Elem::Type_Field) {
+    if (elem.elemType() != GenElem::Type_Field) {
         return false;
     }
 
     auto* parent = elem.getParent();
     assert(parent != nullptr);
-    return parent->elemType() == Elem::Type_Interface;
+    return parent->elemType() == GenElem::Type_Interface;
 }
 
-bool isMessageShallowMemberField(const Elem& elem)
+bool isMessageShallowMemberField(const GenElem& elem)
 {
-    if (elem.elemType() != Elem::Type_Field) {
+    if (elem.elemType() != GenElem::Type_Field) {
         return false;
     }
 
     auto* parent = elem.getParent();
     assert(parent != nullptr);
-    return parent->elemType() == Elem::Type_Message;
+    return parent->elemType() == GenElem::Type_Message;
 }
 
-bool isVersionOptionalField(const Elem& elem, const Generator& generator)
+bool isVersionOptionalField(const GenElem& elem, const GenGenerator& generator)
 {
-    if (elem.elemType() != Elem::Type_Field) {
+    if (elem.elemType() != GenElem::Type_Field) {
         assert(false); // Should not happen
         return false;
     }    
@@ -1010,7 +1010,7 @@ bool isVersionOptionalField(const Elem& elem, const Generator& generator)
         return false;
     }
 
-    auto& field = static_cast<const gen::Field&>(elem);
+    auto& field = static_cast<const gen::GenField&>(elem);
     auto& dslObj = field.dslObj();
     if (!generator.isElementOptional(dslObj.sinceVersion(), dslObj.deprecatedSince(), dslObj.isDeprecatedRemoved())) {
         return false;
@@ -1030,17 +1030,17 @@ bool isVersionOptionalField(const Elem& elem, const Generator& generator)
     return false;     
 }
 
-unsigned sinceVersionOf(const Elem& elem)
+unsigned sinceVersionOf(const GenElem& elem)
 {
     auto elemType = elem.elemType();
-    if (elemType == Elem::Type_Message) {
-        return static_cast<const gen::Message&>(elem).dslObj().sinceVersion();
+    if (elemType == GenElem::Type_Message) {
+        return static_cast<const gen::GenMessage&>(elem).dslObj().sinceVersion();
     }
 
-    if (elemType == Elem::Type_Field) {
+    if (elemType == GenElem::Type_Field) {
         auto* parent = elem.getParent();
         assert(parent != nullptr);
-        auto fieldResult = static_cast<const gen::Field&>(elem).dslObj().sinceVersion();
+        auto fieldResult = static_cast<const gen::GenField&>(elem).dslObj().sinceVersion();
         return std::max(sinceVersionOf(*parent), fieldResult);
     }
 

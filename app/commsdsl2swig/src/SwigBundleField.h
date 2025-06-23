@@ -17,18 +17,18 @@
 
 #include "SwigField.h"
 
-#include "commsdsl/gen/BundleField.h"
+#include "commsdsl/gen/GenBundleField.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigBundleField final : public commsdsl::gen::BundleField, public SwigField
+class SwigBundleField final : public commsdsl::gen::GenBundleField, public SwigField
 {
-    using Base = commsdsl::gen::BundleField;
+    using Base = commsdsl::gen::GenBundleField;
     using SwigBase = SwigField;
 public:
-    SwigBundleField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
+    SwigBundleField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
     const SwigFieldsList& swigMembers() const
     {

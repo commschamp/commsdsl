@@ -17,7 +17,7 @@
 
 #include "CommsField.h"
 
-#include "commsdsl/gen/BitfieldField.h"
+#include "commsdsl/gen/GenBitfieldField.h"
 #include "commsdsl/gen/util.h"
 
 #include <utility>
@@ -26,12 +26,12 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsBitfieldField final : public commsdsl::gen::BitfieldField, public CommsField
+class CommsBitfieldField final : public commsdsl::gen::GenBitfieldField, public CommsField
 {
-    using Base = commsdsl::gen::BitfieldField;
+    using Base = commsdsl::gen::GenBitfieldField;
     using CommsBase = CommsField;
 public:
-    CommsBitfieldField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
+    CommsBitfieldField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
     const CommsFieldsList& commsMembers() const
     {

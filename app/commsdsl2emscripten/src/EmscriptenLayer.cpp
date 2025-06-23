@@ -37,14 +37,14 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2emscripten
 {
 
-EmscriptenLayer::EmscriptenLayer(commsdsl::gen::Layer& layer) :
+EmscriptenLayer::EmscriptenLayer(commsdsl::gen::GenLayer& layer) :
     m_layer(layer)
 {
 }
 
 EmscriptenLayer::~EmscriptenLayer() = default;
 
-const EmscriptenLayer* EmscriptenLayer::cast(const commsdsl::gen::Layer* layer)
+const EmscriptenLayer* EmscriptenLayer::cast(const commsdsl::gen::GenLayer* layer)
 {
     if (layer == nullptr) {
         return nullptr;
@@ -151,18 +151,18 @@ std::string EmscriptenLayer::emscriptenTemplateScope() const
     assert(iFace != nullptr);
 
     auto* frame = layer().getParent();
-    assert(frame->elemType() == commsdsl::gen::Elem::Type_Frame);
+    assert(frame->elemType() == commsdsl::gen::GenElem::Type_Frame);
 
-    auto* ns = EmscriptenFrame::cast(static_cast<const commsdsl::gen::Frame*>(frame))->emscriptenFindInputNamespace();
+    auto* ns = EmscriptenFrame::cast(static_cast<const commsdsl::gen::GenFrame*>(frame))->emscriptenFindInputNamespace();
     if (ns == nullptr) {
-        ns = EmscriptenNamespace::cast(static_cast<const commsdsl::gen::Namespace*>((iFace->parentNamespace())));
+        ns = EmscriptenNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>((iFace->parentNamespace())));
         assert(ns->emscriptenHasInput());
     }
 
     return 
         m_layer.templateScopeOfComms(
             gen.emscriptenClassName(*iFace), 
-            EmscriptenNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(ns))->emscriptenInputClassName(), 
+            EmscriptenNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>(ns))->emscriptenInputClassName(), 
             EmscriptenProtocolOptions::emscriptenClassName(gen));
 }
 

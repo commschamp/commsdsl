@@ -24,7 +24,7 @@
 namespace commsdsl2comms
 {
 
-CommsSchema::CommsSchema(CommsGenerator& generator, commsdsl::parse::ParseSchema dslObj, Elem* parent) :
+CommsSchema::CommsSchema(CommsGenerator& generator, commsdsl::parse::ParseSchema dslObj, commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent)
 {
 }

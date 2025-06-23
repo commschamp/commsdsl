@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/SizeLayer.h"
+#include "commsdsl/gen/GenSizeLayer.h"
 
 #include "CommsLayer.h"
 
@@ -23,12 +23,12 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsSizeLayer final : public commsdsl::gen::SizeLayer, public CommsLayer
+class CommsSizeLayer final : public commsdsl::gen::GenSizeLayer, public CommsLayer
 {
-    using Base = commsdsl::gen::SizeLayer;
+    using Base = commsdsl::gen::GenSizeLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsSizeLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
+    CommsSizeLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
 
 protected:
     virtual bool prepareImpl() override;

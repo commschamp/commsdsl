@@ -19,12 +19,12 @@
 #include <string>
 #include <iosfwd>
 
-#include "commsdsl/gen/ProgramOptions.h"
+#include "commsdsl/gen/GenProgramOptions.h"
 
 namespace commsdsl2emscripten
 {
 
-class EmscriptenProgramOptions : public commsdsl::gen::ProgramOptions
+class EmscriptenProgramOptions : public commsdsl::gen::GenProgramOptions
 {
 public:
     EmscriptenProgramOptions();

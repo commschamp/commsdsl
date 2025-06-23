@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/Message.h"
+#include "commsdsl/gen/GenMessage.h"
 #include "commsdsl/gen/util.h"
 
 #include "CommsField.h"
@@ -28,14 +28,14 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsMessage final: public commsdsl::gen::Message
+class CommsMessage final: public commsdsl::gen::GenMessage
 {
-    using Base = commsdsl::gen::Message;
+    using Base = commsdsl::gen::GenMessage;
 public:
     using CommsFieldsList = CommsField::CommsFieldsList;
     using StringsList = commsdsl::gen::util::StringsList;
 
-    explicit CommsMessage(CommsGenerator& generator, commsdsl::parse::ParseMessage dslObj, Elem* parent);
+    explicit CommsMessage(CommsGenerator& generator, commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent);
     virtual ~CommsMessage();
 
     const CommsFieldsList& commsFields() const

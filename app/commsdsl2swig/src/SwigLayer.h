@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/Layer.h"
+#include "commsdsl/gen/GenLayer.h"
 #include "commsdsl/gen/util.h"
 
 #include <string>
@@ -30,17 +30,17 @@ public:
     using StringsList = commsdsl::gen::util::StringsList;
     using SwigLayersList = std::vector<SwigLayer*>;
     
-    explicit SwigLayer(commsdsl::gen::Layer& layer);
+    explicit SwigLayer(commsdsl::gen::GenLayer& layer);
     virtual ~SwigLayer();
 
-    static const SwigLayer* cast(const commsdsl::gen::Layer* layer);
+    static const SwigLayer* cast(const commsdsl::gen::GenLayer* layer);
 
-    commsdsl::gen::Layer& layer()
+    commsdsl::gen::GenLayer& layer()
     {
         return m_layer;
     }
 
-    const commsdsl::gen::Layer& layer() const
+    const commsdsl::gen::GenLayer& layer() const
     {
         return m_layer;
     }
@@ -66,7 +66,7 @@ protected:
 private:
     
 
-    commsdsl::gen::Layer& m_layer;
+    commsdsl::gen::GenLayer& m_layer;
 };
 
 } // namespace commsdsl2swig

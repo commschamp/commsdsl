@@ -22,8 +22,8 @@
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
-#include "commsdsl/gen/EnumField.h"
-#include "commsdsl/gen/IntField.h"
+#include "commsdsl/gen/GenEnumField.h"
+#include "commsdsl/gen/GenIntField.h"
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
@@ -66,13 +66,13 @@ bool Test::writeInputTest() const
     
     std::string idType;
     auto allMsgIds = m_generator.currentSchema().getAllMessageIdFields();
-    const commsdsl::gen::Field* idField = nullptr;
+    const commsdsl::gen::GenField* idField = nullptr;
     if (allMsgIds.size() == 1U) {
         idField = allMsgIds.front();
     }
 
     if ((idField != nullptr) && (idField->dslObj().kind() == commsdsl::parse::ParseField::Kind::Enum)) {
-        auto* enumMsgIdField = static_cast<const commsdsl::gen::EnumField*>(idField);
+        auto* enumMsgIdField = static_cast<const commsdsl::gen::GenEnumField*>(idField);
         if (enumMsgIdField->isUnsignedUnderlyingType()) {
             idType = "std::uintmax_t";
         }
@@ -87,7 +87,7 @@ bool Test::writeInputTest() const
         }
     }
     else if ((idField != nullptr) && (idField->dslObj().kind() == commsdsl::parse::ParseField::Kind::Int)) {
-        auto* intMsgIdField = static_cast<const commsdsl::gen::IntField*>(idField);
+        auto* intMsgIdField = static_cast<const commsdsl::gen::GenIntField*>(idField);
         if (intMsgIdField->isUnsignedType()) {
             idType = "std::uintmax_t";
         }

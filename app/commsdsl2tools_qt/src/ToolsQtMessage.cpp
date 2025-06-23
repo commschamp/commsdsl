@@ -35,22 +35,22 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2tools_qt
 {
 
-ToolsQtMessage::ToolsQtMessage(ToolsQtGenerator& generator, commsdsl::parse::ParseMessage dslObj, commsdsl::gen::Elem* parent) :
+ToolsQtMessage::ToolsQtMessage(ToolsQtGenerator& generator, commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent)
 {
 }
 
-std::string ToolsQtMessage::toolsHeaderPath(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtMessage::toolsHeaderPath(const commsdsl::gen::GenInterface& iFace) const
 {
     return toolsRelPathInternal(iFace) + strings::cppHeaderSuffixStr();
 }
 
-ToolsQtMessage::StringsList ToolsQtMessage::toolsSourceFiles(const commsdsl::gen::Interface& iFace) const
+ToolsQtMessage::StringsList ToolsQtMessage::toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const
 {
     return StringsList{toolsRelPathInternal(iFace) + strings::cppSourceSuffixStr()};
 }
 
-std::string ToolsQtMessage::toolsClassScope(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtMessage::toolsClassScope(const commsdsl::gen::GenInterface& iFace) const
 {
     auto& gen = ToolsQtGenerator::cast(generator());
     return gen.toolsScopePrefixForInterface(iFace) + comms::scopeFor(*this, gen);
@@ -199,7 +199,7 @@ bool ToolsQtMessage::toolsWriteSrcInternal() const
     return true;
 }
 
-std::string ToolsQtMessage::toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtMessage::toolsRelPathInternal(const commsdsl::gen::GenInterface& iFace) const
 {
     return util::strReplace(toolsClassScope(iFace), "::", "/");
 }
@@ -255,7 +255,7 @@ std::string ToolsQtMessage::toolsHeaderCodeInternal() const
     return util::processTemplate(Templ, repl);
 }
 
-ToolsQtMessage::IncludesList ToolsQtMessage::toolsSrcIncludesInternal(const commsdsl::gen::Interface& iFace) const
+ToolsQtMessage::IncludesList ToolsQtMessage::toolsSrcIncludesInternal(const commsdsl::gen::GenInterface& iFace) const
 {
     return IncludesList {
         "cc_tools_qt/ToolsMessageBase.h",
@@ -264,7 +264,7 @@ ToolsQtMessage::IncludesList ToolsQtMessage::toolsSrcIncludesInternal(const comm
     };
 }
 
-std::string ToolsQtMessage::toolsSrcCodeInternal(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtMessage::toolsSrcCodeInternal(const commsdsl::gen::GenInterface& iFace) const
 {
     static const std::string Templ = 
         "class #^#CLASS_NAME#$#Impl : public\n"

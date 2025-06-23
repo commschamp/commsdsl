@@ -17,18 +17,18 @@
 
 #include "EmscriptenField.h"
 
-#include "commsdsl/gen/IntField.h"
+#include "commsdsl/gen/GenIntField.h"
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenIntField final : public commsdsl::gen::IntField, public EmscriptenField
+class EmscriptenIntField final : public commsdsl::gen::GenIntField, public EmscriptenField
 {
-    using Base = commsdsl::gen::IntField;
+    using Base = commsdsl::gen::GenIntField;
     using EmscriptenBase = EmscriptenField;
 public:
-    EmscriptenIntField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenIntField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
 protected:
     // Base overrides

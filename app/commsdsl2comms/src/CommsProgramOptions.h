@@ -19,12 +19,12 @@
 #include <string>
 #include <iosfwd>
 
-#include "commsdsl/gen/ProgramOptions.h"
+#include "commsdsl/gen/GenProgramOptions.h"
 
 namespace commsdsl2comms
 {
 
-class CommsProgramOptions : public commsdsl::gen::ProgramOptions
+class CommsProgramOptions : public commsdsl::gen::GenProgramOptions
 {
 public:
     CommsProgramOptions();

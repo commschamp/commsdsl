@@ -18,24 +18,24 @@
 
 #include "EmscriptenField.h"
 
-#include "commsdsl/gen/Schema.h"
+#include "commsdsl/gen/GenSchema.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenSchema final: public commsdsl::gen::Schema
+class EmscriptenSchema final: public commsdsl::gen::GenSchema
 {
-    using Base = commsdsl::gen::Schema;
+    using Base = commsdsl::gen::GenSchema;
 
 public:
     using StringsList = commsdsl::gen::util::StringsList;
 
-    explicit EmscriptenSchema(EmscriptenGenerator& generator, commsdsl::parse::ParseSchema dslObj, Elem* parent);
+    explicit EmscriptenSchema(EmscriptenGenerator& generator, commsdsl::parse::ParseSchema dslObj, commsdsl::gen::GenElem* parent);
     virtual ~EmscriptenSchema();
 
-    static const EmscriptenSchema* cast(const commsdsl::gen::Schema* schema)
+    static const EmscriptenSchema* cast(const commsdsl::gen::GenSchema* schema)
     {
         return static_cast<const EmscriptenSchema*>(schema);
     }

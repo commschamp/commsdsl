@@ -18,24 +18,24 @@
 
 #include "EmscriptenField.h"
 
-#include "commsdsl/gen/Interface.h"
+#include "commsdsl/gen/GenInterface.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenInterface final: public commsdsl::gen::Interface
+class EmscriptenInterface final: public commsdsl::gen::GenInterface
 {
-    using Base = commsdsl::gen::Interface;
+    using Base = commsdsl::gen::GenInterface;
 
 public:
     using StringsList = commsdsl::gen::util::StringsList;
     
-    explicit EmscriptenInterface(EmscriptenGenerator& generator, commsdsl::parse::ParseInterface dslObj, Elem* parent);
+    explicit EmscriptenInterface(EmscriptenGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent);
     virtual ~EmscriptenInterface();
 
-    static const EmscriptenInterface* cast(const commsdsl::gen::Interface* i)
+    static const EmscriptenInterface* cast(const commsdsl::gen::GenInterface* i)
     {
         return static_cast<const EmscriptenInterface*>(i);
     }

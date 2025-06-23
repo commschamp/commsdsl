@@ -15,32 +15,32 @@
 
 #pragma once
 
-#include "commsdsl/gen/Interface.h"
+#include "commsdsl/gen/GenInterface.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator;
-class ToolsQtInterface final : public commsdsl::gen::Interface
+class ToolsQtInterface final : public commsdsl::gen::GenInterface
 {
-    using Base = commsdsl::gen::Interface;
+    using Base = commsdsl::gen::GenInterface;
 public:
     using StringsList = commsdsl::gen::util::StringsList;
     using IncludesList = StringsList;
 
-    explicit ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent);
 
     std::string toolsClassScope() const;
     std::string toolsHeaderFilePath() const;
     StringsList toolsSourceFiles() const;
 
-    static const ToolsQtInterface* cast(const commsdsl::gen::Interface* val)
+    static const ToolsQtInterface* cast(const commsdsl::gen::GenInterface* val)
     {
         return static_cast<const ToolsQtInterface*>(val);
     }
 
-    static const ToolsQtInterface& cast(const commsdsl::gen::Interface& val)
+    static const ToolsQtInterface& cast(const commsdsl::gen::GenInterface& val)
     {
         return static_cast<const ToolsQtInterface&>(val);
     }    

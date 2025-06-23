@@ -18,21 +18,21 @@
 
 #include "SwigField.h"
 
-#include "commsdsl/gen/Schema.h"
+#include "commsdsl/gen/GenSchema.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigSchema final: public commsdsl::gen::Schema
+class SwigSchema final: public commsdsl::gen::GenSchema
 {
-    using Base = commsdsl::gen::Schema;
+    using Base = commsdsl::gen::GenSchema;
 
 public:
     using StringsList = commsdsl::gen::util::StringsList;
 
-    explicit SwigSchema(SwigGenerator& generator, commsdsl::parse::ParseSchema dslObj, Elem* parent);
+    explicit SwigSchema(SwigGenerator& generator, commsdsl::parse::ParseSchema dslObj, commsdsl::gen::GenElem* parent);
     virtual ~SwigSchema();
 
     bool swigHasAnyMessage() const;
@@ -42,7 +42,7 @@ public:
     void swigAddCode(StringsList& list) const; 
     void swigAddDef(StringsList& list) const;
 
-    static const SwigSchema* cast(const commsdsl::gen::Schema* schema)
+    static const SwigSchema* cast(const commsdsl::gen::GenSchema* schema)
     {
         return static_cast<const SwigSchema*>(schema);
     }

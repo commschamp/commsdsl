@@ -44,7 +44,7 @@ const auto MaxBits = std::numeric_limits<std::uintmax_t>::digits;
 CommsSetField::CommsSetField(
     CommsGenerator& generator, 
     commsdsl::parse::ParseField dslObj, 
-    commsdsl::gen::Elem* parent) :
+    commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {

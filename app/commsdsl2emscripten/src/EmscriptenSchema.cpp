@@ -31,7 +31,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2emscripten
 {
 
-EmscriptenSchema::EmscriptenSchema(EmscriptenGenerator& generator, commsdsl::parse::ParseSchema dslObj, Elem* parent) :
+EmscriptenSchema::EmscriptenSchema(EmscriptenGenerator& generator, commsdsl::parse::ParseSchema dslObj, commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent)
 {
 }   

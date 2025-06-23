@@ -62,7 +62,7 @@ bool hasIdLayerInternal(const CommsFrame::CommsLayersList& commsLayers)
 } // namespace 
    
 
-CommsFrame::CommsFrame(CommsGenerator& generator, commsdsl::parse::ParseFrame dslObj, Elem* parent) :
+CommsFrame::CommsFrame(CommsGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent)
 {
 }   
@@ -338,11 +338,11 @@ std::string CommsFrame::commsCommonBodyInternal() const
 
 std::string CommsFrame::commsDefIncludesInternal() const
 {
-    assert(getParent()->elemType() == commsdsl::gen::Elem::Type_Namespace);
+    assert(getParent()->elemType() == commsdsl::gen::GenElem::Type_Namespace);
     auto& gen = generator();
     util::StringsList includes = {
         comms::relHeaderForOptions(strings::defaultOptionsClassStr(), gen),
-        comms::relHeaderForInput(strings::allMessagesStr(), gen, *(static_cast<const commsdsl::gen::Namespace*>(getParent())))
+        comms::relHeaderForInput(strings::allMessagesStr(), gen, *(static_cast<const commsdsl::gen::GenNamespace*>(getParent())))
     };
 
     if (m_hasCommonCode) {
@@ -425,8 +425,8 @@ std::string CommsFrame::commsDefInputMessagesParamInternal() const
         return strings::emptyString();
     }
 
-    assert(getParent()->elemType() == commsdsl::gen::Elem::Type_Namespace);
-    auto& ns = *(static_cast<const commsdsl::gen::Namespace*>(getParent()));
+    assert(getParent()->elemType() == commsdsl::gen::GenElem::Type_Namespace);
+    auto& ns = *(static_cast<const commsdsl::gen::GenNamespace*>(getParent()));
     return
         "typename TAllMessages = " + comms::scopeForInput(strings::allMessagesStr(), generator(), ns) + "<TMessage>,";
 }

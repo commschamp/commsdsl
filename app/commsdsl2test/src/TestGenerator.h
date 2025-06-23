@@ -15,12 +15,12 @@
 
 #pragma once
 
-#include "commsdsl/gen/Generator.h"
+#include "commsdsl/gen/GenGenerator.h"
 
 namespace commsdsl2test 
 {
 
-class TestGenerator final : public commsdsl::gen::Generator
+class TestGenerator final : public commsdsl::gen::GenGenerator
 {
 public:
     static const std::string& fileGeneratedComment();

@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/Field.h"
+#include "commsdsl/gen/GenField.h"
 #include "commsdsl/gen/util.h"
 
 #include <string>
@@ -31,19 +31,19 @@ public:
     using IncludesList = StringsList;
     using EmscriptenFieldsList = std::vector<EmscriptenField*>;
 
-    explicit EmscriptenField(commsdsl::gen::Field& field);
+    explicit EmscriptenField(commsdsl::gen::GenField& field);
     virtual ~EmscriptenField();
 
-    static const EmscriptenField* cast(const commsdsl::gen::Field* field);
-    static EmscriptenField* cast(commsdsl::gen::Field* field);
-    static EmscriptenFieldsList emscriptenTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields);
+    static const EmscriptenField* cast(const commsdsl::gen::GenField* field);
+    static EmscriptenField* cast(commsdsl::gen::GenField* field);
+    static EmscriptenFieldsList emscriptenTransformFieldsList(const commsdsl::gen::GenField::FieldsList& fields);
 
-    commsdsl::gen::Field& field()
+    commsdsl::gen::GenField& field()
     {
         return m_field;
     }
 
-    const commsdsl::gen::Field& field() const
+    const commsdsl::gen::GenField& field() const
     {
         return m_field;
     }
@@ -75,8 +75,8 @@ protected:
     virtual std::string emscriptenSourceBindFuncsImpl() const;
     virtual std::string emscriptenSourceBindExtraImpl() const;
 
-    void emscriptenAssignMembers(const commsdsl::gen::Field::FieldsList& fields);
-    void emscriptenAddMember(commsdsl::gen::Field* field);
+    void emscriptenAssignMembers(const commsdsl::gen::GenField::FieldsList& fields);
+    void emscriptenAddMember(commsdsl::gen::GenField* field);
     std::string emscriptenHeaderValueAccByRef() const;
     std::string emscriptenHeaderValueAccByValue() const;
     std::string emscriptenHeaderValueAccLengthField() const;
@@ -110,7 +110,7 @@ private:
     std::string emscriptenSourceExtraVectorFuncsInternal() const;
     std::string emscriptenSourceExtraCodeInternal() const;
 
-    commsdsl::gen::Field& m_field;
+    commsdsl::gen::GenField& m_field;
     EmscriptenFieldsList m_members;
     bool m_listElement = false;
 };

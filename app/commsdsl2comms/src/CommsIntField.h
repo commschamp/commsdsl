@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/IntField.h"
+#include "commsdsl/gen/GenIntField.h"
 
 #include "CommsField.h"
 
@@ -23,12 +23,12 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsIntField final : public commsdsl::gen::IntField, public CommsField
+class CommsIntField final : public commsdsl::gen::GenIntField, public CommsField
 {
-    using Base = commsdsl::gen::IntField;
+    using Base = commsdsl::gen::GenIntField;
     using CommsBase = CommsField;
 public:
-    CommsIntField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
+    CommsIntField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
     std::string commsVariantPropKeyType() const;
     std::string commsVariantPropKeyValueStr() const;

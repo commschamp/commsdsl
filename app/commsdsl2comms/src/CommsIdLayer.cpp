@@ -30,7 +30,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsIdLayer::CommsIdLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent) :
+CommsIdLayer::CommsIdLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {
@@ -43,10 +43,10 @@ bool CommsIdLayer::prepareImpl()
 
 CommsIdLayer::IncludesList CommsIdLayer::commsDefIncludesImpl() const
 {
-    assert(getParent()->elemType() == commsdsl::gen::Elem::Type_Frame);
-    auto& frame = *(static_cast<const commsdsl::gen::Frame*>(getParent()));
-    assert(frame.getParent()->elemType() == commsdsl::gen::Elem::Type_Namespace);
-    auto& ns = *(static_cast<const commsdsl::gen::Namespace*>(frame.getParent()));
+    assert(getParent()->elemType() == commsdsl::gen::GenElem::Type_Frame);
+    auto& frame = *(static_cast<const commsdsl::gen::GenFrame*>(getParent()));
+    assert(frame.getParent()->elemType() == commsdsl::gen::GenElem::Type_Namespace);
+    auto& ns = *(static_cast<const commsdsl::gen::GenNamespace*>(frame.getParent()));
 
     IncludesList result = {
         "comms/frame/MsgIdLayer.h",

@@ -19,12 +19,12 @@
 #include <string>
 #include <iosfwd>
 
-#include "commsdsl/gen/ProgramOptions.h"
+#include "commsdsl/gen/GenProgramOptions.h"
 
 namespace commsdsl2tools_qt
 {
 
-class ToolsQtProgramOptions : public commsdsl::gen::ProgramOptions
+class ToolsQtProgramOptions : public commsdsl::gen::GenProgramOptions
 {
 public:
     struct PluginInfo

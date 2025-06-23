@@ -37,14 +37,14 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigField::SwigField(commsdsl::gen::Field& field) :
+SwigField::SwigField(commsdsl::gen::GenField& field) :
     m_field(field)
 {
 }
 
 SwigField::~SwigField() = default;
 
-const SwigField* SwigField::cast(const commsdsl::gen::Field* field)
+const SwigField* SwigField::cast(const commsdsl::gen::GenField* field)
 {
     if (field == nullptr) {
         return nullptr;
@@ -55,12 +55,12 @@ const SwigField* SwigField::cast(const commsdsl::gen::Field* field)
     return swigField;
 }
 
-SwigField* SwigField::cast(commsdsl::gen::Field* field)
+SwigField* SwigField::cast(commsdsl::gen::GenField* field)
 {
-    return const_cast<SwigField*>(cast(static_cast<const commsdsl::gen::Field*>(field)));
+    return const_cast<SwigField*>(cast(static_cast<const commsdsl::gen::GenField*>(field)));
 }
 
-SwigField::SwigFieldsList SwigField::swigTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields)
+SwigField::SwigFieldsList SwigField::swigTransformFieldsList(const commsdsl::gen::GenField::FieldsList& fields)
 {
     SwigFieldsList result;
     result.reserve(fields.size());

@@ -18,11 +18,11 @@
 #include "ToolsQtPlugin.h"
 #include "ToolsQtProgramOptions.h"
 
-#include "commsdsl/gen/Field.h"
-#include "commsdsl/gen/Frame.h"
-#include "commsdsl/gen/Generator.h"
-#include "commsdsl/gen/Message.h"
-#include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/GenField.h"
+#include "commsdsl/gen/GenFrame.h"
+#include "commsdsl/gen/GenGenerator.h"
+#include "commsdsl/gen/GenMessage.h"
+#include "commsdsl/gen/GenNamespace.h"
 #include "commsdsl/gen/util.h"
 
 #include <map>
@@ -30,11 +30,11 @@
 namespace commsdsl2tools_qt 
 {
 
-class ToolsQtGenerator final : public commsdsl::gen::Generator
+class ToolsQtGenerator final : public commsdsl::gen::GenGenerator
 {
-    using Base = commsdsl::gen::Generator;
+    using Base = commsdsl::gen::GenGenerator;
 public:
-    using Elem = commsdsl::gen::Elem;
+    using GenElem = commsdsl::gen::GenElem;
     using FieldPtr = commsdsl::gen::FieldPtr;
     using FramePtr = commsdsl::gen::FramePtr;
     using InterfacePtr = commsdsl::gen::InterfacePtr;
@@ -45,7 +45,7 @@ public:
     using PluginInfosList = ToolsQtProgramOptions::PluginInfosList;
     using StringsList = commsdsl::gen::util::StringsList;
     using PluginsList = std::vector<ToolsQtPluginPtr>;
-    using FramesPerInterfaceMap = std::map<const commsdsl::gen::Interface*, FramesAccessList>;
+    using FramesPerInterfaceMap = std::map<const commsdsl::gen::GenInterface*, FramesAccessList>;
 
     static const std::string& toolsFileGeneratedComment();
     void toolsSetPluginInfosList(PluginInfosList&& value)
@@ -80,14 +80,14 @@ public:
         return m_selectedFramesPerInterface;
     }
 
-    const FramesAccessList& toolsGetSelectedFramesForInterface(const commsdsl::gen::Interface& interface);
+    const FramesAccessList& toolsGetSelectedFramesForInterface(const commsdsl::gen::GenInterface& interface);
 
-    static ToolsQtGenerator& cast(commsdsl::gen::Generator& generator)
+    static ToolsQtGenerator& cast(commsdsl::gen::GenGenerator& generator)
     {
         return static_cast<ToolsQtGenerator&>(generator);
     }
 
-    static const ToolsQtGenerator& cast(const commsdsl::gen::Generator& generator)
+    static const ToolsQtGenerator& cast(const commsdsl::gen::GenGenerator& generator)
     {
         return static_cast<const ToolsQtGenerator&>(generator);
     }    
@@ -101,27 +101,27 @@ public:
     static const std::string& toolsNamespaceBegin();
     static const std::string& toolsNamespaceEnd();
 
-    std::string toolsNamespaceBeginForInterface(const commsdsl::gen::Interface& interface) const;
-    std::string toolsNamespaceEndForInterface(const commsdsl::gen::Interface& interface) const;    
+    std::string toolsNamespaceBeginForInterface(const commsdsl::gen::GenInterface& interface) const;
+    std::string toolsNamespaceEndForInterface(const commsdsl::gen::GenInterface& interface) const;    
 
     static const std::string& toolsScopePrefix();
-    std::string toolsScopePrefixForInterface(const commsdsl::gen::Interface& interface) const;
+    std::string toolsScopePrefixForInterface(const commsdsl::gen::GenInterface& interface) const;
 
 protected:
     virtual bool prepareImpl() override;
 
-    virtual NamespacePtr createNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, Elem* parent) override;
-    virtual InterfacePtr createInterfaceImpl(commsdsl::parse::ParseInterface dslObj, Elem* parent) override;
-    virtual MessagePtr createMessageImpl(commsdsl::parse::ParseMessage dslObj, Elem* parent) override;
-    virtual FramePtr createFrameImpl(commsdsl::parse::ParseFrame dslObj, Elem* parent) override;
+    virtual NamespacePtr createNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual InterfacePtr createInterfaceImpl(commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual MessagePtr createMessageImpl(commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual FramePtr createFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent) override;
 
-    virtual LayerPtr createCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent) override;
-    virtual LayerPtr createSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent) override;
-    virtual LayerPtr createSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent) override;
-    virtual LayerPtr createIdLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent) override;
-    virtual LayerPtr createValueLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent) override;
-    virtual LayerPtr createPayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent) override;
-    virtual LayerPtr createChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, Elem* parent) override;
+    virtual LayerPtr createCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual LayerPtr createSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual LayerPtr createSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual LayerPtr createIdLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual LayerPtr createValueLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual LayerPtr createPayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual LayerPtr createChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
 
     virtual bool writeImpl() override;   
 

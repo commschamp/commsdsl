@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/Field.h"
+#include "commsdsl/gen/GenField.h"
 #include "commsdsl/gen/util.h"
 
 #include <string>
@@ -31,20 +31,20 @@ public:
     using IncludesList = StringsList;
     using SwigFieldsList = std::vector<SwigField*>;
 
-    explicit SwigField(commsdsl::gen::Field& field);
+    explicit SwigField(commsdsl::gen::GenField& field);
     virtual ~SwigField();
 
-    static const SwigField* cast(const commsdsl::gen::Field* field);
-    static SwigField* cast(commsdsl::gen::Field* field);
+    static const SwigField* cast(const commsdsl::gen::GenField* field);
+    static SwigField* cast(commsdsl::gen::GenField* field);
 
-    static SwigFieldsList swigTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields);
+    static SwigFieldsList swigTransformFieldsList(const commsdsl::gen::GenField::FieldsList& fields);
 
-    commsdsl::gen::Field& field()
+    commsdsl::gen::GenField& field()
     {
         return m_field;
     }
 
-    const commsdsl::gen::Field& field() const
+    const commsdsl::gen::GenField& field() const
     {
         return m_field;
     }
@@ -92,7 +92,7 @@ private:
     std::string swigComparisonRenameInternal() const;
     void swigAddVectorTemplateInternal(StringsList& list) const;
 
-    commsdsl::gen::Field& m_field;
+    commsdsl::gen::GenField& m_field;
     mutable bool m_defAdded = false;
     mutable bool m_codeAdded = false;
     bool m_listElement = false;

@@ -32,7 +32,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsChecksumLayer::CommsChecksumLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent) :
+CommsChecksumLayer::CommsChecksumLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {
@@ -49,7 +49,7 @@ CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() cons
     auto obj = checksumDslObj();
     if (!obj.fromLayer().empty()) {
         assert(obj.untilLayer().empty());
-        result.push_back("comms/frame/ChecksumLayer.h");
+        result.push_back("comms/frame/GenChecksumLayer.h");
     }
     else {
         assert(!obj.untilLayer().empty());

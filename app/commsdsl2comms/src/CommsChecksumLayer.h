@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/ChecksumLayer.h"
+#include "commsdsl/gen/GenChecksumLayer.h"
 
 #include "CommsLayer.h"
 
@@ -23,12 +23,12 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsChecksumLayer final : public commsdsl::gen::ChecksumLayer, public CommsLayer
+class CommsChecksumLayer final : public commsdsl::gen::GenChecksumLayer, public CommsLayer
 {
-    using Base = commsdsl::gen::ChecksumLayer;
+    using Base = commsdsl::gen::GenChecksumLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsChecksumLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
+    CommsChecksumLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
 
 protected:
     virtual bool prepareImpl() override;

@@ -36,7 +36,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2tools_qt
 {
 
-ToolsQtNamespace::ToolsQtNamespace(ToolsQtGenerator& generator, commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::Elem* parent) :
+ToolsQtNamespace::ToolsQtNamespace(ToolsQtGenerator& generator, commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent),
     m_factory(generator, *this)
 {
@@ -68,12 +68,12 @@ ToolsQtNamespace::StringsList ToolsQtNamespace::toolsSourceFiles(const ToolsQtIn
     return result;
 }
 
-std::string ToolsQtNamespace::toolsFactoryRelHeaderPath(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtNamespace::toolsFactoryRelHeaderPath(const commsdsl::gen::GenInterface& iFace) const
 {
     return m_factory.toolsRelHeaderPath(iFace);
 }
 
-std::string ToolsQtNamespace::toolsFactoryClassScope(const commsdsl::gen::Interface& iFace) const
+std::string ToolsQtNamespace::toolsFactoryClassScope(const commsdsl::gen::GenInterface& iFace) const
 {
     return m_factory.toolsClassScope(iFace);
 }

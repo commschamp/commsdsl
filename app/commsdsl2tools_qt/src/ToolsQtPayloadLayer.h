@@ -17,18 +17,18 @@
 
 #include "ToolsQtLayer.h"
 
-#include "commsdsl/gen/PayloadLayer.h"
+#include "commsdsl/gen/GenPayloadLayer.h"
 
 namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator;
-class ToolsQtPayloadLayer final : public commsdsl::gen::PayloadLayer, public ToolsQtLayer
+class ToolsQtPayloadLayer final : public commsdsl::gen::GenPayloadLayer, public ToolsQtLayer
 {
-    using Base = commsdsl::gen::PayloadLayer;
+    using Base = commsdsl::gen::GenPayloadLayer;
     using ToolsBase = ToolsQtLayer;
 public:
-    explicit ToolsQtPayloadLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtPayloadLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
 
 protected:
     // Base overrides

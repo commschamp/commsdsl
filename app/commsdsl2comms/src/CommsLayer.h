@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/Layer.h"
+#include "commsdsl/gen/GenLayer.h"
 #include "commsdsl/gen/util.h"
 
 #include "CommsField.h"
@@ -33,15 +33,15 @@ public:
     using IncludesList = StringsList;
     using CommsLayersList = std::vector<CommsLayer*>;
 
-    explicit CommsLayer(commsdsl::gen::Layer& layer);
+    explicit CommsLayer(commsdsl::gen::GenLayer& layer);
     virtual ~CommsLayer();
 
-    static CommsLayer* cast(commsdsl::gen::Layer* layer)
+    static CommsLayer* cast(commsdsl::gen::GenLayer* layer)
     {
         return dynamic_cast<CommsLayer*>(layer);
     }
 
-    static const CommsLayer* cast(const commsdsl::gen::Layer* layer)
+    static const CommsLayer* cast(const commsdsl::gen::GenLayer* layer)
     {
         return dynamic_cast<const CommsLayer*>(layer);
     }    
@@ -61,7 +61,7 @@ public:
     std::string commsBareMetalDefaultOptions() const;
     std::string commsMsgFactoryDefaultOptions() const;
 
-    const commsdsl::gen::Layer& layer() const
+    const commsdsl::gen::GenLayer& layer() const
     {
         return m_layer;
     }
@@ -98,7 +98,7 @@ protected:
 
     std::string commsDefFieldType() const;
     std::string commsDefExtraOpts() const;
-    static std::string commsMsgFactoryAliasInOptions(const commsdsl::gen::Elem* parent);
+    static std::string commsMsgFactoryAliasInOptions(const commsdsl::gen::GenElem* parent);
 
 private:
     using FieldOptsFunc = std::string (CommsField::*)() const;
@@ -116,7 +116,7 @@ private:
     StringsList commsExtraBareMetalDefaultOptionsInternal() const;
     StringsList commsExtraMsgFactoryDefaultOptionsInternal() const;
     
-    commsdsl::gen::Layer& m_layer;
+    commsdsl::gen::GenLayer& m_layer;
     CommsField* m_commsExternalField = nullptr;
     CommsField* m_commsMemberField = nullptr;
 

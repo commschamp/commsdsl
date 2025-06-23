@@ -17,19 +17,19 @@
 
 #include "SwigField.h"
 
-#include "commsdsl/gen/BitfieldField.h"
+#include "commsdsl/gen/GenBitfieldField.h"
 
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigBitfieldField final : public commsdsl::gen::BitfieldField, public SwigField
+class SwigBitfieldField final : public commsdsl::gen::GenBitfieldField, public SwigField
 {
-    using Base = commsdsl::gen::BitfieldField;
+    using Base = commsdsl::gen::GenBitfieldField;
     using SwigBase = SwigField;
 public:
-    SwigBitfieldField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
+    SwigBitfieldField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
     const SwigFieldsList& swigMembers() const
     {

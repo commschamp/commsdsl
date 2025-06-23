@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/Layer.h"
+#include "commsdsl/gen/GenLayer.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2tools_qt
@@ -27,20 +27,20 @@ public:
     using StringsList = commsdsl::gen::util::StringsList;
     using IncludesList = StringsList;
 
-    explicit ToolsQtLayer(commsdsl::gen::Layer& layer);
+    explicit ToolsQtLayer(commsdsl::gen::GenLayer& layer);
     virtual ~ToolsQtLayer() = default;
 
     bool prepare();
 
     unsigned toolsMinFieldLength() const;
 
-    const commsdsl::gen::Layer& layer() const
+    const commsdsl::gen::GenLayer& layer() const
     {
         return m_layer;
     }
 
 private:
-    commsdsl::gen::Layer& m_layer ;
+    commsdsl::gen::GenLayer& m_layer ;
 };
 
 } // namespace commsdsl2tools_qt

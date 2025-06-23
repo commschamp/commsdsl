@@ -17,18 +17,18 @@
 
 #include "EmscriptenField.h"
 
-#include "commsdsl/gen/OptionalField.h"
+#include "commsdsl/gen/GenOptionalField.h"
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenOptionalField final : public commsdsl::gen::OptionalField, public EmscriptenField
+class EmscriptenOptionalField final : public commsdsl::gen::GenOptionalField, public EmscriptenField
 {
-    using Base = commsdsl::gen::OptionalField;
+    using Base = commsdsl::gen::GenOptionalField;
     using EmscriptenBase = EmscriptenField;
 public:
-    EmscriptenOptionalField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::Elem* parent);
+    EmscriptenOptionalField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
     static const std::string& emscriptenHeaderCommonModeFuncs();
 

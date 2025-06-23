@@ -34,7 +34,7 @@ namespace commsdsl2emscripten
 {
 
 
-EmscriptenInterface::EmscriptenInterface(EmscriptenGenerator& generator, commsdsl::parse::ParseInterface dslObj, Elem* parent) :
+EmscriptenInterface::EmscriptenInterface(EmscriptenGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent) :
     Base(generator, dslObj, parent)
 {
 }   
