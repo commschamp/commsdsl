@@ -34,7 +34,7 @@ public:
 
     bool prepare(commsdsl::parse::ParseFloatField dslObj)
     {
-        auto& dslSpecials = dslObj.specialValues();
+        auto& dslSpecials = dslObj.parseSpecialValues();
         m_specialsSorted.reserve(dslSpecials.size());
         for (auto& s : dslSpecials) {
             m_specialsSorted.emplace_back(s.first, s.second);
@@ -113,7 +113,7 @@ GenFloatField::GenFloatField(GenGenerator& generator, commsdsl::parse::ParseFiel
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<GenFloatFieldImpl>())
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Float);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Float);
 }
 
 GenFloatField::~GenFloatField() = default;
@@ -132,7 +132,7 @@ GenFloatField::FieldRefInfo GenFloatField::processInnerRefImpl(const std::string
 {
     assert(!refStr.empty());
     auto obj = floatDslObj();
-    auto& specials = obj.specialValues();
+    auto& specials = obj.parseSpecialValues();
 
     FieldRefInfo info;
     auto iter = specials.find(refStr);

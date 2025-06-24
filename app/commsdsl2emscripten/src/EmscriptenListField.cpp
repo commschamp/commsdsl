@@ -86,7 +86,7 @@ std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
         "}\n"
         ;   
 
-    if (!field().dslObj().isFixedValue()) {
+    if (!field().dslObj().parseIsFixedValue()) {
         templ += 
             "\n"
             "void setValue(const ValueType& val)\n"

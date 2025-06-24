@@ -516,7 +516,7 @@ bool EmscriptenGenerator::emscriptenProcessForcedPlatformInternal()
     for (auto* m : getAllMessages()) {
         assert(m != nullptr);
         auto& s = schemaOf(*m);
-        auto& schemaPlatforms = s.dslObj().platforms();
+        auto& schemaPlatforms = s.dslObj().parsePlatforms();
         auto iter = std::find(schemaPlatforms.begin(), schemaPlatforms.end(), m_forcedPlatform);
         if (iter == schemaPlatforms.end()) {
             continue;
@@ -525,7 +525,7 @@ bool EmscriptenGenerator::emscriptenProcessForcedPlatformInternal()
         validPlatform = true;
 
         auto* emscriptenM = const_cast<EmscriptenMessage*>(EmscriptenMessage::cast(m));
-        auto& messagePlatforms = emscriptenM->dslObj().platforms();
+        auto& messagePlatforms = emscriptenM->dslObj().parsePlatforms();
 
         bool messageSupported = 
             (messagePlatforms.empty()) || 

@@ -44,12 +44,12 @@ ParseRefField::ParseRefField(const ParseRefFieldImpl* impl) :
 ParseRefField::ParseRefField(ParseField field) :
     Base(field)
 {
-    assert(kind() == Kind::Ref);
+    assert(parseKind() == Kind::Ref);
 }
 
-ParseField ParseRefField::field() const
+ParseField ParseRefField::parseField() const
 {
-    return cast(m_pImpl)->field();
+    return cast(m_pImpl)->parseField();
 }
 
 } // namespace parse

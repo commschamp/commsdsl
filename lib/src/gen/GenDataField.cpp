@@ -38,13 +38,13 @@ public:
 
     bool prepare()
     {
-        if (!m_dslObj.hasLengthPrefixField()) {
+        if (!m_dslObj.parseHasLengthPrefixField()) {
             return true;
         }
 
-        auto prefix = m_dslObj.lengthPrefixField();
-        if (!prefix.externalRef().empty()) {
-            m_externalPrefixField = m_generator.findField(prefix.externalRef());
+        auto prefix = m_dslObj.parseLengthPrefixField();
+        if (!prefix.parseExternalRef().empty()) {
+            m_externalPrefixField = m_generator.findField(prefix.parseExternalRef());
             assert(m_externalPrefixField != nullptr);
             return true;
         }
@@ -95,7 +95,7 @@ GenDataField::GenDataField(GenGenerator& generator, commsdsl::parse::ParseField 
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<GenDataFieldImpl>(generator, dataDslObj(), this))
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Data);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Data);
 }
 
 GenDataField::~GenDataField() = default;

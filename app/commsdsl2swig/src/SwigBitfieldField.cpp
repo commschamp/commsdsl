@@ -69,7 +69,7 @@ std::string SwigBitfieldField::swigMembersDeclImpl() const
 
 std::string SwigBitfieldField::swigValueAccDeclImpl() const
 {
-    if (dslObj().semanticType() != commsdsl::parse::ParseField::SemanticType::Length) {
+    if (dslObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::Length) {
         return strings::emptyString();
     }
 
@@ -89,7 +89,7 @@ std::string SwigBitfieldField::swigExtraPublicFuncsDeclImpl() const
 
         util::ReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(m->field())},
-            {"ACC_NAME", comms::accessName(m->field().dslObj().name())}
+            {"ACC_NAME", comms::accessName(m->field().dslObj().parseName())}
         };
 
         accFuncs.push_back(util::processTemplate(Templ, repl));
@@ -118,14 +118,14 @@ std::string SwigBitfieldField::swigExtraPublicFuncsCodeImpl() const
 
         util::ReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(m->field())},
-            {"ACC_NAME", comms::accessName(m->field().dslObj().name())}
+            {"ACC_NAME", comms::accessName(m->field().dslObj().parseName())}
         };
 
         accFuncs.push_back(util::processTemplate(Templ, repl));
     }
 
     std::string valueAccCode;
-    if (dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::Length) {
+    if (dslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Length) {
         valueAccCode = swigSemanticTypeLengthValueAccCode();
     }
 

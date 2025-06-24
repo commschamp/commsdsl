@@ -350,7 +350,7 @@ bool commsWriteFileInternal(
             continue;
         }
 
-        mappedMessages[m->dslObj().id()].push_back(m);
+        mappedMessages[m->dslObj().parseId()].push_back(m);
     }    
 
     bool hasUniqueIds = 
@@ -448,7 +448,7 @@ bool CommsMsgFactory::commsWriteClientMsgFactoryInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::GenMessage& msg)
         {
-            return msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client;
+            return msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client;
         };
 
     auto dynMemWrite = 
@@ -468,7 +468,7 @@ bool CommsMsgFactory::commsWriteServerMsgFactoryInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::GenMessage& msg)
         {
-            return msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server;
+            return msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server;
         };
 
     auto dynMemWrite = 
@@ -491,7 +491,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
         auto platformCheckFunc = 
             [&p](const commsdsl::gen::GenMessage& msg)
             {
-                auto& msgPlatforms = msg.dslObj().platforms();
+                auto& msgPlatforms = msg.dslObj().parsePlatforms();
                 if (msgPlatforms.empty()) {
                     return true;
                 }
@@ -523,7 +523,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
             {
                 return 
                     platformCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client);
+                    (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
             };
 
         auto clientDynMemWrite = 
@@ -544,7 +544,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
             {
                 return 
                     platformCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server);
+                    (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
             };
 
         auto serverDynMemWrite = 
@@ -599,7 +599,7 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
             {
                 return 
                     bundleCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client);
+                    (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
             };
 
         auto clientDynMemWrite = 
@@ -620,7 +620,7 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
             {
                 return 
                     bundleCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server);
+                    (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
             };
 
         auto serverDynMemWrite = 

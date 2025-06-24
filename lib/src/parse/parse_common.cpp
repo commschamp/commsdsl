@@ -386,7 +386,7 @@ const std::string& countPrefixStr()
     return Str;
 }
 
-const std::string& encodingStr()
+const std::string& parseEncodingStr()
 {
     static const std::string Str("encoding");
     return Str;
@@ -1008,7 +1008,7 @@ double strToDouble(const std::string& str, bool* ok, bool allowSpecials)
     return result;
 }
 
-bool strToBool(const std::string& str, bool* ok)
+bool parseStrToBool(const std::string& str, bool* ok)
 {
     auto updateOkFunc =
         [&ok](bool val)

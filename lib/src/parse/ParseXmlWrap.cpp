@@ -26,7 +26,7 @@ namespace commsdsl
 namespace parse
 {
 
-const ParseXmlWrap::NamesList& ParseXmlWrap::emptyNamesList()
+const ParseXmlWrap::NamesList& ParseXmlWrap::parseEmptyNamesList()
 {
     static const NamesList List;
     return List;
@@ -50,16 +50,16 @@ ParseXmlWrap::PropsMap ParseXmlWrap::parseNodeProps(::xmlNodePtr node)
     return map;
 }
 
-ParseXmlWrap::NodesList ParseXmlWrap::getChildren(::xmlNodePtr node, const std::string& name, bool skipValueAttr)
+ParseXmlWrap::NodesList ParseXmlWrap::parseGetChildren(::xmlNodePtr node, const std::string& name, bool skipValueAttr)
 {
     NamesList names;
     if (!name.empty()) {
         names.push_back(name);
     }
-    return getChildren(node, names, skipValueAttr);
+    return parseGetChildren(node, names, skipValueAttr);
 }
 
-ParseXmlWrap::NodesList ParseXmlWrap::getChildren(::xmlNodePtr node, const NamesList& names, bool skipValueAttr)
+ParseXmlWrap::NodesList ParseXmlWrap::parseGetChildren(::xmlNodePtr node, const NamesList& names, bool skipValueAttr)
 {
     NodesList result;
     auto* cur = node->children;
@@ -97,7 +97,7 @@ ParseXmlWrap::NodesList ParseXmlWrap::getChildren(::xmlNodePtr node, const Names
     return result;
 }
 
-std::string ParseXmlWrap::getText(::xmlNodePtr node)
+std::string ParseXmlWrap::parseGetText(::xmlNodePtr node)
 {
     assert(node != nullptr);
     auto* child = node->children;
@@ -135,20 +135,20 @@ bool ParseXmlWrap::parseNodeValue(
         common::removeHeadingTrailingWhitespaces(valueTmp);
     }
 
-    auto text = getText(node);
+    auto text = parseGetText(node);
     common::removeHeadingTrailingWhitespaces(text);
     if (valueTmp.empty() && text.empty()) {
         if (!mustHaveValue) {
             return true;
         }
 
-        logError(logger) << logPrefix(node) <<
+        parseLogError(logger) << parseLogPrefix(node) <<
             "No value for \"" << node->name << "\" element.";
         return false;
     }
 
     if ((!valueTmp.empty()) && (!text.empty())) {
-        logError(logger) << logPrefix(node) <<
+        parseLogError(logger) << parseLogPrefix(node) <<
             ": Incorrect value format for \"" << node->name << "\" element.";
         return false;
     }
@@ -172,7 +172,7 @@ bool ParseXmlWrap::parseChildrenAsProps(
     PropsMap& result,
     bool mustHaveValue)
 {
-    auto children = getChildren(node);
+    auto children = parseGetChildren(node);
     for (auto* c : children) {
         std::string cName(reinterpret_cast<const char*>(c->name));
         auto iter = std::find(names.begin(), names.end(), cName);
@@ -195,7 +195,7 @@ bool ParseXmlWrap::parseChildrenAsProps(
     return true;
 }
 
-ParseXmlWrap::PropsMap ParseXmlWrap::getUnknownProps(::xmlNodePtr node, const ParseXmlWrap::NamesList& names)
+ParseXmlWrap::PropsMap ParseXmlWrap::parseGetUnknownProps(::xmlNodePtr node, const ParseXmlWrap::NamesList& names)
 {
     auto props = parseNodeProps(node);
     for (auto& n : names) {
@@ -209,10 +209,10 @@ ParseXmlWrap::PropsMap ParseXmlWrap::getUnknownProps(::xmlNodePtr node, const Pa
     return props;
 }
 
-ParseXmlWrap::NodesList ParseXmlWrap::getUnknownChildren(::xmlNodePtr node, const ParseXmlWrap::NamesList& names)
+ParseXmlWrap::NodesList ParseXmlWrap::parseGetUnknownChildren(::xmlNodePtr node, const ParseXmlWrap::NamesList& names)
 {
     NodesList result;
-    auto children = getChildren(node);
+    auto children = parseGetChildren(node);
     for (auto* c : children) {
         std::string cName(reinterpret_cast<const char*>(c->name));
         auto iter = std::find(names.begin(), names.end(), cName);
@@ -223,7 +223,7 @@ ParseXmlWrap::NodesList ParseXmlWrap::getUnknownChildren(::xmlNodePtr node, cons
     return result;
 }
 
-std::string ParseXmlWrap::getElementContent(::xmlNodePtr node)
+std::string ParseXmlWrap::parseGetElementContent(::xmlNodePtr node)
 {
     std::string result;
     BufferPtr buf(::xmlBufferCreate());
@@ -234,10 +234,10 @@ std::string ParseXmlWrap::getElementContent(::xmlNodePtr node)
     return result;
 }
 
-ParseXmlWrap::ContentsList ParseXmlWrap::getUnknownChildrenContents(::xmlNodePtr node, const ParseXmlWrap::NamesList& names)
+ParseXmlWrap::ContentsList ParseXmlWrap::parseGetUnknownChildrenContents(::xmlNodePtr node, const ParseXmlWrap::NamesList& names)
 {
     ContentsList result;
-    auto children = getUnknownChildren(node, names);
+    auto children = parseGetUnknownChildren(node, names);
     for (auto* c : children) {
         BufferPtr buf(::xmlBufferCreate());
         auto bufLen = ::xmlNodeDump(buf.get(), c->doc, c, 0, 0);
@@ -250,7 +250,7 @@ ParseXmlWrap::ContentsList ParseXmlWrap::getUnknownChildrenContents(::xmlNodePtr
     return result;
 }
 
-std::string ParseXmlWrap::logPrefix(::xmlNodePtr node)
+std::string ParseXmlWrap::parseLogPrefix(::xmlNodePtr node)
 {
     assert(node != nullptr);
     assert(node->doc != nullptr);
@@ -258,7 +258,7 @@ std::string ParseXmlWrap::logPrefix(::xmlNodePtr node)
     return std::string(reinterpret_cast<const char*>(node->doc->URL)) + ":" + std::to_string(node->line) + ": ";
 }
 
-bool ParseXmlWrap::validateSinglePropInstance(
+bool ParseXmlWrap::parseValidateSinglePropInstance(
     ::xmlNodePtr node,
     const PropsMap& props,
     const std::string& str,
@@ -267,13 +267,13 @@ bool ParseXmlWrap::validateSinglePropInstance(
 {
     auto count = props.count(str);
     if (1U < count) {
-        logError(logger) << ParseXmlWrap::logPrefix(node) <<
+        parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
                       "Too many values of \"" << str << "\" property for \"" << node->name << "\" element.";
         return false;
     }
 
     if ((count == 0U) && mustHave) {
-        logError(logger) << ParseXmlWrap::logPrefix(node) <<
+        parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
                       "Missing value for mandatory property \"" << str << "\" for \"" << node->name << "\" element.";
         return false;
     }
@@ -281,11 +281,11 @@ bool ParseXmlWrap::validateSinglePropInstance(
     return true;
 }
 
-bool ParseXmlWrap::validateNoPropInstance(::xmlNodePtr node, const ParseXmlWrap::PropsMap& props, const std::string& str, ParseLogger& logger)
+bool ParseXmlWrap::parseValidateNoPropInstance(::xmlNodePtr node, const ParseXmlWrap::PropsMap& props, const std::string& str, ParseLogger& logger)
 {
     auto iter = props.find(str);
     if (iter != props.end()) {
-        logError(logger) << ParseXmlWrap::logPrefix(node) <<
+        parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
                       "Preperty \"" << str << "\" defined when should not.";
         return false;
     }
@@ -293,10 +293,10 @@ bool ParseXmlWrap::validateNoPropInstance(::xmlNodePtr node, const ParseXmlWrap:
     return true;
 }
 
-bool ParseXmlWrap::hasAnyChild(::xmlNodePtr node, const ParseXmlWrap::NamesList& names)
+bool ParseXmlWrap::parseHasAnyChild(::xmlNodePtr node, const ParseXmlWrap::NamesList& names)
 {
     ContentsList result;
-    auto children = getChildren(node);
+    auto children = parseGetChildren(node);
     for (auto* c : children) {
         std::string cName(reinterpret_cast<const char*>(c->name));
         auto iter = std::find(names.begin(), names.end(), cName);
@@ -307,19 +307,19 @@ bool ParseXmlWrap::hasAnyChild(::xmlNodePtr node, const ParseXmlWrap::NamesList&
     return false;
 }
 
-void ParseXmlWrap::reportUnexpectedPropertyValue(
+void ParseXmlWrap::parseReportUnexpectedPropertyValue(
     ::xmlNodePtr node,
     const std::string& elemName,
     const std::string& propName,
     const std::string& propValue,
     ParseLogger& logger)
 {
-    logError(logger) << ParseXmlWrap::logPrefix(node) <<
+    parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
                   "Property \"" << propName << "\" of element \"" << elemName <<
                               "\" has unexpected value (" << propValue << ").";
 }
 
-bool ParseXmlWrap::checkVersions(
+bool ParseXmlWrap::parseCheckVersions(
     ::xmlNodePtr node,
     unsigned sinceVersion,
     unsigned deprecatedSince,
@@ -328,29 +328,29 @@ bool ParseXmlWrap::checkVersions(
     unsigned parentDeprecated)
 {
     assert(parentVersion < parentDeprecated);
-    if (protocol.currSchema().version() < sinceVersion) {
-        logError(protocol.logger()) << ParseXmlWrap::logPrefix(node) <<
+    if (protocol.parseCurrSchema().parseVersion() < sinceVersion) {
+        parseLogError(protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(node) <<
             "The value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ") cannot "
-            "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol.currSchema().version() << ").";
+            "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol.parseCurrSchema().parseVersion() << ").";
         return false;
     }
 
     if (sinceVersion < parentVersion) {
-        logError(protocol.logger()) << ParseXmlWrap::logPrefix(node) <<
+        parseLogError(protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(node) <<
             "The value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ") cannot "
             "be less than " << parentVersion << ".";
         return false;
     }
 
     if (parentDeprecated <= sinceVersion) {
-        logError(protocol.logger()) << ParseXmlWrap::logPrefix(node) <<
+        parseLogError(protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(node) <<
             "The value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ") must "
             "be less than " << parentDeprecated << ".";
         return false;
     }
 
     if (parentDeprecated < deprecatedSince) {
-        logError(protocol.logger()) << ParseXmlWrap::logPrefix(node) <<
+        parseLogError(protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(node) <<
             "The value of \"" << common::deprecatedStr() << "\" property (" << deprecatedSince << ") cannot "
             "be greater than " << parentDeprecated << ".";
         return false;
@@ -358,24 +358,24 @@ bool ParseXmlWrap::checkVersions(
 
 
     if (deprecatedSince <= sinceVersion) {
-        logError(protocol.logger()) << ParseXmlWrap::logPrefix(node) <<
+        parseLogError(protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(node) <<
             "The value of \"" << common::deprecatedStr() << "\" property (" << deprecatedSince << ") must "
             "be greater than value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ").";
         return false;
     }
 
-    if ((deprecatedSince < commsdsl::parse::ParseProtocol::notYetDeprecated()) &&
-        (protocol.currSchema().version() < deprecatedSince)) {
-        logError(protocol.logger()) << ParseXmlWrap::logPrefix(node) <<
+    if ((deprecatedSince < commsdsl::parse::ParseProtocol::parseNotYetDeprecated()) &&
+        (protocol.parseCurrSchema().parseVersion() < deprecatedSince)) {
+        parseLogError(protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(node) <<
             "The value of \"" << common::deprecatedStr() << "\" property (" << deprecatedSince << ") cannot "
-            "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol.currSchema().version() << ").";
+            "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol.parseCurrSchema().parseVersion() << ").";
         return false;
     }
 
     return true;
 }
 
-bool ParseXmlWrap::getAndCheckVersions(
+bool ParseXmlWrap::parseGetAndCheckVersions(
     ::xmlNodePtr node,
     const std::string& name,
     const PropsMap& props,
@@ -388,7 +388,7 @@ bool ParseXmlWrap::getAndCheckVersions(
     auto sinceVerIter = props.find(common::sinceVersionStr());
     do {
         if (sinceVerIter == props.end()) {
-            assert(sinceVersion <= protocol.currSchema().version());
+            assert(sinceVersion <= protocol.parseCurrSchema().parseVersion());
             break;
         }
 
@@ -396,7 +396,7 @@ bool ParseXmlWrap::getAndCheckVersions(
         bool ok = false;
         sinceVersion = common::strToUnsigned(sinceVerStr, &ok);
         if (!ok) {
-            reportUnexpectedPropertyValue(node, name, common::sinceVersionStr(), sinceVerStr, protocol.logger());
+            parseReportUnexpectedPropertyValue(node, name, common::sinceVersionStr(), sinceVerStr, protocol.parseLogger());
             return false;
         }
 
@@ -412,20 +412,20 @@ bool ParseXmlWrap::getAndCheckVersions(
         bool ok = false;
         deprecatedSince = common::strToUnsigned(deprecatedStr, &ok);
         if (!ok) {
-            ParseXmlWrap::reportUnexpectedPropertyValue(node, name, common::deprecatedStr(), deprecatedStr, protocol.logger());
+            ParseXmlWrap::parseReportUnexpectedPropertyValue(node, name, common::deprecatedStr(), deprecatedStr, protocol.parseLogger());
             return false;
         }
 
     } while (false);
 
-    if (!checkVersions(node, sinceVersion, deprecatedSince, protocol, parentVersion, parentDeprecated)) {
+    if (!parseCheckVersions(node, sinceVersion, deprecatedSince, protocol, parentVersion, parentDeprecated)) {
         return false;
     }
 
     return true;
 }
 
-bool ParseXmlWrap::getAndCheckVersions(
+bool ParseXmlWrap::parseGetAndCheckVersions(
     ::xmlNodePtr node,
     const std::string& name,
     unsigned& sinceVersion,
@@ -438,17 +438,17 @@ bool ParseXmlWrap::getAndCheckVersions(
         common::deprecatedStr()
     };
 
-    if (!parseChildrenAsProps(node, Names, protocol.logger(), props)) {
+    if (!parseChildrenAsProps(node, Names, protocol.parseLogger(), props)) {
         return false;
     }
 
-    return getAndCheckVersions(node, name, props, sinceVersion, deprecatedSince, protocol);
+    return parseGetAndCheckVersions(node, name, props, sinceVersion, deprecatedSince, protocol);
 }
 
-ParseXmlWrap::PropsMap ParseXmlWrap::getExtraAttributes(::xmlNodePtr node, const ParseXmlWrap::NamesList& names, ParseProtocolImpl& protocol)
+ParseXmlWrap::PropsMap ParseXmlWrap::parseGetExtraAttributes(::xmlNodePtr node, const ParseXmlWrap::NamesList& names, ParseProtocolImpl& protocol)
 {
-    PropsMap attrs = ParseXmlWrap::getUnknownProps(node, names);
-    auto& expectedPrefixes = protocol.extraElementPrefixes();
+    PropsMap attrs = ParseXmlWrap::parseGetUnknownProps(node, names);
+    auto& expectedPrefixes = protocol.parseExtraElementPrefixes();
     for (auto& a : attrs) {
         bool expected =
             std::any_of(
@@ -463,7 +463,7 @@ ParseXmlWrap::PropsMap ParseXmlWrap::getExtraAttributes(::xmlNodePtr node, const
                 });
 
         if (!expected) {
-            logWarning(protocol.logger()) << logPrefix(node) <<
+            parseLogWarning(protocol.parseLogger()) << parseLogPrefix(node) <<
                 "Unexpected attribute \"" << a.first << "\".";
         }
     }
@@ -471,11 +471,11 @@ ParseXmlWrap::PropsMap ParseXmlWrap::getExtraAttributes(::xmlNodePtr node, const
     return attrs;
 }
 
-ParseXmlWrap::ContentsList ParseXmlWrap::getExtraChildren(::xmlNodePtr node, const ParseXmlWrap::NamesList& names, ParseProtocolImpl& protocol)
+ParseXmlWrap::ContentsList ParseXmlWrap::parseGetExtraChildren(::xmlNodePtr node, const ParseXmlWrap::NamesList& names, ParseProtocolImpl& protocol)
 {
     ContentsList result;
-    auto extraChildren = ParseXmlWrap::getUnknownChildren(node, names);
-    auto& expectedPrefixes = protocol.extraElementPrefixes();
+    auto extraChildren = ParseXmlWrap::parseGetUnknownChildren(node, names);
+    auto& expectedPrefixes = protocol.parseExtraElementPrefixes();
     for (auto c : extraChildren) {
         std::string name(reinterpret_cast<const char*>(c->name));
         bool expected =
@@ -491,10 +491,10 @@ ParseXmlWrap::ContentsList ParseXmlWrap::getExtraChildren(::xmlNodePtr node, con
                 });
 
         if (!expected) {
-            logWarning(protocol.logger()) << logPrefix(c) <<
+            parseLogWarning(protocol.parseLogger()) << parseLogPrefix(c) <<
                 "Unexpected element \"" << name << "\".";
         }
-        result.push_back(ParseXmlWrap::getElementContent(c));
+        result.push_back(ParseXmlWrap::parseGetElementContent(c));
     }
     return result;
 }

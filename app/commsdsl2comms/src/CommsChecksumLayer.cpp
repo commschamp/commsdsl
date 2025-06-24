@@ -47,12 +47,12 @@ CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() cons
 {
     IncludesList result;
     auto obj = checksumDslObj();
-    if (!obj.fromLayer().empty()) {
-        assert(obj.untilLayer().empty());
+    if (!obj.parseFromLayer().empty()) {
+        assert(obj.parseUntilLayer().empty());
         result.push_back("comms/frame/ChecksumLayer.h");
     }
     else {
-        assert(!obj.untilLayer().empty());
+        assert(!obj.parseUntilLayer().empty());
         result.push_back("comms/frame/ChecksumPrefixLayer.h");
     }
 
@@ -69,7 +69,7 @@ CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() cons
     static_assert(ChecksumMapSize == static_cast<std::size_t>(commsdsl::parse::ParseChecksumLayer::Alg::NumOfValues),
             "Invalid map");
 
-    auto idx = static_cast<std::size_t>(obj.alg());
+    auto idx = static_cast<std::size_t>(obj.parseAlg());
     if (ChecksumMapSize <= idx) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
@@ -80,8 +80,8 @@ CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() cons
         result.push_back("comms/frame/checksum/" + ChecksumMap[idx] + strings::cppHeaderSuffixStr());
     }
     else {
-        assert(!obj.customAlgName().empty());
-        result.push_back(comms::relHeaderForChecksum(comms::className(obj.customAlgName()), generator()));
+        assert(!obj.parseCustomAlgName().empty());
+        result.push_back(comms::relHeaderForChecksum(comms::className(obj.parseCustomAlgName()), generator()));
     }
     return result;
 }
@@ -107,7 +107,7 @@ std::string CommsChecksumLayer::commsDefBaseTypeImpl(const std::string& prevName
         repl["COMMA"] = std::string(",");
     }
 
-    if (!checksumDslObj().untilLayer().empty()) {
+    if (!checksumDslObj().parseUntilLayer().empty()) {
         repl["PREFIX_VAR"] = "Prefix";
     }    
 
@@ -131,7 +131,7 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
 
 
     auto obj = checksumDslObj();
-    auto alg = obj.alg();
+    auto alg = obj.parseAlg();
     auto idx = static_cast<std::size_t>(alg);
 
     if (ClassMapSize <= idx) {
@@ -141,8 +141,8 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
     }
 
     if (ClassMap[idx].empty()) {
-        assert(!obj.customAlgName().empty());
-        return comms::scopeForChecksum(obj.customAlgName(), generator());
+        assert(!obj.parseCustomAlgName().empty());
+        return comms::scopeForChecksum(obj.parseCustomAlgName(), generator());
     }
 
     auto str = "comms::frame::checksum::" + ClassMap[idx];
@@ -171,7 +171,7 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
 std::string CommsChecksumLayer::commsDefExtraOptInternal() const
 {
     std::string result;
-    if (checksumDslObj().verifyBeforeRead()) {
+    if (checksumDslObj().parseVerifyBeforeRead()) {
         result = "comms::option::def::ChecksumLayerVerifyBeforeRead";
     }
     return result;

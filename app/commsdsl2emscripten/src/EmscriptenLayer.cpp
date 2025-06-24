@@ -62,12 +62,12 @@ bool EmscriptenLayer::emscriptenIsMainInterfaceSupported() const
 
 std::string EmscriptenLayer::emscriptenFieldAccName() const
 {
-    return "m_" + comms::accessName(m_layer.dslObj().name());
+    return "m_" + comms::accessName(m_layer.dslObj().parseName());
 }
 
 std::string EmscriptenLayer::emscriptenFieldAccFuncName() const
 {
-    return "get" + comms::className(m_layer.dslObj().name());
+    return "get" + comms::className(m_layer.dslObj().parseName());
 }
 
 void EmscriptenLayer::emscriptenAddHeaderInclude(StringsList& includes) const

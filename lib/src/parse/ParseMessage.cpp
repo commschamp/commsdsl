@@ -33,165 +33,165 @@ ParseMessage::ParseMessage(const ParseMessage &) = default;
 
 ParseMessage::~ParseMessage() = default;
 
-bool ParseMessage::valid() const
+bool ParseMessage::parseValid() const
 {
     return m_pImpl != nullptr;
 }
 
-const std::string& ParseMessage::name() const
+const std::string& ParseMessage::parseName() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->name();
+    return m_pImpl->parseName();
 }
 
-const std::string& ParseMessage::displayName() const
+const std::string& ParseMessage::parseDisplayName() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->displayName();
+    return m_pImpl->parseDisplayName();
 }
 
-const std::string& ParseMessage::description() const
+const std::string& ParseMessage::parseDescription() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->description();
+    return m_pImpl->parseDescription();
 }
 
-std::uintmax_t ParseMessage::id() const
+std::uintmax_t ParseMessage::parseId() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->id();
+    return m_pImpl->parseId();
 }
 
-unsigned ParseMessage::order() const
+unsigned ParseMessage::parseOrder() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->order();
+    return m_pImpl->parseOrder();
 }
 
-std::size_t ParseMessage::minLength() const
+std::size_t ParseMessage::parseMinLength() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->minLength();
+    return m_pImpl->parseMinLength();
 }
 
-std::size_t ParseMessage::maxLength() const
+std::size_t ParseMessage::parseMaxLength() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->maxLength();
+    return m_pImpl->parseMaxLength();
 }
 
-unsigned ParseMessage::sinceVersion() const
+unsigned ParseMessage::parseSinceVersion() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->getSinceVersion();
+    return m_pImpl->parseGetSinceVersion();
 }
 
-unsigned ParseMessage::deprecatedSince() const
+unsigned ParseMessage::parseDeprecatedSince() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->getDeprecated();
+    return m_pImpl->parseGetDeprecated();
 }
 
-bool ParseMessage::isDeprecatedRemoved() const
+bool ParseMessage::parseIsDeprecatedRemoved() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->isDeprecatedRemoved();
+    return m_pImpl->parseIsDeprecatedRemoved();
 }
 
-ParseMessage::FieldsList ParseMessage::fields() const
+ParseMessage::FieldsList ParseMessage::parseFields() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->fieldsList();
+    return m_pImpl->parseFieldsList();
 }
 
-ParseMessage::AliasesList ParseMessage::aliases() const
+ParseMessage::AliasesList ParseMessage::parseAliases() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->aliasesList();
+    return m_pImpl->parseAliasesList();
 }
 
-std::string ParseMessage::externalRef(bool schemaRef) const
+std::string ParseMessage::parseExternalRef(bool schemaRef) const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->externalRef(schemaRef);
+    return m_pImpl->parseExternalRef(schemaRef);
 }
 
-bool ParseMessage::isCustomizable() const
+bool ParseMessage::parseIsCustomizable() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->isCustomizable();
+    return m_pImpl->parseIsCustomizable();
 }
 
-bool ParseMessage::isFailOnInvalid() const
+bool ParseMessage::parseIsFailOnInvalid() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->isFailOnInvalid();
+    return m_pImpl->parseIsFailOnInvalid();
 }
 
-ParseMessage::Sender ParseMessage::sender() const
+ParseMessage::Sender ParseMessage::parseSender() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->sender();
+    return m_pImpl->parseSender();
 }
 
-ParseOverrideType ParseMessage::readOverride() const
+ParseOverrideType ParseMessage::parseReadOverride() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->readOverride();
+    return m_pImpl->parseReadOverride();
 }
 
-ParseOverrideType ParseMessage::writeOverride() const
+ParseOverrideType ParseMessage::parseWriteOverride() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->writeOverride();
+    return m_pImpl->parseWriteOverride();
 }
 
-ParseOverrideType ParseMessage::refreshOverride() const
+ParseOverrideType ParseMessage::parseRefreshOverride() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->refreshOverride();
+    return m_pImpl->parseRefreshOverride();
 }
 
-ParseOverrideType ParseMessage::lengthOverride() const
+ParseOverrideType ParseMessage::parseLengthOverride() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->lengthOverride();
+    return m_pImpl->parseLengthOverride();
 }
 
-ParseOverrideType ParseMessage::validOverride() const
+ParseOverrideType ParseMessage::parseValidOverride() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->validOverride();
+    return m_pImpl->parseValidOverride();
 }
 
-ParseOverrideType ParseMessage::nameOverride() const
+ParseOverrideType ParseMessage::parseNameOverride() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->nameOverride();
+    return m_pImpl->parseNameOverride();
 }
 
-const std::string& ParseMessage::copyCodeFrom() const
+const std::string& ParseMessage::parseCopyCodeFrom() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->copyCodeFrom();
+    return m_pImpl->parseCopyCodeFrom();
 }
 
-ParseOptCond ParseMessage::construct() const
+ParseOptCond ParseMessage::parseConstruct() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->construct();
+    return m_pImpl->parseConstruct();
 }
 
-ParseOptCond ParseMessage::readCond() const
+ParseOptCond ParseMessage::parseReadCond() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->readCond();
+    return m_pImpl->parseReadCond();
 }
 
-ParseOptCond ParseMessage::validCond() const
+ParseOptCond ParseMessage::parseValidCond() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->validCond();
+    return m_pImpl->parseValidCond();
 }
 
 const ParseMessage::AttributesMap& ParseMessage::parseExtraAttributes() const
@@ -203,13 +203,13 @@ const ParseMessage::AttributesMap& ParseMessage::parseExtraAttributes() const
 const ParseMessage::ElementsList& ParseMessage::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->extraChildren();
+    return m_pImpl->parseExtraChildren();
 }
 
-const ParseMessage::PlatformsList& ParseMessage::platforms() const
+const ParseMessage::PlatformsList& ParseMessage::parsePlatforms() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->platforms();
+    return m_pImpl->parsePlatforms();
 }
 
 

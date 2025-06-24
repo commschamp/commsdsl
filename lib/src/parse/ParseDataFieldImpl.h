@@ -40,22 +40,22 @@ public:
     ParseDataFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseDataFieldImpl(const ParseDataFieldImpl& other);
 
-    const ValueType& defaultValue() const
+    const ValueType& parseDefaultValue() const
     {
         return m_state.m_defaultValue;
     }
 
-    std::size_t length() const
+    std::size_t parseLength() const
     {
         return m_state.m_length;
     }
 
-    bool hasPrefixField() const
+    bool parseHasPrefixField() const
     {
         return (m_state.m_extPrefixField != nullptr) || static_cast<bool>(m_prefixField);
     }
 
-    ParseField prefixField() const
+    ParseField parsePrefixField() const
     {
         if (m_state.m_extPrefixField != nullptr) {
             return ParseField(m_state.m_extPrefixField);
@@ -64,43 +64,43 @@ public:
         return ParseField(m_prefixField.get());
     }
 
-    const std::string& detachedPrefixFieldName() const
+    const std::string& parseDetachedPrefixFieldName() const
     {
         return m_state.m_detachedPrefixField;
     }
 
-    const ValidValuesList& validValues() const
+    const ValidValuesList& parseValidValues() const
     {
         return m_state.m_validValues;
     }
 
 protected:
-    virtual Kind kindImpl() const override;
-    virtual Ptr cloneImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraPropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraPossiblePropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraChildrenNamesImpl() const override;
-    virtual bool reuseImpl(const ParseFieldImpl& other) override;
+    virtual Kind parseKindImpl() const override;
+    virtual Ptr parseCloneImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraPossiblePropsNamesImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraChildrenNamesImpl() const override;
+    virtual bool parseReuseImpl(const ParseFieldImpl& other) override;
     virtual bool parseImpl() override;
-    virtual bool verifySiblingsImpl(const FieldsList& fields) const override;
-    virtual std::size_t minLengthImpl() const override;
-    virtual std::size_t maxLengthImpl() const override;
-    virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
-    virtual bool isValidRefTypeImpl(FieldRefType type) const override;
+    virtual bool parseVerifySiblingsImpl(const FieldsList& fields) const override;
+    virtual std::size_t parseMinLengthImpl() const override;
+    virtual std::size_t parseMaxLengthImpl() const override;
+    virtual bool parseStrToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
+    virtual bool parseIsValidRefTypeImpl(FieldRefType type) const override;
 
 private:
-    bool updateDefaultValue();
-    bool updateDefaultValidValue();
-    bool updateLength();
-    bool updatePrefix();
-    bool updateValidValues();    
-    bool checkPrefixFromRef();
-    bool checkPrefixAsChild();
-    bool checkValidValueAsAttr(const PropsMap& xmlAttrs);
-    bool checkValidValueAsChild(::xmlNodePtr child);        
-    const ParseFieldImpl* getPrefixField() const;
+    bool parseUpdateDefaultValue();
+    bool parseUpdateDefaultValidValue();
+    bool parseUpdateLength();
+    bool parseUpdatePrefix();
+    bool parseUpdateValidValues();    
+    bool parseCheckPrefixFromRef();
+    bool parseCheckPrefixAsChild();
+    bool parseCheckValidValueAsAttr(const PropsMap& xmlAttrs);
+    bool parseCheckValidValueAsChild(::xmlNodePtr child);        
+    const ParseFieldImpl* parseGetPrefixField() const;
 
-    bool strToValue(const std::string& str, ValueType& val) const;
+    bool parseStrToValue(const std::string& str, ValueType& val) const;
 
     struct State
     {

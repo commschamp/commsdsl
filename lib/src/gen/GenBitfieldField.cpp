@@ -39,11 +39,11 @@ public:
 
     bool prepare()
     {
-        if (!m_dslObj.valid()) {
+        if (!m_dslObj.parseValid()) {
             return true;
         }
 
-        auto fields = m_dslObj.members();
+        auto fields = m_dslObj.parseMembers();
         m_members.reserve(fields.size());
         for (auto& dslObj : fields) {
             auto ptr = GenField::create(m_generator, dslObj, m_parent);
@@ -81,7 +81,7 @@ GenBitfieldField::GenBitfieldField(GenGenerator& generator, commsdsl::parse::Par
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<GenBitfieldFieldImpl>(generator, bitfieldDslObj(), this))
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Bitfield);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Bitfield);
 }
 
 GenBitfieldField::~GenBitfieldField() = default;

@@ -35,43 +35,43 @@ public:
     ParseRefFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseRefFieldImpl(const ParseRefFieldImpl& other);
 
-    ParseField field() const
+    ParseField parseField() const
     {
         return ParseField(m_field);
     }
 
-    const ParseFieldImpl* fieldImpl() const
+    const ParseFieldImpl* parseFieldImpl() const
     {
         return m_field;
     }
 
 protected:
-    virtual Kind kindImpl() const override;
-    virtual Ptr cloneImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraPropsNamesImpl() const override;
-    virtual bool reuseImpl(const ParseFieldImpl& other) override;
+    virtual Kind parseKindImpl() const override;
+    virtual Ptr parseCloneImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
+    virtual bool parseReuseImpl(const ParseFieldImpl& other) override;
     virtual bool parseImpl() override;
-    virtual std::size_t minLengthImpl() const override;
-    virtual std::size_t maxLengthImpl() const override;
-    virtual std::size_t bitLengthImpl() const override;
-    virtual bool isComparableToValueImpl(const std::string& val) const override;
-    virtual bool isComparableToFieldImpl(const ParseFieldImpl& field) const override;
-    virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
-    virtual bool strToFpImpl(const std::string& ref, double& val) const override;
-    virtual bool strToBoolImpl(const std::string& ref, bool& val) const override;
-    virtual bool strToStringImpl(const std::string& ref, std::string& val) const override;
-    virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
-    virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override;
-    virtual bool verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const override;
-    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override;
-    virtual bool isValidRefTypeImpl(FieldRefType type) const override;
+    virtual std::size_t parseMinLengthImpl() const override;
+    virtual std::size_t parseMaxLengthImpl() const override;
+    virtual std::size_t parseBitLengthImpl() const override;
+    virtual bool parseIsComparableToValueImpl(const std::string& val) const override;
+    virtual bool parseIsComparableToFieldImpl(const ParseFieldImpl& field) const override;
+    virtual bool parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
+    virtual bool parseStrToFpImpl(const std::string& ref, double& val) const override;
+    virtual bool parseStrToBoolImpl(const std::string& ref, bool& val) const override;
+    virtual bool parseStrToStringImpl(const std::string& ref, std::string& val) const override;
+    virtual bool parseStrToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
+    virtual bool parseValidateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override;
+    virtual bool parseVerifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const override;
+    virtual FieldRefInfo parseProcessInnerRefImpl(const std::string& refStr) const override;
+    virtual bool parseIsValidRefTypeImpl(FieldRefType type) const override;
 
 private:
     using StrToValueFieldConvertFunc = std::function<bool (const ParseFieldImpl& f, const std::string& ref)>;
 
-    bool updateBitLength();
+    bool parseUpdateBitLength();
 
-    bool strToValue(
+    bool parseStrToValue(
         const std::string& ref,
         StrToValueFieldConvertFunc&& forwardFunc) const;
 

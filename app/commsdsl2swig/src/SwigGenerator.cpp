@@ -464,7 +464,7 @@ bool SwigGenerator::swigProcessForcedPlatformInternal()
     for (auto* m : getAllMessages()) {
         assert(m != nullptr);
         auto& s = schemaOf(*m);
-        auto& schemaPlatforms = s.dslObj().platforms();
+        auto& schemaPlatforms = s.dslObj().parsePlatforms();
         auto iter = std::find(schemaPlatforms.begin(), schemaPlatforms.end(), m_forcedPlatform);
         if (iter == schemaPlatforms.end()) {
             continue;
@@ -473,7 +473,7 @@ bool SwigGenerator::swigProcessForcedPlatformInternal()
         validPlatform = true;
 
         auto* swigM = const_cast<SwigMessage*>(SwigMessage::cast(m));
-        auto& messagePlatforms = swigM->dslObj().platforms();
+        auto& messagePlatforms = swigM->dslObj().parsePlatforms();
 
         bool messageSupported = 
             (messagePlatforms.empty()) || 

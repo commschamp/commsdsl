@@ -44,37 +44,37 @@ ParseDataField::ParseDataField(const ParseDataFieldImpl* impl)
 ParseDataField::ParseDataField(ParseField field)
   : Base(field)
 {
-    assert(kind() == Kind::Data);
+    assert(parseKind() == Kind::Data);
 }
 
-const ParseDataField::ValueType& ParseDataField::defaultValue() const
+const ParseDataField::ValueType& ParseDataField::parseDefaultValue() const
 {
-    return cast(m_pImpl)->defaultValue();
+    return cast(m_pImpl)->parseDefaultValue();
 }
 
-std::size_t ParseDataField::fixedLength() const
+std::size_t ParseDataField::parseFixedLength() const
 {
-    return cast(m_pImpl)->length();
+    return cast(m_pImpl)->parseLength();
 }
 
-bool ParseDataField::hasLengthPrefixField() const
+bool ParseDataField::parseHasLengthPrefixField() const
 {
-    return cast(m_pImpl)->hasPrefixField();
+    return cast(m_pImpl)->parseHasPrefixField();
 }
 
-ParseField ParseDataField::lengthPrefixField() const
+ParseField ParseDataField::parseLengthPrefixField() const
 {
-    return cast(m_pImpl)->prefixField();
+    return cast(m_pImpl)->parsePrefixField();
 }
 
-const std::string& ParseDataField::detachedPrefixFieldName() const
+const std::string& ParseDataField::parseDetachedPrefixFieldName() const
 {
-    return cast(m_pImpl)->detachedPrefixFieldName();
+    return cast(m_pImpl)->parseDetachedPrefixFieldName();
 }
 
-const ParseDataField::ValidValuesList& ParseDataField::validValues() const
+const ParseDataField::ValidValuesList& ParseDataField::parseValidValues() const
 {
-    return cast(m_pImpl)->validValues();
+    return cast(m_pImpl)->parseValidValues();
 }
 
 } // namespace parse

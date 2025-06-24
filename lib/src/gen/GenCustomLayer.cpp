@@ -29,7 +29,7 @@ namespace gen
 GenCustomLayer::GenCustomLayer(GenGenerator& generator, commsdsl::parse::ParseLayer dslObj, GenElem* parent) :
     Base(generator, dslObj, parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Custom);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Custom);
 }
 
 GenCustomLayer::~GenCustomLayer() = default;
@@ -42,7 +42,7 @@ commsdsl::parse::ParseCustomLayer GenCustomLayer::customDslObj() const
 bool GenCustomLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success) const
 {
     auto obj = customDslObj();
-    if (obj.semanticLayerType() != commsdsl::parse::ParseLayer::Kind::Checksum) {
+    if (obj.parseSemanticLayerType() != commsdsl::parse::ParseLayer::Kind::Checksum) {
         success = true;
         return false;
     }
@@ -62,15 +62,15 @@ bool GenCustomLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success
         return false;
     }    
 
-    auto& untilStr = obj.checksumUntilLayer();
+    auto& untilStr = obj.parseChecksumUntilLayer();
     if (!untilStr.empty()) {
-        assert(obj.checksumFromLayer().empty());
+        assert(obj.parseChecksumFromLayer().empty());
         auto untilIter =
             std::find_if(
                 layers.begin(), layers.end(),
                 [&untilStr](const auto* l)
                 {
-                    return l->dslObj().name() == untilStr;
+                    return l->dslObj().parseName() == untilStr;
                 });
 
         if (untilIter == layers.end()) {
@@ -80,7 +80,7 @@ bool GenCustomLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success
             return false;
         }
 
-        if ((*untilIter)->dslObj().kind() != commsdsl::parse::ParseLayer::Kind::Payload) {
+        if ((*untilIter)->dslObj().parseKind() != commsdsl::parse::ParseLayer::Kind::Payload) {
             generator().logger().error("Custom checksum prefix must be until payload layer");
             success = false;
             return false;
@@ -90,7 +90,7 @@ bool GenCustomLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success
         return false;
     }   
 
-    auto& fromStr = obj.checksumFromLayer();
+    auto& fromStr = obj.parseChecksumFromLayer();
     if (fromStr.empty()) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
@@ -104,7 +104,7 @@ bool GenCustomLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success
             layers.begin(), layers.end(),
             [&fromStr](const auto* l)
             {
-                return l->dslObj().name() == fromStr;
+                return l->dslObj().parseName() == fromStr;
             });
 
 

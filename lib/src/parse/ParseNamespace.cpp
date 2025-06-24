@@ -34,63 +34,63 @@ ParseNamespace::ParseNamespace(const ParseNamespace &) = default;
 
 ParseNamespace::~ParseNamespace() = default;
 
-bool ParseNamespace::valid() const
+bool ParseNamespace::parseValid() const
 {
     return m_pImpl != nullptr;
 }
 
-const std::string& ParseNamespace::name() const
+const std::string& ParseNamespace::parseName() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->name();
+    return m_pImpl->parseName();
 }
 
-const std::string& ParseNamespace::description() const
+const std::string& ParseNamespace::parseDescription() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->description();
+    return m_pImpl->parseDescription();
 }
 
-ParseNamespace::NamespacesList ParseNamespace::namespaces() const
+ParseNamespace::NamespacesList ParseNamespace::parseNamespaces() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->namespacesList();
+    return m_pImpl->parseNamespacesList();
 }
 
-ParseNamespace::FieldsList ParseNamespace::fields() const
+ParseNamespace::FieldsList ParseNamespace::parseFields() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->fieldsList();
+    return m_pImpl->parseFieldsList();
 }
 
-ParseNamespace::MessagesList ParseNamespace::messages() const
+ParseNamespace::MessagesList ParseNamespace::parseMessages() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->messagesList();
+    return m_pImpl->parseMessagesList();
 }
 
-bool ParseNamespace::hasMessages() const
+bool ParseNamespace::parseHasMessages() const
 {
     assert(m_pImpl != nullptr);
-    return !m_pImpl->messages().empty();
+    return !m_pImpl->parseMessages().empty();
 }
 
-ParseNamespace::InterfacesList ParseNamespace::interfaces() const
+ParseNamespace::InterfacesList ParseNamespace::parseInterfaces() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->interfacesList();
+    return m_pImpl->parseInterfacesList();
 }
 
-ParseNamespace::FramesList ParseNamespace::frames() const
+ParseNamespace::FramesList ParseNamespace::parseFrames() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->framesList();
+    return m_pImpl->parseFramesList();
 }
 
-std::string ParseNamespace::externalRef(bool schemaRef) const
+std::string ParseNamespace::parseExternalRef(bool schemaRef) const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->externalRef(schemaRef);
+    return m_pImpl->parseExternalRef(schemaRef);
 }
 
 const ParseNamespace::AttributesMap& ParseNamespace::parseExtraAttributes() const
@@ -102,7 +102,7 @@ const ParseNamespace::AttributesMap& ParseNamespace::parseExtraAttributes() cons
 const ParseNamespace::ElementsList& ParseNamespace::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->extraChildren();
+    return m_pImpl->parseExtraChildren();
 }
 
 

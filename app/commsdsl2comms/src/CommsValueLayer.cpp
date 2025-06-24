@@ -38,7 +38,7 @@ bool CommsValueLayer::prepareImpl()
     }
 
     auto obj = valueDslObj();
-    if (obj.pseudo()) {
+    if (obj.parsePseudo()) {
         commsSetForcedPseudoField();
     }
 
@@ -66,7 +66,7 @@ std::string CommsValueLayer::commsDefBaseTypeImpl(const std::string& prevName) c
 
     util::ReplacementMap repl = {
         {"FIELD_TYPE", commsDefFieldType()},
-        {"INTERFACE_FIELD_IDX", util::numToString(valueDslObj().fieldIdx())},
+        {"INTERFACE_FIELD_IDX", util::numToString(valueDslObj().parseFieldIdx())},
         {"PREV_LAYER", prevName},
         {"EXTRA_OPTS", commsDefExtraOptsInternal()}
     };
@@ -82,7 +82,7 @@ std::string CommsValueLayer::commsDefExtraOptsInternal() const
 {
     StringsList result;
     auto obj = valueDslObj();
-    if (obj.pseudo()) {
+    if (obj.parsePseudo()) {
         result.push_back("comms::option::def::PseudoValue");
     }
     return util::strListToString(result, ",\n", "");

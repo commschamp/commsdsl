@@ -28,7 +28,7 @@ namespace gen
 GenPayloadLayer::GenPayloadLayer(GenGenerator& generator, commsdsl::parse::ParseLayer dslObj, GenElem* parent) :
     Base(generator, dslObj, parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Payload);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Payload);
 }
 
 GenPayloadLayer::~GenPayloadLayer() = default;

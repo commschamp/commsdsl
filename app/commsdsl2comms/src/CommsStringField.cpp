@@ -92,14 +92,14 @@ CommsStringField::IncludesList CommsStringField::commsDefIncludesImpl() const
 
     do {
         auto obj = stringDslObj();
-        if (obj.hasZeroTermSuffix()) {
+        if (obj.parseHasZeroTermSuffix()) {
             result.insert(result.end(), {
                 "comms/field/IntValue.h",
                 "<cstdint>"                
             });
         }
 
-        auto& validValues = obj.validValues();
+        auto& validValues = obj.parseValidValues();
         if (!validValues.empty()) {
             result.insert(result.end(), {
                 "<algorithm>",
@@ -118,7 +118,7 @@ CommsStringField::IncludesList CommsStringField::commsDefIncludesImpl() const
             result.push_back(comms::relHeaderPathFor(m_commsExternalPrefixField->field(), generator()));
         }
 
-        auto& detachedPrefixName = obj.detachedPrefixFieldName();
+        auto& detachedPrefixName = obj.parseDetachedPrefixFieldName();
         if (!detachedPrefixName.empty()) {
             result.insert(result.end(), {
                 "<algorithm>",
@@ -162,7 +162,7 @@ std::string CommsStringField::commsDefBaseClassImpl() const
 std::string CommsStringField::commsDefConstructCodeImpl() const
 {
     auto obj = stringDslObj();
-    auto& defaultValue = obj.defaultValue();
+    auto& defaultValue = obj.parseDefaultValue();
     if (defaultValue.empty()) {
         return strings::emptyString();
     }
@@ -182,7 +182,7 @@ std::string CommsStringField::commsDefConstructCodeImpl() const
 std::string CommsStringField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const
 {
     auto obj = stringDslObj();
-    auto& detachedPrefixName = obj.detachedPrefixFieldName();
+    auto& detachedPrefixName = obj.parseDetachedPrefixFieldName();
     if (detachedPrefixName.empty()) {
         return strings::emptyString();
     }
@@ -199,7 +199,7 @@ std::string CommsStringField::commsDefBundledReadPrepareFuncBodyImpl(const Comms
             siblings.begin(), siblings.end(),
             [&sibName](auto& f)
             {
-                return f->field().dslObj().name() == sibName;
+                return f->field().dslObj().parseName() == sibName;
             });
 
     if (iter == siblings.end()) {
@@ -208,8 +208,8 @@ std::string CommsStringField::commsDefBundledReadPrepareFuncBodyImpl(const Comms
         return strings::emptyString();
     }
 
-    auto fieldPrefix = "field_" + comms::accessName(dslObj().name()) + "()";
-    auto sibPrefix = "field_" + comms::accessName((*iter)->field().dslObj().name()) + "()";
+    auto fieldPrefix = "field_" + comms::accessName(dslObj().parseName()) + "()";
+    auto sibPrefix = "field_" + comms::accessName((*iter)->field().dslObj().parseName()) + "()";
 
     auto conditions = commsCompOptChecks(std::string(), fieldPrefix);
     auto sibConditions = (*iter)->commsCompOptChecks(accRest, sibPrefix);
@@ -244,7 +244,7 @@ std::string CommsStringField::commsDefBundledReadPrepareFuncBodyImpl(const Comms
 std::string CommsStringField::commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const
 {
     auto obj = stringDslObj();
-    auto& detachedPrefixName = obj.detachedPrefixFieldName();
+    auto& detachedPrefixName = obj.parseDetachedPrefixFieldName();
     if (detachedPrefixName.empty()) {
         return strings::emptyString();
     }
@@ -261,7 +261,7 @@ std::string CommsStringField::commsDefBundledRefreshFuncBodyImpl(const CommsFiel
             siblings.begin(), siblings.end(),
             [&sibName](auto& f)
             {
-                return f->field().dslObj().name() == sibName;
+                return f->field().dslObj().parseName() == sibName;
             });
 
     if (iter == siblings.end()) {
@@ -285,8 +285,8 @@ std::string CommsStringField::commsDefBundledRefreshFuncBodyImpl(const CommsFiel
         "}\n"
         "return true;";
 
-    auto fieldPrefix = "field_" + comms::accessName(dslObj().name()) + "()";
-    auto sibPrefix = "field_" + comms::accessName((*iter)->field().dslObj().name()) + "()";
+    auto fieldPrefix = "field_" + comms::accessName(dslObj().parseName()) + "()";
+    auto sibPrefix = "field_" + comms::accessName((*iter)->field().dslObj().parseName()) + "()";
     util::ReplacementMap repl = {
         {"LEN_VALUE", (*iter)->commsValueAccessStr(accRest, sibPrefix)},
         {"LEN_FIELD", (*iter)->commsFieldAccessStr(accRest, sibPrefix)},
@@ -298,7 +298,7 @@ std::string CommsStringField::commsDefBundledRefreshFuncBodyImpl(const CommsFiel
 
 std::string CommsStringField::commsDefValidFuncBodyImpl() const
 {
-    auto& validValues = stringDslObj().validValues();
+    auto& validValues = stringDslObj().parseValidValues();
     if (validValues.empty()) {
         return std::string();
     }
@@ -357,7 +357,7 @@ CommsStringField::StringsList CommsStringField::commsExtraDataViewDefaultOptions
 CommsStringField::StringsList CommsStringField::commsExtraBareMetalDefaultOptionsImpl() const
 {
     auto obj = stringDslObj();
-    auto fixedLength = obj.fixedLength();
+    auto fixedLength = obj.parseFixedLength();
     if (fixedLength != 0U) {
         return 
             StringsList{
@@ -380,7 +380,7 @@ std::string CommsStringField::commsSizeAccessStrImpl([[maybe_unused]] const std:
 std::size_t CommsStringField::commsMaxLengthImpl() const
 {
     auto obj = stringDslObj();
-    if (obj.fixedLength() != 0U) {
+    if (obj.parseFixedLength() != 0U) {
         return CommsBase::commsMaxLengthImpl();
     }
 
@@ -411,13 +411,13 @@ std::string CommsStringField::commsCompPrepValueStrImpl(const std::string& accSt
                 break;
             }
 
-            if (refField->dslObj().kind() != commsdsl::parse::ParseField::Kind::String) {
+            if (refField->dslObj().parseKind() != commsdsl::parse::ParseField::Kind::String) {
                 generator().logger().warning("Not referencing <string> field: " + value);
                 break;                
             }
 
             auto* refStringField = static_cast<const CommsStringField*>(refField);
-            valueTmp = refStringField->stringDslObj().defaultValue();
+            valueTmp = refStringField->stringDslObj().parseDefaultValue();
             break;
         }
 
@@ -462,7 +462,7 @@ std::string CommsStringField::commsDefFieldOptsInternal() const
 void CommsStringField::commsAddFixedLengthOptInternal(StringsList& opts) const
 {
     auto obj = stringDslObj();
-    auto fixedLen = obj.fixedLength();
+    auto fixedLen = obj.parseFixedLength();
     if (fixedLen == 0U) {
         return;
     }
@@ -501,7 +501,7 @@ void CommsStringField::commsAddLengthPrefixOptInternal(StringsList& opts) const
 void CommsStringField::commsAddTermSuffixOptInternal(StringsList& opts) const
 {
     auto obj = stringDslObj();
-    if (!obj.hasZeroTermSuffix()) {
+    if (!obj.parseHasZeroTermSuffix()) {
         return;
     }
 
@@ -525,7 +525,7 @@ void CommsStringField::commsAddTermSuffixOptInternal(StringsList& opts) const
 void CommsStringField::commsAddLengthForcingOptInternal(StringsList& opts) const
 {
     auto obj = stringDslObj();
-    auto& detachedPrefixName = obj.detachedPrefixFieldName();
+    auto& detachedPrefixName = obj.parseDetachedPrefixFieldName();
     if (detachedPrefixName.empty()) {
         return;
     }

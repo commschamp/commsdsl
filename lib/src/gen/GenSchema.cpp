@@ -72,12 +72,12 @@ public:
 
     const std::string& schemaName() const
     {
-        return m_dslObj.name();
+        return m_dslObj.parseName();
     }
 
     parse::ParseEndian schemaEndian() const
     {
-        return m_dslObj.endian();
+        return m_dslObj.parseEndian();
     }
 
     unsigned schemaVersion() const
@@ -86,7 +86,7 @@ public:
             return static_cast<unsigned>(m_forcedSchemaVersion);
         }
 
-        return m_dslObj.version();
+        return m_dslObj.parseVersion();
     }
 
     const GenField* findField(const std::string& externalRef) const
@@ -120,7 +120,7 @@ public:
         std::string remStr(externalRef, fromPos);
         auto result = (*nsIter)->findField(remStr);
         if (result == nullptr) {
-            m_generator.logger().error("Internal error: unknown external reference \"" + externalRef + "\" in schema " + m_dslObj.name());
+            m_generator.logger().error("Internal error: unknown external reference \"" + externalRef + "\" in schema " + m_dslObj.parseName());
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
         }
@@ -249,7 +249,7 @@ public:
 
     bool createAll()
     {
-        auto namespaces = m_dslObj.namespaces();
+        auto namespaces = m_dslObj.parseNamespaces();
         m_namespaces.reserve(namespaces.size());
         for (auto& n : namespaces) {
             auto ptr = m_generator.createNamespace(n, m_parent);
@@ -265,7 +265,7 @@ public:
 
     bool prepare()
     {
-        auto dslVersion = m_dslObj.dslVersion();
+        auto dslVersion = m_dslObj.parseDslVersion();
         if (MaxDslVersion < dslVersion) {
             m_generator.logger().error(
                 "Required DSL version is too big (" + std::to_string(dslVersion) +
@@ -273,7 +273,7 @@ public:
             return false;
         }
 
-        auto parsedSchemaVersion = m_dslObj.version();
+        auto parsedSchemaVersion = m_dslObj.parseVersion();
         if ((0 <= m_forcedSchemaVersion) && 
             (parsedSchemaVersion < static_cast<decltype(parsedSchemaVersion)>(m_forcedSchemaVersion))) {
             m_generator.logger().error("Cannot force version to be greater than " + util::numToString(parsedSchemaVersion));
@@ -284,8 +284,8 @@ public:
             m_versionDependentCode = anyInterfaceHasVersion();
         }       
 
-        assert(!m_dslObj.name().empty());
-        m_origNamespace = util::strToName(m_dslObj.name());
+        assert(!m_dslObj.parseName().empty());
+        m_origNamespace = util::strToName(m_dslObj.parseName());
         if (m_mainNamespace.empty()) {
             m_mainNamespace = m_origNamespace;
         }              
@@ -354,7 +354,7 @@ public:
                                         fields.begin(), fields.end(),
                                         [](auto& f)
                                         {
-                                            return f->dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::Version;
+                                            return f->dslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Version;
                                         });
 
                             });
@@ -368,7 +368,7 @@ public:
 
     const PlatformNamesList& platformNames()
     {
-        return m_dslObj.platforms();
+        return m_dslObj.parsePlatforms();
     }
 
     void setVersionIndependentCodeForced(bool value)
@@ -426,7 +426,7 @@ public:
             return true;
         }
 
-        if (deprecatedRemoved && (deprecatedSince < commsdsl::parse::ParseProtocol::notYetDeprecated())) {
+        if (deprecatedRemoved && (deprecatedSince < commsdsl::parse::ParseProtocol::parseNotYetDeprecated())) {
             return true;
         }
 
@@ -551,7 +551,7 @@ GenField* GenSchema::findField(const std::string& externalRef)
             break;
         }
          
-        m_impl->generator().logger().warning("Failed to prepare field: " + field->dslObj().externalRef());
+        m_impl->generator().logger().warning("Failed to prepare field: " + field->dslObj().parseExternalRef());
         field = nullptr;
     } while (false);
     return field;
@@ -574,7 +574,7 @@ GenMessage* GenSchema::findMessage(const std::string& externalRef)
             break;
         }
 
-        m_impl->generator().logger().warning("Failed to prepare message: " + msg->dslObj().externalRef());
+        m_impl->generator().logger().warning("Failed to prepare message: " + msg->dslObj().parseExternalRef());
         msg = nullptr;
     } while (false);
     return msg;
@@ -713,7 +713,7 @@ GenNamespace* GenSchema::addDefaultNamespace()
     auto& nsList = m_impl->namespaces();
     for (auto& nsPtr : nsList) {
         assert(nsPtr);
-        if ((!nsPtr->dslObj().valid()) || nsPtr->dslObj().name().empty()) {
+        if ((!nsPtr->dslObj().parseValid()) || nsPtr->dslObj().parseName().empty()) {
             return nsPtr.get();
         }
     }

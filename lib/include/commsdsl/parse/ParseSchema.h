@@ -41,33 +41,33 @@ public:
 
     explicit ParseSchema(const ParseSchemaImpl* impl);
 
-    bool valid() const;
+    bool parseValid() const;
 
-    const std::string& name() const;
+    const std::string& parseName() const;
 
-    const std::string& description() const;
+    const std::string& parseDescription() const;
 
-    unsigned id() const;
+    unsigned parseId() const;
 
-    unsigned version() const;
+    unsigned parseVersion() const;
 
-    unsigned dslVersion() const;
+    unsigned parseDslVersion() const;
 
-    ParseEndian endian() const;
+    ParseEndian parseEndian() const;
 
-    bool nonUniqueMsgIdAllowed() const;
+    bool parseNonUniqueMsgIdAllowed() const;
 
     const AttributesMap& parseExtraAttributes() const;
 
     const ElementsList& parseExtraElements() const;
 
-    NamespacesList namespaces() const;
+    NamespacesList parseNamespaces() const;
 
-    const PlatformsList& platforms() const;
+    const PlatformsList& parsePlatforms() const;
 
-    MessagesList allMessages() const;
+    MessagesList parseAllMessages() const;
 
-    std::string externalRef() const;
+    std::string parseExternalRef() const;
 
 private:
     const ParseSchemaImpl* m_pImpl;

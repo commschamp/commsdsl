@@ -38,11 +38,11 @@ public:
 
     bool prepare()
     {
-        if (!m_dslObj.valid()) {
+        if (!m_dslObj.parseValid()) {
             return true;
         }
 
-        auto fields = m_dslObj.members();
+        auto fields = m_dslObj.parseMembers();
         m_members.reserve(fields.size());
         for (auto& dslObj : fields) {
             auto ptr = GenField::create(m_generator, dslObj, m_parent);
@@ -80,7 +80,7 @@ GenVariantField::GenVariantField(GenGenerator& generator, commsdsl::parse::Parse
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<GenVariantFieldImpl>(generator, variantDslObj(), this))
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Variant);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Variant);
 }
 
 GenVariantField::~GenVariantField() = default;

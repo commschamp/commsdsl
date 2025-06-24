@@ -29,7 +29,7 @@ namespace gen
 GenChecksumLayer::GenChecksumLayer(GenGenerator& generator, commsdsl::parse::ParseLayer dslObj, GenElem* parent) :
     Base(generator, dslObj, parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Checksum);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Checksum);
 }
 
 GenChecksumLayer::~GenChecksumLayer() = default;
@@ -52,15 +52,15 @@ bool GenChecksumLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& succe
     }
 
     auto obj = checksumDslObj();
-    auto& untilStr = obj.untilLayer();
+    auto& untilStr = obj.parseUntilLayer();
     if (!untilStr.empty()) {
-        assert(obj.fromLayer().empty());
+        assert(obj.parseFromLayer().empty());
         auto untilIter =
             std::find_if(
                 layers.begin(), layers.end(),
                 [&untilStr](const auto* l)
                 {
-                    return l->dslObj().name() == untilStr;
+                    return l->dslObj().parseName() == untilStr;
                 });
 
         if (untilIter == layers.end()) {
@@ -70,7 +70,7 @@ bool GenChecksumLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& succe
             return false;
         }
 
-        if ((*untilIter)->dslObj().kind() != commsdsl::parse::ParseLayer::Kind::Payload) {
+        if ((*untilIter)->dslObj().parseKind() != commsdsl::parse::ParseLayer::Kind::Payload) {
             generator().logger().error("Checksum prefix must be until payload layer");
             success = false;
             return false;
@@ -80,7 +80,7 @@ bool GenChecksumLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& succe
         return false;
     }
 
-    auto& fromStr = obj.fromLayer();
+    auto& fromStr = obj.parseFromLayer();
     if (fromStr.empty()) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
@@ -94,7 +94,7 @@ bool GenChecksumLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& succe
             layers.begin(), layers.end(),
             [&fromStr](const auto* l)
             {
-                return l->dslObj().name() == fromStr;
+                return l->dslObj().parseName() == fromStr;
             });
 
 

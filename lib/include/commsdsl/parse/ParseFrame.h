@@ -40,11 +40,11 @@ public:
     ParseFrame(const ParseFrame& other);
     ~ParseFrame();
 
-    bool valid() const;
-    const std::string& name() const;
-    const std::string& description() const;
-    LayersList layers() const;
-    std::string externalRef(bool schemaRef = true) const;
+    bool parseValid() const;
+    const std::string& parseName() const;
+    const std::string& parseDescription() const;
+    LayersList parseLayers() const;
+    std::string parseExternalRef(bool schemaRef = true) const;
 
     const AttributesMap& parseExtraAttributes() const;
     const ElementsList& parseExtraElements() const;

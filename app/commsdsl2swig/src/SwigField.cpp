@@ -241,7 +241,7 @@ std::string SwigField::swigValueAccDeclImpl() const
     std::string result = 
         "const ValueType& getValue() const;\n";
 
-    if (!m_field.dslObj().isFixedValue()) {
+    if (!m_field.dslObj().parseIsFixedValue()) {
         result += "void setValue(const ValueType&);\n";
     }
 
@@ -338,7 +338,7 @@ std::string SwigField::swigSemanticTypeLengthValueAccDecl() const
         "#^#SIZE_T#$# getValue() const;\n"
         ;
 
-    if (!m_field.dslObj().isFixedValue()) {
+    if (!m_field.dslObj().parseIsFixedValue()) {
         templ += "void setValue(#^#SIZE_T#$# val);\n";
     }
 
@@ -357,7 +357,7 @@ std::string SwigField::swigSemanticTypeLengthValueAccCode() const
         "    return static_cast<#^#SIZE_T#$#>(Base::getValue());\n"
         "}\n";
 
-    if (!m_field.dslObj().isFixedValue()) {
+    if (!m_field.dslObj().parseIsFixedValue()) {
         templ += 
             "\n"
             "void setValue(#^#SIZE_T#$# val)\n"

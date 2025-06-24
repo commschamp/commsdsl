@@ -62,7 +62,7 @@ private:
         std::intmax_t m_min = 0;
         std::intmax_t m_max = 0;
         unsigned m_sinceVersion = 0;
-        unsigned m_deprecatedSince = commsdsl::parse::ParseProtocol::notYetDeprecated();
+        unsigned m_deprecatedSince = commsdsl::parse::ParseProtocol::parseNotYetDeprecated();
     };
 
     using ValidRangesList = std::vector<RangeInfo>;

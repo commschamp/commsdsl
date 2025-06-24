@@ -33,13 +33,13 @@ public:
 
     bool prepare(commsdsl::parse::ParseIntField dslObj)
     {
-        auto& dslSpecials = dslObj.specialValues();
+        auto& dslSpecials = dslObj.parseSpecialValues();
         m_specialsSorted.reserve(dslSpecials.size());
         for (auto& s : dslSpecials) {
             m_specialsSorted.emplace_back(s.first, s.second);
         }
 
-        bool compareUnsigned = GenIntField::isUnsignedType(dslObj.type());
+        bool compareUnsigned = GenIntField::isUnsignedType(dslObj.parseType());
         std::sort(
             m_specialsSorted.begin(), m_specialsSorted.end(),
             [compareUnsigned](auto& elem1, auto& elem2)
@@ -71,7 +71,7 @@ GenIntField::GenIntField(GenGenerator& generator, commsdsl::parse::ParseField ds
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<GenIntFieldImpl>())
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Int);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Int);
 }
 
 GenIntField::~GenIntField() = default;
@@ -92,7 +92,7 @@ bool GenIntField::isUnsignedType(commsdsl::parse::ParseIntField::Type value)
 
 bool GenIntField::isUnsignedType() const
 {
-    return isUnsignedType(intDslObj().type());
+    return isUnsignedType(intDslObj().parseType());
 }
 
 const GenIntField::SpecialsList& GenIntField::specialsSortedByValue() const
@@ -109,7 +109,7 @@ GenIntField::FieldRefInfo GenIntField::processInnerRefImpl(const std::string& re
 {
     assert(!refStr.empty());
     auto obj = intDslObj();
-    auto& specials = obj.specialValues();
+    auto& specials = obj.parseSpecialValues();
 
     FieldRefInfo info;
     auto iter = specials.find(refStr);

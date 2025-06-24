@@ -233,7 +233,7 @@ std::string EmscriptenField::emscriptenHeaderValueAccByRef() const
         "    return Base::getValue();\n"
         "}\n";
 
-    if (m_field.dslObj().isFixedValue()) {
+    if (m_field.dslObj().parseIsFixedValue()) {
         return Templ;
     }
 
@@ -255,7 +255,7 @@ std::string EmscriptenField::emscriptenHeaderValueAccByValue() const
         "    return Base::getValue();\n"
         "}\n";
 
-    if (m_field.dslObj().isFixedValue()) {
+    if (m_field.dslObj().parseIsFixedValue()) {
         return Templ;
     }        
 
@@ -277,7 +277,7 @@ std::string EmscriptenField::emscriptenHeaderValueAccLengthField() const
         "    return Base::getValue();\n"
         "}\n";
 
-    if (m_field.dslObj().isFixedValue()) {
+    if (m_field.dslObj().parseIsFixedValue()) {
         return Templ;
     }   
 
@@ -299,7 +299,7 @@ std::string EmscriptenField::emscriptenHeaderValueAccByPointer() const
         "    return &Base::getValue();\n"
         "}\n";
 
-    if (m_field.dslObj().isFixedValue()) {
+    if (m_field.dslObj().parseIsFixedValue()) {
         return Templ;
     }      
 
@@ -315,7 +315,7 @@ std::string EmscriptenField::emscriptenHeaderValueAccByPointer() const
 
 std::string EmscriptenField::emscriptenHeaderValueStorageAccByPointer() const
 {
-    if (m_field.dslObj().isFixedValue()) {
+    if (m_field.dslObj().parseIsFixedValue()) {
         return std::string();
     }   
 
@@ -334,7 +334,7 @@ std::string EmscriptenField::emscriptenSourceBindValueAcc() const
         ".function(\"getValue\", &#^#CLASS_NAME#$#::getValue)"
         ;
 
-    if (!m_field.dslObj().isFixedValue()) {
+    if (!m_field.dslObj().parseIsFixedValue()) {
         templ += 
             "\n"
             ".function(\"setValue\", &#^#CLASS_NAME#$#::setValue)\n"
@@ -355,7 +355,7 @@ std::string EmscriptenField::emscriptenSourceBindValueAccByPointer() const
         ".function(\"getValue\", &#^#CLASS_NAME#$#::getValue, emscripten::allow_raw_pointers())"
         ;
 
-    if (!m_field.dslObj().isFixedValue()) {
+    if (!m_field.dslObj().parseIsFixedValue()) {
         templ += 
             "\n"
             ".function(\"setValue\", &#^#CLASS_NAME#$#::setValue)"
@@ -408,7 +408,7 @@ std::string EmscriptenField::emscriptenMembersAccessFuncs() const
 
         util::ReplacementMap repl = {
             {"FIELD_CLASS", gen.emscriptenClassName(f->field())},
-            {"NAME", comms::accessName(f->field().dslObj().name())},
+            {"NAME", comms::accessName(f->field().dslObj().parseName())},
         };
 
         fields.push_back(util::processTemplate(Templ, repl));
@@ -429,7 +429,7 @@ std::string EmscriptenField::emscriptenMembersBindFuncs() const
         static const std::string Templ = 
             ".function(\"field_#^#NAME#$#\", &#^#CLASS_NAME#$#::field_#^#NAME#$#_, emscripten::allow_raw_pointers())";
 
-        repl["NAME"] = comms::accessName(f->field().dslObj().name());
+        repl["NAME"] = comms::accessName(f->field().dslObj().parseName());
         fields.push_back(util::processTemplate(Templ, repl));
     }
 

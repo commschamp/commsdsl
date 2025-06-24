@@ -50,8 +50,8 @@ bool CommsRefField::prepareImpl()
     m_commsReferencedField = dynamic_cast<CommsField*>(refField);
     assert(m_commsReferencedField != nullptr);
 
-    if ((refDslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::Length) && 
-        (refField->dslObj().semanticType() != commsdsl::parse::ParseField::SemanticType::Length) &&
+    if ((refDslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Length) && 
+        (refField->dslObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::Length) &&
         (!commsHasCustomValue()) && 
         (!m_commsReferencedField->commsHasCustomValue())) {
         generator().logger().warning(
@@ -147,9 +147,9 @@ bool CommsRefField::commsIsLimitedCustomizableImpl() const
 bool CommsRefField::commsDefHasNameFuncImpl() const
 {
     auto dslObj = refDslObj();
-    auto thisDisplayName = util::displayName(dslObj.displayName(), dslObj.name());
+    auto thisDisplayName = util::displayName(dslObj.parseDisplayName(), dslObj.parseName());
     auto refDslObj = m_commsReferencedField->field().dslObj();
-    auto refDisplayName = util::displayName(refDslObj.displayName(), refDslObj.name());
+    auto refDisplayName = util::displayName(refDslObj.parseDisplayName(), refDslObj.parseName());
 
     return thisDisplayName != refDisplayName;
 }
@@ -226,7 +226,7 @@ void CommsRefField::commsAddProtocolOptInternal(StringsList& opts) const
 void CommsRefField::commsAddBitLengthOptInternal(StringsList& opts) const
 {
     auto obj = refDslObj();
-    auto bitLength = obj.bitLength();
+    auto bitLength = obj.parseBitLength();
     if (bitLength != 0U) {
         opts.push_back("comms::option::def::FixedBitLength<" + util::numToString(bitLength) + '>');
     }    

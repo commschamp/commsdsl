@@ -76,12 +76,12 @@ public:
 
     bool prepare()
     {
-        auto type = m_dslObj.type();
+        auto type = m_dslObj.parseType();
         m_bigUnsigned =
             (type == commsdsl::parse::ParseEnumField::Type::Uint64) ||
             (type == commsdsl::parse::ParseEnumField::Type::Uintvar);
 
-        for (auto& v : m_dslObj.revValues()) {
+        for (auto& v : m_dslObj.parseRevValues()) {
             m_sortedRevValues.push_back(std::make_pair(v.first, &v.second));
         }
 
@@ -100,8 +100,8 @@ public:
     unsigned hexWidth() const
     {
         std::uintmax_t hexWidth = 0U;
-        if (m_dslObj.hexAssign()) {
-            hexWidth = m_dslObj.maxLength() * 2U;
+        if (m_dslObj.parseHexAssign()) {
+            hexWidth = m_dslObj.parseMaxLength() * 2U;
         }
         return static_cast<unsigned>(hexWidth);
     }
@@ -111,7 +111,7 @@ public:
         std::string result = val;        
         adjustFirstLetterInName(result);
 
-        auto& values = m_dslObj.values();        
+        auto& values = m_dslObj.parseValues();        
         while (true) {
             if (values.find(result) == values.end()) {
                 break;
@@ -136,7 +136,7 @@ public:
 
     bool hasValuesLimit() const    
     {
-        auto maxTypeValue = maxTypeValueInternal(m_dslObj.type());
+        auto maxTypeValue = maxTypeValueInternal(m_dslObj.parseType());
         if (m_bigUnsigned) {
             return static_cast<std::uintmax_t>(m_sortedRevValues.back().first) < maxTypeValue;
         }
@@ -176,14 +176,14 @@ GenEnumField::GenEnumField(GenGenerator& generator, commsdsl::parse::ParseField 
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<GenEnumFieldImpl>(enumDslObj()))
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Enum);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Enum);
 }
 
 GenEnumField::~GenEnumField() = default;
 
 bool GenEnumField::isUnsignedUnderlyingType() const
 {
-    return GenIntField::isUnsignedType(enumDslObj().type());
+    return GenIntField::isUnsignedType(enumDslObj().parseType());
 }
 
 unsigned GenEnumField::hexWidth() const
@@ -194,7 +194,7 @@ unsigned GenEnumField::hexWidth() const
 std::string GenEnumField::valueName(std::intmax_t value) const
 {
     auto obj = enumDslObj();
-    auto& revValues = obj.revValues();
+    auto& revValues = obj.parseRevValues();
     auto iter = revValues.find(value);
     if (iter != revValues.end()) {
         return iter->second;
@@ -253,7 +253,7 @@ GenEnumField::FieldRefInfo GenEnumField::processInnerRefImpl(const std::string& 
     assert(!refStr.empty());
 
     auto obj = enumDslObj();
-    auto& values = obj.values();
+    auto& values = obj.parseValues();
 
     FieldRefInfo info;
     auto iter = values.find(refStr);

@@ -36,32 +36,32 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::NamesList& messageSupportedTypes()
+const ParseXmlWrap::NamesList& parseMessageSupportedTypes()
 {
-    static const ParseXmlWrap::NamesList Names = ParseFieldImpl::supportedTypes();
+    static const ParseXmlWrap::NamesList Names = ParseFieldImpl::parseSupportedTypes();
     return Names;
 }
 
-bool verifyConstructInternal(const ParseOptCond& cond)
+bool parseVerifyConstructInternal(const ParseOptCond& cond)
 {
-    if (cond.kind() == ParseOptCond::Kind::Expr) {
+    if (cond.parseKind() == ParseOptCond::Kind::Expr) {
         ParseOptCondExpr exprCond(cond);
 
-        if (exprCond.left().empty()) {
-            assert(exprCond.op().empty() || (exprCond.op() == "!"));
+        if (exprCond.parseLeft().empty()) {
+            assert(exprCond.parseOp().empty() || (exprCond.parseOp() == "!"));
             return true;
         }
 
-        return exprCond.op() == "=";
+        return exprCond.parseOp() == "=";
     }
 
-    assert (cond.kind() == ParseOptCond::Kind::List);
+    assert (cond.parseKind() == ParseOptCond::Kind::List);
     ParseOptCondList listCond(cond);
-    if (listCond.type() != ParseOptCondList::Type::And) {
+    if (listCond.parseType() != ParseOptCondList::Type::And) {
         return false;
     }
 
-    auto conditions = listCond.conditions();
+    auto conditions = listCond.parseConditions();
     if (conditions.empty()) {
         return false;
     }
@@ -71,7 +71,7 @@ bool verifyConstructInternal(const ParseOptCond& cond)
             conditions.begin(), conditions.end(),
             [](const auto& c)
             {
-                return verifyConstructInternal(c);
+                return parseVerifyConstructInternal(c);
             });
 }
 
@@ -87,94 +87,94 @@ bool ParseMessageImpl::parse()
 {
     m_props = ParseXmlWrap::parseNodeProps(m_node);
 
-    if (!ParseXmlWrap::parseChildrenAsProps(m_node, commonProps(), m_protocol.logger(), m_props)) {
+    if (!ParseXmlWrap::parseChildrenAsProps(m_node, parseCommonProps(), m_protocol.parseLogger(), m_props)) {
         return false;
     }
 
-    if (!ParseXmlWrap::parseChildrenAsProps(m_node, extraProps(), m_protocol.logger(), m_props, false)) {
+    if (!ParseXmlWrap::parseChildrenAsProps(m_node, parseExtraProps(), m_protocol.parseLogger(), m_props, false)) {
         return false;
     }    
 
     return
-        checkReuse() &&
-        updateName() &&
-        updateDisplayName() &&
-        updateDescription() &&
-        updateId() &&
-        updateOrder() &&
-        updateVersions() &&
-        updatePlatforms() &&
-        updateCustomizable() &&
-        updateSender() &&
-        updateValidateMinLength() &&
-        updateFailOnInvalid() &&
-        copyFields() &&
-        replaceFields() &&
-        updateFields() &&
-        copyAliases() &&
-        updateAliases() &&
-        updateReadOverride() &&
-        updateWriteOverride() &&
-        updateRefreshOverride() &&
-        updateLengthOverride() &&
-        updateValidOverride() &&
-        updateNameOverride() &&   
-        updateCopyOverrideCodeFrom() && 
-        copyConstruct() && 
-        copyReadCond() &&  
-        copyValidCond() &&
-        updateSingleConstruct() &&
-        updateMultiConstruct() && 
-        updateSingleReadCond() &&
-        updateMultiReadCond() && 
-        updateSingleValidCond() &&
-        updateMultiValidCond() &&         
-        copyConstructToReadCond() &&
-        copyConstructToValidCond() &&
-        updateExtraAttrs() &&
-        updateExtraChildren();
+        parseCheckReuse() &&
+        parseUpdateName() &&
+        parseUpdateDisplayName() &&
+        parseUpdateDescription() &&
+        parseUpdateId() &&
+        parseUpdateOrder() &&
+        parseUpdateVersions() &&
+        parseUpdatePlatforms() &&
+        parseUpdateCustomizable() &&
+        parseUpdateSender() &&
+        parseUpdateValidateMinLength() &&
+        parseUpdateFailOnInvalid() &&
+        parseCopyFields() &&
+        parseReplaceFields() &&
+        parseUpdateFields() &&
+        parseCopyAliases() &&
+        parseUpdateAliases() &&
+        parseUpdateReadOverride() &&
+        parseUpdateWriteOverride() &&
+        parseUpdateRefreshOverride() &&
+        parseUpdateLengthOverride() &&
+        parseUpdateValidOverride() &&
+        parseUpdateNameOverride() &&   
+        parseUpdateCopyOverrideCodeFrom() && 
+        parseCopyConstruct() && 
+        parseCopyReadCond() &&  
+        parseCopyValidCond() &&
+        parseUpdateSingleConstruct() &&
+        parseUpdateMultiConstruct() && 
+        parseUpdateSingleReadCond() &&
+        parseUpdateMultiReadCond() && 
+        parseUpdateSingleValidCond() &&
+        parseUpdateMultiValidCond() &&         
+        parseCopyConstructToReadCond() &&
+        parseCopyConstructToValidCond() &&
+        parseUpdateExtraAttrs() &&
+        parseUpdateExtraChildren();
 }
 
-const std::string& ParseMessageImpl::name() const
+const std::string& ParseMessageImpl::parseName() const
 {
     return m_state.m_name;
 }
 
-const std::string& ParseMessageImpl::displayName() const
+const std::string& ParseMessageImpl::parseDisplayName() const
 {
     return m_state.m_displayName;
 }
 
-const std::string& ParseMessageImpl::description() const
+const std::string& ParseMessageImpl::parseDescription() const
 {
     return m_state.m_description;
 }
 
-std::size_t ParseMessageImpl::minLength() const
+std::size_t ParseMessageImpl::parseMinLength() const
 {
     return
         std::accumulate(
             m_state.m_fields.begin(), m_state.m_fields.end(), static_cast<std::size_t>(0U),
                 [this](std::size_t soFar, auto& elem) -> std::size_t
                 {
-                    if (this->getSinceVersion() < elem->getSinceVersion()) {
+                    if (this->parseGetSinceVersion() < elem->parseGetSinceVersion()) {
                         return soFar;
                     }
 
-                    return soFar + elem->minLength();
+                    return soFar + elem->parseMinLength();
                 });
 }
 
-std::size_t ParseMessageImpl::maxLength() const
+std::size_t ParseMessageImpl::parseMaxLength() const
 {
     std::size_t soFar = 0U;
     for (auto& f : m_state.m_fields) {
-        common::addToLength(f->maxLength(), soFar);
+        common::addToLength(f->parseMaxLength(), soFar);
     }
     return soFar;
 }
 
-ParseMessageImpl::FieldsList ParseMessageImpl::fieldsList() const
+ParseMessageImpl::FieldsList ParseMessageImpl::parseFieldsList() const
 {
     FieldsList result;
     result.reserve(m_state.m_fields.size());
@@ -187,7 +187,7 @@ ParseMessageImpl::FieldsList ParseMessageImpl::fieldsList() const
     return result;
 }
 
-ParseMessageImpl::AliasesList ParseMessageImpl::aliasesList() const
+ParseMessageImpl::AliasesList ParseMessageImpl::parseAliasesList() const
 {
     AliasesList result;
     result.reserve(m_state.m_aliases.size());
@@ -200,52 +200,52 @@ ParseMessageImpl::AliasesList ParseMessageImpl::aliasesList() const
     return result;
 }
 
-std::string ParseMessageImpl::externalRef(bool schemaRef) const
+std::string ParseMessageImpl::parseExternalRef(bool schemaRef) const
 {
-    assert(getParent() != nullptr);
-    assert(getParent()->objKind() == ObjKind::Namespace);
+    assert(parseGetParent() != nullptr);
+    assert(parseGetParent()->parseObjKind() == ObjKind::Namespace);
 
-    auto& ns = static_cast<const ParseNamespaceImpl&>(*getParent());
-    auto nsRef = ns.externalRef(schemaRef);
+    auto& ns = static_cast<const ParseNamespaceImpl&>(*parseGetParent());
+    auto nsRef = ns.parseExternalRef(schemaRef);
     if (nsRef.empty()) {
-        return name();
+        return parseName();
     }
 
-    return nsRef + '.' + name();
+    return nsRef + '.' + parseName();
 }
 
-ParseObject::ObjKind ParseMessageImpl::objKindImpl() const
+ParseObject::ObjKind ParseMessageImpl::parseObjKindImpl() const
 {
     return ObjKind::Message;
 }
 
-LogWrapper ParseMessageImpl::logError() const
+LogWrapper ParseMessageImpl::parseLogError() const
 {
-    return commsdsl::parse::logError(m_protocol.logger());
+    return commsdsl::parse::parseLogError(m_protocol.parseLogger());
 }
 
-LogWrapper ParseMessageImpl::logWarning() const
+LogWrapper ParseMessageImpl::parseLogWarning() const
 {
-    return commsdsl::parse::logWarning(m_protocol.logger());
+    return commsdsl::parse::parseLogWarning(m_protocol.parseLogger());
 }
 
-LogWrapper ParseMessageImpl::logInfo() const
+LogWrapper ParseMessageImpl::parseLogInfo() const
 {
-    return commsdsl::parse::logInfo(m_protocol.logger());
+    return commsdsl::parse::parseLogInfo(m_protocol.parseLogger());
 }
 
-bool ParseMessageImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
+bool ParseMessageImpl::parseValidateSinglePropInstance(const std::string& str, bool mustHave)
 {
-    return ParseXmlWrap::validateSinglePropInstance(m_node, m_props, str, m_protocol.logger(), mustHave);
+    return ParseXmlWrap::parseValidateSinglePropInstance(m_node, m_props, str, m_protocol.parseLogger(), mustHave);
 }
 
-bool ParseMessageImpl::validateAndUpdateStringPropValue(
+bool ParseMessageImpl::parseValidateAndUpdateStringPropValue(
     const std::string& str,
     std::string& value,
     bool mustHave,
     bool allowDeref)
 {
-    if (!validateSinglePropInstance(str, mustHave)) {
+    if (!parseValidateSinglePropInstance(str, mustHave)) {
         return false;
     }
 
@@ -260,17 +260,17 @@ bool ParseMessageImpl::validateAndUpdateStringPropValue(
         return true;
     }
 
-    if (!m_protocol.strToStringValue(iter->second, value)) {
-        reportUnexpectedPropertyValue(str, iter->second);
+    if (!m_protocol.parseStrToStringValue(iter->second, value)) {
+        parseReportUnexpectedPropertyValue(str, iter->second);
         return false;
     }
 
     return true;
 }
 
-bool ParseMessageImpl::validateAndUpdateOverrideTypePropValue(const std::string& propName, ParseOverrideType& value)
+bool ParseMessageImpl::parseValidateAndUpdateOverrideTypePropValue(const std::string& propName, ParseOverrideType& value)
 {
-    if (!validateSinglePropInstance(propName, false)) {
+    if (!parseValidateSinglePropInstance(propName, false)) {
         return false;
     }
 
@@ -280,10 +280,10 @@ bool ParseMessageImpl::validateAndUpdateOverrideTypePropValue(const std::string&
         return true;
     }    
 
-    if (!m_protocol.isOverrideTypeSupported()) {
-        logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (!m_protocol.parseIsOverrideTypeSupported()) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "The property \"" << propName << "\" is not supported for dslVersion=" << 
-                m_protocol.currSchema().dslVersion() << ".";        
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
         return true;
     }    
 
@@ -297,7 +297,7 @@ bool ParseMessageImpl::validateAndUpdateOverrideTypePropValue(const std::string&
 
     auto valIter = Map.find(common::toLowerCopy(iter->second));
     if (valIter == Map.end()) {
-        reportUnexpectedPropertyValue(propName, iter->second);
+        parseReportUnexpectedPropertyValue(propName, iter->second);
         return false;        
     }
 
@@ -305,9 +305,9 @@ bool ParseMessageImpl::validateAndUpdateOverrideTypePropValue(const std::string&
     return true;
 }
 
-bool ParseMessageImpl::validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave)
+bool ParseMessageImpl::parseValidateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave)
 {
-    if (!validateSinglePropInstance(propName, mustHave)) {
+    if (!parseValidateSinglePropInstance(propName, mustHave)) {
         return false;
     }
 
@@ -316,28 +316,28 @@ bool ParseMessageImpl::validateAndUpdateBoolPropValue(const std::string& propNam
         return true;
     }
 
-    if (!m_protocol.isPropertySupported(propName)) {
-        logWarning() << ParseXmlWrap::logPrefix(m_node) <<
-            "Property \"" << common::availableLengthLimitStr() << "\" is not available for dslVersion= " << m_protocol.currSchema().dslVersion();                
+    if (!m_protocol.parseIsPropertySupported(propName)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
+            "Property \"" << common::availableLengthLimitStr() << "\" is not available for dslVersion= " << m_protocol.parseCurrSchema().parseDslVersion();                
         return true;
     }
 
     bool ok = false;
-    value = common::strToBool(iter->second, &ok);
+    value = common::parseStrToBool(iter->second, &ok);
     if (!ok) {
-        reportUnexpectedPropertyValue(propName, iter->second);
+        parseReportUnexpectedPropertyValue(propName, iter->second);
         return false;
     }
 
     return true;
 }
 
-void ParseMessageImpl::reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue)
+void ParseMessageImpl::parseReportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue)
 {
-    ParseXmlWrap::reportUnexpectedPropertyValue(m_node, common::messageStr(), propName, propValue, m_protocol.logger());
+    ParseXmlWrap::parseReportUnexpectedPropertyValue(m_node, common::messageStr(), propName, propValue, m_protocol.parseLogger());
 }
 
-const ParseXmlWrap::NamesList& ParseMessageImpl::commonProps()
+const ParseXmlWrap::NamesList& ParseMessageImpl::parseCommonProps()
 {
     static const ParseXmlWrap::NamesList CommonNames = {
         common::nameStr(),
@@ -375,7 +375,7 @@ const ParseXmlWrap::NamesList& ParseMessageImpl::commonProps()
     return CommonNames;
 }
 
-const ParseXmlWrap::NamesList& ParseMessageImpl::extraProps()
+const ParseXmlWrap::NamesList& ParseMessageImpl::parseExtraProps()
 {
     static const ParseXmlWrap::NamesList Names = {
         common::constructStr(),
@@ -386,22 +386,22 @@ const ParseXmlWrap::NamesList& ParseMessageImpl::extraProps()
     return Names;
 }
 
-const ParseXmlWrap::NamesList& ParseMessageImpl::allProps()
+const ParseXmlWrap::NamesList& ParseMessageImpl::parseAllProps()
 {
     static ParseXmlWrap::NamesList Names;
     if (Names.empty()) {
-        Names = commonProps();
-        auto& extras = extraProps();
+        Names = parseCommonProps();
+        auto& extras = parseExtraProps();
         Names.insert(Names.end(), extras.begin(), extras.end());
     }
 
     return Names;
 }
 
-ParseXmlWrap::NamesList ParseMessageImpl::allNames()
+ParseXmlWrap::NamesList ParseMessageImpl::parseAllNames()
 {
-    auto names = allProps();
-    auto& fieldTypes = messageSupportedTypes();
+    auto names = parseAllProps();
+    auto& fieldTypes = parseMessageSupportedTypes();
     names.insert(names.end(), fieldTypes.begin(), fieldTypes.end());
 
     names.push_back(common::fieldsStr());
@@ -410,10 +410,10 @@ ParseXmlWrap::NamesList ParseMessageImpl::allNames()
     return names;
 }
 
-bool ParseMessageImpl::checkReuse()
+bool ParseMessageImpl::parseCheckReuse()
 {
     auto& propStr = common::reuseStr();
-    if (!validateSinglePropInstance(propStr)) {
+    if (!parseValidateSinglePropInstance(propStr)) {
         return false;
     }
 
@@ -422,27 +422,27 @@ bool ParseMessageImpl::checkReuse()
         return true;
     }
 
-    if (!m_protocol.isMessageReuseSupported()) {
-        logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
-            "Property \"" << propStr << "\" is not supported for <message> in DSL version " << m_protocol.currSchema().dslVersion() << ", ignoring...";
+    if (!m_protocol.parseIsMessageReuseSupported()) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "Property \"" << propStr << "\" is not supported for <message> in DSL version " << m_protocol.parseCurrSchema().parseDslVersion() << ", ignoring...";
         return true;
     }
 
     auto& valueStr = iter->second;
-    auto* msg = m_protocol.findMessage(valueStr);
+    auto* msg = m_protocol.parseFindMessage(valueStr);
     if (msg == nullptr) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                       "The message \"" << valueStr << "\" hasn't been recorded yet.";
         return false;
     }
 
     assert(msg != this);
-    Base::reuseState(*msg);
+    Base::parseReuseState(*msg);
     m_state = msg->m_state;
 
     do {
         bool reuseAliases = true;
-        if (!validateAndUpdateBoolPropValue(common::reuseAliasesStr(), reuseAliases)) {
+        if (!parseValidateAndUpdateBoolPropValue(common::reuseAliasesStr(), reuseAliases)) {
             return false;
         }
 
@@ -455,7 +455,7 @@ bool ParseMessageImpl::checkReuse()
 
     do {
         auto& codeProp = common::reuseCodeStr();
-        if (!validateSinglePropInstance(codeProp, false)) {
+        if (!parseValidateSinglePropInstance(codeProp, false)) {
             return false;
         }
 
@@ -466,7 +466,7 @@ bool ParseMessageImpl::checkReuse()
         }  
 
         bool copyCode = false;
-        if (!validateAndUpdateBoolPropValue(codeProp, copyCode)) {
+        if (!parseValidateAndUpdateBoolPropValue(codeProp, copyCode)) {
             return false;
         }
 
@@ -480,15 +480,15 @@ bool ParseMessageImpl::checkReuse()
     return true;
 }
 
-bool ParseMessageImpl::updateName()
+bool ParseMessageImpl::parseUpdateName()
 {
     bool mustHave = m_state.m_name.empty();
-    if (!validateAndUpdateStringPropValue(common::nameStr(), m_state.m_name, mustHave)) {
+    if (!parseValidateAndUpdateStringPropValue(common::nameStr(), m_state.m_name, mustHave)) {
         return false;
     }
 
     if (!common::isValidName(m_state.m_name)) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                       "Invalid value for name property \"" << m_state.m_name << "\".";
         return false;
     }
@@ -496,25 +496,25 @@ bool ParseMessageImpl::updateName()
     return true;
 }
 
-bool ParseMessageImpl::updateDescription()
+bool ParseMessageImpl::parseUpdateDescription()
 {
-    return validateAndUpdateStringPropValue(common::descriptionStr(), m_state.m_description, false, true);
+    return parseValidateAndUpdateStringPropValue(common::descriptionStr(), m_state.m_description, false, true);
 }
 
-bool ParseMessageImpl::updateDisplayName()
+bool ParseMessageImpl::parseUpdateDisplayName()
 {
-    return validateAndUpdateStringPropValue(common::displayNameStr(), m_state.m_displayName, false, true);
+    return parseValidateAndUpdateStringPropValue(common::displayNameStr(), m_state.m_displayName, false, true);
 }
 
-bool ParseMessageImpl::updateId()
+bool ParseMessageImpl::parseUpdateId()
 {
-    if (!validateSinglePropInstance(common::idStr(), true)) {
+    if (!parseValidateSinglePropInstance(common::idStr(), true)) {
         return false;
     }
 
     auto iter = m_props.find(common::idStr());
     std::intmax_t val = 0;
-    if (m_protocol.strToEnumValue(iter->second, val)) {
+    if (m_protocol.parseStrToEnumValue(iter->second, val)) {
         m_state.m_id = static_cast<decltype(m_state.m_id)>(val);
         return true;
     }
@@ -522,16 +522,16 @@ bool ParseMessageImpl::updateId()
     bool ok = false;
     m_state.m_id = common::strToUintMax(iter->second, &ok);
     if (!ok) {
-        reportUnexpectedPropertyValue(common::idStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::idStr(), iter->second);
         return false;
     }
 
     return true;
 }
 
-bool ParseMessageImpl::updateOrder()
+bool ParseMessageImpl::parseUpdateOrder()
 {
-    if (!validateSinglePropInstance(common::orderStr())) {
+    if (!parseValidateSinglePropInstance(common::orderStr())) {
         return false;
     }
 
@@ -544,33 +544,33 @@ bool ParseMessageImpl::updateOrder()
     bool ok = false;
     m_state.m_order = common::strToUnsigned(iter->second, &ok);
     if (!ok) {
-        reportUnexpectedPropertyValue(common::orderStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::orderStr(), iter->second);
         return false;
     }
 
     return true;
 }
 
-bool ParseMessageImpl::updateVersions()
+bool ParseMessageImpl::parseUpdateVersions()
 {
-    if (!validateSinglePropInstance(common::sinceVersionStr())) {
+    if (!parseValidateSinglePropInstance(common::sinceVersionStr())) {
         return false;
     }
 
-    if (!validateSinglePropInstance(common::deprecatedStr())) {
+    if (!parseValidateSinglePropInstance(common::deprecatedStr())) {
         return false;
     }
 
-    if (!validateSinglePropInstance(common::removedStr())) {
+    if (!parseValidateSinglePropInstance(common::removedStr())) {
         return false;
     }
 
-    assert(getParent() != nullptr);
-    assert(getParent()->objKind() == ObjKind::Namespace);
+    assert(parseGetParent() != nullptr);
+    assert(parseGetParent()->parseObjKind() == ObjKind::Namespace);
 
     unsigned sinceVersion = 0U;
-    unsigned deprecated = ParseProtocol::notYetDeprecated();
-    if (!ParseXmlWrap::getAndCheckVersions(m_node, name(), m_props, sinceVersion, deprecated, m_protocol)) {
+    unsigned deprecated = ParseProtocol::parseNotYetDeprecated();
+    if (!ParseXmlWrap::parseGetAndCheckVersions(m_node, parseName(), m_props, sinceVersion, deprecated, m_protocol)) {
         return false;
     }
 
@@ -582,9 +582,9 @@ bool ParseMessageImpl::updateVersions()
         }
 
         bool ok = false;
-        deprecatedRemoved = common::strToBool(deprecatedRemovedIter->second, &ok);
+        deprecatedRemoved = common::parseStrToBool(deprecatedRemovedIter->second, &ok);
         if (!ok) {
-            reportUnexpectedPropertyValue(common::removedStr(), deprecatedRemovedIter->second);
+            parseReportUnexpectedPropertyValue(common::removedStr(), deprecatedRemovedIter->second);
             return false;
         }
 
@@ -592,22 +592,22 @@ bool ParseMessageImpl::updateVersions()
             break;
         }
 
-        if (deprecated == ParseProtocol::notYetDeprecated()) {
-            logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
+        if (deprecated == ParseProtocol::parseNotYetDeprecated()) {
+            parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                 "Property \"" << common::removedStr() << "\" is not applicable to "
                 "non deprecated fields";
         }
     } while (false);
 
-    setSinceVersion(sinceVersion);
-    setDeprecated(deprecated);
-    setDeprecatedRemoved(deprecatedRemoved);
+    parseSetSinceVersion(sinceVersion);
+    parseSetDeprecated(deprecated);
+    parseSetDeprecatedRemoved(deprecatedRemoved);
     return true;
 }
 
-bool ParseMessageImpl::updatePlatforms()
+bool ParseMessageImpl::parseUpdatePlatforms()
 {
-    if (!validateSinglePropInstance(common::platformsStr())) {
+    if (!parseValidateSinglePropInstance(common::platformsStr())) {
         return false;
     }
 
@@ -618,7 +618,7 @@ bool ParseMessageImpl::updatePlatforms()
     }
 
     if (iter->second.empty()) {
-        reportUnexpectedPropertyValue(common::platformsStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::platformsStr(), iter->second);
         return false;
     }
 
@@ -626,7 +626,7 @@ bool ParseMessageImpl::updatePlatforms()
     static const char Plus = '+';
     static const char Minus = '-';
     if ((op != Plus) && (op != Minus)) {
-        reportUnexpectedPropertyValue(common::platformsStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::platformsStr(), iter->second);
         return false;
     }
 
@@ -648,21 +648,21 @@ bool ParseMessageImpl::updatePlatforms()
     }
 
     if (platList.empty()) {
-        reportUnexpectedPropertyValue(common::platformsStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::platformsStr(), iter->second);
         return false;
     }
 
-    auto& allPlatforms = m_protocol.currSchema().platforms();
+    auto& allPlatforms = m_protocol.parseCurrSchema().parsePlatforms();
     for (auto& p : platList) {
         common::removeHeadingTrailingWhitespaces(p);
         if (p.empty()) {
-            reportUnexpectedPropertyValue(common::platformsStr(), iter->second);
+            parseReportUnexpectedPropertyValue(common::platformsStr(), iter->second);
             return false;
         }
 
         auto platIter = std::lower_bound(allPlatforms.begin(), allPlatforms.end(), p);
         if ((platIter == allPlatforms.end()) || (*platIter != p)) {
-            logError() << ParseXmlWrap::logPrefix(m_node) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
                 "Platform \"" << p << "\" hasn't been defined.";
             return false;
         }
@@ -686,23 +686,23 @@ bool ParseMessageImpl::updatePlatforms()
         std::back_inserter(m_state.m_platforms));
 
     if (m_state.m_platforms.empty()) {
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
-            "Message \"" << name() << "\" is not supported in any platform.";
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
+            "Message \"" << parseName() << "\" is not supported in any platform.";
         return false;
     }
 
     return true;
 }
 
-bool ParseMessageImpl::updateCustomizable()
+bool ParseMessageImpl::parseUpdateCustomizable()
 {
-    return validateAndUpdateBoolPropValue(common::customizableStr(), m_state.m_customizable);
+    return parseValidateAndUpdateBoolPropValue(common::customizableStr(), m_state.m_customizable);
 }
 
-bool ParseMessageImpl::updateSender()
+bool ParseMessageImpl::parseUpdateSender()
 {
     auto& propStr = common::senderStr();
-    if (!validateSinglePropInstance(propStr)) {
+    if (!parseValidateSinglePropInstance(propStr)) {
         return false;
     }
 
@@ -722,7 +722,7 @@ bool ParseMessageImpl::updateSender()
 
     auto senderIter = std::find(std::begin(Map), std::end(Map), common::toLowerCopy(iter->second));
     if (senderIter == std::end(Map)) {
-        reportUnexpectedPropertyValue(propStr, iter->second);
+        parseReportUnexpectedPropertyValue(propStr, iter->second);
         return false;
     }
 
@@ -730,10 +730,10 @@ bool ParseMessageImpl::updateSender()
     return true;
 }
 
-bool ParseMessageImpl::updateValidateMinLength()
+bool ParseMessageImpl::parseUpdateValidateMinLength()
 {
     auto& propStr = common::validateMinLengthStr();
-    if (!validateSinglePropInstance(propStr)) {
+    if (!parseValidateSinglePropInstance(propStr)) {
         return false;
     }
 
@@ -742,31 +742,31 @@ bool ParseMessageImpl::updateValidateMinLength()
         return true;
     }
 
-    if (!m_protocol.isPropertySupported(propStr)) {
-        logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
-            "Property \"" << propStr << "\" is not supported for DSL version " << m_protocol.currSchema().dslVersion() << ", ignoring...";
+    if (!m_protocol.parseIsPropertySupported(propStr)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "Property \"" << propStr << "\" is not supported for DSL version " << m_protocol.parseCurrSchema().parseDslVersion() << ", ignoring...";
         return true;
     }
 
     bool ok = false;
     m_state.m_validateMinLength = static_cast<decltype(m_state.m_validateMinLength)>(common::strToUnsigned(iter->second, &ok));
     if (!ok) {
-        reportUnexpectedPropertyValue(propStr, iter->second);
+        parseReportUnexpectedPropertyValue(propStr, iter->second);
         return false;
     }    
     return true;
 }
 
-bool ParseMessageImpl::updateFailOnInvalid()
+bool ParseMessageImpl::parseUpdateFailOnInvalid()
 {
     auto& propStr = common::failOnInvalidStr();
-    if (!validateAndUpdateBoolPropValue(propStr, m_state.m_failOnInvalid)) {
+    if (!parseValidateAndUpdateBoolPropValue(propStr, m_state.m_failOnInvalid)) {
         return false;
     }
 
-    if (m_state.m_failOnInvalid && (!m_protocol.isFailOnInvalidInMessageSupported())) {
-        logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
-            "Property \"" << propStr << "\" is not supported for DSL version " << m_protocol.currSchema().dslVersion() << ", ignoring...";
+    if (m_state.m_failOnInvalid && (!m_protocol.parseIsFailOnInvalidInMessageSupported())) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "Property \"" << propStr << "\" is not supported for DSL version " << m_protocol.parseCurrSchema().parseDslVersion() << ", ignoring...";
         m_state.m_failOnInvalid = false;
         return true;
     }
@@ -774,9 +774,9 @@ bool ParseMessageImpl::updateFailOnInvalid()
     return true;
 }
 
-bool ParseMessageImpl::copyFields()
+bool ParseMessageImpl::parseCopyFields()
 {
-    if (!validateSinglePropInstance(common::copyFieldsFromStr())) {
+    if (!parseValidateSinglePropInstance(common::copyFieldsFromStr())) {
         return false;
     }
 
@@ -786,33 +786,33 @@ bool ParseMessageImpl::copyFields()
     }
 
     if (!m_state.m_fields.empty()) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Copying fields from multiple sources using various properties is not supported";
         return false;
     }
     
     do {
-        m_copyFieldsFromMsg = m_protocol.findMessage(iter->second);
+        m_copyFieldsFromMsg = m_protocol.parseFindMessage(iter->second);
         if (m_copyFieldsFromMsg != nullptr) {
-            cloneFieldsFrom(*m_copyFieldsFromMsg);
+            parseCloneFieldsFrom(*m_copyFieldsFromMsg);
             break;
         }
 
-        if (!m_protocol.isCopyFieldsFromBundleSupported()) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        if (!m_protocol.parseIsCopyFieldsFromBundleSupported()) {
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                 "Invalid reference to other message \"" << iter->second << "\".";
             return false;            
         }
 
-        auto* copyFromField = m_protocol.findField(iter->second);
-        if ((copyFromField == nullptr) || (copyFromField->kind() != ParseField::Kind::Bundle)) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        auto* copyFromField = m_protocol.parseFindField(iter->second);
+        if ((copyFromField == nullptr) || (copyFromField->parseKind() != ParseField::Kind::Bundle)) {
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                 "Invalid reference to other message or bundle \"" << iter->second << "\".";
             return false;
         }
 
         m_copyFieldsFromBundle = static_cast<const ParseBundleFieldImpl*>(copyFromField);
-        cloneFieldsFrom(*m_copyFieldsFromBundle);
+        parseCloneFieldsFrom(*m_copyFieldsFromBundle);
     } while (false);
 
     if (!m_state.m_fields.empty()) {
@@ -822,23 +822,23 @@ bool ParseMessageImpl::copyFields()
                 [this](auto& elem)
                 {
                     return
-                        (elem->isDeprecatedRemoved()) &&
-                        (elem->getDeprecated() <= this->getSinceVersion());
+                        (elem->parseIsDeprecatedRemoved()) &&
+                        (elem->parseGetDeprecated() <= this->parseGetSinceVersion());
                 }),
             m_state.m_fields.end());
 
         for (auto& m : m_state.m_fields) {
-            m->setSinceVersion(std::max(getSinceVersion(), m->getSinceVersion()));
+            m->parseSetSinceVersion(std::max(parseGetSinceVersion(), m->parseGetSinceVersion()));
         }
     }
     return true;
 }
 
-bool ParseMessageImpl::replaceFields()
+bool ParseMessageImpl::parseReplaceFields()
 {
-    auto replaceNodes = ParseXmlWrap::getChildren(getNode(), common::replaceStr());
+    auto replaceNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::replaceStr());
     if (1U < replaceNodes.size()) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Only single \"" << common::replaceStr() << "\" child element is "
             "supported for \"" << common::messageStr() << "\".";
         return false;
@@ -848,16 +848,16 @@ bool ParseMessageImpl::replaceFields()
         return true;
     }
 
-    if (!m_protocol.isMemberReplaceSupported()) {
-        logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (!m_protocol.parseIsMemberReplaceSupported()) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Replacing fields with \"" << common::replaceStr() << "\" child element is unavaliable "
             "for selected DSL version, ignoring...";        
         return true;
     }    
 
-    auto fieldsTypes = ParseXmlWrap::getChildren(replaceNodes.front(), messageSupportedTypes());
+    auto fieldsTypes = ParseXmlWrap::parseGetChildren(replaceNodes.front(), parseMessageSupportedTypes());
     if (fieldsTypes.size() != replaceNodes.size()) {
-        logError() << ParseXmlWrap::logPrefix(replaceNodes.front()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(replaceNodes.front()) <<
             "The \"" << common::replaceStr() << "\" child node of \"" <<
             common::messageStr() << "\" element must contain only supported field types.";
         return false;
@@ -867,21 +867,21 @@ bool ParseMessageImpl::replaceFields()
     replMembers.reserve(fieldsTypes.size());
     for (auto* fieldNode : fieldsTypes) {
         std::string memKind(reinterpret_cast<const char*>(fieldNode->name));
-        auto field = ParseFieldImpl::create(memKind, fieldNode, m_protocol);
+        auto field = ParseFieldImpl::parseCreate(memKind, fieldNode, m_protocol);
         if (!field) {
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
-            logError() << ParseXmlWrap::logPrefix(replaceNodes.front()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(replaceNodes.front()) <<
                 "Internal error, failed to create objects for fields to replace.";
             return false;
         }
 
-        field->setParent(this);
+        field->parseSetParent(this);
         if (!field->parse()) {
             return false;
         }
 
-        if (!field->verifySiblings(m_state.m_fields)) {
+        if (!field->parseVerifySiblings(m_state.m_fields)) {
             return false;
         }        
 
@@ -896,12 +896,12 @@ bool ParseMessageImpl::replaceFields()
                 [&field](auto& currField)
                 {
                     assert(currField);
-                    return field->name() == currField->name();
+                    return field->parseName() == currField->parseName();
                 });
 
         if (iter == m_state.m_fields.end()) {
-            logError() << ParseXmlWrap::logPrefix(field->getNode()) <<
-                "Cannot find reused field with name \"" << field->name() << "\" to replace.";
+            parseLogError() << ParseXmlWrap::parseLogPrefix(field->parseGetNode()) <<
+                "Cannot find reused field with name \"" << field->parseName() << "\" to replace.";
             return false;
         }
 
@@ -911,30 +911,30 @@ bool ParseMessageImpl::replaceFields()
     return true;       
 }
 
-bool ParseMessageImpl::copyAliases()
+bool ParseMessageImpl::parseCopyAliases()
 {
     auto& propStr = common::copyFieldsAliasesStr();
-    if (!validateSinglePropInstance(propStr)) {
+    if (!parseValidateSinglePropInstance(propStr)) {
         return false;
     }
 
     auto iter = m_props.find(propStr);
-    if (iter != m_props.end() && (!m_protocol.isFieldAliasSupported())) {
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+    if (iter != m_props.end() && (!m_protocol.parseIsFieldAliasSupported())) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Unexpected property \"" << propStr << "\".";
         return false;
     }
 
-    if (!m_protocol.isFieldAliasSupported()) {
+    if (!m_protocol.parseIsFieldAliasSupported()) {
         return true;
     }
 
     bool copyAliases = true;
     if (iter != m_props.end()) {
         bool ok = false;
-        copyAliases = common::strToBool(iter->second, &ok);
+        copyAliases = common::parseStrToBool(iter->second, &ok);
         if (!ok) {
-            reportUnexpectedPropertyValue(propStr, iter->second);
+            parseReportUnexpectedPropertyValue(propStr, iter->second);
             return false;
         }
     }
@@ -944,16 +944,16 @@ bool ParseMessageImpl::copyAliases()
     }
 
     if ((iter != m_props.end()) && (m_copyFieldsFromMsg == nullptr) && (m_copyFieldsFromBundle == nullptr)) {
-        logWarning() << ParseXmlWrap::logPrefix(m_node) <<
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Property \"" << propStr << "\" is inapplicable without \"" << common::copyFieldsFromStr() << "\".";
         return true;
     }
 
     if (m_copyFieldsFromMsg != nullptr) {
-        cloneAliasesFrom(*m_copyFieldsFromMsg);
+        parseCloneAliasesFrom(*m_copyFieldsFromMsg);
     }
     else if (m_copyFieldsFromBundle != nullptr) {
-        cloneAliasesFrom(*m_copyFieldsFromBundle);
+        parseCloneAliasesFrom(*m_copyFieldsFromBundle);
     }
 
     if (!m_state.m_aliases.empty()) {
@@ -962,14 +962,14 @@ bool ParseMessageImpl::copyAliases()
                 m_state.m_aliases.begin(), m_state.m_aliases.end(),
                 [this](auto& alias)
                 {
-                    auto& fieldName = alias->fieldName();
+                    auto& fieldName = alias->parseFieldName();
                     assert(!fieldName.empty());
                     auto fieldIter =
                         std::find_if(
                             m_state.m_fields.begin(), m_state.m_fields.end(),
                             [&fieldName](auto& f)
                             {
-                                return fieldName == f->name();
+                                return fieldName == f->parseName();
                             });
 
                     return fieldIter == m_state.m_fields.end();
@@ -979,20 +979,20 @@ bool ParseMessageImpl::copyAliases()
     return true;
 }
 
-bool ParseMessageImpl::updateFields()
+bool ParseMessageImpl::parseUpdateFields()
 {
     do {
-        auto fieldsNodes = ParseXmlWrap::getChildren(getNode(), common::fieldsStr());
+        auto fieldsNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::fieldsStr());
         if (1U < fieldsNodes.size()) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                           "Only single \"" << common::fieldsStr() << "\" child element is "
                           "supported for \"" << common::messageStr() << "\".";
             return false;
         }
 
-        auto fieldsTypes = ParseXmlWrap::getChildren(getNode(), messageSupportedTypes());
+        auto fieldsTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseMessageSupportedTypes());
         if ((!fieldsNodes.empty()) && (!fieldsTypes.empty())) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                           "The \"" << common::messageStr() << "\" element does not support "
                           "list of stand alone fields as child elements together with \"" <<
                           common::fieldsStr() << "\" child element.";
@@ -1005,9 +1005,9 @@ bool ParseMessageImpl::updateFields()
 
         if ((0U < fieldsTypes.size())) {
             assert(0U == fieldsNodes.size());
-            auto allChildren = ParseXmlWrap::getChildren(getNode());
+            auto allChildren = ParseXmlWrap::parseGetChildren(parseGetNode());
             if (allChildren.size() != fieldsTypes.size()) {
-                logError() << ParseXmlWrap::logPrefix(getNode()) <<
+                parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                               "The field types of \"" << common::messageStr() <<
                               "\" must be defined inside \"<" << common::fieldsStr() << ">\" child element "
                               "when there are other property describing children.";
@@ -1017,10 +1017,10 @@ bool ParseMessageImpl::updateFields()
 
         if (0U < fieldsNodes.size()) {
             assert(0U == fieldsTypes.size());
-            fieldsTypes = ParseXmlWrap::getChildren(fieldsNodes.front());
-            auto cleanMemberFieldsTypes = ParseXmlWrap::getChildren(fieldsNodes.front(), messageSupportedTypes());
+            fieldsTypes = ParseXmlWrap::parseGetChildren(fieldsNodes.front());
+            auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(fieldsNodes.front(), parseMessageSupportedTypes());
             if (cleanMemberFieldsTypes.size() != fieldsTypes.size()) {
-                logError() << ParseXmlWrap::logPrefix(fieldsNodes.front()) <<
+                parseLogError() << ParseXmlWrap::parseLogPrefix(fieldsNodes.front()) <<
                     "The \"" << common::fieldsStr() << "\" child node of \"" <<
                     common::messageStr() << "\" element must contain only supported field types.";
                 return false;
@@ -1032,35 +1032,35 @@ bool ParseMessageImpl::updateFields()
         m_state.m_fields.reserve(m_state.m_fields.size() + fieldsTypes.size());
         for (auto* fNode : fieldsTypes) {
             std::string fKind(reinterpret_cast<const char*>(fNode->name));
-            auto field = ParseFieldImpl::create(fKind, fNode, m_protocol);
+            auto field = ParseFieldImpl::parseCreate(fKind, fNode, m_protocol);
             if (!field) {
                 [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
-                logError() << ParseXmlWrap::logPrefix(getNode()) <<
+                parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                       "Internal error, failed to create objects for member fields.";
                 return false;
             }
 
-            field->setParent(this);
+            field->parseSetParent(this);
             if (!field->parse()) {
                 return false;
             }
 
-            if (!field->verifySiblings(m_state.m_fields)) {
+            if (!field->parseVerifySiblings(m_state.m_fields)) {
                 return false;
             }
 
             m_state.m_fields.push_back(std::move(field));
         }
 
-        if (!ParseFieldImpl::validateMembersNames(m_state.m_fields, m_protocol.logger())) {
+        if (!ParseFieldImpl::parseValidateMembersNames(m_state.m_fields, m_protocol.parseLogger())) {
             return false;
         }
 
         if (0 <= m_state.m_validateMinLength) {
-            auto len = minLength();
+            auto len = parseMinLength();
             if (static_cast<unsigned>(m_state.m_validateMinLength) != len) {
-                logError() << ParseXmlWrap::logPrefix(getNode()) <<
+                parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                     "The calculated minimal length of the message is " << len <<
                     " while expected is " << m_state.m_validateMinLength << " (specified with \"" << common::validateMinLengthStr() << "\" property).";                
                 return false;
@@ -1072,16 +1072,16 @@ bool ParseMessageImpl::updateFields()
     return true;
 }
 
-bool ParseMessageImpl::updateAliases()
+bool ParseMessageImpl::parseUpdateAliases()
 {
-    auto aliasNodes = ParseXmlWrap::getChildren(getNode(), common::aliasStr());
+    auto aliasNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::aliasStr());
 
     if (aliasNodes.empty()) {
         return true;
     }
 
-    if (!m_protocol.isFieldAliasSupported()) {
-        logError() << ParseXmlWrap::logPrefix(aliasNodes.front()) <<
+    if (!m_protocol.parseIsFieldAliasSupported()) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(aliasNodes.front()) <<
               "Using \"" << common::aliasStr() << "\" nodes for too early \"" <<
               common::dslVersionStr() << "\".";
         return false;
@@ -1089,11 +1089,11 @@ bool ParseMessageImpl::updateAliases()
 
     m_state.m_aliases.reserve(m_state.m_aliases.size() + aliasNodes.size());
     for (auto* aNode : aliasNodes) {
-        auto alias = ParseAliasImpl::create(aNode, m_protocol);
+        auto alias = ParseAliasImpl::parseCreate(aNode, m_protocol);
         if (!alias) {
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
-            logError() << ParseXmlWrap::logPrefix(alias->getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(alias->parseGetNode()) <<
                   "Internal error, failed to create objects for member aliases.";
             return false;
         }
@@ -1102,7 +1102,7 @@ bool ParseMessageImpl::updateAliases()
             return false;
         }
 
-        if (!alias->verifyAlias(m_state.m_aliases, m_state.m_fields)) {
+        if (!alias->parseVerifyAlias(m_state.m_aliases, m_state.m_fields)) {
             return false;
         }
 
@@ -1112,72 +1112,72 @@ bool ParseMessageImpl::updateAliases()
     return true;
 }
 
-void ParseMessageImpl::cloneFieldsFrom(const ParseMessageImpl& other)
+void ParseMessageImpl::parseCloneFieldsFrom(const ParseMessageImpl& other)
 {
     m_state.m_fields.reserve(other.m_state.m_fields.size());
     for (auto& f : other.m_state.m_fields) {
-        m_state.m_fields.push_back(f->clone());
+        m_state.m_fields.push_back(f->parseClone());
     }
 }
 
-void ParseMessageImpl::cloneFieldsFrom(const ParseBundleFieldImpl& other)
+void ParseMessageImpl::parseCloneFieldsFrom(const ParseBundleFieldImpl& other)
 {
-    m_state.m_fields.reserve(other.members().size());
-    for (auto& f : other.members()) {
-        m_state.m_fields.push_back(f->clone());
+    m_state.m_fields.reserve(other.parseMembers().size());
+    for (auto& f : other.parseMembers()) {
+        m_state.m_fields.push_back(f->parseClone());
     }
 }
 
-void ParseMessageImpl::cloneAliasesFrom(const ParseMessageImpl& other)
+void ParseMessageImpl::parseCloneAliasesFrom(const ParseMessageImpl& other)
 {
     m_state.m_aliases.reserve(other.m_state.m_aliases.size());
     for (auto& a : other.m_state.m_aliases) {
-        m_state.m_aliases.push_back(a->clone());
+        m_state.m_aliases.push_back(a->parseClone());
     }
 }
 
-void ParseMessageImpl::cloneAliasesFrom(const ParseBundleFieldImpl& other)
+void ParseMessageImpl::parseCloneAliasesFrom(const ParseBundleFieldImpl& other)
 {
-    m_state.m_aliases.reserve(other.aliases().size());
-    for (auto& a : other.aliases()) {
-        m_state.m_aliases.push_back(a->clone());
+    m_state.m_aliases.reserve(other.parseAliases().size());
+    for (auto& a : other.parseAliases()) {
+        m_state.m_aliases.push_back(a->parseClone());
     }
 }
 
-bool ParseMessageImpl::updateReadOverride()
+bool ParseMessageImpl::parseUpdateReadOverride()
 {
-    return validateAndUpdateOverrideTypePropValue(common::readOverrideStr(), m_state.m_readOverride);
+    return parseValidateAndUpdateOverrideTypePropValue(common::readOverrideStr(), m_state.m_readOverride);
 }
 
-bool ParseMessageImpl::updateWriteOverride()
+bool ParseMessageImpl::parseUpdateWriteOverride()
 {
-    return validateAndUpdateOverrideTypePropValue(common::writeOverrideStr(), m_state.m_writeOverride);
+    return parseValidateAndUpdateOverrideTypePropValue(common::writeOverrideStr(), m_state.m_writeOverride);
 }
 
-bool ParseMessageImpl::updateRefreshOverride()
+bool ParseMessageImpl::parseUpdateRefreshOverride()
 {
-    return validateAndUpdateOverrideTypePropValue(common::refreshOverrideStr(), m_state.m_refreshOverride);
+    return parseValidateAndUpdateOverrideTypePropValue(common::refreshOverrideStr(), m_state.m_refreshOverride);
 }
 
-bool ParseMessageImpl::updateLengthOverride()
+bool ParseMessageImpl::parseUpdateLengthOverride()
 {
-    return validateAndUpdateOverrideTypePropValue(common::lengthOverrideStr(), m_state.m_lengthOverride);
+    return parseValidateAndUpdateOverrideTypePropValue(common::lengthOverrideStr(), m_state.m_lengthOverride);
 }
 
-bool ParseMessageImpl::updateValidOverride()
+bool ParseMessageImpl::parseUpdateValidOverride()
 {
-    return validateAndUpdateOverrideTypePropValue(common::validOverrideStr(), m_state.m_validOverride);
+    return parseValidateAndUpdateOverrideTypePropValue(common::validOverrideStr(), m_state.m_validOverride);
 }
 
-bool ParseMessageImpl::updateNameOverride()
+bool ParseMessageImpl::parseUpdateNameOverride()
 {
-    return validateAndUpdateOverrideTypePropValue(common::nameOverrideStr(), m_state.m_nameOverride);
+    return parseValidateAndUpdateOverrideTypePropValue(common::nameOverrideStr(), m_state.m_nameOverride);
 }
 
-bool ParseMessageImpl::updateCopyOverrideCodeFrom()
+bool ParseMessageImpl::parseUpdateCopyOverrideCodeFrom()
 {
     auto& prop = common::copyCodeFromStr();
-    if (!validateSinglePropInstance(prop, false)) {
+    if (!parseValidateSinglePropInstance(prop, false)) {
         return false;
     }
 
@@ -1186,16 +1186,16 @@ bool ParseMessageImpl::updateCopyOverrideCodeFrom()
         return true;
     }  
 
-    if (!m_protocol.isPropertySupported(prop)) {
-        logWarning() << ParseXmlWrap::logPrefix(m_node) <<
+    if (!m_protocol.parseIsPropertySupported(prop)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.currSchema().dslVersion() << ".";        
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
         return true;
     }    
 
-    auto* msg = m_protocol.findMessage(iter->second);
+    auto* msg = m_protocol.parseFindMessage(iter->second);
     if (msg == nullptr) {
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Message referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
         return false;        
     }
@@ -1204,10 +1204,10 @@ bool ParseMessageImpl::updateCopyOverrideCodeFrom()
     return true;
 }
 
-bool ParseMessageImpl::copyConstruct()
+bool ParseMessageImpl::parseCopyConstruct()
 {
     auto& prop = common::copyConstructFromStr();
-    if (!validateSinglePropInstance(prop, false)) {
+    if (!parseValidateSinglePropInstance(prop, false)) {
         return false;
     }
 
@@ -1216,29 +1216,29 @@ bool ParseMessageImpl::copyConstruct()
         return true;
     }  
 
-    if (!m_protocol.isPropertySupported(prop)) {
-        logWarning() << ParseXmlWrap::logPrefix(m_node) <<
+    if (!m_protocol.parseIsPropertySupported(prop)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.currSchema().dslVersion() << ".";        
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
         return true;
     }    
 
-    auto* msg = m_protocol.findMessage(iter->second);
+    auto* msg = m_protocol.parseFindMessage(iter->second);
     if (msg == nullptr) {
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Message referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
         return false;        
     }
 
     if (!msg->m_state.m_construct) {
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Message referenced by \"" << prop << "\" property (" + iter->second + ") does not specify construction conditions.";
         return false;        
     }
 
-    auto newConstruct = msg->m_state.m_construct->clone();
-    if (!newConstruct->verify(ParseOptCondImpl::FieldsList(), m_node, m_protocol)) {
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+    auto newConstruct = msg->m_state.m_construct->parseClone();
+    if (!newConstruct->parseVerify(ParseOptCondImpl::FieldsList(), m_node, m_protocol)) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Copied construct conditions cannot be applied to this message.";
         return false;
     }    
@@ -1247,10 +1247,10 @@ bool ParseMessageImpl::copyConstruct()
     return true;
 }
 
-bool ParseMessageImpl::copyReadCond()
+bool ParseMessageImpl::parseCopyReadCond()
 {
     auto& prop = common::copyReadCondFromStr();
-    if (!validateSinglePropInstance(prop, false)) {
+    if (!parseValidateSinglePropInstance(prop, false)) {
         return false;
     }
 
@@ -1259,29 +1259,29 @@ bool ParseMessageImpl::copyReadCond()
         return true;
     }  
 
-    if (!m_protocol.isPropertySupported(prop)) {
-        logWarning() << ParseXmlWrap::logPrefix(m_node) <<
+    if (!m_protocol.parseIsPropertySupported(prop)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.currSchema().dslVersion() << ".";        
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
         return true;
     }    
 
-    auto* msg = m_protocol.findMessage(iter->second);
+    auto* msg = m_protocol.parseFindMessage(iter->second);
     if (msg == nullptr) {
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Message referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
         return false;        
     }
 
     if (!msg->m_state.m_readCond) {
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Message referenced by \"" << prop << "\" property (" + iter->second + ") does not specify read conditions.";
         return false;        
     }
 
-    auto newReadCond = msg->m_state.m_readCond->clone();
-    if (!newReadCond->verify(ParseOptCondImpl::FieldsList(), m_node, m_protocol)) {
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+    auto newReadCond = msg->m_state.m_readCond->parseClone();
+    if (!newReadCond->parseVerify(ParseOptCondImpl::FieldsList(), m_node, m_protocol)) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Copied read conditions cannot be applied to this message.";
         return false;
     }    
@@ -1290,10 +1290,10 @@ bool ParseMessageImpl::copyReadCond()
     return true;
 }
 
-bool ParseMessageImpl::copyValidCond()
+bool ParseMessageImpl::parseCopyValidCond()
 {
     auto& prop = common::copyValidCondFromStr();
-    if (!validateSinglePropInstance(prop, false)) {
+    if (!parseValidateSinglePropInstance(prop, false)) {
         return false;
     }
 
@@ -1302,30 +1302,30 @@ bool ParseMessageImpl::copyValidCond()
         return true;
     }  
 
-    if (!m_protocol.isPropertySupported(prop)) {
-        logWarning() << ParseXmlWrap::logPrefix(m_node) <<
+    if (!m_protocol.parseIsPropertySupported(prop)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.currSchema().dslVersion() << ".";        
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
         return true;
     }    
 
     const ParseMessageImpl* msg = nullptr;
     const ParseBundleFieldImpl* bundle = nullptr;
     do {
-        msg = m_protocol.findMessage(iter->second);
+        msg = m_protocol.parseFindMessage(iter->second);
         if (msg != nullptr) {
             break;
         }
 
-        auto otherField = m_protocol.findField(iter->second);
+        auto otherField = m_protocol.parseFindField(iter->second);
         if (otherField == nullptr) {
-            logError() << ParseXmlWrap::logPrefix(m_node) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
                 "Neither message nor bundle field referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
             return false;
         }
 
-        if (otherField->kind() != ParseFieldImpl::Kind::Bundle) {
-            logError() << ParseXmlWrap::logPrefix(m_node) <<
+        if (otherField->parseKind() != ParseFieldImpl::Kind::Bundle) {
+            parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
                 "The \"" << prop << "\" property (" + iter->second + ") can reference only other message or a bundle field.";
             return false;
         }
@@ -1340,18 +1340,18 @@ bool ParseMessageImpl::copyValidCond()
         srcCondPtr = msg->m_state.m_validCond.get();
     }
     else if (bundle != nullptr) {
-        srcCondPtr = bundle->validCondImpl().get();
+        srcCondPtr = bundle->parseValidCondImpl().get();
     }
 
     if (srcCondPtr == nullptr) {
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Message / bundle referenced by \"" << prop << "\" property (" + iter->second + ") does not specify validity conditions.";
         return false;        
     }
 
-    auto newCond = srcCondPtr->clone();
-    if (!newCond->verify(m_state.m_fields, m_node, m_protocol)) {
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+    auto newCond = srcCondPtr->parseClone();
+    if (!newCond->parseVerify(m_state.m_fields, m_node, m_protocol)) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Copied validity conditions cannot be applied to this message.";
         return false;
     }    
@@ -1360,9 +1360,9 @@ bool ParseMessageImpl::copyValidCond()
     return true;
 }
 
-bool ParseMessageImpl::updateSingleConstruct()
+bool ParseMessageImpl::parseUpdateSingleConstruct()
 {
-    if (!updateSingleCondInternal(common::constructStr(), m_state.m_construct)) {
+    if (!parseUpdateSingleCondInternal(common::constructStr(), m_state.m_construct)) {
         return false;
     }
 
@@ -1370,9 +1370,9 @@ bool ParseMessageImpl::updateSingleConstruct()
         return true;
     }
 
-    if (!verifyConstructInternal(ParseOptCond(m_state.m_construct.get()))) {
+    if (!parseVerifyConstructInternal(ParseOptCond(m_state.m_construct.get()))) {
         m_state.m_construct.reset();
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Only bit checks and equality comparisons are supported in the \"" << common::constructStr() << "\" property.";
         return false;
     }
@@ -1380,9 +1380,9 @@ bool ParseMessageImpl::updateSingleConstruct()
     return true;
 }
 
-bool ParseMessageImpl::updateMultiConstruct()
+bool ParseMessageImpl::parseUpdateMultiConstruct()
 {
-    if (!updateMultiCondInternal(common::constructStr(), m_state.m_construct)) {
+    if (!parseUpdateMultiCondInternal(common::constructStr(), m_state.m_construct)) {
         return false;
     }
 
@@ -1390,9 +1390,9 @@ bool ParseMessageImpl::updateMultiConstruct()
         return true;
     }
 
-    if (!verifyConstructInternal(ParseOptCond(m_state.m_construct.get()))) {
+    if (!parseVerifyConstructInternal(ParseOptCond(m_state.m_construct.get()))) {
         m_state.m_construct.reset();
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Only \"" << common::andStr() <<  
             "\" of the bit checks and equality comparisons are supported in the \"" << common::constructStr() << "\" element.";
         return false;
@@ -1401,30 +1401,30 @@ bool ParseMessageImpl::updateMultiConstruct()
     return true;
 }
 
-bool ParseMessageImpl::updateSingleReadCond()
+bool ParseMessageImpl::parseUpdateSingleReadCond()
 {
-    return updateSingleCondInternal(common::readCondStr(), m_state.m_readCond);
+    return parseUpdateSingleCondInternal(common::readCondStr(), m_state.m_readCond);
 }
 
-bool ParseMessageImpl::updateMultiReadCond()
+bool ParseMessageImpl::parseUpdateMultiReadCond()
 {
-    return updateMultiCondInternal(common::readCondStr(), m_state.m_readCond);
+    return parseUpdateMultiCondInternal(common::readCondStr(), m_state.m_readCond);
 }
 
-bool ParseMessageImpl::updateSingleValidCond()
+bool ParseMessageImpl::parseUpdateSingleValidCond()
 {
-    return updateSingleCondInternal(common::validCondStr(), m_state.m_validCond, true);
+    return parseUpdateSingleCondInternal(common::validCondStr(), m_state.m_validCond, true);
 }
 
-bool ParseMessageImpl::updateMultiValidCond()
+bool ParseMessageImpl::parseUpdateMultiValidCond()
 {
-    return updateMultiCondInternal(common::validCondStr(), m_state.m_validCond, true);
+    return parseUpdateMultiCondInternal(common::validCondStr(), m_state.m_validCond, true);
 }
 
-bool ParseMessageImpl::copyConstructToReadCond()
+bool ParseMessageImpl::parseCopyConstructToReadCond()
 {
     return 
-        copyCondInternal(
+        parseCopyCondInternal(
             common::constructAsReadCondStr(),
             common::constructStr(),
             m_state.m_construct,
@@ -1432,10 +1432,10 @@ bool ParseMessageImpl::copyConstructToReadCond()
             m_state.m_readCond);
 }
 
-bool ParseMessageImpl::copyConstructToValidCond()
+bool ParseMessageImpl::parseCopyConstructToValidCond()
 {
     return 
-        copyCondInternal(
+        parseCopyCondInternal(
             common::constructAsValidCondStr(),
             common::constructStr(),
             m_state.m_construct,
@@ -1443,22 +1443,22 @@ bool ParseMessageImpl::copyConstructToValidCond()
             m_state.m_validCond);
 }
 
-bool ParseMessageImpl::updateExtraAttrs()
+bool ParseMessageImpl::parseUpdateExtraAttrs()
 {
-    m_extraAttrs = ParseXmlWrap::getExtraAttributes(m_node, allProps(), m_protocol);
+    m_extraAttrs = ParseXmlWrap::parseGetExtraAttributes(m_node, parseAllProps(), m_protocol);
     return true;
 }
 
-bool ParseMessageImpl::updateExtraChildren()
+bool ParseMessageImpl::parseUpdateExtraChildren()
 {
-    static const ParseXmlWrap::NamesList ChildrenNames = allNames();
-    m_extraChildren = ParseXmlWrap::getExtraChildren(m_node, ChildrenNames, m_protocol);
+    static const ParseXmlWrap::NamesList ChildrenNames = parseAllNames();
+    m_extraChildren = ParseXmlWrap::parseGetExtraChildren(m_node, ChildrenNames, m_protocol);
     return true;
 }
 
-bool ParseMessageImpl::updateSingleCondInternal(const std::string& prop, ParseOptCondImplPtr& cond, bool allowFieldsAccess)
+bool ParseMessageImpl::parseUpdateSingleCondInternal(const std::string& prop, ParseOptCondImplPtr& cond, bool allowFieldsAccess)
 {
-    if (!validateSinglePropInstance(prop)) {
+    if (!parseValidateSinglePropInstance(prop)) {
         return false;
     }
 
@@ -1467,10 +1467,10 @@ bool ParseMessageImpl::updateSingleCondInternal(const std::string& prop, ParseOp
         return true;
     }
 
-    if (!m_protocol.isPropertySupported(prop)) {
-        logWarning() << ParseXmlWrap::logPrefix(m_node) <<
+    if (!m_protocol.parseIsPropertySupported(prop)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.currSchema().dslVersion() << ".";        
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
         return true;
     }          
 
@@ -1485,7 +1485,7 @@ bool ParseMessageImpl::updateSingleCondInternal(const std::string& prop, ParseOp
         fieldsPtr = &m_state.m_fields;
     }    
 
-    if (!newCond->verify(*fieldsPtr, m_node, m_protocol)) {
+    if (!newCond->parseVerify(*fieldsPtr, m_node, m_protocol)) {
         return false;
     }   
 
@@ -1493,22 +1493,22 @@ bool ParseMessageImpl::updateSingleCondInternal(const std::string& prop, ParseOp
     return true; 
 }
 
-bool ParseMessageImpl::updateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond, bool allowFieldsAccess)
+bool ParseMessageImpl::parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond, bool allowFieldsAccess)
 {
-    auto condNodes = ParseXmlWrap::getChildren(m_node, prop, true);
+    auto condNodes = ParseXmlWrap::parseGetChildren(m_node, prop, true);
     if (condNodes.empty()) {
         return true;
     }
 
-    if (!m_protocol.isPropertySupported(prop)) {
-        logWarning() << ParseXmlWrap::logPrefix(m_node) <<
+    if (!m_protocol.parseIsPropertySupported(prop)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.currSchema().dslVersion() << ".";        
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
         return true;
     }      
 
     if (condNodes.size() > 1U) {
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Cannot use more that one child to the \"" << prop << "\" element.";        
         return false;
     }
@@ -1518,22 +1518,22 @@ bool ParseMessageImpl::updateMultiCondInternal(const std::string& prop, ParseOpt
         common::orStr()
     };
 
-    auto condChildren = ParseXmlWrap::getChildren(condNodes.front(), ElemNames);
+    auto condChildren = ParseXmlWrap::parseGetChildren(condNodes.front(), ElemNames);
     if (condChildren.size() != condNodes.size()) {
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Only single \"" << common::andStr() << "\" or \"" << common::orStr() << "\" child of the \"" << prop << "\" element is supported.";           
         return false;
     }    
 
-    auto iter = props().find(prop);
-    if (iter != props().end()) {
-        logError() << ParseXmlWrap::logPrefix(condNodes.front()) <<
+    auto iter = parseProps().find(prop);
+    if (iter != parseProps().end()) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(condNodes.front()) <<
             "Only single \"" << prop << "\" property is supported";
         return false;
     }
 
     auto newCond = std::make_unique<ParseOptCondListImpl>();
-    newCond->overrideCondStr(prop);
+    newCond->parseOverrideCondStr(prop);
     if (!newCond->parse(condChildren.front(), m_protocol)) {
         return false;
     }
@@ -1544,7 +1544,7 @@ bool ParseMessageImpl::updateMultiCondInternal(const std::string& prop, ParseOpt
         fieldsPtr = &m_state.m_fields;
     }
 
-    if (!newCond->verify(*fieldsPtr, condChildren.front(), m_protocol)) {
+    if (!newCond->parseVerify(*fieldsPtr, condChildren.front(), m_protocol)) {
         return false;
     }    
 
@@ -1552,7 +1552,7 @@ bool ParseMessageImpl::updateMultiCondInternal(const std::string& prop, ParseOpt
     return true;
 }
 
-bool ParseMessageImpl::copyCondInternal(
+bool ParseMessageImpl::parseCopyCondInternal(
     const std::string& copyProp,
     const std::string& fromProp, 
     const ParseOptCondImplPtr& fromCond, 
@@ -1560,7 +1560,7 @@ bool ParseMessageImpl::copyCondInternal(
     ParseOptCondImplPtr& toCond,
     bool allowOverride)
 {
-    if (!validateSinglePropInstance(copyProp)) {
+    if (!parseValidateSinglePropInstance(copyProp)) {
         return false;
     }
 
@@ -1569,17 +1569,17 @@ bool ParseMessageImpl::copyCondInternal(
         return true;
     }    
 
-    if (!m_protocol.isPropertySupported(copyProp)) {
-        logWarning() << ParseXmlWrap::logPrefix(m_node) <<
+    if (!m_protocol.parseIsPropertySupported(copyProp)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "The property \"" << copyProp << "\" is not supported for dslVersion=" << 
-                m_protocol.currSchema().dslVersion() << ".";        
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
         return true;
     }      
 
     bool ok = false;
-    bool copyRequested = common::strToBool(iter->second, &ok);
+    bool copyRequested = common::parseStrToBool(iter->second, &ok);
     if (!ok) {
-        reportUnexpectedPropertyValue(copyProp, iter->second);
+        parseReportUnexpectedPropertyValue(copyProp, iter->second);
         return false;
     }
 
@@ -1588,18 +1588,18 @@ bool ParseMessageImpl::copyCondInternal(
     }
 
     if (!fromCond) {
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "No \"" << fromProp << "\" conditions were defined to copy.";           
         return false;            
     }
 
     if (toCond && (!allowOverride)) {
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Set of the \"" << copyProp << "\" property overrides existing \"" << toProp << "\" setting.";          
         return false;
     }
 
-    toCond = fromCond->clone();
+    toCond = fromCond->parseClone();
     return true;    
 }
 

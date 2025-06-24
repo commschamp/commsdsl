@@ -1012,18 +1012,18 @@ bool isVersionOptionalField(const GenElem& elem, const GenGenerator& generator)
 
     auto& field = static_cast<const gen::GenField&>(elem);
     auto& dslObj = field.dslObj();
-    if (!generator.isElementOptional(dslObj.sinceVersion(), dslObj.deprecatedSince(), dslObj.isDeprecatedRemoved())) {
+    if (!generator.isElementOptional(dslObj.parseSinceVersion(), dslObj.parseDeprecatedSince(), dslObj.parseIsDeprecatedRemoved())) {
         return false;
     }
 
     auto* parent = field.getParent();
     assert(parent != nullptr);
-    if (comms::sinceVersionOf(*parent) < dslObj.sinceVersion()) {
+    if (comms::sinceVersionOf(*parent) < dslObj.parseSinceVersion()) {
         return true;
     }
 
-    if ((dslObj.deprecatedSince() < commsdsl::parse::ParseProtocol::notYetDeprecated()) &&
-        (dslObj.isDeprecatedRemoved())) {
+    if ((dslObj.parseDeprecatedSince() < commsdsl::parse::ParseProtocol::parseNotYetDeprecated()) &&
+        (dslObj.parseIsDeprecatedRemoved())) {
         return true;
     }
 
@@ -1034,13 +1034,13 @@ unsigned sinceVersionOf(const GenElem& elem)
 {
     auto elemType = elem.elemType();
     if (elemType == GenElem::Type_Message) {
-        return static_cast<const gen::GenMessage&>(elem).dslObj().sinceVersion();
+        return static_cast<const gen::GenMessage&>(elem).dslObj().parseSinceVersion();
     }
 
     if (elemType == GenElem::Type_Field) {
         auto* parent = elem.getParent();
         assert(parent != nullptr);
-        auto fieldResult = static_cast<const gen::GenField&>(elem).dslObj().sinceVersion();
+        auto fieldResult = static_cast<const gen::GenField&>(elem).dslObj().parseSinceVersion();
         return std::max(sinceVersionOf(*parent), fieldResult);
     }
 

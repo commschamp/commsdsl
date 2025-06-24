@@ -32,31 +32,31 @@ public:
     using InterfacesList = ParseValueLayer::Interfaces;
     ParseValueLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
 
-    InterfacesList interfacesList() const;
+    InterfacesList parseInterfacesList() const;
 
-    const std::string& fieldName() const
+    const std::string& parseFieldName() const
     {
         return *m_fieldName;
     }
 
-    std::size_t fieldIdx() const;
+    std::size_t parseFieldIdx() const;
 
-    bool pseudo() const
+    bool parsePseudo() const
     {
         return m_pseudo;
     }
 
 
 protected:
-    virtual Kind kindImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraPropsNamesImpl() const override;
+    virtual Kind parseKindImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
     virtual bool parseImpl() override;
-    virtual bool verifyImpl(const LayersList& layers) override;
+    virtual bool parseVerifyImpl(const LayersList& layers) override;
 
 private:
-    bool updateInterfaces();
-    bool updateFieldName();
-    bool updatePseudo();
+    bool parseUpdateInterfaces();
+    bool parseUpdateFieldName();
+    bool parseUpdatePseudo();
 
     Interfaces m_interfaces;
     const std::string* m_fieldName = nullptr;

@@ -38,7 +38,7 @@ public:
     {
         ValueType m_value;
         unsigned m_sinceVersion = 0;
-        unsigned m_deprecatedSince = ParseProtocol::notYetDeprecated();
+        unsigned m_deprecatedSince = ParseProtocol::parseNotYetDeprecated();
     };
 
     using ValidValuesList = std::vector<ValidValueInfo>;    
@@ -46,12 +46,12 @@ public:
     explicit ParseDataField(const ParseDataFieldImpl* impl);
     explicit ParseDataField(ParseField field);
 
-    const ValueType& defaultValue() const;
-    std::size_t fixedLength() const;
-    bool hasLengthPrefixField() const;
-    ParseField lengthPrefixField() const;
-    const std::string& detachedPrefixFieldName() const;
-    const ValidValuesList& validValues() const;
+    const ValueType& parseDefaultValue() const;
+    std::size_t parseFixedLength() const;
+    bool parseHasLengthPrefixField() const;
+    ParseField parseLengthPrefixField() const;
+    const std::string& parseDetachedPrefixFieldName() const;
+    const ValidValuesList& parseValidValues() const;
 };
 
 } // namespace parse

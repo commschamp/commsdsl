@@ -42,9 +42,9 @@ public:
     ParseOptCond(const ParseOptCond& other);
     ~ParseOptCond();
 
-    bool valid() const;
+    bool parseValid() const;
 
-    Kind kind() const;
+    Kind parseKind() const;
 
 protected:
     const ParseOptCondImpl* m_pImpl;
@@ -82,11 +82,11 @@ public:
     ParseOptCondExpr(const ParseOptCondExprImpl* impl);
     ParseOptCondExpr(ParseOptCond cond);
 
-    const std::string& left() const;
-    const std::string& op() const;
-    const std::string& right() const;
-    OperandInfo leftInfo() const;
-    OperandInfo rightInfo() const;
+    const std::string& parseLeft() const;
+    const std::string& parseOp() const;
+    const std::string& parseRight() const;
+    OperandInfo parseLeftInfo() const;
+    OperandInfo parseRightInfo() const;
 };
 
 class ParseOptCondListImpl;
@@ -107,8 +107,8 @@ public:
     ParseOptCondList(ParseOptCond cond);
 
 
-    Type type() const;
-    CondList conditions() const;
+    Type parseType() const;
+    CondList parseConditions() const;
 };
 
 } // namespace parse

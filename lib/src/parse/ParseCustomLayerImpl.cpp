@@ -32,7 +32,7 @@ ParseCustomLayerImpl::ParseCustomLayerImpl(::xmlNodePtr node, ParseProtocolImpl&
 {
 }
 
-ParseLayerImpl::Kind ParseCustomLayerImpl::kindImpl() const
+ParseLayerImpl::Kind ParseCustomLayerImpl::parseKindImpl() const
 {
     return Kind::Custom;
 }
@@ -41,18 +41,18 @@ bool ParseCustomLayerImpl::parseImpl()
 {
     return 
         Base::parseImpl() &&
-        updateIdReplacement() &&
-        updateSemanticLayerType() &&
-        updateChecksumFrom() &&
-        updateChecksumUntil();
+        parseUpdateIdReplacement() &&
+        parseUpdateSemanticLayerType() &&
+        parseUpdateChecksumFrom() &&
+        parseUpdateChecksumUntil();
 }
 
-bool ParseCustomLayerImpl::verifyImpl(const LayersList& layers)
+bool ParseCustomLayerImpl::parseVerifyImpl(const LayersList& layers)
 {
-    return verifyChecksumInternal(layers);
+    return parseVerifyChecksumInternal(layers);
 }
 
-const ParseXmlWrap::NamesList& ParseCustomLayerImpl::extraPropsNamesImpl() const
+const ParseXmlWrap::NamesList& ParseCustomLayerImpl::parseExtraPropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
         common::idReplacementStr(),
@@ -64,22 +64,22 @@ const ParseXmlWrap::NamesList& ParseCustomLayerImpl::extraPropsNamesImpl() const
     return List;
 }
 
-bool ParseCustomLayerImpl::updateIdReplacement()
+bool ParseCustomLayerImpl::parseUpdateIdReplacement()
 {
     auto& prop = common::idReplacementStr();
-    if (!validateSinglePropInstance(prop)) {
+    if (!parseValidateSinglePropInstance(prop)) {
         return false;
     }
 
-    auto iter = props().find(prop);
-    if (iter == props().end()) {
+    auto iter = parseProps().find(prop);
+    if (iter == parseProps().end()) {
         return true;
     }
 
     bool ok = false;
-    bool idReplacement = common::strToBool(iter->second, &ok);
+    bool idReplacement = common::parseStrToBool(iter->second, &ok);
     if (!ok) {
-        reportUnexpectedPropertyValue(prop, iter->second);
+        parseReportUnexpectedPropertyValue(prop, iter->second);
         return false;
     }
 
@@ -90,20 +90,20 @@ bool ParseCustomLayerImpl::updateIdReplacement()
     return true;
 }
 
-bool ParseCustomLayerImpl::updateSemanticLayerType()
+bool ParseCustomLayerImpl::parseUpdateSemanticLayerType()
 {
     auto& prop = common::semanticLayerTypeStr();
-    if (!validateSinglePropInstance(prop)) {
+    if (!parseValidateSinglePropInstance(prop)) {
         return false;
     }
 
-    auto iter = props().find(prop);
-    if (iter == props().end()) {
+    auto iter = parseProps().find(prop);
+    if (iter == parseProps().end()) {
         return true;
     }
 
-    if (!protocol().isPropertySupported(prop)) {
-        logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (!parseProtocol().parseIsPropertySupported(prop)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Property \"" << prop << "\" is not supported for selected dslVersion, ignoring...";
         return true;
     }
@@ -113,7 +113,7 @@ bool ParseCustomLayerImpl::updateSemanticLayerType()
     }
 
     if (m_sematicLayerType != Kind::Custom) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Cannot use \"" + prop + "\" property when semantic type was specified by other (deprecated) properties";        
 
         return false;
@@ -131,7 +131,7 @@ bool ParseCustomLayerImpl::updateSemanticLayerType()
 
     auto kindIter = Map.find(iter->second);
     if (kindIter == Map.end()) {
-        reportUnexpectedPropertyValue(prop, iter->second);
+        parseReportUnexpectedPropertyValue(prop, iter->second);
         return false;
     }
 
@@ -139,26 +139,26 @@ bool ParseCustomLayerImpl::updateSemanticLayerType()
     return true;
 }
 
-bool ParseCustomLayerImpl::updateChecksumFrom()
+bool ParseCustomLayerImpl::parseUpdateChecksumFrom()
 {
     auto& prop = common::checksumFromStr();
-    if (!validateSinglePropInstance(prop)) {
+    if (!parseValidateSinglePropInstance(prop)) {
         return false;
     }
 
-    auto iter = props().find(prop);
-    if (iter == props().end()) {
+    auto iter = parseProps().find(prop);
+    if (iter == parseProps().end()) {
         return true;
     }
 
-    if (!protocol().isPropertySupported(prop)) {
-        logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (!parseProtocol().parseIsPropertySupported(prop)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Property \"" << prop << "\" is not supported for selected dslVersion, ignoring...";
         return true;
     }
 
     if (m_sematicLayerType != Kind::Checksum) {
-        logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Property \"" << prop << "\" is not applicable to selected \"" << common::semanticLayerTypeStr() << "\", ignoring...";
         return true;        
     }    
@@ -167,26 +167,26 @@ bool ParseCustomLayerImpl::updateChecksumFrom()
     return true;
 }
 
-bool ParseCustomLayerImpl::updateChecksumUntil()
+bool ParseCustomLayerImpl::parseUpdateChecksumUntil()
 {
     auto& prop = common::checksumUntilStr();
-    if (!validateSinglePropInstance(prop)) {
+    if (!parseValidateSinglePropInstance(prop)) {
         return false;
     }
 
-    auto iter = props().find(prop);
-    if (iter == props().end()) {
+    auto iter = parseProps().find(prop);
+    if (iter == parseProps().end()) {
         return true;
     }
 
-    if (!protocol().isPropertySupported(prop)) {
-        logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (!parseProtocol().parseIsPropertySupported(prop)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Property \"" << prop << "\" is not supported for selected dslVersion, ignoring...";
         return true;
     }
 
     if (m_sematicLayerType != Kind::Checksum) {
-        logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Property \"" << prop << "\" is not applicable to selected \"" << common::semanticLayerTypeStr() << "\", ignoring...";
         return true;        
     }
@@ -195,17 +195,17 @@ bool ParseCustomLayerImpl::updateChecksumUntil()
     return true;
 }
 
-bool ParseCustomLayerImpl::verifyChecksumInternal(const LayersList& layers) 
+bool ParseCustomLayerImpl::parseVerifyChecksumInternal(const LayersList& layers) 
 {
     if (m_sematicLayerType != Kind::Checksum) {
         return true;
     }
 
-    auto thisIdx = findThisLayerIndex(layers);
+    auto thisIdx = parseFindThisLayerIndex(layers);
     assert(thisIdx < layers.size());
 
     if (m_checksumFromLayer.empty() && m_checksumUntilLayer.empty()) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) << 
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) << 
             "Custom layer with " + common::semanticLayerTypeStr() << "=\"" << common::checksumStr() << "\" must set \"" << 
             common::checksumFromStr() << "\" or \"" << 
             common::checksumUntilStr() << "\" property to indicate on what values checksum is calculated.";
@@ -213,29 +213,29 @@ bool ParseCustomLayerImpl::verifyChecksumInternal(const LayersList& layers)
     }
 
     if (!m_checksumFromLayer.empty()) {
-        auto fromIdx = findLayerIndex(layers, m_checksumFromLayer);
+        auto fromIdx = parseFindLayerIndex(layers, m_checksumFromLayer);
         if (layers.size() <= fromIdx) {
-            reportUnexpectedPropertyValue(common::checksumFromStr(), m_checksumFromLayer);
+            parseReportUnexpectedPropertyValue(common::checksumFromStr(), m_checksumFromLayer);
             return false;
         }
 
         if (thisIdx <= fromIdx) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
-                "Layer \"" << m_checksumFromLayer << "\" must appear before the \"" << name() << "\".";
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+                "Layer \"" << m_checksumFromLayer << "\" must appear before the \"" << parseName() << "\".";
             return false;
         }
     }
 
     if (!m_checksumUntilLayer.empty()) {
-        auto untilIdx = findLayerIndex(layers, m_checksumUntilLayer);
+        auto untilIdx = parseFindLayerIndex(layers, m_checksumUntilLayer);
         if (layers.size() <= untilIdx) {
-            reportUnexpectedPropertyValue(common::checksumUntilStr(), m_checksumUntilLayer);
+            parseReportUnexpectedPropertyValue(common::checksumUntilStr(), m_checksumUntilLayer);
             return false;
         }
 
         if (untilIdx <= thisIdx) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
-                "Layer \"" << m_checksumUntilLayer << "\" must appear after the \"" << name() << "\".";
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+                "Layer \"" << m_checksumUntilLayer << "\" must appear after the \"" << parseName() << "\".";
             return false;
         }
     }

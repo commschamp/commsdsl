@@ -41,17 +41,17 @@ public:
 
     ~ParseLogger() = default;
 
-    void setMinLevel(ParseErrorLevel val)
+    void parseSetMinLevel(ParseErrorLevel val)
     {
         m_minLevel = val;
     }
 
-    void setCurrLevel(ParseErrorLevel val)
+    void parseSetCurrLevel(ParseErrorLevel val)
     {
         m_currLevel = val;
     }
 
-    void flush()
+    void parseFlush()
     {
         if (m_minLevel <= m_currLevel) {
             m_func(m_currLevel, m_stream.str());
@@ -80,7 +80,7 @@ class LogWrapper
 {
 public:
     LogWrapper(ParseLogger& logger) : m_logger(logger) {}
-    ~LogWrapper() { m_logger.flush(); }
+    ~LogWrapper() { m_logger.parseFlush(); }
 
     template <typename T>
     LogWrapper& operator<<(T&& val)
@@ -94,23 +94,23 @@ private:
 };
 
 inline
-LogWrapper logError(ParseLogger& logger)
+LogWrapper parseLogError(ParseLogger& logger)
 {
-    logger.setCurrLevel(ParseErrorLevel_Error);
+    logger.parseSetCurrLevel(ParseErrorLevel_Error);
     return LogWrapper(logger);
 }
 
 inline
-LogWrapper logWarning(ParseLogger& logger)
+LogWrapper parseLogWarning(ParseLogger& logger)
 {
-    logger.setCurrLevel(ParseErrorLevel_Warning);
+    logger.parseSetCurrLevel(ParseErrorLevel_Warning);
     return LogWrapper(logger);
 }
 
 inline
-LogWrapper logInfo(ParseLogger& logger)
+LogWrapper parseLogInfo(ParseLogger& logger)
 {
-    logger.setCurrLevel(ParseErrorLevel_Info);
+    logger.parseSetCurrLevel(ParseErrorLevel_Info);
     return LogWrapper(logger);
 }
 

@@ -121,10 +121,10 @@ std::string SwigMsgId::swigTypeInternal() const
     auto allMsgIds = m_generator.currentSchema().getAllMessageIdFields();
     if (allMsgIds.size() == 1U) {
         auto* msgIdField = allMsgIds.front();
-        assert(msgIdField->dslObj().kind() == commsdsl::parse::ParseField::Kind::Enum);
+        assert(msgIdField->dslObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
         auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
         auto dslObj = castedMsgIdField->enumDslObj();
-        return comms::cppIntTypeFor(dslObj.type(), dslObj.maxLength());
+        return comms::cppIntTypeFor(dslObj.parseType(), dslObj.parseMaxLength());
     }
 
     auto allMessages = m_generator.currentSchema().getAllMessages();
@@ -133,7 +133,7 @@ std::string SwigMsgId::swigTypeInternal() const
             allMessages.begin(), allMessages.end(),
             [](auto* first, auto* second)
             {
-                return first->dslObj().id() < second->dslObj().id();
+                return first->dslObj().parseId() < second->dslObj().parseId();
             });
 
     std::string result = "unsigned";
@@ -142,7 +142,7 @@ std::string SwigMsgId::swigTypeInternal() const
             break;
         }
 
-        auto maxId = (*iter)->dslObj().id();
+        auto maxId = (*iter)->dslObj().parseId();
         bool fitsUnsigned = maxId <= std::numeric_limits<unsigned>::max();
         if (fitsUnsigned) {
             break;
@@ -164,7 +164,7 @@ std::string SwigMsgId::swigIdsInternal() const
 
     if (allMsgIds.size() == 1U) {
         auto* msgIdField = allMsgIds.front();    
-        assert(msgIdField->dslObj().kind() == commsdsl::parse::ParseField::Kind::Enum);
+        assert(msgIdField->dslObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
         auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
         auto enumValues = castedMsgIdField->swigEnumValues();
         static const std::string CommentPrefix("// ---");
@@ -192,7 +192,7 @@ std::string SwigMsgId::swigIdsInternal() const
             continue;
         }
 
-        ids.push_back(prefix + comms::fullNameFor(*m) + " = " + util::numToString(m->dslObj().id()));
+        ids.push_back(prefix + comms::fullNameFor(*m) + " = " + util::numToString(m->dslObj().parseId()));
     }
     return util::strListToString(ids, ",\n", "");
 }
@@ -211,7 +211,7 @@ std::string SwigMsgId::swigCodeInternal() const
 
     if (allMsgIds.size() == 1U) {
         auto* msgIdField = allMsgIds.front();      
-        assert(msgIdField->dslObj().kind() == commsdsl::parse::ParseField::Kind::Enum);
+        assert(msgIdField->dslObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
         auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
         auto enumValues = castedMsgIdField->swigEnumValues();
 

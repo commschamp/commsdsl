@@ -247,7 +247,7 @@ std::string SwigMessage::swigFieldsAccDeclInternal() const
 
         util::ReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(f->field())},
-            {"ACC_NAME", comms::accessName(f->field().dslObj().name())}
+            {"ACC_NAME", comms::accessName(f->field().dslObj().parseName())}
         };
 
         accFuncs.push_back(util::processTemplate(Templ, repl));
@@ -276,7 +276,7 @@ std::string SwigMessage::swigFieldsAccCodeInternal() const
 
         util::ReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(f->field())},
-            {"ACC_NAME", comms::accessName(f->field().dslObj().name())}
+            {"ACC_NAME", comms::accessName(f->field().dslObj().parseName())}
         };
 
         accFuncs.push_back(util::processTemplate(Templ, repl));

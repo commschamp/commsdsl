@@ -48,24 +48,24 @@ void FrameTestSuite::test1()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto frames = ns.frames();
+    auto frames = ns.parseFrames();
     TS_ASSERT_EQUALS(frames.size(), 1U);
 
     auto& f1 = frames[0];
-    TS_ASSERT_EQUALS(f1.name(), "Generic");
+    TS_ASSERT_EQUALS(f1.parseName(), "Generic");
 
-    auto layers = f1.layers();
+    auto layers = f1.parseLayers();
     TS_ASSERT_EQUALS(layers.size(), 1U);
 
-    TS_ASSERT_EQUALS(layers.front().kind(), commsdsl::parse::ParseLayer::Kind::Payload);
-    TS_ASSERT(!layers.front().hasField());
-    TS_ASSERT_EQUALS(layers.front().name(), "Data");
+    TS_ASSERT_EQUALS(layers.front().parseKind(), commsdsl::parse::ParseLayer::Kind::Payload);
+    TS_ASSERT(!layers.front().parseHasField());
+    TS_ASSERT_EQUALS(layers.front().parseName(), "Data");
 }
 
 void FrameTestSuite::test2()
@@ -81,36 +81,36 @@ void FrameTestSuite::test3()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 2U);
 
     auto& gNs = namespaces.front();
-    TS_ASSERT(gNs.name().empty());
+    TS_ASSERT(gNs.parseName().empty());
 
     auto& ns1 = namespaces.back();
-    TS_ASSERT_EQUALS(ns1.name(), "ns1");
+    TS_ASSERT_EQUALS(ns1.parseName(), "ns1");
 
-    auto frames = ns1.frames();
+    auto frames = ns1.parseFrames();
     TS_ASSERT_EQUALS(frames.size(), 1U);
 
     auto& frame1 = frames[0];
-    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+    TS_ASSERT_EQUALS(frame1.parseName(), "Generic");
 
-    auto layers = frame1.layers();
+    auto layers = frame1.parseLayers();
     TS_ASSERT_EQUALS(layers.size(), 2U);
 
     auto& l1 = layers[0];
     auto& l2 = layers[1];
 
-    TS_ASSERT_EQUALS(l1.kind(), commsdsl::parse::ParseLayer::Kind::Id);
-    TS_ASSERT_EQUALS(l1.name(), "Id");
-    TS_ASSERT(l1.hasField());
-    auto f1 = l1.field();
-    TS_ASSERT_EQUALS(f1.externalRef(), "@Schema3.MsgId");
+    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseLayer::Kind::Id);
+    TS_ASSERT_EQUALS(l1.parseName(), "Id");
+    TS_ASSERT(l1.parseHasField());
+    auto f1 = l1.parseField();
+    TS_ASSERT_EQUALS(f1.parseExternalRef(), "@Schema3.MsgId");
 
-    TS_ASSERT_EQUALS(l2.kind(), commsdsl::parse::ParseLayer::Kind::Payload);
-    TS_ASSERT_EQUALS(l2.name(), "Data");
-    TS_ASSERT(!l2.hasField());
+    TS_ASSERT_EQUALS(l2.parseKind(), commsdsl::parse::ParseLayer::Kind::Payload);
+    TS_ASSERT_EQUALS(l2.parseName(), "Data");
+    TS_ASSERT(!l2.parseHasField());
 }
 
 void FrameTestSuite::test4()
@@ -134,41 +134,41 @@ void FrameTestSuite::test6()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto frames = ns.frames();
+    auto frames = ns.parseFrames();
     TS_ASSERT_EQUALS(frames.size(), 1U);
 
     auto& frame1 = frames[0];
-    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+    TS_ASSERT_EQUALS(frame1.parseName(), "Generic");
 
-    auto layers = frame1.layers();
+    auto layers = frame1.parseLayers();
     TS_ASSERT_EQUALS(layers.size(), 3U);
 
     auto& l1 = layers[0];
     auto& l2 = layers[1];
     auto& l3 = layers[2];
 
-    TS_ASSERT_EQUALS(l1.kind(), commsdsl::parse::ParseLayer::Kind::Size);
-    TS_ASSERT_EQUALS(l1.name(), "Size");
-    TS_ASSERT(l1.hasField());
-    auto f1 = l1.field();
-    TS_ASSERT(f1.externalRef().empty());
+    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseLayer::Kind::Size);
+    TS_ASSERT_EQUALS(l1.parseName(), "Size");
+    TS_ASSERT(l1.parseHasField());
+    auto f1 = l1.parseField();
+    TS_ASSERT(f1.parseExternalRef().empty());
 
 
-    TS_ASSERT_EQUALS(l2.kind(), commsdsl::parse::ParseLayer::Kind::Id);
-    TS_ASSERT_EQUALS(l2.name(), "Id");
-    TS_ASSERT(l2.hasField());
-    auto f2 = l2.field();
-    TS_ASSERT_EQUALS(f2.externalRef(), "@Schema6.ns1.MsgId");
+    TS_ASSERT_EQUALS(l2.parseKind(), commsdsl::parse::ParseLayer::Kind::Id);
+    TS_ASSERT_EQUALS(l2.parseName(), "Id");
+    TS_ASSERT(l2.parseHasField());
+    auto f2 = l2.parseField();
+    TS_ASSERT_EQUALS(f2.parseExternalRef(), "@Schema6.ns1.MsgId");
 
-    TS_ASSERT_EQUALS(l3.kind(), commsdsl::parse::ParseLayer::Kind::Payload);
-    TS_ASSERT_EQUALS(l3.name(), "Data");
-    TS_ASSERT(!l3.hasField());
+    TS_ASSERT_EQUALS(l3.parseKind(), commsdsl::parse::ParseLayer::Kind::Payload);
+    TS_ASSERT_EQUALS(l3.parseName(), "Data");
+    TS_ASSERT(!l3.parseHasField());
 }
 
 void FrameTestSuite::test7()
@@ -176,19 +176,19 @@ void FrameTestSuite::test7()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto frames = ns.frames();
+    auto frames = ns.parseFrames();
     TS_ASSERT_EQUALS(frames.size(), 1U);
 
     auto& frame1 = frames[0];
-    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+    TS_ASSERT_EQUALS(frame1.parseName(), "Generic");
 
-    auto layers = frame1.layers();
+    auto layers = frame1.parseLayers();
     TS_ASSERT_EQUALS(layers.size(), 4U);
 
     auto& l1 = layers[0];
@@ -196,27 +196,27 @@ void FrameTestSuite::test7()
     auto& l3 = layers[2];
     auto& l4 = layers[3];
 
-    TS_ASSERT_EQUALS(l1.kind(), commsdsl::parse::ParseLayer::Kind::Sync);
-    TS_ASSERT_EQUALS(l1.name(), "Sync");
-    TS_ASSERT(l1.hasField());
-    auto f1 = l1.field();
-    TS_ASSERT_EQUALS(f1.externalRef(), "@Schema7.ns1.Sync");
+    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseLayer::Kind::Sync);
+    TS_ASSERT_EQUALS(l1.parseName(), "Sync");
+    TS_ASSERT(l1.parseHasField());
+    auto f1 = l1.parseField();
+    TS_ASSERT_EQUALS(f1.parseExternalRef(), "@Schema7.ns1.Sync");
 
-    TS_ASSERT_EQUALS(l2.kind(), commsdsl::parse::ParseLayer::Kind::Id);
-    TS_ASSERT_EQUALS(l2.name(), "Id");
-    TS_ASSERT(l2.hasField());
-    auto f2 = l2.field();
-    TS_ASSERT_EQUALS(f2.externalRef(false), "ns1.MsgId");
+    TS_ASSERT_EQUALS(l2.parseKind(), commsdsl::parse::ParseLayer::Kind::Id);
+    TS_ASSERT_EQUALS(l2.parseName(), "Id");
+    TS_ASSERT(l2.parseHasField());
+    auto f2 = l2.parseField();
+    TS_ASSERT_EQUALS(f2.parseExternalRef(false), "ns1.MsgId");
 
-    TS_ASSERT_EQUALS(l3.kind(), commsdsl::parse::ParseLayer::Kind::Size);
-    TS_ASSERT_EQUALS(l3.name(), "Size");
-    TS_ASSERT(l3.hasField());
-    auto f3 = l3.field();
-    TS_ASSERT(f3.externalRef().empty());
+    TS_ASSERT_EQUALS(l3.parseKind(), commsdsl::parse::ParseLayer::Kind::Size);
+    TS_ASSERT_EQUALS(l3.parseName(), "Size");
+    TS_ASSERT(l3.parseHasField());
+    auto f3 = l3.parseField();
+    TS_ASSERT(f3.parseExternalRef().empty());
 
-    TS_ASSERT_EQUALS(l4.kind(), commsdsl::parse::ParseLayer::Kind::Payload);
-    TS_ASSERT_EQUALS(l4.name(), "Data");
-    TS_ASSERT(!l4.hasField());
+    TS_ASSERT_EQUALS(l4.parseKind(), commsdsl::parse::ParseLayer::Kind::Payload);
+    TS_ASSERT_EQUALS(l4.parseName(), "Data");
+    TS_ASSERT(!l4.parseHasField());
 }
 
 void FrameTestSuite::test8()
@@ -224,19 +224,19 @@ void FrameTestSuite::test8()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto frames = ns.frames();
+    auto frames = ns.parseFrames();
     TS_ASSERT_EQUALS(frames.size(), 1U);
 
     auto& frame1 = frames[0];
-    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+    TS_ASSERT_EQUALS(frame1.parseName(), "Generic");
 
-    auto layers = frame1.layers();
+    auto layers = frame1.parseLayers();
     TS_ASSERT_EQUALS(layers.size(), 5U);
 
     auto& l1 = layers[0];
@@ -245,38 +245,38 @@ void FrameTestSuite::test8()
     auto& l4 = layers[3];
     auto& l5 = layers[4];
 
-    TS_ASSERT_EQUALS(l1.kind(), commsdsl::parse::ParseLayer::Kind::Sync);
-    TS_ASSERT_EQUALS(l1.name(), "Sync");
-    TS_ASSERT(l1.hasField());
-    auto f1 = l1.field();
-    TS_ASSERT_EQUALS(f1.externalRef(false), "ns1.Sync");
+    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseLayer::Kind::Sync);
+    TS_ASSERT_EQUALS(l1.parseName(), "Sync");
+    TS_ASSERT(l1.parseHasField());
+    auto f1 = l1.parseField();
+    TS_ASSERT_EQUALS(f1.parseExternalRef(false), "ns1.Sync");
 
-    TS_ASSERT_EQUALS(l2.kind(), commsdsl::parse::ParseLayer::Kind::Size);
-    TS_ASSERT_EQUALS(l2.name(), "Size");
-    TS_ASSERT(l2.hasField());
-    auto f2 = l2.field();
-    TS_ASSERT(f2.externalRef().empty());
+    TS_ASSERT_EQUALS(l2.parseKind(), commsdsl::parse::ParseLayer::Kind::Size);
+    TS_ASSERT_EQUALS(l2.parseName(), "Size");
+    TS_ASSERT(l2.parseHasField());
+    auto f2 = l2.parseField();
+    TS_ASSERT(f2.parseExternalRef().empty());
 
-    TS_ASSERT_EQUALS(l3.kind(), commsdsl::parse::ParseLayer::Kind::Id);
-    TS_ASSERT_EQUALS(l3.name(), "Id");
-    TS_ASSERT(l3.hasField());
-    auto f3 = l3.field();
-    TS_ASSERT_EQUALS(f3.externalRef(), "@Schema8.ns1.MsgId");
+    TS_ASSERT_EQUALS(l3.parseKind(), commsdsl::parse::ParseLayer::Kind::Id);
+    TS_ASSERT_EQUALS(l3.parseName(), "Id");
+    TS_ASSERT(l3.parseHasField());
+    auto f3 = l3.parseField();
+    TS_ASSERT_EQUALS(f3.parseExternalRef(), "@Schema8.ns1.MsgId");
 
-    TS_ASSERT_EQUALS(l4.kind(), commsdsl::parse::ParseLayer::Kind::Payload);
-    TS_ASSERT_EQUALS(l4.name(), "Data");
-    TS_ASSERT(!l4.hasField());
+    TS_ASSERT_EQUALS(l4.parseKind(), commsdsl::parse::ParseLayer::Kind::Payload);
+    TS_ASSERT_EQUALS(l4.parseName(), "Data");
+    TS_ASSERT(!l4.parseHasField());
 
-    TS_ASSERT_EQUALS(l5.kind(), commsdsl::parse::ParseLayer::Kind::Checksum);
-    TS_ASSERT_EQUALS(l5.name(), "Checksum");
-    TS_ASSERT(l5.hasField());
-    auto f5 = l5.field();
-    TS_ASSERT(f5.externalRef().empty());
+    TS_ASSERT_EQUALS(l5.parseKind(), commsdsl::parse::ParseLayer::Kind::Checksum);
+    TS_ASSERT_EQUALS(l5.parseName(), "Checksum");
+    TS_ASSERT(l5.parseHasField());
+    auto f5 = l5.parseField();
+    TS_ASSERT(f5.parseExternalRef().empty());
     commsdsl::parse::ParseChecksumLayer checksum(l5);
-    TS_ASSERT_EQUALS(checksum.alg(), commsdsl::parse::ParseChecksumLayer::Alg::Crc_CCITT);
-    TS_ASSERT_EQUALS(checksum.fromLayer(), l2.name());
-    TS_ASSERT(checksum.untilLayer().empty());
-    TS_ASSERT(!checksum.verifyBeforeRead());
+    TS_ASSERT_EQUALS(checksum.parseAlg(), commsdsl::parse::ParseChecksumLayer::Alg::Crc_CCITT);
+    TS_ASSERT_EQUALS(checksum.parseFromLayer(), l2.parseName());
+    TS_ASSERT(checksum.parseUntilLayer().empty());
+    TS_ASSERT(!checksum.parseVerifyBeforeRead());
 }
 
 void FrameTestSuite::test9()
@@ -284,19 +284,19 @@ void FrameTestSuite::test9()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto frames = ns.frames();
+    auto frames = ns.parseFrames();
     TS_ASSERT_EQUALS(frames.size(), 1U);
 
     auto& frame1 = frames[0];
-    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+    TS_ASSERT_EQUALS(frame1.parseName(), "Generic");
 
-    auto layers = frame1.layers();
+    auto layers = frame1.parseLayers();
     TS_ASSERT_EQUALS(layers.size(), 5U);
 
     auto& l1 = layers[0];
@@ -305,39 +305,39 @@ void FrameTestSuite::test9()
     auto& l4 = layers[3];
     auto& l5 = layers[4];
 
-    TS_ASSERT_EQUALS(l1.kind(), commsdsl::parse::ParseLayer::Kind::Sync);
-    TS_ASSERT_EQUALS(l1.name(), "Sync");
-    TS_ASSERT(l1.hasField());
-    auto f1 = l1.field();
-    TS_ASSERT_EQUALS(f1.externalRef(false), "ns1.Sync");
+    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseLayer::Kind::Sync);
+    TS_ASSERT_EQUALS(l1.parseName(), "Sync");
+    TS_ASSERT(l1.parseHasField());
+    auto f1 = l1.parseField();
+    TS_ASSERT_EQUALS(f1.parseExternalRef(false), "ns1.Sync");
 
-    TS_ASSERT_EQUALS(l2.kind(), commsdsl::parse::ParseLayer::Kind::Size);
-    TS_ASSERT_EQUALS(l2.name(), "Size");
-    TS_ASSERT(l2.hasField());
-    auto f2 = l2.field();
-    TS_ASSERT(f2.externalRef().empty());
+    TS_ASSERT_EQUALS(l2.parseKind(), commsdsl::parse::ParseLayer::Kind::Size);
+    TS_ASSERT_EQUALS(l2.parseName(), "Size");
+    TS_ASSERT(l2.parseHasField());
+    auto f2 = l2.parseField();
+    TS_ASSERT(f2.parseExternalRef().empty());
 
-    TS_ASSERT_EQUALS(l3.kind(), commsdsl::parse::ParseLayer::Kind::Checksum);
-    TS_ASSERT_EQUALS(l3.name(), "Checksum");
-    TS_ASSERT(l3.hasField());
-    auto f3 = l3.field();
-    TS_ASSERT(f3.externalRef().empty());
+    TS_ASSERT_EQUALS(l3.parseKind(), commsdsl::parse::ParseLayer::Kind::Checksum);
+    TS_ASSERT_EQUALS(l3.parseName(), "Checksum");
+    TS_ASSERT(l3.parseHasField());
+    auto f3 = l3.parseField();
+    TS_ASSERT(f3.parseExternalRef().empty());
     commsdsl::parse::ParseChecksumLayer checksum(l3);
-    TS_ASSERT_EQUALS(checksum.alg(), commsdsl::parse::ParseChecksumLayer::Alg::Custom);
-    TS_ASSERT_EQUALS(checksum.customAlgName(), "MyAlg");
-    TS_ASSERT(checksum.fromLayer().empty());
-    TS_ASSERT_EQUALS(checksum.untilLayer(), l5.name());
-    TS_ASSERT(checksum.verifyBeforeRead());
+    TS_ASSERT_EQUALS(checksum.parseAlg(), commsdsl::parse::ParseChecksumLayer::Alg::Custom);
+    TS_ASSERT_EQUALS(checksum.parseCustomAlgName(), "MyAlg");
+    TS_ASSERT(checksum.parseFromLayer().empty());
+    TS_ASSERT_EQUALS(checksum.parseUntilLayer(), l5.parseName());
+    TS_ASSERT(checksum.parseVerifyBeforeRead());
 
-    TS_ASSERT_EQUALS(l4.kind(), commsdsl::parse::ParseLayer::Kind::Id);
-    TS_ASSERT_EQUALS(l4.name(), "Id");
-    TS_ASSERT(l4.hasField());
-    auto f4 = l4.field();
-    TS_ASSERT_EQUALS(f4.externalRef(false), "ns1.MsgId");
+    TS_ASSERT_EQUALS(l4.parseKind(), commsdsl::parse::ParseLayer::Kind::Id);
+    TS_ASSERT_EQUALS(l4.parseName(), "Id");
+    TS_ASSERT(l4.parseHasField());
+    auto f4 = l4.parseField();
+    TS_ASSERT_EQUALS(f4.parseExternalRef(false), "ns1.MsgId");
 
-    TS_ASSERT_EQUALS(l5.kind(), commsdsl::parse::ParseLayer::Kind::Payload);
-    TS_ASSERT_EQUALS(l5.name(), "Data");
-    TS_ASSERT(!l5.hasField());
+    TS_ASSERT_EQUALS(l5.parseKind(), commsdsl::parse::ParseLayer::Kind::Payload);
+    TS_ASSERT_EQUALS(l5.parseName(), "Data");
+    TS_ASSERT(!l5.parseHasField());
 }
 
 void FrameTestSuite::test10()
@@ -385,34 +385,34 @@ void FrameTestSuite::test15()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto frames = ns.frames();
+    auto frames = ns.parseFrames();
     TS_ASSERT_EQUALS(frames.size(), 1U);
 
     auto& frame1 = frames[0];
-    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+    TS_ASSERT_EQUALS(frame1.parseName(), "Generic");
 
-    auto layers = frame1.layers();
+    auto layers = frame1.parseLayers();
     TS_ASSERT_EQUALS(layers.size(), 3U);
 
     auto& l2 = layers[1];
 
-    TS_ASSERT_EQUALS(l2.kind(), commsdsl::parse::ParseLayer::Kind::Value);
-    TS_ASSERT_EQUALS(l2.name(), "Version");
-    TS_ASSERT(l2.hasField());
-    auto f2 = l2.field();
-    TS_ASSERT_EQUALS(f2.externalRef(false), "ns1.Version");
+    TS_ASSERT_EQUALS(l2.parseKind(), commsdsl::parse::ParseLayer::Kind::Value);
+    TS_ASSERT_EQUALS(l2.parseName(), "Version");
+    TS_ASSERT(l2.parseHasField());
+    auto f2 = l2.parseField();
+    TS_ASSERT_EQUALS(f2.parseExternalRef(false), "ns1.Version");
     commsdsl::parse::ParseValueLayer valueLayer(l2);
-    auto interfaces = valueLayer.interfaces();
+    auto interfaces = valueLayer.parseInterfaces();
     TS_ASSERT_EQUALS(interfaces.size(), 1U);
-    TS_ASSERT_EQUALS(interfaces.front().externalRef(), "@Schema15.ns1.Message");
-    TS_ASSERT_EQUALS(valueLayer.fieldIdx(), 0U);
-    TS_ASSERT(!valueLayer.pseudo());
+    TS_ASSERT_EQUALS(interfaces.front().parseExternalRef(), "@Schema15.ns1.Message");
+    TS_ASSERT_EQUALS(valueLayer.parseFieldIdx(), 0U);
+    TS_ASSERT(!valueLayer.parsePseudo());
 }
 
 void FrameTestSuite::test16()
@@ -428,34 +428,34 @@ void FrameTestSuite::test17()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto frames = ns.frames();
+    auto frames = ns.parseFrames();
     TS_ASSERT_EQUALS(frames.size(), 1U);
 
     auto& frame1 = frames[0];
-    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+    TS_ASSERT_EQUALS(frame1.parseName(), "Generic");
 
-    auto layers = frame1.layers();
+    auto layers = frame1.parseLayers();
     TS_ASSERT_EQUALS(layers.size(), 3U);
 
     auto& l2 = layers[1];
 
-    TS_ASSERT_EQUALS(l2.kind(), commsdsl::parse::ParseLayer::Kind::Value);
-    TS_ASSERT_EQUALS(l2.name(), "Version");
-    TS_ASSERT(l2.hasField());
-    auto f2 = l2.field();
-    TS_ASSERT_EQUALS(f2.externalRef(false), "ns1.Version");
+    TS_ASSERT_EQUALS(l2.parseKind(), commsdsl::parse::ParseLayer::Kind::Value);
+    TS_ASSERT_EQUALS(l2.parseName(), "Version");
+    TS_ASSERT(l2.parseHasField());
+    auto f2 = l2.parseField();
+    TS_ASSERT_EQUALS(f2.parseExternalRef(false), "ns1.Version");
     commsdsl::parse::ParseValueLayer valueLayer(l2);
-    auto interfaces = valueLayer.interfaces();
+    auto interfaces = valueLayer.parseInterfaces();
     TS_ASSERT_EQUALS(interfaces.size(), 1U);
-    TS_ASSERT_EQUALS(interfaces.front().externalRef(), "@Schema17.ns1.Message");
-    TS_ASSERT_EQUALS(valueLayer.fieldIdx(), 0U);
-    TS_ASSERT(valueLayer.pseudo());
+    TS_ASSERT_EQUALS(interfaces.front().parseExternalRef(), "@Schema17.ns1.Message");
+    TS_ASSERT_EQUALS(valueLayer.parseFieldIdx(), 0U);
+    TS_ASSERT(valueLayer.parsePseudo());
 }
 
 void FrameTestSuite::test18()
@@ -471,34 +471,34 @@ void FrameTestSuite::test19()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns1 = namespaces.front();
-    TS_ASSERT_EQUALS(ns1.name(), "ns1");
+    TS_ASSERT_EQUALS(ns1.parseName(), "ns1");
 
-    auto frames = ns1.frames();
+    auto frames = ns1.parseFrames();
     TS_ASSERT_EQUALS(frames.size(), 1U);
 
     auto& frame1 = frames[0];
-    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+    TS_ASSERT_EQUALS(frame1.parseName(), "Generic");
 
-    auto layers = frame1.layers();
+    auto layers = frame1.parseLayers();
     TS_ASSERT_EQUALS(layers.size(), 2U);
 
     auto& l1 = layers[0];
     auto& l2 = layers[1];
 
-    TS_ASSERT_EQUALS(l1.kind(), commsdsl::parse::ParseLayer::Kind::Custom);
-    TS_ASSERT_EQUALS(l1.name(), "Header");
-    TS_ASSERT(l1.hasField());
-    auto f1 = l1.field();
-    TS_ASSERT(f1.externalRef().empty());
-    TS_ASSERT_EQUALS(f1.kind(), commsdsl::parse::ParseField::Kind::Bundle);
+    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseLayer::Kind::Custom);
+    TS_ASSERT_EQUALS(l1.parseName(), "Header");
+    TS_ASSERT(l1.parseHasField());
+    auto f1 = l1.parseField();
+    TS_ASSERT(f1.parseExternalRef().empty());
+    TS_ASSERT_EQUALS(f1.parseKind(), commsdsl::parse::ParseField::Kind::Bundle);
 
-    TS_ASSERT_EQUALS(l2.kind(), commsdsl::parse::ParseLayer::Kind::Payload);
-    TS_ASSERT_EQUALS(l2.name(), "Data");
-    TS_ASSERT(!l2.hasField());
+    TS_ASSERT_EQUALS(l2.parseKind(), commsdsl::parse::ParseLayer::Kind::Payload);
+    TS_ASSERT_EQUALS(l2.parseName(), "Data");
+    TS_ASSERT(!l2.parseHasField());
 }
 
 void FrameTestSuite::test20()
@@ -514,19 +514,19 @@ void FrameTestSuite::test21()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema21.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto frames = ns.frames();
+    auto frames = ns.parseFrames();
     TS_ASSERT_EQUALS(frames.size(), 1U);
 
     auto& frame1 = frames[0];
-    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+    TS_ASSERT_EQUALS(frame1.parseName(), "Generic");
 
-    auto layers = frame1.layers();
+    auto layers = frame1.parseLayers();
     TS_ASSERT_EQUALS(layers.size(), 5U);
 
     auto& l1 = layers[0];
@@ -535,37 +535,37 @@ void FrameTestSuite::test21()
     auto& l4 = layers[3];
     auto& l5 = layers[4];
 
-    TS_ASSERT_EQUALS(l1.kind(), commsdsl::parse::ParseLayer::Kind::Sync);
-    TS_ASSERT_EQUALS(l1.name(), "Sync");
-    TS_ASSERT(l1.hasField());
-    auto f1 = l1.field();
-    TS_ASSERT_EQUALS(f1.externalRef(false), "ns1.Sync");
+    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseLayer::Kind::Sync);
+    TS_ASSERT_EQUALS(l1.parseName(), "Sync");
+    TS_ASSERT(l1.parseHasField());
+    auto f1 = l1.parseField();
+    TS_ASSERT_EQUALS(f1.parseExternalRef(false), "ns1.Sync");
 
-    TS_ASSERT_EQUALS(l2.kind(), commsdsl::parse::ParseLayer::Kind::Size);
-    TS_ASSERT_EQUALS(l2.name(), "Size");
-    TS_ASSERT(l2.hasField());
-    auto f2 = l2.field();
-    TS_ASSERT(f2.externalRef().empty());
+    TS_ASSERT_EQUALS(l2.parseKind(), commsdsl::parse::ParseLayer::Kind::Size);
+    TS_ASSERT_EQUALS(l2.parseName(), "Size");
+    TS_ASSERT(l2.parseHasField());
+    auto f2 = l2.parseField();
+    TS_ASSERT(f2.parseExternalRef().empty());
 
-    TS_ASSERT_EQUALS(l3.kind(), commsdsl::parse::ParseLayer::Kind::Id);
-    TS_ASSERT_EQUALS(l3.name(), "Id");
-    TS_ASSERT(l3.hasField());
-    auto f3 = l3.field();
-    TS_ASSERT_EQUALS(f3.externalRef(false), "ns1.MsgId");
+    TS_ASSERT_EQUALS(l3.parseKind(), commsdsl::parse::ParseLayer::Kind::Id);
+    TS_ASSERT_EQUALS(l3.parseName(), "Id");
+    TS_ASSERT(l3.parseHasField());
+    auto f3 = l3.parseField();
+    TS_ASSERT_EQUALS(f3.parseExternalRef(false), "ns1.MsgId");
 
-    TS_ASSERT_EQUALS(l4.kind(), commsdsl::parse::ParseLayer::Kind::Payload);
-    TS_ASSERT_EQUALS(l4.name(), "Data");
-    TS_ASSERT(!l4.hasField());
+    TS_ASSERT_EQUALS(l4.parseKind(), commsdsl::parse::ParseLayer::Kind::Payload);
+    TS_ASSERT_EQUALS(l4.parseName(), "Data");
+    TS_ASSERT(!l4.parseHasField());
 
-    TS_ASSERT_EQUALS(l5.kind(), commsdsl::parse::ParseLayer::Kind::Custom);
-    TS_ASSERT_EQUALS(l5.name(), "Checksum");
-    TS_ASSERT(l5.hasField());
-    auto f5 = l5.field();
-    TS_ASSERT(f5.externalRef().empty());
+    TS_ASSERT_EQUALS(l5.parseKind(), commsdsl::parse::ParseLayer::Kind::Custom);
+    TS_ASSERT_EQUALS(l5.parseName(), "Checksum");
+    TS_ASSERT(l5.parseHasField());
+    auto f5 = l5.parseField();
+    TS_ASSERT(f5.parseExternalRef().empty());
     commsdsl::parse::ParseCustomLayer checksum(l5);
-    TS_ASSERT_EQUALS(checksum.semanticLayerType(), commsdsl::parse::ParseLayer::Kind::Checksum);
-    TS_ASSERT_EQUALS(checksum.checksumFromLayer(), l2.name());
-    TS_ASSERT(checksum.checksumUntilLayer().empty());
+    TS_ASSERT_EQUALS(checksum.parseSemanticLayerType(), commsdsl::parse::ParseLayer::Kind::Checksum);
+    TS_ASSERT_EQUALS(checksum.parseChecksumFromLayer(), l2.parseName());
+    TS_ASSERT(checksum.parseChecksumUntilLayer().empty());
 }
 
 void FrameTestSuite::test22()

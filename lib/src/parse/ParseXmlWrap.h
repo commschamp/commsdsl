@@ -58,11 +58,11 @@ struct ParseXmlWrap
     using NodesList = std::vector<::xmlNodePtr>;
     using ContentsList = std::vector<std::string>;
 
-    static const NamesList& emptyNamesList();
+    static const NamesList& parseEmptyNamesList();
     static PropsMap parseNodeProps(::xmlNodePtr node);
-    static NodesList getChildren(::xmlNodePtr node, const std::string& name = common::emptyString(), bool skipValueAttr = false);
-    static NodesList getChildren(::xmlNodePtr node, const NamesList& names, bool skipValueAttr = false);
-    static std::string getText(::xmlNodePtr node);
+    static NodesList parseGetChildren(::xmlNodePtr node, const std::string& name = common::emptyString(), bool skipValueAttr = false);
+    static NodesList parseGetChildren(::xmlNodePtr node, const NamesList& names, bool skipValueAttr = false);
+    static std::string parseGetText(::xmlNodePtr node);
     static bool parseNodeValue(
         ::xmlNodePtr node,
         ParseLogger& logger,
@@ -76,34 +76,34 @@ struct ParseXmlWrap
         PropsMap& props,
         bool mustHaveValues = true);
 
-    static PropsMap getUnknownProps(::xmlNodePtr node, const NamesList& names);
-    static NodesList getUnknownChildren(::xmlNodePtr node, const NamesList& names);
-    static std::string getElementContent(::xmlNodePtr node);
-    static ContentsList getUnknownChildrenContents(::xmlNodePtr node, const NamesList& names);
-    static std::string logPrefix(::xmlNodePtr node);
-    static bool validateSinglePropInstance(
+    static PropsMap parseGetUnknownProps(::xmlNodePtr node, const NamesList& names);
+    static NodesList parseGetUnknownChildren(::xmlNodePtr node, const NamesList& names);
+    static std::string parseGetElementContent(::xmlNodePtr node);
+    static ContentsList parseGetUnknownChildrenContents(::xmlNodePtr node, const NamesList& names);
+    static std::string parseLogPrefix(::xmlNodePtr node);
+    static bool parseValidateSinglePropInstance(
         ::xmlNodePtr node,
         const PropsMap& props,
         const std::string& str,
         ParseLogger& logger,
         bool mustHave = false);
 
-    static bool validateNoPropInstance(
+    static bool parseValidateNoPropInstance(
         ::xmlNodePtr node,
         const PropsMap& props,
         const std::string& str,
         ParseLogger& logger);
 
-    static bool hasAnyChild(::xmlNodePtr node, const NamesList& names);
+    static bool parseHasAnyChild(::xmlNodePtr node, const NamesList& names);
 
-    static void reportUnexpectedPropertyValue(
+    static void parseReportUnexpectedPropertyValue(
         ::xmlNodePtr node,
         const std::string& elemName,
         const std::string& propName,
         const std::string& propValue,
         ParseLogger& logger);
 
-    static bool checkVersions(
+    static bool parseCheckVersions(
         ::xmlNodePtr node,
         unsigned sinceVersion,
         unsigned deprecatedSince,
@@ -111,7 +111,7 @@ struct ParseXmlWrap
         unsigned parentVersion,
         unsigned parentDeprecated);
 
-    static bool getAndCheckVersions(
+    static bool parseGetAndCheckVersions(
         ::xmlNodePtr node,
         const std::string& name,
         const PropsMap& props,
@@ -119,19 +119,19 @@ struct ParseXmlWrap
         unsigned& deprecatedSince,
         ParseProtocolImpl& protocol);
 
-    static bool getAndCheckVersions(
+    static bool parseGetAndCheckVersions(
         ::xmlNodePtr node,
         const std::string& name,
         unsigned& sinceVersion,
         unsigned& deprecatedSince,
         ParseProtocolImpl& protocol);
 
-    static PropsMap getExtraAttributes(
+    static PropsMap parseGetExtraAttributes(
         ::xmlNodePtr node,
         const ParseXmlWrap::NamesList& names,
         ParseProtocolImpl& protocol);
 
-    static ContentsList getExtraChildren(
+    static ContentsList parseGetExtraChildren(
         ::xmlNodePtr node,
         const ParseXmlWrap::NamesList& names,
         ParseProtocolImpl& protocol);

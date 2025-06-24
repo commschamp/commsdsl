@@ -86,7 +86,7 @@ std::string CommsLayer::commsCommonCode() const
         {"SCOPE", comms::scopeFor(m_layer, m_layer.generator())},
         {"MEMBERS_SUFFIX", strings::membersSuffixStr()},
         {"COMMON_SUFFIX", strings::commonSuffixStr()},
-        {"CLASS_NAME", comms::className(m_layer.dslObj().name())},
+        {"CLASS_NAME", comms::className(m_layer.dslObj().parseName())},
         {"CODE", std::move(code)},
     };
 
@@ -121,7 +121,7 @@ std::string CommsLayer::commsDefType(const CommsLayer* prevLayer, bool& hasInput
 
     std::string prevName;
     if (prevLayer != nullptr) {
-        prevName = comms::className(prevLayer->layer().dslObj().name());
+        prevName = comms::className(prevLayer->layer().dslObj().parseName());
     }
 
     if (hasInputMessages) {
@@ -132,7 +132,7 @@ std::string CommsLayer::commsDefType(const CommsLayer* prevLayer, bool& hasInput
     util::ReplacementMap repl = {
         {"MEMBERS", commsDefMembersCodeInternal()},
         {"DOC", commsDefDocInternal()},
-        {"CLASS_NAME", comms::className(m_layer.dslObj().name())},
+        {"CLASS_NAME", comms::className(m_layer.dslObj().parseName())},
         {"BASE", commsDefBaseTypeImpl(prevName)},
     };
 
@@ -308,8 +308,8 @@ std::string CommsLayer::commsDefFieldType() const
     assert(m_commsMemberField != nullptr);
     return
         "typename " +
-        comms::className(m_layer.dslObj().name()) + strings::membersSuffixStr() +
-        "::" + comms::className(m_commsMemberField->field().dslObj().name());    
+        comms::className(m_layer.dslObj().parseName()) + strings::membersSuffixStr() +
+        "::" + comms::className(m_commsMemberField->field().dslObj().parseName());    
 }
 
 std::string CommsLayer::commsDefExtraOpts() const
@@ -365,7 +365,7 @@ std::string CommsLayer::commsDefMembersCodeInternal() const
         "};\n";
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(m_layer.dslObj().name())},
+        {"CLASS_NAME", comms::className(m_layer.dslObj().parseName())},
         {"SUFFIX", strings::membersSuffixStr()},
         {"FIELD_DEF", m_commsMemberField->commsDefCode()},
     };
@@ -376,8 +376,8 @@ std::string CommsLayer::commsDefMembersCodeInternal() const
 std::string CommsLayer::commsDefDocInternal() const
 {
     auto dslObj = m_layer.dslObj();
-    auto str = "/// @brief Definition of layer \"" + dslObj.name() + "\".";
-    auto& desc = dslObj.description();
+    auto str = "/// @brief Definition of layer \"" + dslObj.parseName() + "\".";
+    auto& desc = dslObj.parseDescription();
     if (!desc.empty()) {
         str += "\n/// @details\n";
         auto descMultiline = util::strMakeMultiline(desc);
@@ -422,7 +422,7 @@ std::string CommsLayer::commsCustomizationOptionsInternal(
 
         util::ReplacementMap repl = {
             {"SCOPE", comms::scopeFor(m_layer, m_layer.generator())},
-            {"CLASS_NAME", comms::className(m_layer.dslObj().name())},
+            {"CLASS_NAME", comms::className(m_layer.dslObj().parseName())},
             {"SUFFIX", strings::membersSuffixStr()},
             {"FIELD_OPTS", std::move(fieldOpts)}
         };
@@ -469,7 +469,7 @@ std::string CommsLayer::commsCustomizationOptionsInternal(
 
         util::ReplacementMap repl = {
             {"DOC", std::move(docStr)},
-            {"NAME", comms::className(m_layer.dslObj().name())},
+            {"NAME", comms::className(m_layer.dslObj().parseName())},
         };        
 
         assert(!extraOpts.empty());

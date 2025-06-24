@@ -30,9 +30,9 @@ public:
     ParsePayloadLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
 
 protected:
-    virtual Kind kindImpl() const override;
-    virtual bool verifyImpl(const LayersList& layers) override;
-    virtual bool mustHaveFieldImpl() const override;
+    virtual Kind parseKindImpl() const override;
+    virtual bool parseVerifyImpl(const LayersList& layers) override;
+    virtual bool parseMustHaveFieldImpl() const override;
 
 };
 

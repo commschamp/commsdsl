@@ -48,7 +48,7 @@ bool EmscriptenValueLayer::emscriptenIsMainInterfaceSupportedImpl() const
 std::string EmscriptenValueLayer::emscriptenHeaderExtraFuncsImpl() const
 {
     auto obj = valueDslObj();
-    if (!obj.pseudo()) {
+    if (!obj.parsePseudo()) {
         return strings::emptyString();
     }
 
@@ -64,7 +64,7 @@ std::string EmscriptenValueLayer::emscriptenHeaderExtraFuncsImpl() const
 std::string EmscriptenValueLayer::emscriptenSourceExtraFuncsImpl() const
 {
     auto obj = valueDslObj();
-    if (!obj.pseudo()) {
+    if (!obj.parsePseudo()) {
         return strings::emptyString();
     }
 

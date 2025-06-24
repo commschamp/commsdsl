@@ -224,14 +224,14 @@ public:
         return m_codeDir;
     }
 
-    void setMultipleSchemasEnabled(bool enabled)
+    void parseSetMultipleSchemasEnabled(bool enabled)
     {
-        m_protocol.setMultipleSchemasEnabled(enabled);
+        m_protocol.parseSetMultipleSchemasEnabled(enabled);
     }
 
-    bool getMultipleSchemasEnabled() const
+    bool parseGetMultipleSchemasEnabled() const
     {
-        return m_protocol.getMultipleSchemasEnabled();
+        return m_protocol.parseGetMultipleSchemasEnabled();
     }
 
     void setVersionIndependentCodeForced(bool value)
@@ -317,7 +317,7 @@ public:
     using CreateCompleteFunc = std::function<bool ()>;
     bool prepare(const FilesList& files, CreateCompleteFunc createCompleteCb = CreateCompleteFunc())
     {
-        m_protocol.setErrorReportCallback(
+        m_protocol.parseSetErrorReportCallback(
             [this](commsdsl::parse::ParseErrorLevel level, const std::string& msg)
             {
                 assert(m_logger);
@@ -337,7 +337,7 @@ public:
             }
         }
 
-        if (!m_protocol.validate()) {
+        if (!m_protocol.parseValidate()) {
             return false;
         }
 
@@ -346,7 +346,7 @@ public:
             return false;
         }
 
-        auto allSchemas = m_protocol.schemas();
+        auto allSchemas = m_protocol.parseSchemas();
         if (allSchemas.empty()) {
             m_logger->error("No schemas available");
             return false;
@@ -356,7 +356,7 @@ public:
             auto schema = m_generator.createSchema(s);
             schema->setVersionIndependentCodeForced(m_versionIndependentCodeForced);
 
-            auto renameIter = m_namespaceOverrides.find(util::strToName(s.name()));
+            auto renameIter = m_namespaceOverrides.find(util::strToName(s.parseName()));
             if (renameIter != m_namespaceOverrides.end()) {
                 schema->setMainNamespaceOverride(renameIter->second);
             }
@@ -379,7 +379,7 @@ public:
         for (auto& s : m_schemas) {
             m_currentSchema = s.get();
             if (!s->createAll()) {
-                m_logger->error("Failed to create elements inside schema \"" + s->dslObj().name() + "\"");
+                m_logger->error("Failed to create elements inside schema \"" + s->dslObj().parseName() + "\"");
                 return false;
             }       
 
@@ -399,7 +399,7 @@ public:
         for (auto& s : m_schemas) {
             m_currentSchema = s.get();
             if (!s->prepare()) {
-                m_logger->error("Failed to prepare elements inside schema \"" + s->dslObj().name() + "\"");
+                m_logger->error("Failed to prepare elements inside schema \"" + s->dslObj().parseName() + "\"");
                 return false;
             }            
         }               
@@ -606,14 +606,14 @@ const std::string& GenGenerator::getCodeDir() const
     return m_impl->getCodeDir();
 }
 
-void GenGenerator::setMultipleSchemasEnabled(bool enabled)
+void GenGenerator::parseSetMultipleSchemasEnabled(bool enabled)
 {
-    m_impl->setMultipleSchemasEnabled(enabled);
+    m_impl->parseSetMultipleSchemasEnabled(enabled);
 }
 
-bool GenGenerator::getMultipleSchemasEnabled() const
+bool GenGenerator::parseGetMultipleSchemasEnabled() const
 {
-    return m_impl->getMultipleSchemasEnabled();
+    return m_impl->parseGetMultipleSchemasEnabled();
 }
 
 void GenGenerator::setVersionIndependentCodeForced(bool value)
@@ -645,7 +645,7 @@ GenField* GenGenerator::findField(const std::string& externalRef)
             break;
         }
          
-        logger().warning("Failed to prepare field: " + field->dslObj().externalRef());
+        logger().warning("Failed to prepare field: " + field->dslObj().parseExternalRef());
         field = nullptr;
     } while (false);
     return field;
@@ -668,7 +668,7 @@ GenMessage* GenGenerator::findMessage(const std::string& externalRef)
             break;
         }
 
-        logger().warning("Failed to prepare message: " + msg->dslObj().externalRef());
+        logger().warning("Failed to prepare message: " + msg->dslObj().parseExternalRef());
         msg = nullptr;
     } while (false);
     return msg;
@@ -716,14 +716,14 @@ void GenGenerator::sortMessages(MessagesAccessList& list)
         list.begin(), list.end(),
         [](auto* msg1, auto* msg2)
         {
-            auto id1 = msg1->dslObj().id();
-            auto id2 = msg2->dslObj().id();
+            auto id1 = msg1->dslObj().parseId();
+            auto id2 = msg2->dslObj().parseId();
 
             if (id1 != id2) {
                 return id1 < id2;
             }
 
-            return msg1->dslObj().order() < msg2->dslObj().order();
+            return msg1->dslObj().parseOrder() < msg2->dslObj().parseOrder();
         });
 }
 
@@ -941,115 +941,115 @@ FramePtr GenGenerator::createFrame(commsdsl::parse::ParseFrame dslObj, GenElem* 
 
 FieldPtr GenGenerator::createIntField(commsdsl::parse::ParseField dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Int);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Int);
     return createIntFieldImpl(dslObj, parent);
 }
 
 FieldPtr GenGenerator::createEnumField(commsdsl::parse::ParseField dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Enum);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Enum);
     return createEnumFieldImpl(dslObj, parent);
 }
 
 FieldPtr GenGenerator::createSetField(commsdsl::parse::ParseField dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Set);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Set);
     return createSetFieldImpl(dslObj, parent);
 }
 
 FieldPtr GenGenerator::createFloatField(commsdsl::parse::ParseField dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Float);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Float);
     return createFloatFieldImpl(dslObj, parent);
 }
 
 FieldPtr GenGenerator::createBitfieldField(commsdsl::parse::ParseField dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Bitfield);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Bitfield);
     return createBitfieldFieldImpl(dslObj, parent);
 }
 
 FieldPtr GenGenerator::createBundleField(commsdsl::parse::ParseField dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Bundle);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Bundle);
     return createBundleFieldImpl(dslObj, parent);
 }
 
 FieldPtr GenGenerator::createStringField(commsdsl::parse::ParseField dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::String);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::String);
     return createStringFieldImpl(dslObj, parent);
 }
 
 FieldPtr GenGenerator::createDataField(commsdsl::parse::ParseField dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Data);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Data);
     return createDataFieldImpl(dslObj, parent);
 }
 
 FieldPtr GenGenerator::createListField(commsdsl::parse::ParseField dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::List);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::List);
     return createListFieldImpl(dslObj, parent);
 }
 
 FieldPtr GenGenerator::createRefField(commsdsl::parse::ParseField dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Ref);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Ref);
     return createRefFieldImpl(dslObj, parent);
 }
 
 FieldPtr GenGenerator::createOptionalField(commsdsl::parse::ParseField dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Optional);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Optional);
     return createOptionalFieldImpl(dslObj, parent);
 }
 
 FieldPtr GenGenerator::createVariantField(commsdsl::parse::ParseField dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Variant);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Variant);
     return createVariantFieldImpl(dslObj, parent);
 }
 
 LayerPtr GenGenerator::createCustomLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Custom);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Custom);
     return createCustomLayerImpl(dslObj, parent);
 }
 
 LayerPtr GenGenerator::createSyncLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Sync);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Sync);
     return createSyncLayerImpl(dslObj, parent);
 }
 
 LayerPtr GenGenerator::createSizeLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Size);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Size);
     return createSizeLayerImpl(dslObj, parent);
 }
 
 LayerPtr GenGenerator::createIdLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Id);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Id);
     return createIdLayerImpl(dslObj, parent);
 }
 
 LayerPtr GenGenerator::createValueLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Value);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Value);
     return createValueLayerImpl(dslObj, parent);
 }
 
 LayerPtr GenGenerator::createPayloadLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Payload);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Payload);
     return createPayloadLayerImpl(dslObj, parent);
 }
 
 LayerPtr GenGenerator::createChecksumLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Checksum);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Checksum);
     return createChecksumLayerImpl(dslObj, parent);
 }
 

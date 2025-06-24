@@ -108,7 +108,7 @@ GenField::Ptr GenField::create(GenGenerator& generator, commsdsl::parse::ParseFi
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::ParseField::Kind::NumOfValues), "Invalid map");
 
-    auto idx = static_cast<std::size_t>(dslobj.kind());
+    auto idx = static_cast<std::size_t>(dslobj.parseKind());
     if (MapSize <= idx) {
         [[maybe_unused]] static constexpr bool Unexpected_kind = false;
         assert(Unexpected_kind);          
@@ -136,7 +136,7 @@ bool GenField::prepare()
         m_impl->setPrepared();
     }
 
-    if (dslObj().isForceGen()) {
+    if (dslObj().parseIsForceGen()) {
         setReferenced();
     }
     

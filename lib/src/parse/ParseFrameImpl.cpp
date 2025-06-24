@@ -35,9 +35,9 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::NamesList& frameSupportedTypes()
+const ParseXmlWrap::NamesList& parseFrameSupportedTypes()
 {
-    static const ParseXmlWrap::NamesList Names = ParseLayerImpl::supportedTypes();
+    static const ParseXmlWrap::NamesList Names = ParseLayerImpl::parseSupportedTypes();
     return Names;
 }
 
@@ -56,31 +56,31 @@ bool ParseFrameImpl::parse()
 {
     m_props = ParseXmlWrap::parseNodeProps(m_node);
 
-    if (!ParseXmlWrap::parseChildrenAsProps(m_node, commonProps(), m_protocol.logger(), m_props)) {
+    if (!ParseXmlWrap::parseChildrenAsProps(m_node, parseCommonProps(), m_protocol.parseLogger(), m_props)) {
         return false;
     }
 
     return
-        updateName() &&
-        updateDescription() &&
-        updateLayers() &&
-        updateExtraAttrs() &&
-        updateExtraChildren();
+        parseUpdateName() &&
+        parseUpdateDescription() &&
+        parseUpdateLayers() &&
+        parseUpdateExtraAttrs() &&
+        parseUpdateExtraChildren();
 }
 
-const std::string& ParseFrameImpl::name() const
+const std::string& ParseFrameImpl::parseName() const
 {
     assert(m_name != nullptr);
     return *m_name;
 }
 
-const std::string& ParseFrameImpl::description() const
+const std::string& ParseFrameImpl::parseDescription() const
 {
     assert(m_description != nullptr);
     return *m_description;
 }
 
-ParseFrameImpl::LayersList ParseFrameImpl::layersList() const
+ParseFrameImpl::LayersList ParseFrameImpl::parseLayersList() const
 {
     LayersList result;
     result.reserve(m_layers.size());
@@ -93,51 +93,51 @@ ParseFrameImpl::LayersList ParseFrameImpl::layersList() const
     return result;
 }
 
-std::string ParseFrameImpl::externalRef(bool schemaRef) const
+std::string ParseFrameImpl::parseExternalRef(bool schemaRef) const
 {
-    assert(getParent() != nullptr);
-    assert(getParent()->objKind() == ObjKind::Namespace);
+    assert(parseGetParent() != nullptr);
+    assert(parseGetParent()->parseObjKind() == ObjKind::Namespace);
 
-    auto& ns = static_cast<const ParseNamespaceImpl&>(*getParent());
-    auto nsRef = ns.externalRef(schemaRef);
+    auto& ns = static_cast<const ParseNamespaceImpl&>(*parseGetParent());
+    auto nsRef = ns.parseExternalRef(schemaRef);
     if (nsRef.empty()) {
-        return name();
+        return parseName();
     }
 
-    return nsRef + '.' + name();
+    return nsRef + '.' + parseName();
 }
 
-ParseObject::ObjKind ParseFrameImpl::objKindImpl() const
+ParseObject::ObjKind ParseFrameImpl::parseObjKindImpl() const
 {
     return ObjKind::Frame;
 }
 
-LogWrapper ParseFrameImpl::logError() const
+LogWrapper ParseFrameImpl::parseLogError() const
 {
-    return commsdsl::parse::logError(m_protocol.logger());
+    return commsdsl::parse::parseLogError(m_protocol.parseLogger());
 }
 
-LogWrapper ParseFrameImpl::logWarning() const
+LogWrapper ParseFrameImpl::parseLogWarning() const
 {
-    return commsdsl::parse::logWarning(m_protocol.logger());
+    return commsdsl::parse::parseLogWarning(m_protocol.parseLogger());
 }
 
-LogWrapper ParseFrameImpl::logInfo() const
+LogWrapper ParseFrameImpl::parseLogInfo() const
 {
-    return commsdsl::parse::logInfo(m_protocol.logger());
+    return commsdsl::parse::parseLogInfo(m_protocol.parseLogger());
 }
 
-bool ParseFrameImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
+bool ParseFrameImpl::parseValidateSinglePropInstance(const std::string& str, bool mustHave)
 {
-    return ParseXmlWrap::validateSinglePropInstance(m_node, m_props, str, m_protocol.logger(), mustHave);
+    return ParseXmlWrap::parseValidateSinglePropInstance(m_node, m_props, str, m_protocol.parseLogger(), mustHave);
 }
 
-bool ParseFrameImpl::validateAndUpdateStringPropValue(
+bool ParseFrameImpl::parseValidateAndUpdateStringPropValue(
     const std::string& str,
     const std::string*& valuePtr,
     bool mustHave)
 {
-    if (!validateSinglePropInstance(str, mustHave)) {
+    if (!parseValidateSinglePropInstance(str, mustHave)) {
         return false;
     }
 
@@ -150,12 +150,12 @@ bool ParseFrameImpl::validateAndUpdateStringPropValue(
     return true;
 }
 
-void ParseFrameImpl::reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue)
+void ParseFrameImpl::parseReportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue)
 {
-    ParseXmlWrap::reportUnexpectedPropertyValue(m_node, name(), propName, propValue, m_protocol.logger());
+    ParseXmlWrap::parseReportUnexpectedPropertyValue(m_node, parseName(), propName, propValue, m_protocol.parseLogger());
 }
 
-const ParseXmlWrap::NamesList& ParseFrameImpl::commonProps()
+const ParseXmlWrap::NamesList& ParseFrameImpl::parseCommonProps()
 {
     static const ParseXmlWrap::NamesList CommonNames = {
         common::nameStr(),
@@ -165,25 +165,25 @@ const ParseXmlWrap::NamesList& ParseFrameImpl::commonProps()
     return CommonNames;
 }
 
-ParseXmlWrap::NamesList ParseFrameImpl::allNames()
+ParseXmlWrap::NamesList ParseFrameImpl::parseAllNames()
 {
-    auto names = commonProps();
-    auto& layerTypes = frameSupportedTypes();
+    auto names = parseCommonProps();
+    auto& layerTypes = parseFrameSupportedTypes();
     names.insert(names.end(), layerTypes.begin(), layerTypes.end());
     names.push_back(common::layersStr());
     return names;
 }
 
-bool ParseFrameImpl::updateName()
+bool ParseFrameImpl::parseUpdateName()
 {
     assert(m_name != nullptr);
     bool mustHave = m_name->empty();
-    if (!validateAndUpdateStringPropValue(common::nameStr(), m_name, mustHave)) {
+    if (!parseValidateAndUpdateStringPropValue(common::nameStr(), m_name, mustHave)) {
         return false;
     }
 
     if (!common::isValidName(*m_name)) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                       "Invalid value for name property \"" << *m_name << "\".";
         return false;
     }
@@ -191,24 +191,24 @@ bool ParseFrameImpl::updateName()
     return true;
 }
 
-bool ParseFrameImpl::updateDescription()
+bool ParseFrameImpl::parseUpdateDescription()
 {
-    return validateAndUpdateStringPropValue(common::descriptionStr(), m_description);
+    return parseValidateAndUpdateStringPropValue(common::descriptionStr(), m_description);
 }
 
-bool ParseFrameImpl::updateLayers()
+bool ParseFrameImpl::parseUpdateLayers()
 {
-    auto layersNodes = ParseXmlWrap::getChildren(getNode(), common::layersStr());
+    auto layersNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::layersStr());
     if (1U < layersNodes.size()) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                       "Only single \"" << common::layersStr() << "\" child element is "
                       "supported for \"" << common::frameStr() << "\".";
         return false;
     }
 
-    auto layersTypes = ParseXmlWrap::getChildren(getNode(), frameSupportedTypes());
+    auto layersTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseFrameSupportedTypes());
     if ((!layersNodes.empty()) && (!layersTypes.empty())) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                       "The \"" << common::frameStr() << "\" element does not support "
                       "list of stand alone layers as child elements together with \"" <<
                       common::layersStr() << "\" child element.";
@@ -216,16 +216,16 @@ bool ParseFrameImpl::updateLayers()
     }
 
     if ((layersNodes.empty()) && (layersTypes.empty())) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "The \"" << common::framesStr() << "\" element must contain at least one layer";
         return false;
     }
 
     if ((0U < layersTypes.size())) {
         assert(0U == layersNodes.size());
-        auto allChildren = ParseXmlWrap::getChildren(getNode());
+        auto allChildren = ParseXmlWrap::parseGetChildren(parseGetNode());
         if (allChildren.size() != layersTypes.size()) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                           "The layer types of \"" << common::frameStr() <<
                           "\" must be defined inside \"<" << common::layersStr() << ">\" child element "
                           "when there are other property describing children.";
@@ -235,10 +235,10 @@ bool ParseFrameImpl::updateLayers()
 
     if (0U < layersNodes.size()) {
         assert(0U == layersTypes.size());
-        layersTypes = ParseXmlWrap::getChildren(layersNodes.front());
-        auto cleanMemberFieldsTypes = ParseXmlWrap::getChildren(layersNodes.front(), frameSupportedTypes());
+        layersTypes = ParseXmlWrap::parseGetChildren(layersNodes.front());
+        auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(layersNodes.front(), parseFrameSupportedTypes());
         if (cleanMemberFieldsTypes.size() != layersTypes.size()) {
-            logError() << ParseXmlWrap::logPrefix(layersNodes.front()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(layersNodes.front()) <<
                 "The \"" << common::layersStr() << "\" child node of \"" <<
                 common::frameStr() << "\" element must contain only supported layer types.";
             return false;
@@ -252,16 +252,16 @@ bool ParseFrameImpl::updateLayers()
     bool hasPayloadLayer = false;
     for (auto* lNode : layersTypes) {
         std::string lKind(reinterpret_cast<const char*>(lNode->name));
-        auto layer = ParseLayerImpl::create(lKind, lNode, m_protocol);
+        auto layer = ParseLayerImpl::parseCreate(lKind, lNode, m_protocol);
         if (!layer) {
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                   "Internal error, failed to create objects for layers.";
             return false;
         }
 
-        layer->setParent(this);
+        layer->parseSetParent(this);
         if (!layer->parse()) {
             return false;
         }
@@ -271,16 +271,16 @@ bool ParseFrameImpl::updateLayers()
                 m_layers.begin(), m_layers.end(),
                 [&layer](auto& l)
                 {
-                    return layer->name() == l->name();
+                    return layer->parseName() == l->parseName();
                 });
 
         if (lIter != m_layers.end()) {
-            logError() << ParseXmlWrap::logPrefix(lNode) <<
-                "Layer with name \"" << layer->name() << "\" has already been "
+            parseLogError() << ParseXmlWrap::parseLogPrefix(lNode) <<
+                "Layer with name \"" << layer->parseName() << "\" has already been "
                 "defined within the same frame.";
         }
 
-        if (layer->kind() == ParseLayerImpl::Kind::Payload) {
+        if (layer->parseKind() == ParseLayerImpl::Kind::Payload) {
             hasPayloadLayer = true;
         }
 
@@ -288,8 +288,8 @@ bool ParseFrameImpl::updateLayers()
     }
 
     if (!hasPayloadLayer) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
-            "The frame \"" << name() << "\" must contain a \"" <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "The frame \"" << parseName() << "\" must contain a \"" <<
             common::payloadStr() << "\" layer.";
         return false;
     }
@@ -300,22 +300,22 @@ bool ParseFrameImpl::updateLayers()
             [this](auto& l)
             {
                 assert(l);
-                return l->verify(m_layers);
+                return l->parseVerify(m_layers);
             });
 
     return verified;
 }
 
-bool ParseFrameImpl::updateExtraAttrs()
+bool ParseFrameImpl::parseUpdateExtraAttrs()
 {
-    m_extraAttrs = ParseXmlWrap::getExtraAttributes(m_node, commonProps(), m_protocol);
+    m_extraAttrs = ParseXmlWrap::parseGetExtraAttributes(m_node, parseCommonProps(), m_protocol);
     return true;
 }
 
-bool ParseFrameImpl::updateExtraChildren()
+bool ParseFrameImpl::parseUpdateExtraChildren()
 {
-    static const ParseXmlWrap::NamesList ChildrenNames = allNames();
-    m_extraChildren = ParseXmlWrap::getExtraChildren(m_node, ChildrenNames, m_protocol);
+    static const ParseXmlWrap::NamesList ChildrenNames = parseAllNames();
+    m_extraChildren = ParseXmlWrap::parseGetExtraChildren(m_node, ChildrenNames, m_protocol);
     return true;
 }
 

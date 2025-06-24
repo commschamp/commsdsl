@@ -31,33 +31,33 @@ public:
 
     ParseCustomLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
 
-    Kind semanticLayerType() const
+    Kind parseSemanticLayerType() const
     {
         return m_sematicLayerType;
     }
 
-    const std::string& checksumFromLayer() const
+    const std::string& parseChecksumFromLayer() const
     {
         return m_checksumFromLayer;
     }
 
-    const std::string& checksumUntilLayer() const
+    const std::string& parseChecksumUntilLayer() const
     {
         return m_checksumUntilLayer;
     }
 
 protected:
-    virtual Kind kindImpl() const override;
+    virtual Kind parseKindImpl() const override;
     virtual bool parseImpl() override;
-    virtual bool verifyImpl(const LayersList& layers) override;
-    virtual const ParseXmlWrap::NamesList& extraPropsNamesImpl() const override;
+    virtual bool parseVerifyImpl(const LayersList& layers) override;
+    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
 
 private:
-    bool updateIdReplacement();
-    bool updateSemanticLayerType();
-    bool updateChecksumFrom();
-    bool updateChecksumUntil();
-    bool verifyChecksumInternal(const LayersList& layers);
+    bool parseUpdateIdReplacement();
+    bool parseUpdateSemanticLayerType();
+    bool parseUpdateChecksumFrom();
+    bool parseUpdateChecksumUntil();
+    bool parseVerifyChecksumInternal(const LayersList& layers);
 
     Kind m_sematicLayerType = Kind::Custom;
     std::string m_checksumFromLayer;

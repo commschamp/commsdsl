@@ -35,48 +35,48 @@ public:
     ParseBitfieldFieldImpl(const ParseBitfieldFieldImpl& other);
     using Members = ParseBitfieldField::Members;
 
-    ParseEndian endian() const
+    ParseEndian parseEndian() const
     {
         return m_endian;
     }
 
-    Members membersList() const;
+    Members parseMembersList() const;
 
-    static const ParseXmlWrap::NamesList& supportedTypes();
+    static const ParseXmlWrap::NamesList& parseSupportedTypes();
 
-    ParseOptCond validCond() const
+    ParseOptCond parseValidCond() const
     {
         return ParseOptCond(m_validCond.get());
     }       
 
 protected:
 
-    virtual Kind kindImpl() const override;
-    virtual Ptr cloneImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraPropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraPossiblePropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraChildrenNamesImpl() const override;
-    virtual bool reuseImpl(const ParseFieldImpl &other) override;
+    virtual Kind parseKindImpl() const override;
+    virtual Ptr parseCloneImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraPossiblePropsNamesImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraChildrenNamesImpl() const override;
+    virtual bool parseReuseImpl(const ParseFieldImpl &other) override;
     virtual bool parseImpl() override;
-    virtual bool replaceMembersImpl(FieldsList& members) override;
-    virtual std::size_t minLengthImpl() const override;
-    virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
-    virtual bool strToFpImpl(const std::string& ref, double& val) const override;
-    virtual bool strToBoolImpl(const std::string& ref, bool& val) const override;
-    virtual bool verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const override;
-    virtual bool verifyAliasedMemberImpl(const std::string& fieldName) const override;
-    virtual const ParseXmlWrap::NamesList& supportedMemberTypesImpl() const override;
-    virtual const FieldsList& membersImpl() const override;
+    virtual bool parseReplaceMembersImpl(FieldsList& members) override;
+    virtual std::size_t parseMinLengthImpl() const override;
+    virtual bool parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
+    virtual bool parseStrToFpImpl(const std::string& ref, double& val) const override;
+    virtual bool parseStrToBoolImpl(const std::string& ref, bool& val) const override;
+    virtual bool parseVerifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const override;
+    virtual bool parseVerifyAliasedMemberImpl(const std::string& fieldName) const override;
+    virtual const ParseXmlWrap::NamesList& parseSupportedMemberTypesImpl() const override;
+    virtual const FieldsList& parseMembersImpl() const override;
 
 private:
-    bool updateEndian();
-    bool updateMembers();
-    bool updateSingleValidCond();
-    bool updateMultiValidCond();
-    bool copyValidCond();
+    bool parseUpdateEndian();
+    bool parseUpdateMembers();
+    bool parseUpdateSingleValidCond();
+    bool parseUpdateMultiValidCond();
+    bool parseCopyValidCond();
 
-    bool updateSingleCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);
-    bool updateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);    
+    bool parseUpdateSingleCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);
+    bool parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);    
 
     ParseEndian m_endian = ParseEndian_NumOfValues;
     FieldsList m_members;

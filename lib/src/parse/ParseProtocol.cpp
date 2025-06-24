@@ -30,9 +30,9 @@ ParseProtocol::ParseProtocol()
 {
 }
 
-void ParseProtocol::setErrorReportCallback(ParseProtocol::ErrorReportFunction&& cb)
+void ParseProtocol::parseSetErrorReportCallback(ParseProtocol::ErrorReportFunction&& cb)
 {
-    m_pImpl->setErrorReportCallback(std::move(cb));
+    m_pImpl->parseSetErrorReportCallback(std::move(cb));
 }
 
 ParseProtocol::~ParseProtocol() = default;
@@ -42,39 +42,39 @@ bool ParseProtocol::parse(const std::string& input)
     return m_pImpl->parse(input);
 }
 
-bool ParseProtocol::validate()
+bool ParseProtocol::parseValidate()
 {
-    return m_pImpl->validate();
+    return m_pImpl->parseValidate();
 }
 
-ParseProtocol::SchemasList ParseProtocol::schemas() const
+ParseProtocol::SchemasList ParseProtocol::parseSchemas() const
 {
-    return m_pImpl->schemas();
+    return m_pImpl->parseSchemas();
 }
 
-ParseSchema ParseProtocol::lastParsedSchema() const
+ParseSchema ParseProtocol::parseLastParsedSchema() const
 {
-    return ParseSchema(&m_pImpl->currSchema());
+    return ParseSchema(&m_pImpl->parseCurrSchema());
 }
 
-ParseField ParseProtocol::findField(const std::string& externalRef) const
+ParseField ParseProtocol::parseFindField(const std::string& externalRef) const
 {
-    return ParseField(m_pImpl->findField(externalRef));
+    return ParseField(m_pImpl->parseFindField(externalRef));
 }
 
-void ParseProtocol::addExpectedExtraPrefix(const std::string& value)
+void ParseProtocol::parseAddExpectedExtraPrefix(const std::string& value)
 {
-    return m_pImpl->addExpectedExtraPrefix(value);
+    return m_pImpl->parseAddExpectedExtraPrefix(value);
 }
 
-void ParseProtocol::setMultipleSchemasEnabled(bool value)
+void ParseProtocol::parseSetMultipleSchemasEnabled(bool value)
 {
-    m_pImpl->setMultipleSchemasEnabled(value);
+    m_pImpl->parseSetMultipleSchemasEnabled(value);
 }
 
-bool ParseProtocol::getMultipleSchemasEnabled() const
+bool ParseProtocol::parseGetMultipleSchemasEnabled() const
 {
-    return m_pImpl->getMultipleSchemasEnabled();
+    return m_pImpl->parseGetMultipleSchemasEnabled();
 }
 
 } // namespace parse

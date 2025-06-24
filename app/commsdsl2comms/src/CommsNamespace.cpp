@@ -254,7 +254,7 @@ bool CommsNamespace::commsHasReferencedMsgId() const
             {
                 return 
                     (f->field().isReferenced()) && 
-                    (f->field().dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::MessageId);
+                    (f->field().dslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::MessageId);
             });
 }
 

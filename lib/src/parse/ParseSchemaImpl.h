@@ -43,49 +43,49 @@ public:
 
     ParseSchemaImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
 
-    bool processNode();
+    bool parseProcessNode();
 
-    ::xmlNodePtr getNode() const
+    ::xmlNodePtr parseGetNode() const
     {
         return m_node;
     }
 
-    const PropsMap& props() const
+    const PropsMap& parseProps() const
     {
         return m_props;
     }
 
-    const std::string& name() const
+    const std::string& parseName() const
     {
         return m_name;
     }
 
-    const std::string& description() const
+    const std::string& parseDescription() const
     {
         return m_description;
     }
 
-    unsigned id() const
+    unsigned parseId() const
     {
         return m_id;
     }
 
-    unsigned version() const
+    unsigned parseVersion() const
     {
         return m_version;
     }
 
-    unsigned dslVersion() const
+    unsigned parseDslVersion() const
     {
         return m_dslVersion;
     }
 
-    ParseEndian endian() const
+    ParseEndian parseEndian() const
     {
         return m_endian;
     }
 
-    bool nonUniqueMsgIdAllowed() const
+    bool parseNonUniqueMsgIdAllowed() const
     {
         return m_nonUniqueMsgIdAllowed;
     }
@@ -100,61 +100,61 @@ public:
         return m_extraAttrs;
     }
 
-    const ContentsList& extraChildrenElements() const
+    const ContentsList& parseExtraChildrenElements() const
     {
         return m_extraChildren;
     }
 
-    ContentsList& extraChildrenElements()
+    ContentsList& parseExtraChildrenElements()
     {
         return m_extraChildren;
     }
 
-    const NamespacesMap& namespaces() const
+    const NamespacesMap& parseNamespaces() const
     {
         return m_namespaces;
     }
 
-    NamespacesList namespacesList() const;    
+    NamespacesList parseNamespacesList() const;    
 
-    const ParseFieldImpl* findField(const std::string& ref, bool checkRef = true) const;
+    const ParseFieldImpl* parseFindField(const std::string& ref, bool checkRef = true) const;
 
-    const ParseMessageImpl* findMessage(const std::string& ref, bool checkRef = true) const;
+    const ParseMessageImpl* parseFindMessage(const std::string& ref, bool checkRef = true) const;
 
-    const ParseInterfaceImpl* findInterface(const std::string& ref, bool checkRef = true) const;    
+    const ParseInterfaceImpl* parseFindInterface(const std::string& ref, bool checkRef = true) const;    
 
-    const PlatformsList& platforms() const
+    const PlatformsList& parsePlatforms() const
     {
         return m_platforms;
     }
 
-    MessagesList allMessages() const;
-    InterfacesList allInterfaces() const;
-    ImplInterfacesList allImplInterfaces() const;
+    MessagesList parseAllMessages() const;
+    InterfacesList parseAllInterfaces() const;
+    ImplInterfacesList parseAllImplInterfaces() const;
 
-    bool addPlatform(const std::string& name);
-    void addNamespace(ParseNamespaceImplPtr ns);
-    ParseNamespaceImpl& defaultNamespace();
+    bool parseAddPlatform(const std::string& name);
+    void parseAddNamespace(ParseNamespaceImplPtr ns);
+    ParseNamespaceImpl& parseDefaultNamespace();
 
-    bool validateAllMessages();
-    unsigned countMessageIds() const;
+    bool parseValidateAllMessages();
+    unsigned parseCountMessageIds() const;
 
-    std::string externalRef() const;
+    std::string parseExternalRef() const;
 
-    FieldRefInfosList processInterfaceFieldRef(const std::string& refStr) const;
+    FieldRefInfosList parseProcessInterfaceFieldRef(const std::string& refStr) const;
 
 protected:
-    virtual ObjKind objKindImpl() const override;    
+    virtual ObjKind parseObjKindImpl() const override;    
 
 private:
 
-    bool updateStringProperty(const PropsMap& map, const std::string& name, std::string& prop);
-    bool updateUnsignedProperty(const PropsMap& map, const std::string& name, unsigned& prop);
-    bool updateEndianProperty(const PropsMap& map, const std::string& name, ParseEndian& prop);
-    bool updateBooleanProperty(const PropsMap& map, const std::string& name, bool& prop);
-    bool updateExtraAttrs();
-    bool updateExtraChildren();
-    const ParseNamespaceImpl* getNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const;
+    bool parseUpdateStringProperty(const PropsMap& map, const std::string& name, std::string& prop);
+    bool parseUpdateUnsignedProperty(const PropsMap& map, const std::string& name, unsigned& prop);
+    bool parseUpdateEndianProperty(const PropsMap& map, const std::string& name, ParseEndian& prop);
+    bool parseUpdateBooleanProperty(const PropsMap& map, const std::string& name, bool& prop);
+    bool parseUpdateExtraAttrs();
+    bool parseUpdateExtraChildren();
+    const ParseNamespaceImpl* parseGetNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const;
 
     ::xmlNodePtr m_node = nullptr;
     ParseProtocolImpl& m_protocol;

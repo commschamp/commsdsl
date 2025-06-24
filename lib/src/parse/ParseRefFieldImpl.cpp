@@ -40,17 +40,17 @@ ParseRefFieldImpl::ParseRefFieldImpl(::xmlNodePtr node, ParseProtocolImpl& proto
 
 ParseRefFieldImpl::ParseRefFieldImpl(const ParseRefFieldImpl&) = default;
 
-ParseFieldImpl::Kind ParseRefFieldImpl::kindImpl() const
+ParseFieldImpl::Kind ParseRefFieldImpl::parseKindImpl() const
 {
     return Kind::Ref;
 }
 
-ParseFieldImpl::Ptr ParseRefFieldImpl::cloneImpl() const
+ParseFieldImpl::Ptr ParseRefFieldImpl::parseCloneImpl() const
 {
     return Ptr(new ParseRefFieldImpl(*this));
 }
 
-const ParseXmlWrap::NamesList& ParseRefFieldImpl::extraPropsNamesImpl() const
+const ParseXmlWrap::NamesList& ParseRefFieldImpl::parseExtraPropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
         common::fieldStr(),
@@ -60,9 +60,9 @@ const ParseXmlWrap::NamesList& ParseRefFieldImpl::extraPropsNamesImpl() const
     return List;
 }
 
-bool ParseRefFieldImpl::reuseImpl(const ParseFieldImpl& other)
+bool ParseRefFieldImpl::parseReuseImpl(const ParseFieldImpl& other)
 {
-    assert(other.kind() == kind());
+    assert(other.parseKind() == parseKind());
     auto& castedOther = static_cast<const ParseRefFieldImpl&>(other);
     m_state = castedOther.m_state;
     m_field = castedOther.m_field;
@@ -73,166 +73,166 @@ bool ParseRefFieldImpl::reuseImpl(const ParseFieldImpl& other)
 bool ParseRefFieldImpl::parseImpl()
 {
     bool mustHaveField = (m_field == nullptr);
-    if (!validateSinglePropInstance(common::fieldStr(), mustHaveField)) {
+    if (!parseValidateSinglePropInstance(common::fieldStr(), mustHaveField)) {
         return false;
     }
 
-    auto propsIter = props().find(common::fieldStr());
-    if (propsIter == props().end()) {
+    auto propsIter = parseProps().find(common::fieldStr());
+    if (propsIter == parseProps().end()) {
         assert(m_field != nullptr);
-        assert(!name().empty());
+        assert(!parseName().empty());
         return true;
     }
 
-    m_field = protocol().findField(propsIter->second);
+    m_field = parseProtocol().parseFindField(propsIter->second);
     if (m_field == nullptr) {
-        reportUnexpectedPropertyValue(common::fieldStr(), propsIter->second);
+        parseReportUnexpectedPropertyValue(common::fieldStr(), propsIter->second);
         return false;
     }
 
-    bool result = updateBitLength();
+    bool result = parseUpdateBitLength();
     if (!result) {
         return false;
     }
 
-    if (name().empty()) {
-        setName(m_field->name());
+    if (parseName().empty()) {
+        parseSetName(m_field->parseName());
     }
 
-    if (displayName().empty() && (!m_field->displayName().empty())) {
-        setDisplayName(m_field->displayName());
+    if (parseDisplayName().empty() && (!m_field->parseDisplayName().empty())) {
+        parseSetDisplayName(m_field->parseDisplayName());
     }
 
-    if ((protocol().isSemanticTypeRefInheritanceSupported()) &&
-        (semanticType() == SemanticType::None) &&
-        (m_field->semanticType() != SemanticType::MessageId)) {
-        setSemanticType(m_field->semanticType());
+    if ((parseProtocol().parseIsSemanticTypeRefInheritanceSupported()) &&
+        (parseSemanticType() == SemanticType::None) &&
+        (m_field->parseSemanticType() != SemanticType::MessageId)) {
+        parseSetSemanticType(m_field->parseSemanticType());
     }
 
     return true;
 }
 
-std::size_t ParseRefFieldImpl::minLengthImpl() const
+std::size_t ParseRefFieldImpl::parseMinLengthImpl() const
 {
     assert(m_field != nullptr);
-    return m_field->minLength();
+    return m_field->parseMinLength();
 }
 
-std::size_t ParseRefFieldImpl::maxLengthImpl() const
+std::size_t ParseRefFieldImpl::parseMaxLengthImpl() const
 {
     assert(m_field != nullptr);
-    return m_field->maxLength();
+    return m_field->parseMaxLength();
 }
 
-std::size_t ParseRefFieldImpl::bitLengthImpl() const
+std::size_t ParseRefFieldImpl::parseBitLengthImpl() const
 {
-    if (isBitfieldMember()) {
+    if (parseIsBitfieldMember()) {
         return m_state.m_bitLength;
     }
 
-    return Base::bitLengthImpl();
+    return Base::parseBitLengthImpl();
 }
 
-bool ParseRefFieldImpl::isComparableToValueImpl(const std::string& val) const
+bool ParseRefFieldImpl::parseIsComparableToValueImpl(const std::string& val) const
 {
     assert(m_field != nullptr);
-    return m_field->isComparableToValue(val);
+    return m_field->parseIsComparableToValue(val);
 }
 
-bool ParseRefFieldImpl::isComparableToFieldImpl(const ParseFieldImpl& field) const
+bool ParseRefFieldImpl::parseIsComparableToFieldImpl(const ParseFieldImpl& field) const
 {
     assert(m_field != nullptr);
-    return m_field->isComparableToField(field);
+    return m_field->parseIsComparableToField(field);
 }
 
-bool ParseRefFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+bool ParseRefFieldImpl::parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
 {
     return
-        strToValue(
+        parseStrToValue(
             ref,
             [&val, &isBigUnsigned](const ParseFieldImpl& f, const std::string& str)
             {
-                return f.strToNumeric(str, val, isBigUnsigned);
+                return f.parseStrToNumeric(str, val, isBigUnsigned);
             });
 }
 
-bool ParseRefFieldImpl::strToFpImpl(const std::string& ref, double& val) const
+bool ParseRefFieldImpl::parseStrToFpImpl(const std::string& ref, double& val) const
 {
     return
-        strToValue(
+        parseStrToValue(
             ref,
             [&val](const ParseFieldImpl& f, const std::string& str)
             {
-                return f.strToFp(str, val);
+                return f.parseStrToFp(str, val);
             });
     }
 
-bool ParseRefFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
+bool ParseRefFieldImpl::parseStrToBoolImpl(const std::string& ref, bool& val) const
 {
     return
-        strToValue(
+        parseStrToValue(
             ref,
             [&val](const ParseFieldImpl& f, const std::string& str)
             {
-                return f.strToBool(str, val);
+                return f.parseStrToBool(str, val);
             });
 }
 
-bool ParseRefFieldImpl::strToStringImpl(const std::string& ref, std::string& val) const
+bool ParseRefFieldImpl::parseStrToStringImpl(const std::string& ref, std::string& val) const
 {
     return
-        strToValue(
+        parseStrToValue(
             ref,
             [&val](const ParseFieldImpl& f, const std::string& str)
             {
-                return f.strToString(str, val);
+                return f.parseStrToString(str, val);
             });
 }
 
-bool ParseRefFieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const
+bool ParseRefFieldImpl::parseStrToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const
 {
     return
-        strToValue(
+        parseStrToValue(
             ref,
             [&val](const ParseFieldImpl& f, const std::string& str)
             {
-                return f.strToData(str, val);
+                return f.parseStrToData(str, val);
             });
 }
 
-bool ParseRefFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const
+bool ParseRefFieldImpl::parseValidateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const
 {
     assert(m_field != nullptr);
-    return m_field->validateBitLengthValue(node, bitLength);
+    return m_field->parseValidateBitLengthValue(node, bitLength);
 }
 
-bool ParseRefFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+bool ParseRefFieldImpl::parseVerifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
 {
     assert(m_field != nullptr);
-    return m_field->verifySemanticType(node, type);
+    return m_field->parseVerifySemanticType(node, type);
 }
 
-ParseRefFieldImpl::FieldRefInfo ParseRefFieldImpl::processInnerRefImpl(const std::string& refStr) const
+ParseRefFieldImpl::FieldRefInfo ParseRefFieldImpl::parseProcessInnerRefImpl(const std::string& refStr) const
 {
     assert(m_field != nullptr);
-    return m_field->processInnerRef(refStr);
+    return m_field->parseProcessInnerRef(refStr);
 }
 
-bool ParseRefFieldImpl::isValidRefTypeImpl(FieldRefType type) const
+bool ParseRefFieldImpl::parseIsValidRefTypeImpl(FieldRefType type) const
 {
     assert(m_field != nullptr);
-    return m_field->isValidRefType(type);
+    return m_field->parseIsValidRefType(type);
 }
 
-bool ParseRefFieldImpl::updateBitLength()
+bool ParseRefFieldImpl::parseUpdateBitLength()
 {
-    if (!validateSinglePropInstance(common::bitLengthStr())) {
+    if (!parseValidateSinglePropInstance(common::bitLengthStr())) {
         return false;
     }
 
-    auto& valStr = common::getStringProp(props(), common::bitLengthStr());
-    assert(0 < maxLength());
-    auto maxBitLength = maxLength() * BitsInByte;
+    auto& valStr = common::getStringProp(parseProps(), common::bitLengthStr());
+    assert(0 < parseMaxLength());
+    auto maxBitLength = parseMaxLength() * BitsInByte;
     if (valStr.empty()) {
         if (m_state.m_bitLength == 0) {
             m_state.m_bitLength = maxBitLength;
@@ -243,8 +243,8 @@ bool ParseRefFieldImpl::updateBitLength()
         return true;
     }    
 
-    if (!isBitfieldMember()) {
-        logWarning() << ParseXmlWrap::logPrefix((getNode())) <<
+    if (!parseIsBitfieldMember()) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix((parseGetNode())) <<
                         "The property \"" << common::bitLengthStr() << "\" is "
                         "applicable only to the members of \"" << common::bitfieldStr() << "\"";
         return true;
@@ -253,23 +253,23 @@ bool ParseRefFieldImpl::updateBitLength()
     bool ok = false;
     m_state.m_bitLength = common::strToUnsigned(valStr, &ok);
     if (!ok) {
-        reportUnexpectedPropertyValue(common::bitLengthStr(), valStr);
+        parseReportUnexpectedPropertyValue(common::bitLengthStr(), valStr);
         return false;
     }
 
     assert(m_field != nullptr);
-    if (!m_field->validateBitLengthValue(getNode(), m_state.m_bitLength)) {
+    if (!m_field->parseValidateBitLengthValue(parseGetNode(), m_state.m_bitLength)) {
         return false;
     }
 
     return true;
 }
 
-bool ParseRefFieldImpl::strToValue(
+bool ParseRefFieldImpl::parseStrToValue(
     const std::string& ref,
     StrToValueFieldConvertFunc&& forwardFunc) const
 {
-    if (!protocol().isFieldValueReferenceSupported()) {
+    if (!parseProtocol().parseIsFieldValueReferenceSupported()) {
         return false;
     }
 

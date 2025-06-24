@@ -28,7 +28,7 @@ namespace gen
 GenIdLayer::GenIdLayer(GenGenerator& generator, commsdsl::parse::ParseLayer dslObj, GenElem* parent) :
     Base(generator, dslObj, parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Id);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Id);
 }
 
 GenIdLayer::~GenIdLayer() = default;

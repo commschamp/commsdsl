@@ -41,36 +41,36 @@ public:
     ParseOptCondImpl(ParseOptCondImpl&&) = default;
     virtual ~ParseOptCondImpl() = default;
 
-    Kind kind() const
+    Kind parseKind() const
     {
-        return kindImpl();
+        return parseKindImpl();
     }
 
-    Ptr clone() const
+    Ptr parseClone() const
     {
-        return cloneImpl();
+        return parseCloneImpl();
     }
 
-    bool verify(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
+    bool parseVerify(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
     {
-        return verifyImpl(fields, node, protocol);
+        return parseVerifyImpl(fields, node, protocol);
     }
 
-    void overrideCondStr(const std::string& str)
+    void parseOverrideCondStr(const std::string& str)
     {
         m_condStr = str;
     }
 
-    bool hasInterfaceReference() const
+    bool parseHasInterfaceReference() const
     {
-        return hasInterfaceReferenceImpl();
+        return parseHasInterfaceReferenceImpl();
     }
 
 protected:
-    virtual Kind kindImpl() const = 0;
-    virtual Ptr cloneImpl() const = 0;
-    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const = 0;
-    virtual bool hasInterfaceReferenceImpl() const = 0;
+    virtual Kind parseKindImpl() const = 0;
+    virtual Ptr parseCloneImpl() const = 0;
+    virtual bool parseVerifyImpl(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const = 0;
+    virtual bool parseHasInterfaceReferenceImpl() const = 0;
 
     const std::string& condStr() const
     {
@@ -94,41 +94,41 @@ public:
 
     bool parse(const std::string& expr, ::xmlNodePtr node, const ParseProtocolImpl& protocol);
 
-    const std::string& left() const
+    const std::string& parseLeft() const
     {
         return m_left;
     }
 
-    const std::string& op() const
+    const std::string& parseOp() const
     {
         return m_op;
     }
 
-    const std::string& right() const
+    const std::string& parseRight() const
     {
         return m_right;
     }
 
-    OperandInfo leftInfo() const;
-    OperandInfo rightInfo() const;
+    OperandInfo parseLeftInfo() const;
+    OperandInfo parseRightInfo() const;
 
 protected:
-    virtual Kind kindImpl() const override;
-    virtual Ptr cloneImpl() const override;
-    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const override;
-    virtual bool hasInterfaceReferenceImpl() const override;
+    virtual Kind parseKindImpl() const override;
+    virtual Ptr parseCloneImpl() const override;
+    virtual bool parseVerifyImpl(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const override;
+    virtual bool parseHasInterfaceReferenceImpl() const override;
 
 private:
-    bool hasUpdatedValue();
-    bool checkComparison(const std::string& expr, const std::string& op, ::xmlNodePtr node, const ParseProtocolImpl& protocol);
-    bool checkBool(const std::string& expr, ::xmlNodePtr node, const ParseProtocolImpl& protocol);
-    bool verifySingleElementCheck(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const;
-    bool verifySiblingSingleElementCheck(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const;
-    bool verifyInterfaceBitCheck(::xmlNodePtr node, const ParseProtocolImpl& protocol) const;
-    bool verifyComparison(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const;
-    bool verifySiblingComparison(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const;
-    bool verifyInterfaceComparison(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const;
-    bool verifyValidSizeValueComparison() const;
+    bool parseHasUpdatedValue();
+    bool parseCheckComparison(const std::string& expr, const std::string& op, ::xmlNodePtr node, const ParseProtocolImpl& protocol);
+    bool parseCheckBool(const std::string& expr, ::xmlNodePtr node, const ParseProtocolImpl& protocol);
+    bool parseVerifySingleElementCheck(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const;
+    bool parseVerifySiblingSingleElementCheck(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const;
+    bool parseVerifyInterfaceBitCheck(::xmlNodePtr node, const ParseProtocolImpl& protocol) const;
+    bool parseVerifyComparison(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const;
+    bool parseVerifySiblingComparison(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const;
+    bool parseVerifyInterfaceComparison(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const;
+    bool parseVerifyValidSizeValueComparison() const;
 
     std::string m_left;
     std::string m_op;
@@ -147,22 +147,22 @@ public:
     ParseOptCondListImpl(const ParseOptCondListImpl& other);
     ParseOptCondListImpl(ParseOptCondListImpl&&) = default;
 
-    Type type() const
+    Type parseType() const
     {
         return m_type;
     }
 
-    CondList condList() const;
+    CondList parseCondList() const;
 
     bool parse(::xmlNodePtr node, const ParseProtocolImpl& protocol);
 
 
 
 protected:
-    virtual Kind kindImpl() const override;
-    virtual Ptr cloneImpl() const override;
-    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const override;
-    virtual bool hasInterfaceReferenceImpl() const override;
+    virtual Kind parseKindImpl() const override;
+    virtual Ptr parseCloneImpl() const override;
+    virtual bool parseVerifyImpl(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const override;
+    virtual bool parseHasInterfaceReferenceImpl() const override;
 
 private:
     List m_conds;

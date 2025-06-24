@@ -59,28 +59,28 @@ void MessageTestSuite::test1()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 2U);
 
     auto& msg1 = messages[0];
     auto& msg2 = messages[1];
-    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
-    TS_ASSERT_EQUALS(msg1.id(), 16);
-    TS_ASSERT(msg1.fields().empty());
-    TS_ASSERT_EQUALS(msg1.minLength(), 0U);
-    TS_ASSERT_EQUALS(msg1.maxLength(), 0U);
+    TS_ASSERT_EQUALS(msg1.parseName(), "Msg1");
+    TS_ASSERT_EQUALS(msg1.parseId(), 16);
+    TS_ASSERT(msg1.parseFields().empty());
+    TS_ASSERT_EQUALS(msg1.parseMinLength(), 0U);
+    TS_ASSERT_EQUALS(msg1.parseMaxLength(), 0U);
 
-    TS_ASSERT_EQUALS(msg2.name(), "Msg2");
-    TS_ASSERT_EQUALS(msg2.id(), 10);
-    TS_ASSERT(msg2.fields().empty());
-    TS_ASSERT_EQUALS(msg2.minLength(), 0U);
-    TS_ASSERT_EQUALS(msg2.maxLength(), 0U);
+    TS_ASSERT_EQUALS(msg2.parseName(), "Msg2");
+    TS_ASSERT_EQUALS(msg2.parseId(), 10);
+    TS_ASSERT(msg2.parseFields().empty());
+    TS_ASSERT_EQUALS(msg2.parseMinLength(), 0U);
+    TS_ASSERT_EQUALS(msg2.parseMaxLength(), 0U);
 }
 
 void MessageTestSuite::test2()
@@ -88,34 +88,34 @@ void MessageTestSuite::test2()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
     auto& f1 = fields[0];
-    TS_ASSERT_EQUALS(f1.semanticType(), commsdsl::parse::ParseField::SemanticType::MessageId);
+    TS_ASSERT_EQUALS(f1.parseSemanticType(), commsdsl::parse::ParseField::SemanticType::MessageId);
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 2U);
 
     auto& msg1 = messages[0];
     auto& msg2 = messages[1];
-    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
-    TS_ASSERT_EQUALS(msg1.id(), 0);
-    TS_ASSERT_EQUALS(msg1.minLength(), 4U);
-    TS_ASSERT_EQUALS(msg1.maxLength(), 4U);
-    auto fields1 = msg1.fields();
+    TS_ASSERT_EQUALS(msg1.parseName(), "Msg1");
+    TS_ASSERT_EQUALS(msg1.parseId(), 0);
+    TS_ASSERT_EQUALS(msg1.parseMinLength(), 4U);
+    TS_ASSERT_EQUALS(msg1.parseMaxLength(), 4U);
+    auto fields1 = msg1.parseFields();
     TS_ASSERT_EQUALS(fields1.size(), 1U);
 
-    TS_ASSERT_EQUALS(msg2.name(), "Msg2");
-    TS_ASSERT_EQUALS(msg2.id(), 1);
-    TS_ASSERT_EQUALS(msg2.minLength(), 8U);
-    TS_ASSERT_EQUALS(msg2.maxLength(), 8U);
-    auto fields2 = msg2.fields();
+    TS_ASSERT_EQUALS(msg2.parseName(), "Msg2");
+    TS_ASSERT_EQUALS(msg2.parseId(), 1);
+    TS_ASSERT_EQUALS(msg2.parseMinLength(), 8U);
+    TS_ASSERT_EQUALS(msg2.parseMaxLength(), 8U);
+    auto fields2 = msg2.parseFields();
     TS_ASSERT_EQUALS(fields2.size(), 2U);
 }
 
@@ -132,42 +132,42 @@ void MessageTestSuite::test4()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 3U);
 
     auto& msg1 = messages[0];
     auto& msg2 = messages[1];
     auto& msg3 = messages[2];
-    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
-    TS_ASSERT_EQUALS(msg1.id(), 0);
-    TS_ASSERT_EQUALS(msg1.minLength(), 4U);
-    TS_ASSERT_EQUALS(msg1.maxLength(), 8U);
-    TS_ASSERT_EQUALS(msg1.sinceVersion(), 0U);
-    auto fields1 = msg1.fields();
+    TS_ASSERT_EQUALS(msg1.parseName(), "Msg1");
+    TS_ASSERT_EQUALS(msg1.parseId(), 0);
+    TS_ASSERT_EQUALS(msg1.parseMinLength(), 4U);
+    TS_ASSERT_EQUALS(msg1.parseMaxLength(), 8U);
+    TS_ASSERT_EQUALS(msg1.parseSinceVersion(), 0U);
+    auto fields1 = msg1.parseFields();
     TS_ASSERT_EQUALS(fields1.size(), 2U);
 
-    TS_ASSERT_EQUALS(msg2.name(), "Msg2");
-    TS_ASSERT_EQUALS(msg2.id(), 1);
-    TS_ASSERT_EQUALS(msg2.minLength(), 6U);
-    TS_ASSERT_EQUALS(msg2.maxLength(), 6U);
-    TS_ASSERT_EQUALS(msg2.sinceVersion(), 2U);
-    TS_ASSERT(msg2.copyCodeFrom().empty());
-    auto fields2 = msg2.fields();
+    TS_ASSERT_EQUALS(msg2.parseName(), "Msg2");
+    TS_ASSERT_EQUALS(msg2.parseId(), 1);
+    TS_ASSERT_EQUALS(msg2.parseMinLength(), 6U);
+    TS_ASSERT_EQUALS(msg2.parseMaxLength(), 6U);
+    TS_ASSERT_EQUALS(msg2.parseSinceVersion(), 2U);
+    TS_ASSERT(msg2.parseCopyCodeFrom().empty());
+    auto fields2 = msg2.parseFields();
     TS_ASSERT_EQUALS(fields2.size(), 2U);
 
-    TS_ASSERT_EQUALS(msg3.name(), "Msg3");
-    TS_ASSERT_EQUALS(msg3.id(), 2);
-    TS_ASSERT_EQUALS(msg3.copyCodeFrom(), "Msg2");
-    auto fields3 = msg3.fields();
+    TS_ASSERT_EQUALS(msg3.parseName(), "Msg3");
+    TS_ASSERT_EQUALS(msg3.parseId(), 2);
+    TS_ASSERT_EQUALS(msg3.parseCopyCodeFrom(), "Msg2");
+    auto fields3 = msg3.parseFields();
     TS_ASSERT_EQUALS(fields3.size(), 3U);   
 
-    TS_ASSERT_EQUALS(fields3[1].kind(), commsdsl::parse::ParseField::Kind::Enum); 
+    TS_ASSERT_EQUALS(fields3[1].parseKind(), commsdsl::parse::ParseField::Kind::Enum); 
 }
 
 void MessageTestSuite::test5()
@@ -183,24 +183,24 @@ void MessageTestSuite::test6()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 1U);
 
     auto& msg1 = messages[0];
-    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
-    TS_ASSERT_EQUALS(msg1.id(), 0);
-    TS_ASSERT_EQUALS(msg1.minLength(), 8U);
-    TS_ASSERT_EQUALS(msg1.maxLength(), 8U);
-    TS_ASSERT_EQUALS(msg1.sinceVersion(), 2U);
-    auto fields1 = msg1.fields();
+    TS_ASSERT_EQUALS(msg1.parseName(), "Msg1");
+    TS_ASSERT_EQUALS(msg1.parseId(), 0);
+    TS_ASSERT_EQUALS(msg1.parseMinLength(), 8U);
+    TS_ASSERT_EQUALS(msg1.parseMaxLength(), 8U);
+    TS_ASSERT_EQUALS(msg1.parseSinceVersion(), 2U);
+    auto fields1 = msg1.parseFields();
     TS_ASSERT_EQUALS(fields1.size(), 2U);
-    TS_ASSERT_EQUALS(fields1[0].sinceVersion(), 2U);
+    TS_ASSERT_EQUALS(fields1[0].parseSinceVersion(), 2U);
 }
 
 void MessageTestSuite::test7()
@@ -232,31 +232,31 @@ void MessageTestSuite::test10()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 2U);
 
     auto& msg1 = messages[0];
     auto& msg2 = messages[1];
-    TS_ASSERT_EQUALS(msg1.name(), "Msg1_1");
-    TS_ASSERT_EQUALS(msg1.id(), 0U);
-    TS_ASSERT_EQUALS(msg1.order(), 0U);
-    TS_ASSERT_EQUALS(msg1.minLength(), 8U);
-    TS_ASSERT_EQUALS(msg1.maxLength(), 8U);
-    auto fields1 = msg1.fields();
+    TS_ASSERT_EQUALS(msg1.parseName(), "Msg1_1");
+    TS_ASSERT_EQUALS(msg1.parseId(), 0U);
+    TS_ASSERT_EQUALS(msg1.parseOrder(), 0U);
+    TS_ASSERT_EQUALS(msg1.parseMinLength(), 8U);
+    TS_ASSERT_EQUALS(msg1.parseMaxLength(), 8U);
+    auto fields1 = msg1.parseFields();
     TS_ASSERT_EQUALS(fields1.size(), 2U);
 
-    TS_ASSERT_EQUALS(msg2.name(), "Msg1_2");
-    TS_ASSERT_EQUALS(msg2.id(), msg1.id());
-    TS_ASSERT_EQUALS(msg2.order(), 1U);
-    TS_ASSERT_EQUALS(msg2.minLength(), 6U);
-    TS_ASSERT_EQUALS(msg2.maxLength(), 6U);
-    auto fields2 = msg2.fields();
+    TS_ASSERT_EQUALS(msg2.parseName(), "Msg1_2");
+    TS_ASSERT_EQUALS(msg2.parseId(), msg1.parseId());
+    TS_ASSERT_EQUALS(msg2.parseOrder(), 1U);
+    TS_ASSERT_EQUALS(msg2.parseMinLength(), 6U);
+    TS_ASSERT_EQUALS(msg2.parseMaxLength(), 6U);
+    auto fields2 = msg2.parseFields();
     TS_ASSERT_EQUALS(fields2.size(), 2U);
 }
 
@@ -275,22 +275,22 @@ void MessageTestSuite::test12()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 1U);
 
     auto& msg1 = messages[0];
-    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
-    TS_ASSERT_EQUALS(msg1.id(), 0U);
-    TS_ASSERT_EQUALS(msg1.order(), 0U);
-    TS_ASSERT_EQUALS(msg1.minLength(), 0U);
-    TS_ASSERT_EQUALS(msg1.maxLength(), 0U);
-    TS_ASSERT(msg1.fields().empty());
+    TS_ASSERT_EQUALS(msg1.parseName(), "Msg1");
+    TS_ASSERT_EQUALS(msg1.parseId(), 0U);
+    TS_ASSERT_EQUALS(msg1.parseOrder(), 0U);
+    TS_ASSERT_EQUALS(msg1.parseMinLength(), 0U);
+    TS_ASSERT_EQUALS(msg1.parseMaxLength(), 0U);
+    TS_ASSERT(msg1.parseFields().empty());
     auto& extraAttrs = msg1.parseExtraAttributes();
     auto& extraChildren = msg1.parseExtraElements();
 
@@ -307,28 +307,28 @@ void MessageTestSuite::test13()
     m_status.m_preValidateFunc =
         [](commsdsl::parse::ParseProtocol& p)
         {
-            p.addExpectedExtraPrefix("prefix.");
+            p.parseAddExpectedExtraPrefix("prefix.");
         };
 
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 1U);
 
     auto& msg1 = messages[0];
-    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
-    TS_ASSERT_EQUALS(msg1.id(), 0U);
-    TS_ASSERT_EQUALS(msg1.order(), 0U);
-    TS_ASSERT_EQUALS(msg1.minLength(), 0U);
-    TS_ASSERT_EQUALS(msg1.maxLength(), 0U);
-    TS_ASSERT(msg1.fields().empty());
+    TS_ASSERT_EQUALS(msg1.parseName(), "Msg1");
+    TS_ASSERT_EQUALS(msg1.parseId(), 0U);
+    TS_ASSERT_EQUALS(msg1.parseOrder(), 0U);
+    TS_ASSERT_EQUALS(msg1.parseMinLength(), 0U);
+    TS_ASSERT_EQUALS(msg1.parseMaxLength(), 0U);
+    TS_ASSERT(msg1.parseFields().empty());
     auto& extraAttrs = msg1.parseExtraAttributes();
     auto& extraChildren = msg1.parseExtraElements();
 
@@ -345,23 +345,23 @@ void MessageTestSuite::test14()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 1U);
 
     auto& msg1 = messages[0];
-    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
-    TS_ASSERT_EQUALS(msg1.id(), 0U);
-    TS_ASSERT_EQUALS(msg1.order(), 0U);
-    TS_ASSERT_EQUALS(msg1.minLength(), 0U);
-    TS_ASSERT_EQUALS(msg1.maxLength(), 0U);
-    TS_ASSERT(msg1.fields().empty());
-    TS_ASSERT_EQUALS(msg1.description(), "This is multiline description");
+    TS_ASSERT_EQUALS(msg1.parseName(), "Msg1");
+    TS_ASSERT_EQUALS(msg1.parseId(), 0U);
+    TS_ASSERT_EQUALS(msg1.parseOrder(), 0U);
+    TS_ASSERT_EQUALS(msg1.parseMinLength(), 0U);
+    TS_ASSERT_EQUALS(msg1.parseMaxLength(), 0U);
+    TS_ASSERT(msg1.parseFields().empty());
+    TS_ASSERT_EQUALS(msg1.parseDescription(), "This is multiline description");
 }
 
 void MessageTestSuite::test15()
@@ -369,22 +369,22 @@ void MessageTestSuite::test15()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 2U);
 
     auto& msg1 = messages[0];
     auto& msg2 = messages[1];
-    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
-    TS_ASSERT_EQUALS(msg2.name(), "Msg2");
+    TS_ASSERT_EQUALS(msg1.parseName(), "Msg1");
+    TS_ASSERT_EQUALS(msg2.parseName(), "Msg2");
 
-    auto& platforms1 = msg1.platforms();
-    auto& platforms2 = msg2.platforms();
+    auto& platforms1 = msg1.parsePlatforms();
+    auto& platforms2 = msg2.parsePlatforms();
 
     TS_ASSERT_EQUALS(platforms1.size(), 2U);
     TS_ASSERT_EQUALS(platforms1[0], "p1");
@@ -415,35 +415,35 @@ void MessageTestSuite::test18()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 4U);
 
     auto& msg1 = messages[0];
     auto& msg2 = messages[1];
     auto& msg3 = messages[2];
     auto& msg4 = messages[3];
-    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
-    TS_ASSERT_EQUALS(msg2.name(), "Msg2");
-    TS_ASSERT_EQUALS(msg3.name(), "Msg3");
-    TS_ASSERT_EQUALS(msg4.name(), "Msg4");
+    TS_ASSERT_EQUALS(msg1.parseName(), "Msg1");
+    TS_ASSERT_EQUALS(msg2.parseName(), "Msg2");
+    TS_ASSERT_EQUALS(msg3.parseName(), "Msg3");
+    TS_ASSERT_EQUALS(msg4.parseName(), "Msg4");
 
-    TS_ASSERT_EQUALS(msg1.sender(), commsdsl::parse::ParseMessage::Sender::Both);
-    TS_ASSERT(!msg1.isCustomizable());
+    TS_ASSERT_EQUALS(msg1.parseSender(), commsdsl::parse::ParseMessage::Sender::Both);
+    TS_ASSERT(!msg1.parseIsCustomizable());
 
-    TS_ASSERT_EQUALS(msg2.sender(), commsdsl::parse::ParseMessage::Sender::Both);
-    TS_ASSERT(!msg2.isCustomizable());
+    TS_ASSERT_EQUALS(msg2.parseSender(), commsdsl::parse::ParseMessage::Sender::Both);
+    TS_ASSERT(!msg2.parseIsCustomizable());
 
-    TS_ASSERT_EQUALS(msg3.sender(), commsdsl::parse::ParseMessage::Sender::Client);
-    TS_ASSERT(msg3.isCustomizable());
+    TS_ASSERT_EQUALS(msg3.parseSender(), commsdsl::parse::ParseMessage::Sender::Client);
+    TS_ASSERT(msg3.parseIsCustomizable());
 
-    TS_ASSERT_EQUALS(msg4.sender(), commsdsl::parse::ParseMessage::Sender::Server);
-    TS_ASSERT(!msg1.isCustomizable());
+    TS_ASSERT_EQUALS(msg4.parseSender(), commsdsl::parse::ParseMessage::Sender::Server);
+    TS_ASSERT(!msg1.parseIsCustomizable());
 }
 
 void MessageTestSuite::test19()
@@ -451,19 +451,19 @@ void MessageTestSuite::test19()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 2U);
 
     auto& msg1 = messages[0];
     auto& msg2 = messages[1];
-    TS_ASSERT_EQUALS(msg1.displayName(), "Message 1");
-    TS_ASSERT_EQUALS(msg2.displayName(), "Message 2");
+    TS_ASSERT_EQUALS(msg1.parseDisplayName(), "Message 1");
+    TS_ASSERT_EQUALS(msg2.parseDisplayName(), "Message 2");
 }
 
 void MessageTestSuite::test20()
@@ -471,19 +471,19 @@ void MessageTestSuite::test20()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema20.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 2U);
 
     auto& msg1 = messages[0];
     auto& msg2 = messages[1];
-    TS_ASSERT_EQUALS(msg1.displayName(), "^Msg1Name");
-    TS_ASSERT_EQUALS(msg2.displayName(), "^Msg2Name");
+    TS_ASSERT_EQUALS(msg1.parseDisplayName(), "^Msg1Name");
+    TS_ASSERT_EQUALS(msg2.parseDisplayName(), "^Msg2Name");
 }
 
 void MessageTestSuite::test21()
@@ -491,29 +491,29 @@ void MessageTestSuite::test21()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema21.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 2U);
 
     auto& msg1 = messages[0];
-    auto msg1Construct = msg1.construct();
-    TS_ASSERT_EQUALS(msg1Construct.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    auto msg1Construct = msg1.parseConstruct();
+    TS_ASSERT_EQUALS(msg1Construct.parseKind(), commsdsl::parse::ParseOptCond::Kind::Expr);
     commsdsl::parse::ParseOptCondExpr msg1ConstructExpr(msg1Construct);
-    TS_ASSERT(msg1ConstructExpr.left().empty());
-    TS_ASSERT(msg1ConstructExpr.op().empty());
-    TS_ASSERT_EQUALS(msg1ConstructExpr.right(), "%Flags.M1.B0");
+    TS_ASSERT(msg1ConstructExpr.parseLeft().empty());
+    TS_ASSERT(msg1ConstructExpr.parseOp().empty());
+    TS_ASSERT_EQUALS(msg1ConstructExpr.parseRight(), "%Flags.M1.B0");
 
 
     auto& msg2 = messages[1];
-    auto msg2Construct = msg2.construct();
-    TS_ASSERT_EQUALS(msg2Construct.kind(), commsdsl::parse::ParseOptCond::Kind::List);
+    auto msg2Construct = msg2.parseConstruct();
+    TS_ASSERT_EQUALS(msg2Construct.parseKind(), commsdsl::parse::ParseOptCond::Kind::List);
     commsdsl::parse::ParseOptCondList msg2ConstructExpr(msg2Construct);
-    TS_ASSERT_EQUALS(msg2ConstructExpr.type(), commsdsl::parse::ParseOptCondList::Type::And);
+    TS_ASSERT_EQUALS(msg2ConstructExpr.parseType(), commsdsl::parse::ParseOptCondList::Type::And);
 }
 
 void MessageTestSuite::test22()
@@ -553,29 +553,29 @@ void MessageTestSuite::test26()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema26.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 2U);
 
     auto& msg1 = messages[0];
-    auto msg1ReadCond = msg1.readCond();
-    TS_ASSERT_EQUALS(msg1ReadCond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    auto msg1ReadCond = msg1.parseReadCond();
+    TS_ASSERT_EQUALS(msg1ReadCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::Expr);
     commsdsl::parse::ParseOptCondExpr msg1ReadCondExpr(msg1ReadCond);
-    TS_ASSERT(msg1ReadCondExpr.left().empty());
-    TS_ASSERT(msg1ReadCondExpr.op().empty());
-    TS_ASSERT_EQUALS(msg1ReadCondExpr.right(), "%Flags.M1.B0");
+    TS_ASSERT(msg1ReadCondExpr.parseLeft().empty());
+    TS_ASSERT(msg1ReadCondExpr.parseOp().empty());
+    TS_ASSERT_EQUALS(msg1ReadCondExpr.parseRight(), "%Flags.M1.B0");
 
 
     auto& msg2 = messages[1];
-    auto msg2ReadCond = msg2.readCond();
-    TS_ASSERT_EQUALS(msg2ReadCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);
+    auto msg2ReadCond = msg2.parseReadCond();
+    TS_ASSERT_EQUALS(msg2ReadCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::List);
     commsdsl::parse::ParseOptCondList msg2ReadCondExpr(msg2ReadCond);
-    TS_ASSERT_EQUALS(msg2ReadCondExpr.type(), commsdsl::parse::ParseOptCondList::Type::And);
+    TS_ASSERT_EQUALS(msg2ReadCondExpr.parseType(), commsdsl::parse::ParseOptCondList::Type::And);
 }
 
 void MessageTestSuite::test27()
@@ -583,20 +583,20 @@ void MessageTestSuite::test27()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema27.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 1U);
 
     auto& msg1 = messages[0];
-    auto msg1Construct = msg1.construct();
-    TS_ASSERT_EQUALS(msg1Construct.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
-    auto msg1ReadCond = msg1.readCond();
-    TS_ASSERT_EQUALS(msg1ReadCond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    auto msg1Construct = msg1.parseConstruct();
+    TS_ASSERT_EQUALS(msg1Construct.parseKind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    auto msg1ReadCond = msg1.parseReadCond();
+    TS_ASSERT_EQUALS(msg1ReadCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::Expr);
 }
 
 void MessageTestSuite::test28()
@@ -604,20 +604,20 @@ void MessageTestSuite::test28()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema28.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 1U);
 
     auto& msg1 = messages[0];
-    auto msg1Construct = msg1.construct();
-    TS_ASSERT_EQUALS(msg1Construct.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
-    auto msg1ValidCond = msg1.validCond();
-    TS_ASSERT_EQUALS(msg1ValidCond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    auto msg1Construct = msg1.parseConstruct();
+    TS_ASSERT_EQUALS(msg1Construct.parseKind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    auto msg1ValidCond = msg1.parseValidCond();
+    TS_ASSERT_EQUALS(msg1ValidCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::Expr);
 }
 
 void MessageTestSuite::test29()
@@ -633,22 +633,22 @@ void MessageTestSuite::test30()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema30.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 1U);
 
     auto& msg1 = messages[0];
-    auto msg1Construct = msg1.construct();
-    TS_ASSERT_EQUALS(msg1Construct.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
-    auto msg1ValidCond = msg1.validCond();
-    TS_ASSERT_EQUALS(msg1ValidCond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
-    auto msg1ReadCond = msg1.readCond();
-    TS_ASSERT_EQUALS(msg1ReadCond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    auto msg1Construct = msg1.parseConstruct();
+    TS_ASSERT_EQUALS(msg1Construct.parseKind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    auto msg1ValidCond = msg1.parseValidCond();
+    TS_ASSERT_EQUALS(msg1ValidCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+    auto msg1ReadCond = msg1.parseReadCond();
+    TS_ASSERT_EQUALS(msg1ReadCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::Expr);
 }
 
 
@@ -657,19 +657,19 @@ void MessageTestSuite::test31()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema31.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 1U);
 
     auto& msg1 = messages[0];
-    TS_ASSERT(msg1.isFailOnInvalid());
-    auto msg1ValidCond = msg1.validCond();
-    TS_ASSERT_EQUALS(msg1ValidCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);
+    TS_ASSERT(msg1.parseIsFailOnInvalid());
+    auto msg1ValidCond = msg1.parseValidCond();
+    TS_ASSERT_EQUALS(msg1ValidCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::List);
 }
 
 void MessageTestSuite::test32()
@@ -677,68 +677,68 @@ void MessageTestSuite::test32()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema32.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     {
         TS_ASSERT_LESS_THAN_EQUALS(1U, messages.size());
 
         auto& msg1 = messages[0];
-        TS_ASSERT(msg1.isFailOnInvalid());
-        TS_ASSERT_EQUALS(msg1.fields().size(), 2U);
-        auto validCond = msg1.validCond();
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);
+        TS_ASSERT(msg1.parseIsFailOnInvalid());
+        TS_ASSERT_EQUALS(msg1.parseFields().size(), 2U);
+        auto validCond = msg1.parseValidCond();
+        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::List);
     }
     
     {
         TS_ASSERT_LESS_THAN_EQUALS(2U, messages.size());
 
         auto& msg2 = messages[1];
-        TS_ASSERT(msg2.isFailOnInvalid());
-        TS_ASSERT_EQUALS(msg2.fields().size(), 3U);
-        TS_ASSERT_EQUALS(msg2.copyCodeFrom(), "Msg1");
-        auto validCond = msg2.validCond();
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);
+        TS_ASSERT(msg2.parseIsFailOnInvalid());
+        TS_ASSERT_EQUALS(msg2.parseFields().size(), 3U);
+        TS_ASSERT_EQUALS(msg2.parseCopyCodeFrom(), "Msg1");
+        auto validCond = msg2.parseValidCond();
+        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::List);
     }    
 
     {
         TS_ASSERT_LESS_THAN_EQUALS(3U, messages.size());
 
         auto& msg3 = messages[2];
-        TS_ASSERT_EQUALS(msg3.name(), "Msg3");
-        auto constructCond = msg3.construct();
-        TS_ASSERT(constructCond.valid());
-        TS_ASSERT_EQUALS(constructCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);
+        TS_ASSERT_EQUALS(msg3.parseName(), "Msg3");
+        auto constructCond = msg3.parseConstruct();
+        TS_ASSERT(constructCond.parseValid());
+        TS_ASSERT_EQUALS(constructCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::List);
 
-        auto validCond = msg3.validCond();
-        TS_ASSERT(validCond.valid());
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);
+        auto validCond = msg3.parseValidCond();
+        TS_ASSERT(validCond.parseValid());
+        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::List);
 
-        auto readCond = msg3.validCond();
-        TS_ASSERT(readCond.valid());
-        TS_ASSERT_EQUALS(readCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);        
+        auto readCond = msg3.parseValidCond();
+        TS_ASSERT(readCond.parseValid());
+        TS_ASSERT_EQUALS(readCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::List);        
     }     
 
     {
         TS_ASSERT_LESS_THAN_EQUALS(4U, messages.size());
 
         auto& msg4 = messages[3];
-        TS_ASSERT_EQUALS(msg4.name(), "Msg4");
-        auto constructCond = msg4.construct();
-        TS_ASSERT(constructCond.valid());
-        TS_ASSERT_EQUALS(constructCond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+        TS_ASSERT_EQUALS(msg4.parseName(), "Msg4");
+        auto constructCond = msg4.parseConstruct();
+        TS_ASSERT(constructCond.parseValid());
+        TS_ASSERT_EQUALS(constructCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::Expr);
 
-        auto validCond = msg4.validCond();
-        TS_ASSERT(validCond.valid());
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::ParseOptCond::Kind::Expr);
+        auto validCond = msg4.parseValidCond();
+        TS_ASSERT(validCond.parseValid());
+        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::Expr);
 
-        auto readCond = msg4.readCond();
-        TS_ASSERT(readCond.valid());
-        TS_ASSERT_EQUALS(readCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);        
+        auto readCond = msg4.parseReadCond();
+        TS_ASSERT(readCond.parseValid());
+        TS_ASSERT_EQUALS(readCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::List);        
     }     
 }
 
@@ -747,87 +747,87 @@ void MessageTestSuite::test33()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema33.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     {
         TS_ASSERT_LESS_THAN_EQUALS(1U, messages.size());
 
         auto& msg = messages[0];
-        auto construct = msg.construct();
-        TS_ASSERT(construct.valid());
-        TS_ASSERT_EQUALS(construct.kind(), commsdsl::parse::ParseOptCond::Kind::List);
+        auto construct = msg.parseConstruct();
+        TS_ASSERT(construct.parseValid());
+        TS_ASSERT_EQUALS(construct.parseKind(), commsdsl::parse::ParseOptCond::Kind::List);
 
-        auto readCond = msg.readCond();
-        TS_ASSERT(readCond.valid());
-        TS_ASSERT_EQUALS(readCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);   
+        auto readCond = msg.parseReadCond();
+        TS_ASSERT(readCond.parseValid());
+        TS_ASSERT_EQUALS(readCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::List);   
 
-        auto validCond = msg.validCond();
-        TS_ASSERT(validCond.valid());
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);             
+        auto validCond = msg.parseValidCond();
+        TS_ASSERT(validCond.parseValid());
+        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::List);             
     }
     
     {
         TS_ASSERT_LESS_THAN_EQUALS(2U, messages.size());
 
         auto& msg = messages[1];
-        auto construct = msg.construct();
-        TS_ASSERT(construct.valid());
-        TS_ASSERT_EQUALS(construct.kind(), commsdsl::parse::ParseOptCond::Kind::List);
+        auto construct = msg.parseConstruct();
+        TS_ASSERT(construct.parseValid());
+        TS_ASSERT_EQUALS(construct.parseKind(), commsdsl::parse::ParseOptCond::Kind::List);
 
-        auto readCond = msg.readCond();
-        TS_ASSERT(!readCond.valid());
+        auto readCond = msg.parseReadCond();
+        TS_ASSERT(!readCond.parseValid());
 
-        auto validCond = msg.validCond();
-        TS_ASSERT(!validCond.valid());
+        auto validCond = msg.parseValidCond();
+        TS_ASSERT(!validCond.parseValid());
     }    
 
     {
         TS_ASSERT_LESS_THAN_EQUALS(3U, messages.size());
 
         auto& msg = messages[2];
-        auto construct = msg.construct();
-        TS_ASSERT(!construct.valid());
+        auto construct = msg.parseConstruct();
+        TS_ASSERT(!construct.parseValid());
 
-        auto readCond = msg.readCond();
-        TS_ASSERT(readCond.valid());
-        TS_ASSERT_EQUALS(readCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);   
+        auto readCond = msg.parseReadCond();
+        TS_ASSERT(readCond.parseValid());
+        TS_ASSERT_EQUALS(readCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::List);   
 
-        auto validCond = msg.validCond();
-        TS_ASSERT(!validCond.valid());
+        auto validCond = msg.parseValidCond();
+        TS_ASSERT(!validCond.parseValid());
     }     
 
     {
         TS_ASSERT_LESS_THAN_EQUALS(4U, messages.size());
 
         auto& msg = messages[3];
-        auto construct = msg.construct();
-        TS_ASSERT(!construct.valid());
+        auto construct = msg.parseConstruct();
+        TS_ASSERT(!construct.parseValid());
 
-        auto readCond = msg.readCond();
-        TS_ASSERT(!readCond.valid());
+        auto readCond = msg.parseReadCond();
+        TS_ASSERT(!readCond.parseValid());
 
-        auto validCond = msg.validCond();
-        TS_ASSERT(validCond.valid());
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);          
+        auto validCond = msg.parseValidCond();
+        TS_ASSERT(validCond.parseValid());
+        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::List);          
     }    
 
     {
         TS_ASSERT_LESS_THAN_EQUALS(5U, messages.size());
 
         auto& msg = messages[4];
-        auto construct = msg.construct();
-        TS_ASSERT(!construct.valid());
+        auto construct = msg.parseConstruct();
+        TS_ASSERT(!construct.parseValid());
 
-        auto readCond = msg.readCond();
-        TS_ASSERT(!readCond.valid());
+        auto readCond = msg.parseReadCond();
+        TS_ASSERT(!readCond.parseValid());
 
-        auto validCond = msg.validCond();
-        TS_ASSERT(validCond.valid());
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::ParseOptCond::Kind::List);          
+        auto validCond = msg.parseValidCond();
+        TS_ASSERT(validCond.parseValid());
+        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::Kind::List);          
     }      
 }

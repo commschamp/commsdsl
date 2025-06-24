@@ -29,7 +29,7 @@ namespace gen
 GenValueLayer::GenValueLayer(GenGenerator& generator, commsdsl::parse::ParseLayer dslObj, GenElem* parent) :
     Base(generator, dslObj, parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Value);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Value);
 }
 
 GenValueLayer::~GenValueLayer() = default;
@@ -37,7 +37,7 @@ GenValueLayer::~GenValueLayer() = default;
 bool GenValueLayer::isInterfaceSupported(const GenInterface* iFace) const
 {
     auto obj = valueDslObj();
-    auto supportedInterfaces = obj.interfaces();
+    auto supportedInterfaces = obj.parseInterfaces();
 
     if (supportedInterfaces.empty()) {
         return true;
@@ -48,7 +48,7 @@ bool GenValueLayer::isInterfaceSupported(const GenInterface* iFace) const
             supportedInterfaces.begin(), supportedInterfaces.end(),
             [this, iFace](auto& i)
             {
-                return generator().findInterface(i.externalRef()) == iFace;
+                return generator().findInterface(i.parseExternalRef()) == iFace;
             });  
 }
 

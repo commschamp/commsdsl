@@ -33,45 +33,45 @@ ParseInterface::ParseInterface(const ParseInterface &) = default;
 
 ParseInterface::~ParseInterface() = default;
 
-bool ParseInterface::valid() const
+bool ParseInterface::parseValid() const
 {
     return m_pImpl != nullptr;
 }
 
-const std::string& ParseInterface::name() const
+const std::string& ParseInterface::parseName() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->name();
+    return m_pImpl->parseName();
 }
 
-const std::string& ParseInterface::description() const
+const std::string& ParseInterface::parseDescription() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->description();
+    return m_pImpl->parseDescription();
 }
 
-ParseInterface::FieldsList ParseInterface::fields() const
+ParseInterface::FieldsList ParseInterface::parseFields() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->fieldsList();
+    return m_pImpl->parseFieldsList();
 }
 
-ParseInterface::AliasesList ParseInterface::aliases() const
+ParseInterface::AliasesList ParseInterface::parseAliases() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->aliasesList();
+    return m_pImpl->parseAliasesList();
 }
 
-std::string ParseInterface::externalRef(bool schemaRef) const
+std::string ParseInterface::parseExternalRef(bool schemaRef) const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->externalRef(schemaRef);
+    return m_pImpl->parseExternalRef(schemaRef);
 }
 
-const std::string& ParseInterface::copyCodeFrom() const
+const std::string& ParseInterface::parseCopyCodeFrom() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->copyCodeFrom();
+    return m_pImpl->parseCopyCodeFrom();
 }
 
 const ParseInterface::AttributesMap& ParseInterface::parseExtraAttributes() const
@@ -83,7 +83,7 @@ const ParseInterface::AttributesMap& ParseInterface::parseExtraAttributes() cons
 const ParseInterface::ElementsList& ParseInterface::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->extraChildren();
+    return m_pImpl->parseExtraChildren();
 }
 
 } // namespace parse

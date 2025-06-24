@@ -44,32 +44,32 @@ ParseOptionalField::ParseOptionalField(const ParseOptionalFieldImpl* impl)
 ParseOptionalField::ParseOptionalField(ParseField field)
   : Base(field)
 {
-    assert(kind() == Kind::Optional);
+    assert(parseKind() == Kind::Optional);
 }
 
-ParseOptionalField::Mode ParseOptionalField::defaultMode() const
+ParseOptionalField::Mode ParseOptionalField::parseDefaultMode() const
 {
-    return cast(m_pImpl)->defaultMode();
+    return cast(m_pImpl)->parseDefaultMode();
 }
 
-ParseField ParseOptionalField::field() const
+ParseField ParseOptionalField::parseField() const
 {
-    return cast(m_pImpl)->field();
+    return cast(m_pImpl)->parseField();
 }
 
-ParseOptCond ParseOptionalField::cond() const
+ParseOptCond ParseOptionalField::parseCond() const
 {
-    return cast(m_pImpl)->wrappedCondition();
+    return cast(m_pImpl)->parseWrappedCondition();
 }
 
-bool ParseOptionalField::missingOnReadFail() const
+bool ParseOptionalField::parseMissingOnReadFail() const
 {
-    return cast(m_pImpl)->missingOnReadFail();
+    return cast(m_pImpl)->parseMissingOnReadFail();
 }
 
-bool ParseOptionalField::missingOnInvalid() const
+bool ParseOptionalField::parseMissingOnInvalid() const
 {
-    return cast(m_pImpl)->missingOnInvalid();
+    return cast(m_pImpl)->parseMissingOnInvalid();
 }
 
 } // namespace parse

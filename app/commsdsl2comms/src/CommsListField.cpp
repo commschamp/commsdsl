@@ -69,7 +69,7 @@ bool CommsListField::prepareImpl()
         m_commsMemberTermSuffixField = castField(memberTermSuffixField());
     }
 
-    if (!listDslObj().detachedTermSuffixFieldName().empty()) {
+    if (!listDslObj().parseDetachedTermSuffixFieldName().empty()) {
         generator().logger().error(
             "Detached termination suffix is currently not supported, "
             "please contact the developer and request this feature");
@@ -175,16 +175,16 @@ CommsListField::IncludesList CommsListField::commsDefIncludesImpl() const
     addIncludesFrom(m_commsMemberTermSuffixField);
 
     auto obj = listDslObj();
-    if ((!obj.detachedCountPrefixFieldName().empty()) ||
-        (!obj.detachedLengthPrefixFieldName().empty()) ||
-        (!obj.detachedElemLengthPrefixFieldName().empty())) {
+    if ((!obj.parseDetachedCountPrefixFieldName().empty()) ||
+        (!obj.parseDetachedLengthPrefixFieldName().empty()) ||
+        (!obj.parseDetachedElemLengthPrefixFieldName().empty())) {
         result.insert(result.end(), {
             "<algorithm>",
             "<limits>"
         });
     }
 
-    if (!obj.detachedElemLengthPrefixFieldName().empty()) {
+    if (!obj.parseDetachedElemLengthPrefixFieldName().empty()) {
         result.push_back("comms/Assert.h");
     } 
     return result;
@@ -256,7 +256,7 @@ std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
                     siblings.begin(), siblings.end(),
                     [&sibName](auto& f)
                     {
-                        return f->field().dslObj().name() == sibName;
+                        return f->field().dslObj().parseName() == sibName;
                     });
 
             if (iter == siblings.end()) {
@@ -267,7 +267,7 @@ std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
 
             auto repl = replacements;
             auto fieldPrefix = "field_" + repl["NAME"] + "()";
-            auto sibPrefix = "field_" + comms::accessName((*iter)->field().dslObj().name()) + "()";
+            auto sibPrefix = "field_" + comms::accessName((*iter)->field().dslObj().parseName()) + "()";
             repl["LIST_FIELD"] = commsFieldAccessStr(std::string(), fieldPrefix);
             repl["ACC_VALUE"] = (*iter)->commsValueAccessStr(accRest, sibPrefix);
             auto conditions = commsCompOptChecks(std::string(), fieldPrefix);
@@ -298,22 +298,22 @@ std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
         };
 
     util::ReplacementMap repl = {
-        {"NAME", comms::accessName(dslObj().name())}
+        {"NAME", comms::accessName(dslObj().parseName())}
     };
     
-    auto& countPrefix = obj.detachedCountPrefixFieldName();
+    auto& countPrefix = obj.parseDetachedCountPrefixFieldName();
     if (!countPrefix.empty()) {
         repl["FUNC"] = "forceReadElemCount";
         processPrefixFunc(countPrefix, repl);
     }
 
-    auto& lengthPrefix = obj.detachedLengthPrefixFieldName();
+    auto& lengthPrefix = obj.parseDetachedLengthPrefixFieldName();
     if (!lengthPrefix.empty()) {
         repl["FUNC"] = "forceReadLength";
         processPrefixFunc(lengthPrefix, repl);
     }
 
-    auto& elemLengthPrefix = obj.detachedElemLengthPrefixFieldName();
+    auto& elemLengthPrefix = obj.parseDetachedElemLengthPrefixFieldName();
     if (!elemLengthPrefix.empty()) {
         repl["FUNC"] = "forceReadElemLength";
         processPrefixFunc(elemLengthPrefix, repl);
@@ -350,7 +350,7 @@ std::string CommsListField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
                     siblings.begin(), siblings.end(),
                     [&sibName](auto& f)
                     {
-                        return f->field().dslObj().name() == sibName;
+                        return f->field().dslObj().parseName() == sibName;
                     });
 
             if (iter == siblings.end()) {
@@ -375,20 +375,20 @@ std::string CommsListField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
                 "} while (false);\n";
 
             auto repl = replacements;
-            auto sibPrefix = "field_" + comms::accessName((*iter)->field().dslObj().name()) + "()";
+            auto sibPrefix = "field_" + comms::accessName((*iter)->field().dslObj().parseName()) + "()";
             repl["ACC_VALUE"] = (*iter)->commsValueAccessStr(accRest, sibPrefix);
             repl["ACC_FIELD"] = (*iter)->commsFieldAccessStr(accRest, sibPrefix);
             
             refreshes.push_back(util::processTemplate(Templ, repl));
         };
 
-    auto fieldPrefix = "field_" + comms::accessName(dslObj().name()) + "()";
+    auto fieldPrefix = "field_" + comms::accessName(dslObj().parseName()) + "()";
     util::ReplacementMap repl = {
-        {"NAME", comms::accessName(dslObj().name())},
+        {"NAME", comms::accessName(dslObj().parseName())},
         {"LIST_FIELD", commsFieldAccessStr(std::string(), fieldPrefix)},
     };
 
-    auto& countPrefix = obj.detachedCountPrefixFieldName();
+    auto& countPrefix = obj.parseDetachedCountPrefixFieldName();
     if (!countPrefix.empty()) {
         static const std::string RealValueTempl = 
             "auto realValue = #^#LIST_FIELD#$#.value().size();";
@@ -403,7 +403,7 @@ std::string CommsListField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
         processPrefixFunc(countPrefix, repl);
     }
 
-    auto& lengthPrefix = obj.detachedLengthPrefixFieldName();
+    auto& lengthPrefix = obj.parseDetachedLengthPrefixFieldName();
     if (!lengthPrefix.empty()) {
         static const std::string RealValueTempl = 
             "auto realValue = #^#LIST_FIELD#$#.length();";
@@ -422,7 +422,7 @@ std::string CommsListField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
         processPrefixFunc(lengthPrefix, repl);
     }
 
-    auto& elemLengthPrefix = obj.detachedElemLengthPrefixFieldName();
+    auto& elemLengthPrefix = obj.parseDetachedElemLengthPrefixFieldName();
     if (!elemLengthPrefix.empty()) {
         static const std::string RealValueTempl = 
             "std::size_t realValue =\n"
@@ -523,7 +523,7 @@ std::string CommsListField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFu
 CommsListField::StringsList CommsListField::commsExtraBareMetalDefaultOptionsImpl() const
 {
     auto obj = listDslObj();
-    auto fixedCount = obj.fixedCount();
+    auto fixedCount = obj.parseFixedCount();
     if (fixedCount != 0U) {
         return 
             StringsList{
@@ -540,7 +540,7 @@ CommsListField::StringsList CommsListField::commsExtraBareMetalDefaultOptionsImp
 std::size_t CommsListField::commsMaxLengthImpl() const
 {
     auto obj = listDslObj();
-    if (obj.fixedCount() != 0U) {
+    if (obj.parseFixedCount() != 0U) {
         return CommsBase::commsMaxLengthImpl();
     }
 
@@ -589,7 +589,7 @@ std::string CommsListField::commsDefElementInternal() const
 void CommsListField::commsAddFixedLengthOptInternal(StringsList& opts) const
 {
     auto obj = listDslObj();
-    auto fixedCount = obj.fixedCount();
+    auto fixedCount = obj.parseFixedCount();
     if (fixedCount == 0U) {
         return;
     }
@@ -671,7 +671,7 @@ void CommsListField::commsAddElemLengthPrefixOptInternal(StringsList& opts) cons
     }
 
     std::string opt = "SequenceElemSerLengthFieldPrefix";
-    if (listDslObj().elemFixedLength()) {
+    if (listDslObj().parseElemFixedLength()) {
         opt = "SequenceElemFixedSerLengthFieldPrefix";
     }
 
@@ -705,15 +705,15 @@ void CommsListField::commsAddTermSuffixOptInternal(StringsList& opts) const
 void CommsListField::commsAddLengthForcingOptInternal(StringsList& opts) const
 {
     auto obj = listDslObj();
-    if (!obj.detachedCountPrefixFieldName().empty()) {
+    if (!obj.parseDetachedCountPrefixFieldName().empty()) {
         opts.push_back("comms::option::def::SequenceSizeForcingEnabled");
     }
 
-    if (!obj.detachedLengthPrefixFieldName().empty()) {
+    if (!obj.parseDetachedLengthPrefixFieldName().empty()) {
         opts.push_back("comms::option::def::SequenceLengthForcingEnabled");
     }
 
-    if (!obj.detachedElemLengthPrefixFieldName().empty()) {
+    if (!obj.parseDetachedElemLengthPrefixFieldName().empty()) {
         opts.push_back("comms::option::def::SequenceElemLengthForcingEnabled");
     }
 }

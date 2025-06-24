@@ -42,26 +42,26 @@ public:
     ParseProtocol();
     ~ParseProtocol();
 
-    void setErrorReportCallback(ErrorReportFunction&& cb);
+    void parseSetErrorReportCallback(ErrorReportFunction&& cb);
 
     bool parse(const std::string& input);
-    bool validate();
+    bool parseValidate();
 
-    SchemasList schemas() const;
+    SchemasList parseSchemas() const;
 
-    ParseSchema lastParsedSchema() const;
+    ParseSchema parseLastParsedSchema() const;
 
-    static constexpr unsigned notYetDeprecated() noexcept
+    static constexpr unsigned parseNotYetDeprecated() noexcept
     {
         return std::numeric_limits<unsigned>::max();
     }
 
-    ParseField findField(const std::string& externalRef) const;
+    ParseField parseFindField(const std::string& externalRef) const;
 
-    void addExpectedExtraPrefix(const std::string& value);
+    void parseAddExpectedExtraPrefix(const std::string& value);
 
-    void setMultipleSchemasEnabled(bool value);
-    bool getMultipleSchemasEnabled() const;
+    void parseSetMultipleSchemasEnabled(bool value);
+    bool parseGetMultipleSchemasEnabled() const;
 
 private:
     std::unique_ptr<ParseProtocolImpl> m_pImpl;

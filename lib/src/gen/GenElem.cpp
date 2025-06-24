@@ -41,10 +41,10 @@ namespace
 template <typename TElem>
 decltype(auto) elemName(const TElem& elem)
 {
-    if (!elem.dslObj().valid()) {
+    if (!elem.dslObj().parseValid()) {
         return strings::emptyString();
     }
-    return elem.dslObj().name();
+    return elem.dslObj().parseName();
 }  
 
 const std::string& nameOfNamespace(const GenElem& elem)

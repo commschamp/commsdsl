@@ -162,7 +162,7 @@ bool SwigLayer::swigIsMainInterfaceSupported() const
 
 std::string SwigLayer::swigFieldAccName() const
 {
-    return "m_" + comms::accessName(m_layer.dslObj().name());
+    return "m_" + comms::accessName(m_layer.dslObj().parseName());
 }
 
 std::string SwigLayer::swigDeclFuncsImpl() const

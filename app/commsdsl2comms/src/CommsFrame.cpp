@@ -46,16 +46,16 @@ bool hasIdLayerInternal(const CommsFrame::CommsLayersList& commsLayers)
             commsLayers.begin(), commsLayers.end(),
             [](auto* l)
             {
-                if (l->layer().dslObj().kind() == commsdsl::parse::ParseLayer::Kind::Id) {
+                if (l->layer().dslObj().parseKind() == commsdsl::parse::ParseLayer::Kind::Id) {
                     return true;
                 }
 
-                if (l->layer().dslObj().kind() != commsdsl::parse::ParseLayer::Kind::Custom) {
+                if (l->layer().dslObj().parseKind() != commsdsl::parse::ParseLayer::Kind::Custom) {
                     return false;
                 }
 
                 using LayerKind = commsdsl::parse::ParseLayer::Kind;
-                return (static_cast<const CommsCustomLayer&>(l->layer()).customDslObj().semanticLayerType() == LayerKind::Id);
+                return (static_cast<const CommsCustomLayer&>(l->layer()).customDslObj().parseSemanticLayerType() == LayerKind::Id);
     });
 }
 
@@ -186,7 +186,7 @@ bool CommsFrame::commsWriteCommonInternal() const
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
         {"SCOPE", comms::scopeFor(*this, gen)},
-        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"CLASS_NAME", comms::className(dslObj().parseName())},
         {"LAYERS_SUFFIX", strings::layersSuffixStr()},
         {"COMMON_SUFFIX", strings::commonSuffixStr()},
         {"BODY", commsCommonBodyInternal()},
@@ -282,7 +282,7 @@ bool CommsFrame::commsWriteDefInternal() const
         {"INCLUDES", commsDefIncludesInternal()},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
-        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"CLASS_NAME", comms::className(dslObj().parseName())},
         {"OPTIONS", comms::scopeForOptions(strings::defaultOptionsStr(), gen)},
         {"HEADERFILE", comms::relHeaderPathFor(*this, gen)},
         {"LAYERS_DEF", commsDefLayersDefInternal()},
@@ -381,7 +381,7 @@ std::string CommsFrame::commsDefLayersDefInternal() const
 
     assert(prevLayer != nullptr);
     util::ReplacementMap repl = {
-        {"LAST_LAYER", comms::className(prevLayer->layer().dslObj().name())}
+        {"LAST_LAYER", comms::className(prevLayer->layer().dslObj().parseName())}
     };
 
     if (hasInputMessages) {
@@ -400,7 +400,7 @@ std::string CommsFrame::commsDefLayersDefInternal() const
 
 std::string CommsFrame::commsDefFrameBaseInternal() const
 {
-    auto str = comms::className(dslObj().name()) + strings::layersSuffixStr() + "<TOpt>::";
+    auto str = comms::className(dslObj().parseName()) + strings::layersSuffixStr() + "<TOpt>::";
     if (m_hasIdLayer) {
         str += "template Stack<TMessage, TAllMessages>";
     }
@@ -434,17 +434,17 @@ std::string CommsFrame::commsDefInputMessagesParamInternal() const
 std::string CommsFrame::commsDefAccessDocInternal() const
 {
     util::StringsList lines;
-    auto className = comms::className(dslObj().name());
+    auto className = comms::className(dslObj().parseName());
     lines.reserve(m_commsLayers.size());
     std::transform(
         m_commsLayers.rbegin(), m_commsLayers.rend(), std::back_inserter(lines),
         [&className](auto& l)
         {
-            auto accName = comms::accessName(l->layer().dslObj().name());
+            auto accName = comms::accessName(l->layer().dslObj().parseName());
             return
                 "///     @li @b Layer_" + accName + " type and @b layer_" + accName + "() function\n"
                 "///         for @ref " + className + 
-                strings::layersSuffixStr() + "::" + comms::className(l->layer().dslObj().name()) + " layer.";
+                strings::layersSuffixStr() + "::" + comms::className(l->layer().dslObj().parseName()) + " layer.";
         });
     return util::strListToString(lines, "\n", "");
 }
@@ -457,7 +457,7 @@ std::string CommsFrame::commsDefAccessListInternal() const
         m_commsLayers.rbegin(), m_commsLayers.rend(), std::back_inserter(names),
         [](auto& l)
         {
-            return comms::accessName(l->layer().dslObj().name());
+            return comms::accessName(l->layer().dslObj().parseName());
         });
     return util::strListToString(names, ",\n", "");
 }
@@ -523,7 +523,7 @@ std::string CommsFrame::commsCustomizationOptionsInternal(
 
     util::ReplacementMap repl = {
         {"SCOPE", comms::scopeFor(*this, generator())},
-        {"NAME", comms::className(dslObj().name())},
+        {"NAME", comms::className(dslObj().parseName())},
         {"SUFFIX", strings::layersSuffixStr()},
         {"LAYERS_OPTS", util::strListToString(elems, "\n", "\n")}
     };

@@ -41,7 +41,7 @@ SwigValueLayer::SwigValueLayer(SwigGenerator& generator, commsdsl::parse::ParseL
 std::string SwigValueLayer::swigDeclFuncsImpl() const
 {
     auto obj = valueDslObj();
-    if (!obj.pseudo()) {
+    if (!obj.parsePseudo()) {
         return strings::emptyString();
     }
 
@@ -54,7 +54,7 @@ std::string SwigValueLayer::swigDeclFuncsImpl() const
 std::string SwigValueLayer::swigCodeFuncsImpl() const
 {
     auto obj = valueDslObj();
-    if (!obj.pseudo()) {
+    if (!obj.parsePseudo()) {
         return strings::emptyString();
     }
 

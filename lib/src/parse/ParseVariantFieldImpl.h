@@ -35,36 +35,36 @@ public:
     ParseVariantFieldImpl(const ParseVariantFieldImpl& other);
     using Members = ParseVariantField::Members;
 
-    Members membersList() const;
+    Members parseMembersList() const;
 
-    std::size_t defaultMemberIdx() const
+    std::size_t parseDefaultMemberIdx() const
     {
         return m_state.m_defaultIdx;
     }
 
 protected:
 
-    virtual Kind kindImpl() const override;
-    virtual Ptr cloneImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraPropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraChildrenNamesImpl() const override;
-    virtual bool reuseImpl(const ParseFieldImpl &other) override;
+    virtual Kind parseKindImpl() const override;
+    virtual Ptr parseCloneImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraChildrenNamesImpl() const override;
+    virtual bool parseReuseImpl(const ParseFieldImpl &other) override;
     virtual bool parseImpl() override;
-    virtual bool replaceMembersImpl(FieldsList& members) override;
-    virtual std::size_t minLengthImpl() const override;
-    virtual std::size_t maxLengthImpl() const override;
-    virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
-    virtual bool strToFpImpl(const std::string& ref, double& val) const override;
-    virtual bool strToBoolImpl(const std::string& ref, bool& val) const override;
-    virtual bool strToStringImpl(const std::string& ref, std::string& val) const override;
-    virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
-    virtual const FieldsList& membersImpl() const override;
+    virtual bool parseReplaceMembersImpl(FieldsList& members) override;
+    virtual std::size_t parseMinLengthImpl() const override;
+    virtual std::size_t parseMaxLengthImpl() const override;
+    virtual bool parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
+    virtual bool parseStrToFpImpl(const std::string& ref, double& val) const override;
+    virtual bool parseStrToBoolImpl(const std::string& ref, bool& val) const override;
+    virtual bool parseStrToStringImpl(const std::string& ref, std::string& val) const override;
+    virtual bool parseStrToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
+    virtual const FieldsList& parseMembersImpl() const override;
 
 private:
 
-    bool updateMembers();
-    bool updateDefaultMember();
-    bool updateIdxHidden();
+    bool parseUpdateMembers();
+    bool parseUpdateDefaultMember();
+    bool parseUpdateIdxHidden();
 
     struct ReusableState
     {

@@ -36,18 +36,18 @@ public:
     ParseListFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseListFieldImpl(const ParseListFieldImpl& other);
 
-    std::size_t count() const
+    std::size_t parseCount() const
     {
         return m_state.m_count;
     }
 
-    bool hasElementField() const
+    bool parseHasElementField() const
     {
         return (m_state.m_extElementField != nullptr) ||
                static_cast<bool>(m_elementField);
     }
 
-    ParseField elementField() const
+    ParseField parseElementField() const
     {
         if (m_state.m_extElementField != nullptr) {
             return ParseField(m_state.m_extElementField);
@@ -57,13 +57,13 @@ public:
     }
 
 
-    bool hasCountPrefixField() const
+    bool parseHasCountPrefixField() const
     {
         return (m_state.m_extCountPrefixField != nullptr) ||
                static_cast<bool>(m_countPrefixField);
     }
 
-    ParseField countPrefixField() const
+    ParseField parseCountPrefixField() const
     {
         if (m_state.m_extCountPrefixField != nullptr) {
             return ParseField(m_state.m_extCountPrefixField);
@@ -72,18 +72,18 @@ public:
         return ParseField(m_countPrefixField.get());
     }
 
-    const std::string& detachedCountPrefixFieldName() const
+    const std::string& parseDetachedCountPrefixFieldName() const
     {
         return m_state.m_detachedCountPrefixField;
     }
 
-    bool hasLengthPrefixField() const
+    bool parseHasLengthPrefixField() const
     {
         return (m_state.m_extLengthPrefixField != nullptr) ||
                static_cast<bool>(m_lengthPrefixField);
     }
 
-    ParseField lengthPrefixField() const
+    ParseField parseLengthPrefixField() const
     {
         if (m_state.m_extLengthPrefixField != nullptr) {
             return ParseField(m_state.m_extLengthPrefixField);
@@ -92,18 +92,18 @@ public:
         return ParseField(m_lengthPrefixField.get());
     }
 
-    const std::string& detachedLengthPrefixFieldName() const
+    const std::string& parseDetachedLengthPrefixFieldName() const
     {
         return m_state.m_detachedLengthPrefixField;
     }
 
-    bool hasElemLengthPrefixField() const
+    bool parseHasElemLengthPrefixField() const
     {
         return (m_state.m_extElemLengthPrefixField != nullptr) ||
                static_cast<bool>(m_elemLengthPrefixField);
     }
 
-    ParseField elemLengthPrefixField() const
+    ParseField parseElemLengthPrefixField() const
     {
         if (m_state.m_extElemLengthPrefixField != nullptr) {
             return ParseField(m_state.m_extElemLengthPrefixField);
@@ -112,18 +112,18 @@ public:
         return ParseField(m_elemLengthPrefixField.get());
     }
 
-    const std::string& detachedElemLengthPrefixFieldName() const
+    const std::string& parseDetachedElemLengthPrefixFieldName() const
     {
         return m_state.m_detachedElemLengthPrefixField;
     }
 
-    bool hasTermSuffixField() const
+    bool parseHasTermSuffixField() const
     {
         return (m_state.m_extTermSuffixField != nullptr) ||
                static_cast<bool>(m_termSuffixField);
     }
 
-    ParseField termSuffixField() const
+    ParseField parseTermSuffixField() const
     {
         if (m_state.m_extTermSuffixField != nullptr) {
             return ParseField(m_state.m_extTermSuffixField);
@@ -132,54 +132,54 @@ public:
         return ParseField(m_termSuffixField.get());
     }
 
-    const std::string& detachedTermSuffixFieldName() const
+    const std::string& parseDetachedTermSuffixFieldName() const
     {
         return m_state.m_detachedTermSuffixField;
     }    
 
-    bool elemFixedLength() const
+    bool parseElemFixedLength() const
     {
         return m_state.m_elemFixedLength;
     }
 
 
 protected:
-    virtual Kind kindImpl() const override;
-    virtual Ptr cloneImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraPropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraPossiblePropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraChildrenNamesImpl() const override;
-    virtual bool reuseImpl(const ParseFieldImpl& other) override;
+    virtual Kind parseKindImpl() const override;
+    virtual Ptr parseCloneImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraPossiblePropsNamesImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraChildrenNamesImpl() const override;
+    virtual bool parseReuseImpl(const ParseFieldImpl& other) override;
     virtual bool parseImpl() override;
-    virtual bool verifySiblingsImpl(const FieldsList& fields) const override;
-    virtual std::size_t minLengthImpl() const override;
-    virtual std::size_t maxLengthImpl() const override;
-    virtual bool isValidRefTypeImpl(FieldRefType type) const override;
+    virtual bool parseVerifySiblingsImpl(const FieldsList& fields) const override;
+    virtual std::size_t parseMinLengthImpl() const override;
+    virtual std::size_t parseMaxLengthImpl() const override;
+    virtual bool parseIsValidRefTypeImpl(FieldRefType type) const override;
 
 private:
-    void cloneFields(const ParseListFieldImpl& other);
-    bool updateElement();
-    bool updateCount();
-    bool updateCountPrefix();
-    bool updateLengthPrefix();
-    bool updateElemLengthPrefix();
-    bool updateElemFixedLength();
-    bool updateTermSuffix();
-    bool checkElementFromRef();
-    bool checkElementAsChild();
-    bool checkPrefixFromRef(
+    void parseCloneFields(const ParseListFieldImpl& other);
+    bool parseUpdateElement();
+    bool parseUpdateCount();
+    bool parseUpdateCountPrefix();
+    bool parseUpdateLengthPrefix();
+    bool parseUpdateElemLengthPrefix();
+    bool parseUpdateElemFixedLength();
+    bool parseUpdateTermSuffix();
+    bool parseCheckElementFromRef();
+    bool parseCheckElementAsChild();
+    bool parseCheckPrefixFromRef(
         const std::string& type,
         const ParseFieldImpl*& extField,
         ParseFieldImplPtr& locField,
         std::string& detachedPrefix);
-    bool checkPrefixAsChild(
+    bool parseCheckPrefixAsChild(
         const std::string& type,
         const ParseFieldImpl*& extField,
         ParseFieldImplPtr& locField,
         std::string& detachedPrefix);
-    const ParseFieldImpl* getCountPrefixField() const;
-    const ParseFieldImpl* getLengthPrefixField() const;
-    bool verifySiblingsForPrefix(const FieldsList& fields, const std::string& detachedName) const;
+    const ParseFieldImpl* parseGetCountPrefixField() const;
+    const ParseFieldImpl* parseGetLengthPrefixField() const;
+    bool parseVerifySiblingsForPrefix(const FieldsList& fields, const std::string& detachedName) const;
 
     struct State
     {

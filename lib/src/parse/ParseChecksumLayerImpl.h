@@ -30,42 +30,42 @@ public:
     using Alg = ParseChecksumLayer::Alg;
     ParseChecksumLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
 
-    Alg alg() const
+    Alg parseAlg() const
     {
         return m_alg;
     }
 
-    const std::string& algName() const
+    const std::string& parseAlgName() const
     {
         return *m_algName;
     }
 
-    const std::string& from() const
+    const std::string& parseFrom() const
     {
         return *m_from;
     }
 
-    const std::string& until() const
+    const std::string& parseUntil() const
     {
         return *m_until;
     }
 
-    bool verifyBeforeRead() const
+    bool parseVerifyBeforeRead() const
     {
         return m_verifyBeforeRead;
     }
 
 protected:
-    virtual Kind kindImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraPropsNamesImpl() const override;
+    virtual Kind parseKindImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
     virtual bool parseImpl() override;
-    virtual bool verifyImpl(const LayersList& layers) override;
+    virtual bool parseVerifyImpl(const LayersList& layers) override;
 
 private:
-    bool updateAlg();
-    bool updateFrom();
-    bool updateUntil();
-    bool updateVerifyBeforeRead();
+    bool parseUpdateAlg();
+    bool parseUpdateFrom();
+    bool parseUpdateUntil();
+    bool parseUpdateVerifyBeforeRead();
 
     Alg m_alg = Alg::NumOfValues;
     const std::string* m_algName = nullptr;

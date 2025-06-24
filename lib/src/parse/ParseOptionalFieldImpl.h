@@ -39,27 +39,27 @@ public:
     ParseOptionalFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseOptionalFieldImpl(const ParseOptionalFieldImpl& other);
 
-    Mode defaultMode() const
+    Mode parseDefaultMode() const
     {
         return m_state.m_mode;
     }
 
-    bool missingOnReadFail() const
+    bool parseMissingOnReadFail() const
     {
         return m_state.m_missingOnReadFail;
     }  
 
-    bool missingOnInvalid() const
+    bool parseMissingOnInvalid() const
     {
         return m_state.m_missingOnInvalid;
     }      
 
-    bool hasField() const
+    bool parseHasField() const
     {
         return (m_state.m_extField != nullptr) || static_cast<bool>(m_field);
     }
 
-    ParseField field() const
+    ParseField parseField() const
     {
         if (m_state.m_extField != nullptr) {
             return ParseField(m_state.m_extField);
@@ -68,55 +68,55 @@ public:
         return ParseField(m_field.get());
     }
 
-    ParseOptCond wrappedCondition() const
+    ParseOptCond parseWrappedCondition() const
     {
         return ParseOptCond(m_cond.get());
     }
 
-    ParseOptCondImplPtr& cond()
+    ParseOptCondImplPtr& parseCond()
     {
         return m_cond;
     }
 
-    const ParseOptCondImplPtr& cond() const
+    const ParseOptCondImplPtr& parseCond() const
     {
         return m_cond;
     }
 
 protected:
-    virtual Kind kindImpl() const override;
-    virtual Ptr cloneImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraPropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraPossiblePropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraChildrenNamesImpl() const override;
-    virtual bool reuseImpl(const ParseFieldImpl& other) override;
+    virtual Kind parseKindImpl() const override;
+    virtual Ptr parseCloneImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraPossiblePropsNamesImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraChildrenNamesImpl() const override;
+    virtual bool parseReuseImpl(const ParseFieldImpl& other) override;
     virtual bool parseImpl() override;
-    virtual bool verifySiblingsImpl(const FieldsList& fields) const override;
-    virtual std::size_t minLengthImpl() const override;
-    virtual std::size_t maxLengthImpl() const override;
-    virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
-    virtual bool strToFpImpl(const std::string& ref, double& val) const override;
-    virtual bool strToBoolImpl(const std::string& ref, bool& val) const override;
-    virtual bool strToStringImpl(const std::string& ref, std::string& val) const override;
-    virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
-    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override;
-    virtual bool isValidRefTypeImpl(FieldRefType type) const override;
+    virtual bool parseVerifySiblingsImpl(const FieldsList& fields) const override;
+    virtual std::size_t parseMinLengthImpl() const override;
+    virtual std::size_t parseMaxLengthImpl() const override;
+    virtual bool parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
+    virtual bool parseStrToFpImpl(const std::string& ref, double& val) const override;
+    virtual bool parseStrToBoolImpl(const std::string& ref, bool& val) const override;
+    virtual bool parseStrToStringImpl(const std::string& ref, std::string& val) const override;
+    virtual bool parseStrToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
+    virtual FieldRefInfo parseProcessInnerRefImpl(const std::string& refStr) const override;
+    virtual bool parseIsValidRefTypeImpl(FieldRefType type) const override;
 
 private:
     using StrToValueFieldConvertFunc = std::function<bool (const ParseFieldImpl& f, const std::string& ref)>;
 
-    bool updateMode();
-    bool updateExternalModeCtrl();
-    bool updateMissingOnReadFail();
-    bool updateMissingOnInvalid();
-    bool updateField();
-    bool updateSingleCondition();
-    bool updateMultiCondition();
-    bool checkFieldFromRef();
-    bool checkFieldAsChild();
-    const ParseFieldImpl* getField() const;
+    bool parseUpdateMode();
+    bool parseUpdateExternalModeCtrl();
+    bool parseUpdateMissingOnReadFail();
+    bool parseUpdateMissingOnInvalid();
+    bool parseUpdateField();
+    bool parseUpdateSingleCondition();
+    bool parseUpdateMultiCondition();
+    bool parseCheckFieldFromRef();
+    bool parseCheckFieldAsChild();
+    const ParseFieldImpl* parseGetField() const;
 
-    bool strToValue(
+    bool parseStrToValue(
         const std::string& ref,
         StrToValueFieldConvertFunc&& forwardFunc) const;
 

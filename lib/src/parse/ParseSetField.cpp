@@ -44,57 +44,57 @@ ParseSetField::ParseSetField(const ParseSetFieldImpl* impl)
 ParseSetField::ParseSetField(ParseField field)
   : Base(field)
 {
-    assert(kind() == Kind::Set);
+    assert(parseKind() == Kind::Set);
 }
 
-ParseSetField::Type ParseSetField::type() const
+ParseSetField::Type ParseSetField::parseType() const
 {
-    return cast(m_pImpl)->type();
+    return cast(m_pImpl)->parseType();
 }
 
-ParseEndian ParseSetField::endian() const
+ParseEndian ParseSetField::parseEndian() const
 {
-    return cast(m_pImpl)->endian();
+    return cast(m_pImpl)->parseEndian();
 }
 
-bool ParseSetField::defaultBitValue() const
+bool ParseSetField::parseDefaultBitValue() const
 {
-    return cast(m_pImpl)->defaultBitValue();
+    return cast(m_pImpl)->parseDefaultBitValue();
 }
 
-bool ParseSetField::reservedBitValue() const
+bool ParseSetField::parseReservedBitValue() const
 {
-    return cast(m_pImpl)->reservedBitValue();
+    return cast(m_pImpl)->parseReservedBitValue();
 }
 
-const ParseSetField::Bits& ParseSetField::bits() const
+const ParseSetField::Bits& ParseSetField::parseBits() const
 {
-    return cast(m_pImpl)->bits();
+    return cast(m_pImpl)->parseBits();
 }
 
-const ParseSetField::RevBits& ParseSetField::revBits() const
+const ParseSetField::RevBits& ParseSetField::parseRevBits() const
 {
-    return cast(m_pImpl)->revBits();
+    return cast(m_pImpl)->parseRevBits();
 }
 
-bool ParseSetField::isNonUniqueAllowed() const
+bool ParseSetField::parseIsNonUniqueAllowed() const
 {
-    return cast(m_pImpl)->isNonUniqueAllowed();
+    return cast(m_pImpl)->parseIsNonUniqueAllowed();
 }
 
-bool ParseSetField::isUnique() const
+bool ParseSetField::parseIsUnique() const
 {
-    return cast(m_pImpl)->isUnique();
+    return cast(m_pImpl)->parseIsUnique();
 }
 
-bool ParseSetField::validCheckVersion() const
+bool ParseSetField::parseValidCheckVersion() const
 {
-    return cast(m_pImpl)->validCheckVersion();
+    return cast(m_pImpl)->parseValidCheckVersion();
 }
 
-bool ParseSetField::availableLengthLimit() const
+bool ParseSetField::parseAvailableLengthLimit() const
 {
-    return cast(m_pImpl)->availableLengthLimit();
+    return cast(m_pImpl)->parseAvailableLengthLimit();
 }
 
 } // namespace parse

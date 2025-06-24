@@ -35,7 +35,7 @@ namespace parse
 namespace
 {
 
-bool compareLess(double val1, double val2)
+bool parseCompareLess(double val1, double val2)
 {
     static_assert(-std::numeric_limits<double>::infinity() < std::numeric_limits<double>::infinity(), "Invalid assumption");
 
@@ -66,7 +66,7 @@ bool compareLess(double val1, double val2)
     return val1 < val2;
 }
 
-double minValueForType(ParseFloatFieldImpl::Type value)
+double parseMinValueForType(ParseFloatFieldImpl::Type value)
 {
     static const double Values[] = {
         /* Type::Float */ double(std::numeric_limits<float>::lowest()),
@@ -86,7 +86,7 @@ double minValueForType(ParseFloatFieldImpl::Type value)
     return Values[util::toUnsigned(value)];
 }
 
-double maxValueForType(ParseFloatFieldImpl::Type value)
+double parseMaxValueForType(ParseFloatFieldImpl::Type value)
 {
     static const double Values[] = {
         /* Type::Float */ double(std::numeric_limits<float>::max()),
@@ -111,10 +111,10 @@ double maxValueForType(ParseFloatFieldImpl::Type value)
 ParseFloatFieldImpl::ParseFloatFieldImpl(xmlNodePtr node, ParseProtocolImpl& protocol)
   : Base(node, protocol)
 {
-    m_state.m_nonUniqueSpecialsAllowed = !protocol.isNonUniqueSpecialsAllowedSupported();
+    m_state.m_nonUniqueSpecialsAllowed = !protocol.parseIsNonUniqueSpecialsAllowedSupported();
 }
 
-bool ParseFloatFieldImpl::hasNonUniqueSpecials() const
+bool ParseFloatFieldImpl::parseHasNonUniqueSpecials() const
 {
     if (!m_state.m_nonUniqueSpecialsAllowed) {
         return false;
@@ -151,19 +151,19 @@ bool ParseFloatFieldImpl::hasNonUniqueSpecials() const
     return false;
 }
 
-ParseFieldImpl::Kind ParseFloatFieldImpl::kindImpl() const
+ParseFieldImpl::Kind ParseFloatFieldImpl::parseKindImpl() const
 {
     return Kind::Float;
 }
 
 ParseFloatFieldImpl::ParseFloatFieldImpl(const ParseFloatFieldImpl&) = default;
 
-ParseFieldImpl::Ptr ParseFloatFieldImpl::cloneImpl() const
+ParseFieldImpl::Ptr ParseFloatFieldImpl::parseCloneImpl() const
 {
     return Ptr(new ParseFloatFieldImpl(*this));
 }
 
-const ParseXmlWrap::NamesList&ParseFloatFieldImpl::extraPropsNamesImpl() const
+const ParseXmlWrap::NamesList&ParseFloatFieldImpl::parseExtraPropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
         common::typeStr(),
@@ -184,7 +184,7 @@ const ParseXmlWrap::NamesList&ParseFloatFieldImpl::extraPropsNamesImpl() const
     return List;
 }
 
-const ParseXmlWrap::NamesList&ParseFloatFieldImpl::extraChildrenNamesImpl() const
+const ParseXmlWrap::NamesList&ParseFloatFieldImpl::parseExtraChildrenNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
         common::specialStr()
@@ -193,9 +193,9 @@ const ParseXmlWrap::NamesList&ParseFloatFieldImpl::extraChildrenNamesImpl() cons
     return List;
 }
 
-bool ParseFloatFieldImpl::reuseImpl(const ParseFieldImpl& other)
+bool ParseFloatFieldImpl::parseReuseImpl(const ParseFieldImpl& other)
 {
-    assert(other.kind() == kind());
+    assert(other.parseKind() == parseKind());
     auto& castedOther = static_cast<const ParseFloatFieldImpl&>(other);
     m_state = castedOther.m_state;
     return true;
@@ -204,34 +204,34 @@ bool ParseFloatFieldImpl::reuseImpl(const ParseFieldImpl& other)
 bool ParseFloatFieldImpl::parseImpl()
 {
     return
-        updateType() &&
-        updateEndian() &&
-        updateLength() &&
-        updateMinMaxValues() &&
-        updateNonUniqueSpecialsAllowed() &&
-        updateSpecials() &&
-        updateDefaultValue() &&
-        updateValidCheckVersion() &&
-        updateValidRanges() &&
-        updateUnits() &&
-        updateDisplayDecimals() &&
-        updateDisplaySpecials();
+        parseUpdateType() &&
+        parseUpdateEndian() &&
+        parseUpdateLength() &&
+        parseUpdateMinMaxValues() &&
+        parseUpdateNonUniqueSpecialsAllowed() &&
+        parseUpdateSpecials() &&
+        parseUpdateDefaultValue() &&
+        parseUpdateValidCheckVersion() &&
+        parseUpdateValidRanges() &&
+        parseUpdateUnits() &&
+        parseUpdateDisplayDecimals() &&
+        parseUpdateDisplaySpecials();
 }
 
-std::size_t ParseFloatFieldImpl::minLengthImpl() const
+std::size_t ParseFloatFieldImpl::parseMinLengthImpl() const
 {
     return m_state.m_length;
 }
 
-bool ParseFloatFieldImpl::isComparableToValueImpl(const std::string& val) const
+bool ParseFloatFieldImpl::parseIsComparableToValueImpl(const std::string& val) const
 {
     double value = 0.0;
-    return strToValue(val, value, true);
+    return parseStrToValue(val, value, true);
 }
 
-bool ParseFloatFieldImpl::strToFpImpl(const std::string& ref, double& val) const
+bool ParseFloatFieldImpl::parseStrToFpImpl(const std::string& ref, double& val) const
 {
-    if (!protocol().isFieldValueReferenceSupported()) {
+    if (!parseProtocol().parseIsFieldValueReferenceSupported()) {
         return false;
     }
 
@@ -249,7 +249,7 @@ bool ParseFloatFieldImpl::strToFpImpl(const std::string& ref, double& val) const
     return true;
 }
 
-ParseFloatFieldImpl::FieldRefInfo ParseFloatFieldImpl::processInnerRefImpl(const std::string& refStr) const
+ParseFloatFieldImpl::FieldRefInfo ParseFloatFieldImpl::parseProcessInnerRefImpl(const std::string& refStr) const
 {
     assert(!refStr.empty());
     FieldRefInfo info;
@@ -263,20 +263,20 @@ ParseFloatFieldImpl::FieldRefInfo ParseFloatFieldImpl::processInnerRefImpl(const
     return info;
 }
 
-bool ParseFloatFieldImpl::isValidRefTypeImpl(FieldRefType type) const
+bool ParseFloatFieldImpl::parseIsValidRefTypeImpl(FieldRefType type) const
 {
     return (type == FieldRefType_InnerValue);
 }
 
-bool ParseFloatFieldImpl::updateType()
+bool ParseFloatFieldImpl::parseUpdateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);
-    if (!validateSinglePropInstance(common::typeStr(), mustHave)) {
+    if (!parseValidateSinglePropInstance(common::typeStr(), mustHave)) {
         return false;
     }
 
-    auto propsIter = props().find(common::typeStr());
-    if (propsIter == props().end()) {
+    auto propsIter = parseProps().find(common::typeStr());
+    if (propsIter == parseProps().end()) {
         assert(!mustHave);
         return true;
     }
@@ -293,7 +293,7 @@ bool ParseFloatFieldImpl::updateType()
     auto typeStr = common::toLowerCopy(propsIter->second);
     auto iter = std::find(std::begin(Map), std::end(Map), typeStr);
     if (iter == std::end(Map)) {
-        reportUnexpectedPropertyValue(common::typeStr(), propsIter->second);
+        parseReportUnexpectedPropertyValue(common::typeStr(), propsIter->second);
         return false;
     }
 
@@ -307,28 +307,28 @@ bool ParseFloatFieldImpl::updateType()
         return true;
     }
 
-    logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                   "Type cannot be changed after reuse";
     return false;
 }
 
-bool ParseFloatFieldImpl::updateEndian()
+bool ParseFloatFieldImpl::parseUpdateEndian()
 {
-    if (!validateSinglePropInstance(common::endianStr())) {
+    if (!parseValidateSinglePropInstance(common::endianStr())) {
         return false;
     }
 
-    auto& endianStr = common::getStringProp(props(), common::endianStr());
-    m_state.m_endian = common::parseEndian(endianStr, protocol().currSchema().endian());
+    auto& endianStr = common::getStringProp(parseProps(), common::endianStr());
+    m_state.m_endian = common::parseEndian(endianStr, parseProtocol().parseCurrSchema().parseEndian());
     if (m_state.m_endian == ParseEndian_NumOfValues) {
-        reportUnexpectedPropertyValue(common::endianStr(), endianStr);
+        parseReportUnexpectedPropertyValue(common::endianStr(), endianStr);
         return false;
     }
 
     return true;
 }
 
-bool ParseFloatFieldImpl::updateLength()
+bool ParseFloatFieldImpl::parseUpdateLength()
 {
     static const std::size_t Map[] = {
         /* Type::Float */ sizeof(float),
@@ -351,26 +351,26 @@ bool ParseFloatFieldImpl::updateLength()
     return true;
 }
 
-bool ParseFloatFieldImpl::updateMinMaxValues()
+bool ParseFloatFieldImpl::parseUpdateMinMaxValues()
 {
-    m_state.m_typeAllowedMinValue = minValueForType(m_state.m_type);
-    m_state.m_typeAllowedMaxValue = maxValueForType(m_state.m_type);
+    m_state.m_typeAllowedMinValue = parseMinValueForType(m_state.m_type);
+    m_state.m_typeAllowedMaxValue = parseMaxValueForType(m_state.m_type);
     return true;
 }
 
-bool ParseFloatFieldImpl::updateDefaultValue()
+bool ParseFloatFieldImpl::parseUpdateDefaultValue()
 {
-    if (!validateSinglePropInstance(common::defaultValueStr())) {
+    if (!parseValidateSinglePropInstance(common::defaultValueStr())) {
         return false;
     }
 
-    auto& valueStr = common::getStringProp(props(), common::defaultValueStr());
+    auto& valueStr = common::getStringProp(parseProps(), common::defaultValueStr());
     if (valueStr.empty()) {
         return true;
     }
 
-    if (!strToValue(valueStr, m_state.m_defaultValue)) {
-        reportUnexpectedPropertyValue(common::defaultValueStr(), valueStr);
+    if (!parseStrToValue(valueStr, m_state.m_defaultValue)) {
+        parseReportUnexpectedPropertyValue(common::defaultValueStr(), valueStr);
         return false;
     }
 
@@ -380,13 +380,13 @@ bool ParseFloatFieldImpl::updateDefaultValue()
     }
 
     if (m_state.m_typeAllowedMaxValue < m_state.m_defaultValue) {
-        logError() << "Value of property \"" << common::defaultValueStr() <<
+        parseLogError() << "Value of property \"" << common::defaultValueStr() <<
                         "\" is greater than the type's maximal value.";
         return false;
     }
 
     if (m_state.m_defaultValue < m_state.m_typeAllowedMinValue) {
-        logError() << "Value of property \"" << common::defaultValueStr() <<
+        parseLogError() << "Value of property \"" << common::defaultValueStr() <<
                         "\" is less than the type's minimal value.";
         return false;
     }
@@ -394,20 +394,20 @@ bool ParseFloatFieldImpl::updateDefaultValue()
     return true;
 }
 
-bool ParseFloatFieldImpl::updateValidCheckVersion()
+bool ParseFloatFieldImpl::parseUpdateValidCheckVersion()
 {
-    return validateAndUpdateBoolPropValue(common::validCheckVersionStr(), m_state.m_validCheckVersion);
+    return parseValidateAndUpdateBoolPropValue(common::validCheckVersionStr(), m_state.m_validCheckVersion);
 }
 
-bool ParseFloatFieldImpl::updateValidRanges()
+bool ParseFloatFieldImpl::parseUpdateValidRanges()
 {
-    auto attrs = ParseXmlWrap::parseNodeProps(getNode());
+    auto attrs = ParseXmlWrap::parseNodeProps(parseGetNode());
     bool result =
-        checkFullRangeProps(attrs) &&
-        checkValidRangeProps(attrs) &&
-        checkValidValueProps(attrs) &&
-        checkValidMinProps(attrs) &&
-        checkValidMaxProps(attrs);
+        parseCheckFullRangeProps(attrs) &&
+        parseCheckValidRangeProps(attrs) &&
+        parseCheckValidValueProps(attrs) &&
+        parseCheckValidMinProps(attrs) &&
+        parseCheckValidMaxProps(attrs);
     if (!result) {
         return false;
     }
@@ -428,15 +428,15 @@ bool ParseFloatFieldImpl::updateValidRanges()
                 return elem1.m_deprecatedSince < elem2.m_deprecatedSince;
             }
 
-            if (compareLess(elem1.m_min, elem2.m_min)) {
+            if (parseCompareLess(elem1.m_min, elem2.m_min)) {
                 return true;
             }
 
-            if (compareLess(elem2.m_min, elem1.m_min)) {
+            if (parseCompareLess(elem2.m_min, elem1.m_min)) {
                 return false;
             }
 
-            return compareLess(elem1.m_max, elem2.m_max);
+            return parseCompareLess(elem1.m_max, elem2.m_max);
         });
 
     // Merge
@@ -460,7 +460,7 @@ bool ParseFloatFieldImpl::updateValidRanges()
                 (iter->m_deprecatedSince != nextIter->m_deprecatedSince) ||
                 (isSpecial(iter->m_max)) ||
                 (isSpecial(nextIter->m_min)) ||
-                (compareLess(iter->m_max, nextIter->m_min))) {
+                (parseCompareLess(iter->m_max, nextIter->m_min))) {
                 break;
             }
 
@@ -486,19 +486,19 @@ bool ParseFloatFieldImpl::updateValidRanges()
         {
             assert(elem1.m_deprecatedSince != 0U);
             assert(elem2.m_deprecatedSince != 0U);
-            if (compareLess(elem1.m_min, elem2.m_min)) {
+            if (parseCompareLess(elem1.m_min, elem2.m_min)) {
                 return true;
             }
 
-            if (compareLess(elem2.m_min, elem1.m_min)) {
+            if (parseCompareLess(elem2.m_min, elem1.m_min)) {
                 return false;
             }
 
-            if (compareLess(elem1.m_max, elem2.m_max)) {
+            if (parseCompareLess(elem1.m_max, elem2.m_max)) {
                 return true;
             }
 
-            if (compareLess(elem2.m_max, elem1.m_max)) {
+            if (parseCompareLess(elem2.m_max, elem1.m_max)) {
                 return false;
             }
 
@@ -513,14 +513,14 @@ bool ParseFloatFieldImpl::updateValidRanges()
     return true;
 }
 
-bool ParseFloatFieldImpl::updateNonUniqueSpecialsAllowed()
+bool ParseFloatFieldImpl::parseUpdateNonUniqueSpecialsAllowed()
 {
-    return validateAndUpdateBoolPropValue(common::nonUniqueSpecialsAllowedStr(), m_state.m_nonUniqueSpecialsAllowed);
+    return parseValidateAndUpdateBoolPropValue(common::nonUniqueSpecialsAllowedStr(), m_state.m_nonUniqueSpecialsAllowed);
 }
 
-bool ParseFloatFieldImpl::updateSpecials()
+bool ParseFloatFieldImpl::parseUpdateSpecials()
 {
-    auto specials = ParseXmlWrap::getChildren(getNode(), common::specialStr());
+    auto specials = ParseXmlWrap::parseGetChildren(parseGetNode(), common::specialStr());
 
     using RecSpecials = std::multimap<double, std::string>;
     RecSpecials recSpecials;
@@ -537,31 +537,31 @@ bool ParseFloatFieldImpl::updateSpecials()
         };
 
         auto props = ParseXmlWrap::parseNodeProps(s);
-        if (!ParseXmlWrap::parseChildrenAsProps(s, PropNames, protocol().logger(), props)) {
+        if (!ParseXmlWrap::parseChildrenAsProps(s, PropNames, parseProtocol().parseLogger(), props)) {
             return false;
         }
 
-        if (!ParseXmlWrap::validateSinglePropInstance(s, props, common::nameStr(), protocol().logger(), true)) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::nameStr(), parseProtocol().parseLogger(), true)) {
             return false;
         }
 
-        if (!ParseXmlWrap::validateSinglePropInstance(s, props, common::valStr(), protocol().logger(), true)) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::valStr(), parseProtocol().parseLogger(), true)) {
             return false;
         }
 
-        if (!ParseXmlWrap::validateSinglePropInstance(s, props, common::sinceVersionStr(), protocol().logger())) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::sinceVersionStr(), parseProtocol().parseLogger())) {
             return false;
         }
 
-        if (!ParseXmlWrap::validateSinglePropInstance(s, props, common::deprecatedStr(), protocol().logger())) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::deprecatedStr(), parseProtocol().parseLogger())) {
             return false;
         }
 
-        if (!ParseXmlWrap::validateSinglePropInstance(s, props, common::descriptionStr(), protocol().logger())) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::descriptionStr(), parseProtocol().parseLogger())) {
             return false;
         }
 
-        if (!ParseXmlWrap::validateSinglePropInstance(s, props, common::displayNameStr(), protocol().logger())) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::displayNameStr(), parseProtocol().parseLogger())) {
             return false;
         }
 
@@ -569,7 +569,7 @@ bool ParseFloatFieldImpl::updateSpecials()
         assert(nameIter != props.end());
 
         if (!common::isValidName(nameIter->second)) {
-            logError() << ParseXmlWrap::logPrefix(s) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(s) <<
                   "Property \"" << common::nameStr() <<
                   "\" has unexpected value (" << nameIter->second << ").";
             return false;
@@ -577,8 +577,8 @@ bool ParseFloatFieldImpl::updateSpecials()
 
         auto specialsIter = m_state.m_specials.find(nameIter->second);
         if (specialsIter != m_state.m_specials.end()) {
-            logError() << ParseXmlWrap::logPrefix(s) << "Special with name \"" << nameIter->second <<
-                          "\" was already assigned to \"" << name() << "\" element.";
+            parseLogError() << ParseXmlWrap::parseLogPrefix(s) << "Special with name \"" << nameIter->second <<
+                          "\" was already assigned to \"" << parseName() << "\" element.";
             return false;
         }
 
@@ -586,8 +586,8 @@ bool ParseFloatFieldImpl::updateSpecials()
         assert(valIter != props.end());
 
         double val = 0.0;
-        if (!strToValue(valIter->second, val)) {
-            logError() << ParseXmlWrap::logPrefix(s) <<
+        if (!parseStrToValue(valIter->second, val)) {
+            parseLogError() << ParseXmlWrap::parseLogPrefix(s) <<
                 "Value of \"" << nameIter->second << "\" (" << valIter->second << ") cannot be recognized.";
             return false;
         }
@@ -615,7 +615,7 @@ bool ParseFloatFieldImpl::updateSpecials()
 
             if (reportError) {
                 assert(prevDefName != nullptr);
-                logError() << ParseXmlWrap::logPrefix(s) <<
+                parseLogError() << ParseXmlWrap::parseLogPrefix(s) <<
                     "Value of special \"" << nameIter->second <<
                     "\" (" << valIter->second << ") has already been defined as \"" <<
                     *prevDefName << "\".";
@@ -626,7 +626,7 @@ bool ParseFloatFieldImpl::updateSpecials()
         bool isSpecial = std::isnan(val) || std::isinf(val);
         if ((!isSpecial) &&
             ((val < m_state.m_typeAllowedMinValue) || (m_state.m_typeAllowedMaxValue < val))) {
-            this->logError() << ParseXmlWrap::logPrefix(s) <<
+            this->parseLogError() << ParseXmlWrap::parseLogPrefix(s) <<
                 "Special value \"" << nameIter->second << "\" (" <<
                 valIter->second << ") is outside the range of available values within a type.";
             return false;
@@ -634,10 +634,10 @@ bool ParseFloatFieldImpl::updateSpecials()
 
         SpecialValueInfo info;
         info.m_value = val;
-        info.m_sinceVersion = getSinceVersion();
-        info.m_deprecatedSince = getDeprecated();
+        info.m_sinceVersion = parseGetSinceVersion();
+        info.m_deprecatedSince = parseGetDeprecated();
 
-        if (!ParseXmlWrap::getAndCheckVersions(s, nameIter->second, props, info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+        if (!ParseXmlWrap::parseGetAndCheckVersions(s, nameIter->second, props, info.m_sinceVersion, info.m_deprecatedSince, parseProtocol())) {
             return false;
         }
 
@@ -657,55 +657,55 @@ bool ParseFloatFieldImpl::updateSpecials()
     return true;
 }
 
-bool ParseFloatFieldImpl::updateUnits()
+bool ParseFloatFieldImpl::parseUpdateUnits()
 {
-    if (!validateSinglePropInstance(common::unitsStr())) {
+    if (!parseValidateSinglePropInstance(common::unitsStr())) {
         return false;
     }
 
-    auto iter = props().find(common::unitsStr());
-    if (iter == props().end()) {
+    auto iter = parseProps().find(common::unitsStr());
+    if (iter == parseProps().end()) {
         return true;
     }
 
     bool ok = false;
     m_state.m_units = common::strToUnits(iter->second, &ok);
     if (!ok) {
-        reportUnexpectedPropertyValue(common::unitsStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::unitsStr(), iter->second);
         return false;
     }
 
     return true;
 }
 
-bool ParseFloatFieldImpl::updateDisplayDecimals()
+bool ParseFloatFieldImpl::parseUpdateDisplayDecimals()
 {
-    if (!validateSinglePropInstance(common::displayDesimalsStr())) {
+    if (!parseValidateSinglePropInstance(common::displayDesimalsStr())) {
         return false;
     }
 
-    auto iter = props().find(common::displayDesimalsStr());
-    if (iter == props().end()) {
+    auto iter = parseProps().find(common::displayDesimalsStr());
+    if (iter == parseProps().end()) {
         return true;
     }
 
     bool ok = false;
     m_state.m_displayDecimals = common::strToUnsigned(iter->second, &ok);
     if (!ok) {
-        reportUnexpectedPropertyValue(common::displayDesimalsStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::displayDesimalsStr(), iter->second);
         return false;
     }
 
     return true;
 }
 
-bool ParseFloatFieldImpl::updateDisplaySpecials()
+bool ParseFloatFieldImpl::parseUpdateDisplaySpecials()
 {
-    checkAndReportDeprecatedPropertyValue(common::displaySpecialsStr());
+    parseCheckAndReportDeprecatedPropertyValue(common::displaySpecialsStr());
     return true;
 }
 
-bool ParseFloatFieldImpl::checkFullRangeAsAttr(const ParseFieldImpl::PropsMap& xmlAttrs)
+bool ParseFloatFieldImpl::parseCheckFullRangeAsAttr(const ParseFieldImpl::PropsMap& xmlAttrs)
 {
     auto iter = xmlAttrs.find(common::validFullRangeStr());
     if (iter == xmlAttrs.end()) {
@@ -713,9 +713,9 @@ bool ParseFloatFieldImpl::checkFullRangeAsAttr(const ParseFieldImpl::PropsMap& x
     }
 
     bool ok = false;
-    bool fullRange = common::strToBool(iter->second, &ok);
+    bool fullRange = common::parseStrToBool(iter->second, &ok);
     if (!ok) {
-        reportUnexpectedPropertyValue(common::validFullRangeStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::validFullRangeStr(), iter->second);
         return false;
     }
 
@@ -726,23 +726,23 @@ bool ParseFloatFieldImpl::checkFullRangeAsAttr(const ParseFieldImpl::PropsMap& x
     ValidRangeInfo info;
     info.m_min = m_state.m_typeAllowedMinValue;
     info.m_max = m_state.m_typeAllowedMaxValue;
-    info.m_sinceVersion = getSinceVersion();
-    info.m_deprecatedSince = getDeprecated();
+    info.m_sinceVersion = parseGetSinceVersion();
+    info.m_deprecatedSince = parseGetDeprecated();
     m_state.m_validRanges.push_back(info);
     return true;
 }
 
-bool ParseFloatFieldImpl::checkFullRangeAsChild(::xmlNodePtr child)
+bool ParseFloatFieldImpl::parseCheckFullRangeAsChild(::xmlNodePtr child)
 {
     std::string str;
-    if (!ParseXmlWrap::parseNodeValue(child, protocol().logger(), str)) {
+    if (!ParseXmlWrap::parseNodeValue(child, parseProtocol().parseLogger(), str)) {
         return false;
     }
 
     bool ok = false;
-    bool fullRange = common::strToBool(str, &ok);
+    bool fullRange = common::parseStrToBool(str, &ok);
     if (!ok) {
-        reportUnexpectedPropertyValue(common::validFullRangeStr(), str);
+        parseReportUnexpectedPropertyValue(common::validFullRangeStr(), str);
         return false;
     }
 
@@ -753,10 +753,10 @@ bool ParseFloatFieldImpl::checkFullRangeAsChild(::xmlNodePtr child)
     ValidRangeInfo info;
     info.m_min = m_state.m_typeAllowedMinValue;
     info.m_max = m_state.m_typeAllowedMaxValue;
-    info.m_sinceVersion = getSinceVersion();
-    info.m_deprecatedSince = getDeprecated();
+    info.m_sinceVersion = parseGetSinceVersion();
+    info.m_deprecatedSince = parseGetDeprecated();
 
-    if (!ParseXmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+    if (!ParseXmlWrap::parseGetAndCheckVersions(child, parseName(), info.m_sinceVersion, info.m_deprecatedSince, parseProtocol())) {
         return false;
     }
 
@@ -764,19 +764,19 @@ bool ParseFloatFieldImpl::checkFullRangeAsChild(::xmlNodePtr child)
     return true;
 }
 
-bool ParseFloatFieldImpl::checkFullRangeProps(const ParseFieldImpl::PropsMap& xmlAttrs)
+bool ParseFloatFieldImpl::parseCheckFullRangeProps(const ParseFieldImpl::PropsMap& xmlAttrs)
 {
-    if (!validateSinglePropInstance(common::validFullRangeStr())) {
+    if (!parseValidateSinglePropInstance(common::validFullRangeStr())) {
         return false;
     }
 
-    if (!checkFullRangeAsAttr(xmlAttrs)) {
+    if (!parseCheckFullRangeAsAttr(xmlAttrs)) {
         return false;
     }
 
-    auto children = ParseXmlWrap::getChildren(getNode(), common::validFullRangeStr());
+    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::validFullRangeStr());
     for (auto* c : children) {
-        if (!checkFullRangeAsChild(c)) {
+        if (!parseCheckFullRangeAsChild(c)) {
             return false;
         }
     }
@@ -784,7 +784,7 @@ bool ParseFloatFieldImpl::checkFullRangeProps(const ParseFieldImpl::PropsMap& xm
     return true;
 }
 
-bool ParseFloatFieldImpl::checkValidRangeAsAttr(const ParseFieldImpl::PropsMap& xmlAttrs)
+bool ParseFloatFieldImpl::parseCheckValidRangeAsAttr(const ParseFieldImpl::PropsMap& xmlAttrs)
 {
     auto iter = xmlAttrs.find(common::validRangeStr());
     if (iter == xmlAttrs.end()) {
@@ -793,32 +793,32 @@ bool ParseFloatFieldImpl::checkValidRangeAsAttr(const ParseFieldImpl::PropsMap& 
 
     ValidRangeInfo info;
 
-    if (!validateValidRangeStr(iter->second, info.m_min, info.m_max)) {
+    if (!parseValidateValidRangeStr(iter->second, info.m_min, info.m_max)) {
         return false;
     }
 
-    info.m_sinceVersion = getSinceVersion();
-    info.m_deprecatedSince = getDeprecated();
+    info.m_sinceVersion = parseGetSinceVersion();
+    info.m_deprecatedSince = parseGetDeprecated();
     m_state.m_validRanges.push_back(info);
     return true;
 }
 
-bool ParseFloatFieldImpl::checkValidRangeAsChild(::xmlNodePtr child)
+bool ParseFloatFieldImpl::parseCheckValidRangeAsChild(::xmlNodePtr child)
 {
     std::string str;
-    if (!ParseXmlWrap::parseNodeValue(child, protocol().logger(), str)) {
+    if (!ParseXmlWrap::parseNodeValue(child, parseProtocol().parseLogger(), str)) {
         return false;
     }
 
     ValidRangeInfo info;
-    info.m_sinceVersion = getSinceVersion();
-    info.m_deprecatedSince = getDeprecated();
+    info.m_sinceVersion = parseGetSinceVersion();
+    info.m_deprecatedSince = parseGetDeprecated();
 
-    if (!validateValidRangeStr(str, info.m_min, info.m_max)) {
+    if (!parseValidateValidRangeStr(str, info.m_min, info.m_max)) {
         return false;
     }
 
-    if (!ParseXmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+    if (!ParseXmlWrap::parseGetAndCheckVersions(child, parseName(), info.m_sinceVersion, info.m_deprecatedSince, parseProtocol())) {
         return false;
     }
 
@@ -826,15 +826,15 @@ bool ParseFloatFieldImpl::checkValidRangeAsChild(::xmlNodePtr child)
     return true;
 }
 
-bool ParseFloatFieldImpl::checkValidRangeProps(const ParseFieldImpl::PropsMap& xmlAttrs)
+bool ParseFloatFieldImpl::parseCheckValidRangeProps(const ParseFieldImpl::PropsMap& xmlAttrs)
 {
-    if (!checkValidRangeAsAttr(xmlAttrs)) {
+    if (!parseCheckValidRangeAsAttr(xmlAttrs)) {
         return false;
     }
 
-    auto children = ParseXmlWrap::getChildren(getNode(), common::validRangeStr());
+    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::validRangeStr());
     for (auto* c : children) {
-        if (!checkValidRangeAsChild(c)) {
+        if (!parseCheckValidRangeAsChild(c)) {
             return false;
         }
     }
@@ -842,7 +842,7 @@ bool ParseFloatFieldImpl::checkValidRangeProps(const ParseFieldImpl::PropsMap& x
     return true;
 }
 
-bool ParseFloatFieldImpl::checkValidValueAsAttr(const ParseFieldImpl::PropsMap& xmlAttrs)
+bool ParseFloatFieldImpl::parseCheckValidValueAsAttr(const ParseFieldImpl::PropsMap& xmlAttrs)
 {
     auto iter = xmlAttrs.find(common::validValueStr());
     if (iter == xmlAttrs.end()) {
@@ -850,36 +850,36 @@ bool ParseFloatFieldImpl::checkValidValueAsAttr(const ParseFieldImpl::PropsMap& 
     }
 
     ValidRangeInfo info;
-    if (!validateValidValueStr(iter->second, common::validValueStr(), info.m_min)) {
+    if (!parseValidateValidValueStr(iter->second, common::validValueStr(), info.m_min)) {
         return false;
     }
 
     info.m_max = info.m_min;
-    info.m_sinceVersion = getSinceVersion();
-    info.m_deprecatedSince = getDeprecated();
+    info.m_sinceVersion = parseGetSinceVersion();
+    info.m_deprecatedSince = parseGetDeprecated();
 
     m_state.m_validRanges.push_back(info);
     return true;
 }
 
-bool ParseFloatFieldImpl::checkValidValueAsChild(::xmlNodePtr child)
+bool ParseFloatFieldImpl::parseCheckValidValueAsChild(::xmlNodePtr child)
 {
     std::string str;
-    if (!ParseXmlWrap::parseNodeValue(child, protocol().logger(), str)) {
+    if (!ParseXmlWrap::parseNodeValue(child, parseProtocol().parseLogger(), str)) {
         return false;
     }
 
     ValidRangeInfo info;
 
-    if (!validateValidValueStr(str, common::validValueStr(), info.m_min)) {
+    if (!parseValidateValidValueStr(str, common::validValueStr(), info.m_min)) {
         return false;
     }
 
     info.m_max = info.m_min;
-    info.m_sinceVersion = getSinceVersion();
-    info.m_deprecatedSince = getDeprecated();
+    info.m_sinceVersion = parseGetSinceVersion();
+    info.m_deprecatedSince = parseGetDeprecated();
 
-    if (!ParseXmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+    if (!ParseXmlWrap::parseGetAndCheckVersions(child, parseName(), info.m_sinceVersion, info.m_deprecatedSince, parseProtocol())) {
         return false;
     }
 
@@ -887,15 +887,15 @@ bool ParseFloatFieldImpl::checkValidValueAsChild(::xmlNodePtr child)
     return true;
 }
 
-bool ParseFloatFieldImpl::checkValidValueProps(const ParseFieldImpl::PropsMap& xmlAttrs)
+bool ParseFloatFieldImpl::parseCheckValidValueProps(const ParseFieldImpl::PropsMap& xmlAttrs)
 {
-    if (!checkValidValueAsAttr(xmlAttrs)) {
+    if (!parseCheckValidValueAsAttr(xmlAttrs)) {
         return false;
     }
 
-    auto children = ParseXmlWrap::getChildren(getNode(), common::validValueStr());
+    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::validValueStr());
     for (auto* c : children) {
-        if (!checkValidValueAsChild(c)) {
+        if (!parseCheckValidValueAsChild(c)) {
             return false;
         }
     }
@@ -903,7 +903,7 @@ bool ParseFloatFieldImpl::checkValidValueProps(const ParseFieldImpl::PropsMap& x
     return true;
 }
 
-bool ParseFloatFieldImpl::checkValidMinAsAttr(const ParseFieldImpl::PropsMap& xmlAttrs)
+bool ParseFloatFieldImpl::parseCheckValidMinAsAttr(const ParseFieldImpl::PropsMap& xmlAttrs)
 {
     auto iter = xmlAttrs.find(common::validMinStr());
     if (iter == xmlAttrs.end()) {
@@ -911,36 +911,36 @@ bool ParseFloatFieldImpl::checkValidMinAsAttr(const ParseFieldImpl::PropsMap& xm
     }
 
     ValidRangeInfo info;
-    if (!validateValidValueStr(iter->second, common::validMinStr(), info.m_min, false)) {
+    if (!parseValidateValidValueStr(iter->second, common::validMinStr(), info.m_min, false)) {
         return false;
     }
 
     info.m_max = m_state.m_typeAllowedMaxValue;
-    info.m_sinceVersion = getSinceVersion();
-    info.m_deprecatedSince = getDeprecated();
+    info.m_sinceVersion = parseGetSinceVersion();
+    info.m_deprecatedSince = parseGetDeprecated();
 
     m_state.m_validRanges.push_back(info);
     return true;
 }
 
-bool ParseFloatFieldImpl::checkValidMinAsChild(::xmlNodePtr child)
+bool ParseFloatFieldImpl::parseCheckValidMinAsChild(::xmlNodePtr child)
 {
     std::string str;
-    if (!ParseXmlWrap::parseNodeValue(child, protocol().logger(), str)) {
+    if (!ParseXmlWrap::parseNodeValue(child, parseProtocol().parseLogger(), str)) {
         return false;
     }
 
     ValidRangeInfo info;
 
-    if (!validateValidValueStr(str, common::validMinStr(), info.m_min, false)) {
+    if (!parseValidateValidValueStr(str, common::validMinStr(), info.m_min, false)) {
         return false;
     }
 
     info.m_max = m_state.m_typeAllowedMaxValue;
-    info.m_sinceVersion = getSinceVersion();
-    info.m_deprecatedSince = getDeprecated();
+    info.m_sinceVersion = parseGetSinceVersion();
+    info.m_deprecatedSince = parseGetDeprecated();
 
-    if (!ParseXmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+    if (!ParseXmlWrap::parseGetAndCheckVersions(child, parseName(), info.m_sinceVersion, info.m_deprecatedSince, parseProtocol())) {
         return false;
     }
 
@@ -948,15 +948,15 @@ bool ParseFloatFieldImpl::checkValidMinAsChild(::xmlNodePtr child)
     return true;
 }
 
-bool ParseFloatFieldImpl::checkValidMinProps(const ParseFieldImpl::PropsMap& xmlAttrs)
+bool ParseFloatFieldImpl::parseCheckValidMinProps(const ParseFieldImpl::PropsMap& xmlAttrs)
 {
-    if (!checkValidMinAsAttr(xmlAttrs)) {
+    if (!parseCheckValidMinAsAttr(xmlAttrs)) {
         return false;
     }
 
-    auto children = ParseXmlWrap::getChildren(getNode(), common::validMinStr());
+    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::validMinStr());
     for (auto* c : children) {
-        if (!checkValidMinAsChild(c)) {
+        if (!parseCheckValidMinAsChild(c)) {
             return false;
         }
     }
@@ -964,7 +964,7 @@ bool ParseFloatFieldImpl::checkValidMinProps(const ParseFieldImpl::PropsMap& xml
     return true;
 }
 
-bool ParseFloatFieldImpl::checkValidMaxAsAttr(const ParseFieldImpl::PropsMap& xmlAttrs)
+bool ParseFloatFieldImpl::parseCheckValidMaxAsAttr(const ParseFieldImpl::PropsMap& xmlAttrs)
 {
     auto iter = xmlAttrs.find(common::validMaxStr());
     if (iter == xmlAttrs.end()) {
@@ -972,36 +972,36 @@ bool ParseFloatFieldImpl::checkValidMaxAsAttr(const ParseFieldImpl::PropsMap& xm
     }
 
     ValidRangeInfo info;
-    if (!validateValidValueStr(iter->second, common::validMaxStr(), info.m_max, false)) {
+    if (!parseValidateValidValueStr(iter->second, common::validMaxStr(), info.m_max, false)) {
         return false;
     }
 
     info.m_min = m_state.m_typeAllowedMinValue;
-    info.m_sinceVersion = getSinceVersion();
-    info.m_deprecatedSince = getDeprecated();
+    info.m_sinceVersion = parseGetSinceVersion();
+    info.m_deprecatedSince = parseGetDeprecated();
 
     m_state.m_validRanges.push_back(info);
     return true;
 }
 
-bool ParseFloatFieldImpl::checkValidMaxAsChild(::xmlNodePtr child)
+bool ParseFloatFieldImpl::parseCheckValidMaxAsChild(::xmlNodePtr child)
 {
     std::string str;
-    if (!ParseXmlWrap::parseNodeValue(child, protocol().logger(), str)) {
+    if (!ParseXmlWrap::parseNodeValue(child, parseProtocol().parseLogger(), str)) {
         return false;
     }
 
     ValidRangeInfo info;
 
-    if (!validateValidValueStr(str, common::validMaxStr(), info.m_max, false)) {
+    if (!parseValidateValidValueStr(str, common::validMaxStr(), info.m_max, false)) {
         return false;
     }
 
     info.m_min = m_state.m_typeAllowedMinValue;
-    info.m_sinceVersion = getSinceVersion();
-    info.m_deprecatedSince = getDeprecated();
+    info.m_sinceVersion = parseGetSinceVersion();
+    info.m_deprecatedSince = parseGetDeprecated();
 
-    if (!ParseXmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+    if (!ParseXmlWrap::parseGetAndCheckVersions(child, parseName(), info.m_sinceVersion, info.m_deprecatedSince, parseProtocol())) {
         return false;
     }
 
@@ -1009,15 +1009,15 @@ bool ParseFloatFieldImpl::checkValidMaxAsChild(::xmlNodePtr child)
     return true;
 }
 
-bool ParseFloatFieldImpl::checkValidMaxProps(const ParseFieldImpl::PropsMap& xmlAttrs)
+bool ParseFloatFieldImpl::parseCheckValidMaxProps(const ParseFieldImpl::PropsMap& xmlAttrs)
 {
-    if (!checkValidMaxAsAttr(xmlAttrs)) {
+    if (!parseCheckValidMaxAsAttr(xmlAttrs)) {
         return false;
     }
 
-    auto children = ParseXmlWrap::getChildren(getNode(), common::validMaxStr());
+    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::validMaxStr());
     for (auto* c : children) {
-        if (!checkValidMaxAsChild(c)) {
+        if (!parseCheckValidMaxAsChild(c)) {
             return false;
         }
     }
@@ -1025,29 +1025,29 @@ bool ParseFloatFieldImpl::checkValidMaxProps(const ParseFieldImpl::PropsMap& xml
     return true;
 }
 
-bool ParseFloatFieldImpl::validateValidRangeStr(const std::string& str, double& min, double& max)
+bool ParseFloatFieldImpl::parseValidateValidRangeStr(const std::string& str, double& min, double& max)
 {
     bool ok = false;
     auto range = common::parseRange(str, &ok);
     if (!ok) {
-        reportUnexpectedPropertyValue(common::validRangeStr(), str);
+        parseReportUnexpectedPropertyValue(common::validRangeStr(), str);
         return false;
     }
 
-    if (!strToValue(range.first, min, false)) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (!parseStrToValue(range.first, min, false)) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                       "Invalid min value in valid range (" << str << ").";
         return false;
     }
 
-    if (!strToValue(range.second, max, false)) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (!parseStrToValue(range.second, max, false)) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                       "Invalid max value in valid range (" << str << ").";
         return false;
     }
 
     if (max < min) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                       "Min value must be less than max in valid range (" << str << ").";
         return false;
     }
@@ -1055,14 +1055,14 @@ bool ParseFloatFieldImpl::validateValidRangeStr(const std::string& str, double& 
     return true;
 }
 
-bool ParseFloatFieldImpl::validateValidValueStr(
+bool ParseFloatFieldImpl::parseValidateValidValueStr(
     const std::string& str,
     const std::string& type,
     double& val,
     bool allowSpecials)
 {
-    if (!strToValue(str, val, allowSpecials)) {
-        reportUnexpectedPropertyValue(type, str);
+    if (!parseStrToValue(str, val, allowSpecials)) {
+        parseReportUnexpectedPropertyValue(type, str);
         return false;
     }
 
@@ -1071,13 +1071,13 @@ bool ParseFloatFieldImpl::validateValidValueStr(
     }
 
     if (m_state.m_typeAllowedMaxValue < val) {
-        logError() << "Value of property \"" << type <<
+        parseLogError() << "Value of property \"" << type <<
                         "\" is greater than the type's maximal value.";
         return false;
     }
 
     if (val < m_state.m_typeAllowedMinValue) {
-        logError() << "Value of property \"" << type <<
+        parseLogError() << "Value of property \"" << type <<
                         "\" is less than the type's minimal value.";
         return false;
     }
@@ -1085,7 +1085,7 @@ bool ParseFloatFieldImpl::validateValidValueStr(
     return true;
 }
 
-bool ParseFloatFieldImpl::strToValue(
+bool ParseFloatFieldImpl::parseStrToValue(
     const std::string& str,
     double& val,
     bool allowSpecials) const
@@ -1106,7 +1106,7 @@ bool ParseFloatFieldImpl::strToValue(
 
         if (common::isValidRefName(str)) {
 
-             if (!protocol().strToFp(str, false, val)) {
+             if (!parseProtocol().parseStrToFp(str, false, val)) {
                  return false;
              }
 

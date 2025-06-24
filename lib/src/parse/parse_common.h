@@ -92,7 +92,7 @@ const std::string& reuseStr();
 const std::string& validCheckVersionStr();
 const std::string& lengthPrefixStr();
 const std::string& countPrefixStr();
-const std::string& encodingStr();
+const std::string& parseEncodingStr();
 const std::string& zeroTermSuffixStr();
 const std::string& stringStr();
 const std::string& dataStr();
@@ -188,7 +188,7 @@ unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0)
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);
 std::uintmax_t strToUintMax(const std::string& str, bool* ok = nullptr, int base = 0);
 double strToDouble(const std::string& str, bool* ok = nullptr, bool allowSpecials = true);
-bool strToBool(const std::string& str, bool* ok = nullptr);
+bool parseStrToBool(const std::string& str, bool* ok = nullptr);
 bool isFpSpecial(const std::string& str);
 ParseUnits strToUnits(const std::string& str, bool* ok = nullptr);
 

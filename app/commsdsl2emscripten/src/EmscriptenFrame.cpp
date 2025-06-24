@@ -351,7 +351,7 @@ std::string EmscriptenFrame::emscriptenHeaderLayersAccessInternal() const
 
         util::ReplacementMap repl = {
             {"CLASS_NAME", gen.emscriptenClassName(l->layer())},
-            {"NAME", comms::accessName(l->layer().dslObj().name())},
+            {"NAME", comms::accessName(l->layer().dslObj().parseName())},
         };
 
         result.push_back(util::processTemplate(Templ, repl));
@@ -534,7 +534,7 @@ std::string EmscriptenFrame::emscriptenSourceLayersAccBindInternal() const
         static const std::string Templ = 
             ".function(\"layer_#^#NAME#$#\", &#^#CLASS_NAME#$#::layer_#^#NAME#$#, emscripten::allow_raw_pointers())";
 
-        repl["NAME"] = comms::accessName(l->layer().dslObj().name());
+        repl["NAME"] = comms::accessName(l->layer().dslObj().parseName());
         result.push_back(util::processTemplate(Templ, repl));
     }
 

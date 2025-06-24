@@ -44,57 +44,57 @@ ParseEnumField::ParseEnumField(const ParseEnumFieldImpl* impl)
 ParseEnumField::ParseEnumField(ParseField field)
   : Base(field)
 {
-    assert(kind() == Kind::Enum);
+    assert(parseKind() == Kind::Enum);
 }
 
-ParseEnumField::Type ParseEnumField::type() const
+ParseEnumField::Type ParseEnumField::parseType() const
 {
-    return cast(m_pImpl)->type();
+    return cast(m_pImpl)->parseType();
 }
 
-ParseEndian ParseEnumField::endian() const
+ParseEndian ParseEnumField::parseEndian() const
 {
-    return cast(m_pImpl)->endian();
+    return cast(m_pImpl)->parseEndian();
 }
 
-std::intmax_t ParseEnumField::defaultValue() const
+std::intmax_t ParseEnumField::parseDefaultValue() const
 {
-    return cast(m_pImpl)->defaultValue();
+    return cast(m_pImpl)->parseDefaultValue();
 }
 
-const ParseEnumField::Values& ParseEnumField::values() const
+const ParseEnumField::Values& ParseEnumField::parseValues() const
 {
-    return cast(m_pImpl)->values();
+    return cast(m_pImpl)->parseValues();
 }
 
-const ParseEnumField::RevValues& ParseEnumField::revValues() const
+const ParseEnumField::RevValues& ParseEnumField::parseRevValues() const
 {
-    return cast(m_pImpl)->revValues();
+    return cast(m_pImpl)->parseRevValues();
 }
 
-bool ParseEnumField::isNonUniqueAllowed() const
+bool ParseEnumField::parseIsNonUniqueAllowed() const
 {
-    return cast(m_pImpl)->isNonUniqueAllowed();
+    return cast(m_pImpl)->parseIsNonUniqueAllowed();
 }
 
-bool ParseEnumField::isUnique() const
+bool ParseEnumField::parseIsUnique() const
 {
-    return cast(m_pImpl)->isUnique();
+    return cast(m_pImpl)->parseIsUnique();
 }
 
-bool ParseEnumField::validCheckVersion() const
+bool ParseEnumField::parseValidCheckVersion() const
 {
-    return cast(m_pImpl)->validCheckVersion();
+    return cast(m_pImpl)->parseValidCheckVersion();
 }
 
-bool ParseEnumField::hexAssign() const
+bool ParseEnumField::parseHexAssign() const
 {
-    return cast(m_pImpl)->hexAssign();
+    return cast(m_pImpl)->parseHexAssign();
 }
 
-bool ParseEnumField::availableLengthLimit() const
+bool ParseEnumField::parseAvailableLengthLimit() const
 {
-    return cast(m_pImpl)->availableLengthLimit();
+    return cast(m_pImpl)->parseAvailableLengthLimit();
 }
 
 } // namespace parse

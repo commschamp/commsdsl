@@ -41,81 +41,81 @@ public:
     ParseSetFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseSetFieldImpl(const ParseSetFieldImpl&);
 
-    Type type() const
+    Type parseType() const
     {
         return m_state.m_type;
     }
 
-    ParseEndian endian() const
+    ParseEndian parseEndian() const
     {
         return m_state.m_endian;
     }
 
-    bool defaultBitValue() const
+    bool parseDefaultBitValue() const
     {
         return m_state.m_defaultBitValue;
     }
 
-    bool reservedBitValue() const
+    bool parseReservedBitValue() const
     {
         return m_state.m_reservedBitValue;
     }
 
-    const Bits& bits() const
+    const Bits& parseBits() const
     {
         return m_state.m_bits;
     }
 
-    const RevBits& revBits() const
+    const RevBits& parseRevBits() const
     {
         return m_state.m_revBits;
     }
 
-    bool isNonUniqueAllowed() const
+    bool parseIsNonUniqueAllowed() const
     {
         return m_state.m_nonUniqueAllowed;
     }
 
-    bool isUnique() const;
+    bool parseIsUnique() const;
 
-    bool validCheckVersion() const
+    bool parseValidCheckVersion() const
     {
         return m_state.m_validCheckVersion;
     }
 
-    bool availableLengthLimit() const
+    bool parseAvailableLengthLimit() const
     {
         return m_state.m_availableLengthLimit;
     }
 
 protected:
-    virtual Kind kindImpl() const override;
-    virtual Ptr cloneImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraPropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& extraChildrenNamesImpl() const override;
-    virtual bool reuseImpl(const ParseFieldImpl& other) override;
+    virtual Kind parseKindImpl() const override;
+    virtual Ptr parseCloneImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
+    virtual const ParseXmlWrap::NamesList& parseExtraChildrenNamesImpl() const override;
+    virtual bool parseReuseImpl(const ParseFieldImpl& other) override;
     virtual bool parseImpl() override;
-    virtual std::size_t minLengthImpl() const override;
-    virtual std::size_t bitLengthImpl() const override;
-    virtual bool isComparableToValueImpl(const std::string& val) const override;
-    virtual bool isComparableToFieldImpl(const ParseFieldImpl& field) const override;    
-    virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
-    virtual bool strToBoolImpl(const std::string& ref, bool& val) const override;
-    virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override;
-    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override;
-    virtual bool isValidRefTypeImpl(FieldRefType type) const override;
+    virtual std::size_t parseMinLengthImpl() const override;
+    virtual std::size_t parseBitLengthImpl() const override;
+    virtual bool parseIsComparableToValueImpl(const std::string& val) const override;
+    virtual bool parseIsComparableToFieldImpl(const ParseFieldImpl& field) const override;    
+    virtual bool parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
+    virtual bool parseStrToBoolImpl(const std::string& ref, bool& val) const override;
+    virtual bool parseValidateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override;
+    virtual FieldRefInfo parseProcessInnerRefImpl(const std::string& refStr) const override;
+    virtual bool parseIsValidRefTypeImpl(FieldRefType type) const override;
 
 private:
-    bool updateEndian();
-    bool updateType();
-    bool updateLength();
-    bool updateNonUniqueAllowed();
-    bool updateValidCheckVersion();
-    bool updateDefaultValue();
-    bool updateReservedValue();
-    bool updateAvailableLengthLimit();
-    bool updateBits();
-    bool strToValue(const std::string& str, bool& val) const;
+    bool parseUpdateEndian();
+    bool parseUpdateType();
+    bool parseUpdateLength();
+    bool parseUpdateNonUniqueAllowed();
+    bool parseUpdateValidCheckVersion();
+    bool parseUpdateDefaultValue();
+    bool parseUpdateReservedValue();
+    bool parseUpdateAvailableLengthLimit();
+    bool parseUpdateBits();
+    bool parseStrToValue(const std::string& str, bool& val) const;
 
     struct State
     {

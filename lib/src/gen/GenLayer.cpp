@@ -44,9 +44,9 @@ public:
 
     bool prepare()
     {
-        auto dslField = m_dslObj.field();
-        if (!dslField.valid()) {
-            if (m_dslObj.kind() != commsdsl::parse::ParseLayer::Kind::Payload) {
+        auto dslField = m_dslObj.parseField();
+        if (!dslField.parseValid()) {
+            if (m_dslObj.parseKind() != commsdsl::parse::ParseLayer::Kind::Payload) {
                 m_generator.logger().error("GenLayer field definition is missing.");
                 [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
@@ -56,7 +56,7 @@ public:
             return true;
         }
 
-        auto extRef = dslField.externalRef();
+        auto extRef = dslField.parseExternalRef();
         if (!extRef.empty()) {
             m_externalField = m_generator.findField(extRef);
             assert(m_externalField != nullptr);
@@ -150,7 +150,7 @@ GenLayer::Ptr GenLayer::create(GenGenerator& generator, commsdsl::parse::ParseLa
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::ParseLayer::Kind::NumOfValues), "Invalid map");
 
-    auto idx = static_cast<std::size_t>(dslobj.kind());
+    auto idx = static_cast<std::size_t>(dslobj.parseKind());
     if (MapSize <= idx) {
         [[maybe_unused]] static constexpr bool Unexpected_kind = false;
         assert(Unexpected_kind);          
@@ -263,7 +263,7 @@ std::string GenLayer::templateScopeOfComms(const std::string& iFaceStr, const st
         };
 
     for (auto iterTmp = iter; iterTmp != allLayers.end(); ++iterTmp) {
-        auto kind = (*iterTmp)->dslObj().kind();
+        auto kind = (*iterTmp)->dslObj().parseKind();
         if (kind == commsdsl::parse::ParseLayer::Kind::Id) {
             addIdParams();
             break;
@@ -274,7 +274,7 @@ std::string GenLayer::templateScopeOfComms(const std::string& iFaceStr, const st
         }
 
         auto& customLayer = static_cast<const GenCustomLayer&>(**iterTmp);
-        auto customKind = customLayer.customDslObj().semanticLayerType();
+        auto customKind = customLayer.customDslObj().parseSemanticLayerType();
         if (customKind == commsdsl::parse::ParseLayer::Kind::Id) {
             addIdParams();
             break;            

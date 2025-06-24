@@ -47,7 +47,7 @@ SwigEnumField::StringsList SwigEnumField::swigEnumValues() const
     auto& revValues = sortedRevValues();
     util::StringsList valuesStrings;
     valuesStrings.reserve(revValues.size() + 3);
-    auto& values = obj.values();
+    auto& values = obj.parseValues();
 
     for (auto& v : revValues) {
         auto iter = values.find(*v.second);
@@ -120,7 +120,7 @@ std::string SwigEnumField::swigValueTypeDeclImpl() const
 
     auto values = swigEnumValues();
     util::ReplacementMap repl = {
-        {"TYPE", gen.swigConvertIntType(enumDslObj().type(), enumDslObj().maxLength())},
+        {"TYPE", gen.swigConvertIntType(enumDslObj().parseType(), enumDslObj().parseMaxLength())},
         {"VALUES", util::strListToString(values, "\n", "")}
     };
     return util::processTemplate(Templ, repl); 
@@ -134,7 +134,7 @@ std::string SwigEnumField::swigExtraPublicFuncsDeclImpl() const
     ;
 
     auto& gen = SwigGenerator::cast(generator());
-    auto type = gen.swigConvertIntType(enumDslObj().type(), enumDslObj().maxLength());
+    auto type = gen.swigConvertIntType(enumDslObj().parseType(), enumDslObj().parseMaxLength());
     util::ReplacementMap repl = {
         {"TYPE", type}
     };
@@ -153,12 +153,12 @@ std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
     ;
 
     auto& gen = SwigGenerator::cast(generator());
-    auto type = gen.swigConvertIntType(enumDslObj().type(), enumDslObj().maxLength());
+    auto type = gen.swigConvertIntType(enumDslObj().parseType(), enumDslObj().parseMaxLength());
     util::ReplacementMap repl = {
         {"TYPE", type}
     };
 
-    if (dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::MessageId) {
+    if (dslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::MessageId) {
         std::string valTempl = 
             "#^#TYPE#$#\n"
             "const ValueType& getValue() const\n"
@@ -167,7 +167,7 @@ std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
             "    return *(reinterpret_cast<const ValueType*>(&Base::getValue()));\n"
             "}\n";
 
-        if (!field().dslObj().isFixedValue()) {
+        if (!field().dslObj().parseIsFixedValue()) {
             valTempl += 
                 "\n"
                 "void setValue(const ValueType& val)\n"

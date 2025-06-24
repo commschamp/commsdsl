@@ -48,7 +48,7 @@ unsigned getHexMsgIdWidthInternal(const commsdsl::gen::GenInterface& interface)
     }
 
     auto* msgIdField = allMsgIdFields.front();
-    if (msgIdField->dslObj().kind() != commsdsl::parse::ParseField::Kind::Enum) {
+    if (msgIdField->dslObj().parseKind() != commsdsl::parse::ParseField::Kind::Enum) {
         return 0U;
     }
 
@@ -253,11 +253,11 @@ std::string ToolsQtInterface::toolsSrcCodeInternal() const
 
 const std::string& ToolsQtInterface::toolsNameInternal() const
 {
-    if (!dslObj().valid()) {
+    if (!dslObj().parseValid()) {
         return strings::messageClassStr();
     }
 
-    return dslObj().name();
+    return dslObj().parseName();
 }
 
 std::string ToolsQtInterface::toolsRelFilePath() const

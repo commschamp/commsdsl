@@ -34,15 +34,15 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::NamesList& optionalSupportedTypes()
+const ParseXmlWrap::NamesList& parseOptionalSupportedTypes()
 {
-    static const ParseXmlWrap::NamesList Names = ParseFieldImpl::supportedTypes();
+    static const ParseXmlWrap::NamesList Names = ParseFieldImpl::parseSupportedTypes();
     return Names;
 }
 
-ParseXmlWrap::NamesList getExtraNames()
+ParseXmlWrap::NamesList parseGetExtraNames()
 {
-    auto names = optionalSupportedTypes();
+    auto names = parseOptionalSupportedTypes();
     names.push_back(common::fieldStr());
     names.push_back(common::andStr());
     names.push_back(common::orStr());
@@ -57,7 +57,7 @@ ParseOptionalFieldImpl::ParseOptionalFieldImpl(::xmlNodePtr node, ParseProtocolI
 }
 
 
-ParseFieldImpl::Kind ParseOptionalFieldImpl::kindImpl() const
+ParseFieldImpl::Kind ParseOptionalFieldImpl::parseKindImpl() const
 {
     return Kind::Optional;
 }
@@ -68,20 +68,20 @@ ParseOptionalFieldImpl::ParseOptionalFieldImpl(const ParseOptionalFieldImpl& oth
 {
     if (other.m_field) {
         assert(other.m_state.m_extField == nullptr);
-        m_field = other.m_field->clone();
+        m_field = other.m_field->parseClone();
     }
 
     if (other.m_cond) {
-        m_cond = other.m_cond->clone();
+        m_cond = other.m_cond->parseClone();
     }
 }
 
-ParseFieldImpl::Ptr ParseOptionalFieldImpl::cloneImpl() const
+ParseFieldImpl::Ptr ParseOptionalFieldImpl::parseCloneImpl() const
 {
     return Ptr(new ParseOptionalFieldImpl(*this));
 }
 
-const ParseXmlWrap::NamesList& ParseOptionalFieldImpl::extraPropsNamesImpl() const
+const ParseXmlWrap::NamesList& ParseOptionalFieldImpl::parseExtraPropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
         common::defaultModeStr(),
@@ -94,7 +94,7 @@ const ParseXmlWrap::NamesList& ParseOptionalFieldImpl::extraPropsNamesImpl() con
     return List;
 }
 
-const ParseXmlWrap::NamesList&ParseOptionalFieldImpl::extraPossiblePropsNamesImpl() const
+const ParseXmlWrap::NamesList&ParseOptionalFieldImpl::parseExtraPossiblePropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
         common::fieldStr(),
@@ -103,27 +103,27 @@ const ParseXmlWrap::NamesList&ParseOptionalFieldImpl::extraPossiblePropsNamesImp
     return List;
 }
 
-const ParseXmlWrap::NamesList& ParseOptionalFieldImpl::extraChildrenNamesImpl() const
+const ParseXmlWrap::NamesList& ParseOptionalFieldImpl::parseExtraChildrenNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = getExtraNames();
+    static const ParseXmlWrap::NamesList List = parseGetExtraNames();
     return List;
 }
 
-bool ParseOptionalFieldImpl::reuseImpl(const ParseFieldImpl& other)
+bool ParseOptionalFieldImpl::parseReuseImpl(const ParseFieldImpl& other)
 {
-    assert(other.kind() == kind());
+    assert(other.parseKind() == parseKind());
     auto& castedOther = static_cast<const ParseOptionalFieldImpl&>(other);
     m_state = castedOther.m_state;
     if (castedOther.m_field) {
         assert(m_state.m_extField == nullptr);
-        m_field = castedOther.m_field->clone();
+        m_field = castedOther.m_field->parseClone();
     }
     else {
         assert(!m_field);
     }
 
     if (castedOther.m_cond) {
-        m_cond = castedOther.m_cond->clone();
+        m_cond = castedOther.m_cond->parseClone();
     }
 
     return true;
@@ -132,112 +132,112 @@ bool ParseOptionalFieldImpl::reuseImpl(const ParseFieldImpl& other)
 bool ParseOptionalFieldImpl::parseImpl()
 {
     return
-        updateMode() &&
-        updateExternalModeCtrl() &&
-        updateMissingOnReadFail() &&
-        updateMissingOnInvalid() &&
-        updateField() &&
-        updateSingleCondition() &&
-        updateMultiCondition();
+        parseUpdateMode() &&
+        parseUpdateExternalModeCtrl() &&
+        parseUpdateMissingOnReadFail() &&
+        parseUpdateMissingOnInvalid() &&
+        parseUpdateField() &&
+        parseUpdateSingleCondition() &&
+        parseUpdateMultiCondition();
 }
 
-bool ParseOptionalFieldImpl::verifySiblingsImpl(const FieldsList& fields) const
+bool ParseOptionalFieldImpl::parseVerifySiblingsImpl(const FieldsList& fields) const
 {
-    auto& c = cond();
+    auto& c = parseCond();
     if (!c) {
         return true;
     }
 
-    return c->verify(fields, getNode(), protocol());
+    return c->parseVerify(fields, parseGetNode(), parseProtocol());
 }
 
-std::size_t ParseOptionalFieldImpl::minLengthImpl() const
+std::size_t ParseOptionalFieldImpl::parseMinLengthImpl() const
 {
     return 0U;
 }
 
-std::size_t ParseOptionalFieldImpl::maxLengthImpl() const
+std::size_t ParseOptionalFieldImpl::parseMaxLengthImpl() const
 {
-    assert(hasField());
-    return getField()->maxLength();
+    assert(parseHasField());
+    return parseGetField()->parseMaxLength();
 }
 
-bool ParseOptionalFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+bool ParseOptionalFieldImpl::parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
 {
     if (ref.empty()) {
-        return Base::strToNumericImpl(ref, val, isBigUnsigned);
+        return Base::parseStrToNumericImpl(ref, val, isBigUnsigned);
     }
 
     return
-        strToValue(
+        parseStrToValue(
             ref,
             [&val, &isBigUnsigned](const ParseFieldImpl& f, const std::string& str)
             {
-                return f.strToNumeric(str, val, isBigUnsigned);
+                return f.parseStrToNumeric(str, val, isBigUnsigned);
             });
 }
 
-bool ParseOptionalFieldImpl::strToFpImpl(const std::string& ref, double& val) const
+bool ParseOptionalFieldImpl::parseStrToFpImpl(const std::string& ref, double& val) const
 {
     if (ref.empty()) {
-        return Base::strToFpImpl(ref, val);
+        return Base::parseStrToFpImpl(ref, val);
     }
 
     return
-        strToValue(
+        parseStrToValue(
             ref,
             [&val](const ParseFieldImpl& f, const std::string& str)
             {
-                return f.strToFp(str, val);
+                return f.parseStrToFp(str, val);
             });
     }
 
-bool ParseOptionalFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
+bool ParseOptionalFieldImpl::parseStrToBoolImpl(const std::string& ref, bool& val) const
 {
     if (ref.empty()) {
-        return Base::strToBoolImpl(ref, val);
+        return Base::parseStrToBoolImpl(ref, val);
     }
 
     return
-        strToValue(
+        parseStrToValue(
             ref,
             [&val](const ParseFieldImpl& f, const std::string& str)
             {
-                return f.strToBool(str, val);
-            });
-}
-
-bool ParseOptionalFieldImpl::strToStringImpl(const std::string& ref, std::string& val) const
-{
-    if (ref.empty()) {
-        return Base::strToStringImpl(ref, val);
-    }
-
-    return
-        strToValue(
-            ref,
-            [&val](const ParseFieldImpl& f, const std::string& str)
-            {
-                return f.strToString(str, val);
+                return f.parseStrToBool(str, val);
             });
 }
 
-bool ParseOptionalFieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const
+bool ParseOptionalFieldImpl::parseStrToStringImpl(const std::string& ref, std::string& val) const
 {
     if (ref.empty()) {
-        return Base::strToDataImpl(ref, val);
+        return Base::parseStrToStringImpl(ref, val);
     }
 
     return
-        strToValue(
+        parseStrToValue(
             ref,
             [&val](const ParseFieldImpl& f, const std::string& str)
             {
-                return f.strToData(str, val);
+                return f.parseStrToString(str, val);
             });
 }
 
-ParseOptionalFieldImpl::FieldRefInfo ParseOptionalFieldImpl::processInnerRefImpl(const std::string& refStr) const
+bool ParseOptionalFieldImpl::parseStrToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const
+{
+    if (ref.empty()) {
+        return Base::parseStrToDataImpl(ref, val);
+    }
+
+    return
+        parseStrToValue(
+            ref,
+            [&val](const ParseFieldImpl& f, const std::string& str)
+            {
+                return f.parseStrToData(str, val);
+            });
+}
+
+ParseOptionalFieldImpl::FieldRefInfo ParseOptionalFieldImpl::parseProcessInnerRefImpl(const std::string& refStr) const
 {
     assert(!refStr.empty());
 
@@ -249,26 +249,26 @@ ParseOptionalFieldImpl::FieldRefInfo ParseOptionalFieldImpl::processInnerRefImpl
         restStr = refStr.substr(sepPos + 1);
     }
 
-    if (fieldName != m_field->name()) {
+    if (fieldName != m_field->parseName()) {
         return FieldRefInfo();
     }
 
-    return m_field->processInnerRef(restStr);
+    return m_field->parseProcessInnerRef(restStr);
 }
 
-bool ParseOptionalFieldImpl::isValidRefTypeImpl(FieldRefType type) const
+bool ParseOptionalFieldImpl::parseIsValidRefTypeImpl(FieldRefType type) const
 {
     return (type == FieldRefType_Exists);
 }
 
-bool ParseOptionalFieldImpl::updateMode()
+bool ParseOptionalFieldImpl::parseUpdateMode()
 {
-    if (!validateSinglePropInstance(common::defaultModeStr())) {
+    if (!parseValidateSinglePropInstance(common::defaultModeStr())) {
         return false;
     }
 
-    auto iter = props().find(common::defaultModeStr());
-    if (iter == props().end()) {
+    auto iter = parseProps().find(common::defaultModeStr());
+    if (iter == parseProps().end()) {
         return true;
     }
 
@@ -287,7 +287,7 @@ bool ParseOptionalFieldImpl::updateMode()
     auto modeStr = common::toLowerCopy(iter->second);
     auto mapIter = Map.find(modeStr);
     if (mapIter == Map.end()) {
-        reportUnexpectedPropertyValue(common::defaultModeStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::defaultModeStr(), iter->second);
         return false;
     }
 
@@ -295,31 +295,31 @@ bool ParseOptionalFieldImpl::updateMode()
     return true;
 }
 
-bool ParseOptionalFieldImpl::updateExternalModeCtrl()
+bool ParseOptionalFieldImpl::parseUpdateExternalModeCtrl()
 {
-    checkAndReportDeprecatedPropertyValue(common::displayExtModeCtrlStr());
+    parseCheckAndReportDeprecatedPropertyValue(common::displayExtModeCtrlStr());
     return true;
 }
 
-bool ParseOptionalFieldImpl::updateMissingOnReadFail()
+bool ParseOptionalFieldImpl::parseUpdateMissingOnReadFail()
 {
-    return validateAndUpdateBoolPropValue(common::missingOnReadFailStr(), m_state.m_missingOnReadFail);
+    return parseValidateAndUpdateBoolPropValue(common::missingOnReadFailStr(), m_state.m_missingOnReadFail);
 }
 
-bool ParseOptionalFieldImpl::updateMissingOnInvalid()
+bool ParseOptionalFieldImpl::parseUpdateMissingOnInvalid()
 {
-    return validateAndUpdateBoolPropValue(common::missingOnInvalidStr(), m_state.m_missingOnInvalid);
+    return parseValidateAndUpdateBoolPropValue(common::missingOnInvalidStr(), m_state.m_missingOnInvalid);
 }
 
-bool ParseOptionalFieldImpl::updateField()
+bool ParseOptionalFieldImpl::parseUpdateField()
 {
-    if ((!checkFieldFromRef()) ||
-        (!checkFieldAsChild())) {
+    if ((!parseCheckFieldFromRef()) ||
+        (!parseCheckFieldAsChild())) {
         return false;
     }
 
-    if (!hasField()) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (!parseHasField()) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Field itself hasn't been provided.";
         return false;
     }
@@ -327,25 +327,25 @@ bool ParseOptionalFieldImpl::updateField()
     return true;
 }
 
-bool ParseOptionalFieldImpl::updateSingleCondition()
+bool ParseOptionalFieldImpl::parseUpdateSingleCondition()
 {
-    if (!validateSinglePropInstance(common::condStr())) {
+    if (!parseValidateSinglePropInstance(common::condStr())) {
         return false;
     }
 
-    auto iter = props().find(common::condStr());
-    if (iter == props().end()) {
+    auto iter = parseProps().find(common::condStr());
+    if (iter == parseProps().end()) {
         return true;
     }
 
-    if ((!isBundleMember()) && (!isMessageMember())) {
-        logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
+    if ((!parseIsBundleMember()) && (!parseIsMessageMember())) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Condition for existing mode are applicable only to members of \"" <<
             common::bundleStr() << "\" and \"" << common::messageStr() << "\".";
     }
 
     auto cond = std::make_unique<ParseOptCondExprImpl>();
-    if (!cond->parse(iter->second, getNode(), protocol())) {
+    if (!cond->parse(iter->second, parseGetNode(), parseProtocol())) {
         return false;
     }
 
@@ -353,63 +353,63 @@ bool ParseOptionalFieldImpl::updateSingleCondition()
     return true;
 }
 
-bool ParseOptionalFieldImpl::updateMultiCondition()
+bool ParseOptionalFieldImpl::parseUpdateMultiCondition()
 {
     static const ParseXmlWrap::NamesList ElemNames = {
         common::andStr(),
         common::orStr()
     };
 
-    auto multiChildren = ParseXmlWrap::getChildren(getNode(), ElemNames);
+    auto multiChildren = ParseXmlWrap::parseGetChildren(parseGetNode(), ElemNames);
     if (multiChildren.empty()) {
         return true;
     }
 
-    if (props().find(common::condStr()) != props().end()) {
-        logError() << ParseXmlWrap::logPrefix(multiChildren.front()) <<
+    if (parseProps().find(common::condStr()) != parseProps().end()) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(multiChildren.front()) <<
             "Cannot use \"" << multiChildren.front()->name << "\" condition bundling together with \"" <<
             common::condStr() << "\" property.";
         return false;
     }
 
     if (1U < multiChildren.size()) {
-        logError() << ParseXmlWrap::logPrefix(multiChildren.front()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(multiChildren.front()) <<
             "Cannot use more that one \"" << common::andStr() << "\" or \"" <<
             common::orStr() << "\" element.";
         return false;
     }
 
-    auto iter = props().find(common::condStr());
-    if (iter != props().end()) {
-        logError() << ParseXmlWrap::logPrefix(multiChildren.front()) <<
+    auto iter = parseProps().find(common::condStr());
+    if (iter != parseProps().end()) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(multiChildren.front()) <<
             "Multiple definitions of existance conditions are not allowed";
         return false;
     }
 
     auto newCond = std::make_unique<ParseOptCondListImpl>();
-    if (!newCond->parse(multiChildren.front(), protocol())) {
+    if (!newCond->parse(multiChildren.front(), parseProtocol())) {
         return false;
     }
 
-    assert(newCond->kind() == ParseOptCondImpl::Kind::List);
+    assert(newCond->parseKind() == ParseOptCondImpl::Kind::List);
     m_cond = std::move(newCond);
     return true;
 }
 
-bool ParseOptionalFieldImpl::checkFieldFromRef()
+bool ParseOptionalFieldImpl::parseCheckFieldFromRef()
 {
-    if (!validateSinglePropInstance(common::fieldStr())) {
+    if (!parseValidateSinglePropInstance(common::fieldStr())) {
         return false;
     }
 
-    auto iter = props().find(common::fieldStr());
-    if (iter == props().end()) {
+    auto iter = parseProps().find(common::fieldStr());
+    if (iter == parseProps().end()) {
         return true;
     }
 
-    auto* field = protocol().findField(iter->second);
+    auto* field = parseProtocol().parseFindField(iter->second);
     if (field == nullptr) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Cannot find field referenced by \"" << common::fieldStr() <<
             "\" property (" << iter->second << ").";
         return false;
@@ -417,21 +417,21 @@ bool ParseOptionalFieldImpl::checkFieldFromRef()
 
     m_field.reset();
     m_state.m_extField = field;
-    assert(hasField());
+    assert(parseHasField());
     return true;
 }
 
-bool ParseOptionalFieldImpl::checkFieldAsChild()
+bool ParseOptionalFieldImpl::parseCheckFieldAsChild()
 {
-    auto children = ParseXmlWrap::getChildren(getNode(), common::fieldStr());
+    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::fieldStr());
     if (1U < children.size()) {
-        logError() << "There must be only one occurance of \"" << common::fieldStr() << "\" child element.";
+        parseLogError() << "There must be only one occurance of \"" << common::fieldStr() << "\" child element.";
         return false;
     }
 
-    auto fieldTypes = ParseXmlWrap::getChildren(getNode(), optionalSupportedTypes());
+    auto fieldTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseOptionalSupportedTypes());
     if ((0U < children.size()) && (0U < fieldTypes.size())) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                   "The \"" << common::optionalStr() << "\" element does not support "
                   "stand alone field as child element together with \"" <<
                   common::fieldStr() << "\" child element.";
@@ -449,23 +449,23 @@ bool ParseOptionalFieldImpl::checkFieldAsChild()
         }
 
         if (1U < fieldTypes.size()) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                 "The \"" << common::optionalStr() << "\" element is expected to define only "
                 "single field";
             return false;
         }
 
-        auto allChildren = ParseXmlWrap::getChildren(getNode());
+        auto allChildren = ParseXmlWrap::parseGetChildren(parseGetNode());
         if (allChildren.size() != fieldTypes.size()) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                   "The field type of \"" << common::optionalStr() <<
                   "\" must be defined inside \"<" << common::fieldsStr() << ">\" child element "
                   "when there are other property describing children.";
             return false;
         }
 
-        if (props().find(common::fieldStr()) != props().end()) {
-            logError() << "There must be only one occurance of \"" << common::fieldStr() << "\" definition.";
+        if (parseProps().find(common::fieldStr()) != parseProps().end()) {
+            parseLogError() << "There must be only one occurance of \"" << common::fieldStr() << "\" definition.";
             return false;
         }
 
@@ -482,22 +482,22 @@ bool ParseOptionalFieldImpl::checkFieldAsChild()
         assert(!children.empty());
 
         auto child = children.front();
-        auto fields = ParseXmlWrap::getChildren(child);
+        auto fields = ParseXmlWrap::parseGetChildren(child);
         if (1U < fields.size()) {
-            logError() << ParseXmlWrap::logPrefix(child) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(child) <<
                 "The \"" << common::fieldStr() << "\" element is expected to define only "
                 "single field";
             return false;
         }
 
-        if (props().find(common::fieldStr()) == props().end()) {
+        if (parseProps().find(common::fieldStr()) == parseProps().end()) {
             fieldNode = fields.front();
             break;
         }
 
-        auto attrs = ParseXmlWrap::parseNodeProps(getNode());
+        auto attrs = ParseXmlWrap::parseNodeProps(parseGetNode());
         if (attrs.find(common::fieldsStr()) != attrs.end()) {
-            logError() << "There must be only one occurance of \"" << common::fieldStr() << "\" definition.";
+            parseLogError() << "There must be only one occurance of \"" << common::fieldStr() << "\" definition.";
             return false;
         }
 
@@ -508,25 +508,25 @@ bool ParseOptionalFieldImpl::checkFieldAsChild()
     assert (fieldNode != nullptr);
 
     std::string fieldKind(reinterpret_cast<const char*>(fieldNode->name));
-    auto field = ParseFieldImpl::create(fieldKind, fieldNode, protocol());
+    auto field = ParseFieldImpl::parseCreate(fieldKind, fieldNode, parseProtocol());
     if (!field) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Unknown field type \"" << fieldKind;
         return false;
     }
 
-    field->setParent(this);
+    field->parseSetParent(this);
     if (!field->parse()) {
         return false;
     }
 
     m_state.m_extField = nullptr;
     m_field = std::move(field);
-    assert(m_field->externalRef(false).empty());
+    assert(m_field->parseExternalRef(false).empty());
     return true;
 }
 
-const ParseFieldImpl* ParseOptionalFieldImpl::getField() const
+const ParseFieldImpl* ParseOptionalFieldImpl::parseGetField() const
 {
     if (m_state.m_extField != nullptr) {
         assert(!m_field);
@@ -537,19 +537,19 @@ const ParseFieldImpl* ParseOptionalFieldImpl::getField() const
     return m_field.get();
 }
 
-bool ParseOptionalFieldImpl::strToValue(
+bool ParseOptionalFieldImpl::parseStrToValue(
     const std::string& ref,
     StrToValueFieldConvertFunc&& forwardFunc) const
 {
     assert(!ref.empty());
-    if ((!protocol().isFieldValueReferenceSupported()) ||
+    if ((!parseProtocol().parseIsFieldValueReferenceSupported()) ||
         (!m_field)) {
         return false;
     }
 
     auto firstDotPos = ref.find_first_of('.');
     std::string firstName(ref, 0, firstDotPos);
-    if (m_field->name() != firstName) {
+    if (m_field->parseName() != firstName) {
         return false;
     }
 

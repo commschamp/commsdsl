@@ -38,9 +38,9 @@ public:
     ParseAlias(const ParseAlias& other);
     ~ParseAlias();
 
-    const std::string& name() const;
-    const std::string& description() const;
-    const std::string& fieldName() const;
+    const std::string& parseName() const;
+    const std::string& parseDescription() const;
+    const std::string& parseFieldName() const;
 
     const AttributesMap& parseExtraAttributes() const;
     const ElementsList& parseExtraElements() const;

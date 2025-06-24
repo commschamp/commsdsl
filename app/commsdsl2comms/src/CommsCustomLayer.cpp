@@ -43,7 +43,7 @@ bool CommsCustomLayer::prepareImpl()
 CommsCustomLayer::IncludesList CommsCustomLayer::commsDefIncludesImpl() const
 {
     IncludesList result = {
-        comms::relHeaderForLayer(comms::className(dslObj().name()), generator())
+        comms::relHeaderForLayer(comms::className(dslObj().parseName()), generator())
     };
 
     return result;
@@ -66,7 +66,7 @@ std::string CommsCustomLayer::commsDefBaseTypeImpl(const std::string& prevName) 
         {"EXTRA_OPT", commsDefExtraOpts()},
     };
 
-    if (customDslObj().semanticLayerType() == commsdsl::parse::ParseLayer::Kind::Id) {
+    if (customDslObj().parseSemanticLayerType() == commsdsl::parse::ParseLayer::Kind::Id) {
         repl["ID_TEMPLATE_PARAMS"] = "TMessage,\nTAllMessages,";
     }
 
@@ -79,7 +79,7 @@ std::string CommsCustomLayer::commsDefBaseTypeImpl(const std::string& prevName) 
 
 bool CommsCustomLayer::commsDefHasInputMessagesImpl() const
 {
-    return (customDslObj().semanticLayerType() == commsdsl::parse::ParseLayer::Kind::Id);
+    return (customDslObj().parseSemanticLayerType() == commsdsl::parse::ParseLayer::Kind::Id);
 }
 
 bool CommsCustomLayer::commsIsCustomizableImpl() const

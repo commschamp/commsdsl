@@ -64,9 +64,9 @@ bool ToolsQtMessage::prepareImpl()
 
     m_exists = 
         generator().doesElementExist(
-            dslObj().sinceVersion(),
-            dslObj().deprecatedSince(),
-            dslObj().isDeprecatedRemoved());   
+            dslObj().parseSinceVersion(),
+            dslObj().parseDeprecatedSince(),
+            dslObj().parseIsDeprecatedRemoved());   
 
     if (!m_exists) {
         return true;
@@ -185,7 +185,7 @@ bool ToolsQtMessage::toolsWriteSrcInternal() const
             {"NS_END", comms::namespaceEndFor(*this, gen)},
             {"TOP_NS_BEGIN", gen.toolsNamespaceBeginForInterface(*iFace)},
             {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*iFace)},
-            {"CLASS_NAME", comms::className(dslObj().name())},
+            {"CLASS_NAME", comms::className(dslObj().parseName())},
             {"DEF", toolsSrcCodeInternal(*iFace)},
         };
         
@@ -249,7 +249,7 @@ std::string ToolsQtMessage::toolsHeaderCodeInternal() const
         "};";    
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"CLASS_NAME", comms::className(dslObj().parseName())},
     };
 
     return util::processTemplate(Templ, repl);
@@ -364,7 +364,7 @@ std::string ToolsQtMessage::toolsSrcCodeInternal(const commsdsl::gen::GenInterfa
     auto& gen = ToolsQtGenerator::cast(generator());
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"CLASS_NAME", comms::className(dslObj().parseName())},
         {"PROT_MESSAGE", comms::scopeFor(*this, gen)},
         {"INTERFACE", ToolsQtInterface::cast(iFace).toolsClassScope()},
     };

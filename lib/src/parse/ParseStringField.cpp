@@ -44,47 +44,47 @@ ParseStringField::ParseStringField(const ParseStringFieldImpl* impl)
 ParseStringField::ParseStringField(ParseField field)
   : Base(field)
 {
-    assert(kind() == Kind::String);
+    assert(parseKind() == Kind::String);
 }
 
-const std::string& ParseStringField::defaultValue() const
+const std::string& ParseStringField::parseDefaultValue() const
 {
-    return cast(m_pImpl)->defaultValue();
+    return cast(m_pImpl)->parseDefaultValue();
 }
 
-const std::string& ParseStringField::encodingStr() const
+const std::string& ParseStringField::parseEncodingStr() const
 {
-    return cast(m_pImpl)->encodingStr();
+    return cast(m_pImpl)->parseEncodingStr();
 }
 
-std::size_t ParseStringField::fixedLength() const
+std::size_t ParseStringField::parseFixedLength() const
 {
-    return cast(m_pImpl)->length();
+    return cast(m_pImpl)->parseLength();
 }
 
-bool ParseStringField::hasLengthPrefixField() const
+bool ParseStringField::parseHasLengthPrefixField() const
 {
-    return cast(m_pImpl)->hasPrefixField();
+    return cast(m_pImpl)->parseHasPrefixField();
 }
 
-ParseField ParseStringField::lengthPrefixField() const
+ParseField ParseStringField::parseLengthPrefixField() const
 {
-    return cast(m_pImpl)->prefixField();
+    return cast(m_pImpl)->parsePrefixField();
 }
 
-bool ParseStringField::hasZeroTermSuffix() const
+bool ParseStringField::parseHasZeroTermSuffix() const
 {
-    return cast(m_pImpl)->hasZeroTermSuffix();
+    return cast(m_pImpl)->parseHasZeroTermSuffix();
 }
 
-const std::string& ParseStringField::detachedPrefixFieldName() const
+const std::string& ParseStringField::parseDetachedPrefixFieldName() const
 {
-    return cast(m_pImpl)->detachedPrefixFieldName();
+    return cast(m_pImpl)->parseDetachedPrefixFieldName();
 }
 
-const ParseStringField::ValidValuesList& ParseStringField::validValues() const
+const ParseStringField::ValidValuesList& ParseStringField::parseValidValues() const
 {
-    return cast(m_pImpl)->validValues();
+    return cast(m_pImpl)->parseValidValues();
 }
 
 } // namespace parse

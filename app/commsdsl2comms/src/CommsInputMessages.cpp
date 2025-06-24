@@ -81,7 +81,7 @@ bool writeFileInternal(
 
         auto scopeStr = comms::scopeFor(*m, generator);
         auto aliasStr = 
-            "using prefix_ ## " + comms::className(m->dslObj().name()) + " ## suffix_ = " + scopeStr + "<interface_, opts_>;";
+            "using prefix_ ## " + comms::className(m->dslObj().parseName()) + " ## suffix_ = " + scopeStr + "<interface_, opts_>;";
         includes.push_back(comms::relHeaderPathFor(*m, generator));
         scopes.push_back(scopeStr + "<TBase, TOpt>");
         aliases.push_back(std::move(aliasStr));
@@ -192,7 +192,7 @@ bool CommsInputMessages::commsWriteClientInputMessagesInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::GenMessage& msg)
         {
-            return msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client;
+            return msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client;
         };
 
     return 
@@ -209,7 +209,7 @@ bool CommsInputMessages::commsWriteServerInputMessagesInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::GenMessage& msg)
         {
-            return msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server;
+            return msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server;
         };
 
     return 
@@ -229,7 +229,7 @@ bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
         auto platformCheckFunc = 
             [&p](const commsdsl::gen::GenMessage& msg)
             {
-                auto& msgPlatforms = msg.dslObj().platforms();
+                auto& msgPlatforms = msg.dslObj().parsePlatforms();
                 if (msgPlatforms.empty()) {
                     return true;
                 }
@@ -252,7 +252,7 @@ bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
             {
                 return 
                     platformCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client);
+                    (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
             };
 
         if (!writeFileInternal(comms::className(p) + ClientInputSuffixStr, "Client input " + p + " platform", m_generator, m_parent, clientCheckFunc)) {
@@ -264,7 +264,7 @@ bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
             {
                 return 
                     platformCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server);
+                    (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
             };
 
         if (!writeFileInternal(comms::className(p) + ServerInputSuffixStr, "Server input " + p + " platform", m_generator, m_parent, serverCheckFunc)) {
@@ -301,7 +301,7 @@ bool CommsInputMessages::commsWriteExtraInputMessagesInternal() const
             {
                 return 
                     bundleCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client);
+                    (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
             };
 
         if (!writeFileInternal(comms::className(b.first) + ClientInputSuffixStr, "Client input " + b.first + " bundle", m_generator, m_parent, clientCheckFunc)) {
@@ -313,7 +313,7 @@ bool CommsInputMessages::commsWriteExtraInputMessagesInternal() const
             {
                 return 
                     bundleCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server);
+                    (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
             };
 
         if (!writeFileInternal(comms::className(b.first) + ServerInputSuffixStr, "Server input " + b.first + " bundle", m_generator, m_parent, serverCheckFunc)) {

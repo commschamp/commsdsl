@@ -143,8 +143,8 @@ const std::string& ToolsQtGenerator::toolsNamespaceEnd()
 std::string ToolsQtGenerator::toolsNamespaceBeginForInterface(const commsdsl::gen::GenInterface& interface) const
 {
     std::string ref = strings::messageClassStr();
-    if (interface.dslObj().valid()) {
-        ref = interface.dslObj().externalRef(false);
+    if (interface.dslObj().parseValid()) {
+        ref = interface.dslObj().parseExternalRef(false);
     }
     auto elems = util::strSplitByAnyChar(ref, ".");
     std::string result = toolsNamespaceBegin();
@@ -163,8 +163,8 @@ std::string ToolsQtGenerator::toolsNamespaceBeginForInterface(const commsdsl::ge
 std::string ToolsQtGenerator::toolsNamespaceEndForInterface(const commsdsl::gen::GenInterface& interface) const
 {
     std::string ref = strings::messageClassStr();
-    if (interface.dslObj().valid()) {
-        ref = interface.dslObj().externalRef(false);
+    if (interface.dslObj().parseValid()) {
+        ref = interface.dslObj().parseExternalRef(false);
     }
     auto elems = util::strSplitByAnyChar(ref, ".");
     std::string result;
@@ -210,8 +210,8 @@ bool ToolsQtGenerator::prepareImpl()
             auto* interfacePtr = allInterfaces.front();
             assert(interfacePtr != nullptr);
 
-            if (interfacePtr->dslObj().valid()) {
-                info.m_interface = interfacePtr->dslObj().externalRef();    
+            if (interfacePtr->dslObj().parseValid()) {
+                info.m_interface = interfacePtr->dslObj().parseExternalRef();    
             }
             else {
                 info.m_interface = interfacePtr->name();
@@ -221,7 +221,7 @@ bool ToolsQtGenerator::prepareImpl()
         if (info.m_frame.empty()) {
             auto allFrames = getAllFrames();
             assert(!allFrames.empty());
-            info.m_frame = allFrames.front()->dslObj().externalRef();
+            info.m_frame = allFrames.front()->dslObj().parseExternalRef();
         }
 
         if (info.m_name.empty()) {
@@ -229,7 +229,7 @@ bool ToolsQtGenerator::prepareImpl()
         }
 
         if (info.m_desc.empty()) {
-            info.m_desc = schema.dslObj().description();
+            info.m_desc = schema.dslObj().parseDescription();
         }
 
         if (info.m_desc.empty()) {

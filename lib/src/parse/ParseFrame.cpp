@@ -33,33 +33,33 @@ ParseFrame::ParseFrame(const ParseFrame &) = default;
 
 ParseFrame::~ParseFrame() = default;
 
-bool ParseFrame::valid() const
+bool ParseFrame::parseValid() const
 {
     return m_pImpl != nullptr;
 }
 
-const std::string& ParseFrame::name() const
+const std::string& ParseFrame::parseName() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->name();
+    return m_pImpl->parseName();
 }
 
-const std::string& ParseFrame::description() const
+const std::string& ParseFrame::parseDescription() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->description();
+    return m_pImpl->parseDescription();
 }
 
-ParseFrame::LayersList ParseFrame::layers() const
+ParseFrame::LayersList ParseFrame::parseLayers() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->layersList();
+    return m_pImpl->parseLayersList();
 }
 
-std::string ParseFrame::externalRef(bool schemaRef) const
+std::string ParseFrame::parseExternalRef(bool schemaRef) const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->externalRef(schemaRef);
+    return m_pImpl->parseExternalRef(schemaRef);
 }
 
 const ParseFrame::AttributesMap& ParseFrame::parseExtraAttributes() const
@@ -71,7 +71,7 @@ const ParseFrame::AttributesMap& ParseFrame::parseExtraAttributes() const
 const ParseFrame::ElementsList& ParseFrame::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->extraChildren();
+    return m_pImpl->parseExtraChildren();
 }
 
 } // namespace parse

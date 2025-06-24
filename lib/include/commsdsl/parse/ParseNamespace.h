@@ -46,16 +46,16 @@ public:
     ParseNamespace(const ParseNamespace& other);
     ~ParseNamespace();
 
-    bool valid() const;
-    const std::string& name() const;
-    const std::string& description() const;
-    NamespacesList namespaces() const;
-    FieldsList fields() const;
-    MessagesList messages() const;
-    bool hasMessages() const;
-    InterfacesList interfaces() const;
-    FramesList frames() const;
-    std::string externalRef(bool schemaRef = true) const;
+    bool parseValid() const;
+    const std::string& parseName() const;
+    const std::string& parseDescription() const;
+    NamespacesList parseNamespaces() const;
+    FieldsList parseFields() const;
+    MessagesList parseMessages() const;
+    bool parseHasMessages() const;
+    InterfacesList parseInterfaces() const;
+    FramesList parseFrames() const;
+    std::string parseExternalRef(bool schemaRef = true) const;
 
     const AttributesMap& parseExtraAttributes() const;
     const ElementsList& parseExtraElements() const;

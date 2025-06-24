@@ -59,7 +59,7 @@ public:
         std::intmax_t m_min = 0;
         std::intmax_t m_max = 0;
         unsigned m_sinceVersion = 0;
-        unsigned m_deprecatedSince = ParseProtocol::notYetDeprecated();
+        unsigned m_deprecatedSince = ParseProtocol::parseNotYetDeprecated();
     };
 
     using ValidRangesList = std::vector<ValidRangeInfo>;
@@ -68,7 +68,7 @@ public:
     {
         std::intmax_t m_value = 0;
         unsigned m_sinceVersion = 0;
-        unsigned m_deprecatedSince = ParseProtocol::notYetDeprecated();
+        unsigned m_deprecatedSince = ParseProtocol::parseNotYetDeprecated();
         std::string m_description;
         std::string m_displayName;
     };
@@ -78,21 +78,21 @@ public:
     explicit ParseIntField(const ParseIntFieldImpl* impl);
     explicit ParseIntField(ParseField field);
 
-    Type type() const;
-    ParseEndian endian() const;
-    std::intmax_t serOffset() const;
-    std::intmax_t minValue() const;
-    std::intmax_t maxValue() const;
-    std::intmax_t defaultValue() const;
-    ScalingRatio scaling() const;
-    const ValidRangesList& validRanges() const;
-    const SpecialValues& specialValues() const;
-    ParseUnits units() const;
-    bool validCheckVersion() const;
-    unsigned displayDecimals() const;
-    std::intmax_t displayOffset() const;
-    bool signExt() const;
-    bool availableLengthLimit() const;
+    Type parseType() const;
+    ParseEndian parseEndian() const;
+    std::intmax_t parseSerOffset() const;
+    std::intmax_t parseMinValue() const;
+    std::intmax_t parseMaxValue() const;
+    std::intmax_t parseDefaultValue() const;
+    ScalingRatio parseScaling() const;
+    const ValidRangesList& parseValidRanges() const;
+    const SpecialValues& parseSpecialValues() const;
+    ParseUnits parseUnits() const;
+    bool parseValidCheckVersion() const;
+    unsigned parseDisplayDecimals() const;
+    std::intmax_t parseDisplayOffset() const;
+    bool parseSignExt() const;
+    bool parseAvailableLengthLimit() const;
 };
 
 inline

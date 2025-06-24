@@ -97,7 +97,7 @@ int main(int argc, const char* argv[])
 
         generator.setOutputDir(options.getOutputDirectory());
         generator.setVersionIndependentCodeForced(options.versionIndependentCodeRequested());
-        generator.setMultipleSchemasEnabled(options.multipleSchemasEnabled());
+        generator.parseSetMultipleSchemasEnabled(options.multipleSchemasEnabled());
         generator.setCodeDir(options.getCodeInputDirectory());
         generator.setMinRemoteVersion(options.getMinRemoteVersion());
 

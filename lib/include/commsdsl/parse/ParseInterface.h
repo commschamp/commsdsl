@@ -42,13 +42,13 @@ public:
     ParseInterface(const ParseInterface& other);
     ~ParseInterface();
 
-    bool valid() const;
-    const std::string& name() const;
-    const std::string& description() const;
-    FieldsList fields() const;
-    AliasesList aliases() const;
-    std::string externalRef(bool schemaRef = true) const;
-    const std::string& copyCodeFrom() const;
+    bool parseValid() const;
+    const std::string& parseName() const;
+    const std::string& parseDescription() const;
+    FieldsList parseFields() const;
+    AliasesList parseAliases() const;
+    std::string parseExternalRef(bool schemaRef = true) const;
+    const std::string& parseCopyCodeFrom() const;
 
     const AttributesMap& parseExtraAttributes() const;
     const ElementsList& parseExtraElements() const;

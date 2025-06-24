@@ -44,22 +44,22 @@ ParseBitfieldField::ParseBitfieldField(const ParseBitfieldFieldImpl* impl) :
 ParseBitfieldField::ParseBitfieldField(ParseField field)
   : Base(field)
 {
-    assert(kind() == Kind::Bitfield);
+    assert(parseKind() == Kind::Bitfield);
 }
 
-ParseEndian ParseBitfieldField::endian() const
+ParseEndian ParseBitfieldField::parseEndian() const
 {
-    return cast(m_pImpl)->endian();
+    return cast(m_pImpl)->parseEndian();
 }
 
-ParseBitfieldField::Members ParseBitfieldField::members() const
+ParseBitfieldField::Members ParseBitfieldField::parseMembers() const
 {
-    return cast(m_pImpl)->membersList();
+    return cast(m_pImpl)->parseMembersList();
 }
 
-ParseOptCond ParseBitfieldField::validCond() const
+ParseOptCond ParseBitfieldField::parseValidCond() const
 {
-    return cast(m_pImpl)->validCond();
+    return cast(m_pImpl)->parseValidCond();
 }
 
 } // namespace parse

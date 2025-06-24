@@ -34,15 +34,15 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::NamesList& listSupportedTypes()
+const ParseXmlWrap::NamesList& parseListSupportedTypes()
 {
-    static const ParseXmlWrap::NamesList Names = ParseFieldImpl::supportedTypes();
+    static const ParseXmlWrap::NamesList Names = ParseFieldImpl::parseSupportedTypes();
     return Names;
 }
 
-ParseXmlWrap::NamesList getExtraNames()
+ParseXmlWrap::NamesList parseGetExtraNames()
 {
-    auto names = listSupportedTypes();
+    auto names = parseListSupportedTypes();
     names.push_back(common::elementStr());
     names.push_back(common::countPrefixStr());
     names.push_back(common::lengthPrefixStr());
@@ -59,7 +59,7 @@ ParseListFieldImpl::ParseListFieldImpl(::xmlNodePtr node, ParseProtocolImpl& pro
 }
 
 
-ParseFieldImpl::Kind ParseListFieldImpl::kindImpl() const
+ParseFieldImpl::Kind ParseListFieldImpl::parseKindImpl() const
 {
     return Kind::List;
 }
@@ -68,15 +68,15 @@ ParseListFieldImpl::ParseListFieldImpl(const ParseListFieldImpl& other)
   : Base(other),
     m_state(other.m_state)
 {
-    cloneFields(other);
+    parseCloneFields(other);
 }
 
-ParseFieldImpl::Ptr ParseListFieldImpl::cloneImpl() const
+ParseFieldImpl::Ptr ParseListFieldImpl::parseCloneImpl() const
 {
     return Ptr(new ParseListFieldImpl(*this));
 }
 
-const ParseXmlWrap::NamesList& ParseListFieldImpl::extraPropsNamesImpl() const
+const ParseXmlWrap::NamesList& ParseListFieldImpl::parseExtraPropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
         common::countStr(),
@@ -86,7 +86,7 @@ const ParseXmlWrap::NamesList& ParseListFieldImpl::extraPropsNamesImpl() const
     return List;
 }
 
-const ParseXmlWrap::NamesList& ParseListFieldImpl::extraPossiblePropsNamesImpl() const
+const ParseXmlWrap::NamesList& ParseListFieldImpl::parseExtraPossiblePropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
         common::elementStr(),
@@ -98,52 +98,52 @@ const ParseXmlWrap::NamesList& ParseListFieldImpl::extraPossiblePropsNamesImpl()
     return List;
 }
 
-const ParseXmlWrap::NamesList& ParseListFieldImpl::extraChildrenNamesImpl() const
+const ParseXmlWrap::NamesList& ParseListFieldImpl::parseExtraChildrenNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = getExtraNames();
+    static const ParseXmlWrap::NamesList List = parseGetExtraNames();
     return List;
 }
 
-bool ParseListFieldImpl::reuseImpl(const ParseFieldImpl& other)
+bool ParseListFieldImpl::parseReuseImpl(const ParseFieldImpl& other)
 {
-    assert(other.kind() == kind());
+    assert(other.parseKind() == parseKind());
     auto& castedOther = static_cast<const ParseListFieldImpl&>(other);
     m_state = castedOther.m_state;
-    cloneFields(castedOther);
+    parseCloneFields(castedOther);
     return true;
 }
 
-bool ParseListFieldImpl::verifySiblingsImpl(const FieldsList& fields) const
+bool ParseListFieldImpl::parseVerifySiblingsImpl(const FieldsList& fields) const
 {
     return 
-        verifySiblingsForPrefix(fields, m_state.m_detachedCountPrefixField) &&
-        verifySiblingsForPrefix(fields, m_state.m_detachedLengthPrefixField) &&
-        verifySiblingsForPrefix(fields, m_state.m_detachedElemLengthPrefixField);
+        parseVerifySiblingsForPrefix(fields, m_state.m_detachedCountPrefixField) &&
+        parseVerifySiblingsForPrefix(fields, m_state.m_detachedLengthPrefixField) &&
+        parseVerifySiblingsForPrefix(fields, m_state.m_detachedElemLengthPrefixField);
 }
 
 bool ParseListFieldImpl::parseImpl()
 {
     return
-        updateElement() &&
-        updateCount() &&
-        updateCountPrefix() &&
-        updateLengthPrefix() &&
-        updateElemFixedLength() &&
-        updateElemLengthPrefix() &&
-        updateTermSuffix();
+        parseUpdateElement() &&
+        parseUpdateCount() &&
+        parseUpdateCountPrefix() &&
+        parseUpdateLengthPrefix() &&
+        parseUpdateElemFixedLength() &&
+        parseUpdateElemLengthPrefix() &&
+        parseUpdateTermSuffix();
         
 }
 
-std::size_t ParseListFieldImpl::minLengthImpl() const
+std::size_t ParseListFieldImpl::parseMinLengthImpl() const
 {
     std::size_t extraLen = 0U;
-    if (hasElemLengthPrefixField()) {
-        extraLen += elemLengthPrefixField().minLength();
+    if (parseHasElemLengthPrefixField()) {
+        extraLen += parseElemLengthPrefixField().parseMinLength();
     }
 
     if (m_state.m_count != 0U) {
-        assert(elementField().valid());
-        auto elemMinLength = elementField().minLength();
+        assert(parseElementField().parseValid());
+        auto elemMinLength = parseElementField().parseMinLength();
 
         if (!m_state.m_elemFixedLength) {
             extraLen *= m_state.m_count;
@@ -152,30 +152,30 @@ std::size_t ParseListFieldImpl::minLengthImpl() const
         return (m_state.m_count * elemMinLength) + extraLen;
     }
 
-    if (hasCountPrefixField()) {
-        return countPrefixField().minLength();
+    if (parseHasCountPrefixField()) {
+        return parseCountPrefixField().parseMinLength();
     }
 
-    if (hasLengthPrefixField()) {
-        return lengthPrefixField().minLength();
+    if (parseHasLengthPrefixField()) {
+        return parseLengthPrefixField().parseMinLength();
     }
 
-    if (hasTermSuffixField()) {
-        return termSuffixField().minLength();
+    if (parseHasTermSuffixField()) {
+        return parseTermSuffixField().parseMinLength();
     }    
 
     return 0U;
 }
 
-std::size_t ParseListFieldImpl::maxLengthImpl() const
+std::size_t ParseListFieldImpl::parseMaxLengthImpl() const
 {
     std::size_t extraLen = 0U;
-    if (hasElemLengthPrefixField()) {
-        common::addToLength(elemLengthPrefixField().maxLength(), extraLen);
+    if (parseHasElemLengthPrefixField()) {
+        common::addToLength(parseElemLengthPrefixField().parseMaxLength(), extraLen);
     }
 
-    assert(elementField().valid());
-    auto elemMaxLength = elementField().maxLength();
+    assert(parseElementField().parseValid());
+    auto elemMaxLength = parseElementField().parseMaxLength();
     if (m_state.m_count != 0U) {
 
         if (!m_state.m_elemFixedLength) {
@@ -186,14 +186,14 @@ std::size_t ParseListFieldImpl::maxLengthImpl() const
         return extraLen;
     }
 
-    if (hasCountPrefixField()) {
-        auto* prefixField = getCountPrefixField();
-        assert(prefixField->kind() == ParseField::Kind::Int);
+    if (parseHasCountPrefixField()) {
+        auto* prefixField = parseGetCountPrefixField();
+        assert(prefixField->parseKind() == ParseField::Kind::Int);
         auto& castedPrefix = static_cast<const ParseIntFieldImpl&>(*prefixField);
-        std::size_t count = static_cast<std::size_t>(castedPrefix.maxValue());
+        std::size_t count = static_cast<std::size_t>(castedPrefix.parseMaxValue());
         auto result = common::mulLength(elemMaxLength, count);
 
-        common::addToLength(castedPrefix.maxLength(), result);
+        common::addToLength(castedPrefix.parseMaxLength(), result);
 
         if (!m_state.m_elemFixedLength) {
             extraLen = common::mulLength(extraLen, count);
@@ -203,60 +203,60 @@ std::size_t ParseListFieldImpl::maxLengthImpl() const
         return result;
     }
 
-    if (hasLengthPrefixField()) {
-        auto* prefixField = getLengthPrefixField();
-        assert(prefixField->kind() == ParseField::Kind::Int);
+    if (parseHasLengthPrefixField()) {
+        auto* prefixField = parseGetLengthPrefixField();
+        assert(prefixField->parseKind() == ParseField::Kind::Int);
         auto& castedPrefix = static_cast<const ParseIntFieldImpl&>(*prefixField);
-        std::size_t result = static_cast<std::size_t>(castedPrefix.maxValue());
-        common::addToLength(castedPrefix.maxLength(), result);
+        std::size_t result = static_cast<std::size_t>(castedPrefix.parseMaxValue());
+        common::addToLength(castedPrefix.parseMaxLength(), result);
         return result;
     }
 
     return common::maxPossibleLength();
 }
 
-bool ParseListFieldImpl::isValidRefTypeImpl(FieldRefType type) const
+bool ParseListFieldImpl::parseIsValidRefTypeImpl(FieldRefType type) const
 {
     return (type == FieldRefType_Size);
 }
 
-void ParseListFieldImpl::cloneFields(const ParseListFieldImpl& other)
+void ParseListFieldImpl::parseCloneFields(const ParseListFieldImpl& other)
 {
     if (other.m_elementField) {
         assert(other.m_state.m_extElementField == nullptr);
-        m_elementField = other.m_elementField->clone();
+        m_elementField = other.m_elementField->parseClone();
     }
 
     if (other.m_countPrefixField) {
         assert(other.m_state.m_extCountPrefixField == nullptr);
-        m_countPrefixField = other.m_countPrefixField->clone();
+        m_countPrefixField = other.m_countPrefixField->parseClone();
     }
 
     if (other.m_lengthPrefixField) {
         assert(other.m_state.m_extLengthPrefixField == nullptr);
-        m_lengthPrefixField = other.m_lengthPrefixField->clone();
+        m_lengthPrefixField = other.m_lengthPrefixField->parseClone();
     }
 
     if (other.m_elemLengthPrefixField) {
         assert(other.m_state.m_extElemLengthPrefixField == nullptr);
-        m_elemLengthPrefixField = other.m_elemLengthPrefixField->clone();
+        m_elemLengthPrefixField = other.m_elemLengthPrefixField->parseClone();
     }
 
     if (other.m_termSuffixField) {
         assert(other.m_state.m_extTermSuffixField == nullptr);
-        m_termSuffixField = other.m_termSuffixField->clone();
+        m_termSuffixField = other.m_termSuffixField->parseClone();
     }    
 }
 
-bool ParseListFieldImpl::updateElement()
+bool ParseListFieldImpl::parseUpdateElement()
 {
-    if ((!checkElementFromRef()) ||
-        (!checkElementAsChild())) {
+    if ((!parseCheckElementFromRef()) ||
+        (!parseCheckElementAsChild())) {
         return false;
     }
 
-    if (!hasElementField()) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (!parseHasElementField()) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "List element hasn't been provided.";
         return false;
     }
@@ -265,30 +265,30 @@ bool ParseListFieldImpl::updateElement()
 }
 
 
-bool ParseListFieldImpl::updateCount()
+bool ParseListFieldImpl::parseUpdateCount()
 {
-    if (!validateSinglePropInstance(common::countStr())) {
+    if (!parseValidateSinglePropInstance(common::countStr())) {
         return false;
     }
 
-    auto iter = props().find(common::countStr());
-    if (iter == props().end()) {
+    auto iter = parseProps().find(common::countStr());
+    if (iter == parseProps().end()) {
         return true;
     }
 
     bool ok = false;
     auto newVal = common::strToUnsigned(iter->second, &ok);
     if ((!ok) || (newVal == 0U)) {
-        reportUnexpectedPropertyValue(common::countStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::countStr(), iter->second);
         return false;
     }
 
-    if ((hasCountPrefixField()) || (hasLengthPrefixField()) || (hasTermSuffixField()) ||
+    if ((parseHasCountPrefixField()) || (parseHasLengthPrefixField()) || (parseHasTermSuffixField()) ||
         (!m_state.m_detachedCountPrefixField.empty()) ||
         (!m_state.m_detachedLengthPrefixField.empty()) ||
         (!m_state.m_detachedElemLengthPrefixField.empty()) ||
         (!m_state.m_detachedTermSuffixField.empty())) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Cannot use " << common::countStr() << " property after reusing list with " << 
             common::countPrefixStr() << ", " << common::lengthPrefixStr() << ", or" << common::termSuffixStr() << ".";
         return false;
@@ -298,31 +298,31 @@ bool ParseListFieldImpl::updateCount()
     return true;
 }
 
-bool ParseListFieldImpl::updateCountPrefix()
+bool ParseListFieldImpl::parseUpdateCountPrefix()
 {
-    if ((!checkPrefixFromRef(common::countPrefixStr(), m_state.m_extCountPrefixField, m_countPrefixField, m_state.m_detachedCountPrefixField)) ||
-        (!checkPrefixAsChild(common::countPrefixStr(), m_state.m_extCountPrefixField, m_countPrefixField, m_state.m_detachedCountPrefixField))) {
+    if ((!parseCheckPrefixFromRef(common::countPrefixStr(), m_state.m_extCountPrefixField, m_countPrefixField, m_state.m_detachedCountPrefixField)) ||
+        (!parseCheckPrefixAsChild(common::countPrefixStr(), m_state.m_extCountPrefixField, m_countPrefixField, m_state.m_detachedCountPrefixField))) {
         return false;
     }
 
-    if ((!hasCountPrefixField()) && (m_state.m_detachedCountPrefixField.empty())) {
+    if ((!parseHasCountPrefixField()) && (m_state.m_detachedCountPrefixField.empty())) {
         return true;
     }
 
     if (m_state.m_count != 0U) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             common::countStr() << " and " << common::countPrefixStr() << " cannot be used together.";
         return false;
     }
 
-    if (hasLengthPrefixField() || (!m_state.m_detachedLengthPrefixField.empty())) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (parseHasLengthPrefixField() || (!m_state.m_detachedLengthPrefixField.empty())) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             common::lengthPrefixStr() << " and " << common::countPrefixStr() << " cannot be used together.";
         return false;
     }
 
-    if (hasTermSuffixField() || (!m_state.m_detachedTermSuffixField.empty())) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (parseHasTermSuffixField() || (!m_state.m_detachedTermSuffixField.empty())) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             common::termSuffixStr() << " and " << common::countPrefixStr() << " cannot be used together.";
         return false;
     }    
@@ -330,31 +330,31 @@ bool ParseListFieldImpl::updateCountPrefix()
     return true;
 }
 
-bool ParseListFieldImpl::updateLengthPrefix()
+bool ParseListFieldImpl::parseUpdateLengthPrefix()
 {
-    if ((!checkPrefixFromRef(common::lengthPrefixStr(), m_state.m_extLengthPrefixField, m_lengthPrefixField, m_state.m_detachedLengthPrefixField)) ||
-        (!checkPrefixAsChild(common::lengthPrefixStr(), m_state.m_extLengthPrefixField, m_lengthPrefixField, m_state.m_detachedLengthPrefixField))) {
+    if ((!parseCheckPrefixFromRef(common::lengthPrefixStr(), m_state.m_extLengthPrefixField, m_lengthPrefixField, m_state.m_detachedLengthPrefixField)) ||
+        (!parseCheckPrefixAsChild(common::lengthPrefixStr(), m_state.m_extLengthPrefixField, m_lengthPrefixField, m_state.m_detachedLengthPrefixField))) {
         return false;
     }
 
-    if ((!hasLengthPrefixField()) && (m_state.m_detachedLengthPrefixField.empty())) {
+    if ((!parseHasLengthPrefixField()) && (m_state.m_detachedLengthPrefixField.empty())) {
         return true;
     }
 
     if (m_state.m_count != 0U) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             common::countStr() << " and " << common::lengthPrefixStr() << " cannot be used together.";
         return false;
     }
 
-    if (hasCountPrefixField() || (!m_state.m_detachedCountPrefixField.empty())) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (parseHasCountPrefixField() || (!m_state.m_detachedCountPrefixField.empty())) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             common::countPrefixStr() << " and " << common::lengthPrefixStr() << " cannot be used together.";
         return false;
     }
 
-    if (hasTermSuffixField() || (!m_state.m_detachedTermSuffixField.empty())) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (parseHasTermSuffixField() || (!m_state.m_detachedTermSuffixField.empty())) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             common::termSuffixStr() << " and " << common::lengthPrefixStr() << " cannot be used together.";
         return false;
     }     
@@ -362,16 +362,16 @@ bool ParseListFieldImpl::updateLengthPrefix()
     return true;
 }
 
-bool ParseListFieldImpl::updateElemLengthPrefix()
+bool ParseListFieldImpl::parseUpdateElemLengthPrefix()
 {
-    if ((!checkPrefixFromRef(common::elemLengthPrefixStr(), m_state.m_extElemLengthPrefixField, m_elemLengthPrefixField, m_state.m_detachedElemLengthPrefixField)) ||
-        (!checkPrefixAsChild(common::elemLengthPrefixStr(), m_state.m_extElemLengthPrefixField, m_elemLengthPrefixField, m_state.m_detachedElemLengthPrefixField))) {
+    if ((!parseCheckPrefixFromRef(common::elemLengthPrefixStr(), m_state.m_extElemLengthPrefixField, m_elemLengthPrefixField, m_state.m_detachedElemLengthPrefixField)) ||
+        (!parseCheckPrefixAsChild(common::elemLengthPrefixStr(), m_state.m_extElemLengthPrefixField, m_elemLengthPrefixField, m_state.m_detachedElemLengthPrefixField))) {
         return false;
     }
 
     if ((!m_state.m_detachedElemLengthPrefixField.empty()) &&
         (!m_state.m_elemFixedLength)) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Detached element length prefix is supported only for lists with fixed length elements. "
             "Set the \"" << common::elemFixedLengthStr() << "\" property.";
         return false;
@@ -380,22 +380,22 @@ bool ParseListFieldImpl::updateElemLengthPrefix()
     return true;
 }
 
-bool ParseListFieldImpl::updateElemFixedLength()
+bool ParseListFieldImpl::parseUpdateElemFixedLength()
 {
-    if (!validateSinglePropInstance(common::elemFixedLengthStr())) {
+    if (!parseValidateSinglePropInstance(common::elemFixedLengthStr())) {
         return false;
     }
 
     do {
-        auto iter = props().find(common::elemFixedLengthStr());
-        if (iter == props().end()) {
+        auto iter = parseProps().find(common::elemFixedLengthStr());
+        if (iter == parseProps().end()) {
             break;
         }
 
         bool ok = false;
-        m_state.m_elemFixedLength = common::strToBool(iter->second, &ok);
+        m_state.m_elemFixedLength = common::parseStrToBool(iter->second, &ok);
         if (!ok) {
-            reportUnexpectedPropertyValue(common::elemFixedLengthStr(), iter->second);
+            parseReportUnexpectedPropertyValue(common::elemFixedLengthStr(), iter->second);
             return false;
         }
     } while (false);
@@ -404,10 +404,10 @@ bool ParseListFieldImpl::updateElemFixedLength()
         return true;
     }
 
-    assert(hasElementField());
-    auto elem = elementField();
-    if (elem.minLength() != elem.maxLength()) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    assert(parseHasElementField());
+    auto elem = parseElementField();
+    if (elem.parseMinLength() != elem.parseMaxLength()) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Cannot have \"" << common::elemFixedLengthStr() << "\" property being set to "
             "true when list element has variable length.";
         return false;
@@ -415,20 +415,20 @@ bool ParseListFieldImpl::updateElemFixedLength()
     return true;
 }
 
-bool ParseListFieldImpl::updateTermSuffix()
+bool ParseListFieldImpl::parseUpdateTermSuffix()
 {
     auto& prop = common::termSuffixStr();
-    if ((!checkPrefixFromRef(prop, m_state.m_extTermSuffixField, m_termSuffixField, m_state.m_detachedTermSuffixField)) ||
-        (!checkPrefixAsChild(prop, m_state.m_extTermSuffixField, m_termSuffixField, m_state.m_detachedTermSuffixField))) {
+    if ((!parseCheckPrefixFromRef(prop, m_state.m_extTermSuffixField, m_termSuffixField, m_state.m_detachedTermSuffixField)) ||
+        (!parseCheckPrefixAsChild(prop, m_state.m_extTermSuffixField, m_termSuffixField, m_state.m_detachedTermSuffixField))) {
         return false;
     }
 
-    if ((!hasTermSuffixField()) && (m_state.m_detachedTermSuffixField.empty())) {
+    if ((!parseHasTermSuffixField()) && (m_state.m_detachedTermSuffixField.empty())) {
         return true;
     }
 
-    if (!protocol().isPropertySupported(prop)) {
-        logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (!parseProtocol().parseIsPropertySupported(prop)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Usage of the " << prop << " property is not supported for the used dslVersion, ignoring...";
         m_state.m_extTermSuffixField = nullptr;
         m_state.m_detachedTermSuffixField.clear();
@@ -437,19 +437,19 @@ bool ParseListFieldImpl::updateTermSuffix()
     }
 
     if (m_state.m_count != 0U) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             common::termSuffixStr() << " and " << common::countStr() << " cannot be used together.";
         return false;
     }
 
-    if (hasCountPrefixField() || (!m_state.m_detachedCountPrefixField.empty())) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (parseHasCountPrefixField() || (!m_state.m_detachedCountPrefixField.empty())) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             common::termSuffixStr() << " and " << common::countPrefixStr() << " cannot be used together.";
         return false;
     }
 
-    if (hasLengthPrefixField() || (!m_state.m_detachedLengthPrefixField.empty())) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (parseHasLengthPrefixField() || (!m_state.m_detachedLengthPrefixField.empty())) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             common::termSuffixStr() << " and " << common::lengthPrefixStr() << " cannot be used together.";
         return false;
     }    
@@ -457,20 +457,20 @@ bool ParseListFieldImpl::updateTermSuffix()
     return true;
 }
 
-bool ParseListFieldImpl::checkElementFromRef()
+bool ParseListFieldImpl::parseCheckElementFromRef()
 {
-    if (!validateSinglePropInstance(common::elementStr())) {
+    if (!parseValidateSinglePropInstance(common::elementStr())) {
         return false;
     }
 
-    auto iter = props().find(common::elementStr());
-    if (iter == props().end()) {
+    auto iter = parseProps().find(common::elementStr());
+    if (iter == parseProps().end()) {
         return true;
     }
 
-    auto* field = protocol().findField(iter->second);
+    auto* field = parseProtocol().parseFindField(iter->second);
     if (field == nullptr) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Cannot find field referenced by \"" << common::elementStr() <<
             "\" property (" << iter->second << ").";
         return false;
@@ -481,21 +481,21 @@ bool ParseListFieldImpl::checkElementFromRef()
     return true;
 }
 
-bool ParseListFieldImpl::checkElementAsChild()
+bool ParseListFieldImpl::parseCheckElementAsChild()
 {
-    auto children = ParseXmlWrap::getChildren(getNode(), common::elementStr());
+    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::elementStr());
     // if (children.empty()) {
     //     return true;
     // }
 
     if (1U < children.size()) {
-        logError() << "There must be only one occurance of \"" << common::elementStr() << "\".";
+        parseLogError() << "There must be only one occurance of \"" << common::elementStr() << "\".";
         return false;
     }
 
-    auto fieldTypes = ParseXmlWrap::getChildren(getNode(), listSupportedTypes());
+    auto fieldTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseListSupportedTypes());
     if ((0U < children.size()) && (0U < fieldTypes.size())) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                   "The \"" << common::listStr() << "\" does not support "
                   "stand alone field as child element together with \"" <<
                   common::elementStr() << "\" child element.";
@@ -513,23 +513,23 @@ bool ParseListFieldImpl::checkElementAsChild()
         }
 
         if (1U < fieldTypes.size()) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                 "The \"" << common::listStr() << "\" element is expected to define only "
                 "single child field";
             return false;
         }
 
-        auto allChildren = ParseXmlWrap::getChildren(getNode());
+        auto allChildren = ParseXmlWrap::parseGetChildren(parseGetNode());
         if (allChildren.size() != fieldTypes.size()) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                   "The element type of \"" << common::listStr() <<
                   "\" must be defined inside \"<" << common::elementStr() << ">\" child element "
                   "when there are other property describing children.";
             return false;
         }
 
-        if (props().find(common::elementStr()) != props().end()) {
-            logError() << "There must be only one occurance of \"" << common::elementStr() << "\" definition.";
+        if (parseProps().find(common::elementStr()) != parseProps().end()) {
+            parseLogError() << "There must be only one occurance of \"" << common::elementStr() << "\" definition.";
             return false;
         }
 
@@ -545,29 +545,29 @@ bool ParseListFieldImpl::checkElementAsChild()
         assert(!children.empty());
 
         auto child = children.front();
-        auto fields = ParseXmlWrap::getChildren(child);
+        auto fields = ParseXmlWrap::parseGetChildren(child);
         if (1U < fields.size()) {
-            logError() << ParseXmlWrap::logPrefix(child) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(child) <<
                 "The \"" << common::elementStr() << "\" element is expected to define only "
                 "single field";
             return false;
         }
 
-        if (props().find(common::elementStr()) == props().end()) {
+        if (parseProps().find(common::elementStr()) == parseProps().end()) {
             if (!fields.empty()) {
                 fieldNode = fields.front();
                 break;
             }
 
-            logError() << ParseXmlWrap::logPrefix(child) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(child) <<
                 "The \"" << common::elementStr() << "\" node "
                 "is expected to define field as child element";
             return false;
         }
 
-        auto attrs = ParseXmlWrap::parseNodeProps(getNode());
+        auto attrs = ParseXmlWrap::parseNodeProps(parseGetNode());
         if (attrs.find(common::fieldsStr()) != attrs.end()) {
-            logError() << "There must be only one occurance of \"" << common::elementStr() << "\" definition.";
+            parseLogError() << "There must be only one occurance of \"" << common::elementStr() << "\" definition.";
             return false;
         }
 
@@ -578,47 +578,47 @@ bool ParseListFieldImpl::checkElementAsChild()
     assert (fieldNode != nullptr);    
 
     std::string fieldKind(reinterpret_cast<const char*>(fieldNode->name));
-    auto field = ParseFieldImpl::create(fieldKind, fieldNode, protocol());
+    auto field = ParseFieldImpl::parseCreate(fieldKind, fieldNode, parseProtocol());
     if (!field) {
-        logError() << ParseXmlWrap::logPrefix(fieldNode) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(fieldNode) <<
             "Unknown field type \"" << fieldKind << "\".";
         return false;
     }
 
-    field->setParent(this);
+    field->parseSetParent(this);
     if (!field->parse()) {
         return false;
     }
 
     m_state.m_extElementField = nullptr;
     m_elementField = std::move(field);
-    assert(m_elementField->externalRef(false).empty());
+    assert(m_elementField->parseExternalRef(false).empty());
     return true;
 }
 
-bool ParseListFieldImpl::checkPrefixFromRef(
+bool ParseListFieldImpl::parseCheckPrefixFromRef(
     const std::string& type,
     const ParseFieldImpl*& extField,
     ParseFieldImplPtr& locField,
     std::string& detachedPrefix)
 {
-    if (!validateSinglePropInstance(type)) {
+    if (!parseValidateSinglePropInstance(type)) {
         return false;
     }
 
-    auto iter = props().find(type);
-    if (iter == props().end()) {
+    auto iter = parseProps().find(type);
+    if (iter == parseProps().end()) {
         return true;
     }
 
     auto& str = iter->second;
     if (str.empty()) {
-        reportUnexpectedPropertyValue(type, str);
+        parseReportUnexpectedPropertyValue(type, str);
         return false;
     }
 
     if (str[0] == common::siblingRefPrefix()) {
-        if (!checkDetachedPrefixAllowed()) {
+        if (!parseCheckDetachedPrefixAllowed()) {
             return false;
         }
 
@@ -626,7 +626,7 @@ bool ParseListFieldImpl::checkPrefixFromRef(
         common::normaliseString(detachedPrefix);
 
         if (detachedPrefix.empty()) {
-            reportUnexpectedPropertyValue(type, str);
+            parseReportUnexpectedPropertyValue(type, str);
             return false;
         }
 
@@ -635,16 +635,16 @@ bool ParseListFieldImpl::checkPrefixFromRef(
         return true;
     }
 
-    auto* field = protocol().findField(iter->second);
+    auto* field = parseProtocol().parseFindField(iter->second);
     if (field == nullptr) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Cannot find field referenced by \"" << type <<
             "\" property (" << iter->second << ").";
         return false;
     }
 
-    if ((field->kind() != Kind::Int) && (field->semanticType() != SemanticType::Length)) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    if ((field->parseKind() != Kind::Int) && (field->parseSemanticType() != SemanticType::Length)) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "The field referenced by \"" << type <<
             "\" property (" << iter->second << ") must be of type \"" << common::intStr() << 
             "\" or have semanticType=\"length\" property set.";
@@ -657,46 +657,46 @@ bool ParseListFieldImpl::checkPrefixFromRef(
     return true;
 }
 
-bool ParseListFieldImpl::checkPrefixAsChild(
+bool ParseListFieldImpl::parseCheckPrefixAsChild(
     const std::string& type,
     const ParseFieldImpl*& extField,
     ParseFieldImplPtr& locField,
     std::string& detachedPrefix)
 {
-    auto children = ParseXmlWrap::getChildren(getNode(), type);
+    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), type);
     if (children.empty()) {
         return true;
     }
 
     if (1U < children.size()) {
-        logError() << "There must be only one occurance of \"" << type << "\".";
+        parseLogError() << "There must be only one occurance of \"" << type << "\".";
         return false;
     }
 
     auto child = children.front();
-    auto prefixFields = ParseXmlWrap::getChildren(child);
+    auto prefixFields = ParseXmlWrap::parseGetChildren(child);
     if (1U < prefixFields.size()) {
-        logError() << ParseXmlWrap::logPrefix(child) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(child) <<
             "The \"" << type << "\" element is expected to define only "
             "single field";
         return false;
     }
 
-    auto iter = props().find(type);
-    bool hasInProps = iter != props().end();
+    auto iter = parseProps().find(type);
+    bool hasInProps = iter != parseProps().end();
     if (prefixFields.empty()) {
         if (hasInProps) {
             return true;
         }
 
-        logError() << ParseXmlWrap::logPrefix(child) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(child) <<
             "The \"" << type << "\" element "
             "is expected to define field as child element";
         return false;
     }
 
     if (hasInProps) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "The \"" << type << "\" element is expected to define only "
             "single field";
         return false;
@@ -706,20 +706,20 @@ bool ParseListFieldImpl::checkPrefixAsChild(
     assert(fieldNode->name != nullptr);
     std::string fieldKind(reinterpret_cast<const char*>(fieldNode->name));
 
-    auto field = ParseFieldImpl::create(fieldKind, fieldNode, protocol());
+    auto field = ParseFieldImpl::parseCreate(fieldKind, fieldNode, parseProtocol());
     if (!field) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return false;
     }
 
-    field->setParent(this);
+    field->parseSetParent(this);
     if (!field->parse()) {
         return false;
     }
 
-    if ((field->kind() != Kind::Int) && (field->semanticType() != SemanticType::Length)) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    if ((field->parseKind() != Kind::Int) && (field->parseSemanticType() != SemanticType::Length)) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "The \"" << type << "\" element  must be of type \"" << common::intStr() << 
             "\" or have semanticType=\"length\" property set.";
         return false;
@@ -731,7 +731,7 @@ bool ParseListFieldImpl::checkPrefixAsChild(
     return true;
 }
 
-const ParseFieldImpl* ParseListFieldImpl::getCountPrefixField() const
+const ParseFieldImpl* ParseListFieldImpl::parseGetCountPrefixField() const
 {
     if (m_state.m_extCountPrefixField != nullptr) {
         assert(!m_countPrefixField);
@@ -742,7 +742,7 @@ const ParseFieldImpl* ParseListFieldImpl::getCountPrefixField() const
     return m_countPrefixField.get();
 }
 
-const ParseFieldImpl* ParseListFieldImpl::getLengthPrefixField() const
+const ParseFieldImpl* ParseListFieldImpl::parseGetLengthPrefixField() const
 {
     if (m_state.m_extLengthPrefixField != nullptr) {
         assert(!m_lengthPrefixField);
@@ -753,7 +753,7 @@ const ParseFieldImpl* ParseListFieldImpl::getLengthPrefixField() const
     return m_lengthPrefixField.get();
 }
 
-bool ParseListFieldImpl::verifySiblingsForPrefix(
+bool ParseListFieldImpl::parseVerifySiblingsForPrefix(
     const FieldsList& fields, 
     const std::string& detachedName) const
 {
@@ -761,14 +761,14 @@ bool ParseListFieldImpl::verifySiblingsForPrefix(
         return true;
     }
 
-    auto* sibling = findSibling(fields, detachedName);
+    auto* sibling = parseFindSibling(fields, detachedName);
     if (sibling == nullptr) {
         return false;
     }
 
-    auto fieldKind = getNonRefFieldKind(*sibling);
-    if ((fieldKind != Kind::Int) && (sibling->semanticType() != SemanticType::Length)) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    auto fieldKind = parseGetNonRefFieldKind(*sibling);
+    if ((fieldKind != Kind::Int) && (sibling->parseSemanticType() != SemanticType::Length)) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Detached prefix \"" << detachedName << "\" is expected to be of \"" << common::intStr() << "\" type "
             "or have semanticType=\"length\" property set.";
         return false;

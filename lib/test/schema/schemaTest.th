@@ -32,14 +32,14 @@ void SchemaTestSuite::test1()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
 
-    auto schema = protocol->lastParsedSchema();
-    TS_ASSERT_EQUALS(schema.name(), "Schema1");
-    TS_ASSERT_EQUALS(schema.description(), "Some Description");
-    TS_ASSERT_EQUALS(schema.id(), 1);
-    TS_ASSERT_EQUALS(schema.version(), 5);
-    TS_ASSERT_EQUALS(schema.dslVersion(), 0);
-    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
-    TS_ASSERT(schema.nonUniqueMsgIdAllowed());
+    auto schema = protocol->parseLastParsedSchema();
+    TS_ASSERT_EQUALS(schema.parseName(), "Schema1");
+    TS_ASSERT_EQUALS(schema.parseDescription(), "Some Description");
+    TS_ASSERT_EQUALS(schema.parseId(), 1);
+    TS_ASSERT_EQUALS(schema.parseVersion(), 5);
+    TS_ASSERT_EQUALS(schema.parseDslVersion(), 0);
+    TS_ASSERT_EQUALS(schema.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT(schema.parseNonUniqueMsgIdAllowed());
     TS_ASSERT(schema.parseExtraAttributes().empty());
     TS_ASSERT(schema.parseExtraElements().empty());
 }
@@ -51,13 +51,13 @@ void SchemaTestSuite::test2()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
 
-    auto schema = protocol->lastParsedSchema();
-    TS_ASSERT_EQUALS(schema.name(), "Schema2");
-    TS_ASSERT_EQUALS(schema.description(), "Some Description");
-    TS_ASSERT_EQUALS(schema.id(), 1);
-    TS_ASSERT_EQUALS(schema.version(), 5);
-    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
-    TS_ASSERT(schema.nonUniqueMsgIdAllowed());
+    auto schema = protocol->parseLastParsedSchema();
+    TS_ASSERT_EQUALS(schema.parseName(), "Schema2");
+    TS_ASSERT_EQUALS(schema.parseDescription(), "Some Description");
+    TS_ASSERT_EQUALS(schema.parseId(), 1);
+    TS_ASSERT_EQUALS(schema.parseVersion(), 5);
+    TS_ASSERT_EQUALS(schema.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT(schema.parseNonUniqueMsgIdAllowed());
     auto& extraAttrs = schema.parseExtraAttributes();
     auto& extraChildren = schema.parseExtraElements();
     TS_ASSERT_EQUALS(extraAttrs.size(), 1U);
@@ -72,19 +72,19 @@ void SchemaTestSuite::test3()
     m_status.m_preValidateFunc =
         [](commsdsl::parse::ParseProtocol& p)
         {
-            p.addExpectedExtraPrefix("prefix.");
+            p.parseAddExpectedExtraPrefix("prefix.");
         };
 
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
 
-    auto schema = protocol->lastParsedSchema();
-    TS_ASSERT_EQUALS(schema.name(), "Schema3");
-    TS_ASSERT_EQUALS(schema.description(), "Some Description");
-    TS_ASSERT_EQUALS(schema.id(), 1);
-    TS_ASSERT_EQUALS(schema.version(), 5);
-    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
-    TS_ASSERT(schema.nonUniqueMsgIdAllowed());
+    auto schema = protocol->parseLastParsedSchema();
+    TS_ASSERT_EQUALS(schema.parseName(), "Schema3");
+    TS_ASSERT_EQUALS(schema.parseDescription(), "Some Description");
+    TS_ASSERT_EQUALS(schema.parseId(), 1);
+    TS_ASSERT_EQUALS(schema.parseVersion(), 5);
+    TS_ASSERT_EQUALS(schema.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT(schema.parseNonUniqueMsgIdAllowed());
     auto& extraAttrs = schema.parseExtraAttributes();
     auto& extraChildren = schema.parseExtraElements();
     TS_ASSERT_EQUALS(extraAttrs.size(), 1U);
@@ -99,16 +99,16 @@ void SchemaTestSuite::test4()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
 
-    auto schema = protocol->lastParsedSchema();
-    TS_ASSERT_EQUALS(schema.name(), "Schema4");
-    TS_ASSERT_EQUALS(schema.description(), "Some Description");
-    TS_ASSERT_EQUALS(schema.id(), 1);
-    TS_ASSERT_EQUALS(schema.version(), 5);
-    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
-    TS_ASSERT(!schema.nonUniqueMsgIdAllowed());
+    auto schema = protocol->parseLastParsedSchema();
+    TS_ASSERT_EQUALS(schema.parseName(), "Schema4");
+    TS_ASSERT_EQUALS(schema.parseDescription(), "Some Description");
+    TS_ASSERT_EQUALS(schema.parseId(), 1);
+    TS_ASSERT_EQUALS(schema.parseVersion(), 5);
+    TS_ASSERT_EQUALS(schema.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT(!schema.parseNonUniqueMsgIdAllowed());
     TS_ASSERT(schema.parseExtraAttributes().empty());
     TS_ASSERT(schema.parseExtraElements().empty());
-    auto& platforms = protocol->lastParsedSchema().platforms();
+    auto& platforms = protocol->parseLastParsedSchema().parsePlatforms();
     TS_ASSERT_EQUALS(platforms.size(), 3U);
     TS_ASSERT_EQUALS(platforms[0], "plat1");
     TS_ASSERT_EQUALS(platforms[1], "plat2");
@@ -121,15 +121,15 @@ void SchemaTestSuite::test5()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
 
-    auto schema = protocol->lastParsedSchema();
-    TS_ASSERT_EQUALS(schema.name(), "Schema5");
-    TS_ASSERT_EQUALS(schema.id(), 1);
-    TS_ASSERT_EQUALS(schema.version(), 5);
-    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
-    TS_ASSERT(!schema.nonUniqueMsgIdAllowed());
+    auto schema = protocol->parseLastParsedSchema();
+    TS_ASSERT_EQUALS(schema.parseName(), "Schema5");
+    TS_ASSERT_EQUALS(schema.parseId(), 1);
+    TS_ASSERT_EQUALS(schema.parseVersion(), 5);
+    TS_ASSERT_EQUALS(schema.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT(!schema.parseNonUniqueMsgIdAllowed());
     TS_ASSERT(schema.parseExtraAttributes().empty());
     TS_ASSERT(schema.parseExtraElements().empty());
-    auto& platforms = protocol->lastParsedSchema().platforms();
+    auto& platforms = protocol->parseLastParsedSchema().parsePlatforms();
     TS_ASSERT_EQUALS(platforms.size(), 2U);
     TS_ASSERT_EQUALS(platforms[0], "plat1");
     TS_ASSERT_EQUALS(platforms[1], "plat2");
@@ -140,12 +140,12 @@ void SchemaTestSuite::test6()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
 
-    auto schema = protocol->lastParsedSchema();
-    TS_ASSERT_EQUALS(schema.name(), "Schema6");
-    TS_ASSERT_EQUALS(schema.version(), 5);
-    TS_ASSERT_EQUALS(schema.dslVersion(), 3);
-    TS_ASSERT_EQUALS(schema.endian(), commsdsl::parse::ParseEndian_Big);
-    TS_ASSERT(!schema.nonUniqueMsgIdAllowed());
+    auto schema = protocol->parseLastParsedSchema();
+    TS_ASSERT_EQUALS(schema.parseName(), "Schema6");
+    TS_ASSERT_EQUALS(schema.parseVersion(), 5);
+    TS_ASSERT_EQUALS(schema.parseDslVersion(), 3);
+    TS_ASSERT_EQUALS(schema.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT(!schema.parseNonUniqueMsgIdAllowed());
     TS_ASSERT(schema.parseExtraAttributes().empty());
     TS_ASSERT(schema.parseExtraElements().empty());
 }

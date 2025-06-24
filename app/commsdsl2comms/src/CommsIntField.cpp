@@ -80,11 +80,11 @@ std::string CommsIntField::commsVariantPropKeyValueStr() const
 {
     auto obj = intDslObj();
     if (!isUnsignedType()) {
-        return util::numToString(obj.defaultValue());
+        return util::numToString(obj.parseDefaultValue());
     }
 
-    unsigned hexWidth = static_cast<unsigned>(obj.maxLength() * 2U);
-    auto val = static_cast<std::uintmax_t>(obj.defaultValue());
+    unsigned hexWidth = static_cast<unsigned>(obj.parseMaxLength() * 2U);
+    auto val = static_cast<std::uintmax_t>(obj.parseDefaultValue());
     auto decValue = util::numToString(val);
     auto hexValue = util::numToString(val, hexWidth);
 
@@ -101,15 +101,15 @@ std::string CommsIntField::commsVariantPropKeyValueStr() const
 bool CommsIntField::commsVariantIsValidPropKey() const
 {
     auto obj = intDslObj();
-    if (!obj.isFailOnInvalid()) {
+    if (!obj.parseIsFailOnInvalid()) {
         return false;
     }
 
-    if (obj.isPseudo()) {
+    if (obj.parseIsPseudo()) {
         return false;
     }
 
-    auto& validRanges = obj.validRanges();
+    auto& validRanges = obj.parseValidRanges();
     if (validRanges.size() != 1U) {
         return false;
     }
@@ -119,7 +119,7 @@ bool CommsIntField::commsVariantIsValidPropKey() const
         return false;
     }
 
-    if (r.m_min != obj.defaultValue()) {
+    if (r.m_min != obj.parseDefaultValue()) {
         return false;
     }
 
@@ -131,8 +131,8 @@ bool CommsIntField::commsVariantIsPropKeyEquivalent(const CommsIntField& other) 
     auto thisDslObj = intDslObj();
     auto otherDslObj = other.intDslObj();
 
-    auto thisType = comms::cppIntTypeFor(thisDslObj.type(), thisDslObj.maxLength());
-    auto otherType = comms::cppIntTypeFor(otherDslObj.type(), otherDslObj.maxLength());
+    auto thisType = comms::cppIntTypeFor(thisDslObj.parseType(), thisDslObj.parseMaxLength());
+    auto otherType = comms::cppIntTypeFor(otherDslObj.parseType(), otherDslObj.parseMaxLength());
     if (thisType != otherType) {
         return false;
     }
@@ -143,7 +143,7 @@ bool CommsIntField::commsVariantIsPropKeyEquivalent(const CommsIntField& other) 
         return false;
     }
 
-    return thisDslObj.endian() == otherDslObj.endian();
+    return thisDslObj.parseEndian() == otherDslObj.parseEndian();
 }
 
 bool CommsIntField::prepareImpl()
@@ -193,7 +193,7 @@ std::string CommsIntField::commsCommonCodeBodyImpl() const
     auto dslObj = intDslObj();
     util::ReplacementMap repl = {
         {"SCOPE", comms::scopeFor(*this, gen, true, true)},
-        {"VALUE_TYPE", comms::cppIntTypeFor(dslObj.type(), dslObj.maxLength())},
+        {"VALUE_TYPE", comms::cppIntTypeFor(dslObj.parseType(), dslObj.parseMaxLength())},
         {"SPECIAL_VALUE_NAMES_MAP_DEFS", commsCommonValueNamesMapCodeInternal()},
         {"NAME_FUNC", commsCommonNameFuncCode()},
         {"HAS_SPECIAL_FUNC", commsCommonHasSpecialsFuncCodeInternal()},
@@ -255,7 +255,7 @@ std::string CommsIntField::commsDefRefreshFuncBodyImpl() const
         "return true;\n";
 
     auto obj = intDslObj();
-    auto& validRanges = obj.validRanges();    
+    auto& validRanges = obj.parseValidRanges();    
     util::ReplacementMap repl = {
         {"VALID_VALUE", util::numToString(validRanges.front().m_min)},
     };
@@ -268,13 +268,13 @@ std::string CommsIntField::commsDefValidFuncBodyImpl() const
 
     bool validCheckVersion =
         generator().schemaOf(*this).versionDependentCode() &&
-        obj.validCheckVersion();
+        obj.parseValidCheckVersion();
 
     if (!validCheckVersion) {
         return strings::emptyString();
     }
 
-    auto validRanges = obj.validRanges(); // copy
+    auto validRanges = obj.parseValidRanges(); // copy
     validRanges.erase(
         std::remove_if(
             validRanges.begin(), validRanges.end(),
@@ -296,7 +296,7 @@ std::string CommsIntField::commsDefValidFuncBodyImpl() const
         "return false;\n"
         ;
 
-    auto type = obj.type();
+    auto type = obj.parseType();
     bool bigUnsigned =
         (type == commsdsl::parse::ParseIntField::Type::Uint64) ||
         (type == commsdsl::parse::ParseIntField::Type::Uintvar);
@@ -329,7 +329,7 @@ std::string CommsIntField::commsDefValidFuncBodyImpl() const
             conds.push_back('(' + util::numToString(r.m_sinceVersion) + " <= Base::getVersion())");
         }
 
-        if (r.m_deprecatedSince < commsdsl::parse::ParseProtocol::notYetDeprecated()) {
+        if (r.m_deprecatedSince < commsdsl::parse::ParseProtocol::parseNotYetDeprecated()) {
             conds.push_back("(Base::getVersion() < " + util::numToString(r.m_deprecatedSince) + ")");
         }
 
@@ -358,17 +358,17 @@ bool CommsIntField::commsIsVersionDependentImpl() const
 {
     assert(generator().schemaOf(*this).versionDependentCode());
     auto obj = intDslObj();
-    if (!obj.validCheckVersion()) {
+    if (!obj.parseValidCheckVersion()) {
         return false;
     }
 
-    auto& validRanges = obj.validRanges();
+    auto& validRanges = obj.parseValidRanges();
     if (validRanges.empty()) {
         return false;
     }
 
-    unsigned minVersion = obj.sinceVersion();
-    unsigned maxVersion = obj.deprecatedSince();
+    unsigned minVersion = obj.parseSinceVersion();
+    unsigned maxVersion = obj.parseDeprecatedSince();
     auto iter =
         std::find_if(
             validRanges.begin(), validRanges.end(),
@@ -384,7 +384,7 @@ bool CommsIntField::commsIsVersionDependentImpl() const
 
 std::size_t CommsIntField::commsMinLengthImpl() const
 {
-    if (intDslObj().availableLengthLimit()) {
+    if (intDslObj().parseAvailableLengthLimit()) {
         return 1U;
     }
 
@@ -406,7 +406,7 @@ std::string CommsIntField::commsCompPrepValueStrImpl([[maybe_unused]] const std:
         };
 
     if (value.empty()) {
-        return valToString(intDslObj().defaultValue());
+        return valToString(intDslObj().parseDefaultValue());
     }
     
     try {
@@ -420,7 +420,7 @@ std::string CommsIntField::commsCompPrepValueStrImpl([[maybe_unused]] const std:
         // nothing to do
     }
 
-    auto& specials = intDslObj().specialValues();
+    auto& specials = intDslObj().parseSpecialValues();
     auto iter = specials.find(value);
     if (iter != specials.end()) {
         return valToString(iter->second.m_value);
@@ -465,7 +465,7 @@ std::string CommsIntField::commsCompPrepValueStrImpl([[maybe_unused]] const std:
 bool CommsIntField::commsVerifyInnerRefImpl(const std::string& refStr) const
 {
     auto obj = intDslObj();
-    auto& specials = obj.specialValues();
+    auto& specials = obj.parseSpecialValues();
     return (specials.find(refStr) != specials.end());    
 }
 
@@ -518,7 +518,7 @@ std::string CommsIntField::commsCommonSpecialsCodeInternal() const
 
         std::string specVal;
         auto obj = intDslObj();
-        auto type = obj.type();
+        auto type = obj.parseType();
         if ((type == commsdsl::parse::ParseIntField::Type::Uint64) ||
             (type == commsdsl::parse::ParseIntField::Type::Uintvar)) {
             specVal = util::numToString(static_cast<std::uintmax_t>(s.second.m_value));
@@ -699,7 +699,7 @@ std::string CommsIntField::commsDefSpecialNamesMapCodeInternal() const
 std::string CommsIntField::commsDefDisplayDecimalsCodeInternal() const
 {
     auto obj = intDslObj();
-    auto scaling = obj.scaling();
+    auto scaling = obj.parseScaling();
     std::string result;
     if (scaling.first == scaling.second) {
         return result;
@@ -714,7 +714,7 @@ std::string CommsIntField::commsDefDisplayDecimalsCodeInternal() const
         "}";
         
     util::ReplacementMap repl = {
-        {"DISPLAY_DECIMALS", util::numToString(obj.displayDecimals())}
+        {"DISPLAY_DECIMALS", util::numToString(obj.parseDisplayDecimals())}
     };
 
     return util::processTemplate(Templ, repl);
@@ -733,8 +733,8 @@ std::string CommsIntField::commsDefBaseClassInternal(bool variantPropKey) const
     auto dslObj = intDslObj();
     util::ReplacementMap repl = {
         {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
-        {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
-        {"FIELD_TYPE", comms::cppIntTypeFor(dslObj.type(), dslObj.maxLength())},
+        {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.parseEndian())},
+        {"FIELD_TYPE", comms::cppIntTypeFor(dslObj.parseType(), dslObj.parseMaxLength())},
         {"FIELD_OPTS", commsDefFieldOptsInternal(variantPropKey)}
     };
 
@@ -747,28 +747,28 @@ std::string CommsIntField::commsDefBaseClassInternal(bool variantPropKey) const
 void CommsIntField::commsAddLengthOptInternal(StringsList& opts) const
 {
     auto obj = intDslObj();
-    auto type = obj.type();
+    auto type = obj.parseType();
     if ((type == commsdsl::parse::ParseIntField::Type::Intvar) ||
         (type == commsdsl::parse::ParseIntField::Type::Uintvar)) {
         auto str =
             "comms::option::def::VarLength<" +
-            util::numToString(obj.minLength()) +
+            util::numToString(obj.parseMinLength()) +
             ", " +
-            util::numToString(obj.maxLength()) +
+            util::numToString(obj.parseMaxLength()) +
             '>';
         util::addToStrList(std::move(str), opts);
         return;
     }
 
-    if (obj.bitLength() != 0U) {
+    if (obj.parseBitLength() != 0U) {
         std::string secondParam;
-        if (!obj.signExt()) {
+        if (!obj.parseSignExt()) {
             secondParam = ", false";
         }
 
         auto str =
             "comms::option::def::FixedBitLength<" +
-            util::numToString(obj.bitLength()) + secondParam +
+            util::numToString(obj.parseBitLength()) + secondParam +
             '>';
         util::addToStrList(std::move(str), opts);
         return;
@@ -797,14 +797,14 @@ void CommsIntField::commsAddLengthOptInternal(StringsList& opts) const
     }
 
     assert(LengthMap[idx] != 0);
-    if (LengthMap[idx] != obj.minLength()) {
+    if (LengthMap[idx] != obj.parseMinLength()) {
         std::string secondParam;
-        if (!obj.signExt()) {
+        if (!obj.parseSignExt()) {
             secondParam = ", false";
         }
         auto str =
             "comms::option::def::FixedLength<" +
-            util::numToString(obj.minLength()) + secondParam +
+            util::numToString(obj.parseMinLength()) + secondParam +
             '>';
         util::addToStrList(std::move(str), opts);
     }
@@ -813,7 +813,7 @@ void CommsIntField::commsAddLengthOptInternal(StringsList& opts) const
 void CommsIntField::commsAddSerOffsetOptInternal(StringsList& opts) const
 {
     auto obj = intDslObj();
-    auto serOffset = obj.serOffset();
+    auto serOffset = obj.parseSerOffset();
     if (serOffset == 0) {
         return;
     }
@@ -828,7 +828,7 @@ void CommsIntField::commsAddSerOffsetOptInternal(StringsList& opts) const
 void CommsIntField::commsAddDisplayOffsetOptInternal(StringsList& opts) const
 {
     auto obj = intDslObj();
-    auto displayOffset = obj.displayOffset();
+    auto displayOffset = obj.parseDisplayOffset();
     if (displayOffset == 0) {
         return;
     }
@@ -843,7 +843,7 @@ void CommsIntField::commsAddDisplayOffsetOptInternal(StringsList& opts) const
 void CommsIntField::commsAddScalingOptInternal(StringsList& opts) const
 {
     auto obj = intDslObj();
-    auto scaling = obj.scaling();
+    auto scaling = obj.parseScaling();
     auto num = scaling.first;
     auto denom = scaling.second;
 
@@ -869,7 +869,7 @@ void CommsIntField::commsAddScalingOptInternal(StringsList& opts) const
 void CommsIntField::commsAddUnitsOptInternal(StringsList& opts) const
 {
     auto obj = intDslObj();
-    auto units = obj.units();
+    auto units = obj.parseUnits();
     auto& str = comms::dslUnitsToOpt(units);
     if (!str.empty()) {
         util::addToStrList(str, opts);
@@ -879,9 +879,9 @@ void CommsIntField::commsAddUnitsOptInternal(StringsList& opts) const
 void CommsIntField::commsAddDefaultValueOptInternal(StringsList& opts) const
 {
     auto obj = intDslObj();
-    auto defaultValue = obj.defaultValue();
+    auto defaultValue = obj.parseDefaultValue();
     if ((defaultValue == 0) &&
-        (obj.semanticType() == commsdsl::parse::ParseField::SemanticType::Version)) {
+        (obj.parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Version)) {
         std::string str = "comms::option::def::DefaultNumValue<";
         str += util::numToString(generator().schemaOf(*this).schemaVersion());
         str += '>';
@@ -893,7 +893,7 @@ void CommsIntField::commsAddDefaultValueOptInternal(StringsList& opts) const
         return;
     }
 
-    auto type = obj.type();
+    auto type = obj.parseType();
     if ((defaultValue < 0) &&
         ((type == commsdsl::parse::ParseIntField::Type::Uint64) || (type == commsdsl::parse::ParseIntField::Type::Uintvar))) {
         auto str =
@@ -914,19 +914,19 @@ void CommsIntField::commsAddDefaultValueOptInternal(StringsList& opts) const
 void CommsIntField::commsAddValidRangesOptInternal(StringsList& opts) const
 {
     auto obj = intDslObj();
-    auto validRanges = obj.validRanges(); // copy
+    auto validRanges = obj.parseValidRanges(); // copy
     if (validRanges.empty()) {
         return;
     }
 
-    auto type = obj.type();
+    auto type = obj.parseType();
     bool bigUnsigned =
         (type == commsdsl::parse::ParseIntField::Type::Uint64) ||
-        ((type != commsdsl::parse::ParseIntField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
+        ((type != commsdsl::parse::ParseIntField::Type::Uintvar) && (obj.parseMaxLength() >= sizeof(std::int64_t)));
 
     bool validCheckVersion =
         generator().schemaOf(*this).versionDependentCode() &&
-        obj.validCheckVersion();
+        obj.parseValidCheckVersion();
 
     if (!validCheckVersion) {
         // unify
@@ -1078,20 +1078,20 @@ void CommsIntField::commsAddCustomRefreshOptInternal(StringsList& opts) const
 
 void CommsIntField::commsAddAvailableLengthLimitOptInternal(StringsList& opts) const
 {
-    if (intDslObj().availableLengthLimit()) {
+    if (intDslObj().parseAvailableLengthLimit()) {
         util::addToStrList("comms::option::def::AvailableLengthLimit", opts);
     }
 }
 
 bool CommsIntField::commsRequiresFailOnInvalidRefreshInternal() const
 {
-    if ((!dslObj().isFailOnInvalid()) ||
-        (dslObj().isFixedValue())) {
+    if ((!dslObj().parseIsFailOnInvalid()) ||
+        (dslObj().parseIsFixedValue())) {
         return false;
     }
 
     auto obj = intDslObj();
-    auto& validRanges = obj.validRanges();
+    auto& validRanges = obj.parseValidRanges();
     if (validRanges.empty()) {
         return false;
     }

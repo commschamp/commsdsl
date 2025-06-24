@@ -345,7 +345,7 @@ bool CommsDispatch::commsWriteClientDispatchInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::GenMessage& msg) noexcept
         {
-            return msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client;
+            return msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client;
         };
 
     util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -364,7 +364,7 @@ bool CommsDispatch::commsWriteServerDispatchInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::GenMessage& msg) noexcept
         {
-            return msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server;
+            return msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server;
         };
 
     util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -386,7 +386,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
         auto platformCheckFunc = 
             [&p](const commsdsl::gen::GenMessage& msg)
             {
-                auto& msgPlatforms = msg.dslObj().platforms();
+                auto& msgPlatforms = msg.dslObj().parsePlatforms();
                 if (msgPlatforms.empty()) {
                     return true;
                 }
@@ -427,7 +427,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 {
                     return 
                         platformCheckFunc(msg) &&
-                        (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client);
+                        (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -456,7 +456,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 {
                     return 
                         platformCheckFunc(msg) &&
-                        (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server);
+                        (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -528,7 +528,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 {
                     return 
                         bundleCheckFunc(msg) &&
-                        (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Client);
+                        (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -557,7 +557,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 {
                     return 
                         bundleCheckFunc(msg) &&
-                        (msg.dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Server);
+                        (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -609,7 +609,7 @@ std::string CommsDispatch::commsDispatchCodeInternal(const std::string& name, Ch
         if (!func(*m)) {
             continue;
         }
-        auto& mList = map[m->dslObj().id()];
+        auto& mList = map[m->dslObj().parseId()];
         hasMultipleMessagesWithSameId = hasMultipleMessagesWithSameId || (!mList.empty());
         mList.push_back(m);
 
@@ -634,8 +634,8 @@ std::string CommsDispatch::commsDispatchCodeInternal(const std::string& name, Ch
         {"INTERFACE", (!allInterfaces.empty()) ? comms::scopeFor(*allInterfaces.front(), m_generator) : std::string("SomeInterface")},
         {"MSG1", firstMsg != nullptr ? comms::scopeFor(*firstMsg, m_generator) : std::string("SomeMessage")},
         {"MSG2", secondMsg != nullptr ? comms::scopeFor(*secondMsg, m_generator) : std::string("SomeOtherMessage")},
-        {"MSG1_NAME", firstMsg != nullptr ? comms::className(firstMsg->dslObj().name()) : std::string("SomeMessage")},
-        {"MSG2_NAME", secondMsg != nullptr ? comms::className(secondMsg->dslObj().name()) : std::string("SomeOtherMessage")},
+        {"MSG1_NAME", firstMsg != nullptr ? comms::className(firstMsg->dslObj().parseName()) : std::string("SomeMessage")},
+        {"MSG2_NAME", secondMsg != nullptr ? comms::className(secondMsg->dslObj().parseName()) : std::string("SomeOtherMessage")},
         {"CASES", commsCasesCodeInternal(map)},
         {"DISPATCHER", commsMsgDispatcherCodeInternal(name)},
     };

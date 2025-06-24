@@ -210,7 +210,7 @@ std::string SwigFrame::swigLayersAccDeclInternal() const
 
         util::ReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(*l)},
-            {"ACC_NAME", comms::accessName(l->dslObj().name())}
+            {"ACC_NAME", comms::accessName(l->dslObj().parseName())}
         };
 
         elems.push_back(util::processTemplate(Templ, repl));
@@ -228,7 +228,7 @@ std::string SwigFrame::swigLayersAccCodeInternal() const
 
         util::ReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(*l)},
-            {"ACC_NAME", comms::accessName(l->dslObj().name())}
+            {"ACC_NAME", comms::accessName(l->dslObj().parseName())}
         };
 
         elems.push_back(util::processTemplate(Templ, repl));

@@ -115,14 +115,14 @@ CommsDataField::IncludesList CommsDataField::commsDefIncludesImpl() const
 
     do {
         auto obj = dataDslObj();
-        if (!obj.defaultValue().empty()) {
+        if (!obj.parseDefaultValue().empty()) {
             result.insert(result.end(), {
                 "<iterator>",  
                 "comms/util/assign.h",
             });            
         }   
 
-        auto& validValues = obj.validValues();
+        auto& validValues = obj.parseValidValues();
         if (!validValues.empty()) {
             result.insert(result.end(), {
                 "<algorithm>",
@@ -142,7 +142,7 @@ CommsDataField::IncludesList CommsDataField::commsDefIncludesImpl() const
             result.push_back(comms::relHeaderPathFor(m_commsExternalPrefixField->field(), generator()));
         }
 
-        auto& detachedPrefixName = obj.detachedPrefixFieldName();
+        auto& detachedPrefixName = obj.parseDetachedPrefixFieldName();
         if (!detachedPrefixName.empty()) {
             result.insert(result.end(), {
                 "<algorithm>",
@@ -186,7 +186,7 @@ std::string CommsDataField::commsDefBaseClassImpl() const
 std::string CommsDataField::commsDefConstructCodeImpl() const
 {
     auto obj = dataDslObj();
-    auto& defaultValue = obj.defaultValue();
+    auto& defaultValue = obj.parseDefaultValue();
     if (defaultValue.empty()) {
         return strings::emptyString();
     }
@@ -208,7 +208,7 @@ std::string CommsDataField::commsDefConstructCodeImpl() const
 std::string CommsDataField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const
 {
     auto obj = dataDslObj();
-    auto& detachedPrefixName = obj.detachedPrefixFieldName();
+    auto& detachedPrefixName = obj.parseDetachedPrefixFieldName();
     if (detachedPrefixName.empty()) {
         return strings::emptyString();
     }
@@ -225,7 +225,7 @@ std::string CommsDataField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
             siblings.begin(), siblings.end(),
             [&sibName](auto& f)
             {
-                return f->field().dslObj().name() == sibName;
+                return f->field().dslObj().parseName() == sibName;
             });
 
     if (iter == siblings.end()) {
@@ -234,8 +234,8 @@ std::string CommsDataField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
         return strings::emptyString();
     }
 
-    auto fieldPrefix = "field_" + comms::accessName(dslObj().name()) + "()";
-    auto sibPrefix = "field_" + comms::accessName((*iter)->field().dslObj().name()) + "()";
+    auto fieldPrefix = "field_" + comms::accessName(dslObj().parseName()) + "()";
+    auto sibPrefix = "field_" + comms::accessName((*iter)->field().dslObj().parseName()) + "()";
 
     auto conditions = commsCompOptChecks(std::string(), fieldPrefix);
     auto sibConditions = (*iter)->commsCompOptChecks(accRest, sibPrefix);
@@ -270,7 +270,7 @@ std::string CommsDataField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
 std::string CommsDataField::commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const
 {
     auto obj = dataDslObj();
-    auto& detachedPrefixName = obj.detachedPrefixFieldName();
+    auto& detachedPrefixName = obj.parseDetachedPrefixFieldName();
     if (detachedPrefixName.empty()) {
         return strings::emptyString();
     }
@@ -287,7 +287,7 @@ std::string CommsDataField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
             siblings.begin(), siblings.end(),
             [&sibName](auto& f)
             {
-                return f->field().dslObj().name() == sibName;
+                return f->field().dslObj().parseName() == sibName;
             });
 
     if (iter == siblings.end()) {
@@ -311,8 +311,8 @@ std::string CommsDataField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
         "}\n"
         "return true;";
 
-    auto fieldPrefix = "field_" + comms::accessName(dslObj().name()) + "()";
-    auto sibPrefix = "field_" + comms::accessName((*iter)->field().dslObj().name()) + "()";
+    auto fieldPrefix = "field_" + comms::accessName(dslObj().parseName()) + "()";
+    auto sibPrefix = "field_" + comms::accessName((*iter)->field().dslObj().parseName()) + "()";
     util::ReplacementMap repl = {
         {"LEN_VALUE", (*iter)->commsValueAccessStr(accRest, sibPrefix)},
         {"LEN_FIELD", (*iter)->commsFieldAccessStr(accRest, sibPrefix)},
@@ -324,7 +324,7 @@ std::string CommsDataField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
 
 std::string CommsDataField::commsDefValidFuncBodyImpl() const
 {
-    auto& validValues = dataDslObj().validValues();
+    auto& validValues = dataDslObj().parseValidValues();
     if (validValues.empty()) {
         return std::string();
     }
@@ -412,7 +412,7 @@ CommsDataField::StringsList CommsDataField::commsExtraDataViewDefaultOptionsImpl
 CommsDataField::StringsList CommsDataField::commsExtraBareMetalDefaultOptionsImpl() const
 {
     auto obj = dataDslObj();
-    auto fixedLength = obj.fixedLength();
+    auto fixedLength = obj.parseFixedLength();
     if (fixedLength != 0U) {
         return 
             StringsList{
@@ -429,7 +429,7 @@ CommsDataField::StringsList CommsDataField::commsExtraBareMetalDefaultOptionsImp
 std::size_t CommsDataField::commsMaxLengthImpl() const
 {
     auto obj = dataDslObj();
-    if (obj.fixedLength() != 0U) {
+    if (obj.parseFixedLength() != 0U) {
         return CommsBase::commsMaxLengthImpl();
     }
 
@@ -457,7 +457,7 @@ std::string CommsDataField::commsDefFieldOptsInternal() const
 void CommsDataField::commsAddFixedLengthOptInternal(StringsList& opts) const
 {
     auto obj = dataDslObj();
-    auto fixedLen = obj.fixedLength();
+    auto fixedLen = obj.parseFixedLength();
     if (fixedLen == 0U) {
         return;
     }
@@ -496,7 +496,7 @@ void CommsDataField::commsAddLengthPrefixOptInternal(StringsList& opts) const
 void CommsDataField::commsAddLengthForcingOptInternal(StringsList& opts) const
 {
     auto obj = dataDslObj();
-    auto& detachedPrefixName = obj.detachedPrefixFieldName();
+    auto& detachedPrefixName = obj.parseDetachedPrefixFieldName();
     if (detachedPrefixName.empty()) {
         return;
     }

@@ -54,47 +54,47 @@ public:
     ParseInterfaceImpl(ParseInterfaceImpl&&) = default;
     virtual ~ParseInterfaceImpl() = default;
 
-    ::xmlNodePtr getNode() const
+    ::xmlNodePtr parseGetNode() const
     {
         return m_node;
     }
 
     bool parse();
 
-    const PropsMap& props() const
+    const PropsMap& parseProps() const
     {
         return m_props;
     }
 
-    const std::string& name() const;
-    const std::string& displayName() const;
-    const std::string& description() const;
-    const std::string& copyCodeFrom() const;
+    const std::string& parseName() const;
+    const std::string& parseDisplayName() const;
+    const std::string& parseDescription() const;
+    const std::string& parseCopyCodeFrom() const;
 
-    FieldsList fieldsList() const;
-    AliasesList aliasesList() const;
+    FieldsList parseFieldsList() const;
+    AliasesList parseAliasesList() const;
 
-    std::string externalRef(bool schemaRef) const;
+    std::string parseExternalRef(bool schemaRef) const;
 
     const PropsMap& parseExtraAttributes() const
     {
         return m_extraAttrs;
     }
 
-    const ContentsList& extraChildren() const
+    const ContentsList& parseExtraChildren() const
     {
         return m_extraChildren;
     }
 
-    std::size_t findFieldIdx(const std::string& name) const;
+    std::size_t parseFindFieldIdx(const std::string& name) const;
 
-    ImplFieldsList allImplFields() const;
+    ImplFieldsList parseAllImplFields() const;
 
     FieldRefInfo processInnerFieldRef(const std::string refStr) const;
 
 protected:
 
-    virtual ObjKind objKindImpl() const override;
+    virtual ObjKind parseObjKindImpl() const override;
 
 private:
     struct ReusableState
@@ -132,43 +132,43 @@ private:
             m_fields.clear();
             m_fields.reserve(other.m_fields.size());
             for (auto& f : other.m_fields) {
-                m_fields.push_back(f->clone());
+                m_fields.push_back(f->parseClone());
             }
 
             m_aliases.clear();
             m_aliases.reserve(other.m_aliases.size());
             for (auto& a : other.m_aliases) {
-                m_aliases.push_back(a->clone());
+                m_aliases.push_back(a->parseClone());
             }            
 
             return *this;          
         }
     };
 
-    LogWrapper logError() const;
-    LogWrapper logWarning() const;
-    LogWrapper logInfo() const;
+    LogWrapper parseLogError() const;
+    LogWrapper parseLogWarning() const;
+    LogWrapper parseLogInfo() const;
 
-    static const ParseXmlWrap::NamesList& commonProps();
-    static ParseXmlWrap::NamesList allNames();
+    static const ParseXmlWrap::NamesList& parseCommonProps();
+    static ParseXmlWrap::NamesList parseAllNames();
 
-    bool validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
-    bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
-    bool validateAndUpdateStringPropValue(const std::string& str, std::string& value, bool mustHave = false);
-    void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
-    bool checkReuse();
-    bool updateName();
-    bool updateDescription();
-    bool copyFields();
-    bool updateFields();
-    bool copyAliases();
-    bool updateAliases();
-    void cloneFieldsFrom(const ParseInterfaceImpl& other);
-    void cloneFieldsFrom(const ParseBundleFieldImpl& other);
-    void cloneAliasesFrom(const ParseInterfaceImpl& other);
-    void cloneAliasesFrom(const ParseBundleFieldImpl& other);
-    bool updateExtraAttrs();
-    bool updateExtraChildren();
+    bool parseValidateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
+    bool parseValidateSinglePropInstance(const std::string& str, bool mustHave = false);
+    bool parseValidateAndUpdateStringPropValue(const std::string& str, std::string& value, bool mustHave = false);
+    void parseReportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
+    bool parseCheckReuse();
+    bool parseUpdateName();
+    bool parseUpdateDescription();
+    bool parseCopyFields();
+    bool parseUpdateFields();
+    bool parseCopyAliases();
+    bool parseUpdateAliases();
+    void parseCloneFieldsFrom(const ParseInterfaceImpl& other);
+    void parseCloneFieldsFrom(const ParseBundleFieldImpl& other);
+    void parseCloneAliasesFrom(const ParseInterfaceImpl& other);
+    void parseCloneAliasesFrom(const ParseBundleFieldImpl& other);
+    bool parseUpdateExtraAttrs();
+    bool parseUpdateExtraChildren();
 
     ::xmlNodePtr m_node = nullptr;
     ParseProtocolImpl& m_protocol;

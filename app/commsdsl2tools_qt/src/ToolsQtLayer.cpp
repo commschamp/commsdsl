@@ -48,7 +48,7 @@ unsigned ToolsQtLayer::toolsMinFieldLength() const
     auto calcFunc = 
         [](const commsdsl::gen::GenField& f)
         {
-            return static_cast<unsigned>(f.dslObj().minLength());
+            return static_cast<unsigned>(f.dslObj().parseMinLength());
         };
 
     auto* externalField = m_layer.externalField();

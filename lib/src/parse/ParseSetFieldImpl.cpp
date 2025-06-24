@@ -47,7 +47,7 @@ ParseSetFieldImpl::ParseSetFieldImpl(::xmlNodePtr node, ParseProtocolImpl& proto
 
 ParseSetFieldImpl::ParseSetFieldImpl(const ParseSetFieldImpl&) = default;
 
-bool ParseSetFieldImpl::isUnique() const
+bool ParseSetFieldImpl::parseIsUnique() const
 {
     unsigned prevIdx = 0;
     bool firstElem = true;
@@ -59,7 +59,7 @@ bool ParseSetFieldImpl::isUnique() const
         }
 
         if (prevIdx == b.first) {
-            assert(isNonUniqueAllowed());
+            assert(parseIsNonUniqueAllowed());
             return false;
         }
 
@@ -69,17 +69,17 @@ bool ParseSetFieldImpl::isUnique() const
     return true;
 }
 
-ParseFieldImpl::Kind ParseSetFieldImpl::kindImpl() const
+ParseFieldImpl::Kind ParseSetFieldImpl::parseKindImpl() const
 {
     return Kind::Set;
 }
 
-ParseFieldImpl::Ptr ParseSetFieldImpl::cloneImpl() const
+ParseFieldImpl::Ptr ParseSetFieldImpl::parseCloneImpl() const
 {
     return Ptr(new ParseSetFieldImpl(*this));
 }
 
-const ParseXmlWrap::NamesList& ParseSetFieldImpl::extraPropsNamesImpl() const
+const ParseXmlWrap::NamesList& ParseSetFieldImpl::parseExtraPropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
         common::defaultValueStr(),
@@ -96,7 +96,7 @@ const ParseXmlWrap::NamesList& ParseSetFieldImpl::extraPropsNamesImpl() const
     return List;
 }
 
-const ParseXmlWrap::NamesList& ParseSetFieldImpl::extraChildrenNamesImpl() const
+const ParseXmlWrap::NamesList& ParseSetFieldImpl::parseExtraChildrenNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
         common::bitStr()
@@ -105,9 +105,9 @@ const ParseXmlWrap::NamesList& ParseSetFieldImpl::extraChildrenNamesImpl() const
     return List;
 }
 
-bool ParseSetFieldImpl::reuseImpl(const ParseFieldImpl& other)
+bool ParseSetFieldImpl::parseReuseImpl(const ParseFieldImpl& other)
 {
-    assert(other.kind() == kind());
+    assert(other.parseKind() == parseKind());
     auto& castedOther = static_cast<const ParseSetFieldImpl&>(other);
     m_state = castedOther.m_state;
     return true;
@@ -116,42 +116,42 @@ bool ParseSetFieldImpl::reuseImpl(const ParseFieldImpl& other)
 bool ParseSetFieldImpl::parseImpl()
 {
     return
-        updateEndian() &&
-        updateType() &&
-        updateLength() &&
-        updateNonUniqueAllowed() &&
-        updateValidCheckVersion() &&
-        updateDefaultValue() &&
-        updateReservedValue() &&
-        updateAvailableLengthLimit() &&
-        updateBits();
+        parseUpdateEndian() &&
+        parseUpdateType() &&
+        parseUpdateLength() &&
+        parseUpdateNonUniqueAllowed() &&
+        parseUpdateValidCheckVersion() &&
+        parseUpdateDefaultValue() &&
+        parseUpdateReservedValue() &&
+        parseUpdateAvailableLengthLimit() &&
+        parseUpdateBits();
 }
 
-std::size_t ParseSetFieldImpl::minLengthImpl() const
+std::size_t ParseSetFieldImpl::parseMinLengthImpl() const
 {
     return m_state.m_length;
 }
 
-std::size_t ParseSetFieldImpl::bitLengthImpl() const
+std::size_t ParseSetFieldImpl::parseBitLengthImpl() const
 {
-    if (isBitfieldMember()) {
+    if (parseIsBitfieldMember()) {
         return m_state.m_bitLength;
     }
 
-    return Base::bitLengthImpl();
+    return Base::parseBitLengthImpl();
 }
 
-bool ParseSetFieldImpl::isComparableToValueImpl(const std::string& val) const
+bool ParseSetFieldImpl::parseIsComparableToValueImpl(const std::string& val) const
 {
     if (common::isValidRefName(val)) {
         bool bigUnsigned = false;
         std::intmax_t valTmp = 0;
-        if (!protocol().strToNumeric(val, false, valTmp, bigUnsigned)) {
+        if (!parseProtocol().parseStrToNumeric(val, false, valTmp, bigUnsigned)) {
             return false;
         }
 
         if ((!bigUnsigned) && (valTmp < 0)) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                 "Cannot compare negative value (" << valTmp << " referenced as " <<
             val << ").";
             return false;
@@ -163,7 +163,7 @@ bool ParseSetFieldImpl::isComparableToValueImpl(const std::string& val) const
     bool ok = false;
     auto valTmp = common::strToIntMax(val, &ok);
     if (ok && (valTmp < 0)) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Cannot compare to negative number " << valTmp << ".";        
         return false;
     }
@@ -171,15 +171,15 @@ bool ParseSetFieldImpl::isComparableToValueImpl(const std::string& val) const
     return ok;    
 }
 
-bool ParseSetFieldImpl::isComparableToFieldImpl(const ParseFieldImpl& field) const
+bool ParseSetFieldImpl::parseIsComparableToFieldImpl(const ParseFieldImpl& field) const
 {
-    auto fieldKind = field.kind();
+    auto fieldKind = field.parseKind();
     return (fieldKind == Kind::Set);    
 }
 
-bool ParseSetFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+bool ParseSetFieldImpl::parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
 {
-    if (!protocol().isFieldValueReferenceSupported()) {
+    if (!parseProtocol().parseIsFieldValueReferenceSupported()) {
         return false;
     }
 
@@ -198,9 +198,9 @@ bool ParseSetFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& 
     return true;
 }
 
-bool ParseSetFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
+bool ParseSetFieldImpl::parseStrToBoolImpl(const std::string& ref, bool& val) const
 {
-    if (!protocol().isFieldValueReferenceSupported()) {
+    if (!parseProtocol().parseIsFieldValueReferenceSupported()) {
         return false;
     }
 
@@ -218,12 +218,12 @@ bool ParseSetFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
     return true;
 }
 
-bool ParseSetFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const
+bool ParseSetFieldImpl::parseValidateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const
 {
     assert(0U < m_state.m_length);
     auto maxBitLength = m_state.m_length * BitsInByte;
     if (maxBitLength < bitLength) {
-        logError() << ParseXmlWrap::logPrefix(node) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(node) <<
                       "Value of property \"" << common::bitLengthStr() << "\" exceeds "
                       "maximal length available by the type and/or forced serialisation length.";
         return false;
@@ -232,7 +232,7 @@ bool ParseSetFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_
     return true;
 }
 
-ParseSetFieldImpl::FieldRefInfo ParseSetFieldImpl::processInnerRefImpl(const std::string& refStr) const
+ParseSetFieldImpl::FieldRefInfo ParseSetFieldImpl::parseProcessInnerRefImpl(const std::string& refStr) const
 {
     assert(!refStr.empty());
 
@@ -247,45 +247,45 @@ ParseSetFieldImpl::FieldRefInfo ParseSetFieldImpl::processInnerRefImpl(const std
     return info;    
 }
 
-bool ParseSetFieldImpl::isValidRefTypeImpl(FieldRefType type) const
+bool ParseSetFieldImpl::parseIsValidRefTypeImpl(FieldRefType type) const
 {
     return (type == FieldRefType_InnerValue);
 }
 
-bool ParseSetFieldImpl::updateEndian()
+bool ParseSetFieldImpl::parseUpdateEndian()
 {
-    if (!validateSinglePropInstance(common::endianStr())) {
+    if (!parseValidateSinglePropInstance(common::endianStr())) {
         return false;
     }
 
-    auto& endianStr = common::getStringProp(props(), common::endianStr());
+    auto& endianStr = common::getStringProp(parseProps(), common::endianStr());
     if ((endianStr.empty()) && (m_state.m_endian != ParseEndian_NumOfValues)) {
         return true;
     }
 
-    m_state.m_endian = common::parseEndian(endianStr, protocol().currSchema().endian());
+    m_state.m_endian = common::parseEndian(endianStr, parseProtocol().parseCurrSchema().parseEndian());
     if (m_state.m_endian == ParseEndian_NumOfValues) {
-        reportUnexpectedPropertyValue(common::endianStr(), endianStr);
+        parseReportUnexpectedPropertyValue(common::endianStr(), endianStr);
         return false;
     }
     return true;
 }
 
-bool ParseSetFieldImpl::updateType()
+bool ParseSetFieldImpl::parseUpdateType()
 {
-    if (!validateSinglePropInstance(common::typeStr())) {
+    if (!parseValidateSinglePropInstance(common::typeStr())) {
         return false;
     }
 
-    auto typeIter = props().find(common::typeStr());
-    if (typeIter == props().end()) {
+    auto typeIter = parseProps().find(common::typeStr());
+    if (typeIter == parseProps().end()) {
         return true;
     }
 
     auto typeVal = ParseIntFieldImpl::parseTypeValue(typeIter->second);
     if ((Type::NumOfValues <= typeVal) ||
-        (!ParseIntFieldImpl::isTypeUnsigned(typeVal))) {
-        reportUnexpectedPropertyValue(common::typeStr(), typeIter->second);
+        (!ParseIntFieldImpl::parseIsTypeUnsigned(typeVal))) {
+        parseReportUnexpectedPropertyValue(common::typeStr(), typeIter->second);
         return false;
     }
 
@@ -294,7 +294,7 @@ bool ParseSetFieldImpl::updateType()
     }
 
     if (m_state.m_type != Type::NumOfValues) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                       "Type cannot be changed after reuse";
         return false;
     }
@@ -303,22 +303,22 @@ bool ParseSetFieldImpl::updateType()
     return true;
 }
 
-bool ParseSetFieldImpl::updateLength()
+bool ParseSetFieldImpl::parseUpdateLength()
 {
     bool mustHaveLength =
             (m_state.m_type == Type::NumOfValues) &&
             (m_state.m_length == 0U) &&
-            (!isBitfieldMember());
-    if (!validateSinglePropInstance(common::lengthStr(), mustHaveLength)) {
+            (!parseIsBitfieldMember());
+    if (!parseValidateSinglePropInstance(common::lengthStr(), mustHaveLength)) {
         return false;
     }
 
     std::size_t maxLength = sizeof(std::uint64_t);
     if (m_state.m_type != Type::NumOfValues) {
-        maxLength = ParseIntFieldImpl::maxTypeLength(m_state.m_type);
+        maxLength = ParseIntFieldImpl::parseMaxTypeLength(m_state.m_type);
     }
 
-    auto& lengthStr = common::getStringProp(props(), common::lengthStr());
+    auto& lengthStr = common::getStringProp(parseProps(), common::lengthStr());
     do {
         if (lengthStr.empty()) {
             if ((m_state.m_length == 0U) && (m_state.m_type != Type::NumOfValues)) {
@@ -331,7 +331,7 @@ bool ParseSetFieldImpl::updateLength()
         auto newLen = static_cast<decltype(m_state.m_length)>(common::strToUintMax(lengthStr, &ok));
 
         if ((!ok) || (newLen == 0U) || (maxLength < newLen)) {
-            reportUnexpectedPropertyValue(common::lengthStr(), lengthStr);
+            parseReportUnexpectedPropertyValue(common::lengthStr(), lengthStr);
             return false;
         }
 
@@ -340,7 +340,7 @@ bool ParseSetFieldImpl::updateLength()
         }
 
         if (m_state.m_length != 0U) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                           "Length cannot be changed after reuse";
             return false;
         }
@@ -348,12 +348,12 @@ bool ParseSetFieldImpl::updateLength()
         m_state.m_length = newLen;
     } while (false);
 
-    bool mustHaveBitLength = (isBitfieldMember() && m_state.m_bitLength == 0U && (m_state.m_length == 0U));
-    if (!validateSinglePropInstance(common::bitLengthStr(), mustHaveBitLength)) {
+    bool mustHaveBitLength = (parseIsBitfieldMember() && m_state.m_bitLength == 0U && (m_state.m_length == 0U));
+    if (!parseValidateSinglePropInstance(common::bitLengthStr(), mustHaveBitLength)) {
         return false;
     }
 
-    auto& bitLengthStr = common::getStringProp(props(), common::bitLengthStr());
+    auto& bitLengthStr = common::getStringProp(parseProps(), common::bitLengthStr());
     do {
         if (bitLengthStr.empty()) {
             if (m_state.m_bitLength == 0U) {
@@ -363,8 +363,8 @@ bool ParseSetFieldImpl::updateLength()
             break;
         }
 
-        if (!isBitfieldMember()) {
-            logWarning() << ParseXmlWrap::logPrefix((getNode())) <<
+        if (!parseIsBitfieldMember()) {
+            parseLogWarning() << ParseXmlWrap::parseLogPrefix((parseGetNode())) <<
                             "The property \"" << common::bitLengthStr() << "\" is "
                             "applicable only to the members of \"" << common::bitfieldStr() << "\"";
             assert(m_state.m_length != 0U);
@@ -375,12 +375,12 @@ bool ParseSetFieldImpl::updateLength()
         bool ok = false;
         m_state.m_bitLength = static_cast<decltype(m_state.m_bitLength)>(common::strToUintMax(bitLengthStr, &ok));
         if ((!ok) || (m_state.m_bitLength == 0U)) {
-            reportUnexpectedPropertyValue(common::bitLengthStr(), bitLengthStr);
+            parseReportUnexpectedPropertyValue(common::bitLengthStr(), bitLengthStr);
             return false;
         }
 
         if ((m_state.m_length != 0) && ((m_state.m_length * 8U) < m_state.m_bitLength)) {
-            reportUnexpectedPropertyValue(common::bitLengthStr(), bitLengthStr);
+            parseReportUnexpectedPropertyValue(common::bitLengthStr(), bitLengthStr);
             return false;
         }
 
@@ -417,21 +417,21 @@ bool ParseSetFieldImpl::updateLength()
     return true;
 }
 
-bool ParseSetFieldImpl::updateNonUniqueAllowed()
+bool ParseSetFieldImpl::parseUpdateNonUniqueAllowed()
 {
     bool wasAllowed = m_state.m_nonUniqueAllowed;
     bool newAllowed = false;
-    if (!validateAndUpdateBoolPropValue(common::nonUniqueAllowedStr(), newAllowed)) {
+    if (!parseValidateAndUpdateBoolPropValue(common::nonUniqueAllowedStr(), newAllowed)) {
         return false;
     }
 
-    auto& valueStr = common::getStringProp(props(), common::nonUniqueAllowedStr());
+    auto& valueStr = common::getStringProp(parseProps(), common::nonUniqueAllowedStr());
     if (valueStr.empty()) {
         return true;
     }
     
-    if (wasAllowed && (!newAllowed) && (!isUnique())) {
-        logError() << "Cannot clear \"" << common::nonUniqueAllowedStr() << "\" property value "
+    if (wasAllowed && (!newAllowed) && (!parseIsUnique())) {
+        parseLogError() << "Cannot clear \"" << common::nonUniqueAllowedStr() << "\" property value "
                       "while having multiple names for the same bit(s).";
         return false;
     }
@@ -440,51 +440,51 @@ bool ParseSetFieldImpl::updateNonUniqueAllowed()
     return true;
 }
 
-bool ParseSetFieldImpl::updateValidCheckVersion()
+bool ParseSetFieldImpl::parseUpdateValidCheckVersion()
 {
-    return validateAndUpdateBoolPropValue(common::validCheckVersionStr(), m_state.m_validCheckVersion);
+    return parseValidateAndUpdateBoolPropValue(common::validCheckVersionStr(), m_state.m_validCheckVersion);
 }
 
-bool ParseSetFieldImpl::updateDefaultValue()
+bool ParseSetFieldImpl::parseUpdateDefaultValue()
 {
     auto& propName = common::defaultValueStr();
-    auto iter = props().find(propName);
-    if (iter == props().end()) {
+    auto iter = parseProps().find(propName);
+    if (iter == parseProps().end()) {
         return true;
     }
 
-    if (!strToValue(iter->second, m_state.m_defaultBitValue)) {
-        reportUnexpectedPropertyValue(propName, iter->second);
+    if (!parseStrToValue(iter->second, m_state.m_defaultBitValue)) {
+        parseReportUnexpectedPropertyValue(propName, iter->second);
         return false;
     }
 
     return true;
 }
 
-bool ParseSetFieldImpl::updateReservedValue()
+bool ParseSetFieldImpl::parseUpdateReservedValue()
 {
     auto& propName = common::reservedValueStr();
-    auto iter = props().find(propName);
-    if (iter == props().end()) {
+    auto iter = parseProps().find(propName);
+    if (iter == parseProps().end()) {
         return true;
     }
 
-    if (!strToValue(iter->second, m_state.m_reservedBitValue)) {
-        reportUnexpectedPropertyValue(propName, iter->second);
+    if (!parseStrToValue(iter->second, m_state.m_reservedBitValue)) {
+        parseReportUnexpectedPropertyValue(propName, iter->second);
         return false;
     }
 
     return true;
 }
 
-bool ParseSetFieldImpl::updateAvailableLengthLimit()
+bool ParseSetFieldImpl::parseUpdateAvailableLengthLimit()
 {
-    return validateAndUpdateBoolPropValue(common::availableLengthLimitStr(), m_state.m_availableLengthLimit);
+    return parseValidateAndUpdateBoolPropValue(common::availableLengthLimitStr(), m_state.m_availableLengthLimit);
 }
 
-bool ParseSetFieldImpl::updateBits()
+bool ParseSetFieldImpl::parseUpdateBits()
 {
-    auto bits = ParseXmlWrap::getChildren(getNode(), common::bitStr());
+    auto bits = ParseXmlWrap::parseGetChildren(parseGetNode(), common::bitStr());
 
     for (auto* b : bits) {
         static const ParseXmlWrap::NamesList PropNames = {
@@ -500,54 +500,54 @@ bool ParseSetFieldImpl::updateBits()
         };
 
         auto props = ParseXmlWrap::parseNodeProps(b);
-        if (!ParseXmlWrap::parseChildrenAsProps(b, PropNames, protocol().logger(), props)) {
+        if (!ParseXmlWrap::parseChildrenAsProps(b, PropNames, parseProtocol().parseLogger(), props)) {
             return false;
         }
 
-        if (!ParseXmlWrap::validateSinglePropInstance(b, props, common::nameStr(), protocol().logger(), true)) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(b, props, common::nameStr(), parseProtocol().parseLogger(), true)) {
             return false;
         }
 
-        if (!ParseXmlWrap::validateSinglePropInstance(b, props, common::idxStr(), protocol().logger(), true)) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(b, props, common::idxStr(), parseProtocol().parseLogger(), true)) {
             return false;
         }
 
-        if (!ParseXmlWrap::validateSinglePropInstance(b, props, common::defaultValueStr(), protocol().logger())) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(b, props, common::defaultValueStr(), parseProtocol().parseLogger())) {
             return false;
         }
 
-        if (!ParseXmlWrap::validateSinglePropInstance(b, props, common::reservedValueStr(), protocol().logger())) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(b, props, common::reservedValueStr(), parseProtocol().parseLogger())) {
             return false;
         }
 
-        if (!ParseXmlWrap::validateSinglePropInstance(b, props, common::reservedStr(), protocol().logger())) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(b, props, common::reservedStr(), parseProtocol().parseLogger())) {
             return false;
         }
 
-        if (!ParseXmlWrap::validateSinglePropInstance(b, props, common::sinceVersionStr(), protocol().logger())) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(b, props, common::sinceVersionStr(), parseProtocol().parseLogger())) {
             return false;
         }
 
-        if (!ParseXmlWrap::validateSinglePropInstance(b, props, common::deprecatedStr(), protocol().logger())) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(b, props, common::deprecatedStr(), parseProtocol().parseLogger())) {
             return false;
         }
 
-        if (!ParseXmlWrap::validateSinglePropInstance(b, props, common::descriptionStr(), protocol().logger())) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(b, props, common::descriptionStr(), parseProtocol().parseLogger())) {
             return false;
         }
 
-        if (!ParseXmlWrap::validateSinglePropInstance(b, props, common::displayNameStr(), protocol().logger())) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(b, props, common::displayNameStr(), parseProtocol().parseLogger())) {
             return false;
         }
 
-        [[maybe_unused]] auto extraAttr = ParseXmlWrap::getExtraAttributes(b, PropNames, protocol());
-        [[maybe_unused]] auto extraChildren = ParseXmlWrap::getExtraChildren(b, PropNames, protocol());
+        [[maybe_unused]] auto extraAttr = ParseXmlWrap::parseGetExtraAttributes(b, PropNames, parseProtocol());
+        [[maybe_unused]] auto extraChildren = ParseXmlWrap::parseGetExtraChildren(b, PropNames, parseProtocol());
 
         auto nameIter = props.find(common::nameStr());
         assert(nameIter != props.end());
 
         if (!common::isValidName(nameIter->second)) {
-            logError() << ParseXmlWrap::logPrefix(b) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(b) <<
                   "Property \"" << common::nameStr() <<
                   "\" has unexpected value (" << nameIter->second << ").";
             return false;
@@ -555,8 +555,8 @@ bool ParseSetFieldImpl::updateBits()
 
         auto bitsIter = m_state.m_bits.find(nameIter->second);
         if (bitsIter != m_state.m_bits.end()) {
-            logError() << ParseXmlWrap::logPrefix(b) << "Bit with name \"" << nameIter->second <<
-                          "\" has already been defined for set \"" << name() << "\".";
+            parseLogError() << ParseXmlWrap::parseLogPrefix(b) << "Bit with name \"" << nameIter->second <<
+                          "\" has already been defined for set \"" << parseName() << "\".";
             return false;
         }
 
@@ -566,12 +566,12 @@ bool ParseSetFieldImpl::updateBits()
         bool ok = false;
         unsigned idx = common::strToUnsigned(idxIter->second, &ok);
         if (!ok) {
-            ParseXmlWrap::ParseXmlWrap::reportUnexpectedPropertyValue(b, nameIter->second, common::idxStr(), idxIter->second, protocol().logger());
+            ParseXmlWrap::ParseXmlWrap::parseReportUnexpectedPropertyValue(b, nameIter->second, common::idxStr(), idxIter->second, parseProtocol().parseLogger());
             return false;
         }
 
         if (m_state.m_bitLength <= idx) {
-            logError() << ParseXmlWrap::logPrefix(b) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(b) <<
                           "Index of the bit (" << idx << ") must be less than number of available bits (" <<
                           m_state.m_bitLength << ").";
             return false;
@@ -579,7 +579,7 @@ bool ParseSetFieldImpl::updateBits()
         if (!m_state.m_nonUniqueAllowed) {
             auto revBitsIter = m_state.m_revBits.find(idx);
             if (revBitsIter != m_state.m_revBits.end()) {
-                logError() << ParseXmlWrap::logPrefix(b) <<
+                parseLogError() << ParseXmlWrap::parseLogPrefix(b) <<
                       "Bit \"" << revBitsIter->first << "\" has been already defined "
                       "as \"" << revBitsIter->second << "\".";
                 return false;
@@ -590,16 +590,16 @@ bool ParseSetFieldImpl::updateBits()
         info.m_idx = idx;
         info.m_defaultValue = m_state.m_defaultBitValue;
         info.m_reservedValue = m_state.m_reservedBitValue;
-        info.m_sinceVersion = getSinceVersion();
-        info.m_deprecatedSince = getDeprecated();
+        info.m_sinceVersion = parseGetSinceVersion();
+        info.m_deprecatedSince = parseGetDeprecated();
         do {
             auto& bitDefaultValueStr = common::getStringProp(props, common::defaultValueStr());
             if (bitDefaultValueStr.empty()) {
                 break;
             }
 
-            if (!strToValue(bitDefaultValueStr, info.m_defaultValue)) {
-                ParseXmlWrap::reportUnexpectedPropertyValue(b, nameIter->second, common::defaultValueStr(), bitDefaultValueStr, protocol().logger());
+            if (!parseStrToValue(bitDefaultValueStr, info.m_defaultValue)) {
+                ParseXmlWrap::parseReportUnexpectedPropertyValue(b, nameIter->second, common::defaultValueStr(), bitDefaultValueStr, parseProtocol().parseLogger());
                 return false;
             }
 
@@ -611,8 +611,8 @@ bool ParseSetFieldImpl::updateBits()
                 break;
             }
 
-            if (!strToValue(bitReservedStr, info.m_reserved)) {
-                ParseXmlWrap::reportUnexpectedPropertyValue(b, nameIter->second, common::reservedStr(), bitReservedStr, protocol().logger());
+            if (!parseStrToValue(bitReservedStr, info.m_reserved)) {
+                ParseXmlWrap::parseReportUnexpectedPropertyValue(b, nameIter->second, common::reservedStr(), bitReservedStr, parseProtocol().parseLogger());
                 return false;
             }
 
@@ -625,13 +625,13 @@ bool ParseSetFieldImpl::updateBits()
                 break;
             }
 
-            if (!strToValue(bitReservedValueStr, info.m_reservedValue)) {
-                ParseXmlWrap::reportUnexpectedPropertyValue(b, nameIter->second, common::reservedValueStr(), bitReservedValueStr, protocol().logger());
+            if (!parseStrToValue(bitReservedValueStr, info.m_reservedValue)) {
+                ParseXmlWrap::parseReportUnexpectedPropertyValue(b, nameIter->second, common::reservedValueStr(), bitReservedValueStr, parseProtocol().parseLogger());
                 return false;
             }
         } while (false);
 
-        if (!ParseXmlWrap::getAndCheckVersions(b, nameIter->second, props, info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+        if (!ParseXmlWrap::parseGetAndCheckVersions(b, nameIter->second, props, info.m_sinceVersion, info.m_deprecatedSince, parseProtocol())) {
             return false;
         }
 
@@ -641,9 +641,9 @@ bool ParseSetFieldImpl::updateBits()
                 break;
             }
 
-            if ((getSinceVersion() < info.m_sinceVersion) ||
-                (info.m_deprecatedSince < getDeprecated())) {
-                logError() << ParseXmlWrap::logPrefix(b) <<
+            if ((parseGetSinceVersion() < info.m_sinceVersion) ||
+                (info.m_deprecatedSince < parseGetDeprecated())) {
+                parseLogError() << ParseXmlWrap::parseLogPrefix(b) <<
                     "Cannot modify version information on explicity reserved bits.";
                 return false;
             }
@@ -678,21 +678,21 @@ bool ParseSetFieldImpl::updateBits()
                 }
 
                 if (info.m_defaultValue != iter->second.m_defaultValue) {
-                    logError() << ParseXmlWrap::logPrefix(b) <<
+                    parseLogError() << ParseXmlWrap::parseLogPrefix(b) <<
                           "Inconsistent value of \"" << common::defaultValueStr() << "\" property "
                           "for bit " << idx << ".";
                     return false;
                 }
 
                 if (info.m_reserved != iter->second.m_reserved) {
-                    logError() << ParseXmlWrap::logPrefix(b) <<
+                    parseLogError() << ParseXmlWrap::parseLogPrefix(b) <<
                           "Inconsistent value of \"" << common::reservedStr() << "\" property "
                           "for bit " << idx << ".";
                     return false;
                 }
 
                 if (info.m_reservedValue != iter->second.m_reservedValue) {
-                    logError() << ParseXmlWrap::logPrefix(b) <<
+                    parseLogError() << ParseXmlWrap::parseLogPrefix(b) <<
                           "Inconsistent value of \"" << common::reservedValueStr() << "\" property "
                           "for bit " << idx << ".";
                     return false;
@@ -707,8 +707,8 @@ bool ParseSetFieldImpl::updateBits()
 
         auto dispNameIter = props.find(common::displayNameStr());
         if ((dispNameIter != props.end()) &&
-            (!protocol().strToStringValue(dispNameIter->second, info.m_displayName))) {
-            ParseXmlWrap::reportUnexpectedPropertyValue(b, nameIter->second, common::displayNameStr(), dispNameIter->second, protocol().logger());
+            (!parseProtocol().parseStrToStringValue(dispNameIter->second, info.m_displayName))) {
+            ParseXmlWrap::parseReportUnexpectedPropertyValue(b, nameIter->second, common::displayNameStr(), dispNameIter->second, parseProtocol().parseLogger());
             return false;
         }
 
@@ -719,19 +719,19 @@ bool ParseSetFieldImpl::updateBits()
     return true;
 }
 
-bool ParseSetFieldImpl::strToValue(const std::string& str, bool& val) const
+bool ParseSetFieldImpl::parseStrToValue(const std::string& str, bool& val) const
 {
     bool ok = false;
-    val = common::strToBool(str, &ok);
+    val = common::parseStrToBool(str, &ok);
     if (ok) {
         return true;
     }
 
-    if (!protocol().isFieldValueReferenceSupported()) {
+    if (!parseProtocol().parseIsFieldValueReferenceSupported()) {
         return false;
     }
 
-    return protocol().strToBool(str, true, val);
+    return parseProtocol().parseStrToBool(str, true, val);
 }
 
 } // namespace parse

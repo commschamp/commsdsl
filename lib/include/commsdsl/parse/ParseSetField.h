@@ -35,7 +35,7 @@ public:
     {
         unsigned m_idx = 0U;
         unsigned m_sinceVersion = 0U;
-        unsigned m_deprecatedSince = ParseProtocol::notYetDeprecated();
+        unsigned m_deprecatedSince = ParseProtocol::parseNotYetDeprecated();
         std::string m_description;
         std::string m_displayName;
         bool m_defaultValue = false;
@@ -49,16 +49,16 @@ public:
     explicit ParseSetField(const ParseSetFieldImpl* impl);
     explicit ParseSetField(ParseField field);
 
-    Type type() const;
-    ParseEndian endian() const;
-    bool defaultBitValue() const;
-    bool reservedBitValue() const;
-    const Bits& bits() const;
-    const RevBits& revBits() const;
-    bool isNonUniqueAllowed() const;
-    bool isUnique() const;
-    bool validCheckVersion() const;
-    bool availableLengthLimit() const;
+    Type parseType() const;
+    ParseEndian parseEndian() const;
+    bool parseDefaultBitValue() const;
+    bool parseReservedBitValue() const;
+    const Bits& parseBits() const;
+    const RevBits& parseRevBits() const;
+    bool parseIsNonUniqueAllowed() const;
+    bool parseIsUnique() const;
+    bool parseValidCheckVersion() const;
+    bool parseAvailableLengthLimit() const;
 };
 
 inline

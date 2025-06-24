@@ -44,52 +44,52 @@ ParseFloatField::ParseFloatField(const ParseFloatFieldImpl* impl)
 ParseFloatField::ParseFloatField(ParseField field)
   : Base(field)
 {
-    assert(kind() == Kind::Float);
+    assert(parseKind() == Kind::Float);
 }
 
-ParseFloatField::Type ParseFloatField::type() const
+ParseFloatField::Type ParseFloatField::parseType() const
 {
-    return cast(m_pImpl)->type();
+    return cast(m_pImpl)->parseType();
 }
 
-ParseEndian ParseFloatField::endian() const
+ParseEndian ParseFloatField::parseEndian() const
 {
-    return cast(m_pImpl)->endian();
+    return cast(m_pImpl)->parseEndian();
 }
 
-double ParseFloatField::defaultValue() const
+double ParseFloatField::parseDefaultValue() const
 {
-    return cast(m_pImpl)->defaultValue();
+    return cast(m_pImpl)->parseDefaultValue();
 }
 
-const ParseFloatField::ValidRangesList& ParseFloatField::validRanges() const
+const ParseFloatField::ValidRangesList& ParseFloatField::parseValidRanges() const
 {
-    return cast(m_pImpl)->validRanges();
+    return cast(m_pImpl)->parseValidRanges();
 }
 
-const ParseFloatField::SpecialValues& ParseFloatField::specialValues() const
+const ParseFloatField::SpecialValues& ParseFloatField::parseSpecialValues() const
 {
-    return cast(m_pImpl)->specialValues();
+    return cast(m_pImpl)->parseSpecialValues();
 }
 
-bool ParseFloatField::validCheckVersion() const
+bool ParseFloatField::parseValidCheckVersion() const
 {
-    return cast(m_pImpl)->validCheckVersion();
+    return cast(m_pImpl)->parseValidCheckVersion();
 }
 
-ParseUnits ParseFloatField::units() const
+ParseUnits ParseFloatField::parseUnits() const
 {
-    return cast(m_pImpl)->units();
+    return cast(m_pImpl)->parseUnits();
 }
 
-unsigned ParseFloatField::displayDecimals() const
+unsigned ParseFloatField::parseDisplayDecimals() const
 {
-    return cast(m_pImpl)->displayDecimals();
+    return cast(m_pImpl)->parseDisplayDecimals();
 }
 
-bool ParseFloatField::hasNonUniqueSpecials() const
+bool ParseFloatField::parseHasNonUniqueSpecials() const
 {
-    return cast(m_pImpl)->hasNonUniqueSpecials();
+    return cast(m_pImpl)->parseHasNonUniqueSpecials();
 }
 
 } // namespace parse

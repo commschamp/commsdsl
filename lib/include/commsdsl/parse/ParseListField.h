@@ -32,21 +32,21 @@ public:
     explicit ParseListField(const ParseListFieldImpl* impl);
     explicit ParseListField(ParseField field);
 
-    ParseField elementField() const;
-    std::size_t fixedCount() const;
-    bool hasCountPrefixField() const;
-    ParseField countPrefixField() const;
-    const std::string& detachedCountPrefixFieldName() const;
-    bool hasLengthPrefixField() const;
-    ParseField lengthPrefixField() const;
-    const std::string& detachedLengthPrefixFieldName() const;
-    bool hasElemLengthPrefixField() const;
-    ParseField elemLengthPrefixField() const;
-    const std::string& detachedElemLengthPrefixFieldName() const;
-    bool elemFixedLength() const;
-    bool hasTermSuffixField() const;
-    ParseField termSuffixField() const;
-    const std::string& detachedTermSuffixFieldName() const;
+    ParseField parseElementField() const;
+    std::size_t parseFixedCount() const;
+    bool parseHasCountPrefixField() const;
+    ParseField parseCountPrefixField() const;
+    const std::string& parseDetachedCountPrefixFieldName() const;
+    bool parseHasLengthPrefixField() const;
+    ParseField parseLengthPrefixField() const;
+    const std::string& parseDetachedLengthPrefixFieldName() const;
+    bool parseHasElemLengthPrefixField() const;
+    ParseField parseElemLengthPrefixField() const;
+    const std::string& parseDetachedElemLengthPrefixFieldName() const;
+    bool parseElemFixedLength() const;
+    bool parseHasTermSuffixField() const;
+    ParseField parseTermSuffixField() const;
+    const std::string& parseDetachedTermSuffixFieldName() const;
 };
 
 } // namespace parse

@@ -85,7 +85,7 @@ public:
 
     static const ParseXmlWrap::NamesList& expectedChildrenNames();
 
-    ::xmlNodePtr getNode() const
+    ::xmlNodePtr parseGetNode() const
     {
         return m_node;
     }
@@ -98,40 +98,40 @@ public:
 
     bool processChild(::xmlNodePtr node, ParseNamespaceImpl* realNs = nullptr);
 
-    static const ParseXmlWrap::NamesList& supportedChildren();
+    static const ParseXmlWrap::NamesList& parseSupportedChildren();
 
-    const PropsMap& props() const
+    const PropsMap& parseProps() const
     {
         return m_props;
     }
 
-    const std::string& name() const
+    const std::string& parseName() const
     {
         return m_name;
     }
 
-    const std::string& description() const
+    const std::string& parseDescription() const
     {
         return m_description;
     }
 
-    void updateDescription(const std::string& value)
+    void parseUpdateDescription(const std::string& value)
     {
         m_description = value;
     }
 
-    const InterfacesMap& interfaces() const
+    const InterfacesMap& parseInterfaces() const
     {
         return m_interfaces;
     }
 
-    NamespacesList namespacesList() const;
-    FieldsList fieldsList() const;
-    MessagesList messagesList() const;
-    InterfacesList interfacesList() const;
-    FramesList framesList() const;
+    NamespacesList parseNamespacesList() const;
+    FieldsList parseFieldsList() const;
+    MessagesList parseMessagesList() const;
+    InterfacesList parseInterfacesList() const;
+    FramesList parseFramesList() const;
 
-    const MessagesMap& messages() const
+    const MessagesMap& parseMessages() const
     {
         return m_messages;
     }
@@ -146,44 +146,44 @@ public:
         return m_extraAttrs;
     }
 
-    const ContentsList& extraChildren() const
+    const ContentsList& parseExtraChildren() const
     {
         return m_extraChildren;
     }
 
-    ContentsList& extraChildren()
+    ContentsList& parseExtraChildren()
     {
         return m_extraChildren;
     }
 
-    const NamespacesMap& namespacesMap() const
+    const NamespacesMap& parseNamespacesMap() const
     {
         return m_namespaces;
     }
 
-    const ParseFieldImpl* findField(const std::string& fieldName) const;
-    const ParseMessageImpl* findMessage(const std::string& msgName) const;
-    const ParseInterfaceImpl* findInterface(const std::string& intName) const;
-    const ParseFrameImpl* findFrame(const std::string& intName) const;
+    const ParseFieldImpl* parseFindField(const std::string& fieldName) const;
+    const ParseMessageImpl* parseFindMessage(const std::string& msgName) const;
+    const ParseInterfaceImpl* parseFindInterface(const std::string& intName) const;
+    const ParseFrameImpl* parseFindFrame(const std::string& intName) const;
 
-    std::string externalRef(bool schemaRef) const;
+    std::string parseExternalRef(bool schemaRef) const;
 
-    unsigned countMessageIds() const;
+    unsigned parseCountMessageIds() const;
 
-    bool strToNumeric(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const;
-    bool strToFp(const std::string& ref, double& val) const;
-    bool strToBool(const std::string& ref, bool& val) const;
-    bool strToString(const std::string& ref, std::string& val) const;
-    bool strToData(const std::string& ref, std::vector<std::uint8_t>& val) const;
+    bool parseStrToNumeric(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const;
+    bool parseStrToFp(const std::string& ref, double& val) const;
+    bool parseStrToBool(const std::string& ref, bool& val) const;
+    bool parseStrToString(const std::string& ref, std::string& val) const;
+    bool parseStrToData(const std::string& ref, std::vector<std::uint8_t>& val) const;
 
-    ImplInterfacesList allImplInterfaces() const;
+    ImplInterfacesList parseAllImplInterfaces() const;
 
-    FieldRefInfosList processInterfaceFieldRef(const std::string& refStr) const;
+    FieldRefInfosList parseProcessInterfaceFieldRef(const std::string& refStr) const;
 
-    bool validateAllMessages(bool allowNonUniquIds);
+    bool parseValidateAllMessages(bool allowNonUniquIds);
 
 protected:
-    virtual ObjKind objKindImpl() const override;
+    virtual ObjKind parseObjKindImpl() const override;
 
 private:
 
@@ -198,13 +198,13 @@ private:
     bool processMultipleInterfaces(::xmlNodePtr node);
     bool processFrame(::xmlNodePtr node);
     bool processMultipleFrames(::xmlNodePtr node);
-    bool updateExtraAttrs();
-    bool updateExtraChildren();
-    bool strToValue(const std::string& ref, StrToValueNsConvertFunc&& nsFunc, StrToValueFieldConvertFunc&& fFunc) const;
+    bool parseUpdateExtraAttrs();
+    bool parseUpdateExtraChildren();
+    bool parseStrToValue(const std::string& ref, StrToValueNsConvertFunc&& nsFunc, StrToValueFieldConvertFunc&& fFunc) const;
 
-    LogWrapper logError() const;
-    LogWrapper logWarning() const;
-    LogWrapper logInfo() const;
+    LogWrapper parseLogError() const;
+    LogWrapper parseLogWarning() const;
+    LogWrapper parseLogInfo() const;
 
     ::xmlNodePtr m_node = nullptr;
     ParseProtocolImpl& m_protocol;

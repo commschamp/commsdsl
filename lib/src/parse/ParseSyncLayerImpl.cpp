@@ -29,7 +29,7 @@ ParseSyncLayerImpl::ParseSyncLayerImpl(::xmlNodePtr node, ParseProtocolImpl& pro
 {
 }
 
-ParseLayerImpl::Kind ParseSyncLayerImpl::kindImpl() const
+ParseLayerImpl::Kind ParseSyncLayerImpl::parseKindImpl() const
 {
     return Kind::Sync;
 }

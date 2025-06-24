@@ -203,7 +203,7 @@ std::string EmscriptenInterface::emscriptenHeaderClassInternal() const
 
             util::ReplacementMap repl = {
                 {"FIELD_CLASS", gen.emscriptenClassName(f->field())},
-                {"NAME", comms::accessName(f->field().dslObj().name())},
+                {"NAME", comms::accessName(f->field().dslObj().parseName())},
             };
 
             fields.push_back(util::processTemplate(Templ, repl));
@@ -321,7 +321,7 @@ std::string EmscriptenInterface::emscriptenSourceCodeInternal() const
         static const std::string Templ = 
             ".function(\"transportField_#^#NAME#$#\", &#^#CLASS_NAME#$#::transportField_#^#NAME#$#_, emscripten::allow_raw_pointers())";
 
-        repl["NAME"] = comms::accessName(f->field().dslObj().name());
+        repl["NAME"] = comms::accessName(f->field().dslObj().parseName());
         fields.push_back(util::processTemplate(Templ, repl));
     }
 

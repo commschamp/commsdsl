@@ -82,7 +82,7 @@ std::string SwigVariantField::swigExtraPublicFuncsDeclImpl() const
 
         util::ReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(m->field())},
-            {"ACC_NAME", comms::accessName(m->field().dslObj().name())}
+            {"ACC_NAME", comms::accessName(m->field().dslObj().parseName())}
         };
 
         accFuncs.push_back(util::processTemplate(Templ, repl));
@@ -119,7 +119,7 @@ std::string SwigVariantField::swigExtraPublicFuncsCodeImpl() const
 
         util::ReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(m->field())},
-            {"ACC_NAME", comms::accessName(m->field().dslObj().name())}
+            {"ACC_NAME", comms::accessName(m->field().dslObj().parseName())}
         };
 
         accFuncs.push_back(util::processTemplate(Templ, repl));
@@ -132,7 +132,7 @@ std::string SwigVariantField::swigExtraPublicFuncsCodeImpl() const
             "case #^#IDX#$#: handler.handle_#^#ACC_NAME#$#(accessField_#^#ACC_NAME#$#()); break;\n";
 
         util::ReplacementMap repl = {
-            {"ACC_NAME", comms::accessName(m_swigMembers[idx]->field().dslObj().name())},
+            {"ACC_NAME", comms::accessName(m_swigMembers[idx]->field().dslObj().parseName())},
             {"IDX", util::numToString(idx)}
         };
 
@@ -204,7 +204,7 @@ std::string SwigVariantField::swigHandlerDeclInternal() const
             "virtual void handle_#^#ACC_NAME#$#(#^#CLASS_NAME#$#& field);\n";
 
         util::ReplacementMap repl = {
-            {"ACC_NAME", comms::accessName(m->field().dslObj().name())},
+            {"ACC_NAME", comms::accessName(m->field().dslObj().parseName())},
             {"CLASS_NAME", gen.swigClassName(m->field())}
         };
 
@@ -236,7 +236,7 @@ void SwigVariantField::swigAddHandlerCodeInternal(StringsList& list) const
             "virtual void handle_#^#ACC_NAME#$#(#^#CLASS_NAME#$#& field) { static_cast<void>(field); }\n";
 
         util::ReplacementMap repl = {
-            {"ACC_NAME", comms::accessName(m->field().dslObj().name())},
+            {"ACC_NAME", comms::accessName(m->field().dslObj().parseName())},
             {"CLASS_NAME", gen.swigClassName(m->field())}
         };
 

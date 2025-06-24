@@ -35,7 +35,7 @@ public:
     {
         std::intmax_t m_value = 0;
         unsigned m_sinceVersion = 0;
-        unsigned m_deprecatedSince = ParseProtocol::notYetDeprecated();
+        unsigned m_deprecatedSince = ParseProtocol::parseNotYetDeprecated();
         std::string m_description;
         std::string m_displayName;
     };
@@ -47,16 +47,16 @@ public:
     explicit ParseEnumField(const ParseEnumFieldImpl* impl);
     explicit ParseEnumField(ParseField field);
 
-    Type type() const;
-    ParseEndian endian() const;
-    std::intmax_t defaultValue() const;
-    const Values& values() const;
-    const RevValues& revValues() const;
-    bool isNonUniqueAllowed() const;
-    bool isUnique() const;
-    bool validCheckVersion() const;
-    bool hexAssign() const;
-    bool availableLengthLimit() const;
+    Type parseType() const;
+    ParseEndian parseEndian() const;
+    std::intmax_t parseDefaultValue() const;
+    const Values& parseValues() const;
+    const RevValues& parseRevValues() const;
+    bool parseIsNonUniqueAllowed() const;
+    bool parseIsUnique() const;
+    bool parseValidCheckVersion() const;
+    bool parseHexAssign() const;
+    bool parseAvailableLengthLimit() const;
 };
 
 inline

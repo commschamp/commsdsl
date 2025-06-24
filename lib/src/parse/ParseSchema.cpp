@@ -41,84 +41,84 @@ ParseSchema::ParseSchema(const ParseSchemaImpl* impl)
 {
 }
 
-bool ParseSchema::valid() const
+bool ParseSchema::parseValid() const
 {
     return m_pImpl != nullptr;
 }
 
-const std::string& ParseSchema::name() const
+const std::string& ParseSchema::parseName() const
 {
-    if (!valid()) {
+    if (!parseValid()) {
         assert(Unexpected_call_on_invalid_schema_object);
         return common::emptyString();
     }
 
-    return m_pImpl->name();
+    return m_pImpl->parseName();
 }
 
-const std::string& ParseSchema::description() const
+const std::string& ParseSchema::parseDescription() const
 {
-    if (!valid()) {
+    if (!parseValid()) {
         assert(Unexpected_call_on_invalid_schema_object);
         return common::emptyString();
     }
 
-    return m_pImpl->description();
+    return m_pImpl->parseDescription();
 }
 
-unsigned ParseSchema::id() const
+unsigned ParseSchema::parseId() const
 {
-    if (!valid()) {
+    if (!parseValid()) {
         assert(Unexpected_call_on_invalid_schema_object);
         return std::numeric_limits<unsigned>::max();
     }
 
-    return m_pImpl->id();
+    return m_pImpl->parseId();
 }
 
-unsigned ParseSchema::version() const
+unsigned ParseSchema::parseVersion() const
 {
-    if (!valid()) {
+    if (!parseValid()) {
         assert(Unexpected_call_on_invalid_schema_object);
         return std::numeric_limits<unsigned>::max();
     }
 
-    return m_pImpl->version();
+    return m_pImpl->parseVersion();
 }
 
-unsigned ParseSchema::dslVersion() const
+unsigned ParseSchema::parseDslVersion() const
 {
-    if (!valid()) {
+    if (!parseValid()) {
         assert(Unexpected_call_on_invalid_schema_object);
         return std::numeric_limits<unsigned>::max();
     }
 
-    return m_pImpl->dslVersion();
+    return m_pImpl->parseDslVersion();
 }
 
-ParseEndian ParseSchema::endian() const
+ParseEndian ParseSchema::parseEndian() const
 {
-    if (!valid()) {
+    if (!parseValid()) {
         assert(Unexpected_call_on_invalid_schema_object);
         return ParseEndian_NumOfValues;
     }
 
-    return m_pImpl->endian();
+    return m_pImpl->parseEndian();
 }
 
-bool ParseSchema::nonUniqueMsgIdAllowed() const
+bool ParseSchema::parseNonUniqueMsgIdAllowed() const
 {
-    if (!valid()) {
+    if (!parseValid()) {
         assert(Unexpected_call_on_invalid_schema_object);
         return false;
     }
 
-    return m_pImpl->nonUniqueMsgIdAllowed();
+    return m_pImpl->parseNonUniqueMsgIdAllowed();
 }
 
 const ParseSchema::AttributesMap& ParseSchema::parseExtraAttributes() const
 {
-    if (!valid()) {
+    if (!parseValid()) {
         assert(Unexpected_call_on_invalid_schema_object);
         static const AttributesMap Map;
         return Map;
@@ -129,40 +129,40 @@ const ParseSchema::AttributesMap& ParseSchema::parseExtraAttributes() const
 
 const ParseSchema::ElementsList& ParseSchema::parseExtraElements() const
 {
-    if (!valid()) {
+    if (!parseValid()) {
         assert(Unexpected_call_on_invalid_schema_object);
         static const ElementsList List;
         return List;
     }
 
-    return m_pImpl->extraChildrenElements();
+    return m_pImpl->parseExtraChildrenElements();
 
 }
 
-ParseSchema::NamespacesList ParseSchema::namespaces() const
+ParseSchema::NamespacesList ParseSchema::parseNamespaces() const
 {
-    if (!valid()) {
+    if (!parseValid()) {
         assert(Unexpected_call_on_invalid_schema_object);
         static const NamespacesList List;
         return List;
     }
 
-    return m_pImpl->namespacesList();
+    return m_pImpl->parseNamespacesList();
 }
 
-const ParseSchema::PlatformsList& ParseSchema::platforms() const
+const ParseSchema::PlatformsList& ParseSchema::parsePlatforms() const
 {
-    return m_pImpl->platforms();
+    return m_pImpl->parsePlatforms();
 }
 
-ParseSchema::MessagesList ParseSchema::allMessages() const
+ParseSchema::MessagesList ParseSchema::parseAllMessages() const
 {
-    return m_pImpl->allMessages();
+    return m_pImpl->parseAllMessages();
 }
 
-std::string ParseSchema::externalRef() const
+std::string ParseSchema::parseExternalRef() const
 {
-    return m_pImpl->externalRef();
+    return m_pImpl->parseExternalRef();
 }
 
 } // namespace parse

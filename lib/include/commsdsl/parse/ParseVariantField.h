@@ -34,8 +34,8 @@ public:
     explicit ParseVariantField(const ParseVariantFieldImpl* impl);
     explicit ParseVariantField(ParseField field);
 
-    Members members() const;
-    std::size_t defaultMemberIdx() const;
+    Members parseMembers() const;
+    std::size_t parseDefaultMemberIdx() const;
 
 };
 

@@ -23,7 +23,7 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::string&
 CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::vector<std::string>& schemas, bool enableMultipleSchemas)
 {
     ProtocolPtr protocol(new commsdsl::parse::ParseProtocol);
-    protocol->setErrorReportCallback(
+    protocol->parseSetErrorReportCallback(
         [this](commsdsl::parse::ParseErrorLevel level, const std::string& msg)
         {
             static const std::string LevelMap[] = {
@@ -58,7 +58,7 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::vector<
             m_status.m_expErrors.erase(m_status.m_expErrors.begin());
         });
 
-    protocol->setMultipleSchemasEnabled(enableMultipleSchemas);
+    protocol->parseSetMultipleSchemasEnabled(enableMultipleSchemas);
 
     bool parseResult = 
         std::all_of(
@@ -74,10 +74,10 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::vector<
         m_status.m_preValidateFunc(*protocol);
     }
 
-    bool validateResult = protocol->validate();
+    bool validateResult = protocol->parseValidate();
     TS_ASSERT_EQUALS(validateResult, m_status.m_expValidateResult);
 
-    auto protSchemas = protocol->schemas();
+    auto protSchemas = protocol->parseSchemas();
     TS_ASSERT_LESS_THAN_EQUALS(protSchemas.size(), schemas.size());
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
         auto& s = schemas[idx];
@@ -100,7 +100,7 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::vector<
         TS_ASSERT_LESS_THAN(slashPos, dotPos);
         ++slashPos;
         auto expSchemaName = s.substr(slashPos, dotPos - slashPos);
-        TS_ASSERT_EQUALS(protSchema.name(), expSchemaName);     
+        TS_ASSERT_EQUALS(protSchema.parseName(), expSchemaName);     
     }
     return protocol;
 }

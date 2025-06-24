@@ -50,12 +50,12 @@ public:
     ParseLayer(const ParseLayer& other);
     ~ParseLayer();
 
-    bool valid() const;
-    const std::string& name() const;
-    const std::string& description() const;
-    Kind kind() const;
-    bool hasField() const;
-    ParseField field() const;
+    bool parseValid() const;
+    const std::string& parseName() const;
+    const std::string& parseDescription() const;
+    Kind parseKind() const;
+    bool parseHasField() const;
+    ParseField parseField() const;
 
     const AttributesMap& parseExtraAttributes() const;
     const ElementsList& parseExtraElements() const;
@@ -72,9 +72,9 @@ public:
     explicit ParseCustomLayer(const ParseCustomLayerImpl* impl);
     explicit ParseCustomLayer(ParseLayer layer);
 
-    Kind semanticLayerType() const;
-    const std::string& checksumFromLayer() const;
-    const std::string& checksumUntilLayer() const;
+    Kind parseSemanticLayerType() const;
+    const std::string& parseChecksumFromLayer() const;
+    const std::string& parseChecksumUntilLayer() const;
 };
 
 class ParsePayloadLayerImpl;
@@ -132,11 +132,11 @@ public:
     explicit ParseChecksumLayer(const ParseChecksumLayerImpl* impl);
     explicit ParseChecksumLayer(ParseLayer layer);
 
-    Alg alg() const;
-    const std::string& customAlgName() const;
-    const std::string& fromLayer() const;
-    const std::string& untilLayer() const;
-    bool verifyBeforeRead() const;
+    Alg parseAlg() const;
+    const std::string& parseCustomAlgName() const;
+    const std::string& parseFromLayer() const;
+    const std::string& parseUntilLayer() const;
+    bool parseVerifyBeforeRead() const;
 };
 
 class ParseValueLayerImpl;
@@ -149,10 +149,10 @@ public:
     explicit ParseValueLayer(const ParseValueLayerImpl* impl);
     explicit ParseValueLayer(ParseLayer layer);
 
-    Interfaces interfaces() const;
-    const std::string& fieldName() const;
-    std::size_t fieldIdx() const;
-    bool pseudo() const;
+    Interfaces parseInterfaces() const;
+    const std::string& parseFieldName() const;
+    std::size_t parseFieldIdx() const;
+    bool parsePseudo() const;
 };
 
 

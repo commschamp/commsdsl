@@ -61,7 +61,7 @@ std::string CommsPayloadLayer::commsDefBaseTypeImpl([[maybe_unused]] const std::
     
     util::ReplacementMap repl {
         {"SUFFIX", strings::membersSuffixStr()},
-        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"CLASS_NAME", comms::className(dslObj().parseName())},
     };
 
     return util::processTemplate(Templ, repl);    
@@ -92,11 +92,11 @@ std::string CommsPayloadLayer::commsCustomDefMembersCodeImpl() const
 
     auto& gen = CommsGenerator::cast(generator());
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"CLASS_NAME", comms::className(dslObj().parseName())},
         {"SUFFIX", strings::membersSuffixStr()},
         {"PROT_NAMESPACE", generator().schemaOf(*this).mainNamespace()},
         {"OPTS", "typename TOpt::" + comms::scopeFor(*this, gen, gen.commsHasMainNamespaceInOptions(), true) + strings::membersSuffixStr() + "::Field"},
-        {"NAME", dslObj().name()},
+        {"NAME", dslObj().parseName()},
         {"SCOPE", comms::scopeFor(*this, gen)}
     };     
 
@@ -114,7 +114,7 @@ std::string CommsPayloadLayer::commsCustomFieldOptsImpl() const
         "}; // struct #^#CLASS_NAME#$##^#SUFFIX#$#\n";
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"CLASS_NAME", comms::className(dslObj().parseName())},
         {"SUFFIX", strings::membersSuffixStr()},
         {"SCOPE", comms::scopeFor(*this, generator())}
     };     
@@ -137,7 +137,7 @@ std::string CommsPayloadLayer::commsCustomFieldDataViewOptsImpl() const
         "}; // struct #^#CLASS_NAME#$##^#SUFFIX#$#\n";
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"CLASS_NAME", comms::className(dslObj().parseName())},
         {"SUFFIX", strings::membersSuffixStr()},
         {"SCOPE", comms::scopeFor(*this, generator())},
         {"OPT_SCOPE", comms::scopeFor(*this, generator(), false, true)}
@@ -161,7 +161,7 @@ std::string CommsPayloadLayer::commsCustomFieldBareMetalOptsImpl() const
         "}; // struct #^#CLASS_NAME#$##^#SUFFIX#$#\n";
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"CLASS_NAME", comms::className(dslObj().parseName())},
         {"SUFFIX", strings::membersSuffixStr()},
         {"SCOPE", comms::scopeFor(*this, generator())},
         {"OPT_SCOPE", comms::scopeFor(*this, generator(), false, true)}

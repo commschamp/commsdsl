@@ -51,11 +51,11 @@ public:
 
     bool createAll()
     {
-        if (!m_dslObj.valid()) {
+        if (!m_dslObj.parseValid()) {
             return true;
         }
 
-        auto fields = m_dslObj.fields();
+        auto fields = m_dslObj.parseFields();
         m_fields.reserve(fields.size());
         for (auto& dslObj : fields) {
             auto ptr = GenField::create(m_generator, dslObj, m_parent);
@@ -72,7 +72,7 @@ public:
             return true;
         }
 
-        if (!m_dslObj.valid()) {
+        if (!m_dslObj.parseValid()) {
             return true;
         }
 

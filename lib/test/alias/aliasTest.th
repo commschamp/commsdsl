@@ -46,31 +46,31 @@ void AliasTestSuite::test1()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 1U);
 
     auto& msg1 = messages[0];
-    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
+    TS_ASSERT_EQUALS(msg1.parseName(), "Msg1");
 
-    auto aliases = msg1.aliases();
+    auto aliases = msg1.parseAliases();
     TS_ASSERT_EQUALS(aliases.size(), 2U);
 
     auto& a0 = aliases[0];
     auto& a1 = aliases[1];
 
-    TS_ASSERT_EQUALS(a0.name(), "A1");
-    TS_ASSERT_EQUALS(a0.description(), "A1");
-    TS_ASSERT_EQUALS(a0.fieldName(), "F1");
+    TS_ASSERT_EQUALS(a0.parseName(), "A1");
+    TS_ASSERT_EQUALS(a0.parseDescription(), "A1");
+    TS_ASSERT_EQUALS(a0.parseFieldName(), "F1");
 
-    TS_ASSERT_EQUALS(a1.name(), "A2");
-    TS_ASSERT_EQUALS(a1.description(), "A2");
-    TS_ASSERT_EQUALS(a1.fieldName(), "F2");
+    TS_ASSERT_EQUALS(a1.parseName(), "A2");
+    TS_ASSERT_EQUALS(a1.parseDescription(), "A2");
+    TS_ASSERT_EQUALS(a1.parseFieldName(), "F2");
 }
 
 void AliasTestSuite::test2()
@@ -118,29 +118,29 @@ void AliasTestSuite::test7()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 2U);
 
     auto& msg2 = messages.back();
-    TS_ASSERT_EQUALS(msg2.name(), "Msg2");
+    TS_ASSERT_EQUALS(msg2.parseName(), "Msg2");
 
-    auto aliases = msg2.aliases();
+    auto aliases = msg2.parseAliases();
     TS_ASSERT_EQUALS(aliases.size(), 2U);
 
     auto& a0 = aliases[0];
     auto& a1 = aliases[1];
 
-    TS_ASSERT_EQUALS(a0.name(), "A1");
-    TS_ASSERT_EQUALS(a0.fieldName(), "F1");
+    TS_ASSERT_EQUALS(a0.parseName(), "A1");
+    TS_ASSERT_EQUALS(a0.parseFieldName(), "F1");
 
-    TS_ASSERT_EQUALS(a1.name(), "A2");
-    TS_ASSERT_EQUALS(a1.fieldName(), "F2");
+    TS_ASSERT_EQUALS(a1.parseName(), "A2");
+    TS_ASSERT_EQUALS(a1.parseFieldName(), "F2");
 }
 
 void AliasTestSuite::test8()
@@ -148,45 +148,45 @@ void AliasTestSuite::test8()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 3U);
 
     do {
         auto& msg2 = messages[1];
-        TS_ASSERT_EQUALS(msg2.name(), "Msg2");
+        TS_ASSERT_EQUALS(msg2.parseName(), "Msg2");
 
-        auto aliases = msg2.aliases();
+        auto aliases = msg2.parseAliases();
         TS_ASSERT_EQUALS(aliases.size(), 1U);
 
         auto& a0 = aliases[0];
 
-        TS_ASSERT_EQUALS(a0.name(), "A2");
-        TS_ASSERT_EQUALS(a0.fieldName(), "F2");
+        TS_ASSERT_EQUALS(a0.parseName(), "A2");
+        TS_ASSERT_EQUALS(a0.parseFieldName(), "F2");
     } while (false);
 
     do {
         auto& msg3 = messages[2];
-        TS_ASSERT_EQUALS(msg3.name(), "Msg3");
+        TS_ASSERT_EQUALS(msg3.parseName(), "Msg3");
 
-        auto fields = msg3.fields();
+        auto fields = msg3.parseFields();
         TS_ASSERT_EQUALS(fields.size(), 2U);
 
-        auto aliases = msg3.aliases();
+        auto aliases = msg3.parseAliases();
         TS_ASSERT_EQUALS(aliases.size(), 2U);
 
         auto& a0 = aliases[0];
         auto& a1 = aliases[1];
 
-        TS_ASSERT_EQUALS(a0.name(), "A1");
-        TS_ASSERT_EQUALS(a0.fieldName(), "F1");
-        TS_ASSERT_EQUALS(a1.name(), "A2");
-        TS_ASSERT_EQUALS(a1.fieldName(), "F2");
+        TS_ASSERT_EQUALS(a0.parseName(), "A1");
+        TS_ASSERT_EQUALS(a0.parseFieldName(), "F1");
+        TS_ASSERT_EQUALS(a1.parseName(), "A2");
+        TS_ASSERT_EQUALS(a1.parseFieldName(), "F2");
     } while (false);    
 }
 
@@ -195,26 +195,26 @@ void AliasTestSuite::test9()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 2U);
 
     auto& msg2 = messages.back();
-    TS_ASSERT_EQUALS(msg2.id(), 5);
-    TS_ASSERT_EQUALS(msg2.name(), "Msg2");
+    TS_ASSERT_EQUALS(msg2.parseId(), 5);
+    TS_ASSERT_EQUALS(msg2.parseName(), "Msg2");
 
-    auto aliases = msg2.aliases();
+    auto aliases = msg2.parseAliases();
     TS_ASSERT_EQUALS(aliases.size(), 1U);
 
     auto& a0 = aliases[0];
 
-    TS_ASSERT_EQUALS(a0.name(), "A2");
-    TS_ASSERT_EQUALS(a0.fieldName(), "F2");
+    TS_ASSERT_EQUALS(a0.parseName(), "A2");
+    TS_ASSERT_EQUALS(a0.parseFieldName(), "F2");
 }
 
 void AliasTestSuite::test10()
@@ -222,34 +222,34 @@ void AliasTestSuite::test10()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& f1 = fields[0];
-    TS_ASSERT_EQUALS(f1.kind(), commsdsl::parse::ParseField::Kind::Bundle);
+    TS_ASSERT_EQUALS(f1.parseKind(), commsdsl::parse::ParseField::Kind::Bundle);
 
     commsdsl::parse::ParseBundleField bundle1(f1);
-    auto aliases = bundle1.aliases();
+    auto aliases = bundle1.parseAliases();
     TS_ASSERT_EQUALS(aliases.size(), 3U);
 
     auto& a0 = aliases[0];
     auto& a1 = aliases[1];
     auto& a2 = aliases[2];
 
-    TS_ASSERT_EQUALS(a0.name(), "A1");
-    TS_ASSERT_EQUALS(a0.fieldName(), "F1");
+    TS_ASSERT_EQUALS(a0.parseName(), "A1");
+    TS_ASSERT_EQUALS(a0.parseFieldName(), "F1");
 
-    TS_ASSERT_EQUALS(a1.name(), "A2");
-    TS_ASSERT_EQUALS(a1.fieldName(), "F2.M1");
+    TS_ASSERT_EQUALS(a1.parseName(), "A2");
+    TS_ASSERT_EQUALS(a1.parseFieldName(), "F2.M1");
 
-    TS_ASSERT_EQUALS(a2.name(), "A3");
-    TS_ASSERT_EQUALS(a2.fieldName(), "F2.M2");
+    TS_ASSERT_EQUALS(a2.parseName(), "A3");
+    TS_ASSERT_EQUALS(a2.parseFieldName(), "F2.M2");
 }
 
 void AliasTestSuite::test11()
@@ -273,31 +273,31 @@ void AliasTestSuite::test13()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto interfaces = ns.interfaces();
+    auto interfaces = ns.parseInterfaces();
     TS_ASSERT_EQUALS(interfaces.size(), 1U);
 
     auto& i1 = interfaces[0];
-    TS_ASSERT_EQUALS(i1.name(), "I1");
+    TS_ASSERT_EQUALS(i1.parseName(), "I1");
 
-    auto aliases = i1.aliases();
+    auto aliases = i1.parseAliases();
     TS_ASSERT_EQUALS(aliases.size(), 2U);
 
     auto& a0 = aliases[0];
     auto& a1 = aliases[1];
 
-    TS_ASSERT_EQUALS(a0.name(), "A1");
-    TS_ASSERT_EQUALS(a0.description(), "A1");
-    TS_ASSERT_EQUALS(a0.fieldName(), "F1");
+    TS_ASSERT_EQUALS(a0.parseName(), "A1");
+    TS_ASSERT_EQUALS(a0.parseDescription(), "A1");
+    TS_ASSERT_EQUALS(a0.parseFieldName(), "F1");
 
-    TS_ASSERT_EQUALS(a1.name(), "A2");
-    TS_ASSERT_EQUALS(a1.description(), "A2");
-    TS_ASSERT_EQUALS(a1.fieldName(), "F2");
+    TS_ASSERT_EQUALS(a1.parseName(), "A2");
+    TS_ASSERT_EQUALS(a1.parseDescription(), "A2");
+    TS_ASSERT_EQUALS(a1.parseFieldName(), "F2");
 }
 
 void AliasTestSuite::test14()
@@ -321,29 +321,29 @@ void AliasTestSuite::test16()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto interfaces = ns.interfaces();
+    auto interfaces = ns.parseInterfaces();
     TS_ASSERT_EQUALS(interfaces.size(), 2U);
 
     auto& i2 = interfaces.back();
-    TS_ASSERT_EQUALS(i2.name(), "I2");
+    TS_ASSERT_EQUALS(i2.parseName(), "I2");
 
-    auto aliases = i2.aliases();
+    auto aliases = i2.parseAliases();
     TS_ASSERT_EQUALS(aliases.size(), 2U);
 
     auto& a0 = aliases[0];
     auto& a1 = aliases[1];
 
-    TS_ASSERT_EQUALS(a0.name(), "A1");
-    TS_ASSERT_EQUALS(a0.fieldName(), "F1");
+    TS_ASSERT_EQUALS(a0.parseName(), "A1");
+    TS_ASSERT_EQUALS(a0.parseFieldName(), "F1");
 
-    TS_ASSERT_EQUALS(a1.name(), "A2");
-    TS_ASSERT_EQUALS(a1.fieldName(), "F2");
+    TS_ASSERT_EQUALS(a1.parseName(), "A2");
+    TS_ASSERT_EQUALS(a1.parseFieldName(), "F2");
 }
 
 void AliasTestSuite::test17()
@@ -351,25 +351,25 @@ void AliasTestSuite::test17()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto interfaces = ns.interfaces();
+    auto interfaces = ns.parseInterfaces();
     TS_ASSERT_EQUALS(interfaces.size(), 2U);
 
     auto& i2 = interfaces.back();
-    TS_ASSERT_EQUALS(i2.name(), "I2");
+    TS_ASSERT_EQUALS(i2.parseName(), "I2");
 
-    auto aliases = i2.aliases();
+    auto aliases = i2.parseAliases();
     TS_ASSERT_EQUALS(aliases.size(), 1U);
 
     auto& a0 = aliases[0];
 
-    TS_ASSERT_EQUALS(a0.name(), "A2");
-    TS_ASSERT_EQUALS(a0.fieldName(), "F2");
+    TS_ASSERT_EQUALS(a0.parseName(), "A2");
+    TS_ASSERT_EQUALS(a0.parseFieldName(), "F2");
 }
 
 void AliasTestSuite::test18()
@@ -377,19 +377,19 @@ void AliasTestSuite::test18()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto interfaces = ns.interfaces();
+    auto interfaces = ns.parseInterfaces();
     TS_ASSERT_EQUALS(interfaces.size(), 2U);
 
     auto& i2 = interfaces.back();
-    TS_ASSERT_EQUALS(i2.name(), "I2");
+    TS_ASSERT_EQUALS(i2.parseName(), "I2");
 
-    auto aliases = i2.aliases();
+    auto aliases = i2.parseAliases();
     TS_ASSERT(aliases.empty());
 }
 
@@ -398,18 +398,18 @@ void AliasTestSuite::test19()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto messages = ns.messages();
+    auto messages = ns.parseMessages();
     TS_ASSERT_EQUALS(messages.size(), 2U);
 
     auto& msg2 = messages.back();
-    TS_ASSERT_EQUALS(msg2.name(), "Msg2");
+    TS_ASSERT_EQUALS(msg2.parseName(), "Msg2");
 
-    auto aliases = msg2.aliases();
+    auto aliases = msg2.parseAliases();
     TS_ASSERT(aliases.empty());
 }

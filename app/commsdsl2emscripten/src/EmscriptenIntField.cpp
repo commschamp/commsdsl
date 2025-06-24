@@ -124,7 +124,7 @@ std::string EmscriptenIntField::emscriptenHeaderSpecialsInternal() const
 std::string EmscriptenIntField::emscriptenHeaderDisplayDecimalsInternal() const
 {
     auto obj = intDslObj();
-    auto scaling = obj.scaling();
+    auto scaling = obj.parseScaling();
     std::string result;
     if (scaling.first != scaling.second) {
         result = 
@@ -140,7 +140,7 @@ std::string EmscriptenIntField::emscriptenHeaderDisplayDecimalsInternal() const
 std::string EmscriptenIntField::emscriptenHeaderScaledInternal() const
 {
     auto obj = intDslObj();
-    auto scaling = obj.scaling();
+    auto scaling = obj.parseScaling();
     auto num = scaling.first;
     auto denom = scaling.second;
 
@@ -202,7 +202,7 @@ std::string EmscriptenIntField::emscriptenSourceSpecialsBindInternal() const
 std::string EmscriptenIntField::emscriptenSourceDisplayDecimalsBindInternal() const
 {
     auto obj = intDslObj();
-    auto scaling = obj.scaling();
+    auto scaling = obj.parseScaling();
     std::string result;
     if (scaling.first != scaling.second) {
         static const std::string Templ = 
@@ -221,7 +221,7 @@ std::string EmscriptenIntField::emscriptenSourceDisplayDecimalsBindInternal() co
 std::string EmscriptenIntField::emscriptenSourceScaledBindInternal() const
 {
     auto obj = intDslObj();
-    auto scaling = obj.scaling();
+    auto scaling = obj.parseScaling();
     auto num = scaling.first;
     auto denom = scaling.second;
 

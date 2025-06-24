@@ -33,22 +33,22 @@ ParseAlias::ParseAlias(const ParseAlias &) = default;
 
 ParseAlias::~ParseAlias() = default;
 
-const std::string& ParseAlias::name() const
+const std::string& ParseAlias::parseName() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->name();
+    return m_pImpl->parseName();
 }
 
-const std::string& ParseAlias::description() const
+const std::string& ParseAlias::parseDescription() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->description();
+    return m_pImpl->parseDescription();
 }
 
-const std::string& ParseAlias::fieldName() const
+const std::string& ParseAlias::parseFieldName() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->fieldName();
+    return m_pImpl->parseFieldName();
 }
 
 const ParseAlias::AttributesMap& ParseAlias::parseExtraAttributes() const
@@ -60,7 +60,7 @@ const ParseAlias::AttributesMap& ParseAlias::parseExtraAttributes() const
 const ParseAlias::ElementsList& ParseAlias::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->extraChildren();
+    return m_pImpl->parseExtraChildren();
 }
 
 } // namespace parse

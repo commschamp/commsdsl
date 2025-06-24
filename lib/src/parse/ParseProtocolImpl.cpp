@@ -31,8 +31,8 @@ namespace commsdsl
 namespace parse
 {
 
-ParseProtocolImpl::ParseProtocolImpl()
-  : m_logger(
+ParseProtocolImpl::ParseProtocolImpl() :
+    m_logger(
         [this](ParseErrorLevel level, const std::string& msg)
         {
             if (m_errorReportCb) {
@@ -54,14 +54,14 @@ ParseProtocolImpl::ParseProtocolImpl()
         }
     )
 {
-    xmlSetStructuredErrorFunc(this, static_cast<xmlStructuredErrorFunc>(&ParseProtocolImpl::cbXmlErrorFunc));
-    m_logger.setMinLevel(m_minLevel);
+    xmlSetStructuredErrorFunc(this, static_cast<xmlStructuredErrorFunc>(&ParseProtocolImpl::parseCbXmlErrorFunc));
+    m_logger.parseSetMinLevel(m_minLevel);
 }
 
 bool ParseProtocolImpl::parse(const std::string& input)
 {
     if (m_validated) {
-        logError() << "Parsing extra files after validation is not allowed";
+        parseLogError() << "Parsing extra files after validation is not allowed";
         return false;
     }
 
@@ -75,24 +75,24 @@ bool ParseProtocolImpl::parse(const std::string& input)
     return true;
 }
 
-bool ParseProtocolImpl::validate()
+bool ParseProtocolImpl::parseValidate()
 {
     if (m_validated) {
         return true;
     }
 
     if (m_docs.empty()) {
-        logError() << "Cannot validate without any schema files";
+        parseLogError() << "Cannot validate without any schema files";
         return false;
     }
 
     for (auto& d : m_docs) {
-        if (!validateDoc(d.get())) {
+        if (!parseValidateDoc(d.get())) {
             return false;
         }
     }
 
-    if (!validateAllMessages()) {
+    if (!parseValidateAllMessages()) {
         return false;
     }
 
@@ -100,7 +100,7 @@ bool ParseProtocolImpl::validate()
     return true;
 }
 
-ParseProtocolImpl::SchemasAccessList ParseProtocolImpl::schemas() const
+ParseProtocolImpl::SchemasAccessList ParseProtocolImpl::parseSchemas() const
 {
     SchemasAccessList list;
     for (auto& s : m_schemas) {
@@ -110,19 +110,19 @@ ParseProtocolImpl::SchemasAccessList ParseProtocolImpl::schemas() const
     return list;
 }
 
-ParseSchemaImpl& ParseProtocolImpl::currSchema()
+ParseSchemaImpl& ParseProtocolImpl::parseCurrSchema()
 {
     assert(m_currSchema != nullptr);
     return *m_currSchema;
 }
 
-const ParseSchemaImpl& ParseProtocolImpl::currSchema() const
+const ParseSchemaImpl& ParseProtocolImpl::parseCurrSchema() const
 {
     assert(m_currSchema != nullptr);
     return *m_currSchema;
 }
 
-const ParseFieldImpl* ParseProtocolImpl::findField(const std::string& ref, bool checkRef) const
+const ParseFieldImpl* ParseProtocolImpl::parseFindField(const std::string& ref, bool checkRef) const
 {
     assert(!ref.empty());
     auto parsedRef = parseExternalRef(ref);
@@ -130,10 +130,10 @@ const ParseFieldImpl* ParseProtocolImpl::findField(const std::string& ref, bool 
         return nullptr;
     }
 
-    return parsedRef.first->findField(parsedRef.second, checkRef);
+    return parsedRef.first->parseFindField(parsedRef.second, checkRef);
 }
 
-const ParseMessageImpl* ParseProtocolImpl::findMessage(const std::string& ref, bool checkRef) const
+const ParseMessageImpl* ParseProtocolImpl::parseFindMessage(const std::string& ref, bool checkRef) const
 {
     assert(!ref.empty());
     auto parsedRef = parseExternalRef(ref);
@@ -141,10 +141,10 @@ const ParseMessageImpl* ParseProtocolImpl::findMessage(const std::string& ref, b
         return nullptr;
     }
 
-    return parsedRef.first->findMessage(parsedRef.second, checkRef);
+    return parsedRef.first->parseFindMessage(parsedRef.second, checkRef);
 }
 
-const ParseInterfaceImpl* ParseProtocolImpl::findInterface(const std::string& ref, bool checkRef) const
+const ParseInterfaceImpl* ParseProtocolImpl::parseFindInterface(const std::string& ref, bool checkRef) const
 {
     assert(!ref.empty());
     auto parsedRef = parseExternalRef(ref);
@@ -152,10 +152,10 @@ const ParseInterfaceImpl* ParseProtocolImpl::findInterface(const std::string& re
         return nullptr;
     }
 
-    return parsedRef.first->findInterface(parsedRef.second, checkRef);
+    return parsedRef.first->parseFindInterface(parsedRef.second, checkRef);
 }
 
-bool ParseProtocolImpl::strToEnumValue(
+bool ParseProtocolImpl::parseStrToEnumValue(
     const std::string& ref,
     std::intmax_t& val,
     bool checkRef) const
@@ -180,13 +180,13 @@ bool ParseProtocolImpl::strToEnumValue(
     auto signedNameSepPos = static_cast<std::ptrdiff_t>(nameSepPos);
     std::string elemName(ref.begin() + signedNameSepPos + 1, ref.end());
     std::string fieldRefPath(ref.begin(), ref.begin() + signedNameSepPos);
-    auto* field = findField(fieldRefPath, false);
-    if ((field == nullptr) || (field->kind() != ParseField::Kind::Enum)) {
+    auto* field = parseFindField(fieldRefPath, false);
+    if ((field == nullptr) || (field->parseKind() != ParseField::Kind::Enum)) {
         return false;
     }
 
     auto* enumField = static_cast<const ParseEnumFieldImpl*>(field);
-    auto& enumValues = enumField->values();
+    auto& enumValues = enumField->parseValues();
     auto enumValueIter = enumValues.find(elemName);
     if (enumValueIter == enumValues.end()) {
         return false;
@@ -196,80 +196,80 @@ bool ParseProtocolImpl::strToEnumValue(
     return true;
 }
 
-bool ParseProtocolImpl::strToNumeric(
+bool ParseProtocolImpl::parseStrToNumeric(
     const std::string& ref,
     bool checkRef,
     std::intmax_t& val,
     bool& isBigUnsigned) const
 {
     return
-        strToValue(
+        parseStrToValue(
             ref, checkRef,
             [&val, &isBigUnsigned](const ParseNamespaceImpl& ns, const std::string& str) -> bool
             {
-               return ns.strToNumeric(str, val, isBigUnsigned);
+               return ns.parseStrToNumeric(str, val, isBigUnsigned);
             });
 }
 
-bool ParseProtocolImpl::strToFp(
+bool ParseProtocolImpl::parseStrToFp(
     const std::string& ref,
     bool checkRef,
     double& val) const
 {
     return
-        strToValue(
+        parseStrToValue(
             ref, checkRef,
             [&val](const ParseNamespaceImpl& ns, const std::string& str) -> bool
             {
-               return ns.strToFp(str, val);
+               return ns.parseStrToFp(str, val);
             });
 }
 
-bool ParseProtocolImpl::strToBool(
+bool ParseProtocolImpl::parseStrToBool(
     const std::string& ref,
     bool checkRef,
     bool& val) const
 {
     return
-        strToValue(
+        parseStrToValue(
             ref, checkRef,
             [&val](const ParseNamespaceImpl& ns, const std::string& str) -> bool
             {
-               return ns.strToBool(str, val);
+               return ns.parseStrToBool(str, val);
             });
 }
 
-bool ParseProtocolImpl::strToString(
+bool ParseProtocolImpl::parseStrToString(
     const std::string& ref,
     bool checkRef,
     std::string& val) const
 {
     return
-        strToValue(
+        parseStrToValue(
             ref, checkRef,
             [&val](const ParseNamespaceImpl& ns, const std::string& str) -> bool
             {
-               return ns.strToString(str, val);
+               return ns.parseStrToString(str, val);
             });
 }
 
-bool ParseProtocolImpl::strToData(
+bool ParseProtocolImpl::parseStrToData(
     const std::string& ref,
     bool checkRef,
     std::vector<std::uint8_t>& val) const
 {
     return
-        strToValue(
+        parseStrToValue(
             ref, checkRef,
             [&val](const ParseNamespaceImpl& ns, const std::string& str) -> bool
             {
-               return ns.strToData(str, val);
+               return ns.parseStrToData(str, val);
             });
 }
 
-bool ParseProtocolImpl::isFeatureSupported(unsigned minDslVersion) const
+bool ParseProtocolImpl::parseIsFeatureSupported(unsigned minDslVersion) const
 {
-    auto currDslVersion = currSchema().dslVersion();
+    auto currDslVersion = parseCurrSchema().parseDslVersion();
     if (currDslVersion == 0U) {
         return true;
     }
@@ -277,9 +277,9 @@ bool ParseProtocolImpl::isFeatureSupported(unsigned minDslVersion) const
     return minDslVersion <= currDslVersion;
 }
 
-bool ParseProtocolImpl::isFeatureDeprecated(unsigned deprecatedVersion) const
+bool ParseProtocolImpl::parseIsFeatureDeprecated(unsigned deprecatedVersion) const
 {
-    auto currDslVersion = currSchema().dslVersion();
+    auto currDslVersion = parseCurrSchema().parseDslVersion();
     if (currDslVersion == 0U) {
         return false;
     }
@@ -287,7 +287,7 @@ bool ParseProtocolImpl::isFeatureDeprecated(unsigned deprecatedVersion) const
     return deprecatedVersion <= currDslVersion;
 }
 
-bool ParseProtocolImpl::isPropertySupported(const std::string& name) const
+bool ParseProtocolImpl::parseIsPropertySupported(const std::string& name) const
 {
     static const std::map<std::string, unsigned> Map = {
         {common::validateMinLengthStr(), 4U},
@@ -317,10 +317,10 @@ bool ParseProtocolImpl::isPropertySupported(const std::string& name) const
         return true;
     }
 
-    return isFeatureSupported(iter->second);
+    return parseIsFeatureSupported(iter->second);
 }
 
-bool ParseProtocolImpl::isPropertyDeprecated(const std::string& name) const
+bool ParseProtocolImpl::parseIsPropertyDeprecated(const std::string& name) const
 {
     static const std::map<std::string, unsigned> Map = {
         {common::displayReadOnlyStr(), 7U},
@@ -335,115 +335,115 @@ bool ParseProtocolImpl::isPropertyDeprecated(const std::string& name) const
         return true;
     }
 
-    return isFeatureDeprecated(iter->second);
+    return parseIsFeatureDeprecated(iter->second);
 }
 
-bool ParseProtocolImpl::isFieldValueReferenceSupported() const
+bool ParseProtocolImpl::parseIsFieldValueReferenceSupported() const
 {
-    return isFeatureSupported(2U);
+    return parseIsFeatureSupported(2U);
 }
 
-bool ParseProtocolImpl::isSemanticTypeLengthSupported() const
+bool ParseProtocolImpl::parseIsSemanticTypeLengthSupported() const
 {
-    return isFeatureSupported(2U);
+    return parseIsFeatureSupported(2U);
 }
 
-bool ParseProtocolImpl::isSemanticTypeRefInheritanceSupported() const
+bool ParseProtocolImpl::parseIsSemanticTypeRefInheritanceSupported() const
 {
-    return isFeatureSupported(2U);
+    return parseIsFeatureSupported(2U);
 }
 
-bool ParseProtocolImpl::isNonUniqueSpecialsAllowedSupported() const
+bool ParseProtocolImpl::parseIsNonUniqueSpecialsAllowedSupported() const
 {
-    return isFeatureSupported(2U);
+    return parseIsFeatureSupported(2U);
 }
 
-bool ParseProtocolImpl::isFieldAliasSupported() const
+bool ParseProtocolImpl::parseIsFieldAliasSupported() const
 {
-    return isFeatureSupported(3U);
+    return parseIsFeatureSupported(3U);
 }
 
-bool ParseProtocolImpl::isCopyFieldsFromBundleSupported() const
+bool ParseProtocolImpl::parseIsCopyFieldsFromBundleSupported() const
 {
-    return isFeatureSupported(4U);
+    return parseIsFeatureSupported(4U);
 }
 
-bool ParseProtocolImpl::isOverrideTypeSupported() const
+bool ParseProtocolImpl::parseIsOverrideTypeSupported() const
 {
-    return isFeatureSupported(4U);
+    return parseIsFeatureSupported(4U);
 }
 
-bool ParseProtocolImpl::isNonIntSemanticTypeLengthSupported() const
+bool ParseProtocolImpl::parseIsNonIntSemanticTypeLengthSupported() const
 {
-    return isFeatureSupported(5U);
+    return parseIsFeatureSupported(5U);
 }
 
-bool ParseProtocolImpl::isMemberReplaceSupported() const
+bool ParseProtocolImpl::parseIsMemberReplaceSupported() const
 {
-    return isFeatureSupported(5U);
+    return parseIsFeatureSupported(5U);
 }
 
-bool ParseProtocolImpl::isMultiSchemaSupported() const
+bool ParseProtocolImpl::parseIsMultiSchemaSupported() const
 {
-    return isFeatureSupported(5U);
+    return parseIsFeatureSupported(5U);
 }
 
-bool ParseProtocolImpl::isInterfaceFieldReferenceSupported() const
+bool ParseProtocolImpl::parseIsInterfaceFieldReferenceSupported() const
 {
-    return isFeatureSupported(6U);
+    return parseIsFeatureSupported(6U);
 }
 
-bool ParseProtocolImpl::isFailOnInvalidInMessageSupported() const
+bool ParseProtocolImpl::parseIsFailOnInvalidInMessageSupported() const
 {
-    return isFeatureSupported(6U);
+    return parseIsFeatureSupported(6U);
 }
 
-bool ParseProtocolImpl::isSizeCompInConditionalsSupported() const
+bool ParseProtocolImpl::parseIsSizeCompInConditionalsSupported() const
 {
-    return isFeatureSupported(6U);
+    return parseIsFeatureSupported(6U);
 }
 
-bool ParseProtocolImpl::isExistsCheckInConditionalsSupported() const
+bool ParseProtocolImpl::parseIsExistsCheckInConditionalsSupported() const
 {
-    return isFeatureSupported(6U);
+    return parseIsFeatureSupported(6U);
 }
 
-bool ParseProtocolImpl::isValidValueInStringAndDataSupported() const 
+bool ParseProtocolImpl::parseIsValidValueInStringAndDataSupported() const 
 {
-    return isFeatureSupported(7U);
+    return parseIsFeatureSupported(7U);
 }
 
-bool ParseProtocolImpl::isValidateMinLengthForFieldsSupported() const
+bool ParseProtocolImpl::parseIsValidateMinLengthForFieldsSupported() const
 {
-    return isFeatureSupported(7U);
+    return parseIsFeatureSupported(7U);
 }
 
-bool ParseProtocolImpl::isMessageReuseSupported() const
+bool ParseProtocolImpl::parseIsMessageReuseSupported() const
 {
-    return isFeatureSupported(7U);
+    return parseIsFeatureSupported(7U);
 }
 
-bool ParseProtocolImpl::isInterfaceReuseSupported() const
+bool ParseProtocolImpl::parseIsInterfaceReuseSupported() const
 {
-    return isMessageReuseSupported();
+    return parseIsMessageReuseSupported();
 }
 
-bool ParseProtocolImpl::isValidCondSupportedInCompositeFields() const
+bool ParseProtocolImpl::parseIsValidCondSupportedInCompositeFields() const
 {
-    return isFeatureSupported(7U);
+    return parseIsFeatureSupported(7U);
 }
 
-void ParseProtocolImpl::cbXmlErrorFunc(void* userData, const xmlError* err)
+void ParseProtocolImpl::parseCbXmlErrorFunc(void* userData, const xmlError* err)
 {
-    reinterpret_cast<ParseProtocolImpl*>(userData)->handleXmlError(err);
+    reinterpret_cast<ParseProtocolImpl*>(userData)->parseHandleXmlError(err);
 }
 
-void ParseProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
+void ParseProtocolImpl::parseCbXmlErrorFunc(void* userData, xmlErrorPtr err)
 {
-    reinterpret_cast<ParseProtocolImpl*>(userData)->handleXmlError(err);
+    reinterpret_cast<ParseProtocolImpl*>(userData)->parseHandleXmlError(err);
 }
 
-void ParseProtocolImpl::handleXmlError(const xmlError* err)
+void ParseProtocolImpl::parseHandleXmlError(const xmlError* err)
 {
     static const ParseErrorLevel Map[] = {
         /* XML_ERR_NONE */ ParseErrorLevel_Debug,
@@ -460,7 +460,7 @@ void ParseProtocolImpl::handleXmlError(const xmlError* err)
         level = Map[err->level];
     }
 
-    m_logger.setCurrLevel(level);
+    m_logger.parseSetCurrLevel(level);
     do {
         if (err == nullptr) {
             break;
@@ -476,44 +476,44 @@ void ParseProtocolImpl::handleXmlError(const xmlError* err)
 
         m_logger << err->message;
     } while (false);
-    m_logger.flush();
+    m_logger.parseFlush();
 }
 
-bool ParseProtocolImpl::validateDoc(::xmlDocPtr doc)
+bool ParseProtocolImpl::parseValidateDoc(::xmlDocPtr doc)
 {
     auto* root = ::xmlDocGetRootElement(doc);
     if (root == nullptr) {
-        logError() << "Failed to fine root element in the schema file \"" << doc->URL << "\"";
+        parseLogError() << "Failed to fine root element in the schema file \"" << doc->URL << "\"";
         return false;
     }
 
     static const std::string SchemaName("schema");
     std::string rootName(reinterpret_cast<const char*>(root->name));
     if (rootName != SchemaName) {
-        logError() << "Root element of \"" << doc->URL << "\" is not \"" << SchemaName << '\"';
+        parseLogError() << "Root element of \"" << doc->URL << "\" is not \"" << SchemaName << '\"';
         return false;
     }
 
     return
-        validateSchema(root) &&
-        validatePlatforms(root) &&
-        validateNamespaces(root);
+        parseValidateSchema(root) &&
+        parseValidatePlatforms(root) &&
+        parseValidateNamespaces(root);
 }
 
-bool ParseProtocolImpl::validateSchema(::xmlNodePtr node)
+bool ParseProtocolImpl::parseValidateSchema(::xmlNodePtr node)
 {
     ParseSchemaImplPtr schema(new ParseSchemaImpl(node, *this));
-    if (!schema->processNode()) {
+    if (!schema->parseProcessNode()) {
         return false;
     }
 
-    auto schemaName = schema->name();
+    auto schemaName = schema->parseName();
     if (schemaName.empty() && (m_currSchema != nullptr)) {
-        schemaName = m_currSchema->name();
+        schemaName = m_currSchema->parseName();
     }
 
     if (schemaName.empty()) {
-        logError() << ParseXmlWrap::logPrefix(schema->getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(schema->parseGetNode()) <<
             "First schema definition must define \"" << common::nameStr() << "\" property.";
         return false;
     }    
@@ -523,19 +523,19 @@ bool ParseProtocolImpl::validateSchema(::xmlNodePtr node)
             m_schemas.begin(), m_schemas.end(), 
             [&schemaName](auto& s)
             {
-                return schemaName == s->name();
+                return schemaName == s->parseName();
             });
 
     if (schemaIter == m_schemas.end()) {
-        assert(!schema->name().empty());
-        if ((!m_schemas.empty()) && (!isMultiSchemaSupported())) {
-            logError() << ParseXmlWrap::logPrefix(schema->getNode()) <<
+        assert(!schema->parseName().empty());
+        if ((!m_schemas.empty()) && (!parseIsMultiSchemaSupported())) {
+            parseLogError() << ParseXmlWrap::parseLogPrefix(schema->parseGetNode()) <<
                 "Multiple schemas is not supported in the selected " << common::dslVersionStr();
             return false;
         }
 
         if ((!m_schemas.empty()) && (!m_multipleSchemasEnabled)) {
-            logError() << ParseXmlWrap::logPrefix(schema->getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(schema->parseGetNode()) <<
                 "Multiple schemas support must be explicitly enabled by the code generator.";
             return false;
         }
@@ -547,14 +547,14 @@ bool ParseProtocolImpl::validateSchema(::xmlNodePtr node)
 
     m_currSchema = schemaIter->get();
 
-    auto& props = schema->props();
-    auto& origProps = m_currSchema->props();
+    auto& props = schema->parseProps();
+    auto& origProps = m_currSchema->parseProps();
     for (auto& p : props) {
         auto iter = origProps.find(p.first);
         if ((iter == origProps.end()) ||
             (iter->second != p.second)) {
 
-            logError() << ParseXmlWrap::logPrefix(node) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(node) <<
                 "Value of \"" << p.first <<
                 "\" property of \"" << node->name << "\" element differs from the first one.";
             return false;
@@ -574,13 +574,13 @@ bool ParseProtocolImpl::validateSchema(::xmlNodePtr node)
             continue;
         }
 
-        logWarning() << ParseXmlWrap::logPrefix(node) <<
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(node) <<
             "Value of \"" << a.first <<
             "\" attribubes of \"" << node->name << "\" element differs from the previous one.";
     }
 
-    auto& children = schema->extraChildrenElements();
-    auto& origChildren = m_currSchema->extraChildrenElements();
+    auto& children = schema->parseExtraChildrenElements();
+    auto& origChildren = m_currSchema->parseExtraChildrenElements();
     for (auto& c : children) {
         origChildren.push_back(c);
     }
@@ -588,36 +588,36 @@ bool ParseProtocolImpl::validateSchema(::xmlNodePtr node)
     return true;
 }
 
-bool ParseProtocolImpl::validatePlatforms(::xmlNodePtr root)
+bool ParseProtocolImpl::parseValidatePlatforms(::xmlNodePtr root)
 {
-    auto platforms = ParseXmlWrap::getChildren(root, common::platformsStr());
+    auto platforms = ParseXmlWrap::parseGetChildren(root, common::platformsStr());
     for (auto& p : platforms) {
-        auto pChildren = ParseXmlWrap::getChildren(p);
+        auto pChildren = ParseXmlWrap::parseGetChildren(p);
         for (auto c : pChildren) {
             assert(c->name != nullptr);
             std::string name(reinterpret_cast<const char*>(c->name));
             if (name != common::platformStr()) {
-                logError() << ParseXmlWrap::logPrefix(c) <<
+                parseLogError() << ParseXmlWrap::parseLogPrefix(c) <<
                     "Unexpected element, \"" << common::platformStr() << "\" is expected.";
                 return false;
             }
 
-            if (!validateSinglePlatform(c)) {
+            if (!parseValidateSinglePlatform(c)) {
                 return false;
             }
         }
     }
 
-    auto singlePlatforms = ParseXmlWrap::getChildren(root, common::platformStr());
+    auto singlePlatforms = ParseXmlWrap::parseGetChildren(root, common::platformStr());
     return std::all_of(
                 singlePlatforms.begin(), singlePlatforms.end(),
                 [this](auto p)
                 {
-                    return this->validateSinglePlatform(p);
+                    return this->parseValidateSinglePlatform(p);
                 });
 }
 
-bool ParseProtocolImpl::validateSinglePlatform(::xmlNodePtr node)
+bool ParseProtocolImpl::parseValidateSinglePlatform(::xmlNodePtr node)
 {
     static const ParseXmlWrap::NamesList Names = {
         common::nameStr()
@@ -630,7 +630,7 @@ bool ParseProtocolImpl::validateSinglePlatform(::xmlNodePtr node)
 
     auto iter = props.find(common::nameStr());
     if (iter == props.end()) {
-        logError() << ParseXmlWrap::logPrefix(node) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(node) <<
             "Required property \"" << common::nameStr() << "\" is not defined.";
         return false;
     }
@@ -639,13 +639,13 @@ bool ParseProtocolImpl::validateSinglePlatform(::xmlNodePtr node)
     static const std::string InvalidChars("+-,");
     auto pos = name.find_first_of(InvalidChars);
     if (pos != std::string::npos) {
-        logWarning() << ParseXmlWrap::logPrefix(node) <<
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(node) <<
             "Invalid platform name (" << name << ".";
         return false;
     }
 
-    if (!currSchema().addPlatform(name)) {
-        logWarning() << ParseXmlWrap::logPrefix(node) <<
+    if (!parseCurrSchema().parseAddPlatform(name)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(node) <<
             "Platform \"" << name << "\" defined more than once.";
         return true;
     }
@@ -653,11 +653,11 @@ bool ParseProtocolImpl::validateSinglePlatform(::xmlNodePtr node)
     return true;
 }
 
-bool ParseProtocolImpl::validateNamespaces(::xmlNodePtr root)
+bool ParseProtocolImpl::parseValidateNamespaces(::xmlNodePtr root)
 {
-    auto& namespaces = currSchema().namespaces();
-    auto& childrenNames = ParseNamespaceImpl::supportedChildren();
-    auto children = ParseXmlWrap::getChildren(root, childrenNames);
+    auto& namespaces = parseCurrSchema().parseNamespaces();
+    auto& childrenNames = ParseNamespaceImpl::parseSupportedChildren();
+    auto children = ParseXmlWrap::parseGetChildren(root, childrenNames);
     for (auto& c : children) {
         assert(c->name != nullptr);
         std::string cName(reinterpret_cast<const char*>(c->name));
@@ -668,18 +668,18 @@ bool ParseProtocolImpl::validateNamespaces(::xmlNodePtr root)
 
         if (cName == common::nsStr()) {
             ParseNamespaceImplPtr ns(new ParseNamespaceImpl(c, *this));
-            ns->setParent(&currSchema());
+            ns->parseSetParent(&parseCurrSchema());
             if (!ns->parseProps()) {
                 return false;
             }
 
-            auto& nsName = ns->name();
+            auto& nsName = ns->parseName();
             auto iter = namespaces.find(nsName);
             ParseNamespaceImpl* nsToProcess = nullptr;
             ParseNamespaceImpl* realNs = nullptr;
             do {
                 if (iter == namespaces.end()) {
-                    currSchema().addNamespace(std::move(ns));
+                    parseCurrSchema().parseAddNamespace(std::move(ns));
                     iter = namespaces.find(nsName);
                     assert(iter != namespaces.end());
                     nsToProcess = iter->second.get();
@@ -689,14 +689,14 @@ bool ParseProtocolImpl::validateNamespaces(::xmlNodePtr root)
                 nsToProcess = ns.get();
                 realNs = iter->second.get();
 
-                if ((!nsToProcess->description().empty()) &&
-                    (nsToProcess->description() != realNs->description())) {
-                    if (realNs->description().empty()) {
-                        realNs->updateDescription(nsToProcess->description());
+                if ((!nsToProcess->parseDescription().empty()) &&
+                    (nsToProcess->parseDescription() != realNs->parseDescription())) {
+                    if (realNs->parseDescription().empty()) {
+                        realNs->parseUpdateDescription(nsToProcess->parseDescription());
                     }
                     else {
-                        logWarning() << ParseXmlWrap::logPrefix(nsToProcess->getNode()) <<
-                            "Description of namespace \"" << nsToProcess->name() << "\" differs to "
+                        parseLogWarning() << ParseXmlWrap::parseLogPrefix(nsToProcess->parseGetNode()) <<
+                            "Description of namespace \"" << nsToProcess->parseName() << "\" differs to "
                             "one encountered before.";
                     }
                 }
@@ -708,13 +708,13 @@ bool ParseProtocolImpl::validateNamespaces(::xmlNodePtr root)
                             realNs->parseExtraAttributes().insert(a);
                         }
                         else if (a.second != attIter->second) {
-                            logWarning() << ParseXmlWrap::logPrefix(nsToProcess->getNode()) <<
+                            parseLogWarning() << ParseXmlWrap::parseLogPrefix(nsToProcess->parseGetNode()) <<
                                 "Value of attribute \"" << a.first << "\" differs to one defined before.";
                         }
                     }
                 }
 
-                realNs->extraChildren().insert(realNs->extraChildren().end(), nsToProcess->extraChildren().begin(), nsToProcess->extraChildren().end());
+                realNs->parseExtraChildren().insert(realNs->parseExtraChildren().end(), nsToProcess->parseExtraChildren().begin(), nsToProcess->parseExtraChildren().end());
 
             } while (false);
 
@@ -726,7 +726,7 @@ bool ParseProtocolImpl::validateNamespaces(::xmlNodePtr root)
             continue;
         }
 
-        auto& globalNs = currSchema().defaultNamespace();
+        auto& globalNs = parseCurrSchema().parseDefaultNamespace();
 
         if (!globalNs.processChild(c)) {
             return false;
@@ -736,18 +736,18 @@ bool ParseProtocolImpl::validateNamespaces(::xmlNodePtr root)
     return true;
 }
 
-bool ParseProtocolImpl::validateAllMessages()
+bool ParseProtocolImpl::parseValidateAllMessages()
 {
     return 
         std::all_of(
             m_schemas.begin(), m_schemas.end(),
             [](auto& s)
             {
-                return s->validateAllMessages();
+                return s->parseValidateAllMessages();
             });
 }
 
-bool ParseProtocolImpl::strToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const
+bool ParseProtocolImpl::parseStrToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const
 {
     do {
         if (!checkRef) {
@@ -767,7 +767,7 @@ bool ParseProtocolImpl::strToValue(const std::string& ref, bool checkRef, StrToV
         return false;
     }
 
-    auto& namespaces = parsedRef.first->namespaces();    
+    auto& namespaces = parsedRef.first->parseNamespaces();    
 
     auto redirectToGlobalNs =
         [&func, &parsedRef, &namespaces]() -> bool
@@ -801,7 +801,7 @@ std::pair<const ParseSchemaImpl*, std::string> ParseProtocolImpl::parseExternalR
 {
     assert(!externalRef.empty());
     if (externalRef[0] != common::schemaRefPrefix()) {
-        return std::make_pair(&currSchema(), externalRef);
+        return std::make_pair(&parseCurrSchema(), externalRef);
     }
 
     auto dotPos = externalRef.find('.');
@@ -816,7 +816,7 @@ std::pair<const ParseSchemaImpl*, std::string> ParseProtocolImpl::parseExternalR
             m_schemas.begin(), m_schemas.end(),
             [&schemaName](auto& s)
             {
-                return schemaName == s->name();
+                return schemaName == s->parseName();
             });
 
     if (iter == m_schemas.end()) {
@@ -826,28 +826,28 @@ std::pair<const ParseSchemaImpl*, std::string> ParseProtocolImpl::parseExternalR
     return std::make_pair(iter->get(), std::move(restRef));
 }
 
-LogWrapper ParseProtocolImpl::logError() const
+LogWrapper ParseProtocolImpl::parseLogError() const
 {
-    return commsdsl::parse::logError(m_logger);
+    return commsdsl::parse::parseLogError(m_logger);
 }
 
-LogWrapper ParseProtocolImpl::logWarning() const
+LogWrapper ParseProtocolImpl::parseLogWarning() const
 {
-    return commsdsl::parse::logWarning(m_logger);
+    return commsdsl::parse::parseLogWarning(m_logger);
 }
 
-bool ParseProtocolImpl::strToStringValue(
+bool ParseProtocolImpl::parseStrToStringValue(
     const std::string &str,
     std::string &val) const
 {
-    if (str.empty() || (!isFieldValueReferenceSupported())) {
+    if (str.empty() || (!parseIsFieldValueReferenceSupported())) {
         val = str;
         return true;
     }
 
     static const char Prefix = common::stringRefPrefix();
     if (str[0] == Prefix) {
-        return strToString(std::string(str, 1), true, val);
+        return parseStrToString(std::string(str, 1), true, val);
     }
 
     auto prefixPos = str.find_first_of(Prefix);

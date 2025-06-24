@@ -107,10 +107,10 @@ std::string CommsMsgId::commsTypeInternal() const
     auto allMsgIdFields = m_parent.findMessageIdFields();
     if (allMsgIdFields.size() == 1U) {
         auto* msgIdField = allMsgIdFields.front();
-        assert(msgIdField->dslObj().kind() == commsdsl::parse::ParseField::Kind::Enum);
+        assert(msgIdField->dslObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
         auto* castedMsgIdField = static_cast<const CommsEnumField*>(msgIdField);
         auto dslObj = castedMsgIdField->enumDslObj();
-        return comms::cppIntTypeFor(dslObj.type(), dslObj.maxLength());
+        return comms::cppIntTypeFor(dslObj.parseType(), dslObj.parseMaxLength());
     }
 
     auto allMessages = m_parent.getAllMessages();
@@ -119,7 +119,7 @@ std::string CommsMsgId::commsTypeInternal() const
             allMessages.begin(), allMessages.end(),
             [](auto* first, auto* second)
             {
-                return first->dslObj().id() < second->dslObj().id();
+                return first->dslObj().parseId() < second->dslObj().parseId();
             });
 
     std::string result = "unsigned";
@@ -128,7 +128,7 @@ std::string CommsMsgId::commsTypeInternal() const
             break;
         }
 
-        auto maxId = (*iter)->dslObj().id();
+        auto maxId = (*iter)->dslObj().parseId();
         bool fitsUnsigned = maxId <= std::numeric_limits<unsigned>::max();
         if (fitsUnsigned) {
             break;
@@ -150,7 +150,7 @@ std::string CommsMsgId::commsIdsInternal() const
 
     if (allMsgIdFields.size() == 1U) {    
         auto* msgIdField = allMsgIdFields.front();
-        assert(msgIdField->dslObj().kind() == commsdsl::parse::ParseField::Kind::Enum);
+        assert(msgIdField->dslObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
         auto* castedMsgIdField = static_cast<const CommsEnumField*>(msgIdField);
         auto enumValues = castedMsgIdField->commsEnumValues();
         static const std::string CommentPrefix("// ---");
@@ -174,7 +174,7 @@ std::string CommsMsgId::commsIdsInternal() const
     util::StringsList ids;
     ids.reserve(allMessages.size());
     for (auto* m : allMessages) {
-        ids.push_back(prefix + comms::fullNameFor(*m) + " = " + util::numToString(m->dslObj().id()));
+        ids.push_back(prefix + comms::fullNameFor(*m) + " = " + util::numToString(m->dslObj().parseId()));
     }
     return util::strListToString(ids, ",\n", "");
 }

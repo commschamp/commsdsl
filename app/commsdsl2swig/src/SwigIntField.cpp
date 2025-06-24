@@ -48,7 +48,7 @@ std::string SwigIntField::swigValueTypeDeclImpl() const
 
     auto obj = intDslObj();
     util::ReplacementMap repl = {
-        {"TYPE", SwigGenerator::cast(generator()).swigConvertIntType(obj.type(), obj.maxLength())}
+        {"TYPE", SwigGenerator::cast(generator()).swigConvertIntType(obj.parseType(), obj.parseMaxLength())}
     };
 
     return util::processTemplate(Templ, repl);
@@ -109,7 +109,7 @@ std::string SwigIntField::swigSpecialsDeclInternal() const
 std::string SwigIntField::swigDisplayDecimalsDeclInternal() const
 {
     auto obj = intDslObj();
-    auto scaling = obj.scaling();
+    auto scaling = obj.parseScaling();
     std::string result;
     if (scaling.first != scaling.second) {
         result = "static unsigned displayDecimals();";
@@ -121,7 +121,7 @@ std::string SwigIntField::swigDisplayDecimalsDeclInternal() const
 std::string SwigIntField::swigScaledFuncsDeclInternal() const
 {
     auto obj = intDslObj();
-    auto scaling = obj.scaling();
+    auto scaling = obj.parseScaling();
     auto num = scaling.first;
     auto denom = scaling.second;
 
@@ -140,7 +140,7 @@ std::string SwigIntField::swigScaledFuncsDeclInternal() const
 std::string SwigIntField::swigScaledFuncsCodeInternal() const
 {
     auto obj = intDslObj();
-    auto scaling = obj.scaling();
+    auto scaling = obj.parseScaling();
     auto num = scaling.first;
     auto denom = scaling.second;
 

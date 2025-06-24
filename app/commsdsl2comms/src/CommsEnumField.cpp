@@ -67,7 +67,7 @@ commsdsl::gen::util::StringsList CommsEnumField::commsEnumValues() const
     util::StringsList valuesStrings;
     valuesStrings.reserve(revValues.size() + 3);
     auto obj = enumDslObj();
-    auto& values = obj.values();
+    auto& values = obj.parseValues();
 
     for (auto& v : revValues) {
         auto iter = values.find(*v.second);
@@ -97,7 +97,7 @@ commsdsl::gen::util::StringsList CommsEnumField::commsEnumValues() const
             docStr = " ///< " + iter->second.m_description;
             docStr = util::strMakeMultiline(docStr, 40);
         }
-        else if (dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::MessageId) {
+        else if (dslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::MessageId) {
             if (!iter->second.m_displayName.empty()) {
                 docStr = " ///< message id of <b>" + iter->second.m_displayName + "</b> message.";
             }
@@ -224,7 +224,7 @@ std::string CommsEnumField::commsCommonCodeExtraImpl() const
 
     util::ReplacementMap repl = {
         {"SCOPE", comms::scopeFor(*this, generator())},
-        {"NAME", comms::className(dslObj().name())}
+        {"NAME", comms::className(dslObj().parseName())}
     };
     return util::processTemplate(Templ, repl);
 }
@@ -261,7 +261,7 @@ std::string CommsEnumField::commsDefBaseClassImpl() const
     auto dslObj = enumDslObj();
     util::ReplacementMap repl = {
         {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
-        {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
+        {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.parseEndian())},
         {"COMMON_SCOPE", comms::commonScopeFor(*this, gen)},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };         
@@ -297,7 +297,7 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
     auto obj = enumDslObj();
     bool validCheckVersion =
         generator().schemaOf(*this).versionDependentCode() &&
-        obj.validCheckVersion();
+        obj.parseValidCheckVersion();
 
     if (!validCheckVersion) {
 
@@ -331,7 +331,7 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
             prefix = "ValueType::";
         }
 
-        auto& revValues = obj.revValues();
+        auto& revValues = obj.parseRevValues();
         auto prevIter = revValues.end();
         for (auto iter = revValues.begin(); iter != revValues.end(); ++iter) {
 
@@ -354,7 +354,7 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
     std::vector<decltype(m_validRanges)> rangesToProcess;
     for (auto& r : m_validRanges) {
         if ((r.m_sinceVersion == 0U) &&
-            (r.m_deprecatedSince == commsdsl::parse::ParseProtocol::notYetDeprecated())) {
+            (r.m_deprecatedSince == commsdsl::parse::ParseProtocol::parseNotYetDeprecated())) {
             continue;
         }
 
@@ -383,7 +383,7 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
         "    #^#COMPARISONS#$#\n"
         "}\n";
 
-    auto type = obj.type();
+    auto type = obj.parseType();
     bool bigUnsigned =
         (type == commsdsl::parse::ParseEnumField::Type::Uint64) ||
         (type == commsdsl::parse::ParseEnumField::Type::Uintvar);
@@ -394,10 +394,10 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
         assert(!l.empty());
         auto* condTempl = &VersionBothCondTempl;
         if (l.front().m_sinceVersion == 0U) {
-            assert(l.front().m_deprecatedSince != commsdsl::parse::ParseProtocol::notYetDeprecated());
+            assert(l.front().m_deprecatedSince != commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
             condTempl = &VersionUntilCondTempl;
         }
-        else if (commsdsl::parse::ParseProtocol::notYetDeprecated() <= l.front().m_deprecatedSince) {
+        else if (commsdsl::parse::ParseProtocol::parseNotYetDeprecated() <= l.front().m_deprecatedSince) {
             condTempl = &VersionFromCondTempl;
         }
 
@@ -465,12 +465,12 @@ bool CommsEnumField::commsIsVersionDependentImpl() const
 {
     assert(generator().schemaOf(*this).versionDependentCode());
     auto obj = enumDslObj();
-    if (!obj.validCheckVersion()) {
+    if (!obj.parseValidCheckVersion()) {
         return false;
     }
 
-    unsigned minVersion = obj.sinceVersion();
-    unsigned maxVersion = obj.deprecatedSince();
+    unsigned minVersion = obj.parseSinceVersion();
+    unsigned maxVersion = obj.parseDeprecatedSince();
     auto iter =
         std::find_if(
             m_validRanges.begin(), m_validRanges.end(),
@@ -486,7 +486,7 @@ bool CommsEnumField::commsIsVersionDependentImpl() const
 
 std::size_t CommsEnumField::commsMinLengthImpl() const
 {
-    if (enumDslObj().availableLengthLimit()) {
+    if (enumDslObj().parseAvailableLengthLimit()) {
         return 1U;
     }
 
@@ -498,7 +498,7 @@ std::string CommsEnumField::commsCompPrepValueStrImpl([[maybe_unused]] const std
     assert(accStr.empty());
 
     if (value.empty()) {
-        return util::numToString(enumDslObj().defaultValue());
+        return util::numToString(enumDslObj().parseDefaultValue());
     }
 
     try {
@@ -510,7 +510,7 @@ std::string CommsEnumField::commsCompPrepValueStrImpl([[maybe_unused]] const std
     }    
 
     auto obj = enumDslObj();
-    auto& values = obj.values();
+    auto& values = obj.parseValues();
     auto iter = values.find(value);
     if (iter != values.end()) {
         return util::numToString(iter->second.m_value);
@@ -524,14 +524,14 @@ std::string CommsEnumField::commsCompPrepValueStrImpl([[maybe_unused]] const std
     }
 
     auto* otherEnum = generator().findField(std::string(value, 0, lastDot));
-    if ((otherEnum == nullptr) || (otherEnum->dslObj().kind() != commsdsl::parse::ParseField::Kind::Enum)) {
+    if ((otherEnum == nullptr) || (otherEnum->dslObj().parseKind() != commsdsl::parse::ParseField::Kind::Enum)) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return CommsBase::commsCompPrepValueStrImpl(accStr, value);
     }
 
     auto& castedOtherEnum = static_cast<const CommsEnumField&>(*otherEnum);
-    auto& otherValues = castedOtherEnum.enumDslObj().values();
+    auto& otherValues = castedOtherEnum.enumDslObj().parseValues();
     auto otherIter = otherValues.find(std::string(value, lastDot + 1));
     if (otherIter == otherValues.end()) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
@@ -545,7 +545,7 @@ std::string CommsEnumField::commsCompPrepValueStrImpl([[maybe_unused]] const std
 bool CommsEnumField::commsVerifyInnerRefImpl(const std::string& refStr) const
 {
     auto obj = enumDslObj();
-    auto& values = obj.values();
+    auto& values = obj.parseValues();
     return values.find(refStr) != values.end();
 }
 
@@ -556,9 +556,9 @@ bool CommsEnumField::commsPrepareValidRangesInternal()
     auto& gen = generator();
     bool validCheckVersion =
         gen.schemaOf(*this).versionDependentCode() &&
-        obj.validCheckVersion();
+        obj.parseValidCheckVersion();
 
-    auto& values = obj.values();
+    auto& values = obj.parseValues();
     m_validRanges.reserve(values.size());
     for (auto& v : values) {
         bool exists =
@@ -579,7 +579,7 @@ bool CommsEnumField::commsPrepareValidRangesInternal()
     }
 
     if (m_validRanges.empty()) {
-        gen.logger().error("Enum \"" + obj.name() + "\" doesn't define any value");
+        gen.logger().error("Enum \"" + obj.parseName() + "\" doesn't define any value");
         return false;
     }
 
@@ -587,7 +587,7 @@ bool CommsEnumField::commsPrepareValidRangesInternal()
         return true;
     }
 
-    auto type = obj.type();
+    auto type = obj.parseType();
     bool bigUnsigned =
         (type == commsdsl::parse::ParseEnumField::Type::Uint64) ||
         (type == commsdsl::parse::ParseEnumField::Type::Uintvar);
@@ -673,7 +673,7 @@ bool CommsEnumField::commsPrepareValidRangesInternal()
 bool CommsEnumField::commsIsDirectValueNameMappingInternal() const
 {
     auto obj = enumDslObj();
-    auto& revValues = obj.revValues();
+    auto& revValues = obj.parseRevValues();
     assert(!revValues.empty());
     auto firstIter = revValues.begin();
     if (firstIter->first < 0) {
@@ -722,7 +722,7 @@ std::string CommsEnumField::commsCommonEnumInternal() const
     auto values = commsEnumValues();
     util::ReplacementMap repl = {
         {"SCOPE", comms::scopeFor(*this, gen)},
-        {"TYPE", comms::cppIntTypeFor(enumDslObj().type(), enumDslObj().maxLength())},
+        {"TYPE", comms::cppIntTypeFor(enumDslObj().parseType(), enumDslObj().parseMaxLength())},
         {"VALUES", util::strListToString(values, "\n", "")}
     };
     return util::processTemplate(Templ, repl);        
@@ -832,8 +832,8 @@ std::string CommsEnumField::commsCommonValueNamesMapFuncCodeInternal() const
 std::string CommsEnumField::commsCommonValueNamesMapDirectBodyInternal() const
 {
     auto obj = enumDslObj();
-    auto& revValues = obj.revValues();
-    auto& values = obj.values();
+    auto& revValues = obj.parseRevValues();
+    auto& values = obj.parseValues();
     assert(!revValues.empty());
     auto& thisSchema = generator().schemaOf(*this);
 
@@ -872,9 +872,9 @@ std::string CommsEnumField::commsCommonValueNamesMapDirectBodyInternal() const
 
         auto valIter = values.find(v.second);
         assert(valIter != values.end());
-        if ((!obj.isNonUniqueAllowed()) ||
+        if ((!obj.parseIsNonUniqueAllowed()) ||
             (thisSchema.schemaVersion() < valIter->second.m_deprecatedSince) ||
-            (obj.isUnique())) {
+            (obj.parseIsUnique())) {
             addElementNameFunc(*valIter);
             continue;
         }
@@ -916,11 +916,11 @@ std::string CommsEnumField::commsCommonValueNamesMapDirectBodyInternal() const
 std::string CommsEnumField::commsCommonValueNamesMapBinSearchBodyInternal() const
 {
     auto obj = enumDslObj();
-    auto type = obj.type();
+    auto type = obj.parseType();
 
     std::string names;
     if ((type == commsdsl::parse::ParseEnumField::Type::Uint64) ||
-        ((type == commsdsl::parse::ParseEnumField::Type::Uintvar) && (sizeof(std::uint64_t) <= obj.maxLength()))) {
+        ((type == commsdsl::parse::ParseEnumField::Type::Uintvar) && (sizeof(std::uint64_t) <= obj.parseMaxLength()))) {
         names = commsCommonBigUnsignedValueNameBinSearchPairsInternal();
     }
     else {
@@ -944,7 +944,7 @@ std::string CommsEnumField::commsCommonValueNamesMapBinSearchBodyInternal() cons
 std::string CommsEnumField::commsCommonBigUnsignedValueNameBinSearchPairsInternal() const
 {
     auto obj = enumDslObj();
-    auto& revValues = obj.revValues();
+    auto& revValues = obj.parseRevValues();
     assert(!revValues.empty());
 
     std::vector<std::uintmax_t> valuesSeq;
@@ -955,7 +955,7 @@ std::string CommsEnumField::commsCommonBigUnsignedValueNameBinSearchPairsInterna
     std::sort(valuesSeq.begin(), valuesSeq.end());
 
     auto& currSchema = generator().schemaOf(*this);
-    auto& values = obj.values();
+    auto& values = obj.parseValues();
     bool firstElem = true;
     std::intmax_t lastValue = std::numeric_limits<std::intmax_t>::min();
     StringsList names;
@@ -997,9 +997,9 @@ std::string CommsEnumField::commsCommonBigUnsignedValueNameBinSearchPairsInterna
 
         auto valIter = values.find(v.second);
         assert(valIter != values.end());
-        if ((!obj.isNonUniqueAllowed()) ||
+        if ((!obj.parseIsNonUniqueAllowed()) ||
             (currSchema.schemaVersion() < valIter->second.m_deprecatedSince) ||
-            (obj.isUnique())) {
+            (obj.parseIsUnique())) {
             addElementNameFunc(*valIter);
             continue;
         }
@@ -1029,8 +1029,8 @@ std::string CommsEnumField::commsCommonBigUnsignedValueNameBinSearchPairsInterna
 std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
 {
     auto obj = enumDslObj();
-    auto& revValues = obj.revValues();
-    auto& values = obj.values();
+    auto& revValues = obj.parseRevValues();
+    auto& values = obj.parseValues();
     assert(!revValues.empty());
     auto* msgIdNs = commsNamespaceForMsgId();
 
@@ -1082,9 +1082,9 @@ std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
 
         auto valIter = values.find(v.second);
         assert(valIter != values.end());
-        if ((!obj.isNonUniqueAllowed()) ||
+        if ((!obj.parseIsNonUniqueAllowed()) ||
             (currSchema.schemaVersion() < valIter->second.m_deprecatedSince) ||
-            (obj.isUnique())) {
+            (obj.parseIsUnique())) {
             addElementNameFunc(*valIter);
             continue;
         }
@@ -1187,13 +1187,13 @@ std::string CommsEnumField::commsDefValueNamesMapFuncCodeInternal() const
 void CommsEnumField::commsAddDefaultValueOptInternal(StringsList& opts) const
 {
     auto obj = enumDslObj();
-    auto defaultValue = obj.defaultValue();
+    auto defaultValue = obj.parseDefaultValue();
 
     if (defaultValue == 0) {
         return;
     }
 
-    auto type = obj.type();
+    auto type = obj.parseType();
     if ((defaultValue < 0) &&
         ((type == commsdsl::parse::ParseEnumField::Type::Uint64) || (type == commsdsl::parse::ParseEnumField::Type::Uintvar))) {
         auto str =
@@ -1214,21 +1214,21 @@ void CommsEnumField::commsAddDefaultValueOptInternal(StringsList& opts) const
 void CommsEnumField::commsAddLengthOptInternal(StringsList& opts) const
 {
     auto obj = enumDslObj();
-    auto type = obj.type();
+    auto type = obj.parseType();
 
     if ((type == commsdsl::parse::ParseEnumField::Type::Intvar) ||
         (type == commsdsl::parse::ParseEnumField::Type::Uintvar)) {
         auto str =
             "comms::option::def::VarLength<" +
-            util::numToString(obj.minLength()) +
+            util::numToString(obj.parseMinLength()) +
             ", " +
-            util::numToString(obj.maxLength()) +
+            util::numToString(obj.parseMaxLength()) +
             '>';
         opts.push_back(std::move(str));
         return;
     }
 
-    auto bitLength = obj.bitLength();
+    auto bitLength = obj.parseBitLength();
     if (bitLength != 0U) {
         opts.push_back("comms::option::def::FixedBitLength<" + util::numToString(bitLength) + '>');
         return;
@@ -1257,10 +1257,10 @@ void CommsEnumField::commsAddLengthOptInternal(StringsList& opts) const
     }
 
     assert(LengthMap[idx] != 0);
-    if (LengthMap[idx] != obj.minLength()) {
+    if (LengthMap[idx] != obj.parseMinLength()) {
         auto str =
             "comms::option::def::FixedLength<" +
-            util::numToString(obj.minLength()) +
+            util::numToString(obj.parseMinLength()) +
             '>';
         opts.push_back(std::move(str));
     }
@@ -1270,14 +1270,14 @@ void CommsEnumField::commsAddValidRangesOptInternal(StringsList& opts) const
 {
     auto obj = enumDslObj();
 
-    auto type = obj.type();
+    auto type = obj.parseType();
     bool bigUnsigned =
         (type == commsdsl::parse::ParseEnumField::Type::Uint64) ||
-        ((type != commsdsl::parse::ParseEnumField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
+        ((type != commsdsl::parse::ParseEnumField::Type::Uintvar) && (obj.parseMaxLength() >= sizeof(std::int64_t)));
 
     bool validCheckVersion =
         generator().schemaOf(*this).versionDependentCode() &&
-        obj.validCheckVersion();
+        obj.parseValidCheckVersion();
 
     auto addOptFunc =
         [&opts, bigUnsigned](auto& r)
@@ -1349,7 +1349,7 @@ void CommsEnumField::commsAddValidRangesOptInternal(StringsList& opts) const
             {
                 return
                     (elem.m_sinceVersion == 0U) &&
-                    (elem.m_deprecatedSince == commsdsl::parse::ParseProtocol::notYetDeprecated());
+                    (elem.m_deprecatedSince == commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
             });
 
     if (uncondStartIter == m_validRanges.end()) {
@@ -1366,7 +1366,7 @@ void CommsEnumField::commsAddValidRangesOptInternal(StringsList& opts) const
             {
                 return
                     (elem.m_sinceVersion != 0U) ||
-                    (elem.m_deprecatedSince != commsdsl::parse::ParseProtocol::notYetDeprecated());
+                    (elem.m_deprecatedSince != commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
             });
 
     auto uncondCount =
@@ -1383,14 +1383,14 @@ void CommsEnumField::commsAddValidRangesOptInternal(StringsList& opts) const
 
 void CommsEnumField::commsAddAvailableLengthLimitOptInternal(StringsList& opts) const
 {
-    if (enumDslObj().availableLengthLimit()) {
+    if (enumDslObj().parseAvailableLengthLimit()) {
         util::addToStrList("comms::option::def::AvailableLengthLimit", opts);
     }
 }
 
 const CommsNamespace* CommsEnumField::commsNamespaceForMsgId() const
 {
-    if (dslObj().semanticType() != commsdsl::parse::ParseField::SemanticType::MessageId) {
+    if (dslObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::MessageId) {
         return nullptr;
     }
 

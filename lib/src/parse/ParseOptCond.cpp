@@ -31,14 +31,14 @@ namespace
 const ParseOptCondExprImpl* castExpr(const ParseOptCondImpl* ptr)
 {
     assert(ptr != nullptr);
-    assert(ptr->kind() == ParseOptCond::Kind::Expr);
+    assert(ptr->parseKind() == ParseOptCond::Kind::Expr);
     return static_cast<const ParseOptCondExprImpl*>(ptr);
 }
 
 const ParseOptCondListImpl* castList(const ParseOptCondImpl* ptr)
 {
     assert(ptr != nullptr);
-    assert(ptr->kind() == ParseOptCond::Kind::List);
+    assert(ptr->parseKind() == ParseOptCond::Kind::List);
     return static_cast<const ParseOptCondListImpl*>(ptr);
 }
 
@@ -53,15 +53,15 @@ ParseOptCond::ParseOptCond(const ParseOptCond& ) = default;
 
 ParseOptCond::~ParseOptCond() = default;
 
-bool ParseOptCond::valid() const
+bool ParseOptCond::parseValid() const
 {
     return m_pImpl != nullptr;
 }
 
-ParseOptCond::Kind ParseOptCond::kind() const
+ParseOptCond::Kind ParseOptCond::parseKind() const
 {
-    assert(valid());
-    return m_pImpl->kind();
+    assert(parseValid());
+    return m_pImpl->parseKind();
 }
 
 ParseOptCondExpr::ParseOptCondExpr(const ParseOptCondExprImpl* impl)
@@ -72,32 +72,32 @@ ParseOptCondExpr::ParseOptCondExpr(const ParseOptCondExprImpl* impl)
 ParseOptCondExpr::ParseOptCondExpr(ParseOptCond cond)
   : Base(cond)
 {
-    assert(kind() == Kind::Expr);
+    assert(parseKind() == Kind::Expr);
 }
 
-const std::string& ParseOptCondExpr::left() const
+const std::string& ParseOptCondExpr::parseLeft() const
 {
-    return castExpr(m_pImpl)->left();
+    return castExpr(m_pImpl)->parseLeft();
 }
 
-const std::string& ParseOptCondExpr::op() const
+const std::string& ParseOptCondExpr::parseOp() const
 {
-    return castExpr(m_pImpl)->op();
+    return castExpr(m_pImpl)->parseOp();
 }
 
-const std::string& ParseOptCondExpr::right() const
+const std::string& ParseOptCondExpr::parseRight() const
 {
-    return castExpr(m_pImpl)->right();
+    return castExpr(m_pImpl)->parseRight();
 }
 
-ParseOptCondExpr::OperandInfo ParseOptCondExpr::leftInfo() const
+ParseOptCondExpr::OperandInfo ParseOptCondExpr::parseLeftInfo() const
 {
-    return castExpr(m_pImpl)->leftInfo();
+    return castExpr(m_pImpl)->parseLeftInfo();
 }
 
-ParseOptCondExpr::OperandInfo ParseOptCondExpr::rightInfo() const
+ParseOptCondExpr::OperandInfo ParseOptCondExpr::parseRightInfo() const
 {
-    return castExpr(m_pImpl)->rightInfo();
+    return castExpr(m_pImpl)->parseRightInfo();
 }
 
 ParseOptCondList::ParseOptCondList(const ParseOptCondListImpl* impl)
@@ -108,17 +108,17 @@ ParseOptCondList::ParseOptCondList(const ParseOptCondListImpl* impl)
 ParseOptCondList::ParseOptCondList(ParseOptCond cond)
   : Base(cond)
 {
-    assert(kind() == Kind::List);
+    assert(parseKind() == Kind::List);
 }
 
-ParseOptCondList::Type ParseOptCondList::type() const
+ParseOptCondList::Type ParseOptCondList::parseType() const
 {
-    return castList(m_pImpl)->type();
+    return castList(m_pImpl)->parseType();
 }
 
-ParseOptCondList::CondList ParseOptCondList::conditions() const
+ParseOptCondList::CondList ParseOptCondList::parseConditions() const
 {
-    return castList(m_pImpl)->condList();
+    return castList(m_pImpl)->parseCondList();
 }
 
 

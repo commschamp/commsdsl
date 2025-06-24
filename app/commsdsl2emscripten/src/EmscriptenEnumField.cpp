@@ -45,7 +45,7 @@ std::string EmscriptenEnumField::emscriptenBindValues(const EmscriptenNamespace*
         [this, &result, forcedParent](const std::string& name)
         {
             if ((forcedParent != nullptr) && 
-                (dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::MessageId)) {
+                (dslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::MessageId)) {
                 static const std::string Templ = 
                     ".value(\"#^#NAME#$#\", #^#SCOPE#$#_#^#NAME#$#)";
 
@@ -72,7 +72,7 @@ std::string EmscriptenEnumField::emscriptenBindValues(const EmscriptenNamespace*
     auto& revValues = sortedRevValues();
     result.reserve(revValues.size() + 3);
     auto obj = enumDslObj();
-    auto& values = obj.values();
+    auto& values = obj.parseValues();
 
     for (auto& v : revValues) {
         auto iter = values.find(*v.second);
@@ -133,7 +133,7 @@ std::string EmscriptenEnumField::emscriptenHeaderExtraPublicFuncsImpl() const
         "}\n"  
         ;      
 
-    if (field().dslObj().isFixedValue()) {
+    if (field().dslObj().parseIsFixedValue()) {
         return Templ;
     }
 
@@ -156,7 +156,7 @@ std::string EmscriptenEnumField::emscriptenSourceBindFuncsImpl() const
         ".function(\"getValueConstant\", &#^#CLASS_NAME#$#::getValueConstant)"
         ;
 
-    if (!field().dslObj().isFixedValue()) {
+    if (!field().dslObj().parseIsFixedValue()) {
         templ += 
             "\n"
             ".function(\"setValueConstant\", &#^#CLASS_NAME#$#::setValueConstant)"
@@ -179,7 +179,7 @@ std::string EmscriptenEnumField::emscriptenSourceBindExtraImpl() const
         return strings::emptyString();
     }
 
-    if (dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::MessageId) {
+    if (dslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::MessageId) {
         auto* parentNs = EmscriptenNamespace::cast(parentNamespace());
         auto allMsgIdFields = parentNs->findMessageIdFields();
         if (allMsgIdFields.size() == 1U) {
@@ -203,7 +203,7 @@ std::string EmscriptenEnumField::emscriptenSourceBindExtraImpl() const
 
 bool EmscriptenEnumField::emscriptenCanProvideValuesInternal() const
 {
-    auto type = enumDslObj().type();
+    auto type = enumDslObj().parseType();
     if (type < commsdsl::parse::ParseIntField::Type::Int64) {
         return true;
     }
@@ -217,12 +217,12 @@ bool EmscriptenEnumField::emscriptenCanProvideValuesInternal() const
     }   
 
     if ((type == commsdsl::parse::ParseIntField::Type::Intvar) &&
-        (dslObj().minLength() > sizeof(std::int32_t))) {
+        (dslObj().parseMinLength() > sizeof(std::int32_t))) {
         return false;
     }
 
     if ((type == commsdsl::parse::ParseIntField::Type::Uintvar) &&
-        (dslObj().minLength() > sizeof(std::int32_t))) {
+        (dslObj().parseMinLength() > sizeof(std::int32_t))) {
         return false;
     }
 

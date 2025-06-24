@@ -29,15 +29,15 @@ ParseIdLayerImpl::ParseIdLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protoco
 {
 }
 
-ParseLayerImpl::Kind ParseIdLayerImpl::kindImpl() const
+ParseLayerImpl::Kind ParseIdLayerImpl::parseKindImpl() const
 {
     return Kind::Id;
 }
 
-bool ParseIdLayerImpl::verifyImpl(const ParseLayerImpl::LayersList& layers)
+bool ParseIdLayerImpl::parseVerifyImpl(const ParseLayerImpl::LayersList& layers)
 {
-    return verifySingleLayer(layers, common::idStr()) &&
-           verifyBeforePayload(layers);
+    return parseVerifySingleLayer(layers, common::idStr()) &&
+           parseVerifyBeforePayload(layers);
 }
 
 } // namespace parse

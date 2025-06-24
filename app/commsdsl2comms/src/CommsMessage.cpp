@@ -87,13 +87,13 @@ std::pair<const CommsField*, std::string> findInterfaceFieldInternal(const Comms
 
 std::string interfaceFieldAccStrInternal(const CommsField& field)
 {
-    return strings::transportFieldAccessPrefixStr() + comms::accessName(field.field().dslObj().name()) + "()";
+    return strings::transportFieldAccessPrefixStr() + comms::accessName(field.field().dslObj().parseName()) + "()";
 }
 
 void updateConstructBoolInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCondExpr& cond, util::StringsList& code)
 {
-    assert(cond.op().empty() || (cond.op() == "!"));
-    auto& right = cond.right();
+    assert(cond.parseOp().empty() || (cond.parseOp() == "!"));
+    auto& right = cond.parseRight();
     assert(!right.empty());
     assert(right[0] == strings::interfaceFieldRefPrefix());
 
@@ -115,7 +115,7 @@ void updateConstructBoolInternal(const CommsGenerator& generator, const commsdsl
     static const std::string FalseStr("false");
 
     auto* valStr = &TrueStr;
-    if (!cond.op().empty()) {
+    if (!cond.parseOp().empty()) {
         valStr = &FalseStr;
     }
 
@@ -133,7 +133,7 @@ void updateConstructBoolInternal(const CommsGenerator& generator, const commsdsl
 
 void updateConstructExprInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCondExpr& cond, util::StringsList& code)
 {
-    auto& left = cond.left();
+    auto& left = cond.parseLeft();
     if (left.empty()) {
         updateConstructBoolInternal(generator, cond, code); 
         return;
@@ -146,13 +146,13 @@ void updateConstructExprInternal(const CommsGenerator& generator, const commsdsl
         return;
     }
     
-    assert(cond.op() == "=");
-    auto& right = cond.right();
+    assert(cond.parseOp() == "=");
+    auto& right = cond.parseRight();
     assert(!right.empty());
 
     auto leftFieldAccess = leftInfo.first->commsFieldAccessStr(leftInfo.second, interfaceFieldAccStrInternal(*leftInfo.first));
 
-    auto castPrefix = strings::transportFieldTypeAccessPrefixStr() + comms::accessName(leftInfo.first->field().dslObj().name()) + "::";
+    auto castPrefix = strings::transportFieldTypeAccessPrefixStr() + comms::accessName(leftInfo.first->field().dslObj().parseName()) + "::";
     std::string castType = leftInfo.first->commsCompValueCastType(leftInfo.second, castPrefix);
     std::string valStr;
     if (right[0] == strings::interfaceFieldRefPrefix()) {
@@ -182,17 +182,17 @@ void updateConstructExprInternal(const CommsGenerator& generator, const commsdsl
 
 void updateConstructCodeInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCond& cond, util::StringsList& code)
 {
-    assert(cond.valid());
-    if (cond.kind() == commsdsl::parse::ParseOptCond::Kind::Expr) {
+    assert(cond.parseValid());
+    if (cond.parseKind() == commsdsl::parse::ParseOptCond::Kind::Expr) {
         commsdsl::parse::ParseOptCondExpr exprCond(cond);
         updateConstructExprInternal(generator, exprCond, code);
         return;
     }
 
-    assert(cond.kind() == commsdsl::parse::ParseOptCond::Kind::List);
+    assert(cond.parseKind() == commsdsl::parse::ParseOptCond::Kind::List);
     commsdsl::parse::ParseOptCondList listCond(cond);
-    assert(listCond.type() == commsdsl::parse::ParseOptCondList::Type::And);
-    auto conditions = listCond.conditions();
+    assert(listCond.parseType() == commsdsl::parse::ParseOptCondList::Type::And);
+    auto conditions = listCond.parseConditions();
     for (auto& c : conditions) {
         updateConstructCodeInternal(generator, c, code);
     }
@@ -246,12 +246,12 @@ bool CommsMessage::prepareImpl()
     auto codePathPrefix = comms::inputCodePathFor(*this, generator());
     auto obj = dslObj();
     bool overrides = 
-        commsPrepareOverrideInternal(obj.readOverride(), codePathPrefix, strings::readFileSuffixStr(), m_customCode.m_read, "read", &CommsMessage::commsPrepareCustomReadFromBodyInternal) &&
-        commsPrepareOverrideInternal(obj.writeOverride(), codePathPrefix, strings::writeFileSuffixStr(), m_customCode.m_write, "write", &CommsMessage::commsPrepareCustomWriteFromBodyInternal) &&
-        commsPrepareOverrideInternal(obj.refreshOverride(), codePathPrefix, strings::refreshFileSuffixStr(), m_customCode.m_refresh, "refresh", &CommsMessage::commsPrepareCustomRefreshFromBodyInternal) &&
-        commsPrepareOverrideInternal(obj.lengthOverride(), codePathPrefix, strings::lengthFileSuffixStr(), m_customCode.m_length, "length", &CommsMessage::commsPrepareCustomLengthFromBodyInternal) &&
-        commsPrepareOverrideInternal(obj.validOverride(), codePathPrefix, strings::validFileSuffixStr(), m_customCode.m_valid, "valid", &CommsMessage::commsPrepareCustomValidFromBodyInternal) &&
-        commsPrepareOverrideInternal(obj.nameOverride(), codePathPrefix, strings::nameFileSuffixStr(), m_customCode.m_name, "name", &CommsMessage::commsPrepareCustomNameFromBodyInternal);
+        commsPrepareOverrideInternal(obj.parseReadOverride(), codePathPrefix, strings::readFileSuffixStr(), m_customCode.m_read, "read", &CommsMessage::commsPrepareCustomReadFromBodyInternal) &&
+        commsPrepareOverrideInternal(obj.parseWriteOverride(), codePathPrefix, strings::writeFileSuffixStr(), m_customCode.m_write, "write", &CommsMessage::commsPrepareCustomWriteFromBodyInternal) &&
+        commsPrepareOverrideInternal(obj.parseRefreshOverride(), codePathPrefix, strings::refreshFileSuffixStr(), m_customCode.m_refresh, "refresh", &CommsMessage::commsPrepareCustomRefreshFromBodyInternal) &&
+        commsPrepareOverrideInternal(obj.parseLengthOverride(), codePathPrefix, strings::lengthFileSuffixStr(), m_customCode.m_length, "length", &CommsMessage::commsPrepareCustomLengthFromBodyInternal) &&
+        commsPrepareOverrideInternal(obj.parseValidOverride(), codePathPrefix, strings::validFileSuffixStr(), m_customCode.m_valid, "valid", &CommsMessage::commsPrepareCustomValidFromBodyInternal) &&
+        commsPrepareOverrideInternal(obj.parseNameOverride(), codePathPrefix, strings::nameFileSuffixStr(), m_customCode.m_name, "name", &CommsMessage::commsPrepareCustomNameFromBodyInternal);
 
     if (!overrides) {
         return false;
@@ -287,7 +287,7 @@ bool CommsMessage::writeImpl() const
 bool CommsMessage::copyCodeFromInternal()
 {
     auto obj = dslObj();
-    auto& copyFrom = obj.copyCodeFrom();
+    auto& copyFrom = obj.parseCopyCodeFrom();
     if (copyFrom.empty()) {
         return true;
     }
@@ -340,7 +340,7 @@ bool CommsMessage::commsPrepareOverrideInternal(
     if (customCode.empty() && isOverrideCodeRequired(type)) {
         generator().logger().error(
             "Overriding \"" + name + "\" operation is not provided in injected code for message \"" +
-            dslObj().externalRef() + "\". Expected overriding file is \"" + codePathPrefix + suffix + ".");
+            dslObj().parseExternalRef() + "\". Expected overriding file is \"" + codePathPrefix + suffix + ".");
         return false;
     }
 
@@ -521,7 +521,7 @@ bool CommsMessage::commsWriteCommonInternal() const
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
         {"FIELDS_COMMON", commsCommonFieldsCodeInternal()},
-        {"NAME", comms::className(dslObj().name())},
+        {"NAME", comms::className(dslObj().parseName())},
         {"BODY", commsCommonBodyInternal()},
     };
 
@@ -608,12 +608,12 @@ bool CommsMessage::commsWriteDefInternal() const
     auto obj = dslObj();
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
-        {"MESSAGE_NAME", util::displayName(obj.displayName(), obj.name())},
+        {"MESSAGE_NAME", util::displayName(obj.parseDisplayName(), obj.parseName())},
         {"INCLUDES", commsDefIncludesInternal()},
         {"CUSTOM_INCLUDES", m_customCode.m_inc},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
-        {"CLASS_NAME", comms::className(obj.name())},
+        {"CLASS_NAME", comms::className(obj.parseName())},
         {"MESSAGE_HEADERFILE", comms::relHeaderPathFor(*this, gen)},
         {"OPTIONS", comms::scopeForOptions(strings::defaultOptionsClassStr(), gen)},
         {"FIELDS_DEF", commsDefFieldsCodeInternal()},
@@ -666,7 +666,7 @@ std::string CommsMessage::commsCommonNameFuncInternal() const
 
     util::ReplacementMap repl = {
         {"SCOPE", comms::scopeFor(*this, generator())},
-        {"NAME", util::displayName(dslObj().displayName(), dslObj().name())}
+        {"NAME", util::displayName(dslObj().parseDisplayName(), dslObj().parseName())}
     };
 
     return util::processTemplate(Templ, repl);
@@ -700,7 +700,7 @@ std::string CommsMessage::commsCommonFieldsCodeInternal() const
 
     util::ReplacementMap repl = {
         {"SCOPE", comms::scopeFor(*this, generator())},
-        {"NAME", comms::className(dslObj().name())},
+        {"NAME", comms::className(dslObj().parseName())},
         {"FIELDS_BODY", util::strListToString(fields, "\n", strings::emptyString())}
     };
 
@@ -745,7 +745,7 @@ std::string CommsMessage::commsDefConstructInternal() const
         "}\n";
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"CLASS_NAME", comms::className(dslObj().parseName())},
         {"CODE", m_internalConstruct}
     };
 
@@ -771,14 +771,14 @@ std::string CommsMessage::commsDefFieldClassNamesListInternal() const
     util::StringsList names;
     for (auto& fPtr : fields()) {
         assert(fPtr);
-        names.push_back(comms::className(fPtr->dslObj().name()));
+        names.push_back(comms::className(fPtr->dslObj().parseName()));
     }
     return util::strListToString(names, ",\n", "");
 }
 
 std::string CommsMessage::commsDefDocDetailsInternal() const
 {
-    auto desc = util::strMakeMultiline(dslObj().description());
+    auto desc = util::strMakeMultiline(dslObj().parseDescription());
     if (!desc.empty()) {
         static const std::string DocPrefix = strings::doxygenPrefixStr() + strings::incFileSuffixStr();
         desc.insert(desc.begin(), DocPrefix.begin(), DocPrefix.end());
@@ -791,7 +791,7 @@ std::string CommsMessage::commsDefDocDetailsInternal() const
 
 std::string CommsMessage::commsDefDeprecatedDocInternal() const
 {
-    auto deprecatedVer = dslObj().deprecatedSince();
+    auto deprecatedVer = dslObj().parseDeprecatedSince();
     if (!generator().isElementDeprecated(deprecatedVer)) {
         return strings::emptyString();
     }
@@ -814,8 +814,8 @@ std::string CommsMessage::commsDefBaseClassInternal() const
 
     util::ReplacementMap repl = {
         {"CUSTOMIZATION_OPT", commsDefCustomizationOptInternal()},
-        {"MESSAGE_ID", util::numToStringWithHexComment(dslObj().id())},
-        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"MESSAGE_ID", util::numToStringWithHexComment(dslObj().parseId())},
+        {"CLASS_NAME", comms::className(dslObj().parseName())},
         {"EXTRA_OPTIONS", commsDefExtraOptionsInternal()},
     };
 
@@ -859,7 +859,7 @@ std::string CommsMessage::commsDefExtraOptionsInternal() const
     }
 
     auto obj = dslObj();
-    if (obj.isFailOnInvalid()) {
+    if (obj.parseIsFailOnInvalid()) {
         util::addToStrList("comms::option::def::FailOnInvalid<>", opts);
     }
 
@@ -933,7 +933,7 @@ std::string CommsMessage::commsDefPrivateInternal() const
             continue;
         }
 
-        auto accName = comms::accessName(m_commsFields[idx]->field().dslObj().name());
+        auto accName = comms::accessName(m_commsFields[idx]->field().dslObj().parseName());
 
         if (!readCode.empty()) {
             static const std::string Templ = 
@@ -1013,10 +1013,10 @@ std::string CommsMessage::commsDefFieldsAccessInternal() const
     util::StringsList docs;
     util::StringsList names;
 
-    auto msgClassName = comms::className(dslObj().name());
+    auto msgClassName = comms::className(dslObj().parseName());
     for (auto& fPtr : fields()) {
         assert(fPtr);
-        auto& name = fPtr->dslObj().name();
+        auto& name = fPtr->dslObj().parseName();
         auto accName = comms::accessName(name);
         auto className = comms::className(name);
 
@@ -1041,7 +1041,7 @@ std::string CommsMessage::commsDefFieldsAccessInternal() const
 
 std::string CommsMessage::commsDefFieldsAliasesInternal() const
 {
-    auto aliases = dslObj().aliases();
+    auto aliases = dslObj().parseAliases();
     if (aliases.empty()) {
         return strings::emptyString();    
     }
@@ -1056,13 +1056,13 @@ std::string CommsMessage::commsDefFieldsAliasesInternal() const
             "///     @b field_#^#ALIAS_NAME#$#() -> <b>field_#^#ALIASED_FIELD_DOC#$#</b>\n"
             "COMMS_MSG_FIELD_ALIAS(#^#ALIAS_NAME#$#, #^#ALIASED_FIELD#$#);\n";
 
-        auto& fieldName = a.fieldName();
+        auto& fieldName = a.parseFieldName();
         auto fieldSubNames = util::strSplitByAnyChar(fieldName, ".");
         for (auto& n : fieldSubNames) {
             n = comms::accessName(n);
         }
 
-        auto desc = util::strMakeMultiline(a.description());
+        auto desc = util::strMakeMultiline(a.parseDescription());
         if (!desc.empty()) {
             desc = strings::doxygenPrefixStr() + strings::indentStr() + desc + " @n";
             desc = util::strReplace(desc, "\n", "\n" + strings::doxygenPrefixStr() + strings::indentStr());
@@ -1070,7 +1070,7 @@ std::string CommsMessage::commsDefFieldsAliasesInternal() const
 
         util::ReplacementMap repl = {
             {"ALIAS_DESC", std::move(desc)},
-            {"ALIAS_NAME", comms::accessName(a.name())},
+            {"ALIAS_NAME", comms::accessName(a.parseName())},
             {"ALIASED_FIELD_DOC", util::strListToString(fieldSubNames, "().field_", "()")},
             {"ALIASED_FIELD", util::strListToString(fieldSubNames, ", ", "")}
         };
@@ -1135,7 +1135,7 @@ std::string CommsMessage::commsDefLengthCheckInternal() const
 std::string CommsMessage::commsDefNameFuncInternal() const
 {
     std::string origCode;
-    if (hasOrigCode(dslObj().nameOverride())) {
+    if (hasOrigCode(dslObj().parseNameOverride())) {
         static const std::string Templ = 
             "/// @brief Name of the message.\n"
             "static const char* doName#^#ORIG#$#()\n"
@@ -1175,7 +1175,7 @@ std::string CommsMessage::commsDefReadFuncInternal() const
 {
     std::string origCode;
     do {
-        if (!hasOrigCode(dslObj().readOverride())) {
+        if (!hasOrigCode(dslObj().parseReadOverride())) {
             break;
         }
 
@@ -1195,7 +1195,7 @@ std::string CommsMessage::commsDefReadFuncInternal() const
                 continue;
             }
 
-            auto accName = comms::accessName(m_commsFields[idx]->field().dslObj().name());
+            auto accName = comms::accessName(m_commsFields[idx]->field().dslObj().parseName());
             auto prepStr = "readPrepare_" + accName + "();\n";
             if (idx == 0U) {
                 reads.push_back(std::move(prepStr));
@@ -1212,7 +1212,7 @@ std::string CommsMessage::commsDefReadFuncInternal() const
                 continue;
             }
 
-            auto prevAcc = comms::accessName(m_commsFields[prevIdx]->field().dslObj().name());
+            auto prevAcc = comms::accessName(m_commsFields[prevIdx]->field().dslObj().parseName());
             auto str = 
                 "es = Base::template doReadFromUntilAndUpdateLen<FieldIdx_" + prevAcc + ", FieldIdx_" + accName + ">(iter, len);\n" + 
                 EsCheckStr + '\n' +
@@ -1232,7 +1232,7 @@ std::string CommsMessage::commsDefReadFuncInternal() const
                 reads.push_back("es = Base::doRead(iter, len);\n");
             }
             else {
-                auto prevAcc = comms::accessName(m_commsFields[prevIdx]->field().dslObj().name());
+                auto prevAcc = comms::accessName(m_commsFields[prevIdx]->field().dslObj().parseName());
                 reads.push_back("es = Base::template doReadFrom<FieldIdx_" + prevAcc + ">(iter, len);\n");
             }
                         
@@ -1250,7 +1250,7 @@ std::string CommsMessage::commsDefReadFuncInternal() const
                 {"UPDATE_VERSION", generator().schemaOf(*this).versionDependentCode() ? "Base::doFieldsVersionUpdate();" : strings::emptyString()},
             };                
 
-            if (dslObj().isFailOnInvalid()) {
+            if (dslObj().parseIsFailOnInvalid()) {
                 static const std::string FailOnInvalidTempl = 
                     "if (!#^#VALID_PREFIX#$#doValid()) {\n"
                     "    es = comms::ErrorStatus::InvalidMsgData;\n"
@@ -1320,7 +1320,7 @@ std::string CommsMessage::commsDefRefreshFuncInternal() const
 {
     std::string origCode;
     do {
-        if (!hasOrigCode(dslObj().refreshOverride())) {
+        if (!hasOrigCode(dslObj().parseRefreshOverride())) {
             break;
         }
 
@@ -1332,7 +1332,7 @@ std::string CommsMessage::commsDefRefreshFuncInternal() const
                 continue;
             }
 
-            auto accName = comms::accessName(m_commsFields[idx]->field().dslObj().name());
+            auto accName = comms::accessName(m_commsFields[idx]->field().dslObj().parseName());
             fields.push_back("updated = refresh_" + accName + "() || updated;");
         }
 
@@ -1409,7 +1409,7 @@ bool CommsMessage::commsIsCustomizableInternal() const
         return true;
     }
 
-    if (dslObj().isCustomizable()) {
+    if (dslObj().parseIsCustomizable()) {
         return true;
     }
 
@@ -1417,7 +1417,7 @@ bool CommsMessage::commsIsCustomizableInternal() const
         return false;
     }
 
-    return dslObj().sender() != commsdsl::parse::ParseMessage::Sender::Both;
+    return dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Both;
 }
 
 std::string CommsMessage::commsCustomizationOptionsInternal(
@@ -1446,7 +1446,7 @@ std::string CommsMessage::commsCustomizationOptionsInternal(
             "};\n";
 
         util::ReplacementMap repl = {
-            {"NAME", comms::className(dslObj().name())},
+            {"NAME", comms::className(dslObj().parseName())},
             {"SUFFIX", strings::fieldsSuffixStr()},
             {"SCOPE", comms::scopeFor(*this, generator())},
             {"BODY", util::strListToString(fieldOpts, "\n", "")}
@@ -1493,7 +1493,7 @@ std::string CommsMessage::commsCustomizationOptionsInternal(
 
         util::ReplacementMap repl = {
             {"DOC", std::move(docStr)},
-            {"NAME", comms::className(dslObj().name())},
+            {"NAME", comms::className(dslObj().parseName())},
         };        
 
         assert(!extraOpts.empty());
@@ -1523,8 +1523,8 @@ std::string CommsMessage::commsCustomizationOptionsInternal(
 
 std::string CommsMessage::commsDefReadConditionsCodeInternal() const
 {
-    auto readCond = dslObj().readCond();
-    if (!readCond.valid()) {
+    auto readCond = dslObj().parseReadCond();
+    if (!readCond.parseValid()) {
         return strings::emptyString();
     }
 
@@ -1554,12 +1554,12 @@ std::string CommsMessage::commsDefOrigValidCodeInternal() const
 {
     auto obj = dslObj();
 
-    if ((!m_customCode.m_valid.empty()) && (!hasOrigCode(obj.validOverride()))) {
+    if ((!m_customCode.m_valid.empty()) && (!hasOrigCode(obj.parseValidOverride()))) {
         return strings::emptyString();
     }
 
-    auto cond = obj.validCond();
-    if (!cond.valid()) {
+    auto cond = obj.parseValidCond();
+    if (!cond.parseValid()) {
         return strings::emptyString();
     }
 
@@ -1618,7 +1618,7 @@ std::string CommsMessage::commsDefValidFuncInternal() const
 
 CommsMessage::StringsList CommsMessage::commsClientExtraCustomizationOptionsInternal() const
 {
-    auto sender = dslObj().sender();
+    auto sender = dslObj().parseSender();
     if (sender == commsdsl::parse::ParseMessage::Sender::Both) {
         return StringsList();
     }
@@ -1639,7 +1639,7 @@ CommsMessage::StringsList CommsMessage::commsClientExtraCustomizationOptionsInte
 
 CommsMessage::StringsList CommsMessage::commsServerExtraCustomizationOptionsInternal() const
 {
-    auto sender = dslObj().sender();
+    auto sender = dslObj().parseSender();
     if (sender == commsdsl::parse::ParseMessage::Sender::Both) {
         return StringsList();
     }
@@ -1660,8 +1660,8 @@ CommsMessage::StringsList CommsMessage::commsServerExtraCustomizationOptionsInte
 
 void CommsMessage::commsPrepareConstructCodeInternal()
 {
-    auto cond = dslObj().construct();
-    if (!cond.valid()) {
+    auto cond = dslObj().parseConstruct();
+    if (!cond.parseValid()) {
         return;
     }
 

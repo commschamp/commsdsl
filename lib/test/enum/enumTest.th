@@ -58,32 +58,32 @@ void EnumTestSuite::test1()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Enum1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "Enum1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    auto& values = enumField.values();
-    auto& revValues = enumField.revValues();
-    TS_ASSERT_EQUALS(enumField.type(), commsdsl::parse::ParseIntField::Type::Uint8);
-    TS_ASSERT_EQUALS(enumField.endian(), commsdsl::parse::ParseEndian_Big);
-    TS_ASSERT_EQUALS(enumField.minLength(), 1U);
-    TS_ASSERT_EQUALS(enumField.bitLength(), 0U);
-    TS_ASSERT_EQUALS(enumField.defaultValue(), 0);
-    TS_ASSERT(!enumField.isNonUniqueAllowed());
-    TS_ASSERT(enumField.isUnique());
-    TS_ASSERT(!enumField.validCheckVersion());
+    auto& values = enumField.parseValues();
+    auto& revValues = enumField.parseRevValues();
+    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::Type::Uint8);
+    TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT_EQUALS(enumField.parseMinLength(), 1U);
+    TS_ASSERT_EQUALS(enumField.parseBitLength(), 0U);
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 0);
+    TS_ASSERT(!enumField.parseIsNonUniqueAllowed());
+    TS_ASSERT(enumField.parseIsUnique());
+    TS_ASSERT(!enumField.parseValidCheckVersion());
     TS_ASSERT_EQUALS(values.size(), 3);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
     auto& v1 = values.find("V1")->second;
@@ -98,7 +98,7 @@ void EnumTestSuite::test1()
     TS_ASSERT_EQUALS(revValues.find(1)->second, "V1");
     TS_ASSERT_EQUALS(revValues.find(2)->second, "V2");
     TS_ASSERT_EQUALS(revValues.find(3)->second, "V3");
-    TS_ASSERT(!enumField.hexAssign());
+    TS_ASSERT(!enumField.parseHexAssign());
 }
 
 void EnumTestSuite::test2()
@@ -113,30 +113,30 @@ void EnumTestSuite::test3()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Enum1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "Enum1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    auto& values = enumField.values();
-    auto& revValues = enumField.revValues();
-    TS_ASSERT_EQUALS(enumField.type(), commsdsl::parse::ParseIntField::Type::Uint16);
-    TS_ASSERT_EQUALS(enumField.endian(), commsdsl::parse::ParseEndian_Big);
-    TS_ASSERT_EQUALS(enumField.minLength(), 2U);
-    TS_ASSERT_EQUALS(enumField.defaultValue(), 2);
-    TS_ASSERT(enumField.isNonUniqueAllowed());
-    TS_ASSERT(!enumField.isUnique());
+    auto& values = enumField.parseValues();
+    auto& revValues = enumField.parseRevValues();
+    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::Type::Uint16);
+    TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT_EQUALS(enumField.parseMinLength(), 2U);
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 2);
+    TS_ASSERT(enumField.parseIsNonUniqueAllowed());
+    TS_ASSERT(!enumField.parseIsUnique());
     TS_ASSERT_EQUALS(values.size(), 5);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
     TS_ASSERT_EQUALS(values.find("V1")->second.m_value, 1);
@@ -151,37 +151,37 @@ void EnumTestSuite::test3()
     TS_ASSERT_EQUALS(std::distance(range2.first, range2.second), 2);
     auto range3 = revValues.equal_range(5);
     TS_ASSERT_EQUALS(std::distance(range3.first, range3.second), 1);
-    TS_ASSERT(enumField.hexAssign());
+    TS_ASSERT(enumField.parseHexAssign());
 }
 
 void EnumTestSuite::test4()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Enum1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "Enum1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    auto& values = enumField.values();
-    auto& revValues = enumField.revValues();
-    TS_ASSERT_EQUALS(enumField.type(), commsdsl::parse::ParseIntField::Type::Uint64);
-    TS_ASSERT_EQUALS(enumField.endian(), commsdsl::parse::ParseEndian_Big);
-    TS_ASSERT_EQUALS(enumField.minLength(), 8U);
-    TS_ASSERT_EQUALS(enumField.defaultValue(), 0xffffffffffffffff);
-    TS_ASSERT(!enumField.isNonUniqueAllowed());
-    TS_ASSERT(enumField.isUnique());
+    auto& values = enumField.parseValues();
+    auto& revValues = enumField.parseRevValues();
+    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::Type::Uint64);
+    TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT_EQUALS(enumField.parseMinLength(), 8U);
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 0xffffffffffffffff);
+    TS_ASSERT(!enumField.parseIsNonUniqueAllowed());
+    TS_ASSERT(enumField.parseIsUnique());
     TS_ASSERT_EQUALS(values.size(), 3);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
     TS_ASSERT_EQUALS(values.find("V1")->second.m_value, 0x0123456789abcdef);
@@ -196,31 +196,31 @@ void EnumTestSuite::test5()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Enum1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "Enum1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    auto& values = enumField.values();
-    auto& revValues = enumField.revValues();
-    TS_ASSERT_EQUALS(enumField.type(), commsdsl::parse::ParseIntField::Type::Uintvar);
-    TS_ASSERT_EQUALS(enumField.endian(), commsdsl::parse::ParseEndian_Little);
-    TS_ASSERT_EQUALS(enumField.minLength(), 1U);
-    TS_ASSERT_EQUALS(enumField.maxLength(), 10U);
-    TS_ASSERT_EQUALS(enumField.defaultValue(), 0xffffffffffffffff);
-    TS_ASSERT(!enumField.isNonUniqueAllowed());
-    TS_ASSERT(enumField.isUnique());
+    auto& values = enumField.parseValues();
+    auto& revValues = enumField.parseRevValues();
+    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::Type::Uintvar);
+    TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Little);
+    TS_ASSERT_EQUALS(enumField.parseMinLength(), 1U);
+    TS_ASSERT_EQUALS(enumField.parseMaxLength(), 10U);
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 0xffffffffffffffff);
+    TS_ASSERT(!enumField.parseIsNonUniqueAllowed());
+    TS_ASSERT(enumField.parseIsUnique());
     TS_ASSERT_EQUALS(values.size(), 3);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
     TS_ASSERT_EQUALS(values.find("V1")->second.m_value, 0x0123456789abcdef);
@@ -235,31 +235,31 @@ void EnumTestSuite::test6()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Enum1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "Enum1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    auto& values = enumField.values();
-    auto& revValues = enumField.revValues();
-    TS_ASSERT_EQUALS(enumField.type(), commsdsl::parse::ParseIntField::Type::Uintvar);
-    TS_ASSERT_EQUALS(enumField.endian(), commsdsl::parse::ParseEndian_Little);
-    TS_ASSERT_EQUALS(enumField.minLength(), 1U);
-    TS_ASSERT_EQUALS(enumField.maxLength(), 6U);
-    TS_ASSERT_EQUALS(enumField.defaultValue(), (std::intmax_t)0x3ffffffffff);
-    TS_ASSERT(!enumField.isNonUniqueAllowed());
-    TS_ASSERT(enumField.isUnique());
+    auto& values = enumField.parseValues();
+    auto& revValues = enumField.parseRevValues();
+    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::Type::Uintvar);
+    TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Little);
+    TS_ASSERT_EQUALS(enumField.parseMinLength(), 1U);
+    TS_ASSERT_EQUALS(enumField.parseMaxLength(), 6U);
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), (std::intmax_t)0x3ffffffffff);
+    TS_ASSERT(!enumField.parseIsNonUniqueAllowed());
+    TS_ASSERT(enumField.parseIsUnique());
     TS_ASSERT_EQUALS(values.size(), 3);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
     TS_ASSERT_EQUALS(values.find("V1")->second.m_value, (std::intmax_t)0x0123456789ab);
@@ -277,31 +277,31 @@ void EnumTestSuite::test7()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Enum1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "Enum1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    auto& values = enumField.values();
-    auto& revValues = enumField.revValues();
-    TS_ASSERT_EQUALS(enumField.type(), commsdsl::parse::ParseIntField::Type::Intvar);
-    TS_ASSERT_EQUALS(enumField.endian(), commsdsl::parse::ParseEndian_Little);
-    TS_ASSERT_EQUALS(enumField.minLength(), 1U);
-    TS_ASSERT_EQUALS(enumField.maxLength(), 6U);
-    TS_ASSERT_EQUALS(enumField.defaultValue(), (std::intmax_t)0x3ffffffffff);
-    TS_ASSERT(!enumField.isNonUniqueAllowed());
-    TS_ASSERT(enumField.isUnique());
+    auto& values = enumField.parseValues();
+    auto& revValues = enumField.parseRevValues();
+    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::Type::Intvar);
+    TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Little);
+    TS_ASSERT_EQUALS(enumField.parseMinLength(), 1U);
+    TS_ASSERT_EQUALS(enumField.parseMaxLength(), 6U);
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), (std::intmax_t)0x3ffffffffff);
+    TS_ASSERT(!enumField.parseIsNonUniqueAllowed());
+    TS_ASSERT(enumField.parseIsUnique());
     TS_ASSERT_EQUALS(values.size(), 3);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
     TS_ASSERT_EQUALS(values.find("V1")->second.m_value, (std::intmax_t)0x0123456789ab);
@@ -317,42 +317,42 @@ void EnumTestSuite::test8()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field1 = fields.front();
     auto& field2 = fields.back();
 
-    TS_ASSERT_EQUALS(field1.name(), "Enum1");
-    TS_ASSERT_EQUALS(field2.name(), "Enum2");
-    TS_ASSERT_EQUALS(field1.kind(), commsdsl::parse::ParseField::Kind::Enum);
-    TS_ASSERT_EQUALS(field1.kind(), field2.kind());
+    TS_ASSERT_EQUALS(field1.parseName(), "Enum1");
+    TS_ASSERT_EQUALS(field2.parseName(), "Enum2");
+    TS_ASSERT_EQUALS(field1.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field1.parseKind(), field2.parseKind());
 
     commsdsl::parse::ParseEnumField enumField1(field1);
-    auto& values1 = enumField1.values();
-    auto& revValues1 = enumField1.revValues();
+    auto& values1 = enumField1.parseValues();
+    auto& revValues1 = enumField1.parseRevValues();
 
     commsdsl::parse::ParseEnumField enumField2(field2);
-    auto& values2 = enumField2.values();
-    auto& revValues2 = enumField2.revValues();
+    auto& values2 = enumField2.parseValues();
+    auto& revValues2 = enumField2.parseRevValues();
 
-    TS_ASSERT_EQUALS(enumField1.type(), commsdsl::parse::ParseIntField::Type::Uint8);
-    TS_ASSERT_EQUALS(enumField1.type(), enumField2.type());
-    TS_ASSERT_EQUALS(enumField1.endian(), commsdsl::parse::ParseEndian_Little);
-    TS_ASSERT_EQUALS(enumField1.endian(), enumField2.endian());
-    TS_ASSERT_EQUALS(enumField1.minLength(), 1U);
-    TS_ASSERT_EQUALS(enumField1.minLength(), enumField2.minLength());
-    TS_ASSERT_EQUALS(enumField1.defaultValue(), (std::intmax_t)0xff);
-    TS_ASSERT(!enumField1.isNonUniqueAllowed());
-    TS_ASSERT(!enumField2.isNonUniqueAllowed());
-    TS_ASSERT(enumField1.isUnique());
-    TS_ASSERT(enumField2.isUnique());
+    TS_ASSERT_EQUALS(enumField1.parseType(), commsdsl::parse::ParseIntField::Type::Uint8);
+    TS_ASSERT_EQUALS(enumField1.parseType(), enumField2.parseType());
+    TS_ASSERT_EQUALS(enumField1.parseEndian(), commsdsl::parse::ParseEndian_Little);
+    TS_ASSERT_EQUALS(enumField1.parseEndian(), enumField2.parseEndian());
+    TS_ASSERT_EQUALS(enumField1.parseMinLength(), 1U);
+    TS_ASSERT_EQUALS(enumField1.parseMinLength(), enumField2.parseMinLength());
+    TS_ASSERT_EQUALS(enumField1.parseDefaultValue(), (std::intmax_t)0xff);
+    TS_ASSERT(!enumField1.parseIsNonUniqueAllowed());
+    TS_ASSERT(!enumField2.parseIsNonUniqueAllowed());
+    TS_ASSERT(enumField1.parseIsUnique());
+    TS_ASSERT(enumField2.parseIsUnique());
     TS_ASSERT_EQUALS(values1.size(), 3);
     TS_ASSERT_EQUALS(values2.size(), 4);
     TS_ASSERT_EQUALS(revValues1.size(), values1.size());
@@ -378,31 +378,31 @@ void EnumTestSuite::test9()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 2U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field2 = fields.back();
 
-    TS_ASSERT_EQUALS(field2.name(), "Enum2");
-    TS_ASSERT_EQUALS(field2.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field2.parseName(), "Enum2");
+    TS_ASSERT_EQUALS(field2.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField2(field2);
-    auto& values2 = enumField2.values();
-    auto& revValues2 = enumField2.revValues();
+    auto& values2 = enumField2.parseValues();
+    auto& revValues2 = enumField2.parseRevValues();
 
-    TS_ASSERT_EQUALS(enumField2.type(), commsdsl::parse::ParseIntField::Type::Uint8);
-    TS_ASSERT_EQUALS(enumField2.endian(), commsdsl::parse::ParseEndian_Big);
-    TS_ASSERT_EQUALS(enumField2.minLength(), 1U);
-    TS_ASSERT_EQUALS(enumField2.defaultValue(), 1);
-    TS_ASSERT(!enumField2.isNonUniqueAllowed());
-    TS_ASSERT(enumField2.isUnique());
-    TS_ASSERT(enumField2.validCheckVersion());
+    TS_ASSERT_EQUALS(enumField2.parseType(), commsdsl::parse::ParseIntField::Type::Uint8);
+    TS_ASSERT_EQUALS(enumField2.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT_EQUALS(enumField2.parseMinLength(), 1U);
+    TS_ASSERT_EQUALS(enumField2.parseDefaultValue(), 1);
+    TS_ASSERT(!enumField2.parseIsNonUniqueAllowed());
+    TS_ASSERT(enumField2.parseIsUnique());
+    TS_ASSERT(enumField2.parseValidCheckVersion());
     TS_ASSERT_EQUALS(values2.size(), 4);
     TS_ASSERT_EQUALS(revValues2.size(), values2.size());
     auto v1Iter = values2.find("V1");
@@ -411,16 +411,16 @@ void EnumTestSuite::test9()
     auto nullIter = values2.find("Null");
     TS_ASSERT_EQUALS(v1Iter->second.m_value, 1);
     TS_ASSERT_EQUALS(v1Iter->second.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(v1Iter->second.m_deprecatedSince, commsdsl::parse::ParseProtocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(v1Iter->second.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT_EQUALS(v2Iter->second.m_value, 2);
     TS_ASSERT_EQUALS(v2Iter->second.m_sinceVersion, 0);
     TS_ASSERT_EQUALS(v2Iter->second.m_deprecatedSince, 2);
     TS_ASSERT_EQUALS(v3Iter->second.m_value, 3);
     TS_ASSERT_EQUALS(v3Iter->second.m_sinceVersion, 2);
-    TS_ASSERT_EQUALS(v3Iter->second.m_deprecatedSince, commsdsl::parse::ParseProtocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(v3Iter->second.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT_EQUALS(nullIter->second.m_value, (std::intmax_t)0xff);
     TS_ASSERT_EQUALS(nullIter->second.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(nullIter->second.m_deprecatedSince, commsdsl::parse::ParseProtocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(nullIter->second.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT_EQUALS(revValues2.find(1)->second, "V1");
     TS_ASSERT_EQUALS(revValues2.find(2)->second, "V2");
     TS_ASSERT_EQUALS(revValues2.find(3)->second, "V3");
@@ -482,30 +482,30 @@ void EnumTestSuite::test16()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Enum1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "Enum1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    auto& values = enumField.values();
-    auto& revValues = enumField.revValues();
-    TS_ASSERT_EQUALS(enumField.type(), commsdsl::parse::ParseIntField::Type::Uint32);
-    TS_ASSERT_EQUALS(enumField.endian(), commsdsl::parse::ParseEndian_Little);
-    TS_ASSERT_EQUALS(enumField.minLength(), 3U);
-    TS_ASSERT_EQUALS(enumField.defaultValue(), 2);
-    TS_ASSERT(enumField.isNonUniqueAllowed());
-    TS_ASSERT(!enumField.isUnique());
+    auto& values = enumField.parseValues();
+    auto& revValues = enumField.parseRevValues();
+    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::Type::Uint32);
+    TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Little);
+    TS_ASSERT_EQUALS(enumField.parseMinLength(), 3U);
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 2);
+    TS_ASSERT(enumField.parseIsNonUniqueAllowed());
+    TS_ASSERT(!enumField.parseIsUnique());
     TS_ASSERT_EQUALS(values.size(), 3);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
     auto& v1 = values.find("V1")->second;
@@ -543,24 +543,24 @@ void EnumTestSuite::test19()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Enum1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "Enum1");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    TS_ASSERT_EQUALS(enumField.type(), commsdsl::parse::ParseIntField::Type::Uintvar);
-    TS_ASSERT_EQUALS(enumField.endian(), commsdsl::parse::ParseEndian_Little);
-    TS_ASSERT_EQUALS(enumField.minLength(), 1U);
-    TS_ASSERT_EQUALS(enumField.maxLength(), 2U);
+    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::Type::Uintvar);
+    TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Little);
+    TS_ASSERT_EQUALS(enumField.parseMinLength(), 1U);
+    TS_ASSERT_EQUALS(enumField.parseMaxLength(), 2U);
 }
 
 void EnumTestSuite::test20()
@@ -593,22 +593,22 @@ void EnumTestSuite::test23()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "E1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "E1");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    auto& values = enumField.values();
-    TS_ASSERT_EQUALS(enumField.defaultValue(), 8);
+    auto& values = enumField.parseValues();
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 8);
     TS_ASSERT_EQUALS(values.size(), 1);
     auto& v1 = values.find("V1")->second;
     TS_ASSERT_EQUALS(v1.m_value, 8);    
@@ -618,22 +618,22 @@ void EnumTestSuite::test24()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "F2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "F2");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    auto& values = enumField.values();
-    TS_ASSERT_EQUALS(enumField.defaultValue(), 4);
+    auto& values = enumField.parseValues();
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 4);
     TS_ASSERT_EQUALS(values.size(), 3);
     auto& v1 = values.find("V1")->second;
     auto& v2 = values.find("V2")->second;
@@ -647,22 +647,22 @@ void EnumTestSuite::test25()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema25.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "F2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "F2");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    auto& values = enumField.values();
-    TS_ASSERT_EQUALS(enumField.defaultValue(), 4);
+    auto& values = enumField.parseValues();
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 4);
     TS_ASSERT_EQUALS(values.size(), 3);
     auto& v1 = values.find("V1")->second;
     auto& v2 = values.find("V2")->second;
@@ -676,22 +676,22 @@ void EnumTestSuite::test26()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema26.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 3U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "F3");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "F3");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    auto& values = enumField.values();
-    TS_ASSERT_EQUALS(enumField.defaultValue(), 3);
+    auto& values = enumField.parseValues();
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 3);
     TS_ASSERT_EQUALS(values.size(), 2);
     auto& v1 = values.find("V1")->second;
     auto& v2 = values.find("V2")->second;
@@ -703,22 +703,22 @@ void EnumTestSuite::test27()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema27.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "F2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "F2");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    auto& values = enumField.values();
-    TS_ASSERT_EQUALS(enumField.defaultValue(), 3);
+    auto& values = enumField.parseValues();
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 3);
     TS_ASSERT_EQUALS(values.size(), 2);
     auto& v1 = values.find("V1")->second;
     auto& v2 = values.find("V2")->second;
@@ -738,22 +738,22 @@ void EnumTestSuite::test29()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema29.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "F2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "F2");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    auto& values = enumField.values();
-    TS_ASSERT_EQUALS(enumField.defaultValue(), 1);
+    auto& values = enumField.parseValues();
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 1);
     TS_ASSERT_EQUALS(values.size(), 2);
     auto& v1 = values.find("V1")->second;
     auto& v2 = values.find("V2")->second;
@@ -765,23 +765,23 @@ void EnumTestSuite::test30()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema30.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 4U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "F4");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "F4");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    auto& values = enumField.values();
-    TS_ASSERT_EQUALS(enumField.defaultValue(), 1);
-    TS_ASSERT_EQUALS(enumField.displayName(), "Desc1");
+    auto& values = enumField.parseValues();
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 1);
+    TS_ASSERT_EQUALS(enumField.parseDisplayName(), "Desc1");
     TS_ASSERT_EQUALS(values.size(), 2);
     auto& v1 = values.find("V1")->second;
     auto& v2 = values.find("V2")->second;
@@ -795,23 +795,23 @@ void EnumTestSuite::test31()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema31.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 4U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "F4");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "F4");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    auto& values = enumField.values();
-    TS_ASSERT_EQUALS(enumField.defaultValue(), 1);
-    TS_ASSERT_EQUALS(enumField.displayName(), "^ns1.F1");
+    auto& values = enumField.parseValues();
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 1);
+    TS_ASSERT_EQUALS(enumField.parseDisplayName(), "^ns1.F1");
     TS_ASSERT_EQUALS(values.size(), 2);
     auto& v1 = values.find("V1")->second;
     auto& v2 = values.find("V2")->second;
@@ -838,23 +838,23 @@ void EnumTestSuite::test33()
 
     auto protocol = prepareProtocol(schemas, true);
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 5U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "F5");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseName(), "F5");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    auto& values = enumField.values();
-    TS_ASSERT_EQUALS(enumField.defaultValue(), 1);
-    TS_ASSERT_EQUALS(enumField.displayName(), "Desc1");
+    auto& values = enumField.parseValues();
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 1);
+    TS_ASSERT_EQUALS(enumField.parseDisplayName(), "Desc1");
     TS_ASSERT_EQUALS(values.size(), 2);
     auto& v1 = values.find("V1")->second;
     auto& v2 = values.find("V2")->second;

@@ -28,7 +28,7 @@ namespace gen
 GenSizeLayer::GenSizeLayer(GenGenerator& generator, commsdsl::parse::ParseLayer dslObj, GenElem* parent) :
     Base(generator, dslObj, parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseLayer::Kind::Size);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Size);
 }
 
 GenSizeLayer::~GenSizeLayer() = default;

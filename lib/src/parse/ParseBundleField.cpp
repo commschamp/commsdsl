@@ -44,22 +44,22 @@ ParseBundleField::ParseBundleField(const ParseBundleFieldImpl* impl) :
 ParseBundleField::ParseBundleField(ParseField field)
   : Base(field)
 {
-    assert(kind() == Kind::Bundle);
+    assert(parseKind() == Kind::Bundle);
 }
 
-ParseBundleField::Members ParseBundleField::members() const
+ParseBundleField::Members ParseBundleField::parseMembers() const
 {
-    return cast(m_pImpl)->membersList();
+    return cast(m_pImpl)->parseMembersList();
 }
 
-ParseBundleField::Aliases ParseBundleField::aliases() const
+ParseBundleField::Aliases ParseBundleField::parseAliases() const
 {
-    return cast(m_pImpl)->aliasesList();
+    return cast(m_pImpl)->parseAliasesList();
 }
 
-ParseOptCond ParseBundleField::validCond() const
+ParseOptCond ParseBundleField::parseValidCond() const
 {
-    return cast(m_pImpl)->validCond();
+    return cast(m_pImpl)->parseValidCond();
 }
 
 } // namespace parse

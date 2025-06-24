@@ -42,11 +42,11 @@ public:
 
     bool prepare()
     {
-        if (!m_dslObj.valid()) {
+        if (!m_dslObj.parseValid()) {
             return true;
         }
 
-        auto layers = m_dslObj.layers();
+        auto layers = m_dslObj.parseLayers();
         m_layers.reserve(layers.size());
         for (auto& dslObj : layers) {
             auto ptr = GenLayer::create(m_generator, dslObj, m_parent);

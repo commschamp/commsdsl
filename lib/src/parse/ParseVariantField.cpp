@@ -44,17 +44,17 @@ ParseVariantField::ParseVariantField(const ParseVariantFieldImpl* impl)
 ParseVariantField::ParseVariantField(ParseField field)
   : Base(field)
 {
-    assert(kind() == Kind::Variant);
+    assert(parseKind() == Kind::Variant);
 }
 
-ParseVariantField::Members ParseVariantField::members() const
+ParseVariantField::Members ParseVariantField::parseMembers() const
 {
-    return cast(m_pImpl)->membersList();
+    return cast(m_pImpl)->parseMembersList();
 }
 
-std::size_t ParseVariantField::defaultMemberIdx() const
+std::size_t ParseVariantField::parseDefaultMemberIdx() const
 {
-    return cast(m_pImpl)->defaultMemberIdx();
+    return cast(m_pImpl)->parseDefaultMemberIdx();
 }
 
 } // namespace parse

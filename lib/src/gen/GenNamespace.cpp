@@ -68,7 +68,7 @@ public:
 
     bool createAll()
     {
-        if (!m_dslObj.valid()) {
+        if (!m_dslObj.parseValid()) {
             return true;
         }
 
@@ -82,7 +82,7 @@ public:
 
     bool prepare()
     {
-        if (!m_dslObj.valid()) {
+        if (!m_dslObj.parseValid()) {
             return true;
         }
 
@@ -202,7 +202,7 @@ public:
                 {
                     return 
                         (f->isReferenced()) && 
-                        (f->dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::MessageId);
+                        (f->dslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::MessageId);
                 });   
 
         if (hasInFields) {
@@ -295,7 +295,7 @@ public:
 private:
     bool createNamespaces()
     {
-        auto namespaces = m_dslObj.namespaces();
+        auto namespaces = m_dslObj.parseNamespaces();
         m_namespaces.reserve(namespaces.size());
         for (auto& n : namespaces) {
             auto ptr = m_generator.createNamespace(n, m_parent);
@@ -323,11 +323,11 @@ private:
 
     bool createFields()
     {
-        if (!m_dslObj.valid()) {
+        if (!m_dslObj.parseValid()) {
             return true;
         }
 
-        auto fields = m_dslObj.fields();
+        auto fields = m_dslObj.parseFields();
         m_fields.reserve(fields.size());
         for (auto& dslObj : fields) {
             auto ptr = GenField::create(m_generator, dslObj, m_parent);
@@ -353,7 +353,7 @@ private:
 
     bool createInterfaces()
     {
-        auto interfaces = m_dslObj.interfaces();
+        auto interfaces = m_dslObj.parseInterfaces();
         m_interfaces.reserve(interfaces.size());
         for (auto& i : interfaces) {
             auto ptr = m_generator.createInterface(i, m_parent);
@@ -382,7 +382,7 @@ private:
 
     bool createMessages()
     {
-        auto messages = m_dslObj.messages();
+        auto messages = m_dslObj.parseMessages();
         m_messages.reserve(messages.size());
         for (auto& m : messages) {
             auto ptr = m_generator.createMessage(m, m_parent);
@@ -410,7 +410,7 @@ private:
 
     bool createFrames()
     {
-        auto frames = m_dslObj.frames();
+        auto frames = m_dslObj.parseFrames();
         m_frames.reserve(frames.size());
         for (auto& f : frames) {
             auto ptr = m_generator.createFrame(f, m_parent);
@@ -478,16 +478,16 @@ commsdsl::parse::ParseNamespace GenNamespace::dslObj() const
 std::string GenNamespace::adjustedExternalRef() const
 {
     auto obj = dslObj();
-    if (obj.valid()) {
-        return obj.externalRef();
+    if (obj.parseValid()) {
+        return obj.parseExternalRef();
     }
 
     auto* parent = getParent();
     assert(parent != nullptr);
     assert(parent->elemType() == GenElem::Type_Schema);
     auto* schema = static_cast<const GenSchema*>(parent);
-    assert(schema->dslObj().valid());
-    return schema->dslObj().externalRef();
+    assert(schema->dslObj().parseValid());
+    return schema->dslObj().parseExternalRef();
 }
 
 const GenNamespace::NamespacesList& GenNamespace::namespaces() const
@@ -529,12 +529,12 @@ GenNamespace::FieldsAccessList GenNamespace::findMessageIdFields() const
 {
     FieldsAccessList result;
     for (auto& f : fields()) {
-        if (f->dslObj().semanticType() != commsdsl::parse::ParseField::SemanticType::MessageId) {
+        if (f->dslObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::MessageId) {
             continue;
         }
 
-        if ((f->dslObj().kind() != commsdsl::parse::ParseField::Kind::Enum) &&
-            (f->dslObj().kind() != commsdsl::parse::ParseField::Kind::Int)) {
+        if ((f->dslObj().parseKind() != commsdsl::parse::ParseField::Kind::Enum) &&
+            (f->dslObj().parseKind() != commsdsl::parse::ParseField::Kind::Int)) {
             [[maybe_unused]] static constexpr bool Unexpected_kind = false;
             assert(Unexpected_kind);  
             continue;
@@ -842,7 +842,7 @@ GenInterface* GenNamespace::addDefaultInterface()
     auto& intList = m_impl->interfaces();
     for (auto& intPtr : intList) {
         assert(intPtr);
-        if ((!intPtr->dslObj().valid()) || intPtr->dslObj().name().empty()) {
+        if ((!intPtr->dslObj().parseValid()) || intPtr->dslObj().parseName().empty()) {
             return intPtr.get();
         }
     }

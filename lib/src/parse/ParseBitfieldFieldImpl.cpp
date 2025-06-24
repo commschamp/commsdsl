@@ -33,9 +33,9 @@ namespace parse
 namespace
 {
 
-ParseXmlWrap::NamesList getExtraNames()
+ParseXmlWrap::NamesList parseGetExtraNames()
 {
-    auto names = ParseBitfieldFieldImpl::supportedTypes();
+    auto names = ParseBitfieldFieldImpl::parseSupportedTypes();
     names.push_back(common::membersStr());
     names.push_back(common::validCondStr());
     return names;
@@ -54,11 +54,11 @@ ParseBitfieldFieldImpl::ParseBitfieldFieldImpl(const ParseBitfieldFieldImpl& oth
 {
     m_members.reserve(other.m_members.size());
     for (auto& m : other.m_members) {
-        m_members.push_back(m->clone());
+        m_members.push_back(m->parseClone());
     }
 }
 
-ParseBitfieldFieldImpl::Members ParseBitfieldFieldImpl::membersList() const
+ParseBitfieldFieldImpl::Members ParseBitfieldFieldImpl::parseMembersList() const
 {
     Members result;
     result.reserve(m_members.size());
@@ -71,7 +71,7 @@ ParseBitfieldFieldImpl::Members ParseBitfieldFieldImpl::membersList() const
     return result;
 }
 
-const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::supportedTypes()
+const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::parseSupportedTypes()
 {
     static const ParseXmlWrap::NamesList Names = {
         common::intStr(),
@@ -83,17 +83,17 @@ const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::supportedTypes()
     return Names;    
 }
 
-ParseFieldImpl::Kind ParseBitfieldFieldImpl::kindImpl() const
+ParseFieldImpl::Kind ParseBitfieldFieldImpl::parseKindImpl() const
 {
     return Kind::Bitfield;
 }
 
-ParseFieldImpl::Ptr ParseBitfieldFieldImpl::cloneImpl() const
+ParseFieldImpl::Ptr ParseBitfieldFieldImpl::parseCloneImpl() const
 {
     return Ptr(new ParseBitfieldFieldImpl(*this));
 }
 
-const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::extraPropsNamesImpl() const
+const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::parseExtraPropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
         common::endianStr(),
@@ -103,7 +103,7 @@ const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::extraPropsNamesImpl() con
     return List;
 }
 
-const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::extraPossiblePropsNamesImpl() const
+const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::parseExtraPossiblePropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
         common::validCondStr(),
@@ -112,15 +112,15 @@ const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::extraPossiblePropsNamesIm
     return List;
 }
 
-const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::extraChildrenNamesImpl() const
+const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::parseExtraChildrenNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList Names = getExtraNames();
+    static const ParseXmlWrap::NamesList Names = parseGetExtraNames();
     return Names;
 }
 
-bool ParseBitfieldFieldImpl::reuseImpl(const ParseFieldImpl& other)
+bool ParseBitfieldFieldImpl::parseReuseImpl(const ParseFieldImpl& other)
 {
-    assert(other.kind() == kind());
+    assert(other.parseKind() == parseKind());
     auto& castedOther = static_cast<const ParseBitfieldFieldImpl&>(other);
     m_endian = castedOther.m_endian;
     assert(m_members.empty());
@@ -129,12 +129,12 @@ bool ParseBitfieldFieldImpl::reuseImpl(const ParseFieldImpl& other)
         castedOther.m_members.begin(), castedOther.m_members.end(), std::back_inserter(m_members),
         [](auto& elem)
         {
-            return elem->clone();
+            return elem->parseClone();
         });
     assert(m_members.size() == castedOther.m_members.size());
 
     if (castedOther.m_validCond) {
-        m_validCond = castedOther.m_validCond->clone();
+        m_validCond = castedOther.m_validCond->parseClone();
     }      
     return true;
 }
@@ -142,14 +142,14 @@ bool ParseBitfieldFieldImpl::reuseImpl(const ParseFieldImpl& other)
 bool ParseBitfieldFieldImpl::parseImpl()
 {
     return
-        updateEndian() &&
-        updateMembers() &&
-        copyValidCond() &&
-        updateSingleValidCond() &&
-        updateMultiValidCond();
+        parseUpdateEndian() &&
+        parseUpdateMembers() &&
+        parseCopyValidCond() &&
+        parseUpdateSingleValidCond() &&
+        parseUpdateMultiValidCond();
 }
 
-bool ParseBitfieldFieldImpl::replaceMembersImpl(FieldsList& members)
+bool ParseBitfieldFieldImpl::parseReplaceMembersImpl(FieldsList& members)
 {
     for (auto& mem : members) {
         assert(mem);
@@ -159,18 +159,18 @@ bool ParseBitfieldFieldImpl::replaceMembersImpl(FieldsList& members)
                 [&mem](auto& currMem)
                 {
                     assert(currMem);
-                    return mem->name() == currMem->name();
+                    return mem->parseName() == currMem->parseName();
                 });
 
         if (iter == m_members.end()) {
-            logError() << ParseXmlWrap::logPrefix(mem->getNode()) <<
-                "Cannot find reused member with name \"" << mem->name() << "\" to replace.";
+            parseLogError() << ParseXmlWrap::parseLogPrefix(mem->parseGetNode()) <<
+                "Cannot find reused member with name \"" << mem->parseName() << "\" to replace.";
             return false;
         }
 
-        if ((mem->getSinceVersion() != getSinceVersion()) ||
-            (mem->getDeprecated() != getDeprecated())) {
-            logError() << ParseXmlWrap::logPrefix(mem->getNode()) <<
+        if ((mem->parseGetSinceVersion() != parseGetSinceVersion()) ||
+            (mem->parseGetDeprecated() != parseGetDeprecated())) {
+            parseLogError() << ParseXmlWrap::parseLogPrefix(mem->parseGetNode()) <<
                 "Bitfield replacing members are not allowed to update \"" << common::sinceVersionStr() << "\" and "
                 "\"" << common::deprecatedStr() << "\" properties.";
             return false;
@@ -182,44 +182,44 @@ bool ParseBitfieldFieldImpl::replaceMembersImpl(FieldsList& members)
     return true;
 }
 
-std::size_t ParseBitfieldFieldImpl::minLengthImpl() const
+std::size_t ParseBitfieldFieldImpl::parseMinLengthImpl() const
 {
     return
         std::accumulate(
             m_members.begin(), m_members.end(), static_cast<std::size_t>(0U),
             [](std::size_t soFar, auto& m) -> std::size_t
             {
-                return soFar + m->bitLength();
+                return soFar + m->parseBitLength();
     }) / 8U;
 }
 
-bool ParseBitfieldFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+bool ParseBitfieldFieldImpl::parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
 {
-    return strToNumericOnFields(ref, m_members, val, isBigUnsigned);
+    return parseStrToNumericOnFields(ref, m_members, val, isBigUnsigned);
 }
 
-bool ParseBitfieldFieldImpl::strToFpImpl(const std::string& ref, double& val) const
+bool ParseBitfieldFieldImpl::parseStrToFpImpl(const std::string& ref, double& val) const
 {
-    return strToFpOnFields(ref, m_members, val);
+    return parseStrToFpOnFields(ref, m_members, val);
 }
 
-bool ParseBitfieldFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
+bool ParseBitfieldFieldImpl::parseStrToBoolImpl(const std::string& ref, bool& val) const
 {
-    return strToBoolOnFields(ref, m_members, val);
+    return parseStrToBoolOnFields(ref, m_members, val);
 }
 
-bool ParseBitfieldFieldImpl::verifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, SemanticType type) const
+bool ParseBitfieldFieldImpl::parseVerifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, SemanticType type) const
 {
     if ((type == SemanticType::Length) &&
-        (protocol().isSemanticTypeLengthSupported()) && 
-        (protocol().isNonIntSemanticTypeLengthSupported())) {
+        (parseProtocol().parseIsSemanticTypeLengthSupported()) && 
+        (parseProtocol().parseIsNonIntSemanticTypeLengthSupported())) {
         return true;
     }
 
     return false;
 }
 
-bool ParseBitfieldFieldImpl::verifyAliasedMemberImpl(const std::string& fieldName) const
+bool ParseBitfieldFieldImpl::parseVerifyAliasedMemberImpl(const std::string& fieldName) const
 {
     auto dotPos = fieldName.find('.');
     std::string memFieldName(fieldName, 0, dotPos);
@@ -228,7 +228,7 @@ bool ParseBitfieldFieldImpl::verifyAliasedMemberImpl(const std::string& fieldNam
             m_members.begin(), m_members.end(),
             [&memFieldName](auto& f)
             {
-                return memFieldName == f->name();
+                return memFieldName == f->parseName();
             });
 
     if (iter == m_members.end()) {
@@ -240,60 +240,60 @@ bool ParseBitfieldFieldImpl::verifyAliasedMemberImpl(const std::string& fieldNam
     }
 
     std::string restFieldName(fieldName, dotPos + 1);
-    return (*iter)->verifyAliasedMember(restFieldName);
+    return (*iter)->parseVerifyAliasedMember(restFieldName);
 }
 
-const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::supportedMemberTypesImpl() const
+const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::parseSupportedMemberTypesImpl() const
 {
-    return ParseBitfieldFieldImpl::supportedTypes();
+    return ParseBitfieldFieldImpl::parseSupportedTypes();
 }
 
-const ParseBitfieldFieldImpl::FieldsList& ParseBitfieldFieldImpl::membersImpl() const
+const ParseBitfieldFieldImpl::FieldsList& ParseBitfieldFieldImpl::parseMembersImpl() const
 {
     return m_members;
 }
 
-bool ParseBitfieldFieldImpl::updateEndian()
+bool ParseBitfieldFieldImpl::parseUpdateEndian()
 {
-    if (!validateSinglePropInstance(common::endianStr())) {
+    if (!parseValidateSinglePropInstance(common::endianStr())) {
         return false;
     }
 
-    auto& endianStr = common::getStringProp(props(), common::endianStr());
+    auto& endianStr = common::getStringProp(parseProps(), common::endianStr());
     if ((endianStr.empty()) && (m_endian != ParseEndian_NumOfValues)) {
         return true;
     }
 
-    m_endian = common::parseEndian(endianStr, protocol().currSchema().endian());
+    m_endian = common::parseEndian(endianStr, parseProtocol().parseCurrSchema().parseEndian());
     if (m_endian == ParseEndian_NumOfValues) {
-        reportUnexpectedPropertyValue(common::endianStr(), endianStr);
+        parseReportUnexpectedPropertyValue(common::endianStr(), endianStr);
         return false;
     }
     return true;
 }
 
-bool ParseBitfieldFieldImpl::updateMembers()
+bool ParseBitfieldFieldImpl::parseUpdateMembers()
 {
     if (!m_members.empty()) {
         for (auto& m : m_members) {
-            m->setSinceVersion(std::max(getSinceVersion(), m->getSinceVersion()));
-            assert(m->getSinceVersion() == getSinceVersion());
-            assert(m->getDeprecated() == ParseProtocol::notYetDeprecated());
+            m->parseSetSinceVersion(std::max(parseGetSinceVersion(), m->parseGetSinceVersion()));
+            assert(m->parseGetSinceVersion() == parseGetSinceVersion());
+            assert(m->parseGetDeprecated() == ParseProtocol::parseNotYetDeprecated());
         }
     }
 
     do {
-        auto membersNodes = ParseXmlWrap::getChildren(getNode(), common::membersStr());
+        auto membersNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::membersStr());
         if (1U < membersNodes.size()) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                           "Only single \"" << common::membersStr() << "\" child element is "
                           "supported for \"" << common::bitfieldStr() << "\".";
             return false;
         }
 
-        auto memberFieldsTypes = ParseXmlWrap::getChildren(getNode(), supportedTypes());
+        auto memberFieldsTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseSupportedTypes());
         if ((0U < membersNodes.size()) && (0U < memberFieldsTypes.size())) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                           "The \"" << common::bitfieldStr() << "\" element does not support "
                           "list of stand alone member fields as child elements together with \"" <<
                           common::membersStr() << "\" child element.";
@@ -302,7 +302,7 @@ bool ParseBitfieldFieldImpl::updateMembers()
 
         if ((0U == membersNodes.size()) && (0U == memberFieldsTypes.size())) {
             if (m_members.empty()) {
-                logError() << ParseXmlWrap::logPrefix(getNode()) <<
+                parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                               "The \"" << common::bitfieldStr() << "\" must contain member fields.";
                 return false;
             }
@@ -311,16 +311,16 @@ bool ParseBitfieldFieldImpl::updateMembers()
         }
 
         if (!m_members.empty()) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                           "The \"" << common::bitfieldStr() << "\" cannot add member fields after reuse.";
             return false;
         }
 
         if ((0U < memberFieldsTypes.size())) {
             assert(0U == membersNodes.size());
-            auto allChildren = ParseXmlWrap::getChildren(getNode());
+            auto allChildren = ParseXmlWrap::parseGetChildren(parseGetNode());
             if (allChildren.size() != memberFieldsTypes.size()) {
-                logError() << ParseXmlWrap::logPrefix(getNode()) <<
+                parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                               "The member types of \"" << common::bitfieldStr() <<
                               "\" must be defined inside \"<" << common::membersStr() << ">\" child element "
                               "when there are other property describing children.";
@@ -330,10 +330,10 @@ bool ParseBitfieldFieldImpl::updateMembers()
 
         if (0U < membersNodes.size()) {
             assert(0U == memberFieldsTypes.size());
-            memberFieldsTypes = ParseXmlWrap::getChildren(membersNodes.front());
-            auto cleanMemberFieldsTypes = ParseXmlWrap::getChildren(membersNodes.front(), supportedTypes());
+            memberFieldsTypes = ParseXmlWrap::parseGetChildren(membersNodes.front());
+            auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(membersNodes.front(), parseSupportedTypes());
             if (cleanMemberFieldsTypes.size() != memberFieldsTypes.size()) {
-                logError() << ParseXmlWrap::logPrefix(membersNodes.front()) <<
+                parseLogError() << ParseXmlWrap::parseLogPrefix(membersNodes.front()) <<
                               "The \"" << common::membersStr() << "\" child node of \"" <<
                               common::bitfieldStr() << "\" element must contain only supported types.";
                 return false;
@@ -345,23 +345,23 @@ bool ParseBitfieldFieldImpl::updateMembers()
         m_members.reserve(m_members.size() + memberFieldsTypes.size());
         for (auto* memNode : memberFieldsTypes) {
             std::string memKind(reinterpret_cast<const char*>(memNode->name));
-            auto mem = ParseFieldImpl::create(memKind, memNode, protocol());
+            auto mem = ParseFieldImpl::parseCreate(memKind, memNode, parseProtocol());
             if (!mem) {
                 [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
-                logError() << ParseXmlWrap::logPrefix(getNode()) <<
+                parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                               "Internal error, failed to create objects for member fields.";
                 return false;
             }
 
-            mem->setParent(this);
+            mem->parseSetParent(this);
             if (!mem->parse()) {
                 return false;
             }
 
-            if ((mem->getSinceVersion() != getSinceVersion()) ||
-                (mem->getDeprecated() != getDeprecated())) {
-                logError() << ParseXmlWrap::logPrefix(mem->getNode()) <<
+            if ((mem->parseGetSinceVersion() != parseGetSinceVersion()) ||
+                (mem->parseGetDeprecated() != parseGetDeprecated())) {
+                parseLogError() << ParseXmlWrap::parseLogPrefix(mem->parseGetNode()) <<
                     "Bitfield members are not allowed to update \"" << common::sinceVersionStr() << "\" and "
                     "\"" << common::deprecatedStr() << "\" properties.";
                 return false;
@@ -370,7 +370,7 @@ bool ParseBitfieldFieldImpl::updateMembers()
             m_members.push_back(std::move(mem));
         }
 
-        if (!validateMembersNames(m_members)) {
+        if (!parseValidateMembersNames(m_members)) {
             return false;
         }
 
@@ -379,11 +379,11 @@ bool ParseBitfieldFieldImpl::updateMembers()
                 m_members.begin(), m_members.end(), static_cast<std::size_t>(0U),
                 [](std::size_t soFar, auto& elem) -> std::size_t
                 {
-                    return soFar + elem->bitLength();
+                    return soFar + elem->parseBitLength();
                 });
 
         if ((totalBitLength % 8U) != 0) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                           "The summary of member's bit lengths (" << totalBitLength <<
                           ") is expected to be devisable by 8.";
             return false;
@@ -391,7 +391,7 @@ bool ParseBitfieldFieldImpl::updateMembers()
 
         static const std::size_t MaxBits = std::numeric_limits<std::uint64_t>::digits;
         if (MaxBits < totalBitLength) {
-            logError() << ParseXmlWrap::logPrefix(getNode()) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                           "The summary of member's bit lengths (" << totalBitLength <<
                           ") cannot be greater than " << MaxBits << '.';
             return false;
@@ -401,100 +401,100 @@ bool ParseBitfieldFieldImpl::updateMembers()
     return true;
 }
 
-bool ParseBitfieldFieldImpl::updateSingleValidCond()
+bool ParseBitfieldFieldImpl::parseUpdateSingleValidCond()
 {
-    return updateSingleCondInternal(common::validCondStr(), m_validCond);
+    return parseUpdateSingleCondInternal(common::validCondStr(), m_validCond);
 }
 
-bool ParseBitfieldFieldImpl::updateMultiValidCond()
+bool ParseBitfieldFieldImpl::parseUpdateMultiValidCond()
 {
-    return updateMultiCondInternal(common::validCondStr(), m_validCond);
+    return parseUpdateMultiCondInternal(common::validCondStr(), m_validCond);
 }
 
 
-bool ParseBitfieldFieldImpl::copyValidCond()
+bool ParseBitfieldFieldImpl::parseCopyValidCond()
 {
     auto& prop = common::copyValidCondFromStr();
-    if (!validateSinglePropInstance(prop)) {
+    if (!parseValidateSinglePropInstance(prop)) {
         return false;
     }
 
-    auto& copySrc = common::getStringProp(props(), prop);
+    auto& copySrc = common::getStringProp(parseProps(), prop);
     if (copySrc.empty()) {
         return true;
     }
 
-    if (!protocol().isPropertySupported(prop)) {
-        logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (!parseProtocol().parseIsPropertySupported(prop)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                protocol().currSchema().dslVersion() << ".";        
+                parseProtocol().parseCurrSchema().parseDslVersion() << ".";        
         return true;
     }  
 
-    auto* field = protocol().findField(copySrc);
+    auto* field = parseProtocol().parseFindField(copySrc);
     if (field == nullptr) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Field referenced by \"" << prop << "\" property (" + copySrc + ") is not found.";
         return false;        
     }     
 
-    if (field->kind() != kind()) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (field->parseKind() != parseKind()) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Cannot reference field of other cond in property \"" << prop << "\".";
         return false;
     }      
 
     if (m_validCond) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Cannot use \"" << prop << "\" property when the validity condition is copied from other field by other means";        
         return false;
     }
 
     auto* other = static_cast<const ParseBitfieldFieldImpl*>(field);
     if (!other->m_validCond) {
-        logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Field referenced by the \"" << prop << "\" property (" << copySrc << ") does not specify any validity conditions";        
         return true;
     }
 
-    m_validCond = other->m_validCond->clone();
-    if (!m_validCond->verify(m_members, getNode(), protocol())) {
+    m_validCond = other->m_validCond->parseClone();
+    if (!m_validCond->parseVerify(m_members, parseGetNode(), parseProtocol())) {
         return false;
     }   
 
     return true;
 }
 
-bool ParseBitfieldFieldImpl::updateSingleCondInternal(const std::string& prop, ParseOptCondImplPtr& cond)
+bool ParseBitfieldFieldImpl::parseUpdateSingleCondInternal(const std::string& prop, ParseOptCondImplPtr& cond)
 {
-    if (!validateSinglePropInstance(prop)) {
+    if (!parseValidateSinglePropInstance(prop)) {
         return false;
     }
 
-    auto iter = props().find(prop);
-    if (iter == props().end()) {
+    auto iter = parseProps().find(prop);
+    if (iter == parseProps().end()) {
         return true;
     }
 
-    if (!protocol().isValidCondSupportedInCompositeFields()) {
-        logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (!parseProtocol().parseIsValidCondSupportedInCompositeFields()) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "The property \"" << prop << "\" is not supported for <bitfield> field in dslVersion=" << 
-                protocol().currSchema().dslVersion() << ".";        
+                parseProtocol().parseCurrSchema().parseDslVersion() << ".";        
         return true;
     }          
 
     auto newCond = std::make_unique<ParseOptCondExprImpl>();
-    if (!newCond->parse(iter->second, getNode(), protocol())) {
+    if (!newCond->parse(iter->second, parseGetNode(), parseProtocol())) {
         return false;
     }
 
-    if (newCond->hasInterfaceReference()) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (newCond->parseHasInterfaceReference()) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "The condition \"" << prop << "\" in fields cannot reference interface fields.";           
         return false;
     }
 
-    if (!newCond->verify(m_members, getNode(), protocol())) {
+    if (!newCond->parseVerify(m_members, parseGetNode(), parseProtocol())) {
         return false;
     }   
 
@@ -502,22 +502,22 @@ bool ParseBitfieldFieldImpl::updateSingleCondInternal(const std::string& prop, P
     return true; 
 }
 
-bool ParseBitfieldFieldImpl::updateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond)
+bool ParseBitfieldFieldImpl::parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond)
 {
-    auto condNodes = ParseXmlWrap::getChildren(getNode(), prop, true);
+    auto condNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), prop, true);
     if (condNodes.empty()) {
         return true;
     }
 
-    if (!protocol().isValidCondSupportedInCompositeFields()) {
-        logWarning() << ParseXmlWrap::logPrefix(getNode()) <<
+    if (!parseProtocol().parseIsValidCondSupportedInCompositeFields()) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "The property \"" << prop << "\" is not supported for <bitfield> field in dslVersion=" << 
-                protocol().currSchema().dslVersion() << ".";        
+                parseProtocol().parseCurrSchema().parseDslVersion() << ".";        
         return true;
     }      
 
     if (condNodes.size() > 1U) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Cannot use more that one child to the \"" << prop << "\" element.";        
         return false;
     }
@@ -527,34 +527,34 @@ bool ParseBitfieldFieldImpl::updateMultiCondInternal(const std::string& prop, Pa
         common::orStr()
     };
 
-    auto condChildren = ParseXmlWrap::getChildren(condNodes.front(), ElemNames);
+    auto condChildren = ParseXmlWrap::parseGetChildren(condNodes.front(), ElemNames);
     if (condChildren.size() != condNodes.size()) {
-        logError() << ParseXmlWrap::logPrefix(getNode()) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Only single \"" << common::andStr() << "\" or \"" << common::orStr() << "\" child of the \"" << prop << "\" element is supported.";           
         return false;
     }    
 
-    auto iter = props().find(prop);
-    if (iter != props().end()) {
-        logError() << ParseXmlWrap::logPrefix(condNodes.front()) <<
+    auto iter = parseProps().find(prop);
+    if (iter != parseProps().end()) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(condNodes.front()) <<
             "Only single \"" << prop << "\" property is supported";
 
         return false;
     }    
 
     auto newCond = std::make_unique<ParseOptCondListImpl>();
-    newCond->overrideCondStr(prop);
-    if (!newCond->parse(condChildren.front(), protocol())) {
+    newCond->parseOverrideCondStr(prop);
+    if (!newCond->parse(condChildren.front(), parseProtocol())) {
         return false;
     }
 
-    if (newCond->hasInterfaceReference()) {
-        logError() << ParseXmlWrap::logPrefix(condNodes.front()) <<
+    if (newCond->parseHasInterfaceReference()) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(condNodes.front()) <<
             "The condition \"" << prop << "\" in fields cannot reference interface fields.";           
         return false;
     }    
 
-    if (!newCond->verify(m_members, condChildren.front(), protocol())) {
+    if (!newCond->parseVerify(m_members, condChildren.front(), parseProtocol())) {
         return false;
     }    
 

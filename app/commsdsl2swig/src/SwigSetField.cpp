@@ -47,7 +47,7 @@ std::string SwigSetField::swigValueTypeDeclImpl() const
 
     auto obj = setDslObj();
     util::ReplacementMap repl = {
-        {"TYPE", SwigGenerator::cast(generator()).swigConvertIntType(obj.type(), obj.maxLength())}
+        {"TYPE", SwigGenerator::cast(generator()).swigConvertIntType(obj.parseType(), obj.parseMaxLength())}
     };
 
     return util::processTemplate(Templ, repl);    
@@ -60,7 +60,7 @@ std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
     util::StringsList indices;
     util::StringsList accesses;
 
-    for (auto& bitInfo : obj.revBits()) {
+    for (auto& bitInfo : obj.parseRevBits()) {
         indices.push_back("BitIdx_" + bitInfo.second + " = " + std::to_string(bitInfo.first));
 
         static const std::string Templ = 

@@ -37,24 +37,24 @@ public:
 
     bool prepare()
     {
-        auto fieldObj = m_dslObj.field();
-        if (fieldObj.isPseudo() != m_dslObj.isPseudo()) {
+        auto fieldObj = m_dslObj.parseField();
+        if (fieldObj.parseIsPseudo() != m_dslObj.parseIsPseudo()) {
             m_generator.logger().error(
-                m_dslObj.schemaPos() +
-                "Having \"pseudo\" property value for <ref> field \"" + m_dslObj.name() +
+                m_dslObj.parseSchemaPos() +
+                "Having \"pseudo\" property value for <ref> field \"" + m_dslObj.parseName() +
                 "\" that differs to one of the referenced field is not supported by the code generator.");
             return false;
         }
 
-        if (fieldObj.isFailOnInvalid() != m_dslObj.isFailOnInvalid()) {
+        if (fieldObj.parseIsFailOnInvalid() != m_dslObj.parseIsFailOnInvalid()) {
             m_generator.logger().error(
-                m_dslObj.schemaPos() +
-                "Having \"failOnInvalid\" property value for <ref> field \"" + m_dslObj.name() +
+                m_dslObj.parseSchemaPos() +
+                "Having \"failOnInvalid\" property value for <ref> field \"" + m_dslObj.parseName() +
                 "\" that differs to one of the referenced field is not supported by the code generator.");
             return false;
         }
 
-        m_referencedField = m_generator.findField(fieldObj.externalRef());
+        m_referencedField = m_generator.findField(fieldObj.parseExternalRef());
         if (m_referencedField == nullptr) {
             assert(false);
             return false;
@@ -89,7 +89,7 @@ GenRefField::GenRefField(GenGenerator& generator, commsdsl::parse::ParseField ds
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<GenRefFieldImpl>(generator, refDslObj()))
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Ref);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Ref);
 }
 
 GenRefField::~GenRefField() = default;

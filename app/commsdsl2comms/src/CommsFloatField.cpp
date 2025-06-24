@@ -244,7 +244,7 @@ std::string CommsFloatField::commsCommonCodeBodyImpl() const
     auto dslObj = floatDslObj();
     util::ReplacementMap repl = {
         {"SCOPE", comms::scopeFor(*this, gen)},
-        {"VALUE_TYPE", comms::cppFloatTypeFor(dslObj.type())},
+        {"VALUE_TYPE", comms::cppFloatTypeFor(dslObj.parseType())},
         {"NAME_FUNC", commsCommonNameFuncCode()},
         {"HAS_SPECIAL_FUNC", commsCommonHasSpecialsFuncCodeInternal()}
     };
@@ -263,7 +263,7 @@ std::string CommsFloatField::commsCommonCodeBodyImpl() const
 std::string CommsFloatField::commsDefConstructCodeImpl() const
 {
     auto obj = floatDslObj();
-    double defaultValue = obj.defaultValue();
+    double defaultValue = obj.parseDefaultValue();
     if (defaultValue == 0) {
         return strings::emptyString();
     }
@@ -272,7 +272,7 @@ std::string CommsFloatField::commsDefConstructCodeImpl() const
         "Base::setValue(#^#VAL#$#);\n";
 
     util::ReplacementMap repl = {
-        {"VAL", valueToString(defaultValue, obj.type())}
+        {"VAL", valueToString(defaultValue, obj.parseType())}
     };
 
     return util::processTemplate(Templ, repl);
@@ -287,12 +287,12 @@ CommsFloatField::IncludesList CommsFloatField::commsDefIncludesImpl() const
     bool hasLimits = false;
     do {
         auto obj = floatDslObj();
-        hasLimits = isLimit(obj.defaultValue());
+        hasLimits = isLimit(obj.parseDefaultValue());
         if (hasLimits) {
             break;
         }
 
-        for (auto& r : obj.validRanges()) {
+        for (auto& r : obj.parseValidRanges()) {
             hasLimits = isLimit(r.m_min);
             if (hasLimits) {
                 assert(isLimit(r.m_max));
@@ -327,8 +327,8 @@ std::string CommsFloatField::commsDefBaseClassImpl() const
     auto dslObj = floatDslObj();
     util::ReplacementMap repl = {
         {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
-        {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
-        {"FIELD_TYPE", comms::cppFloatTypeFor(dslObj.type())},
+        {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.parseEndian())},
+        {"FIELD_TYPE", comms::cppFloatTypeFor(dslObj.parseType())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };
 
@@ -366,14 +366,14 @@ std::string CommsFloatField::commsDefValidFuncBodyImpl() const
 {
     auto obj = floatDslObj();
 
-    auto& validRanges = obj.validRanges();
+    auto& validRanges = obj.parseValidRanges();
     if (validRanges.empty()) {
         return strings::emptyString();
     }
 
     bool validCheckVersion =
         generator().schemaOf(*this).versionDependentCode() &&
-        obj.validCheckVersion();
+        obj.parseValidCheckVersion();
 
     StringsList conditions;
     do {
@@ -382,8 +382,8 @@ std::string CommsFloatField::commsDefValidFuncBodyImpl() const
             break;
         }
 
-        auto minVersion = obj.sinceVersion();
-        auto maxVersion = obj.deprecatedSince();
+        auto minVersion = obj.parseSinceVersion();
+        auto maxVersion = obj.parseDeprecatedSince();
         for (auto& r : validRanges) {
             if ((minVersion < r.m_sinceVersion) ||
                 (r.m_deprecatedSince < maxVersion)) {
@@ -418,17 +418,17 @@ bool CommsFloatField::commsIsVersionDependentImpl() const
 {
     assert(generator().schemaOf(*this).versionDependentCode());
     auto obj = floatDslObj();
-    if (!obj.validCheckVersion()) {
+    if (!obj.parseValidCheckVersion()) {
         return false;
     }
 
-    auto& validRanges = obj.validRanges();
+    auto& validRanges = obj.parseValidRanges();
     if (validRanges.empty()) {
         return false;
     }
 
-    unsigned minVersion = obj.sinceVersion();
-    unsigned maxVersion = obj.deprecatedSince();
+    unsigned minVersion = obj.parseSinceVersion();
+    unsigned maxVersion = obj.parseDeprecatedSince();
     auto iter =
         std::find_if(
             validRanges.begin(), validRanges.end(),
@@ -445,7 +445,7 @@ bool CommsFloatField::commsIsVersionDependentImpl() const
 bool CommsFloatField::commsVerifyInnerRefImpl(const std::string& refStr) const
 {
     auto obj = floatDslObj();
-    auto& specials = obj.specialValues();
+    auto& specials = obj.parseSpecialValues();
     return (specials.find(refStr) != specials.end());
 }
 
@@ -507,7 +507,7 @@ std::string CommsFloatField::commsCommonSpecialsCodeInternal() const
         util::ReplacementMap repl = {
             {"SPEC_NAME", s.first},
             {"SPEC_ACC", comms::className(s.first)},
-            {"SPEC_VAL", valueToString(s.second.m_value, floatDslObj().type())},
+            {"SPEC_VAL", valueToString(s.second.m_value, floatDslObj().parseType())},
             {"SPECIAL_DOC", std::move(desc)},
         };
 
@@ -562,7 +562,7 @@ std::string CommsFloatField::commsDefSpecialsCodeInternal() const
     }
 
     auto obj = floatDslObj();
-    auto type = obj.type();
+    auto type = obj.parseType();
 
     util::StringsList specialsList;
     
@@ -635,7 +635,7 @@ std::string CommsFloatField::commsDefDisplayDecimalsCodeInternal() const
         "}";
         
     util::ReplacementMap repl = {
-        {"DISPLAY_DECIMALS", util::numToString(floatDslObj().displayDecimals())}
+        {"DISPLAY_DECIMALS", util::numToString(floatDslObj().parseDisplayDecimals())}
     };
 
     return util::processTemplate(Templ, repl);
@@ -682,7 +682,7 @@ std::string CommsFloatField::commsDefHasSpecialsFuncCodeInternal() const
 void CommsFloatField::commsAddUnitsOptInternal(StringsList& opts) const
 {
     auto obj = floatDslObj();
-    auto units = obj.units();
+    auto units = obj.parseUnits();
     auto& str = comms::dslUnitsToOpt(units);
     if (!str.empty()) {
         util::addToStrList(str, opts);
@@ -694,19 +694,19 @@ void CommsFloatField::commsAddVersionOptInternal(StringsList& opts) const
     auto obj = floatDslObj();
     bool validCheckVersion =
         generator().schemaOf(*this).versionDependentCode() &&
-        obj.validCheckVersion();
+        obj.parseValidCheckVersion();
 
     if (!validCheckVersion) {
         return;
     }
     
-    auto& validRanges = obj.validRanges();
+    auto& validRanges = obj.parseValidRanges();
     if (validRanges.empty()) {
         return;
     }
     
-    unsigned minVersion = obj.sinceVersion();
-    unsigned maxVersion = obj.deprecatedSince();
+    unsigned minVersion = obj.parseSinceVersion();
+    unsigned maxVersion = obj.parseDeprecatedSince();
     bool versionDependent = false;
     for (auto& r : validRanges) {
         if ((minVersion < r.m_sinceVersion) ||
@@ -724,7 +724,7 @@ void CommsFloatField::commsAddInvalidOptInternal(StringsList& opts) const
 {
     auto obj = floatDslObj();
 
-    if (!obj.validRanges().empty()) {
+    if (!obj.parseValidRanges().empty()) {
         opts.push_back("comms::option::def::InvalidByDefault");
     }
 }
@@ -733,9 +733,9 @@ CommsFloatField::StringsList CommsFloatField::commsValidNormalConditionsInternal
 {
     util::StringsList conditions;
     auto obj = floatDslObj();
-    auto type = obj.type();
+    auto type = obj.parseType();
 
-    auto& validRanges = obj.validRanges();
+    auto& validRanges = obj.parseValidRanges();
     for (auto& r : validRanges) {
         if (isLimit(r.m_min)) {
             addCondition(conditions, cmpToString(r.m_min, type));
@@ -751,7 +751,7 @@ CommsFloatField::StringsList CommsFloatField::commsValidNormalConditionsInternal
 CommsFloatField::StringsList CommsFloatField::commsValidVersionBasedConditionsInternal() const
 {
     auto obj = floatDslObj();
-    auto validRanges = obj.validRanges(); // copy
+    auto validRanges = obj.parseValidRanges(); // copy
 
     std::sort(
         validRanges.begin(), validRanges.end(),
@@ -781,8 +781,8 @@ CommsFloatField::StringsList CommsFloatField::commsValidVersionBasedConditionsIn
         });
 
 
-    auto minVersion = obj.sinceVersion();
-    auto maxVersion = obj.deprecatedSince();
+    auto minVersion = obj.parseSinceVersion();
+    auto maxVersion = obj.parseDeprecatedSince();
     auto verDepIter =
         std::find_if(
             validRanges.begin(), validRanges.end(),
@@ -792,7 +792,7 @@ CommsFloatField::StringsList CommsFloatField::commsValidVersionBasedConditionsIn
                         (elem.m_deprecatedSince < maxVersion));
             });
 
-    auto type = obj.type();
+    auto type = obj.parseType();
 
     StringsList conditions;
     for (auto iter = validRanges.begin(); iter != verDepIter; ++iter) {
@@ -847,10 +847,10 @@ CommsFloatField::StringsList CommsFloatField::commsValidVersionBasedConditionsIn
 
         auto* templ = &VersionConditionTemplate;
         if (fromVersion == 0) {
-            assert(untilVersion < commsdsl::parse::ParseProtocol::notYetDeprecated());
+            assert(untilVersion < commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
             templ = &UntilVersionConditionTemplate;
         }
-        else if (commsdsl::parse::ParseProtocol::notYetDeprecated() <= untilVersion) {
+        else if (commsdsl::parse::ParseProtocol::parseNotYetDeprecated() <= untilVersion) {
             templ = &FromVersionConditionTemplate;
         }
 

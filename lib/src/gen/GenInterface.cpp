@@ -43,11 +43,11 @@ public:
 
     bool createAll()
     {
-        if (!m_dslObj.valid()) {
+        if (!m_dslObj.parseValid()) {
             return true;
         }
 
-        auto fields = m_dslObj.fields();
+        auto fields = m_dslObj.parseFields();
         m_fields.reserve(fields.size());
         for (auto& dslObj : fields) {
             auto ptr = GenField::create(m_generator, dslObj, m_parent);
@@ -187,8 +187,8 @@ commsdsl::parse::ParseInterface GenInterface::dslObj() const
 std::string GenInterface::adjustedExternalRef() const
 {
     auto obj = dslObj();
-    if (obj.valid()) {
-        return obj.externalRef();
+    if (obj.parseValid()) {
+        return obj.parseExternalRef();
     }
 
     auto* ns = static_cast<const GenNamespace*>(getParent());
@@ -224,7 +224,7 @@ bool GenInterface::hasVersionField() const
             fList.begin(), fList.end(),
             [](auto& f)
             {
-                return f->dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::Version;
+                return f->dslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Version;
             });    
 }
 

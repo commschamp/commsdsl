@@ -51,7 +51,7 @@ std::string EmscriptenSetField::emscriptenHeaderExtraPublicFuncsImpl() const
 
     util::StringsList accesses;
 
-    for (auto& bitInfo : obj.revBits()) {
+    for (auto& bitInfo : obj.parseRevBits()) {
 
         static const std::string Templ = 
             "bool getBitValue_#^#NAME#$#() const\n"
@@ -98,7 +98,7 @@ std::string EmscriptenSetField::emscriptenSourceBindFuncsImpl() const
     };    
 
     util::StringsList accesses;
-    for (auto& bitInfo : obj.revBits()) {
+    for (auto& bitInfo : obj.parseRevBits()) {
 
         static const std::string Templ = 
             ".function(\"getBitValue_#^#NAME#$#\", &#^#CLASS_NAME#$#::getBitValue_#^#NAME#$#)\n"
@@ -127,7 +127,7 @@ std::string EmscriptenSetField::emscriptenSourceBindExtraImpl() const
     };    
 
     util::StringsList values;
-    for (auto& bitInfo : obj.revBits()) {
+    for (auto& bitInfo : obj.parseRevBits()) {
 
         static const std::string Templ = 
             ".value(\"#^#NAME#$#\", #^#CLASS_NAME#$#::BitIdx_#^#NAME#$#)";

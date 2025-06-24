@@ -48,7 +48,7 @@ std::string SwigFloatField::swigValueTypeDeclImpl() const
 
     auto obj = floatDslObj();
     util::ReplacementMap repl = {
-        {"TYPE", comms::cppFloatTypeFor(obj.type())}
+        {"TYPE", comms::cppFloatTypeFor(obj.parseType())}
     };
 
     return util::processTemplate(Templ, repl);

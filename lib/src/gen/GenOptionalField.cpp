@@ -37,11 +37,11 @@ public:
 
     bool prepare()
     {
-        auto field = m_dslObj.field();
-        assert(field.valid());
+        auto field = m_dslObj.parseField();
+        assert(field.parseValid());
 
-        if (!field.externalRef().empty()) {
-            m_externalField = m_generator.findField(field.externalRef());
+        if (!field.parseExternalRef().empty()) {
+            m_externalField = m_generator.findField(field.parseExternalRef());
             assert(m_externalField != nullptr);
             return true;
         }
@@ -93,7 +93,7 @@ GenOptionalField::GenOptionalField(GenGenerator& generator, commsdsl::parse::Par
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<GenOptionalFieldImpl>(generator, optionalDslObj(), this))
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Optional);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Optional);
 }
 
 GenOptionalField::~GenOptionalField() = default;

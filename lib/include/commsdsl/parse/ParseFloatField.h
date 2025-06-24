@@ -48,7 +48,7 @@ public:
         double m_min = 0.0;
         double m_max = 0.0;
         unsigned m_sinceVersion = 0;
-        unsigned m_deprecatedSince = ParseProtocol::notYetDeprecated();
+        unsigned m_deprecatedSince = ParseProtocol::parseNotYetDeprecated();
     };
     using ValidRangesList = std::vector<ValidRangeInfo>;
 
@@ -56,7 +56,7 @@ public:
     {
         double m_value = 0;
         unsigned m_sinceVersion = 0;
-        unsigned m_deprecatedSince = ParseProtocol::notYetDeprecated();
+        unsigned m_deprecatedSince = ParseProtocol::parseNotYetDeprecated();
         std::string m_description;
         std::string m_displayName;
     };
@@ -65,15 +65,15 @@ public:
     explicit ParseFloatField(const ParseFloatFieldImpl* impl);
     explicit ParseFloatField(ParseField field);
 
-    Type type() const;
-    ParseEndian endian() const;
-    double defaultValue() const;
-    const ValidRangesList& validRanges() const;
-    const SpecialValues& specialValues() const;
-    bool validCheckVersion() const;
-    ParseUnits units() const;
-    unsigned displayDecimals() const;
-    bool hasNonUniqueSpecials() const;
+    Type parseType() const;
+    ParseEndian parseEndian() const;
+    double parseDefaultValue() const;
+    const ValidRangesList& parseValidRanges() const;
+    const SpecialValues& parseSpecialValues() const;
+    bool parseValidCheckVersion() const;
+    ParseUnits parseUnits() const;
+    unsigned parseDisplayDecimals() const;
+    bool parseHasNonUniqueSpecials() const;
 };
 
 inline

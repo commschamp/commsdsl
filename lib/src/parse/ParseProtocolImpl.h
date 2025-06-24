@@ -48,89 +48,89 @@ public:
 
     ParseProtocolImpl();
     bool parse(const std::string& input);
-    bool validate();
+    bool parseValidate();
 
-    SchemasAccessList schemas() const;
+    SchemasAccessList parseSchemas() const;
 
-    SchemasList& schemaImpls()
+    SchemasList& parseSchemaImpls()
     {
         return m_schemas;
     }
 
-    const SchemasList& schemaImpls() const
+    const SchemasList& parseSchemaImpls() const
     {
         return m_schemas;
     }
 
-    ParseSchemaImpl& currSchema();
-    const ParseSchemaImpl& currSchema() const;
+    ParseSchemaImpl& parseCurrSchema();
+    const ParseSchemaImpl& parseCurrSchema() const;
 
-    void setErrorReportCallback(ErrorReportFunction&& cb)
+    void parseSetErrorReportCallback(ErrorReportFunction&& cb)
     {
         m_errorReportCb = std::move(cb);
     }
 
-    ParseLogger& logger() const
+    ParseLogger& parseLogger() const
     {
         return m_logger;
     }
 
-    const ParseFieldImpl* findField(const std::string& ref, bool checkRef = true) const;
+    const ParseFieldImpl* parseFindField(const std::string& ref, bool checkRef = true) const;
 
-    const ParseMessageImpl* findMessage(const std::string& ref, bool checkRef = true) const;
+    const ParseMessageImpl* parseFindMessage(const std::string& ref, bool checkRef = true) const;
 
-    const ParseInterfaceImpl* findInterface(const std::string& ref, bool checkRef = true) const;
+    const ParseInterfaceImpl* parseFindInterface(const std::string& ref, bool checkRef = true) const;
 
-    bool strToEnumValue(const std::string& ref, std::intmax_t& val, bool checkRef = true) const;
+    bool parseStrToEnumValue(const std::string& ref, std::intmax_t& val, bool checkRef = true) const;
 
-    bool strToNumeric(const std::string& ref, bool checkRef, std::intmax_t& val, bool& isBigUnsigned) const;
-    bool strToFp(const std::string& ref, bool checkRef, double& val) const;
-    bool strToBool(const std::string& ref, bool checkRef, bool& val) const;
-    bool strToString(const std::string& ref, bool checkRef, std::string& val) const;
-    bool strToData(const std::string& ref, bool checkRef, std::vector<std::uint8_t>& val) const;
+    bool parseStrToNumeric(const std::string& ref, bool checkRef, std::intmax_t& val, bool& isBigUnsigned) const;
+    bool parseStrToFp(const std::string& ref, bool checkRef, double& val) const;
+    bool parseStrToBool(const std::string& ref, bool checkRef, bool& val) const;
+    bool parseStrToString(const std::string& ref, bool checkRef, std::string& val) const;
+    bool parseStrToData(const std::string& ref, bool checkRef, std::vector<std::uint8_t>& val) const;
 
-    bool strToStringValue(const std::string& str, std::string& val) const;
+    bool parseStrToStringValue(const std::string& str, std::string& val) const;
 
-    void addExpectedExtraPrefix(const std::string& value)
+    void parseAddExpectedExtraPrefix(const std::string& value)
     {
         m_extraPrefixes.push_back(value);
     }
 
-    const ExtraPrefixes& extraElementPrefixes() const
+    const ExtraPrefixes& parseExtraElementPrefixes() const
     {
         return m_extraPrefixes;
     }
 
-    bool isFeatureSupported(unsigned minDslVersion) const;
-    bool isFeatureDeprecated(unsigned deprecatedVersion) const;
-    bool isPropertySupported(const std::string& name) const;    
-    bool isPropertyDeprecated(const std::string& name) const;    
-    bool isFieldValueReferenceSupported() const;
-    bool isSemanticTypeLengthSupported() const;
-    bool isSemanticTypeRefInheritanceSupported() const;
-    bool isNonIntSemanticTypeLengthSupported() const;
-    bool isNonUniqueSpecialsAllowedSupported() const;
-    bool isFieldAliasSupported() const;
-    bool isCopyFieldsFromBundleSupported() const;
-    bool isOverrideTypeSupported() const;
-    bool isMemberReplaceSupported() const;
-    bool isMultiSchemaSupported() const;
-    bool isInterfaceFieldReferenceSupported() const;
-    bool isFailOnInvalidInMessageSupported() const;
-    bool isSizeCompInConditionalsSupported() const;
-    bool isExistsCheckInConditionalsSupported() const;
-    bool isValidValueInStringAndDataSupported() const;
-    bool isValidateMinLengthForFieldsSupported() const;
-    bool isMessageReuseSupported() const;
-    bool isInterfaceReuseSupported() const;
-    bool isValidCondSupportedInCompositeFields() const;
+    bool parseIsFeatureSupported(unsigned minDslVersion) const;
+    bool parseIsFeatureDeprecated(unsigned deprecatedVersion) const;
+    bool parseIsPropertySupported(const std::string& name) const;    
+    bool parseIsPropertyDeprecated(const std::string& name) const;    
+    bool parseIsFieldValueReferenceSupported() const;
+    bool parseIsSemanticTypeLengthSupported() const;
+    bool parseIsSemanticTypeRefInheritanceSupported() const;
+    bool parseIsNonIntSemanticTypeLengthSupported() const;
+    bool parseIsNonUniqueSpecialsAllowedSupported() const;
+    bool parseIsFieldAliasSupported() const;
+    bool parseIsCopyFieldsFromBundleSupported() const;
+    bool parseIsOverrideTypeSupported() const;
+    bool parseIsMemberReplaceSupported() const;
+    bool parseIsMultiSchemaSupported() const;
+    bool parseIsInterfaceFieldReferenceSupported() const;
+    bool parseIsFailOnInvalidInMessageSupported() const;
+    bool parseIsSizeCompInConditionalsSupported() const;
+    bool parseIsExistsCheckInConditionalsSupported() const;
+    bool parseIsValidValueInStringAndDataSupported() const;
+    bool parseIsValidateMinLengthForFieldsSupported() const;
+    bool parseIsMessageReuseSupported() const;
+    bool parseIsInterfaceReuseSupported() const;
+    bool parseIsValidCondSupportedInCompositeFields() const;
 
-    void setMultipleSchemasEnabled(bool value)
+    void parseSetMultipleSchemasEnabled(bool value)
     {
         m_multipleSchemasEnabled = value;
     }
 
-    bool getMultipleSchemasEnabled() const
+    bool parseGetMultipleSchemasEnabled() const
     {
         return m_multipleSchemasEnabled;
     }
@@ -148,20 +148,20 @@ private:
     using DocsList = std::vector<XmlDocPtr>;
     using StrToValueConvertFunc = std::function<bool (const ParseNamespaceImpl& ns, const std::string& ref)>;
 
-    static void cbXmlErrorFunc(void* userData, const xmlError* err);
-    static void cbXmlErrorFunc(void* userData, xmlErrorPtr err);
-    void handleXmlError(const xmlError* err);
-    bool validateDoc(::xmlDocPtr doc);
-    bool validateSchema(::xmlNodePtr node);
-    bool validatePlatforms(::xmlNodePtr root);
-    bool validateSinglePlatform(::xmlNodePtr node);
-    bool validateNamespaces(::xmlNodePtr root);
-    bool validateAllMessages();
-    bool strToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const;
+    static void parseCbXmlErrorFunc(void* userData, const xmlError* err);
+    static void parseCbXmlErrorFunc(void* userData, xmlErrorPtr err);
+    void parseHandleXmlError(const xmlError* err);
+    bool parseValidateDoc(::xmlDocPtr doc);
+    bool parseValidateSchema(::xmlNodePtr node);
+    bool parseValidatePlatforms(::xmlNodePtr root);
+    bool parseValidateSinglePlatform(::xmlNodePtr node);
+    bool parseValidateNamespaces(::xmlNodePtr root);
+    bool parseValidateAllMessages();
+    bool parseStrToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const;
     std::pair<const ParseSchemaImpl*, std::string> parseExternalRef(const std::string& externalRef) const;
 
-    LogWrapper logError() const;
-    LogWrapper logWarning() const;
+    LogWrapper parseLogError() const;
+    LogWrapper parseLogWarning() const;
 
     ErrorReportFunction m_errorReportCb;
     DocsList m_docs;

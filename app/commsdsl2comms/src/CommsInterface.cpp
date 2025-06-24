@@ -126,7 +126,7 @@ const CommsField* CommsInterface::findValidReferencedField(const std::string& re
             m_commsFields.begin(), m_commsFields.end(),
             [&fieldName](auto* f)
             {
-                return fieldName == f->field().dslObj().name();
+                return fieldName == f->field().dslObj().parseName();
             });
 
     if (iter == m_commsFields.end()) {
@@ -159,8 +159,8 @@ bool CommsInterface::prepareImpl()
         return false;
     }    
 
-    if (dslObj().valid()) {
-        m_name = comms::className(dslObj().name());
+    if (dslObj().parseValid()) {
+        m_name = comms::className(dslObj().parseName());
     }
 
     if (m_name.empty()) {
@@ -191,11 +191,11 @@ bool CommsInterface::writeImpl() const
 bool CommsInterface::copyCodeFromInternal()
 {
     auto obj = dslObj();
-    if (!obj.valid()) {
+    if (!obj.parseValid()) {
         return true;
     }
     
-    auto& copyFrom = obj.copyCodeFrom();
+    auto& copyFrom = obj.parseCopyCodeFrom();
     if (copyFrom.empty()) {
         return true;
     }
@@ -427,7 +427,7 @@ std::string CommsInterface::commsDefFieldsCodeInternal() const
     for (auto* commsField : m_commsFields) {
         assert(commsField != nullptr);
         defs.push_back(commsField->commsDefCode());
-        names.push_back(comms::className(commsField->field().dslObj().name()));
+        names.push_back(comms::className(commsField->field().dslObj().parseName()));
     }
 
     util::ReplacementMap repl = {
@@ -443,8 +443,8 @@ std::string CommsInterface::commsDefFieldsCodeInternal() const
 std::string CommsInterface::commsDefDocDetailsInternal() const
 {
     std::string desc;
-    if (dslObj().valid()) {
-        desc = util::strMakeMultiline(dslObj().description());
+    if (dslObj().parseValid()) {
+        desc = util::strMakeMultiline(dslObj().parseDescription());
     } 
 
     if (!desc.empty()) {
@@ -503,7 +503,7 @@ std::string CommsInterface::commsDefExtraOptionsInternal() const
             m_commsFields.begin(), m_commsFields.end(),
             [](auto& f)
             {
-                return f->field().dslObj().semanticType() == commsdsl::parse::ParseField::SemanticType::Version;
+                return f->field().dslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Version;
             });
 
     if (iter != m_commsFields.end()) {
@@ -594,10 +594,10 @@ std::string CommsInterface::commsDefFieldsAccessInternal() const
     util::StringsList docs;
     util::StringsList names;
 
-    auto interfaceClassName = comms::className(dslObj().name());
+    auto interfaceClassName = comms::className(dslObj().parseName());
     for (auto& fPtr : fields()) {
         assert(fPtr);
-        auto& name = fPtr->dslObj().name();
+        auto& name = fPtr->dslObj().parseName();
         auto accName = comms::accessName(name);
         auto className = comms::className(name);
 
@@ -624,11 +624,11 @@ std::string CommsInterface::commsDefFieldsAccessInternal() const
 std::string CommsInterface::commsDefFieldsAliasesInternal() const
 {
     auto obj = dslObj();
-    if (!obj.valid()) {
+    if (!obj.parseValid()) {
         return strings::emptyString();
     }
 
-    auto aliases = obj.aliases();
+    auto aliases = obj.parseAliases();
     if (aliases.empty()) {
         return strings::emptyString();    
     }
@@ -643,13 +643,13 @@ std::string CommsInterface::commsDefFieldsAliasesInternal() const
             "///     @b transportField_#^#ALIAS_NAME#$#() -> <b>transportField_#^#ALIASED_FIELD_DOC#$#</b>\n"
             "COMMS_MSG_TRANSPORT_FIELD_ALIAS(#^#ALIAS_NAME#$#, #^#ALIASED_FIELD#$#);\n";
 
-        auto& fieldName = a.fieldName();
+        auto& fieldName = a.parseFieldName();
         auto fieldSubNames = util::strSplitByAnyChar(fieldName, ".");
         for (auto& n : fieldSubNames) {
             n = comms::accessName(n);
         }
 
-        auto desc = util::strMakeMultiline(a.description());
+        auto desc = util::strMakeMultiline(a.parseDescription());
         if (!desc.empty()) {
             desc = strings::doxygenPrefixStr() + strings::indentStr() + desc + " @n";
             desc = util::strReplace(desc, "\n", "\n" + strings::doxygenPrefixStr() + strings::indentStr());
@@ -657,7 +657,7 @@ std::string CommsInterface::commsDefFieldsAliasesInternal() const
 
         util::ReplacementMap repl = {
             {"ALIAS_DESC", std::move(desc)},
-            {"ALIAS_NAME", comms::accessName(a.name())},
+            {"ALIAS_NAME", comms::accessName(a.parseName())},
             {"ALIASED_FIELD_DOC", util::strListToString(fieldSubNames, "().transportField_", "()")},
             {"ALIASED_FIELD", util::strListToString(fieldSubNames, ", ", "")}
         };

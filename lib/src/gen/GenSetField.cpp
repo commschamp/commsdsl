@@ -28,7 +28,7 @@ namespace gen
 GenSetField::GenSetField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent) :
     Base(generator, dslObj, parent)
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::Set);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Set);
 }
 
 GenSetField::~GenSetField() = default;

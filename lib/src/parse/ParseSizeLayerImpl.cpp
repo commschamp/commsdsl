@@ -29,15 +29,15 @@ ParseSizeLayerImpl::ParseSizeLayerImpl(::xmlNodePtr node, ParseProtocolImpl& pro
 {
 }
 
-ParseLayerImpl::Kind ParseSizeLayerImpl::kindImpl() const
+ParseLayerImpl::Kind ParseSizeLayerImpl::parseKindImpl() const
 {
     return Kind::Size;
 }
 
-bool ParseSizeLayerImpl::verifyImpl(const ParseLayerImpl::LayersList& layers)
+bool ParseSizeLayerImpl::parseVerifyImpl(const ParseLayerImpl::LayersList& layers)
 {
-    return verifySingleLayer(layers, common::sizeStr()) &&
-           verifyBeforePayload(layers);
+    return parseVerifySingleLayer(layers, common::sizeStr()) &&
+           parseVerifyBeforePayload(layers);
 }
 
 } // namespace parse

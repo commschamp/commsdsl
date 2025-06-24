@@ -329,7 +329,7 @@ bool ToolsQtFrame::toolsWriteSrcInternal() const
             {"TOP_NS_BEGIN", gen.toolsNamespaceBeginForInterface(*info.first)},
             {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*info.first)},
             {"DEF", toolsFrameSrcDefInternal(*info.first)},
-            {"CLASS_NAME", comms::className(dslObj().name())},
+            {"CLASS_NAME", comms::className(dslObj().parseName())},
             {"INCLUDES", util::strListToString(includes, "\n", "")},
         };
 
@@ -448,7 +448,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
             {"NS_END", comms::namespaceEndFor(*this, gen)},
             {"TOP_NS_BEGIN", gen.toolsNamespaceBeginForInterface(*info.first)},
             {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*info.first)},
-            {"CLASS_NAME", comms::className(dslObj().name())},
+            {"CLASS_NAME", comms::className(dslObj().parseName())},
             {"SUFFIX", strings::transportMessageSuffixStr()},
             {"INCLUDES", util::strListToString(includes, "\n", "")},
             {"DEF", toolsTransportMsgSrcDefInternal(*info.first)},
@@ -473,7 +473,7 @@ unsigned ToolsQtFrame::toolsCalcBackPayloadOffsetInternal() const
             m_toolsLayers.rbegin(), m_toolsLayers.rend(),
             [](auto* l)
             {
-                return l->layer().dslObj().kind() == commsdsl::parse::ParseLayer::Kind::Payload;
+                return l->layer().dslObj().parseKind() == commsdsl::parse::ParseLayer::Kind::Payload;
             });
     assert(payloadIter != m_toolsLayers.rend());
 
@@ -522,7 +522,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::
     util::StringsList names;
     for (auto* l : m_toolsLayers) {
         assert(l != nullptr);
-        names.push_back(comms::accessName(l->layer().dslObj().name()));
+        names.push_back(comms::accessName(l->layer().dslObj().parseName()));
 
         auto* externalField = l->layer().externalField();
         if (externalField != nullptr) {
@@ -530,10 +530,10 @@ std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::
             continue;
         }
 
-        auto lScope = "typename " + layersScope + "<TOpt>::" + comms::className(l->layer().dslObj().name());
+        auto lScope = "typename " + layersScope + "<TOpt>::" + comms::className(l->layer().dslObj().parseName());
         auto* memberField = l->layer().memberField();
         if (memberField != nullptr) {
-            fields.push_back(lScope + strings::membersSuffixStr() + "::" + comms::className(memberField->dslObj().name()));
+            fields.push_back(lScope + strings::membersSuffixStr() + "::" + comms::className(memberField->dslObj().parseName()));
             continue;
         }
 
@@ -541,7 +541,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::
     }
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"CLASS_NAME", comms::className(dslObj().parseName())},
         {"SUFFIX", ProtTransportMsgSuffix},
         {"FIELDS_SUFFIX", strings::fieldsSuffixStr()},
         {"FIELDS_LIST", util::strListToString(fields, ",\n", "")},
@@ -581,7 +581,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::
                 m_toolsLayers.begin(), m_toolsLayers.end(),
                 [](auto* l)
                 {
-                    return l->layer().dslObj().kind() == commsdsl::parse::ParseLayer::Kind::Payload;
+                    return l->layer().dslObj().parseKind() == commsdsl::parse::ParseLayer::Kind::Payload;
                 });
 
         assert(payloadIter != m_toolsLayers.end());
@@ -657,7 +657,7 @@ std::string ToolsQtFrame::toolsTransportMsgHeaderDefInternal() const
         "};";    
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().name()) + strings::transportMessageSuffixStr()},
+        {"CLASS_NAME", comms::className(dslObj().parseName()) + strings::transportMessageSuffixStr()},
     };
 
     return util::processTemplate(Templ, repl);
@@ -765,7 +765,7 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::G
     auto& gen = ToolsQtGenerator::cast(generator());
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().name()) + strings::transportMessageSuffixStr()},
+        {"CLASS_NAME", comms::className(dslObj().parseName()) + strings::transportMessageSuffixStr()},
         {"TRANSPORT_MESSAGE", comms::scopeFor(*this, gen) + ProtTransportMsgSuffix},
         {"INTERFACE", ToolsQtInterface::cast(iFace).toolsClassScope()},
     };
@@ -776,7 +776,7 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::G
             [](auto* l)
             {
                 using Kind = commsdsl::parse::ParseLayer::Kind;
-                auto kind = l->layer().dslObj().kind();
+                auto kind = l->layer().dslObj().parseKind();
                 if (kind == Kind::Id) {
                     return true;
                 }
@@ -785,12 +785,12 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::G
                     return false;
                 }
 
-                auto customKind = commsdsl::parse::ParseCustomLayer(l->layer().dslObj()).semanticLayerType();
+                auto customKind = commsdsl::parse::ParseCustomLayer(l->layer().dslObj()).parseSemanticLayerType();
                 return (customKind == Kind::Id);
             });
 
     if (idLayerIter != m_toolsLayers.end()) {
-        auto idName = comms::accessName((*idLayerIter)->layer().dslObj().name());
+        auto idName = comms::accessName((*idLayerIter)->layer().dslObj().parseName());
         repl["ID_FUNC"] = 
             "virtual qlonglong numericIdImpl() const override\n"
             "{\n"
@@ -827,7 +827,7 @@ std::string ToolsQtFrame::toolsFrameHeaderDefInternal() const
         ;
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().name())}
+        {"CLASS_NAME", comms::className(dslObj().parseName())}
     };
 
     return util::processTemplate(Templ, repl);
@@ -900,7 +900,7 @@ std::string ToolsQtFrame::toolsFrameSrcDefInternal(const commsdsl::gen::GenInter
     assert((parent != nullptr) && (parent->elemType() == commsdsl::gen::GenElem::Type_Namespace));
     auto* parentNs = ToolsQtNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"CLASS_NAME", comms::className(dslObj().parseName())},
         {"INTERFACE", ToolsQtInterface::cast(iFace).toolsClassScope()},
         {"MSG_FACTORY", parentNs->toolsFactoryClassScope(iFace)},
         {"TRANSPORT_MSG",  toolsClassScope(iFace) + strings::transportMessageSuffixStr()},

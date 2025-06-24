@@ -49,14 +49,14 @@ static const ParseXmlWrap::NamesList ChildrenNames = {
     common::interfaceStr()
 };
 
-ParseXmlWrap::NamesList allNames()
+ParseXmlWrap::NamesList parseAllNames()
 {
     ParseXmlWrap::NamesList names = PropNames;
     names.insert(names.end(), ChildrenNames.begin(), ChildrenNames.end());
     return names;
 }
 
-bool updateStringProperty(const ParseXmlWrap::PropsMap& map, const std::string& name, std::string& prop)
+bool parseUpdateStringProperty(const ParseXmlWrap::PropsMap& map, const std::string& name, std::string& prop)
 {
     auto iter = map.find(name);
     if (iter == map.end()) {
@@ -86,19 +86,19 @@ bool ParseNamespaceImpl::parseProps()
     assert (m_node != nullptr);
 
     m_props = ParseXmlWrap::parseNodeProps(m_node);
-    if (!ParseXmlWrap::parseChildrenAsProps(m_node, PropNames, m_protocol.logger(), m_props)) {
+    if (!ParseXmlWrap::parseChildrenAsProps(m_node, PropNames, m_protocol.parseLogger(), m_props)) {
         return false;
     }
 
-    if ((!updateStringProperty(m_props, common::nameStr(), m_name)) ||
-        (!updateStringProperty(m_props, common::descriptionStr(), m_description)) ||
-        (!updateExtraAttrs()) ||
-        (!updateExtraChildren())) {
+    if ((!parseUpdateStringProperty(m_props, common::nameStr(), m_name)) ||
+        (!parseUpdateStringProperty(m_props, common::descriptionStr(), m_description)) ||
+        (!parseUpdateExtraAttrs()) ||
+        (!parseUpdateExtraChildren())) {
         return false;
     }
 
     if (!common::isValidName(m_name)) {
-        logError() << ParseXmlWrap::logPrefix(m_node) <<
+        parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
               "Property \"" << common::nameStr() << "\" has unexpected value (" << m_name << ").";
         return false;
     }
@@ -108,7 +108,7 @@ bool ParseNamespaceImpl::parseProps()
 
 bool ParseNamespaceImpl::parseChildren(ParseNamespaceImpl* realNs)
 {
-    auto children = ParseXmlWrap::getChildren(m_node, ChildrenNames);
+    auto children = ParseXmlWrap::parseGetChildren(m_node, ChildrenNames);
     for (auto* c : children) {
         if (!processChild(c, realNs)) {
             return false;
@@ -158,12 +158,12 @@ bool ParseNamespaceImpl::processChild(::xmlNodePtr node, ParseNamespaceImpl* rea
     return (realNs->*func)(node);
 }
 
-const ParseXmlWrap::NamesList& ParseNamespaceImpl::supportedChildren()
+const ParseXmlWrap::NamesList& ParseNamespaceImpl::parseSupportedChildren()
 {
     return ChildrenNames;
 }
 
-ParseNamespaceImpl::NamespacesList ParseNamespaceImpl::namespacesList() const
+ParseNamespaceImpl::NamespacesList ParseNamespaceImpl::parseNamespacesList() const
 {
     NamespacesList result;
     result.reserve(m_namespaces.size());
@@ -175,13 +175,13 @@ ParseNamespaceImpl::NamespacesList ParseNamespaceImpl::namespacesList() const
     std::sort(
         result.begin(), result.end(),
         [](auto& e1, auto& e2) {
-            return e1.name() < e2.name();
+            return e1.parseName() < e2.parseName();
         });
 
     return result;
 }
 
-ParseNamespaceImpl::FieldsList ParseNamespaceImpl::fieldsList() const
+ParseNamespaceImpl::FieldsList ParseNamespaceImpl::parseFieldsList() const
 {
     FieldsList result;
     result.reserve(m_fields.size());
@@ -193,13 +193,13 @@ ParseNamespaceImpl::FieldsList ParseNamespaceImpl::fieldsList() const
     std::sort(
         result.begin(), result.end(),
         [](auto& e1, auto& e2) {
-            return e1.name() < e2.name();
+            return e1.parseName() < e2.parseName();
         });
 
     return result;
 }
 
-ParseNamespaceImpl::MessagesList ParseNamespaceImpl::messagesList() const
+ParseNamespaceImpl::MessagesList ParseNamespaceImpl::parseMessagesList() const
 {
     MessagesList result;
     result.reserve(m_messages.size());
@@ -211,12 +211,12 @@ ParseNamespaceImpl::MessagesList ParseNamespaceImpl::messagesList() const
     std::sort(
         result.begin(), result.end(),
         [](auto& e1, auto& e2) {
-            return e1.name() < e2.name();
+            return e1.parseName() < e2.parseName();
         });    
     return result;
 }
 
-ParseNamespaceImpl::InterfacesList ParseNamespaceImpl::interfacesList() const
+ParseNamespaceImpl::InterfacesList ParseNamespaceImpl::parseInterfacesList() const
 {
     InterfacesList result;
     result.reserve(m_interfaces.size());
@@ -228,12 +228,12 @@ ParseNamespaceImpl::InterfacesList ParseNamespaceImpl::interfacesList() const
     std::sort(
         result.begin(), result.end(),
         [](auto& e1, auto& e2) {
-            return e1.name() < e2.name();
+            return e1.parseName() < e2.parseName();
         });    
     return result;
 }
 
-ParseNamespaceImpl::FramesList ParseNamespaceImpl::framesList() const
+ParseNamespaceImpl::FramesList ParseNamespaceImpl::parseFramesList() const
 {
     FramesList result;
     result.reserve(m_frames.size());
@@ -245,12 +245,12 @@ ParseNamespaceImpl::FramesList ParseNamespaceImpl::framesList() const
     std::sort(
         result.begin(), result.end(),
         [](auto& e1, auto& e2) {
-            return e1.name() < e2.name();
+            return e1.parseName() < e2.parseName();
         });    
     return result;
 }
 
-const ParseFieldImpl* ParseNamespaceImpl::findField(const std::string& fieldName) const
+const ParseFieldImpl* ParseNamespaceImpl::parseFindField(const std::string& fieldName) const
 {
     auto iter = m_fields.find(fieldName);
     if (iter == m_fields.end()) {
@@ -261,7 +261,7 @@ const ParseFieldImpl* ParseNamespaceImpl::findField(const std::string& fieldName
     return iter->second.get();
 }
 
-const ParseMessageImpl* ParseNamespaceImpl::findMessage(const std::string& msgName) const
+const ParseMessageImpl* ParseNamespaceImpl::parseFindMessage(const std::string& msgName) const
 {
     auto iter = m_messages.find(msgName);
     if (iter == m_messages.end()) {
@@ -272,7 +272,7 @@ const ParseMessageImpl* ParseNamespaceImpl::findMessage(const std::string& msgNa
     return iter->second.get();
 }
 
-const ParseInterfaceImpl* ParseNamespaceImpl::findInterface(const std::string& intName) const
+const ParseInterfaceImpl* ParseNamespaceImpl::parseFindInterface(const std::string& intName) const
 {
     auto iter = m_interfaces.find(intName);
     if (iter == m_interfaces.end()) {
@@ -283,7 +283,7 @@ const ParseInterfaceImpl* ParseNamespaceImpl::findInterface(const std::string& i
     return iter->second.get();
 }
 
-const ParseFrameImpl* ParseNamespaceImpl::findFrame(const std::string& intName) const
+const ParseFrameImpl* ParseNamespaceImpl::parseFindFrame(const std::string& intName) const
 {
     auto iter = m_frames.find(intName);
     if (iter == m_frames.end()) {
@@ -294,18 +294,18 @@ const ParseFrameImpl* ParseNamespaceImpl::findFrame(const std::string& intName) 
     return iter->second.get();
 }
 
-std::string ParseNamespaceImpl::externalRef(bool schemaRef) const
+std::string ParseNamespaceImpl::parseExternalRef(bool schemaRef) const
 {
-    assert(getParent() != nullptr);
-    assert((getParent()->objKind() == ObjKind::Schema) || (getParent()->objKind() == ObjKind::Namespace));
-    if (getParent()->objKind() != ObjKind::Namespace) {
+    assert(parseGetParent() != nullptr);
+    assert((parseGetParent()->parseObjKind() == ObjKind::Schema) || (parseGetParent()->parseObjKind() == ObjKind::Namespace));
+    if (parseGetParent()->parseObjKind() != ObjKind::Namespace) {
         if (!schemaRef) {
-            return name();
+            return parseName();
         }
 
-        auto& parentSchema  = static_cast<const ParseSchemaImpl&>(*getParent());
-        auto result = parentSchema.externalRef();
-        auto& nsName = name();
+        auto& parentSchema  = static_cast<const ParseSchemaImpl&>(*parseGetParent());
+        auto result = parentSchema.parseExternalRef();
+        auto& nsName = parseName();
         if (!nsName.empty()) {
             result += '.';
             result += nsName;
@@ -313,27 +313,27 @@ std::string ParseNamespaceImpl::externalRef(bool schemaRef) const
         return result;
     }
 
-    auto& parentNs = static_cast<const ParseNamespaceImpl&>(*getParent());
-    auto parentRef = parentNs.externalRef(schemaRef);
+    auto& parentNs = static_cast<const ParseNamespaceImpl&>(*parseGetParent());
+    auto parentRef = parentNs.parseExternalRef(schemaRef);
     assert(!parentRef.empty());
-    return parentRef + '.' + name();
+    return parentRef + '.' + parseName();
 }
 
-unsigned ParseNamespaceImpl::countMessageIds() const
+unsigned ParseNamespaceImpl::parseCountMessageIds() const
 {
     unsigned result =
         std::accumulate(
             m_namespaces.begin(), m_namespaces.end(), unsigned(0U),
             [](unsigned soFar, auto& n)
             {
-                return soFar + n.second->countMessageIds();
+                return soFar + n.second->parseCountMessageIds();
             });
 
     return std::accumulate(
             m_fields.begin(), m_fields.end(), result,
             [](unsigned soFar, auto& f)
             {
-                if (f.second->semanticType() != ParseField::SemanticType::MessageId) {
+                if (f.second->parseSemanticType() != ParseField::SemanticType::MessageId) {
                     return soFar;
                 }
 
@@ -341,86 +341,86 @@ unsigned ParseNamespaceImpl::countMessageIds() const
             });
 }
 
-bool ParseNamespaceImpl::strToNumeric(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+bool ParseNamespaceImpl::parseStrToNumeric(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
 {
     return
-        strToValue(
+        parseStrToValue(
             ref,
             [&val, &isBigUnsigned](const ParseNamespaceImpl& ns, const std::string& str)
             {
-                return ns.strToNumeric(str, val, isBigUnsigned);
+                return ns.parseStrToNumeric(str, val, isBigUnsigned);
             },
             [&val, &isBigUnsigned](const ParseFieldImpl& f, const std::string& str)
             {
-                return f.strToNumeric(str, val, isBigUnsigned);
+                return f.parseStrToNumeric(str, val, isBigUnsigned);
             });
 }
 
-bool ParseNamespaceImpl::strToFp(const std::string& ref, double& val) const
+bool ParseNamespaceImpl::parseStrToFp(const std::string& ref, double& val) const
 {
     return
-        strToValue(
+        parseStrToValue(
             ref,
             [&val](const ParseNamespaceImpl& ns, const std::string& str)
             {
-                return ns.strToFp(str, val);
+                return ns.parseStrToFp(str, val);
             },
             [&val](const ParseFieldImpl& f, const std::string& str)
             {
-                return f.strToFp(str, val);
+                return f.parseStrToFp(str, val);
             });
 }
 
-bool ParseNamespaceImpl::strToBool(const std::string& ref, bool& val) const
+bool ParseNamespaceImpl::parseStrToBool(const std::string& ref, bool& val) const
 {
     return
-        strToValue(
+        parseStrToValue(
             ref,
             [&val](const ParseNamespaceImpl& ns, const std::string& str)
             {
-                return ns.strToBool(str, val);
+                return ns.parseStrToBool(str, val);
             },
             [&val](const ParseFieldImpl& f, const std::string& str)
             {
-                return f.strToBool(str, val);
+                return f.parseStrToBool(str, val);
             });
 }
 
-bool ParseNamespaceImpl::strToString(const std::string& ref, std::string& val) const
+bool ParseNamespaceImpl::parseStrToString(const std::string& ref, std::string& val) const
 {
     return
-        strToValue(
+        parseStrToValue(
             ref,
             [&val](const ParseNamespaceImpl& ns, const std::string& str)
             {
-                return ns.strToString(str, val);
+                return ns.parseStrToString(str, val);
             },
             [&val](const ParseFieldImpl& f, const std::string& str)
             {
-                return f.strToString(str, val);
+                return f.parseStrToString(str, val);
             });
 }
 
-bool ParseNamespaceImpl::strToData(const std::string& ref, std::vector<std::uint8_t>& val) const
+bool ParseNamespaceImpl::parseStrToData(const std::string& ref, std::vector<std::uint8_t>& val) const
 {
     return
-        strToValue(
+        parseStrToValue(
             ref,
             [&val](const ParseNamespaceImpl& ns, const std::string& str)
             {
-                return ns.strToData(str, val);
+                return ns.parseStrToData(str, val);
             },
             [&val](const ParseFieldImpl& f, const std::string& str)
             {
-                return f.strToData(str, val);
+                return f.parseStrToData(str, val);
             });
 }
 
-ParseNamespaceImpl::ImplInterfacesList ParseNamespaceImpl::allImplInterfaces() const
+ParseNamespaceImpl::ImplInterfacesList ParseNamespaceImpl::parseAllImplInterfaces() const
 {
     ImplInterfacesList result;
     for (auto& n : m_namespaces) {
-        auto ifaces = n.second->allImplInterfaces();
+        auto ifaces = n.second->parseAllImplInterfaces();
         result.insert(result.end(), ifaces.begin(), ifaces.end());
     }
 
@@ -432,12 +432,12 @@ ParseNamespaceImpl::ImplInterfacesList ParseNamespaceImpl::allImplInterfaces() c
     return result;
 }
 
-ParseNamespaceImpl::FieldRefInfosList ParseNamespaceImpl::processInterfaceFieldRef(const std::string& refStr) const
+ParseNamespaceImpl::FieldRefInfosList ParseNamespaceImpl::parseProcessInterfaceFieldRef(const std::string& refStr) const
 {
     FieldRefInfosList result;
-    auto allInterfaces = allImplInterfaces();
-    result.reserve(allInterfaces.size());
-    for (auto* iface : allInterfaces) {
+    auto parseAllInterfaces = parseAllImplInterfaces();
+    result.reserve(parseAllInterfaces.size());
+    for (auto* iface : parseAllInterfaces) {
         auto info = iface->processInnerFieldRef(refStr);
         if (info.m_field != nullptr) {
             result.push_back(std::move(info));
@@ -446,11 +446,11 @@ ParseNamespaceImpl::FieldRefInfosList ParseNamespaceImpl::processInterfaceFieldR
     return result;
 }
 
-bool ParseNamespaceImpl::validateAllMessages(bool allowNonUniquIds)
+bool ParseNamespaceImpl::parseValidateAllMessages(bool allowNonUniquIds)
 {
-    MessagesList allMsgs = messagesList();
+    MessagesList allMsgs = parseMessagesList();
     for (auto& ns : m_namespaces) {
-        auto nsMsgs = ns.second->messagesList();
+        auto nsMsgs = ns.second->parseMessagesList();
         allMsgs.insert(allMsgs.end(), nsMsgs.begin(), nsMsgs.end());
     }
 
@@ -458,15 +458,15 @@ bool ParseNamespaceImpl::validateAllMessages(bool allowNonUniquIds)
         allMsgs.begin(), allMsgs.end(),
         [](const auto& msg1, const auto& msg2)
         {
-            assert(msg1.valid());
-            assert(msg2.valid());
-            auto id1 = msg1.id();
-            auto id2 = msg2.id();
+            assert(msg1.parseValid());
+            assert(msg2.parseValid());
+            auto id1 = msg1.parseId();
+            auto id2 = msg2.parseId();
             if (id1 != id2) {
                 return id1 < id2;
             }
 
-            return msg1.order() < msg2.order();
+            return msg1.parseOrder() < msg2.parseOrder();
         });    
 
     if (allMsgs.empty()) {
@@ -477,32 +477,32 @@ bool ParseNamespaceImpl::validateAllMessages(bool allowNonUniquIds)
         auto nextIter = iter + 1;
         assert(nextIter != allMsgs.end());
 
-        assert(iter->valid());
-        assert(nextIter->valid());
-        if (iter->id() != nextIter->id()) {
+        assert(iter->parseValid());
+        assert(nextIter->parseValid());
+        if (iter->parseId() != nextIter->parseId()) {
             continue;
         }
 
         if (!allowNonUniquIds) {
-            logError() << "Messages \"" << iter->externalRef() << "\" and \"" <<
-                          nextIter->externalRef() << "\" have the same id: " << iter->id();
+            parseLogError() << "Messages \"" << iter->parseExternalRef() << "\" and \"" <<
+                          nextIter->parseExternalRef() << "\" have the same id: " << iter->parseId();
             return false;
         }
 
-        if (iter->order() == nextIter->order()) {
-            logError() << "Messages \"" << iter->externalRef() << "\" and \"" <<
-                          nextIter->externalRef() << "\" have the same \"" <<
+        if (iter->parseOrder() == nextIter->parseOrder()) {
+            parseLogError() << "Messages \"" << iter->parseExternalRef() << "\" and \"" <<
+                          nextIter->parseExternalRef() << "\" have the same \"" <<
                           common::idStr() << "\" and \"" << common::orderStr() << "\" values.";
             return false;
         }
 
-        assert(iter->order() < nextIter->order());
+        assert(iter->parseOrder() < nextIter->parseOrder());
     }
 
     return true;
 }
 
-ParseObject::ObjKind ParseNamespaceImpl::objKindImpl() const
+ParseObject::ObjKind ParseNamespaceImpl::parseObjKindImpl() const
 {
     return ObjKind::Namespace;
 }
@@ -510,13 +510,13 @@ ParseObject::ObjKind ParseNamespaceImpl::objKindImpl() const
 bool ParseNamespaceImpl::processNamespace(::xmlNodePtr node)
 {
     Ptr ns(new ParseNamespaceImpl(node, m_protocol));
-    ns->setParent(this);
+    ns->parseSetParent(this);
 
     if (!ns->parseProps()) {
         return false;
     }
 
-    auto& nsName = ns->name();
+    auto& nsName = ns->parseName();
     auto iter = m_namespaces.find(nsName);
     ParseNamespaceImpl* nsToProcess = nullptr;
     ParseNamespaceImpl* realNs = nullptr;
@@ -532,14 +532,14 @@ bool ParseNamespaceImpl::processNamespace(::xmlNodePtr node)
         nsToProcess = ns.get();
         realNs = iter->second.get();
 
-        if ((!nsToProcess->description().empty()) &&
-            (nsToProcess->description() != realNs->description())) {
-            if (realNs->description().empty()) {
-                realNs->updateDescription(nsToProcess->description());
+        if ((!nsToProcess->parseDescription().empty()) &&
+            (nsToProcess->parseDescription() != realNs->parseDescription())) {
+            if (realNs->parseDescription().empty()) {
+                realNs->parseUpdateDescription(nsToProcess->parseDescription());
             }
             else {
-                logWarning() << ParseXmlWrap::logPrefix(nsToProcess->getNode()) <<
-                    "Description of namespace \"" << nsToProcess->name() << "\" differs to "
+                parseLogWarning() << ParseXmlWrap::parseLogPrefix(nsToProcess->parseGetNode()) <<
+                    "Description of namespace \"" << nsToProcess->parseName() << "\" differs to "
                     "one encountered before.";
             }
         }
@@ -551,13 +551,13 @@ bool ParseNamespaceImpl::processNamespace(::xmlNodePtr node)
                     realNs->parseExtraAttributes().insert(a);
                 }
                 else if (a.second != attIter->second) {
-                    logWarning() << ParseXmlWrap::logPrefix(nsToProcess->getNode()) <<
+                    parseLogWarning() << ParseXmlWrap::parseLogPrefix(nsToProcess->parseGetNode()) <<
                         "Value of attribute \"" << a.first << "\" differs to one defined before.";
                 }
             }
         }
 
-        realNs->extraChildren().insert(realNs->extraChildren().end(), nsToProcess->extraChildren().begin(), nsToProcess->extraChildren().end());
+        realNs->parseExtraChildren().insert(realNs->parseExtraChildren().end(), nsToProcess->parseExtraChildren().begin(), nsToProcess->parseExtraChildren().end());
 
     } while (false);
 
@@ -566,31 +566,31 @@ bool ParseNamespaceImpl::processNamespace(::xmlNodePtr node)
 
 bool ParseNamespaceImpl::processMultipleFields(::xmlNodePtr node)
 {
-    auto childrenNodes = ParseXmlWrap::getChildren(node);
+    auto childrenNodes = ParseXmlWrap::parseGetChildren(node);
     for (auto* c : childrenNodes) {
         std::string cName(reinterpret_cast<const char*>(c->name));
-        auto field = ParseFieldImpl::create(cName, c, m_protocol);
+        auto field = ParseFieldImpl::parseCreate(cName, c, m_protocol);
         if (!field) {
-            logError() << ParseXmlWrap::logPrefix(c) << "Invalid field type \"" << cName << "\"";
+            parseLogError() << ParseXmlWrap::parseLogPrefix(c) << "Invalid field type \"" << cName << "\"";
             return false;
         }
 
-        field->setParent(this);
+        field->parseSetParent(this);
 
         if (!field->parse()) {
             return false;
         }
 
-        auto& name = field->name();
+        auto& name = field->parseName();
         if (name.empty()) {
-            logError() << ParseXmlWrap::logPrefix(c) << "Field \"" << cName << "\" doesn't have any name.";
+            parseLogError() << ParseXmlWrap::parseLogPrefix(c) << "Field \"" << cName << "\" doesn't have any name.";
             return false;
         }
 
         auto iter = m_fields.find(name);
         if (iter != m_fields.end()) {
-            logError() << ParseXmlWrap::logPrefix(c) << "Field with name \"" << name << "\" has been already defined at " <<
-                          iter->second->getNode()->doc->URL << ":" << iter->second->getNode()->line << '.';
+            parseLogError() << ParseXmlWrap::parseLogPrefix(c) << "Field with name \"" << name << "\" has been already defined at " <<
+                          iter->second->parseGetNode()->doc->URL << ":" << iter->second->parseGetNode()->line << '.';
             return false;
         }
 
@@ -603,16 +603,16 @@ bool ParseNamespaceImpl::processMultipleFields(::xmlNodePtr node)
 bool ParseNamespaceImpl::processMessage(::xmlNodePtr node)
 {
     auto msg = std::make_unique<ParseMessageImpl>(node, m_protocol);
-    msg->setParent(this);
+    msg->parseSetParent(this);
     if (!msg->parse()) {
         return false;
     }
 
-    auto msgPtr = findMessage(msg->name());
-    auto& msgName = msg->name();
+    auto msgPtr = parseFindMessage(msg->parseName());
+    auto& msgName = msg->parseName();
     if (msgPtr != nullptr) {
-        logError() << ParseXmlWrap::logPrefix(node) << "Message with name \"" << msgName << "\" has been already defined at " <<
-                      msgPtr->getNode()->doc->URL << ":" << msgPtr->getNode()->line << '.';
+        parseLogError() << ParseXmlWrap::parseLogPrefix(node) << "Message with name \"" << msgName << "\" has been already defined at " <<
+                      msgPtr->parseGetNode()->doc->URL << ":" << msgPtr->parseGetNode()->line << '.';
 
         return false;
     }
@@ -623,12 +623,12 @@ bool ParseNamespaceImpl::processMessage(::xmlNodePtr node)
 
 bool ParseNamespaceImpl::processMultipleMessages(::xmlNodePtr node)
 {
-    auto childrenNodes = ParseXmlWrap::getChildren(node);
+    auto childrenNodes = ParseXmlWrap::parseGetChildren(node);
     for (auto c : childrenNodes) {
         assert(c != nullptr);
         std::string cName(reinterpret_cast<const char*>(c->name));
         if (cName != common::messageStr()) {
-            logError() << ParseXmlWrap::logPrefix(c) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(c) <<
                 "The \"" << common::messagesStr() << "\" element cannot contain \"" <<
                 cName << "\".";
             return false;
@@ -644,16 +644,16 @@ bool ParseNamespaceImpl::processMultipleMessages(::xmlNodePtr node)
 bool ParseNamespaceImpl::processInterface(::xmlNodePtr node)
 {
     auto interface = std::make_unique<ParseInterfaceImpl>(node, m_protocol);
-    interface->setParent(this);
+    interface->parseSetParent(this);
     if (!interface->parse()) {
         return false;
     }
 
-    auto intPtr = findInterface(interface->name());
-    auto& intName = interface->name();
+    auto intPtr = parseFindInterface(interface->parseName());
+    auto& intName = interface->parseName();
     if (intPtr != nullptr) {
-        logError() << ParseXmlWrap::logPrefix(node) << "Interface with name \"" << intName << "\" has been already defined at " <<
-                      intPtr->getNode()->doc->URL << ":" << intPtr->getNode()->line << '.';
+        parseLogError() << ParseXmlWrap::parseLogPrefix(node) << "Interface with name \"" << intName << "\" has been already defined at " <<
+                      intPtr->parseGetNode()->doc->URL << ":" << intPtr->parseGetNode()->line << '.';
 
         return false;
     }
@@ -664,12 +664,12 @@ bool ParseNamespaceImpl::processInterface(::xmlNodePtr node)
 
 bool ParseNamespaceImpl::processMultipleInterfaces(::xmlNodePtr node)
 {
-    auto childrenNodes = ParseXmlWrap::getChildren(node);
+    auto childrenNodes = ParseXmlWrap::parseGetChildren(node);
     for (auto c : childrenNodes) {
         assert(c != nullptr);
         std::string cName(reinterpret_cast<const char*>(c->name));
         if (cName != common::interfaceStr()) {
-            logError() << ParseXmlWrap::logPrefix(c) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(c) <<
                 "The \"" << common::interfacesStr() << "\" element cannot contain \"" <<
                 cName << "\".";
             return false;
@@ -685,16 +685,16 @@ bool ParseNamespaceImpl::processMultipleInterfaces(::xmlNodePtr node)
 bool ParseNamespaceImpl::processFrame(::xmlNodePtr node)
 {
     auto frame = std::make_unique<ParseFrameImpl>(node, m_protocol);
-    frame->setParent(this);
+    frame->parseSetParent(this);
     if (!frame->parse()) {
         return false;
     }
 
-    auto framePtr = findFrame(frame->name());
-    auto& frameName = frame->name();
+    auto framePtr = parseFindFrame(frame->parseName());
+    auto& frameName = frame->parseName();
     if (framePtr != nullptr) {
-        logError() << ParseXmlWrap::logPrefix(node) << "Frame with name \"" << frameName << "\" has been already defined at " <<
-                      framePtr->getNode()->doc->URL << ":" << framePtr->getNode()->line << '.';
+        parseLogError() << ParseXmlWrap::parseLogPrefix(node) << "Frame with name \"" << frameName << "\" has been already defined at " <<
+                      framePtr->parseGetNode()->doc->URL << ":" << framePtr->parseGetNode()->line << '.';
 
         return false;
     }
@@ -705,12 +705,12 @@ bool ParseNamespaceImpl::processFrame(::xmlNodePtr node)
 
 bool ParseNamespaceImpl::processMultipleFrames(::xmlNodePtr node)
 {
-    auto childrenNodes = ParseXmlWrap::getChildren(node);
+    auto childrenNodes = ParseXmlWrap::parseGetChildren(node);
     for (auto c : childrenNodes) {
         assert(c != nullptr);
         std::string cName(reinterpret_cast<const char*>(c->name));
         if (cName != common::frameStr()) {
-            logError() << ParseXmlWrap::logPrefix(c) <<
+            parseLogError() << ParseXmlWrap::parseLogPrefix(c) <<
                 "The \"" << common::framesStr() << "\" element cannot contain \"" <<
                 cName << "\".";
             return false;
@@ -723,20 +723,20 @@ bool ParseNamespaceImpl::processMultipleFrames(::xmlNodePtr node)
     return true;
 }
 
-bool ParseNamespaceImpl::updateExtraAttrs()
+bool ParseNamespaceImpl::parseUpdateExtraAttrs()
 {
-    m_extraAttrs = ParseXmlWrap::getExtraAttributes(m_node, PropNames, m_protocol);
+    m_extraAttrs = ParseXmlWrap::parseGetExtraAttributes(m_node, PropNames, m_protocol);
     return true;
 }
 
-bool ParseNamespaceImpl::updateExtraChildren()
+bool ParseNamespaceImpl::parseUpdateExtraChildren()
 {
-    static const ParseXmlWrap::NamesList Names = allNames();
-    m_extraChildren = ParseXmlWrap::getExtraChildren(m_node, Names, m_protocol);
+    static const ParseXmlWrap::NamesList Names = parseAllNames();
+    m_extraChildren = ParseXmlWrap::parseGetExtraChildren(m_node, Names, m_protocol);
     return true;
 }
 
-bool ParseNamespaceImpl::strToValue(const std::string& ref, StrToValueNsConvertFunc&& nsFunc, StrToValueFieldConvertFunc&& fFunc) const
+bool ParseNamespaceImpl::parseStrToValue(const std::string& ref, StrToValueNsConvertFunc&& nsFunc, StrToValueFieldConvertFunc&& fFunc) const
 {
     auto firstDotPos = ref.find_first_of('.');
     if (firstDotPos == std::string::npos) {
@@ -767,19 +767,19 @@ bool ParseNamespaceImpl::strToValue(const std::string& ref, StrToValueNsConvertF
     return fFunc(*fieldIter->second, restName);
 }
 
-LogWrapper ParseNamespaceImpl::logError() const
+LogWrapper ParseNamespaceImpl::parseLogError() const
 {
-    return commsdsl::parse::logError(m_protocol.logger());
+    return commsdsl::parse::parseLogError(m_protocol.parseLogger());
 }
 
-LogWrapper ParseNamespaceImpl::logWarning() const
+LogWrapper ParseNamespaceImpl::parseLogWarning() const
 {
-    return commsdsl::parse::logWarning(m_protocol.logger());
+    return commsdsl::parse::parseLogWarning(m_protocol.parseLogger());
 }
 
-LogWrapper ParseNamespaceImpl::logInfo() const
+LogWrapper ParseNamespaceImpl::parseLogInfo() const
 {
-    return commsdsl::parse::logInfo(m_protocol.logger());
+    return commsdsl::parse::parseLogInfo(m_protocol.parseLogger());
 }
 
 

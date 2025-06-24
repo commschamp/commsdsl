@@ -40,42 +40,42 @@ public:
         NumOfValues
     };
 
-    ParseObject* getParent()
+    ParseObject* parseGetParent()
     {
         return m_parent;
     }
 
-    const ParseObject* getParent() const
+    const ParseObject* parseGetParent() const
     {
         return m_parent;
     }
 
-    void setParent(ParseObject* obj)
+    void parseSetParent(ParseObject* obj)
     {
         m_parent = obj;
     }
 
-    ObjKind objKind() const
+    ObjKind parseObjKind() const
     {
-        return objKindImpl();
+        return parseObjKindImpl();
     }
 
-    unsigned getSinceVersion() const
+    unsigned parseGetSinceVersion() const
     {
         return m_rState.m_sinceVersion;
     }
 
-    void setSinceVersion(unsigned val)
+    void parseSetSinceVersion(unsigned val)
     {
         m_rState.m_sinceVersion = val;
     }
 
-    unsigned getDeprecated() const
+    unsigned parseGetDeprecated() const
     {
         return m_rState.m_deprecated;
     }
 
-    bool isDeprecatedRemoved() const
+    bool parseIsDeprecatedRemoved() const
     {
         return m_rState.m_deprecatedRemoved;
     }
@@ -84,19 +84,19 @@ protected:
     ParseObject() = default;
     ~ParseObject() = default;
     
-    virtual ObjKind objKindImpl() const = 0;
+    virtual ObjKind parseObjKindImpl() const = 0;
 
-    void setDeprecated(unsigned val)
+    void parseSetDeprecated(unsigned val)
     {
         m_rState.m_deprecated = val;
     }
 
-    void setDeprecatedRemoved(bool val)
+    void parseSetDeprecatedRemoved(bool val)
     {
         m_rState.m_deprecatedRemoved = val;
     }
 
-    void reuseState(const ParseObject& other)
+    void parseReuseState(const ParseObject& other)
     {
         m_rState = other.m_rState;
     }
@@ -106,7 +106,7 @@ private:
     struct ReusableState
     {
         unsigned m_sinceVersion = 0U;
-        unsigned m_deprecated = ParseProtocol::notYetDeprecated();
+        unsigned m_deprecated = ParseProtocol::parseNotYetDeprecated();
         bool m_deprecatedRemoved = false;
     };
 

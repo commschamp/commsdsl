@@ -40,10 +40,10 @@ public:
     bool prepare()
     {
         do {
-            auto elementField = m_dslObj.elementField();
-            assert(elementField.valid());
-            if (!elementField.externalRef().empty()) {
-                m_externalElementField = m_generator.findField(elementField.externalRef());
+            auto elementField = m_dslObj.parseElementField();
+            assert(elementField.parseValid());
+            if (!elementField.parseExternalRef().empty()) {
+                m_externalElementField = m_generator.findField(elementField.parseExternalRef());
                 assert(m_externalElementField != nullptr);
                 break;
             }
@@ -55,13 +55,13 @@ public:
         } while (false);
 
         do {
-            if (!m_dslObj.hasCountPrefixField()) {
+            if (!m_dslObj.parseHasCountPrefixField()) {
                 break;
             }
 
-            auto prefix = m_dslObj.countPrefixField();
-            if (!prefix.externalRef().empty()) {
-                m_externalCountPrefixField = m_generator.findField(prefix.externalRef());
+            auto prefix = m_dslObj.parseCountPrefixField();
+            if (!prefix.parseExternalRef().empty()) {
+                m_externalCountPrefixField = m_generator.findField(prefix.parseExternalRef());
                 assert(m_externalCountPrefixField != nullptr);
                 break;
             }
@@ -73,22 +73,22 @@ public:
 
             if ((m_memberElementField) &&
                 (comms::className(m_memberElementField->name()) == comms::className(m_memberCountPrefixField->name()))) {
-                m_generator.logger().error("Count prefix and element fields of \"" + m_dslObj.name() + "\" list must have different names.");
+                m_generator.logger().error("Count prefix and element fields of \"" + m_dslObj.parseName() + "\" list must have different names.");
                 return false;
             }
 
         } while (false);   
 
         do {
-            if (!m_dslObj.hasLengthPrefixField()) {
+            if (!m_dslObj.parseHasLengthPrefixField()) {
                 break;
             }
 
             assert(!m_memberCountPrefixField);
-            assert(!m_dslObj.hasCountPrefixField());
-            auto prefix = m_dslObj.lengthPrefixField();
-            if (!prefix.externalRef().empty()) {
-                m_externalLengthPrefixField = m_generator.findField(prefix.externalRef());
+            assert(!m_dslObj.parseHasCountPrefixField());
+            auto prefix = m_dslObj.parseLengthPrefixField();
+            if (!prefix.parseExternalRef().empty()) {
+                m_externalLengthPrefixField = m_generator.findField(prefix.parseExternalRef());
                 assert(m_externalLengthPrefixField != nullptr);
                 break;
             }
@@ -100,19 +100,19 @@ public:
 
             if ((m_memberElementField) &&
                 (comms::className(m_memberElementField->name()) == comms::className(m_memberLengthPrefixField->name()))) {
-                m_generator.logger().error("Length prefix and element fields of \"" + m_dslObj.name() + "\" list must have different names.");
+                m_generator.logger().error("Length prefix and element fields of \"" + m_dslObj.parseName() + "\" list must have different names.");
                 return false;
             }            
         } while (false);  
 
         do {
-            if (!m_dslObj.hasElemLengthPrefixField()) {
+            if (!m_dslObj.parseHasElemLengthPrefixField()) {
                 break;
             }
 
-            auto prefix = m_dslObj.elemLengthPrefixField();
-            if (!prefix.externalRef().empty()) {
-                m_externalElemLengthPrefixField = m_generator.findField(prefix.externalRef());
+            auto prefix = m_dslObj.parseElemLengthPrefixField();
+            if (!prefix.parseExternalRef().empty()) {
+                m_externalElemLengthPrefixField = m_generator.findField(prefix.parseExternalRef());
                 assert(m_externalElemLengthPrefixField != nullptr);
                 break;
             }
@@ -124,36 +124,36 @@ public:
 
             if ((m_memberElementField) &&
                 (comms::className(m_memberElementField->name()) == comms::className(m_memberElemLengthPrefixField->name()))) {
-                m_generator.logger().error("Element length prefix and element fields of \"" + m_dslObj.name() + "\" list must have different names.");
+                m_generator.logger().error("Element length prefix and element fields of \"" + m_dslObj.parseName() + "\" list must have different names.");
                 return false;
             }  
 
             if ((m_memberCountPrefixField) &&
                 (comms::className(m_memberCountPrefixField->name()) == comms::className(m_memberElemLengthPrefixField->name()))) {
-                m_generator.logger().error("Element length prefix and count prefix fields of \"" + m_dslObj.name() + "\" list must have different names.");
+                m_generator.logger().error("Element length prefix and count prefix fields of \"" + m_dslObj.parseName() + "\" list must have different names.");
                 return false;
             } 
 
             if ((m_memberLengthPrefixField) &&
                 (comms::className(m_memberLengthPrefixField->name()) == comms::className(m_memberElemLengthPrefixField->name()))) {
-                m_generator.logger().error("Element length prefix and list length prefix fields of \"" + m_dslObj.name() + "\" list must have different names.");
+                m_generator.logger().error("Element length prefix and list length prefix fields of \"" + m_dslObj.parseName() + "\" list must have different names.");
                 return false;
             }                                
 
         } while (false);   
 
         do {
-            if (!m_dslObj.hasTermSuffixField()) {
+            if (!m_dslObj.parseHasTermSuffixField()) {
                 break;
             }
 
             assert(!m_memberCountPrefixField);
             assert(!m_memberLengthPrefixField);
-            assert(!m_dslObj.hasCountPrefixField());
-            assert(!m_dslObj.hasLengthPrefixField());
-            auto suffix = m_dslObj.termSuffixField();
-            if (!suffix.externalRef().empty()) {
-                m_externalTermSuffixField = m_generator.findField(suffix.externalRef());
+            assert(!m_dslObj.parseHasCountPrefixField());
+            assert(!m_dslObj.parseHasLengthPrefixField());
+            auto suffix = m_dslObj.parseTermSuffixField();
+            if (!suffix.parseExternalRef().empty()) {
+                m_externalTermSuffixField = m_generator.findField(suffix.parseExternalRef());
                 assert(m_externalTermSuffixField != nullptr);
                 break;
             }
@@ -165,7 +165,7 @@ public:
 
             if ((m_memberElementField) &&
                 (comms::className(m_memberElementField->name()) == comms::className(m_memberTermSuffixField->name()))) {
-                m_generator.logger().error("Termination suffix and element fields of \"" + m_dslObj.name() + "\" list must have different names.");
+                m_generator.logger().error("Termination suffix and element fields of \"" + m_dslObj.parseName() + "\" list must have different names.");
                 return false;
             }            
         } while (false);                          
@@ -307,7 +307,7 @@ GenListField::GenListField(GenGenerator& generator, commsdsl::parse::ParseField 
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<GenListFieldImpl>(generator, listDslObj(), this))
 {
-    assert(dslObj.kind() == commsdsl::parse::ParseField::Kind::List);
+    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::List);
 }
 
 GenListField::~GenListField() = default;

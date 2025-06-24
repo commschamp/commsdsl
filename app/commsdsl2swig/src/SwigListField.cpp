@@ -108,7 +108,7 @@ std::string SwigListField::swigExtraPublicFuncsCodeImpl() const
         "    return reinterpret_cast<const ValueType&>(Base::getValue());\n"
         "}\n";
 
-    if (!field().dslObj().isFixedValue()) {
+    if (!field().dslObj().parseIsFixedValue()) {
         templ += 
             "\n"
             "void setValue(const ValueType& val)\n"

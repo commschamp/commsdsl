@@ -33,171 +33,171 @@ ParseField::ParseField(const ParseField &) = default;
 
 ParseField::~ParseField() = default;
 
-bool ParseField::valid() const
+bool ParseField::parseValid() const
 {
     return m_pImpl != nullptr;
 }
 
-const std::string& ParseField::name() const
+const std::string& ParseField::parseName() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->name();
+    return m_pImpl->parseName();
 }
 
-const std::string& ParseField::displayName() const
+const std::string& ParseField::parseDisplayName() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->displayName();
+    return m_pImpl->parseDisplayName();
 }
 
-const std::string& ParseField::description() const
+const std::string& ParseField::parseDescription() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->description();
+    return m_pImpl->parseDescription();
 }
 
-ParseField::Kind ParseField::kind() const
+ParseField::Kind ParseField::parseKind() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->kind();
+    return m_pImpl->parseKind();
 }
 
-ParseField::SemanticType ParseField::semanticType() const
+ParseField::SemanticType ParseField::parseSemanticType() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->semanticType();
+    return m_pImpl->parseSemanticType();
 }
 
-std::size_t ParseField::minLength() const
+std::size_t ParseField::parseMinLength() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->minLength();
+    return m_pImpl->parseMinLength();
 }
 
-std::size_t ParseField::maxLength() const
+std::size_t ParseField::parseMaxLength() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->maxLength();
+    return m_pImpl->parseMaxLength();
 }
 
-std::size_t ParseField::bitLength() const
+std::size_t ParseField::parseBitLength() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->bitLength();
+    return m_pImpl->parseBitLength();
 }
 
-unsigned ParseField::sinceVersion() const
+unsigned ParseField::parseSinceVersion() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->getSinceVersion();
+    return m_pImpl->parseGetSinceVersion();
 }
 
-unsigned ParseField::deprecatedSince() const
+unsigned ParseField::parseDeprecatedSince() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->getDeprecated();
+    return m_pImpl->parseGetDeprecated();
 }
 
-bool ParseField::isDeprecatedRemoved() const
+bool ParseField::parseIsDeprecatedRemoved() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->isDeprecatedRemoved();
+    return m_pImpl->parseIsDeprecatedRemoved();
 }
 
-std::string ParseField::externalRef(bool schemaRef) const
+std::string ParseField::parseExternalRef(bool schemaRef) const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->externalRef(schemaRef);
+    return m_pImpl->parseExternalRef(schemaRef);
 }
 
-bool ParseField::isPseudo() const
+bool ParseField::parseIsPseudo() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->isPseudo();
+    return m_pImpl->parseIsPseudo();
 }
 
-bool ParseField::isFixedValue() const
+bool ParseField::parseIsFixedValue() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->isFixedValue();
+    return m_pImpl->parseIsFixedValue();
 }
 
-bool ParseField::isCustomizable() const
+bool ParseField::parseIsCustomizable() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->isCustomizable();
+    return m_pImpl->parseIsCustomizable();
 }
 
-bool ParseField::isFailOnInvalid() const
+bool ParseField::parseIsFailOnInvalid() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->isFailOnInvalid();
+    return m_pImpl->parseIsFailOnInvalid();
 }
 
-bool ParseField::isForceGen() const
+bool ParseField::parseIsForceGen() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->isForceGen();
+    return m_pImpl->parseIsForceGen();
 }
 
-std::string ParseField::schemaPos() const
+std::string ParseField::parseSchemaPos() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->schemaPos();
+    return m_pImpl->parseSchemaPos();
 }
 
-ParseOverrideType ParseField::valueOverride() const
+ParseOverrideType ParseField::parseValueOverride() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->valueOverride();
+    return m_pImpl->parseValueOverride();
 }
 
-ParseOverrideType ParseField::readOverride() const
+ParseOverrideType ParseField::parseReadOverride() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->readOverride();
+    return m_pImpl->parseReadOverride();
 }
 
-ParseOverrideType ParseField::writeOverride() const
+ParseOverrideType ParseField::parseWriteOverride() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->writeOverride();
+    return m_pImpl->parseWriteOverride();
 }
 
-ParseOverrideType ParseField::refreshOverride() const
+ParseOverrideType ParseField::parseRefreshOverride() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->refreshOverride();
+    return m_pImpl->parseRefreshOverride();
 }
 
-ParseOverrideType ParseField::lengthOverride() const
+ParseOverrideType ParseField::parseLengthOverride() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->lengthOverride();
+    return m_pImpl->parseLengthOverride();
 }
 
-ParseOverrideType ParseField::validOverride() const
+ParseOverrideType ParseField::parseValidOverride() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->validOverride();
+    return m_pImpl->parseValidOverride();
 }
 
-ParseOverrideType ParseField::nameOverride() const
+ParseOverrideType ParseField::parseNameOverride() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->nameOverride();
+    return m_pImpl->parseNameOverride();
 }
 
-const std::string& ParseField::copyCodeFrom() const
+const std::string& ParseField::parseCopyCodeFrom() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->copyCodeFrom();
+    return m_pImpl->parseCopyCodeFrom();
 }
 
-bool ParseField::isValidInnerRef(const std::string& refStr) const
+bool ParseField::parseIsValidInnerRef(const std::string& refStr) const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->isValidInnerRef(refStr);
+    return m_pImpl->parseIsValidInnerRef(refStr);
 }
 
 const ParseField::AttributesMap& ParseField::parseExtraAttributes() const
@@ -209,7 +209,7 @@ const ParseField::AttributesMap& ParseField::parseExtraAttributes() const
 const ParseField::ElementsList& ParseField::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->extraChildren();
+    return m_pImpl->parseExtraChildren();
 }
 
 } // namespace parse
