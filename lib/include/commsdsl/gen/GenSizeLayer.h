@@ -33,12 +33,14 @@ class COMMSDSL_API GenSizeLayer : public GenLayer
 {
     using Base = GenLayer;
 public:
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using ParseSizeLayer = commsdsl::parse::ParseSizeLayer;
 
-    GenSizeLayer(GenGenerator& generator, commsdsl::parse::ParseLayer dslObj, GenElem* parent = nullptr);
+    GenSizeLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent = nullptr);
     virtual ~GenSizeLayer();
 
 protected:    
-    commsdsl::parse::ParseSizeLayer sizeDslObj() const;
+    ParseSizeLayer genSizeLayerParseObj() const;
 };
 
 } // namespace gen

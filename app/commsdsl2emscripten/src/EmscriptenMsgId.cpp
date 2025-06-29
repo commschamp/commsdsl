@@ -43,24 +43,24 @@ EmscriptenMsgId::EmscriptenMsgId(EmscriptenGenerator& generator, const Emscripte
 
 bool EmscriptenMsgId::emscriptenWrite() const
 {
-    auto& thisSchema = m_generator.currentSchema();
-    if ((!m_generator.isCurrentProtocolSchema()) && (!thisSchema.hasReferencedMessageIdField()) && (!thisSchema.hasAnyReferencedMessage())) {
+    auto& thisSchema = m_generator.genCurrentSchema();
+    if ((!m_generator.genIsCurrentProtocolSchema()) && (!thisSchema.genHasReferencedMessageIdField()) && (!thisSchema.genHasAnyReferencedMessage())) {
         return true;
     }
 
-    auto name = m_generator.emscriptenScopeNameForNamespaceMember(strings::msgIdEnumNameStr(), m_parent);
+    auto name = m_generator.emscriptenScopeNameForNamespaceMember(strings::genMsgIdEnumNameStr(), m_parent);
     auto filePath = m_generator.emscriptenAbsSourceForNamespaceMember(name, m_parent);
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
 
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_generator.genCreateDirectory(dirPath)) {
         return false;
     }
 
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -78,15 +78,15 @@ bool EmscriptenMsgId::emscriptenWrite() const
     util::ReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"NAME", name},
-        {"SCOPE", comms::scopeForMsgId(strings::msgIdEnumNameStr(), m_generator, m_parent)},
+        {"SCOPE", comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), m_generator, m_parent)},
         {"VALUES", emscriptenIdsInternal()},
-        {"HEADER", comms::relHeaderForMsgId(strings::msgIdEnumNameStr(), m_generator, m_parent)},
+        {"HEADER", comms::genRelHeaderForMsgId(strings::genMsgIdEnumNameStr(), m_generator, m_parent)},
     };
 
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     
@@ -95,27 +95,27 @@ bool EmscriptenMsgId::emscriptenWrite() const
 
 void EmscriptenMsgId::emscriptenAddSourceFiles(StringsList& sources) const
 {
-    auto name = m_generator.emscriptenScopeNameForNamespaceMember(strings::msgIdEnumNameStr(), m_parent);
+    auto name = m_generator.emscriptenScopeNameForNamespaceMember(strings::genMsgIdEnumNameStr(), m_parent);
     sources.push_back(m_generator.emscriptenRelSourceForNamespaceMember(name, m_parent));
 }
 
 std::string EmscriptenMsgId::emscriptenIdsInternal() const
 {
-    auto allMsgIdFields = m_parent.findMessageIdFields();
-    if (allMsgIdFields.empty() && m_parent.name().empty()) {
-        allMsgIdFields = m_generator.currentSchema().getAllMessageIdFields();
+    auto allMsgIdFields = m_parent.genFindMessageIdFields();
+    if (allMsgIdFields.empty() && m_parent.genName().empty()) {
+        allMsgIdFields = m_generator.genCurrentSchema().genGetAllMessageIdFields();
     }
 
     if (allMsgIdFields.size() == 1U) {  
         auto* msgIdField = allMsgIdFields.front();
-        assert(msgIdField->dslObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
+        assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
         auto* castedMsgIdField = EmscriptenEnumField::cast(msgIdField);
         return castedMsgIdField->emscriptenBindValues(&m_parent);        
     }
 
-    auto allMessages = m_parent.getAllMessagesIdSorted();
-    if (allMessages.empty() && m_parent.name().empty()) {
-        allMessages = m_generator.currentSchema().getAllMessagesIdSorted();
+    auto allMessages = m_parent.genGetAllMessagesIdSorted();
+    if (allMessages.empty() && m_parent.genName().empty()) {
+        allMessages = m_generator.genCurrentSchema().genGetAllMessagesIdSorted();
     }    
     util::StringsList ids;
     ids.reserve(allMessages.size());
@@ -124,18 +124,18 @@ std::string EmscriptenMsgId::emscriptenIdsInternal() const
         ".value(\"#^#MSG#$#\", #^#SCOPE#$#_#^#MSG#$#)";
             
     util::ReplacementMap repl = {
-        {"SCOPE", comms::scopeForMsgId(strings::msgIdEnumNameStr(), m_generator, m_parent)}   
+        {"SCOPE", comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), m_generator, m_parent)}   
     };
 
     for (auto* m : allMessages) {
-        if (!m->isReferenced()) {
+        if (!m->genIsReferenced()) {
             continue;
         }
 
-        repl["MSG"] = comms::fullNameFor(*m);
-        ids.push_back(util::processTemplate(Templ, repl));
+        repl["MSG"] = comms::genFullNameFor(*m);
+        ids.push_back(util::genProcessTemplate(Templ, repl));
     }
-    return util::strListToString(ids, "\n", "");
+    return util::genStrListToString(ids, "\n", "");
 }
 
 

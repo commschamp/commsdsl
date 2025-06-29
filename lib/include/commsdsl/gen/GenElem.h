@@ -42,18 +42,18 @@ public:
     };
     virtual ~GenElem();
 
-    void setParent(GenElem* parent);
-    GenElem* getParent();
-    const GenElem* getParent() const;
+    void genSetParent(GenElem* parent);
+    GenElem* genGetParent();
+    const GenElem* genGetParent() const;
 
-    Type elemType() const;
+    Type genElemType() const;
 
-    const std::string& name() const;
+    const std::string& genName() const;
 
 protected:
     explicit GenElem(GenElem* parent = nullptr);
 
-    virtual Type elemTypeImpl() const = 0;
+    virtual Type genElemTypeImpl() const = 0;
 
 private:
     GenElem* m_parent = nullptr;

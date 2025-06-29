@@ -35,12 +35,12 @@ class ToolsQtGenerator final : public commsdsl::gen::GenGenerator
     using Base = commsdsl::gen::GenGenerator;
 public:
     using GenElem = commsdsl::gen::GenElem;
-    using FieldPtr = commsdsl::gen::FieldPtr;
+    using GenFieldPtr = commsdsl::gen::GenFieldPtr;
     using FramePtr = commsdsl::gen::FramePtr;
-    using InterfacePtr = commsdsl::gen::InterfacePtr;
-    using LayerPtr = commsdsl::gen::LayerPtr;
-    using MessagePtr = commsdsl::gen::MessagePtr;
-    using NamespacePtr = commsdsl::gen::NamespacePtr;
+    using GenInterfacePtr = commsdsl::gen::GenInterfacePtr;
+    using GenLayerPtr = commsdsl::gen::GenLayerPtr;
+    using GenMessagePtr = commsdsl::gen::GenMessagePtr;
+    using GenNamespacePtr = commsdsl::gen::GenNamespacePtr;
     using PluginInfo = ToolsQtProgramOptions::PluginInfo;
     using PluginInfosList = ToolsQtProgramOptions::PluginInfosList;
     using StringsList = commsdsl::gen::util::StringsList;
@@ -108,22 +108,22 @@ public:
     std::string toolsScopePrefixForInterface(const commsdsl::gen::GenInterface& interface) const;
 
 protected:
-    virtual bool prepareImpl() override;
+    virtual bool genPrepareImpl() override;
 
-    virtual NamespacePtr createNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent) override;
-    virtual InterfacePtr createInterfaceImpl(commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent) override;
-    virtual MessagePtr createMessageImpl(commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent) override;
-    virtual FramePtr createFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenNamespacePtr genCreateNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenInterfacePtr genCreateInterfaceImpl(commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenMessagePtr genCreateMessageImpl(commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual FramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent) override;
 
-    virtual LayerPtr createCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
-    virtual LayerPtr createSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
-    virtual LayerPtr createSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
-    virtual LayerPtr createIdLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
-    virtual LayerPtr createValueLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
-    virtual LayerPtr createPayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
-    virtual LayerPtr createChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenLayerPtr genCreateCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenLayerPtr genCreateSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenLayerPtr genCreateSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenLayerPtr genCreateIdLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenLayerPtr genCreateValueLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenLayerPtr genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenLayerPtr genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
 
-    virtual bool writeImpl() override;   
+    virtual bool genWriteImpl() override;   
 
 private:
     bool toolsPrepareSelectedInterfacesInternal();

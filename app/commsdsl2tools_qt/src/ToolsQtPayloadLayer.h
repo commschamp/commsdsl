@@ -32,7 +32,7 @@ public:
 
 protected:
     // Base overrides
-    virtual bool prepareImpl() override;
+    virtual bool genPrepareImpl() override;
 
     // ToolsBase overrides
 };

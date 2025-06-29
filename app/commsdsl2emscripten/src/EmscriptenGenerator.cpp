@@ -66,8 +66,8 @@ namespace commsdsl2emscripten
 
 EmscriptenGenerator::EmscriptenGenerator()
 {
-    Base::setAllInterfacesReferencedByDefault(false);
-    Base::setAllMessagesReferencedByDefault(false);
+    Base::genSetAllInterfacesReferencedByDefault(false);
+    Base::genSetAllMessagesReferencedByDefault(false);
 }    
 
 const std::string& EmscriptenGenerator::fileGeneratedComment()
@@ -81,146 +81,146 @@ const std::string& EmscriptenGenerator::fileGeneratedComment()
 
 std::string EmscriptenGenerator::emscriptenClassName(const commsdsl::gen::GenElem& elem) const
 {
-    bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
-    auto str = comms::scopeFor(elem, *this, addMainNamespace);
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U); 
+    auto str = comms::genScopeFor(elem, *this, addMainNamespace);
     return emscriptenScopeToName(str);
 }
 
 std::string EmscriptenGenerator::emscriptenScopeNameForRoot(const std::string& name) const
 {
-    bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
-    auto str = comms::scopeForRoot(name, *this, addMainNamespace);
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U); 
+    auto str = comms::genScopeForRoot(name, *this, addMainNamespace);
     return emscriptenScopeToName(str);
 }
 
 std::string EmscriptenGenerator::emscriptenScopeNameForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
 {
-    bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
-    auto str = comms::scopeForNamespaceMember(name, *this, parent, addMainNamespace);
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U); 
+    auto str = comms::genScopeForNamespaceMember(name, *this, parent, addMainNamespace);
     return emscriptenScopeToName(str);
 }
 
 std::string EmscriptenGenerator::emscriptenProtocolClassNameForRoot(const std::string& name) const
 {
-    auto schemaIdx = currentSchemaIdx();
-    chooseProtocolSchema();
+    auto schemaIdx = genCurrentSchemaIdx();
+    genChooseProtocolSchema();
     auto str = emscriptenScopeNameForRoot(name);
-    chooseCurrentSchema(schemaIdx);
+    genChooseCurrentSchema(schemaIdx);
     return str;
 }
 
 std::string EmscriptenGenerator::emscriptenRelHeaderForRoot(const std::string& name) const
 {
-    return getTopNamespace() + '/' + comms::relHeaderForRoot(name, *this);
+    return genGetTopNamespace() + '/' + comms::genRelHeaderForRoot(name, *this);
 }
 
 std::string EmscriptenGenerator::emscriptenRelHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
 {
-    return getTopNamespace() + '/' + comms::relHeaderForNamespaceMember(name, *this, parent);
+    return genGetTopNamespace() + '/' + comms::genRelHeaderForNamespaceMember(name, *this, parent);
 }
 
 std::string EmscriptenGenerator::emscriptenAbsHeaderForRoot(const std::string& name) const
 {
-    return getOutputDir() + '/' + strings::includeDirStr() + '/' + emscriptenRelHeaderForRoot(name);
+    return genGetOutputDir() + '/' + strings::genIncludeDirStr() + '/' + emscriptenRelHeaderForRoot(name);
 }
 
 std::string EmscriptenGenerator::emscriptenAbsHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
 {
-    return getOutputDir() + '/' + strings::includeDirStr() + '/' + emscriptenRelHeaderForNamespaceMember(name, parent);
+    return genGetOutputDir() + '/' + strings::genIncludeDirStr() + '/' + emscriptenRelHeaderForNamespaceMember(name, parent);
 }
 
 std::string EmscriptenGenerator::emscriptenRelSourceForRoot(const std::string& name) const
 {
-    return getTopNamespace() + '/' + comms::relSourceForRoot(name, *this);
+    return genGetTopNamespace() + '/' + comms::genRelSourceForRoot(name, *this);
 }
 
 std::string EmscriptenGenerator::emscriptenRelSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
 {
-    return getTopNamespace() + '/' + comms::relSourceForNamespaceMember(name, *this, parent);
+    return genGetTopNamespace() + '/' + comms::genRelSourceForNamespaceMember(name, *this, parent);
 }
 
 std::string EmscriptenGenerator::emscriptenAbsSourceForRoot(const std::string& name) const
 {
-    return getOutputDir() + '/' + emscriptenRelSourceForRoot(name);
+    return genGetOutputDir() + '/' + emscriptenRelSourceForRoot(name);
 }
 
 std::string EmscriptenGenerator::emscriptenAbsSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
 {
-    return getOutputDir() + '/' + emscriptenRelSourceForNamespaceMember(name, parent);
+    return genGetOutputDir() + '/' + emscriptenRelSourceForNamespaceMember(name, parent);
 }
 
 std::string EmscriptenGenerator::emscriptenProtocolRelHeaderForRoot(const std::string& name) const
 {
-    auto schemaIdx = currentSchemaIdx();
-    chooseProtocolSchema();
+    auto schemaIdx = genCurrentSchemaIdx();
+    genChooseProtocolSchema();
     auto str = emscriptenRelHeaderForRoot(name);
-    chooseCurrentSchema(schemaIdx);
+    genChooseCurrentSchema(schemaIdx);
     return str;
 }
 
 std::string EmscriptenGenerator::emscriptenProtocolRelHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
 {
-    auto schemaIdx = currentSchemaIdx();
-    chooseProtocolSchema();
+    auto schemaIdx = genCurrentSchemaIdx();
+    genChooseProtocolSchema();
     auto str = emscriptenRelHeaderForNamespaceMember(name, parent);
-    chooseCurrentSchema(schemaIdx);
+    genChooseCurrentSchema(schemaIdx);
     return str;    
 }
 
 std::string EmscriptenGenerator::emscriptenSchemaRelSourceForRoot(unsigned schemaIdx, const std::string& name) const
 {
-    auto currSchemaIdx = currentSchemaIdx();
-    chooseCurrentSchema(schemaIdx);
+    auto currSchemaIdx = genCurrentSchemaIdx();
+    genChooseCurrentSchema(schemaIdx);
     auto str = emscriptenRelSourceForRoot(name);
-    chooseCurrentSchema(currSchemaIdx);
+    genChooseCurrentSchema(currSchemaIdx);
     return str;
 }
 
 std::string EmscriptenGenerator::emscriptenRelHeaderFor(const commsdsl::gen::GenElem& elem) const
 {
-    return getTopNamespace() + '/' + comms::relHeaderPathFor(elem, *this);
+    return genGetTopNamespace() + '/' + comms::genRelHeaderPathFor(elem, *this);
 }
 
 std::string EmscriptenGenerator::emscriptenAbsHeaderFor(const commsdsl::gen::GenElem& elem) const
 {
-    return getOutputDir() + '/' + strings::includeDirStr() + '/' + emscriptenRelHeaderFor(elem);
+    return genGetOutputDir() + '/' + strings::genIncludeDirStr() + '/' + emscriptenRelHeaderFor(elem);
 }
 
 std::string EmscriptenGenerator::emscriptenRelSourceFor(const commsdsl::gen::GenElem& elem) const
 {
-    return getTopNamespace() + '/' + comms::relSourcePathFor(elem, *this);
+    return genGetTopNamespace() + '/' + comms::genRelSourcePathFor(elem, *this);
 }
 
 std::string EmscriptenGenerator::emscriptenAbsSourceFor(const commsdsl::gen::GenElem& elem) const
 {
-    return getOutputDir() + '/' + emscriptenRelSourceFor(elem);
+    return genGetOutputDir() + '/' + emscriptenRelSourceFor(elem);
 }
 
 std::string EmscriptenGenerator::emspriptenInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const
 {
-    return getCodeDir() + '/' + strings::includeDirStr() + '/' + emscriptenRelHeaderFor(elem);
+    return genGetCodeDir() + '/' + strings::genIncludeDirStr() + '/' + emscriptenRelHeaderFor(elem);
 }
 
 std::string EmscriptenGenerator::emspriptenInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const
 {
-    return getCodeDir() + '/' + emscriptenRelSourceFor(elem);
+    return genGetCodeDir() + '/' + emscriptenRelSourceFor(elem);
 }
 
 std::string EmscriptenGenerator::emscriptenScopeToName(const std::string& scope)
 {
-    return util::strReplace(scope, "::", "_");
+    return util::genStrReplace(scope, "::", "_");
 }
 
-bool EmscriptenGenerator::createCompleteImpl()
+bool EmscriptenGenerator::genCreateCompleteImpl()
 {
     return 
         emscriptenReferenceRequestedInterfaceInternal() &&
         emscriptenReferenceRequestedMessagesInternal();
 }
 
-bool EmscriptenGenerator::prepareImpl()
+bool EmscriptenGenerator::genPrepareImpl()
 {
-    if (!Base::prepareImpl()) {
+    if (!Base::genPrepareImpl()) {
         return false;
     }
 
@@ -228,19 +228,19 @@ bool EmscriptenGenerator::prepareImpl()
         return true;
     }
     
-    auto* iFace = findInterface(m_forcedInterface);
+    auto* iFace = genFindInterface(m_forcedInterface);
     if (iFace == nullptr) {
-        logger().error("The selected forced interface \"" + m_forcedInterface + "\" hasn't been found");
+        genLogger().genError("The selected forced interface \"" + m_forcedInterface + "\" hasn't been found");
         return false;
     }
 
     return true;
 }
 
-bool EmscriptenGenerator::writeImpl()
+bool EmscriptenGenerator::genWriteImpl()
 {
-    for (auto idx = 0U; idx < schemas().size(); ++idx) {
-        chooseCurrentSchema(idx);
+    for (auto idx = 0U; idx < genSchemas().size(); ++idx) {
+        genChooseCurrentSchema(idx);
         bool result = 
             EmscriptenVersion::emscriptenWrite(*this);
 
@@ -295,7 +295,7 @@ const EmscriptenInterface* EmscriptenGenerator::emscriptenMainInterface() const
             break;
         }
 
-        auto iFace = findInterface(m_forcedInterface);
+        auto iFace = genFindInterface(m_forcedInterface);
         if (iFace == nullptr) {
             break;
         }
@@ -303,7 +303,7 @@ const EmscriptenInterface* EmscriptenGenerator::emscriptenMainInterface() const
         return static_cast<const EmscriptenInterface*>(iFace);
     } while (false);
 
-    auto allInterfaces = getAllInterfaces();
+    auto allInterfaces = genGetAllInterfaces();
     if (allInterfaces.empty()) {
         return nullptr;
     }
@@ -315,122 +315,122 @@ EmscriptenInterface* EmscriptenGenerator::emscriptenMainInterface()
     return const_cast<EmscriptenInterface*>(static_cast<const EmscriptenGenerator*>(this)->emscriptenMainInterface());
 }
 
-EmscriptenGenerator::SchemaPtr EmscriptenGenerator::createSchemaImpl(commsdsl::parse::ParseSchema dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenSchemaPtr EmscriptenGenerator::genCreateSchemaImpl(commsdsl::parse::ParseSchema dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenSchema>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::NamespacePtr EmscriptenGenerator::createNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenNamespacePtr EmscriptenGenerator::genCreateNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenNamespace>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::InterfacePtr EmscriptenGenerator::createInterfaceImpl(commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenInterfacePtr EmscriptenGenerator::genCreateInterfaceImpl(commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenInterface>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::MessagePtr EmscriptenGenerator::createMessageImpl(commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenMessagePtr EmscriptenGenerator::genCreateMessageImpl(commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenMessage>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FramePtr EmscriptenGenerator::createFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::FramePtr EmscriptenGenerator::genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenFrame>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createIntFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenFieldPtr EmscriptenGenerator::genCreateIntFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenIntField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createEnumFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenFieldPtr EmscriptenGenerator::genCreateEnumFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenEnumField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createSetFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenFieldPtr EmscriptenGenerator::genCreateSetFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenSetField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createFloatFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenFieldPtr EmscriptenGenerator::genCreateFloatFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenFloatField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createBitfieldFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenFieldPtr EmscriptenGenerator::genCreateBitfieldFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenBitfieldField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createBundleFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenFieldPtr EmscriptenGenerator::genCreateBundleFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenBundleField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createStringFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenFieldPtr EmscriptenGenerator::genCreateStringFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenStringField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createDataFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenFieldPtr EmscriptenGenerator::genCreateDataFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenDataField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createListFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenFieldPtr EmscriptenGenerator::genCreateListFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenListField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createRefFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenFieldPtr EmscriptenGenerator::genCreateRefFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenRefField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createOptionalFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenFieldPtr EmscriptenGenerator::genCreateOptionalFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenOptionalField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FieldPtr EmscriptenGenerator::createVariantFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenFieldPtr EmscriptenGenerator::genCreateVariantFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenVariantField>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::LayerPtr EmscriptenGenerator::createCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenLayerPtr EmscriptenGenerator::genCreateCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenCustomLayer>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::LayerPtr EmscriptenGenerator::createSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenLayerPtr EmscriptenGenerator::genCreateSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenSyncLayer>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::LayerPtr EmscriptenGenerator::createSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenLayerPtr EmscriptenGenerator::genCreateSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenSizeLayer>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::LayerPtr EmscriptenGenerator::createIdLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenLayerPtr EmscriptenGenerator::genCreateIdLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenIdLayer>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::LayerPtr EmscriptenGenerator::createValueLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenLayerPtr EmscriptenGenerator::genCreateValueLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenValueLayer>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::LayerPtr EmscriptenGenerator::createPayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenLayerPtr EmscriptenGenerator::genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenPayloadLayer>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::LayerPtr EmscriptenGenerator::createChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenLayerPtr EmscriptenGenerator::genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenChecksumLayer>(*this, dslObj, parent);
 }
@@ -438,24 +438,24 @@ EmscriptenGenerator::LayerPtr EmscriptenGenerator::createChecksumLayerImpl(comms
 bool EmscriptenGenerator::emscriptenWriteExtraFilesInternal() const
 {
     const std::vector<std::string> ReservedExt = {
-        strings::replaceFileSuffixStr(),
-        strings::extendFileSuffixStr(),
-        strings::publicFileSuffixStr(),
-        strings::incFileSuffixStr(),
-        strings::appendFileSuffixStr(),
-        strings::prependFileSuffixStr(),
-        strings::bindFileSuffixStr(),
-        strings::sourcesFileSuffixStr(),
+        strings::genReplaceFileSuffixStr(),
+        strings::genExtendFileSuffixStr(),
+        strings::genPublicFileSuffixStr(),
+        strings::genIncFileSuffixStr(),
+        strings::genAppendFileSuffixStr(),
+        strings::genPrependFileSuffixStr(),
+        strings::genBindFileSuffixStr(),
+        strings::genSourcesFileSuffixStr(),
     }; 
 
-    return copyExtraSourceFiles(ReservedExt);    
+    return genCopyExtraSourceFiles(ReservedExt);    
 }
 
 bool EmscriptenGenerator::emscriptenReferenceRequestedInterfaceInternal()
 {
     auto* mainInterface = emscriptenMainInterface();
     if (mainInterface != nullptr) {
-        mainInterface->setReferenced(true);
+        mainInterface->genSetReferenced(true);
     }
 
     return true;
@@ -464,12 +464,12 @@ bool EmscriptenGenerator::emscriptenReferenceRequestedInterfaceInternal()
 bool EmscriptenGenerator::emscriptenReferenceRequestedMessagesInternal()
 {
     if ((m_messagesListFile.empty()) && (m_forcedPlatform.empty())) {
-        referenceAllMessages();
+        genReferenceAllMessages();
         return true;
     }
 
     if ((!m_messagesListFile.empty()) && (!m_forcedPlatform.empty())) {
-        logger().error("Cannot force platform messages together with explicit message list.");
+        genLogger().genError("Cannot force platform messages together with explicit message list.");
         return false;
     }    
 
@@ -488,21 +488,21 @@ bool EmscriptenGenerator::emscriptenProcessMessagesListFileInternal()
 {
     std::ifstream stream(m_messagesListFile);
     if (!stream) {
-        logger().error("Failed to open messages list file: \"" + m_messagesListFile + "\".");
+        genLogger().genError("Failed to open messages list file: \"" + m_messagesListFile + "\".");
         return false;
     }
 
     std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
-    auto lines = util::strSplitByAnyChar(contents, "\n\r");
+    auto lines = util::genStrSplitByAnyChar(contents, "\n\r");
 
     for (auto& l : lines) {
-        auto* m = findMessage(l);
+        auto* m = genGindMessage(l);
         if (m == nullptr) {
-            logger().error("Failed to fined message \"" + l + "\" listed in \"" + m_messagesListFile + "\".");
+            genLogger().genError("Failed to fined message \"" + l + "\" listed in \"" + m_messagesListFile + "\".");
             return false;
         }
 
-        m->setReferenced(true);
+        m->genSetReferenced(true);
     }
 
     return true;
@@ -513,10 +513,10 @@ bool EmscriptenGenerator::emscriptenProcessForcedPlatformInternal()
     bool validPlatform = false;
 
     assert(!m_forcedPlatform.empty());
-    for (auto* m : getAllMessages()) {
+    for (auto* m : genGetAllMessages()) {
         assert(m != nullptr);
-        auto& s = schemaOf(*m);
-        auto& schemaPlatforms = s.dslObj().parsePlatforms();
+        auto& s = genSchemaOf(*m);
+        auto& schemaPlatforms = s.genParseObj().parsePlatforms();
         auto iter = std::find(schemaPlatforms.begin(), schemaPlatforms.end(), m_forcedPlatform);
         if (iter == schemaPlatforms.end()) {
             continue;
@@ -525,19 +525,19 @@ bool EmscriptenGenerator::emscriptenProcessForcedPlatformInternal()
         validPlatform = true;
 
         auto* emscriptenM = const_cast<EmscriptenMessage*>(EmscriptenMessage::cast(m));
-        auto& messagePlatforms = emscriptenM->dslObj().parsePlatforms();
+        auto& messagePlatforms = emscriptenM->genParseObj().parsePlatforms();
 
         bool messageSupported = 
             (messagePlatforms.empty()) || 
             (std::find(messagePlatforms.begin(), messagePlatforms.end(), m_forcedPlatform) != messagePlatforms.end());
 
         if (messageSupported) {
-            emscriptenM->setReferenced(true);
+            emscriptenM->genSetReferenced(true);
         }
     }
     
     if (!validPlatform) {
-        logger().error("Unknown platform: \"" + m_forcedPlatform + "\".");
+        genLogger().genError("Unknown platform: \"" + m_forcedPlatform + "\".");
         return false;
     }
 

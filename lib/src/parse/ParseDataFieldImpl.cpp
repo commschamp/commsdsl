@@ -271,7 +271,7 @@ bool ParseDataFieldImpl::parseUpdateLength()
     }
 
     bool ok = false;
-    auto newVal = common::strToUnsigned(iter->second, &ok);
+    auto newVal = common::parseStrToUnsigned(iter->second, &ok);
     if ((!ok) || (newVal == 0U)) {
         parseReportUnexpectedPropertyValue(common::lengthStr(), iter->second);
         return false;

@@ -30,9 +30,9 @@ CommsSyncLayer::CommsSyncLayer(CommsGenerator& generator, commsdsl::parse::Parse
 {
 }
 
-bool CommsSyncLayer::prepareImpl()
+bool CommsSyncLayer::genPrepareImpl()
 {
-    bool result = Base::prepareImpl() && CommsBase::commsPrepare();
+    bool result = Base::genPrepareImpl() && CommsBase::commsPrepare();
     if (!result) {
         return false;
     }
@@ -64,7 +64,7 @@ std::string CommsSyncLayer::commsDefBaseTypeImpl(const std::string& prevName) co
         {"PREV_LAYER", prevName}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2comms

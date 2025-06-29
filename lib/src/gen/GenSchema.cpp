@@ -47,49 +47,52 @@ public:
     using NamespacesList = GenSchema::NamespacesList;
     using PlatformNamesList = GenSchema::PlatformNamesList;
     using FieldsAccessList = GenSchema::FieldsAccessList;
+    using ParseSchema = GenSchema::ParseSchema;
+    using ParseField = commsdsl::parse::ParseField;
+    using ParseProtocol = commsdsl::parse::ParseProtocol;
 
-    explicit GenSchemaImpl(GenGenerator& generator, commsdsl::parse::ParseSchema dslObj, GenElem* parent) :
+    explicit GenSchemaImpl(GenGenerator& generator, ParseSchema parseObj, GenElem* parent) :
         m_generator(generator),
-        m_dslObj(dslObj),
+        m_parseObj(parseObj),
         m_parent(parent)
     {
     }
 
-    const commsdsl::parse::ParseSchema& dslObj() const
+    const ParseSchema& genParseObj() const
     {
-        return m_dslObj;
+        return m_parseObj;
     }
 
-    NamespacesList& namespaces()
+    NamespacesList& genNamespaces()
     {
         return m_namespaces;
     }
 
-    const NamespacesList& namespaces() const
+    const NamespacesList& genNamespaces() const
     {
         return m_namespaces;
     }    
 
-    const std::string& schemaName() const
+    const std::string& genSchemaName() const
     {
-        return m_dslObj.parseName();
+        return m_parseObj.parseName();
     }
 
-    parse::ParseEndian schemaEndian() const
+    parse::ParseEndian genSchemaEndian() const
     {
-        return m_dslObj.parseEndian();
+        return m_parseObj.parseEndian();
     }
 
-    unsigned schemaVersion() const
+    unsigned genSchemaVersion() const
     {
         if (0 <= m_forcedSchemaVersion) {
             return static_cast<unsigned>(m_forcedSchemaVersion);
         }
 
-        return m_dslObj.parseVersion();
+        return m_parseObj.parseVersion();
     }
 
-    const GenField* findField(const std::string& externalRef) const
+    const GenField* genFindField(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
         auto pos = externalRef.find_first_of('.');
@@ -103,11 +106,11 @@ public:
                 m_namespaces.begin(), m_namespaces.end(), nsName,
                 [](auto& ns, const std::string& n)
                 {
-                    return ns->name() < n;
+                    return ns->genName() < n;
                 });
 
-        if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
-            m_generator.logger().error("Internal error: unknown external reference: " + externalRef);
+        if ((nsIter == m_namespaces.end()) || ((*nsIter)->genName() != nsName)) {
+            m_generator.genLogger().genError("Internal error: unknown external reference: " + externalRef);
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             return nullptr;
@@ -118,21 +121,21 @@ public:
             fromPos = pos + 1U;
         }
         std::string remStr(externalRef, fromPos);
-        auto result = (*nsIter)->findField(remStr);
+        auto result = (*nsIter)->genFindField(remStr);
         if (result == nullptr) {
-            m_generator.logger().error("Internal error: unknown external reference \"" + externalRef + "\" in schema " + m_dslObj.parseName());
+            m_generator.genLogger().genError("Internal error: unknown external reference \"" + externalRef + "\" in schema " + m_parseObj.parseName());
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
         }
         return result;        
     }
 
-    GenField* findField(const std::string& externalRef)
+    GenField* genFindField(const std::string& externalRef)
     {
-        return const_cast<GenField*>(static_cast<const GenSchemaImpl*>(this)->findField(externalRef));
+        return const_cast<GenField*>(static_cast<const GenSchemaImpl*>(this)->genFindField(externalRef));
     }
 
-    const GenMessage* findMessage(const std::string& externalRef) const
+    const GenMessage* genGindMessage(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
         auto pos = externalRef.find_first_of('.');
@@ -146,11 +149,11 @@ public:
                 m_namespaces.begin(), m_namespaces.end(), nsName,
                 [](auto& ns, const std::string& n)
                 {
-                    return ns->name() < n;
+                    return ns->genName() < n;
                 });
 
-        if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
-            m_generator.logger().error("Internal error: unknown external reference: " + externalRef);
+        if ((nsIter == m_namespaces.end()) || ((*nsIter)->genName() != nsName)) {
+            m_generator.genLogger().genError("Internal error: unknown external reference: " + externalRef);
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             return nullptr;
@@ -161,21 +164,21 @@ public:
             fromPos = pos + 1U;
         }
         std::string remStr(externalRef, fromPos);
-        auto result = (*nsIter)->findMessage(remStr);
+        auto result = (*nsIter)->genGindMessage(remStr);
         if (result == nullptr) {
-            m_generator.logger().error("Internal error: unknown external reference: " + externalRef);
+            m_generator.genLogger().genError("Internal error: unknown external reference: " + externalRef);
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
         }
         return result;        
     }  
 
-    GenMessage* findMessage(const std::string& externalRef)
+    GenMessage* genGindMessage(const std::string& externalRef)
     {
-        return const_cast<GenMessage*>(static_cast<const GenSchemaImpl*>(this)->findMessage(externalRef));
+        return const_cast<GenMessage*>(static_cast<const GenSchemaImpl*>(this)->genGindMessage(externalRef));
     }
 
-    const GenFrame* findFrame(const std::string& externalRef) const
+    const GenFrame* genFindFrame(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
         auto pos = externalRef.find_first_of('.');
@@ -189,11 +192,11 @@ public:
                 m_namespaces.begin(), m_namespaces.end(), nsName,
                 [](auto& ns, const std::string& n)
                 {
-                    return ns->name() < n;
+                    return ns->genName() < n;
                 });
 
-        if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
-            m_generator.logger().error("Internal error: unknown external reference: " + externalRef);
+        if ((nsIter == m_namespaces.end()) || ((*nsIter)->genName() != nsName)) {
+            m_generator.genLogger().genError("Internal error: unknown external reference: " + externalRef);
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             return nullptr;
@@ -204,16 +207,16 @@ public:
             fromPos = pos + 1U;
         }
         std::string remStr(externalRef, fromPos);
-        auto result = (*nsIter)->findFrame(remStr);
+        auto result = (*nsIter)->genFindFrame(remStr);
         if (result == nullptr) {
-            m_generator.logger().error("Internal error: unknown external reference: " + externalRef);
+            m_generator.genLogger().genError("Internal error: unknown external reference: " + externalRef);
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
         }
         return result;        
     }
 
-    const GenInterface* findInterface(const std::string& externalRef) const
+    const GenInterface* genFindInterface(const std::string& externalRef) const
     {
         auto pos = externalRef.find_first_of('.');
         std::string nsName;
@@ -226,10 +229,10 @@ public:
                 m_namespaces.begin(), m_namespaces.end(), nsName,
                 [](auto& ns, const std::string& n)
                 {
-                    return ns->name() < n;
+                    return ns->genName() < n;
                 });
 
-        if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
+        if ((nsIter == m_namespaces.end()) || ((*nsIter)->genName() != nsName)) {
             return nullptr;
         }
 
@@ -238,22 +241,22 @@ public:
             fromPos = pos + 1U;
         }
         std::string remStr(externalRef, fromPos);
-        auto result = (*nsIter)->findInterface(remStr);
+        auto result = (*nsIter)->genFindInterface(remStr);
         if (result == nullptr) {
-            m_generator.logger().error("Internal error: unknown external reference: " + externalRef);
+            m_generator.genLogger().genError("Internal error: unknown external reference: " + externalRef);
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
         }
         return result;        
     }                
 
-    bool createAll()
+    bool genCreateAll()
     {
-        auto namespaces = m_dslObj.parseNamespaces();
+        auto namespaces = m_parseObj.parseNamespaces();
         m_namespaces.reserve(namespaces.size());
         for (auto& n : namespaces) {
-            auto ptr = m_generator.createNamespace(n, m_parent);
-            if (!ptr->createAll()) {
+            auto ptr = m_generator.genCreateNamespace(n, m_parent);
+            if (!ptr->genCreateAll()) {
                 return false;
             }
             assert(ptr);
@@ -263,29 +266,29 @@ public:
         return true;
     }
 
-    bool prepare()
+    bool genPrepare()
     {
-        auto dslVersion = m_dslObj.parseDslVersion();
+        auto dslVersion = m_parseObj.parseDslVersion();
         if (MaxDslVersion < dslVersion) {
-            m_generator.logger().error(
+            m_generator.genLogger().genError(
                 "Required DSL version is too big (" + std::to_string(dslVersion) +
                 "), upgrade your code generator.");
             return false;
         }
 
-        auto parsedSchemaVersion = m_dslObj.parseVersion();
+        auto parsedSchemaVersion = m_parseObj.parseVersion();
         if ((0 <= m_forcedSchemaVersion) && 
             (parsedSchemaVersion < static_cast<decltype(parsedSchemaVersion)>(m_forcedSchemaVersion))) {
-            m_generator.logger().error("Cannot force version to be greater than " + util::numToString(parsedSchemaVersion));
+            m_generator.genLogger().genError("Cannot force version to be greater than " + util::genNumToString(parsedSchemaVersion));
             return false;
         }   
 
         if (!m_versionIndependentCodeForced) {
-            m_versionDependentCode = anyInterfaceHasVersion();
+            m_versionDependentCode = genAnyInterfaceHasVersion();
         }       
 
-        assert(!m_dslObj.parseName().empty());
-        m_origNamespace = util::strToName(m_dslObj.parseName());
+        assert(!m_parseObj.parseName().empty());
+        m_origNamespace = util::genStrToName(m_parseObj.parseName());
         if (m_mainNamespace.empty()) {
             m_mainNamespace = m_origNamespace;
         }              
@@ -296,51 +299,51 @@ public:
                 [](auto& n)
                 {
                     assert(n);
-                    return n->prepare();
+                    return n->genPrepare();
                 });
 
         if (!namespacesResult) {
             return false;
         }
 
-        m_messageIdFields = findMessageIdFields();
+        m_messageIdFields = genFindMessageIdFields();
         return true;
     }
 
-    bool write()
+    bool genWrite()
     {
         return 
             std::all_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& ns)
                 {
-                    return ns->write();
+                    return ns->genWrite();
                 });
     }
 
-    GenGenerator& generator()
+    GenGenerator& genGenerator()
     {
         return m_generator;
     }
 
-    FieldsAccessList findMessageIdFields() const
+    FieldsAccessList genFindMessageIdFields() const
     {
         FieldsAccessList result;
         for (auto& n : m_namespaces) {
-            auto nsResult = n->findMessageIdFields();
+            auto nsResult = n->genFindMessageIdFields();
             std::move(nsResult.begin(), nsResult.end(), std::back_inserter(result));
         }
         return result;
     }  
 
-    bool anyInterfaceHasVersion() const
+    bool genAnyInterfaceHasVersion() const
     {
         return
             std::any_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& n)
                 {
-                    auto interfaces = n->getAllInterfaces();
+                    auto interfaces = n->genGetAllInterfaces();
 
                     return 
                         std::any_of(
@@ -348,65 +351,65 @@ public:
                             [](auto& i)
                             {
 
-                                auto& fields = i->fields();
+                                auto& fields = i->genFields();
                                 return
                                     std::any_of(
                                         fields.begin(), fields.end(),
                                         [](auto& f)
                                         {
-                                            return f->dslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Version;
+                                            return f->genParseObj().parseSemanticType() == ParseField::SemanticType::Version;
                                         });
 
                             });
                 });
     }      
 
-    void forceSchemaVersion(unsigned value)
+    void genForceSchemaVersion(unsigned value)
     {
         m_forcedSchemaVersion = static_cast<decltype(m_forcedSchemaVersion)>(value);
     }    
 
     const PlatformNamesList& platformNames()
     {
-        return m_dslObj.parsePlatforms();
+        return m_parseObj.parsePlatforms();
     }
 
-    void setVersionIndependentCodeForced(bool value)
+    void genSetVersionIndependentCodeForced(bool value)
     {
         m_versionIndependentCodeForced = value;
     }    
 
-    bool versionDependentCode() const
+    bool genVersionDependentCode() const
     {
         return m_versionDependentCode;
     }    
 
-    const std::string& mainNamespace() const
+    const std::string& genMainNamespace() const
     {
         return m_mainNamespace;
     }
 
-    const std::string& origNamespace() const
+    const std::string& genOrigNamespace() const
     {
         return m_origNamespace;
     }    
 
-    FieldsAccessList getAllMessageIdFields() const
+    FieldsAccessList genGetAllMessageIdFields() const
     {
         return m_messageIdFields;
     }    
 
-    void setMainNamespaceOverride(const std::string& value)
+    void genSetMainNamespaceOverride(const std::string& value)
     {
         m_mainNamespace = value;
     }
     
-    bool doesElementExist(
+    bool genDoesElementExist(
         unsigned sinceVersion,
         unsigned deprecatedSince,
         bool deprecatedRemoved) const
     {
-        if (schemaVersion() < sinceVersion) {
+        if (genSchemaVersion() < sinceVersion) {
             return false;
         }
 
@@ -417,7 +420,7 @@ public:
         return true;
     }
 
-    bool isElementOptional(
+    bool genIsElementOptional(
         unsigned sinceVersion,
         unsigned deprecatedSince,
         bool deprecatedRemoved) const
@@ -426,68 +429,68 @@ public:
             return true;
         }
 
-        if (deprecatedRemoved && (deprecatedSince < commsdsl::parse::ParseProtocol::parseNotYetDeprecated())) {
+        if (deprecatedRemoved && (deprecatedSince < ParseProtocol::parseNotYetDeprecated())) {
             return true;
         }
 
         return false;
     }
 
-    void setMinRemoteVersion(unsigned value)
+    void genSetMinRemoteVersion(unsigned value)
     {
         m_minRemoteVersion = value;
     }
 
-    void setAllInterfacesReferenced()
+    void genSetAllInterfacesReferenced()
     {
         for (auto& nPtr : m_namespaces) {
-            nPtr->setAllInterfacesReferenced();
+            nPtr->genSetAllInterfacesReferenced();
         }
     }    
 
-    void setAllMessagesReferenced()
+    void genSetAllMessagesReferenced()
     {
         for (auto& nPtr : m_namespaces) {
-            nPtr->setAllMessagesReferenced();
+            nPtr->genSetAllMessagesReferenced();
         }
     }
 
-    bool hasReferencedMessageIdField() const
+    bool genHasReferencedMessageIdField() const
     {
         return 
             std::any_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& n)
                 {
-                    return n->hasReferencedMessageIdField();
+                    return n->genHasReferencedMessageIdField();
                 });
     }
 
-    bool hasAnyReferencedMessage() const
+    bool genHasAnyReferencedMessage() const
     {
         return 
             std::any_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& n)
                 {
-                    return n->hasAnyReferencedMessage();
+                    return n->genHasAnyReferencedMessage();
                 });
     }
 
-    bool hasAnyReferencedComponent() const
+    bool genHasAnyReferencedComponent() const
     {
         return 
             std::any_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& n)
                 {
-                    return n->hasAnyReferencedComponent();
+                    return n->genHasAnyReferencedComponent();
                 });
     }    
 
 private:
     GenGenerator& m_generator;
-    commsdsl::parse::ParseSchema m_dslObj;
+    ParseSchema m_parseObj;
     GenElem* m_parent = nullptr;
     NamespacesList m_namespaces;
     int m_forcedSchemaVersion = -1;
@@ -499,193 +502,193 @@ private:
     bool m_versionDependentCode = false;
 }; 
 
-GenSchema::GenSchema(GenGenerator& generator, commsdsl::parse::ParseSchema dslObj, GenElem* parent) : 
+GenSchema::GenSchema(GenGenerator& generator, ParseSchema parseObj, GenElem* parent) : 
     Base(parent),
-    m_impl(std::make_unique<GenSchemaImpl>(generator, dslObj, this))
+    m_impl(std::make_unique<GenSchemaImpl>(generator, parseObj, this))
 {
 }
 
 GenSchema::~GenSchema() = default;
 
-const commsdsl::parse::ParseSchema& GenSchema::dslObj() const
+const GenSchema::ParseSchema& GenSchema::genParseObj() const
 {
-    return m_impl->dslObj();
+    return m_impl->genParseObj();
 }
 
-const std::string& GenSchema::schemaName() const
+const std::string& GenSchema::genSchemaName() const
 {
-    return m_impl->schemaName();
+    return m_impl->genSchemaName();
 }
 
-parse::ParseEndian GenSchema::schemaEndian() const
+parse::ParseEndian GenSchema::genSchemaEndian() const
 {
-    return m_impl->schemaEndian();
+    return m_impl->genSchemaEndian();
 }
 
-unsigned GenSchema::schemaVersion() const 
+unsigned GenSchema::genSchemaVersion() const 
 {
-    return m_impl->schemaVersion();
+    return m_impl->genSchemaVersion();
 }
 
-GenSchema::FieldsAccessList GenSchema::getAllMessageIdFields() const
+GenSchema::FieldsAccessList GenSchema::genGetAllMessageIdFields() const
 {
-    return m_impl->getAllMessageIdFields();
+    return m_impl->genGetAllMessageIdFields();
 }
 
-const GenField* GenSchema::findField(const std::string& externalRef) const
+const GenField* GenSchema::genFindField(const std::string& externalRef) const
 {
-    auto* field = m_impl->findField(externalRef);
-    assert(field->isPrepared());
+    auto* field = m_impl->genFindField(externalRef);
+    assert(field->genIsPrepared());
     return field;
 }
 
-GenField* GenSchema::findField(const std::string& externalRef)
+GenField* GenSchema::genFindField(const std::string& externalRef)
 {
-    auto* field = m_impl->findField(externalRef);
+    auto* field = m_impl->genFindField(externalRef);
     do {
-        if (field->isPrepared()) {
+        if (field->genIsPrepared()) {
             break;
         }    
 
-        if (field->prepare()) {
+        if (field->genPrepare()) {
             break;
         }
          
-        m_impl->generator().logger().warning("Failed to prepare field: " + field->dslObj().parseExternalRef());
+        m_impl->genGenerator().genLogger().genWarning("Failed to prepare field: " + field->genParseObj().parseExternalRef());
         field = nullptr;
     } while (false);
     return field;
 }
 
-const GenMessage* GenSchema::findMessage(const std::string& externalRef) const
+const GenMessage* GenSchema::genGindMessage(const std::string& externalRef) const
 {
-    return m_impl->findMessage(externalRef);
+    return m_impl->genGindMessage(externalRef);
 }
 
-GenMessage* GenSchema::findMessage(const std::string& externalRef) 
+GenMessage* GenSchema::genGindMessage(const std::string& externalRef) 
 {
-    auto* msg = m_impl->findMessage(externalRef);
+    auto* msg = m_impl->genGindMessage(externalRef);
     do {
-        if (msg->isPrepared()) {
+        if (msg->genIsPrepared()) {
             break;
         }
 
-        if (msg->prepare()) {
+        if (msg->genPrepare()) {
             break;
         }
 
-        m_impl->generator().logger().warning("Failed to prepare message: " + msg->dslObj().parseExternalRef());
+        m_impl->genGenerator().genLogger().genWarning("Failed to prepare message: " + msg->genParseObj().parseExternalRef());
         msg = nullptr;
     } while (false);
     return msg;
 }
 
-const GenFrame* GenSchema::findFrame(const std::string& externalRef) const
+const GenFrame* GenSchema::genFindFrame(const std::string& externalRef) const
 {
-    return m_impl->findFrame(externalRef);
+    return m_impl->genFindFrame(externalRef);
 }
 
-const GenInterface* GenSchema::findInterface(const std::string& externalRef) const
+const GenInterface* GenSchema::genFindInterface(const std::string& externalRef) const
 {
-    return m_impl->findInterface(externalRef);
+    return m_impl->genFindInterface(externalRef);
 }
 
-bool GenSchema::anyInterfaceHasVersion() const
+bool GenSchema::genAnyInterfaceHasVersion() const
 {
-    return m_impl->anyInterfaceHasVersion();
+    return m_impl->genAnyInterfaceHasVersion();
 }
 
-GenSchema::NamespacesAccessList GenSchema::getAllNamespaces() const
+GenSchema::NamespacesAccessList GenSchema::genGetAllNamespaces() const
 {
     NamespacesAccessList result;
-    for (auto& n : m_impl->namespaces()) {
-        auto subResult = n->getAllNamespaces();
+    for (auto& n : m_impl->genNamespaces()) {
+        auto subResult = n->genGetAllNamespaces();
         result.insert(result.end(), subResult.begin(), subResult.end());
         result.push_back(n.get());
     }
     return result;
 }
 
-GenSchema::InterfacesAccessList GenSchema::getAllInterfaces() const
+GenSchema::InterfacesAccessList GenSchema::genGetAllInterfaces() const
 {
     InterfacesAccessList result;
-    for (auto& n : m_impl->namespaces()) {
-        auto subResult = n->getAllInterfaces();
+    for (auto& n : m_impl->genNamespaces()) {
+        auto subResult = n->genGetAllInterfaces();
         result.insert(result.end(), subResult.begin(), subResult.end());
     }
     return result;
 }
 
-GenSchema::MessagesAccessList GenSchema::getAllMessages() const
+GenSchema::MessagesAccessList GenSchema::genGetAllMessages() const
 {
     MessagesAccessList result;
-    for (auto& n : m_impl->namespaces()) {
-        auto subResult = n->getAllMessages();
+    for (auto& n : m_impl->genNamespaces()) {
+        auto subResult = n->genGetAllMessages();
         result.insert(result.end(), subResult.begin(), subResult.end());
     }
     return result;
 }
 
-GenSchema::MessagesAccessList GenSchema::getAllMessagesIdSorted() const
+GenSchema::MessagesAccessList GenSchema::genGetAllMessagesIdSorted() const
 {
-    auto result = getAllMessages();
-    GenGenerator::sortMessages(result);
+    auto result = genGetAllMessages();
+    GenGenerator::genSortMessages(result);
     return result;
 }
 
-GenSchema::FramesAccessList GenSchema::getAllFrames() const
+GenSchema::FramesAccessList GenSchema::genGetAllFrames() const
 {
     FramesAccessList result;
-    for (auto& n : m_impl->namespaces()) {
-        auto nList = n->getAllFrames();
+    for (auto& n : m_impl->genNamespaces()) {
+        auto nList = n->genGetAllFrames();
         result.insert(result.end(), nList.begin(), nList.end());
     }
     return result;
 }
 
-GenSchema::FieldsAccessList GenSchema::getAllFields() const
+GenSchema::FieldsAccessList GenSchema::genGetAllFields() const
 {
     FieldsAccessList result;
-    for (auto& n : m_impl->namespaces()) {
-        auto nList = n->getAllFields();
+    for (auto& n : m_impl->genNamespaces()) {
+        auto nList = n->genGetAllFields();
         result.insert(result.end(), nList.begin(), nList.end());
     }
     return result;    
 }
 
-bool GenSchema::createAll()
+bool GenSchema::genCreateAll()
 {
-    return m_impl->createAll();
+    return m_impl->genCreateAll();
 }
 
-bool GenSchema::prepare()
+bool GenSchema::genPrepare()
 {
     // Make sure the logger is created
 
-    if (!m_impl->prepare()) {
+    if (!m_impl->genPrepare()) {
         return false;
     }
 
-    return prepareImpl();
+    return genPrepareImpl();
 }
 
-bool GenSchema::write()
+bool GenSchema::genWrite()
 {
-    if (!m_impl->write()) {
+    if (!m_impl->genWrite()) {
         return false;
     }
     
-    return writeImpl();
+    return genWriteImpl();
 }
 
-GenSchema::NamespacesList& GenSchema::namespaces()
+GenSchema::NamespacesList& GenSchema::genNamespaces()
 {
-    return m_impl->namespaces();
+    return m_impl->genNamespaces();
 }
 
-const GenSchema::NamespacesList& GenSchema::namespaces() const
+const GenSchema::NamespacesList& GenSchema::genNamespaces() const
 {
-    return m_impl->namespaces();
+    return m_impl->genNamespaces();
 }
 
 const GenSchema::PlatformNamesList& GenSchema::platformNames() const
@@ -693,112 +696,112 @@ const GenSchema::PlatformNamesList& GenSchema::platformNames() const
     return m_impl->platformNames();
 }
 
-bool GenSchema::versionDependentCode() const
+bool GenSchema::genVersionDependentCode() const
 {
-    return m_impl->versionDependentCode();
+    return m_impl->genVersionDependentCode();
 }
 
-const std::string& GenSchema::mainNamespace() const
+const std::string& GenSchema::genMainNamespace() const
 {
-    return m_impl->mainNamespace();
+    return m_impl->genMainNamespace();
 }
 
-const std::string& GenSchema::origNamespace() const
+const std::string& GenSchema::genOrigNamespace() const
 {
-    return m_impl->origNamespace();
+    return m_impl->genOrigNamespace();
 }
 
-GenNamespace* GenSchema::addDefaultNamespace()
+GenNamespace* GenSchema::genAddDefaultNamespace()
 {
-    auto& nsList = m_impl->namespaces();
+    auto& nsList = m_impl->genNamespaces();
     for (auto& nsPtr : nsList) {
         assert(nsPtr);
-        if ((!nsPtr->dslObj().parseValid()) || nsPtr->dslObj().parseName().empty()) {
+        if ((!nsPtr->genParseObj().parseValid()) || nsPtr->genParseObj().parseName().empty()) {
             return nsPtr.get();
         }
     }
 
-    auto iter = nsList.insert(nsList.begin(), m_impl->generator().createNamespace(commsdsl::parse::ParseNamespace(nullptr), this));
+    auto iter = nsList.insert(nsList.begin(), m_impl->genGenerator().genCreateNamespace(commsdsl::parse::ParseNamespace(nullptr), this));
     return iter->get();
 }
 
-void GenSchema::forceSchemaVersion(unsigned value)
+void GenSchema::genForceSchemaVersion(unsigned value)
 {
-    m_impl->forceSchemaVersion(value);
+    m_impl->genForceSchemaVersion(value);
 }
 
-void GenSchema::setVersionIndependentCodeForced(bool value)
+void GenSchema::genSetVersionIndependentCodeForced(bool value)
 {
-    m_impl->setVersionIndependentCodeForced(value);
+    m_impl->genSetVersionIndependentCodeForced(value);
 }
 
-void GenSchema::setMainNamespaceOverride(const std::string& value)
+void GenSchema::genSetMainNamespaceOverride(const std::string& value)
 {
-    m_impl->setMainNamespaceOverride(value);
+    m_impl->genSetMainNamespaceOverride(value);
 }
 
-void GenSchema::setMinRemoteVersion(unsigned value)
+void GenSchema::genSetMinRemoteVersion(unsigned value)
 {
-    m_impl->setMinRemoteVersion(value);
+    m_impl->genSetMinRemoteVersion(value);
 }
 
-bool GenSchema::doesElementExist(
+bool GenSchema::genDoesElementExist(
     unsigned sinceVersion,
     unsigned deprecatedSince,
     bool deprecatedRemoved) const
 {
-    return m_impl->doesElementExist(sinceVersion, deprecatedSince, deprecatedRemoved);
+    return m_impl->genDoesElementExist(sinceVersion, deprecatedSince, deprecatedRemoved);
 }
 
-bool GenSchema::isElementOptional(
+bool GenSchema::genIsElementOptional(
     unsigned sinceVersion,
     unsigned deprecatedSince,
     bool deprecatedRemoved) const
 {
-    return m_impl->isElementOptional(sinceVersion, deprecatedSince, deprecatedRemoved);
+    return m_impl->genIsElementOptional(sinceVersion, deprecatedSince, deprecatedRemoved);
 }
 
-bool GenSchema::isElementDeprecated(unsigned deprecatedSince) const
+bool GenSchema::genIsElementDeprecated(unsigned deprecatedSince) const
 {
-    return deprecatedSince < schemaVersion();
+    return deprecatedSince < genSchemaVersion();
 }
 
-void GenSchema::setAllInterfacesReferenced()
+void GenSchema::genSetAllInterfacesReferenced()
 {
-    m_impl->setAllInterfacesReferenced();
+    m_impl->genSetAllInterfacesReferenced();
 }
 
-void GenSchema::setAllMessagesReferenced()
+void GenSchema::genSetAllMessagesReferenced()
 {
-    m_impl->setAllMessagesReferenced();
+    m_impl->genSetAllMessagesReferenced();
 }
 
-bool GenSchema::hasReferencedMessageIdField() const
+bool GenSchema::genHasReferencedMessageIdField() const
 {
-    return m_impl->hasReferencedMessageIdField();
+    return m_impl->genHasReferencedMessageIdField();
 }
 
-bool GenSchema::hasAnyReferencedMessage() const
+bool GenSchema::genHasAnyReferencedMessage() const
 {
-    return m_impl->hasAnyReferencedMessage();
+    return m_impl->genHasAnyReferencedMessage();
 }
 
-bool GenSchema::hasAnyReferencedComponent() const
+bool GenSchema::genHasAnyReferencedComponent() const
 {
-    return m_impl->hasAnyReferencedComponent();
+    return m_impl->genHasAnyReferencedComponent();
 }
 
-GenElem::Type GenSchema::elemTypeImpl() const
+GenElem::Type GenSchema::genElemTypeImpl() const
 {
     return GenElem::Type_Schema;
 }
 
-bool GenSchema::prepareImpl()
+bool GenSchema::genPrepareImpl()
 {
     return true;
 }
 
-bool GenSchema::writeImpl()
+bool GenSchema::genWriteImpl()
 {
     return true;
 }

@@ -33,12 +33,14 @@ class COMMSDSL_API GenIdLayer : public GenLayer
 {
     using Base = GenLayer;
 public:
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using ParseIdLayer = commsdsl::parse::ParseIdLayer;
 
-    GenIdLayer(GenGenerator& generator, commsdsl::parse::ParseLayer dslObj, GenElem* parent = nullptr);
+    GenIdLayer(GenGenerator& generator, ParseLayer dslObj, GenElem* parent = nullptr);
     virtual ~GenIdLayer();
 
 protected:    
-    commsdsl::parse::ParseIdLayer idDslObj() const;
+    ParseIdLayer genIdLayerParseObj() const;
 };
 
 } // namespace gen

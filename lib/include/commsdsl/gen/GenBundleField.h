@@ -34,18 +34,20 @@ class COMMSDSL_API GenBundleField : public GenField
 {
     using Base = GenField;
 public:
+    using ParseField = commsdsl::parse::ParseField;
+    using ParseBundleField = commsdsl::parse::ParseBundleField;
 
-    GenBundleField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent = nullptr);
+    GenBundleField(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
     virtual ~GenBundleField();
 
-    const FieldsList& members() const;
+    const FieldsList& genMembers() const;
 
 protected:    
-    virtual bool prepareImpl() override;
-    virtual void setReferencedImpl() override;
-    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override final;
+    virtual bool genPrepareImpl() override;
+    virtual void genSetReferencedImpl() override;
+    virtual FieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
     
-    commsdsl::parse::ParseBundleField bundleDslObj() const;
+    ParseBundleField genBundleFieldParseObj() const;
 
 private:
     std::unique_ptr<GenBundleFieldImpl> m_impl;

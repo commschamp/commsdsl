@@ -922,7 +922,7 @@ char interfaceRefPrefix()
     return '%';
 }
 
-unsigned strToUnsigned(const std::string& str, bool* ok, int base)
+unsigned parseStrToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;
     try {

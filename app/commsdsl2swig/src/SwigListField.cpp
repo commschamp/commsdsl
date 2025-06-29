@@ -37,15 +37,15 @@ SwigListField::SwigListField(SwigGenerator& generator, commsdsl::parse::ParseFie
 {
 }
 
-bool SwigListField::prepareImpl() 
+bool SwigListField::genPrepareImpl() 
 {
-    if (!Base::prepareImpl()) {
+    if (!Base::genPrepareImpl()) {
         return false;
     }
 
-    auto* elem = memberElementField();
+    auto* elem = genMemberElementField();
     if (elem == nullptr) {
-        elem = externalElementField();
+        elem = genExternalElementField();
     }
 
     assert(elem != nullptr);
@@ -54,16 +54,16 @@ bool SwigListField::prepareImpl()
     return true;
 }
 
-bool SwigListField::writeImpl() const
+bool SwigListField::genWriteImpl() const
 {
     return swigWrite();
 }
 
 std::string SwigListField::swigMembersDeclImpl() const
 {
-    auto* elem = SwigField::cast(memberElementField());
+    auto* elem = SwigField::cast(genMemberElementField());
     if (elem == nullptr) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     return elem->swigClassDecl();
@@ -74,18 +74,18 @@ std::string SwigListField::swigValueTypeDeclImpl() const
     static const std::string Templ = 
         "using ValueType = std::vector<#^#ELEM#$#>;\n";
 
-    auto* elem = memberElementField();
+    auto* elem = genMemberElementField();
     if (elem == nullptr) {
-        elem = externalElementField();
+        elem = genExternalElementField();
     }
 
     assert(elem != nullptr);
 
     util::ReplacementMap repl = {
-        {"ELEM", SwigGenerator::cast(generator()).swigClassName(*elem)}
+        {"ELEM", SwigGenerator::cast(genGenerator()).swigClassName(*elem)}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string SwigListField::swigValueAccDeclImpl() const
@@ -108,7 +108,7 @@ std::string SwigListField::swigExtraPublicFuncsCodeImpl() const
         "    return reinterpret_cast<const ValueType&>(Base::getValue());\n"
         "}\n";
 
-    if (!field().dslObj().parseIsFixedValue()) {
+    if (!field().genParseObj().parseIsFixedValue()) {
         templ += 
             "\n"
             "void setValue(const ValueType& val)\n"
@@ -117,25 +117,25 @@ std::string SwigListField::swigExtraPublicFuncsCodeImpl() const
             "}\n";        
     }
 
-    auto* elem = memberElementField();
+    auto* elem = genMemberElementField();
     if (elem == nullptr) {
-        elem = externalElementField();
+        elem = genExternalElementField();
     }
 
     assert(elem != nullptr);
 
     util::ReplacementMap repl = {
-        {"ELEM", SwigGenerator::cast(generator()).swigClassName(*elem)}
+        {"ELEM", SwigGenerator::cast(genGenerator()).swigClassName(*elem)}
     };
 
-    return util::processTemplate(templ, repl);        
+    return util::genProcessTemplate(templ, repl);        
 }
 
 void SwigListField::swigAddDefImpl(StringsList& list) const
 {
-    auto* elem = memberElementField();
+    auto* elem = genMemberElementField();
     if (elem == nullptr) {
-        elem = externalElementField();
+        elem = genExternalElementField();
     }   
 
     SwigField::cast(elem)->swigAddDef(list);
@@ -143,9 +143,9 @@ void SwigListField::swigAddDefImpl(StringsList& list) const
 
 void SwigListField::swigAddMembersCodeImpl(StringsList& list) const
 {
-    auto* elem = memberElementField();
+    auto* elem = genMemberElementField();
     if (elem == nullptr) {
-        elem = externalElementField();
+        elem = genExternalElementField();
     }    
 
     assert(elem != nullptr);

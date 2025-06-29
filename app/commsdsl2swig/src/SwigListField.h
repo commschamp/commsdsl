@@ -33,8 +33,8 @@ public:
 
 protected:
     // Base overrides
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;    
 
     // SwigBase overrides
     virtual std::string swigMembersDeclImpl() const override;

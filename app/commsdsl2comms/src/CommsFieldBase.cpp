@@ -34,8 +34,8 @@ namespace commsdsl2comms
 
 bool CommsFieldBase::write(CommsGenerator& generator)
 {
-    auto& thisSchema = static_cast<CommsSchema&>(generator.currentSchema());
-    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyField())) {
+    auto& thisSchema = static_cast<CommsSchema&>(generator.genCurrentSchema());
+    if ((!generator.genIsCurrentProtocolSchema()) && (!thisSchema.commsHasAnyField())) {
         return true;
     }
 
@@ -45,19 +45,19 @@ bool CommsFieldBase::write(CommsGenerator& generator)
 
 bool CommsFieldBase::commsWriteInternal() const
 {
-    auto filePath = comms::headerPathForField(strings::fieldBaseClassStr(), m_generator);
+    auto filePath = comms::genHeaderPathForField(strings::genFieldBaseClassStr(), m_generator);
 
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
 
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_generator.genCreateDirectory(dirPath)) {
         return false;
     }
 
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -85,20 +85,20 @@ bool CommsFieldBase::commsWriteInternal() const
         "} // namespace #^#PROT_NAMESPACE#$#\n\n";    
 
     util::StringsList options;
-    options.push_back(comms::dslEndianToOpt(m_generator.currentSchema().schemaEndian()));
+    options.push_back(comms::genParseEndianToOpt(m_generator.genCurrentSchema().genSchemaEndian()));
     // TODO: version type
 
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
-        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
-        {"OPTIONS", util::strListToString(options, ",\n", "")},
+        {"PROT_NAMESPACE", m_generator.genCurrentSchema().genMainNamespace()},
+        {"OPTIONS", util::genStrListToString(options, ",\n", "")},
     };        
     
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
 
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     

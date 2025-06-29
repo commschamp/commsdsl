@@ -35,18 +35,18 @@ public:
     GenLogger(const GenLogger&) = delete;
     virtual ~GenLogger();
 
-    void log(ParseErrorLevel level, const std::string& msg) const;
+    void genLog(ParseErrorLevel level, const std::string& msg) const;
 
-    void error(const std::string& msg) const;
-    void warning(const std::string& msg) const;
-    void info(const std::string& msg) const;
-    void debug(const std::string& msg) const;
-    void setMinLevel(ParseErrorLevel level);
-    void setWarnAsError();
-    bool hadWarning() const;
+    void genError(const std::string& msg) const;
+    void genWarning(const std::string& msg) const;
+    void genInfo(const std::string& msg) const;
+    void genDebug(const std::string& msg) const;
+    void genSetMinLevel(ParseErrorLevel level);
+    void genSetWarnAsError();
+    bool genHadWarning() const;
 
 protected:
-    virtual void logImpl(ParseErrorLevel level, const std::string& msg) const;    
+    virtual void genLogImpl(ParseErrorLevel level, const std::string& msg) const;    
 
 private:
     mutable std::unique_ptr<GenLoggerImpl> m_impl;

@@ -75,16 +75,16 @@ void EmscriptenMsgHandler::emscriptenAddSourceFiles(StringsList& sources) const
 bool EmscriptenMsgHandler::emscriptenWriteHeaderInternal() const
 {
     auto filePath = m_generator.emscriptenAbsHeaderForNamespaceMember(ClassName, m_parent);
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_generator.genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }     
 
@@ -110,16 +110,16 @@ bool EmscriptenMsgHandler::emscriptenWriteHeaderInternal() const
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"CLASS_NAME", emscriptenClassName()},
         {"INCLUDES", emscriptenHeaderIncludesInternal()},
-        {"COMMS_INTERFACE", comms::scopeFor(*iFace, m_generator)},
+        {"COMMS_INTERFACE", comms::genScopeFor(*iFace, m_generator)},
         {"INTERFACE", m_generator.emscriptenClassName(*iFace)},
         {"FUNCS", emscriptenHeaderHandleFuncsInternal()},
     };
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
+    auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
 
@@ -129,16 +129,16 @@ bool EmscriptenMsgHandler::emscriptenWriteHeaderInternal() const
 bool EmscriptenMsgHandler::emscriptenWriteSrcInternal() const
 {
     auto filePath = m_generator.emscriptenAbsSourceForNamespaceMember(ClassName, m_parent);
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_generator.genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }     
 
@@ -156,29 +156,29 @@ bool EmscriptenMsgHandler::emscriptenWriteSrcInternal() const
     util::StringsList includes;
     m_parent.emscriptenAddInputMessageIncludes(includes);
     if (!m_parent.emscriptenHasInput()) {
-        auto allNs = m_generator.getAllNamespaces();
+        auto allNs = m_generator.genGetAllNamespaces();
         for (auto* ns : allNs) {
             EmscriptenNamespace::cast(ns)->emscriptenAddInputMessageIncludes(includes);
         }
     }
 
-    comms::prepareIncludeStatement(includes);
+    comms::genPrepareIncludeStatement(includes);
 
     util::ReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"HEADER", emscriptenRelHeader()},
         {"CLASS_NAME", emscriptenClassName()},
-        {"INCLUDES", util::strListToString(includes, "\n", "\n")},
+        {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
         {"FUNCS", emscriptenSourceHandleFuncsInternal()},
         {"WRAPPER", emscriptenSourceWrapperClassInternal()},
         {"BIND", emscriptenSourceBindInternal()},
     };
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
+    auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
 
@@ -189,7 +189,7 @@ std::string EmscriptenMsgHandler::emscriptenHeaderIncludesInternal() const
 {
     auto* iFace = m_generator.emscriptenMainInterface();
     assert(iFace != nullptr);
-    auto* parentNs = iFace->parentNamespace();
+    auto* parentNs = iFace->genParentNamespace();
     assert(parentNs != nullptr);
 
     util::StringsList includes = {
@@ -201,7 +201,7 @@ std::string EmscriptenMsgHandler::emscriptenHeaderIncludesInternal() const
     emscriptenNs->emscriptenAddInputMessageFwdIncludes(includes);
     
     if (!emscriptenNs->emscriptenHasInput()) {
-        auto allNs = m_generator.getAllNamespaces();
+        auto allNs = m_generator.genGetAllNamespaces();
         for (auto* ns : allNs) {
             EmscriptenNamespace::cast(ns)->emscriptenAddInputMessageFwdIncludes(includes);
         }
@@ -209,8 +209,8 @@ std::string EmscriptenMsgHandler::emscriptenHeaderIncludesInternal() const
 
     EmscriptenProtocolOptions::emscriptenAddInclude(m_generator, includes);
 
-    comms::prepareIncludeStatement(includes);
-    return util::strListToString(includes, "\n", "\n");
+    comms::genPrepareIncludeStatement(includes);
+    return util::genStrListToString(includes, "\n", "\n");
 }
 
 std::string EmscriptenMsgHandler::emscriptenHeaderHandleFuncsInternal() const
@@ -228,11 +228,11 @@ std::string EmscriptenMsgHandler::emscriptenHeaderHandleFuncsInternal() const
     
     util::StringsList funcs;
 
-    auto allMessages = m_generator.getAllMessagesIdSorted();
+    auto allMessages = m_generator.genGetAllMessagesIdSorted();
     funcs.reserve(allMessages.size());
     
     for (auto* m : allMessages) {
-        if (!m->isReferenced()) {
+        if (!m->genIsReferenced()) {
             continue;
         }
 
@@ -240,12 +240,12 @@ std::string EmscriptenMsgHandler::emscriptenHeaderHandleFuncsInternal() const
             "void handle(#^#COMMS_CLASS#$#<#^#INTERFACE#$##^#PROT_OPTS#$#>& msg);\n"
             "virtual void handle_#^#CLASS_NAME#$#(#^#CLASS_NAME#$#* msg);\n";
 
-        repl["COMMS_CLASS"] = comms::scopeFor(*m, m_generator);
+        repl["COMMS_CLASS"] = comms::genScopeFor(*m, m_generator);
         repl["CLASS_NAME"] = m_generator.emscriptenClassName(*m);
-        funcs.push_back(util::processTemplate(Templ, repl));
+        funcs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    return util::strListToString(funcs, "\n", "\n");
+    return util::genStrListToString(funcs, "\n", "\n");
 }
 
 std::string EmscriptenMsgHandler::emscriptenSourceHandleFuncsInternal() const
@@ -264,11 +264,11 @@ std::string EmscriptenMsgHandler::emscriptenSourceHandleFuncsInternal() const
 
     util::StringsList funcs;
 
-    auto allMessages = m_generator.getAllMessagesIdSorted();
+    auto allMessages = m_generator.genGetAllMessagesIdSorted();
     funcs.reserve(allMessages.size() + 1U);
     
     for (auto* m : allMessages) {
-        if (!m->isReferenced()) {
+        if (!m->genIsReferenced()) {
             continue;
         }
 
@@ -276,16 +276,16 @@ std::string EmscriptenMsgHandler::emscriptenSourceHandleFuncsInternal() const
             "void #^#CLASS_NAME#$#::handle(#^#COMMS_CLASS#$#<#^#INTERFACE#$##^#PROT_OPTS#$#>& msg) { handle_#^#MSG_CLASS#$#(static_cast<#^#MSG_CLASS#$#*>(&msg)); }\n"
             "void #^#CLASS_NAME#$#::handle_#^#MSG_CLASS#$#(#^#MSG_CLASS#$#* msg) { handle_#^#INTERFACE#$#(msg); }\n";
 
-        repl["COMMS_CLASS"] = comms::scopeFor(*m, m_generator);
+        repl["COMMS_CLASS"] = comms::genScopeFor(*m, m_generator);
         repl["MSG_CLASS"] = m_generator.emscriptenClassName(*m);
-        funcs.push_back(util::processTemplate(Templ, repl));
+        funcs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string InterfaceTempl = 
         "void #^#CLASS_NAME#$#::handle_#^#INTERFACE#$#(#^#INTERFACE#$#* msg) { static_cast<void>(msg); }\n";
 
-    funcs.push_back(util::processTemplate(InterfaceTempl, repl));
-    return util::strListToString(funcs, "", "\n");
+    funcs.push_back(util::genProcessTemplate(InterfaceTempl, repl));
+    return util::genStrListToString(funcs, "", "\n");
 }
 
 std::string EmscriptenMsgHandler::emscriptenSourceWrapperClassInternal() const
@@ -303,7 +303,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceWrapperClassInternal() const
         {"FUNCS", emscriptenSourceWrapperFuncsInternal()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenMsgHandler::emscriptenSourceWrapperFuncsInternal() const
@@ -317,11 +317,11 @@ std::string EmscriptenMsgHandler::emscriptenSourceWrapperFuncsInternal() const
 
     util::StringsList funcs;
 
-    auto allMessages = m_generator.getAllMessagesIdSorted();
+    auto allMessages = m_generator.genGetAllMessagesIdSorted();
     funcs.reserve(allMessages.size() + 1U);
     
     for (auto* m : allMessages) {
-        if (!m->isReferenced()) {
+        if (!m->genIsReferenced()) {
             continue;
         }
 
@@ -329,7 +329,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceWrapperFuncsInternal() const
             {"TYPE", m_generator.emscriptenClassName(*m)}
         };
 
-        funcs.push_back(util::processTemplate(Templ, repl));
+        funcs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     auto* iFace = m_generator.emscriptenMainInterface();
@@ -339,8 +339,8 @@ std::string EmscriptenMsgHandler::emscriptenSourceWrapperFuncsInternal() const
         {"TYPE", m_generator.emscriptenClassName(*iFace)}
     };    
 
-    funcs.push_back(util::processTemplate(Templ, repl));
-    return util::strListToString(funcs, "\n", "\n");
+    funcs.push_back(util::genProcessTemplate(Templ, repl));
+    return util::genStrListToString(funcs, "\n", "\n");
 }
 
 std::string EmscriptenMsgHandler::emscriptenSourceBindInternal() const
@@ -360,7 +360,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceBindInternal() const
         {"FUNCS", emscriptenSourceBindFuncsInternal()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenMsgHandler::emscriptenSourceBindFuncsInternal() const
@@ -374,25 +374,25 @@ std::string EmscriptenMsgHandler::emscriptenSourceBindFuncsInternal() const
 
     util::StringsList funcs;
 
-    auto allMessages = m_generator.getAllMessagesIdSorted();
+    auto allMessages = m_generator.genGetAllMessagesIdSorted();
     funcs.reserve(allMessages.size() + 1U);
     
     for (auto* m : allMessages) {
-        if (!m->isReferenced()) {
+        if (!m->genIsReferenced()) {
             continue;
         }
 
         repl["TYPE"] = m_generator.emscriptenClassName(*m);
-        funcs.push_back(util::processTemplate(Templ, repl));
+        funcs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     auto* iFace = m_generator.emscriptenMainInterface();
     assert(iFace != nullptr);
 
     repl["TYPE"] = m_generator.emscriptenClassName(*iFace);
-    funcs.push_back(util::processTemplate(Templ, repl));
+    funcs.push_back(util::genProcessTemplate(Templ, repl));
 
-    return util::strListToString(funcs, "\n", "");
+    return util::genStrListToString(funcs, "\n", "");
 }
 
 } // namespace commsdsl2emscripten

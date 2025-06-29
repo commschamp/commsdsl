@@ -33,21 +33,23 @@ class COMMSDSL_API GenStringField : public GenField
 {
     using Base = GenField;
 public:
+    using ParseField = commsdsl::parse::ParseField;
+    using ParseStringField = commsdsl::parse::ParseStringField;
 
-    GenStringField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent = nullptr);
+    GenStringField(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
     virtual ~GenStringField();
 
-    GenField* externalPrefixField();
-    const GenField* externalPrefixField() const;
+    GenField* genExternalPrefixField();
+    const GenField* genExternalPrefixField() const;
 
-    GenField* memberPrefixField();
-    const GenField* memberPrefixField() const;
+    GenField* genMemberPrefixField();
+    const GenField* genMemberPrefixField() const;
 
-    commsdsl::parse::ParseStringField stringDslObj() const;
+    ParseStringField genStringFieldParseObj() const;
 
 protected:    
-    virtual bool prepareImpl() override;
-    virtual void setReferencedImpl() override;
+    virtual bool genPrepareImpl() override;
+    virtual void genSetReferencedImpl() override;
 
 private:
     std::unique_ptr<GenStringFieldImpl> m_impl;

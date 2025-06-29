@@ -34,17 +34,20 @@ class COMMSDSL_API GenBitfieldField : public GenField
 {
     using Base = GenField;
 public:
-    GenBitfieldField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent = nullptr);
+    using ParseField = commsdsl::parse::ParseField;
+    using ParseBitfieldField = commsdsl::parse::ParseBitfieldField;
+
+    GenBitfieldField(GenGenerator& generator, ParseField dslObj, GenElem* parent = nullptr);
     virtual ~GenBitfieldField();
 
-    const FieldsList& members() const;
+    const FieldsList& genMembers() const;
 
 protected:    
-    virtual bool prepareImpl() override;
-    virtual void setReferencedImpl() override;
-    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override final;
+    virtual bool genPrepareImpl() override;
+    virtual void genSetReferencedImpl() override;
+    virtual FieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
 
-    commsdsl::parse::ParseBitfieldField bitfieldDslObj() const;
+    ParseBitfieldField genBitfieldFieldParseObj() const;
 
 private:
     std::unique_ptr<GenBitfieldFieldImpl> m_impl;

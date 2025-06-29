@@ -46,13 +46,13 @@ bool CommsCmake::write(CommsGenerator& generator)
 bool CommsCmake::commsWriteInternal() const
 {
     auto filePath = 
-        util::pathAddElem(
-            m_generator.getOutputDir(), strings::cmakeListsFileStr());    
+        util::genPathAddElem(
+            m_generator.genGetOutputDir(), strings::genCmakeListsFileStr());    
 
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -141,14 +141,14 @@ bool CommsCmake::commsWriteInternal() const
     ;
     
     util::ReplacementMap repl = {
-        {"NAME", m_generator.protocolSchema().mainNamespace()},
-        {"CAP_NAME", util::strToUpper(m_generator.protocolSchema().mainNamespace())},
+        {"NAME", m_generator.genProtocolSchema().genMainNamespace()},
+        {"CAP_NAME", util::genStrToUpper(m_generator.genProtocolSchema().genMainNamespace())},
     };
 
-    stream << util::processTemplate(Templ, repl);
+    stream << util::genProcessTemplate(Templ, repl);
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     

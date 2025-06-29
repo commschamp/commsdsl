@@ -36,7 +36,7 @@ SwigIntField::SwigIntField(SwigGenerator& generator, commsdsl::parse::ParseField
 {
 }
 
-bool SwigIntField::writeImpl() const
+bool SwigIntField::genWriteImpl() const
 {
     return swigWrite();
 }
@@ -46,12 +46,12 @@ std::string SwigIntField::swigValueTypeDeclImpl() const
     static const std::string Templ = 
         "using ValueType = #^#TYPE#$#;\n";
 
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
     util::ReplacementMap repl = {
-        {"TYPE", SwigGenerator::cast(generator()).swigConvertIntType(obj.parseType(), obj.parseMaxLength())}
+        {"TYPE", SwigGenerator::cast(genGenerator()).swigConvertIntType(obj.parseType(), obj.parseMaxLength())}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string SwigIntField::swigExtraPublicFuncsDeclImpl() const
@@ -68,7 +68,7 @@ std::string SwigIntField::swigExtraPublicFuncsDeclImpl() const
         {"SCALED", swigScaledFuncsDeclInternal()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string SwigIntField::swigExtraPublicFuncsCodeImpl() const
@@ -78,15 +78,15 @@ std::string SwigIntField::swigExtraPublicFuncsCodeImpl() const
 
 std::string SwigIntField::swigSpecialsDeclInternal() const
 {
-    auto& specials = specialsSortedByValue();
+    auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     util::StringsList specialsList;
-    auto& gen = SwigGenerator::cast(generator());
+    auto& gen = SwigGenerator::cast(genGenerator());
     for (auto& s : specials) {
-        if (!gen.doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
+        if (!gen.genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
         }
 
@@ -97,18 +97,18 @@ std::string SwigIntField::swigSpecialsDeclInternal() const
         ;
 
         util::ReplacementMap repl = {
-            {"SPEC_ACC", comms::className(s.first)},
+            {"SPEC_ACC", comms::genClassName(s.first)},
         };
 
-        specialsList.push_back(util::processTemplate(Templ, repl));
+        specialsList.push_back(util::genProcessTemplate(Templ, repl));
     }    
 
-    return util::strListToString(specialsList, "", "");
+    return util::genStrListToString(specialsList, "", "");
 }
 
 std::string SwigIntField::swigDisplayDecimalsDeclInternal() const
 {
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
     auto scaling = obj.parseScaling();
     std::string result;
     if (scaling.first != scaling.second) {
@@ -120,13 +120,13 @@ std::string SwigIntField::swigDisplayDecimalsDeclInternal() const
 
 std::string SwigIntField::swigScaledFuncsDeclInternal() const
 {
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
     auto scaling = obj.parseScaling();
     auto num = scaling.first;
     auto denom = scaling.second;
 
     if ((num == 1) && (denom == 1)) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     std::string Templ = {
@@ -139,13 +139,13 @@ std::string SwigIntField::swigScaledFuncsDeclInternal() const
 
 std::string SwigIntField::swigScaledFuncsCodeInternal() const
 {
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
     auto scaling = obj.parseScaling();
     auto num = scaling.first;
     auto denom = scaling.second;
 
     if ((num == 1) && (denom == 1)) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
         
     static const std::string Templ = 

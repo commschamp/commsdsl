@@ -47,13 +47,13 @@ std::string SwigPayloadLayer::swigMemberFieldDeclImpl() const
         "    void setValue(const ValueType& val);\n"
         "};\n";
 
-    auto& gen = SwigGenerator::cast(generator());
+    auto& gen = SwigGenerator::cast(genGenerator());
     util::ReplacementMap repl = {
         {"FIELD_TYPE", swigFieldTypeImpl()},
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 void SwigPayloadLayer::swigAddCodeImpl(StringsList& list) const
@@ -66,12 +66,12 @@ void SwigPayloadLayer::swigAddCodeImpl(StringsList& list) const
         {"COMMS_SCOPE", swigTemplateScope()}
     };
 
-    list.push_back(util::processTemplate(Templ, repl));
+    list.push_back(util::genProcessTemplate(Templ, repl));
 }
 
 std::string SwigPayloadLayer::swigFieldTypeImpl() const
 {
-    auto& gen = SwigGenerator::cast(generator());
+    auto& gen = SwigGenerator::cast(genGenerator());
     return gen.swigClassName(*this) + "Field";
 }
 

@@ -48,36 +48,36 @@ bool TestCmake::write(TestGenerator& generator)
 bool TestCmake::testWriteInternal() const
 {
     auto filePath = 
-        commsdsl::gen::util::pathAddElem(
-            m_generator.getOutputDir(), commsdsl::gen::strings::cmakeListsFileStr());    
+        commsdsl::gen::util::genPathAddElem(
+            m_generator.genGetOutputDir(), commsdsl::gen::strings::genCmakeListsFileStr());    
 
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
-    auto allInterfaces = m_generator.getAllInterfaces();
+    auto allInterfaces = m_generator.genGetAllInterfaces();
     assert(!allInterfaces.empty());
     auto* firstInterface = allInterfaces.front();
-    auto interfaceScope = commsdsl::gen::comms::scopeFor(*firstInterface, m_generator);
+    auto interfaceScope = commsdsl::gen::comms::genScopeFor(*firstInterface, m_generator);
 
-    auto allFrames = m_generator.getAllFrames();
+    auto allFrames = m_generator.genGetAllFrames();
     assert(!allFrames.empty());
     auto* firstFrame = allFrames.front();
-    assert(!firstFrame->name().empty());
+    assert(!firstFrame->genName().empty());
 
-    auto* interfaceNs = firstInterface->parentNamespace();
+    auto* interfaceNs = firstInterface->genParentNamespace();
 
-    auto* inputNs = firstFrame->parentNamespace();
+    auto* inputNs = firstFrame->genParentNamespace();
     while (inputNs != nullptr) {
-        if (inputNs->hasMessagesRecursive()) {
+        if (inputNs->genHasMessagesRecursive()) {
             break;
         }
 
-        auto* parentNs = inputNs->getParent();
-        if ((parentNs != nullptr) && (parentNs->elemType() != commsdsl::gen::GenElem::Type_Namespace)) {
+        auto* parentNs = inputNs->genGetParent();
+        if ((parentNs != nullptr) && (parentNs->genElemType() != commsdsl::gen::GenElem::Type_Namespace)) {
             inputNs = nullptr;
             break;
         }
@@ -90,13 +90,13 @@ bool TestCmake::testWriteInternal() const
     }
 
     ReplacementMap repl = {
-        {"PROJ_NAME", m_generator.currentSchema().schemaName()},
-        {"PROJ_NS", m_generator.currentSchema().mainNamespace()},
+        {"PROJ_NAME", m_generator.genCurrentSchema().genSchemaName()},
+        {"PROJ_NS", m_generator.genCurrentSchema().genMainNamespace()},
         {"INTERFACE_SCOPE", std::move(interfaceScope)},
-        {"FRAME_SCOPE", commsdsl::gen::comms::scopeFor(*firstFrame, m_generator)},
-        {"OPTIONS_SCOPE", commsdsl::gen::comms::scopeForOptions(commsdsl::gen::strings::defaultOptionsStr(), m_generator)},
-        {"INPUT_SCOPE", commsdsl::gen::comms::scopeForInput(commsdsl::gen::strings::allMessagesStr(), m_generator, *inputNs)},
-        {"EXTRA_SOURCES", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::sourcesFileSuffixStr())},
+        {"FRAME_SCOPE", commsdsl::gen::comms::genScopeFor(*firstFrame, m_generator)},
+        {"OPTIONS_SCOPE", commsdsl::gen::comms::genScopeForOptions(commsdsl::gen::strings::genDefaultOptionsStr(), m_generator)},
+        {"INPUT_SCOPE", commsdsl::gen::comms::genScopeForInput(commsdsl::gen::strings::genAllMessagesStr(), m_generator, *inputNs)},
+        {"EXTRA_SOURCES", util::genReadFileContents(util::genPathAddElem(m_generator.genGetCodeDir(), strings::genCmakeListsFileStr()) + strings::genSourcesFileSuffixStr())},
     };
 
     static const std::string Template =
@@ -214,11 +214,11 @@ bool TestCmake::testWriteInternal() const
         "string (REPLACE \"::\" \"/\" OPT_TEST_INPUT_MESSAGES_HEADER \"${OPT_TEST_INPUT_MESSAGES}.h\")\n\n"
         "define_test(#^#PROJ_NS#$#_input_test)\n";
 
-    auto str = util::processTemplate(Template, repl, true);
+    auto str = util::genProcessTemplate(Template, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     

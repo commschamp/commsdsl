@@ -394,7 +394,7 @@ bool ParseXmlWrap::parseGetAndCheckVersions(
 
         auto& sinceVerStr = sinceVerIter->second;
         bool ok = false;
-        sinceVersion = common::strToUnsigned(sinceVerStr, &ok);
+        sinceVersion = common::parseStrToUnsigned(sinceVerStr, &ok);
         if (!ok) {
             parseReportUnexpectedPropertyValue(node, name, common::sinceVersionStr(), sinceVerStr, protocol.parseLogger());
             return false;
@@ -410,7 +410,7 @@ bool ParseXmlWrap::parseGetAndCheckVersions(
 
         auto& deprecatedStr = deprecatedIter->second;
         bool ok = false;
-        deprecatedSince = common::strToUnsigned(deprecatedStr, &ok);
+        deprecatedSince = common::parseStrToUnsigned(deprecatedStr, &ok);
         if (!ok) {
             ParseXmlWrap::parseReportUnexpectedPropertyValue(node, name, common::deprecatedStr(), deprecatedStr, protocol.parseLogger());
             return false;

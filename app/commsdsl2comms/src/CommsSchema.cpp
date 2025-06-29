@@ -33,12 +33,12 @@ CommsSchema::~CommsSchema() = default;
 
 bool CommsSchema::commsHasAnyMessage() const
 {
-    return !getAllMessages().empty();
+    return !genGetAllMessages().empty();
 }
 
 bool CommsSchema::commsHasReferencedMsgId() const
 {
-    auto allNs = getAllNamespaces();
+    auto allNs = genGetAllNamespaces();
     return 
         std::any_of(
             allNs.begin(), allNs.end(),
@@ -50,7 +50,7 @@ bool CommsSchema::commsHasReferencedMsgId() const
 
 bool CommsSchema::commsHasAnyField() const
 {
-    auto allNs = getAllNamespaces();
+    auto allNs = genGetAllNamespaces();
     return 
         std::any_of(
             allNs.begin(), allNs.end(),
@@ -62,7 +62,7 @@ bool CommsSchema::commsHasAnyField() const
 
 bool CommsSchema::commsHasAnyGeneratedCode() const
 {
-    auto allNs = getAllNamespaces();
+    auto allNs = genGetAllNamespaces();
     return 
         std::any_of(
             allNs.begin(), allNs.end(),
@@ -74,7 +74,7 @@ bool CommsSchema::commsHasAnyGeneratedCode() const
 
 const CommsField* CommsSchema::findValidInterfaceReferencedField(const std::string& refStr) const
 {
-    for (auto& nsPtr : namespaces()) {
+    for (auto& nsPtr : genNamespaces()) {
         auto* field = CommsNamespace::cast(nsPtr.get())->findValidInterfaceReferencedField(refStr);
         if (field != nullptr) {
             return field;

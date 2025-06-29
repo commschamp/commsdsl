@@ -39,18 +39,18 @@ namespace
 
 std::string swigCodeInternal(const SwigGenerator& generator, std::size_t idx)
 {
-    assert(idx < generator.schemas().size());
+    assert(idx < generator.genSchemas().size());
 
-    generator.chooseCurrentSchema(static_cast<unsigned>(idx));
-    if (!generator.currentSchema().hasAnyReferencedComponent()) {
+    generator.genChooseCurrentSchema(static_cast<unsigned>(idx));
+    if (!generator.genCurrentSchema().genHasAnyReferencedComponent()) {
         if (idx == 0U) {
-            return strings::emptyString();
+            return strings::genEmptyString();
         }
 
         return swigCodeInternal(generator, idx - 1U);
     }
 
-    auto scope = comms::scopeForOptions(strings::defaultOptionsClassStr(), generator);
+    auto scope = comms::genScopeForOptions(strings::genDefaultOptionsClassStr(), generator);
 
     if (idx == 0U) {
         return scope;
@@ -71,7 +71,7 @@ std::string swigCodeInternal(const SwigGenerator& generator, std::size_t idx)
         {"NEXT", std::move(nextScope)}
     };
     
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace 
@@ -82,19 +82,19 @@ void SwigProtocolOptions::swigAddCodeIncludes(SwigGenerator& generator, StringsL
         return;
     }
 
-    assert(generator.isCurrentProtocolSchema());
+    assert(generator.genIsCurrentProtocolSchema());
 
-    list.push_back(comms::relHeaderForOptions(strings::allMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator));
-    auto& schemas = generator.schemas();
+    list.push_back(comms::genRelHeaderForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator));
+    auto& schemas = generator.genSchemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
-        generator.chooseCurrentSchema(idx);
-        if (!generator.currentSchema().hasAnyReferencedComponent()) {
+        generator.genChooseCurrentSchema(idx);
+        if (!generator.genCurrentSchema().genHasAnyReferencedComponent()) {
             continue;
         }        
-        list.push_back(comms::relHeaderForOptions(strings::defaultOptionsClassStr(), generator));
+        list.push_back(comms::genRelHeaderForOptions(strings::genDefaultOptionsClassStr(), generator));
     }
 
-    generator.chooseProtocolSchema();
+    generator.genChooseProtocolSchema();
 }
     
 
@@ -104,7 +104,7 @@ void SwigProtocolOptions::swigAddCode(const SwigGenerator& generator, StringsLis
         return;
     }
 
-    assert(generator.isCurrentProtocolSchema());
+    assert(generator.genIsCurrentProtocolSchema());
 
     const std::string Templ = 
         "using #^#OPT_TYPE#$# =\n"
@@ -112,24 +112,24 @@ void SwigProtocolOptions::swigAddCode(const SwigGenerator& generator, StringsLis
         "        #^#CODE#$#\n"
         "    >;\n\n";
 
-    auto msgFactOptions = comms::scopeForOptions(strings::allMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator);
+    auto msgFactOptions = comms::genScopeForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator);
     util::ReplacementMap repl = {
         {"OPT_TYPE", swigClassName(generator)},
-        {"CODE", swigCodeInternal(generator, generator.schemas().size() - 1U)},
+        {"CODE", swigCodeInternal(generator, generator.genSchemas().size() - 1U)},
         {"MSG_FACT_OPTS", std::move(msgFactOptions)}
     };
 
-    generator.chooseProtocolSchema();
-    list.push_back(util::processTemplate(Templ, repl));
+    generator.genChooseProtocolSchema();
+    list.push_back(util::genProcessTemplate(Templ, repl));
 }
 
 std::string SwigProtocolOptions::swigClassName(const SwigGenerator& generator)
 {
     if (!swigIsDefined(generator)) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    return generator.protocolSchema().mainNamespace() + "_ProtocolOptions";
+    return generator.genProtocolSchema().genMainNamespace() + "_ProtocolOptions";
 }
 
 bool SwigProtocolOptions::swigIsDefined([[maybe_unused]] const SwigGenerator& generator)

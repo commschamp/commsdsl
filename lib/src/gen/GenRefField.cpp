@@ -28,33 +28,34 @@ namespace gen
 class GenRefFieldImpl
 {
 public:
+    using ParseRefField = GenRefField::ParseRefField;
 
-    GenRefFieldImpl(GenGenerator& generator, commsdsl::parse::ParseRefField dslObj): 
+    GenRefFieldImpl(GenGenerator& generator, ParseRefField parseObj): 
         m_generator(generator),
-        m_dslObj(dslObj)
+        m_parseObj(parseObj)
     {
     }
 
-    bool prepare()
+    bool genPrepare()
     {
-        auto fieldObj = m_dslObj.parseField();
-        if (fieldObj.parseIsPseudo() != m_dslObj.parseIsPseudo()) {
-            m_generator.logger().error(
-                m_dslObj.parseSchemaPos() +
-                "Having \"pseudo\" property value for <ref> field \"" + m_dslObj.parseName() +
+        auto fieldObj = m_parseObj.parseField();
+        if (fieldObj.parseIsPseudo() != m_parseObj.parseIsPseudo()) {
+            m_generator.genLogger().genError(
+                m_parseObj.parseSchemaPos() +
+                "Having \"pseudo\" property value for <ref> field \"" + m_parseObj.parseName() +
                 "\" that differs to one of the referenced field is not supported by the code generator.");
             return false;
         }
 
-        if (fieldObj.parseIsFailOnInvalid() != m_dslObj.parseIsFailOnInvalid()) {
-            m_generator.logger().error(
-                m_dslObj.parseSchemaPos() +
-                "Having \"failOnInvalid\" property value for <ref> field \"" + m_dslObj.parseName() +
+        if (fieldObj.parseIsFailOnInvalid() != m_parseObj.parseIsFailOnInvalid()) {
+            m_generator.genLogger().genError(
+                m_parseObj.parseSchemaPos() +
+                "Having \"failOnInvalid\" property value for <ref> field \"" + m_parseObj.parseName() +
                 "\" that differs to one of the referenced field is not supported by the code generator.");
             return false;
         }
 
-        m_referencedField = m_generator.findField(fieldObj.parseExternalRef());
+        m_referencedField = m_generator.genFindField(fieldObj.parseExternalRef());
         if (m_referencedField == nullptr) {
             assert(false);
             return false;
@@ -63,67 +64,67 @@ public:
         return true;
     }
 
-    GenField* referencedField()
+    GenField* genReferencedField()
     {
         return m_referencedField;
     }
 
-    const GenField* referencedField() const
+    const GenField* genReferencedField() const
     {
         return m_referencedField;
     }
 
-    void setReferenced()
+    void genSetReferenced()
     {
         assert(m_referencedField != nullptr);
-        m_referencedField->setReferenced();
+        m_referencedField->genSetReferenced();
     }
 
 private:
     GenGenerator& m_generator;
-    commsdsl::parse::ParseRefField m_dslObj;
+    ParseRefField m_parseObj;
     GenField* m_referencedField = nullptr;
 };       
 
-GenRefField::GenRefField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent) :
-    Base(generator, dslObj, parent),
-    m_impl(std::make_unique<GenRefFieldImpl>(generator, refDslObj()))
+GenRefField::GenRefField(GenGenerator& generator, ParseField parseObj, GenElem* parent) :
+    Base(generator, parseObj, parent),
+    m_impl(std::make_unique<GenRefFieldImpl>(generator, genRefFieldParseObj()))
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Ref);
+    assert(parseObj.parseKind() == ParseField::Kind::Ref);
 }
 
 GenRefField::~GenRefField() = default;
 
-GenField* GenRefField::referencedField()
+GenField* GenRefField::genReferencedField()
 {
-    return m_impl->referencedField();
+    return m_impl->genReferencedField();
 }
 
-const GenField* GenRefField::referencedField() const
+const GenField* GenRefField::genReferencedField() const
 {
-    return m_impl->referencedField();
+    return m_impl->genReferencedField();
 }
 
-bool GenRefField::prepareImpl()
+bool GenRefField::genPrepareImpl()
 {
-    return m_impl->prepare();
+    return m_impl->genPrepare();
 }
 
-void GenRefField::setReferencedImpl()
+void GenRefField::genSetReferencedImpl()
 {
-    m_impl->setReferenced();
+    m_impl->genSetReferenced();
 }
 
-GenRefField::FieldRefInfo GenRefField::processInnerRefImpl(const std::string& refStr) const
+GenRefField::FieldRefInfo GenRefField::genProcessInnerRefImpl(const std::string& refStr) const
 {
-    auto* field = referencedField();
+    auto* field = genReferencedField();
     assert(field != nullptr);
-    return field->processInnerRef(refStr);
+    return field->genProcessInnerRef(refStr);
 }
 
-commsdsl::parse::ParseRefField GenRefField::refDslObj() const
+GenRefField::ParseRefField GenRefField::genRefFieldParseObj() const
 {
-    return commsdsl::parse::ParseRefField(dslObj());
+    return ParseRefField(genParseObj());
 }
 
 } // namespace gen

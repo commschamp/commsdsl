@@ -15,6 +15,7 @@
 // limitations under the License.
 
 #include "commsdsl/gen/GenSetField.h"
+
 #include "commsdsl/gen/GenGenerator.h"
 
 #include <cassert>
@@ -25,17 +26,17 @@ namespace commsdsl
 namespace gen
 {
 
-GenSetField::GenSetField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent) :
-    Base(generator, dslObj, parent)
+GenSetField::GenSetField(GenGenerator& generator, commsdsl::parse::ParseField parseObj, GenElem* parent) :
+    Base(generator, parseObj, parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Set);
+    assert(parseObj.parseKind() == ParseField::Kind::Set);
 }
 
 GenSetField::~GenSetField() = default;
 
-commsdsl::parse::ParseSetField GenSetField::setDslObj() const
+GenSetField::ParseSetField GenSetField::genSetFieldParseObj() const
 {
-    return commsdsl::parse::ParseSetField(dslObj());
+    return ParseSetField(genParseObj());
 }
 
 } // namespace gen

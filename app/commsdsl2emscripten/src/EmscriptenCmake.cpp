@@ -43,17 +43,17 @@ bool EmscriptenCmake::emscriptenWrite(EmscriptenGenerator& generator)
 
 bool EmscriptenCmake::emscriptenWriteInternal() const
 {
-    auto filePath = util::pathAddElem(m_generator.getOutputDir(), strings::cmakeListsFileStr());
-    auto dirPath = util::pathUp(filePath);
+    auto filePath = util::genPathAddElem(m_generator.genGetOutputDir(), strings::genCmakeListsFileStr());
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_generator.genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }     
 
@@ -129,23 +129,23 @@ bool EmscriptenCmake::emscriptenWriteInternal() const
     EmscriptenDataBuf::emscriptenAddSourceFiles(m_generator, sources);
     EmscriptenVersion::emscriptenAddSourceFiles(m_generator, sources);
 
-    for (auto& sPtr : m_generator.schemas()) {
+    for (auto& sPtr : m_generator.genSchemas()) {
         auto* s = EmscriptenSchema::cast(sPtr.get());
         s->emscriptenAddSourceFiles(sources);
     }
 
     util::ReplacementMap repl = {
-        {"PROJ_NAME", m_generator.protocolSchema().mainNamespace()},
-        {"APPEND", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::appendFileSuffixStr())},
-        {"SOURCES", util::strListToString(sources, "\n", "")},
-        {"EXTRA_SOURCES", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::sourcesFileSuffixStr())},
+        {"PROJ_NAME", m_generator.genProtocolSchema().genMainNamespace()},
+        {"APPEND", util::genReadFileContents(util::genPathAddElem(m_generator.genGetCodeDir(), strings::genCmakeListsFileStr()) + strings::genAppendFileSuffixStr())},
+        {"SOURCES", util::genStrListToString(sources, "\n", "")},
+        {"EXTRA_SOURCES", util::genReadFileContents(util::genPathAddElem(m_generator.genGetCodeDir(), strings::genCmakeListsFileStr()) + strings::genSourcesFileSuffixStr())},
     };
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
+    auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write " + filePath + ".");
+        m_generator.genLogger().genError("Failed to write " + filePath + ".");
         return false;
     }
 

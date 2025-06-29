@@ -39,34 +39,35 @@ class COMMSDSL_API GenMessage : public GenElem
 public:
     using Ptr = std::unique_ptr<GenMessage>;
     using FieldsList = GenField::FieldsList;
+    using ParseMessage = commsdsl::parse::ParseMessage;
 
-    explicit GenMessage(GenGenerator& generator, commsdsl::parse::ParseMessage dslObj, GenElem* parent = nullptr);
+    explicit GenMessage(GenGenerator& generator, ParseMessage dslObj, GenElem* parent = nullptr);
     virtual ~GenMessage();
 
-    bool createAll();
-    bool isPrepared() const;
-    bool prepare();
-    bool write() const;
-    bool isReferenced() const;
-    void setReferenced(bool value);
+    bool genCreateAll();
+    bool genIsPrepared() const;
+    bool genPrepare();
+    bool genWrite() const;
+    bool genIsReferenced() const;
+    void genSetReferenced(bool value);
 
-    commsdsl::parse::ParseMessage dslObj() const;
+    ParseMessage genParseObj() const;
 
-    const FieldsList& fields() const;
+    const FieldsList& genFields() const;
 
-    GenGenerator& generator();
-    const GenGenerator& generator() const;
+    GenGenerator& genGenerator();
+    const GenGenerator& genGenerator() const;
 
 protected:    
-    virtual Type elemTypeImpl() const override final;
-    virtual bool prepareImpl();
-    virtual bool writeImpl() const;
+    virtual Type genElemTypeImpl() const override final;
+    virtual bool genPrepareImpl();
+    virtual bool genWriteImpl() const;
 
 private:
     std::unique_ptr<GenMessageImpl> m_impl;
 };
 
-using MessagePtr = GenMessage::Ptr;
+using GenMessagePtr = GenMessage::Ptr;
 
 } // namespace gen
 

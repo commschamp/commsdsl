@@ -50,8 +50,8 @@ public:
     std::string commsBareMetalDefaultOptions() const;
 
 protected:
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;
 
 private:
     using FieldOptsFunc = std::string (CommsField::*)() const;

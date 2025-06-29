@@ -34,17 +34,20 @@ class COMMSDSL_API GenVariantField : public GenField
     using Base = GenField;
 
 public:
-    GenVariantField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent = nullptr);
+    using ParseField = commsdsl::parse::ParseField;
+    using ParseVariantField = commsdsl::parse::ParseVariantField;
+
+    GenVariantField(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
     virtual ~GenVariantField();
 
-    const FieldsList& members() const;
+    const FieldsList& genMembers() const;
 
 protected:    
-    virtual bool prepareImpl() override;
-    virtual void setReferencedImpl() override;
-    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override final;
+    virtual bool genPrepareImpl() override;
+    virtual void genSetReferencedImpl() override;
+    virtual FieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
 
-    commsdsl::parse::ParseVariantField variantDslObj() const;
+    ParseVariantField genVariantFieldParseObj() const;
 
 private:
     std::unique_ptr<GenVariantFieldImpl> m_impl;

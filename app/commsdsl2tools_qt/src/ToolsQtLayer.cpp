@@ -38,7 +38,7 @@ ToolsQtLayer::ToolsQtLayer(commsdsl::gen::GenLayer& layer) :
 {
 }
 
-bool ToolsQtLayer::prepare()
+bool ToolsQtLayer::toolsPrepare()
 {
     return true;
 }
@@ -48,15 +48,15 @@ unsigned ToolsQtLayer::toolsMinFieldLength() const
     auto calcFunc = 
         [](const commsdsl::gen::GenField& f)
         {
-            return static_cast<unsigned>(f.dslObj().parseMinLength());
+            return static_cast<unsigned>(f.genParseObj().parseMinLength());
         };
 
-    auto* externalField = m_layer.externalField();
+    auto* externalField = m_layer.genExternalField();
     if (externalField !=  nullptr) {
         return calcFunc(*externalField);
     }
 
-    auto* memberField = m_layer.memberField();
+    auto* memberField = m_layer.genMemberField();
     if (memberField !=  nullptr) {
         return calcFunc(*memberField);
     }    

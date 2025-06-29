@@ -50,16 +50,16 @@ bool Swig::swigWrite(SwigGenerator& generator)
 bool Swig::swigWriteInternal()
 {
     auto swigName = swigFileNameInternal();
-    auto filePath = util::pathAddElem(m_generator.getOutputDir(), swigName);
-    m_generator.logger().info("Generating " + filePath);
+    auto filePath = util::genPathAddElem(m_generator.genGetOutputDir(), swigName);
+    m_generator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }     
 
     do {
-        auto replaceFile = util::readFileContents(m_generator.swigInputCodePathForFile(swigName + strings::replaceFileSuffixStr()));
+        auto replaceFile = util::genReadFileContents(m_generator.swigInputCodePathForFile(swigName + strings::genReplaceFileSuffixStr()));
         if (!replaceFile.empty()) {
             stream << replaceFile;
             break;
@@ -75,7 +75,7 @@ bool Swig::swigWriteInternal()
             ;      
 
         util::ReplacementMap repl = {
-            {"NS", m_generator.protocolSchema().mainNamespace()},
+            {"NS", m_generator.genProtocolSchema().genMainNamespace()},
             {"LANG_DEFS", swigLangDefsInternal()},
             {"CODE", swigCodeBlockInternal()},
             {"DEF", swigDefInternal()},
@@ -83,13 +83,13 @@ bool Swig::swigWriteInternal()
             {"APPEND", swigAppendInternal()},
         };
 
-        auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
+        auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
         stream << str;
     } while (false);
 
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
 
@@ -118,7 +118,7 @@ std::string Swig::swigCodeBlockInternal()
 
     SwigGenerator::cast(m_generator).swigMainInterface()->swigAddCode(codeElems);
 
-    for (auto& sPtr : m_generator.schemas()) {
+    for (auto& sPtr : m_generator.genSchemas()) {
         auto* schema = SwigSchema::cast(sPtr.get());
         schema->swigAddCodeIncludes(includes);
         schema->swigAddCode(codeElems);
@@ -128,7 +128,7 @@ std::string Swig::swigCodeBlockInternal()
 
     SwigMsgHandler::swigAddClassCode(m_generator, codeElems);
 
-    auto allFrames = m_generator.getAllFramesFromAllSchemas();
+    auto allFrames = m_generator.genGetAllFramesFromAllSchemas();
     for (auto* fPtr : allFrames) {
         auto* frame = SwigFrame::cast(fPtr);
         frame->swigAddCode(codeElems);
@@ -141,13 +141,13 @@ std::string Swig::swigCodeBlockInternal()
         "%}\n"
         ;
 
-    comms::prepareIncludeStatement(includes);
+    comms::genPrepareIncludeStatement(includes);
     util::ReplacementMap repl = {
-        {"INCLUDES", util::strListToString(includes, "\n", "\n")},
-        {"CODE", util::strListToString(codeElems, "\n", "")}
+        {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
+        {"CODE", util::genStrListToString(codeElems, "\n", "")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string Swig::swigDefInternal()
@@ -171,13 +171,13 @@ std::string Swig::swigDefInternal()
     SwigDataBuf::swigAddDef(m_generator, defs);
     SwigVersion::swigAddDef(m_generator, defs);
 
-    for (auto& sPtr : m_generator.schemas()) {
+    for (auto& sPtr : m_generator.genSchemas()) {
         SwigSchema::cast(sPtr.get())->swigAddDef(defs);
     }    
 
     SwigMsgHandler::swigAddDef(m_generator, defs);
 
-    auto allFrames = m_generator.getAllFrames();
+    auto allFrames = m_generator.genGetAllFrames();
     for (auto* fPtr : allFrames) {
         auto* frame = SwigFrame::cast(fPtr);
         frame->swigAddDef(defs);
@@ -188,11 +188,11 @@ std::string Swig::swigDefInternal()
         "#^#DEFS#$#\n";
 
     util::ReplacementMap repl = {
-        {"STD_INCLUDES", util::strListToString(stdIncludes, "\n", "\n")},
-        {"DEFS", util::strListToString(defs, "\n", "")}
+        {"STD_INCLUDES", util::genStrListToString(stdIncludes, "\n", "\n")},
+        {"DEFS", util::genStrListToString(defs, "\n", "")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string Swig::swigLangDefsInternal() const
@@ -222,13 +222,13 @@ std::string Swig::swigLangDefsInternal() const
         std::move(csharpDefs)
     };
 
-    return util::strListToString(defs, "\n", "");
+    return util::genStrListToString(defs, "\n", "");
 }
 
 std::string Swig::swigPrependInternal() const
 {
     auto swigName = swigFileNameInternal();
-    auto fromFile = util::readFileContents(m_generator.swigInputCodePathForFile(swigName + strings::prependFileSuffixStr()));
+    auto fromFile = util::genReadFileContents(m_generator.swigInputCodePathForFile(swigName + strings::genPrependFileSuffixStr()));
     if (!fromFile.empty()) {
         return fromFile;
     }
@@ -238,16 +238,16 @@ std::string Swig::swigPrependInternal() const
 
     util::ReplacementMap repl = {
         {"NAME", swigName},
-        {"SUFFIX", strings::prependFileSuffixStr()}
+        {"SUFFIX", strings::genPrependFileSuffixStr()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string Swig::swigAppendInternal() const
 {
     auto swigName = swigFileNameInternal();
-    auto fromFile = util::readFileContents(m_generator.swigInputCodePathForFile(swigName + strings::appendFileSuffixStr()));
+    auto fromFile = util::genReadFileContents(m_generator.swigInputCodePathForFile(swigName + strings::genAppendFileSuffixStr()));
     if (!fromFile.empty()) {
         return fromFile;
     }
@@ -257,16 +257,16 @@ std::string Swig::swigAppendInternal() const
 
     util::ReplacementMap repl = {
         {"NAME", swigName},
-        {"SUFFIX", strings::appendFileSuffixStr()}
+        {"SUFFIX", strings::genAppendFileSuffixStr()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string Swig::swigFileNameInternal() const
 {
-    auto& schema = m_generator.protocolSchema();        
-    return schema.mainNamespace() + ".i";
+    auto& schema = m_generator.genProtocolSchema();        
+    return schema.genMainNamespace() + ".i";
 }
 
 } // namespace commsdsl2swig

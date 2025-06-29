@@ -37,16 +37,16 @@ public:
     GenProgramOptions();
     ~GenProgramOptions();
 
-    GenProgramOptions& addHelpOption();
+    GenProgramOptions& genAddHelpOption();
     GenProgramOptions& operator()(const std::string& optStr, const std::string& desc, bool hasParam = false);
     GenProgramOptions& operator()(const std::string& optStr, const std::string& desc, const std::string& defaultValue);
 
-    void parse(int argc, const char** argv);
-    bool isOptUsed(const std::string& optStr) const;
-    bool helpRequested() const;
-    const std::string& value(const std::string& optStr) const;
-    const ArgsList& args() const;
-    std::string helpStr() const;
+    void genParse(int argc, const char** argv);
+    bool genIsOptUsed(const std::string& optStr) const;
+    bool genHelpRequested() const;
+    const std::string& genValue(const std::string& optStr) const;
+    const ArgsList& genArgs() const;
+    std::string genHelpStr() const;
 
 private:
     std::unique_ptr<GenProgramOptionsImpl> m_impl;

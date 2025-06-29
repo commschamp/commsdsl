@@ -29,7 +29,7 @@ class GenLoggerImpl
 public:
     using ParseErrorLevel = GenLogger::ParseErrorLevel;
 
-    void log(ParseErrorLevel level, const std::string& msg)
+    void genLog(ParseErrorLevel level, const std::string& msg)
     {
         static const std::string PrefixMap[] = {
             "[DEBUG]: ",
@@ -58,7 +58,7 @@ public:
         return m_minLevel;
     }
 
-    void setMinLevel(ParseErrorLevel level)
+    void genSetMinLevel(ParseErrorLevel level)
     {
         m_minLevel = level;
     }
@@ -68,7 +68,7 @@ public:
         return m_warnAsErr;
     }
 
-    void setWarnAsError()
+    void genSetWarnAsError()
     {
         m_warnAsErr = true;
     }
@@ -84,7 +84,7 @@ public:
     }
 
 private:
-    commsdsl::parse::ParseErrorLevel m_minLevel = commsdsl::parse::ParseErrorLevel_Info;
+    ParseErrorLevel m_minLevel = commsdsl::parse::ParseErrorLevel_Info;
     bool m_warnAsErr = false;
     bool m_hadWarning = false;
 };
@@ -96,7 +96,7 @@ GenLogger::GenLogger() :
 
 GenLogger::~GenLogger() = default;
 
-void GenLogger::log(commsdsl::parse::ParseErrorLevel level, const std::string& msg) const
+void GenLogger::genLog(ParseErrorLevel level, const std::string& msg) const
 {
     if (level < m_impl->getMinLevel()) {
         return;
@@ -106,47 +106,47 @@ void GenLogger::log(commsdsl::parse::ParseErrorLevel level, const std::string& m
         m_impl->setHadWarning();
     }
 
-    logImpl(level, msg);
+    genLogImpl(level, msg);
 }
 
-void GenLogger::error(const std::string& msg) const
+void GenLogger::genError(const std::string& msg) const
 {
-    log(commsdsl::parse::ParseErrorLevel_Error, msg);
+    genLog(commsdsl::parse::ParseErrorLevel_Error, msg);
 }
 
-void GenLogger::warning(const std::string& msg) const
+void GenLogger::genWarning(const std::string& msg) const
 {
-    log(commsdsl::parse::ParseErrorLevel_Warning, msg);
+    genLog(commsdsl::parse::ParseErrorLevel_Warning, msg);
 }
 
-void GenLogger::info(const std::string& msg) const
+void GenLogger::genInfo(const std::string& msg) const
 {
-    log(commsdsl::parse::ParseErrorLevel_Info, msg);
+    genLog(commsdsl::parse::ParseErrorLevel_Info, msg);
 }
 
-void GenLogger::debug(const std::string& msg) const
+void GenLogger::genDebug(const std::string& msg) const
 {
-    log(commsdsl::parse::ParseErrorLevel_Debug, msg);
+    genLog(commsdsl::parse::ParseErrorLevel_Debug, msg);
 }
 
-void GenLogger::setMinLevel(ParseErrorLevel level)
+void GenLogger::genSetMinLevel(ParseErrorLevel level)
 {
-    m_impl->setMinLevel(level);
+    m_impl->genSetMinLevel(level);
 }
 
-void GenLogger::setWarnAsError()
+void GenLogger::genSetWarnAsError()
 {
-    m_impl->setWarnAsError();
+    m_impl->genSetWarnAsError();
 }
 
-bool GenLogger::hadWarning() const
+bool GenLogger::genHadWarning() const
 {
     return m_impl->getHadWarning();
 }
 
-void GenLogger::logImpl(commsdsl::parse::ParseErrorLevel level, const std::string& msg) const
+void GenLogger::genLogImpl(commsdsl::parse::ParseErrorLevel level, const std::string& msg) const
 {
-    m_impl->log(level, msg);
+    m_impl->genLog(level, msg);
 }
 
 } // namespace gen

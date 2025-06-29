@@ -26,23 +26,23 @@ namespace commsdsl
 namespace gen
 {
 
-GenCustomLayer::GenCustomLayer(GenGenerator& generator, commsdsl::parse::ParseLayer dslObj, GenElem* parent) :
-    Base(generator, dslObj, parent)
+GenCustomLayer::GenCustomLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent) :
+    Base(generator, parseObj, parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Custom);
+    assert(parseObj.parseKind() == ParseLayer::Kind::Custom);
 }
 
 GenCustomLayer::~GenCustomLayer() = default;
 
-commsdsl::parse::ParseCustomLayer GenCustomLayer::customDslObj() const
+GenCustomLayer::ParseCustomLayer GenCustomLayer::genCustomLayerParseObj() const
 {
-    return commsdsl::parse::ParseCustomLayer(dslObj());
+    return ParseCustomLayer(genParseObj());
 }
 
-bool GenCustomLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success) const
+bool GenCustomLayer::genForceCommsOrderImpl(LayersAccessList& layers, bool& success) const
 {
-    auto obj = customDslObj();
-    if (obj.parseSemanticLayerType() != commsdsl::parse::ParseLayer::Kind::Checksum) {
+    auto obj = genCustomLayerParseObj();
+    if (obj.parseSemanticLayerType() != ParseLayer::Kind::Checksum) {
         success = true;
         return false;
     }
@@ -70,7 +70,7 @@ bool GenCustomLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success
                 layers.begin(), layers.end(),
                 [&untilStr](const auto* l)
                 {
-                    return l->dslObj().parseName() == untilStr;
+                    return l->genParseObj().parseName() == untilStr;
                 });
 
         if (untilIter == layers.end()) {
@@ -80,8 +80,8 @@ bool GenCustomLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success
             return false;
         }
 
-        if ((*untilIter)->dslObj().parseKind() != commsdsl::parse::ParseLayer::Kind::Payload) {
-            generator().logger().error("Custom checksum prefix must be until payload layer");
+        if ((*untilIter)->genParseObj().parseKind() != ParseLayer::Kind::Payload) {
+            genGenerator().genLogger().genError("Custom checksum prefix must be until payload layer");
             success = false;
             return false;
         }
@@ -94,7 +94,7 @@ bool GenCustomLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success
     if (fromStr.empty()) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
-        generator().logger().error("Info on custom checksum layer is missing");
+        genGenerator().genLogger().genError("Info on custom checksum layer is missing");
         success = false;
         return false;
     }
@@ -104,7 +104,7 @@ bool GenCustomLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success
             layers.begin(), layers.end(),
             [&fromStr](const auto* l)
             {
-                return l->dslObj().parseName() == fromStr;
+                return l->genParseObj().parseName() == fromStr;
             });
 
 

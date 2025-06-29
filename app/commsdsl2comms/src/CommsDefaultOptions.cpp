@@ -46,7 +46,7 @@ std::string optionsBodyInternal(
     NamespaceOptionsFunc nsFunc,
     bool hasBase)
 {
-    auto& allNs = generator.currentSchema().namespaces();
+    auto& allNs = generator.genCurrentSchema().genNamespaces();
     util::StringsList opts;
     for (auto& nsPtr : allNs) {
         auto elem = (static_cast<const CommsNamespace*>(nsPtr.get())->*nsFunc)();
@@ -56,11 +56,11 @@ std::string optionsBodyInternal(
     }
 
     if (opts.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     if (!generator.commsHasMainNamespaceInOptions()) {
-        return util::strListToString(opts, "\n", "");
+        return util::genStrListToString(opts, "\n", "");
     }
 
     static const std::string Templ = 
@@ -70,15 +70,15 @@ std::string optionsBodyInternal(
         "}; // struct #^#NS#$#\n";
 
     util::ReplacementMap repl = {
-        {"NS", generator.currentSchema().mainNamespace()},
-        {"BODY", util::strListToString(opts, "\n", "")}
+        {"NS", generator.genCurrentSchema().genMainNamespace()},
+        {"BODY", util::genStrListToString(opts, "\n", "")}
     };
 
     if (hasBase) {
         repl["EXT"] = " : public TBase::" + repl["NS"];
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool writeFileInternal(
@@ -86,18 +86,18 @@ bool writeFileInternal(
     CommsGenerator& generator,
     const std::string& data)
 {
-    auto filePath = comms::headerPathForOptions(name, generator);
-    generator.logger().info("Generating " + filePath);
+    auto filePath = comms::genHeaderPathForOptions(name, generator);
+    generator.genLogger().genInfo("Generating " + filePath);
 
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!generator.createDirectory(dirPath)) {
+    if (!generator.genCreateDirectory(dirPath)) {
         return false;
     }      
 
     std::ofstream stream(filePath);
     if (!stream) {
-        generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }    
 
@@ -139,8 +139,8 @@ util::ReplacementMap extInitialRepl(CommsGenerator& generator)
 {
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
-        {"PROT_NAMESPACE", generator.currentSchema().mainNamespace()},
-        {"DEFAULT_OPTS", comms::scopeForOptions(strings::defaultOptionsClassStr(), generator)}
+        {"PROT_NAMESPACE", generator.genCurrentSchema().genMainNamespace()},
+        {"DEFAULT_OPTS", comms::genScopeForOptions(strings::genDefaultOptionsClassStr(), generator)}
     };
     return repl;
 }
@@ -181,8 +181,8 @@ const std::string& msgFactoryOptionsTempl()
 
 bool CommsDefaultOptions::write(CommsGenerator& generator)
 {
-    auto& thisSchema = static_cast<CommsSchema&>(generator.currentSchema());
-    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyGeneratedCode())) {
+    auto& thisSchema = static_cast<CommsSchema&>(generator.genCurrentSchema());
+    if ((!generator.genIsCurrentProtocolSchema()) && (!thisSchema.commsHasAnyGeneratedCode())) {
         return true;
     }
 
@@ -228,81 +228,81 @@ bool CommsDefaultOptions::commsWriteDefaultOptionsInternal() const
         "} // namespace options\n\n"
         "} // namespace #^#PROT_NAMESPACE#$#\n";
 
-    auto& name = strings::defaultOptionsClassStr();
+    auto& name = strings::genDefaultOptionsClassStr();
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
-        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
+        {"PROT_NAMESPACE", m_generator.genCurrentSchema().genMainNamespace()},
         {"CLASS_NAME", name},
         {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDefaultOptions, false)},
-        {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
-        {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
+        {"EXTEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_generator) + strings::genExtendFileSuffixStr())},
+        {"APPEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_generator) + strings::genAppendFileSuffixStr())},
     };
 
     if (!repl["EXTEND"].empty()) {
-        repl["ORIG"] = strings::origSuffixStr();
+        repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
-    writeFileInternal(strings::defaultOptionsClassStr(), m_generator, util::processTemplate(Templ, repl, true));
+    writeFileInternal(strings::genDefaultOptionsClassStr(), m_generator, util::genProcessTemplate(Templ, repl, true));
     return true;
 }
 
 bool CommsDefaultOptions::commsWriteClientDefaultOptionsInternal() const
 {
     util::ReplacementMap repl = extInitialRepl(m_generator);
-    auto name = "Client" + strings::defaultOptionsClassStr();
+    auto name = "Client" + strings::genDefaultOptionsClassStr();
     repl.insert({
         {"DESC", "client"},
         {"NAME", "Client"},
         {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsClientDefaultOptions, true)},
-        {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
-        {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
+        {"EXTEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_generator) + strings::genExtendFileSuffixStr())},
+        {"APPEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_generator) + strings::genAppendFileSuffixStr())},
     });
 
     if (!repl["EXTEND"].empty()) {
-        repl["ORIG"] = strings::origSuffixStr();
+        repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
-    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl, true));
+    writeFileInternal(name, m_generator, util::genProcessTemplate(extOptionsTempl(), repl, true));
     return true;
 }
 
 bool CommsDefaultOptions::commsWriteServerDefaultOptionsInternal() const
 {
     util::ReplacementMap repl = extInitialRepl(m_generator);
-    auto name = "Server" + strings::defaultOptionsClassStr();
+    auto name = "Server" + strings::genDefaultOptionsClassStr();
     repl.insert({
         {"DESC", "server"},
         {"NAME", "Server"},
         {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsServerDefaultOptions, true)},
-        {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
-        {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
+        {"EXTEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_generator) + strings::genExtendFileSuffixStr())},
+        {"APPEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_generator) + strings::genAppendFileSuffixStr())},
     });
 
     if (!repl["EXTEND"].empty()) {
-        repl["ORIG"] = strings::origSuffixStr();
+        repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
-    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl, true));
+    writeFileInternal(name, m_generator, util::genProcessTemplate(extOptionsTempl(), repl, true));
     return true;
 }
 
 bool CommsDefaultOptions::commsWriteDataViewDefaultOptionsInternal() const
 {
     util::ReplacementMap repl = extInitialRepl(m_generator);
-    auto name = strings::dataViewStr() + strings::defaultOptionsClassStr();
+    auto name = strings::genDataViewStr() + strings::genDefaultOptionsClassStr();
     repl.insert({
         {"DESC", "data view"},
-        {"NAME", strings::dataViewStr()},
+        {"NAME", strings::genDataViewStr()},
         {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDataViewDefaultOptions, true)},
-        {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
-        {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
+        {"EXTEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_generator) + strings::genExtendFileSuffixStr())},
+        {"APPEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_generator) + strings::genAppendFileSuffixStr())},
     });
 
     if (!repl["EXTEND"].empty()) {
-        repl["ORIG"] = strings::origSuffixStr();
+        repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
-    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl, true));
+    writeFileInternal(name, m_generator, util::genProcessTemplate(extOptionsTempl(), repl, true));
     return true;
 }
 
@@ -316,27 +316,27 @@ bool CommsDefaultOptions::commsWriteBareMetalDefaultOptionsInternal() const
         "#endif\n";
 
     util::ReplacementMap repl = extInitialRepl(m_generator);
-    auto name = strings::bareMetalStr() + strings::defaultOptionsClassStr();
+    auto name = strings::genBareMetalStr() + strings::genDefaultOptionsClassStr();
     repl.insert({
         {"DESC", "bare metal"},
-        {"NAME", strings::bareMetalStr()},
+        {"NAME", strings::genBareMetalStr()},
         {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsBareMetalDefaultOptions, true)},
         {"EXTRA", std::move(extra)},
-        {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
-        {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
+        {"EXTEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_generator) + strings::genExtendFileSuffixStr())},
+        {"APPEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_generator) + strings::genAppendFileSuffixStr())},
     });
 
     if (!repl["EXTEND"].empty()) {
-        repl["ORIG"] = strings::origSuffixStr();
+        repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
-    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl, true));
+    writeFileInternal(name, m_generator, util::genProcessTemplate(extOptionsTempl(), repl, true));
     return true;
 }
 
 bool CommsDefaultOptions::commsWriteMsgFactoryDefaultOptionsInternal() const
 {
-    if (!m_generator.isCurrentProtocolSchema()) {
+    if (!m_generator.genIsCurrentProtocolSchema()) {
         return true;
     }
 
@@ -380,11 +380,11 @@ bool CommsDefaultOptions::commsWriteServerInputMessagesDynMemMsgFactoryOptionsIn
 
 bool CommsDefaultOptions::commsWritePlatformSpecificDynMemMsgFactoryOptionsInternal() const
 {
-    auto& platforms = m_generator.currentSchema().platformNames();
+    auto& platforms = m_generator.genCurrentSchema().platformNames();
     for (auto& p : platforms) {
         bool result = 
             commsWriteSingleMsgFactoryDefaultOptionsInternal(
-                comms::className(p) + "MessagesDynMem",
+                comms::genClassName(p) + "MessagesDynMem",
                 "all \"" + p + "\" platform scpecific",
                 "dynamic memory"
             );
@@ -395,7 +395,7 @@ bool CommsDefaultOptions::commsWritePlatformSpecificDynMemMsgFactoryOptionsInter
 
         result = 
             commsWriteSingleMsgFactoryDefaultOptionsInternal(
-                comms::className(p) + "ClientInputMessagesDynMem",
+                comms::genClassName(p) + "ClientInputMessagesDynMem",
                 "client input \"" + p + "\" platform scpecific",
                 "dynamic memory"
             );       
@@ -406,7 +406,7 @@ bool CommsDefaultOptions::commsWritePlatformSpecificDynMemMsgFactoryOptionsInter
        
         result = 
             commsWriteSingleMsgFactoryDefaultOptionsInternal(
-                comms::className(p) + "ServerInputMessagesDynMem",
+                comms::genClassName(p) + "ServerInputMessagesDynMem",
                 "server input \"" + p + "\" platform scpecific",
                 "dynamic memory"
             );       
@@ -425,7 +425,7 @@ bool CommsDefaultOptions::commsWriteExtraBundlesDynMemMsgFactoryOptionsInternal(
     for (auto& b : extraBundles) {        
         bool result = 
             commsWriteSingleMsgFactoryDefaultOptionsInternal(
-                comms::className(b.first) + "MessagesDynMem",
+                comms::genClassName(b.first) + "MessagesDynMem",
                 "all \"" + b.first + "\" bundle scpecific",
                 "dynamic memory"
             );
@@ -436,7 +436,7 @@ bool CommsDefaultOptions::commsWriteExtraBundlesDynMemMsgFactoryOptionsInternal(
 
         result = 
             commsWriteSingleMsgFactoryDefaultOptionsInternal(
-                comms::className(b.first) + "ClientInputMessagesDynMem",
+                comms::genClassName(b.first) + "ClientInputMessagesDynMem",
                 "client input \"" + b.first + "\" bundle scpecific",
                 "dynamic memory"
             );       
@@ -447,7 +447,7 @@ bool CommsDefaultOptions::commsWriteExtraBundlesDynMemMsgFactoryOptionsInternal(
        
         result = 
             commsWriteSingleMsgFactoryDefaultOptionsInternal(
-                comms::className(b.first) + "ServerInputMessagesDynMem",
+                comms::genClassName(b.first) + "ServerInputMessagesDynMem",
                 "server input \"" + b.first + "\" bundle scpecific",
                 "dynamic memory"
             );       
@@ -468,11 +468,11 @@ bool CommsDefaultOptions::commsWriteSingleMsgFactoryDefaultOptionsInternal(
     auto name = prefix + MsgFactoryOptionsSuffix;
 
     util::StringsList includes = {
-        comms::relHeaderForOptions(strings::defaultOptionsClassStr(), m_generator, true),
+        comms::genRelHeaderForOptions(strings::genDefaultOptionsClassStr(), m_generator, true),
     };
 
     util::StringsList allFactories;
-    auto allNamespaces = m_generator.getAllNamespaces();
+    auto allNamespaces = m_generator.genGetAllNamespaces();
     for (auto* ns : allNamespaces) {
         auto suffix = "<TInterface, " + name + "T<TBase> >";
         auto factoryDef = CommsNamespace::cast(ns)->commsMsgFactoryAliasDef(prefix, suffix);
@@ -492,28 +492,28 @@ bool CommsDefaultOptions::commsWriteSingleMsgFactoryDefaultOptionsInternal(
             {"REF", CommsNamespace::cast(ns)->commsMsgFactoryAliasType()},
         };
 
-        allFactories.push_back(util::processTemplate(AliasTempl, aliasRepl));
+        allFactories.push_back(util::genProcessTemplate(AliasTempl, aliasRepl));
         includes.push_back(CommsNamespace::cast(ns)->commsRelHeaderPath(prefix));
     }
 
-    comms::prepareIncludeStatement(includes);
+    comms::genPrepareIncludeStatement(includes);
 
     util::ReplacementMap repl = extInitialRepl(m_generator);
     repl.insert({
         {"DESC", messagesDesc + " messages " + allocDesc + " allocation"},
         {"NAME", prefix},
-        {"MSG_FACTORIES", util::strListToString(allFactories, "\n", "\n")},
-        {"INCLUDES", util::strListToString(includes, "\n", "\n")},
+        {"MSG_FACTORIES", util::genStrListToString(allFactories, "\n", "\n")},
+        {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
         {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsMsgFactoryDefaultOptions, true)},
-        {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
-        {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
+        {"EXTEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_generator) + strings::genExtendFileSuffixStr())},
+        {"APPEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_generator) + strings::genAppendFileSuffixStr())},
     });
 
     if (!repl["EXTEND"].empty()) {
-        repl["ORIG"] = strings::origSuffixStr();
+        repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
-    writeFileInternal(name, m_generator, util::processTemplate(msgFactoryOptionsTempl(), repl, true));
+    writeFileInternal(name, m_generator, util::genProcessTemplate(msgFactoryOptionsTempl(), repl, true));
     return true;
 }
 

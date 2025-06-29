@@ -39,25 +39,25 @@ CommsRefField::CommsRefField(
 {
 }
 
-bool CommsRefField::prepareImpl()
+bool CommsRefField::genPrepareImpl()
 {
-    bool result = Base::prepareImpl() && commsPrepare();
+    bool result = Base::genPrepareImpl() && commsPrepare();
     if (!result) {
         return false;
     }
 
-    auto* refField = referencedField();
+    auto* refField = genReferencedField();
     m_commsReferencedField = dynamic_cast<CommsField*>(refField);
     assert(m_commsReferencedField != nullptr);
 
-    if ((refDslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Length) && 
-        (refField->dslObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::Length) &&
+    if ((genRefFieldParseObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Length) && 
+        (refField->genParseObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::Length) &&
         (!commsHasCustomValue()) && 
         (!m_commsReferencedField->commsHasCustomValue())) {
-        generator().logger().warning(
-            "Field \"" + comms::scopeFor(*this, generator()) + "\" is used as \"length\" field (semanticType=\"length\"), but custom value "
+        genGenerator().genLogger().genWarning(
+            "Field \"" + comms::genScopeFor(*this, genGenerator()) + "\" is used as \"length\" field (semanticType=\"length\"), but custom value "
             "retrieval functionality is not provided. Please create relevant code injection functionality with \"" + 
-            strings::valueFileSuffixStr() + "\" file name suffix. Inside that file the following functions are "
+            strings::genValueFileSuffixStr() + "\" file name suffix. Inside that file the following functions are "
             "expected to be defined: getValue(), setValue(), and maxValue()."
         );
     }     
@@ -65,7 +65,7 @@ bool CommsRefField::prepareImpl()
     return true;
 }
 
-bool CommsRefField::writeImpl() const
+bool CommsRefField::genWriteImpl() const
 {
     return commsWrite();
 }
@@ -74,7 +74,7 @@ CommsRefField::IncludesList CommsRefField::commsCommonIncludesImpl() const
 {
     assert(m_commsReferencedField != nullptr);
     IncludesList result = {
-        comms::relCommonHeaderPathFor(m_commsReferencedField->field(), generator())
+        comms::genRelCommonHeaderPathFor(m_commsReferencedField->field(), genGenerator())
     };
 
     return result;
@@ -83,13 +83,13 @@ CommsRefField::IncludesList CommsRefField::commsCommonIncludesImpl() const
 std::string CommsRefField::commsCommonCodeBaseClassImpl() const
 {
     assert(m_commsReferencedField != nullptr);
-    return comms::commonScopeFor(m_commsReferencedField->field(), generator());
+    return comms::genCommonScopeFor(m_commsReferencedField->field(), genGenerator());
 }
 
 std::string CommsRefField::commsCommonCodeBodyImpl() const
 {
     if (!commsDefHasNameFuncImpl()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     return commsCommonNameFuncCode();
@@ -99,15 +99,15 @@ std::string CommsRefField::commsCommonMembersBaseClassImpl() const
 {
     assert(m_commsReferencedField != nullptr);
     if (!m_commsReferencedField->commsHasMembersCode()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    auto str = comms::commonScopeFor(m_commsReferencedField->field(), generator());
-    auto& commonSuffix = strings::commonSuffixStr();
+    auto str = comms::genCommonScopeFor(m_commsReferencedField->field(), genGenerator());
+    auto& commonSuffix = strings::genCommonSuffixStr();
     assert(commonSuffix.size() < str.size());
     auto commonSuffixPos = str.size() - commonSuffix.size();
     assert(commonSuffix == str.substr(commonSuffixPos));
-    str.insert(commonSuffixPos, strings::membersSuffixStr());
+    str.insert(commonSuffixPos, strings::genMembersSuffixStr());
     return str;
 }
 
@@ -115,7 +115,7 @@ CommsRefField::IncludesList CommsRefField::commsDefIncludesImpl() const
 {
     assert(m_commsReferencedField != nullptr);
     IncludesList result = {
-        comms::relHeaderPathFor(m_commsReferencedField->field(), generator())
+        comms::genRelHeaderPathFor(m_commsReferencedField->field(), genGenerator())
     };
 
     return result;
@@ -131,11 +131,11 @@ std::string CommsRefField::commsDefBaseClassImpl() const
     assert(m_commsReferencedField != nullptr);
 
     util::ReplacementMap repl = {
-        {"REF_FIELD", comms::scopeFor(m_commsReferencedField->field(), generator())},
+        {"REF_FIELD", comms::genScopeFor(m_commsReferencedField->field(), genGenerator())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool CommsRefField::commsIsLimitedCustomizableImpl() const
@@ -146,10 +146,10 @@ bool CommsRefField::commsIsLimitedCustomizableImpl() const
 
 bool CommsRefField::commsDefHasNameFuncImpl() const
 {
-    auto dslObj = refDslObj();
-    auto thisDisplayName = util::displayName(dslObj.parseDisplayName(), dslObj.parseName());
-    auto refDslObj = m_commsReferencedField->field().dslObj();
-    auto refDisplayName = util::displayName(refDslObj.parseDisplayName(), refDslObj.parseName());
+    auto dslObj = genRefFieldParseObj();
+    auto thisDisplayName = util::genDisplayName(dslObj.parseDisplayName(), dslObj.parseName());
+    auto refDslObj = m_commsReferencedField->field().genParseObj();
+    auto refDisplayName = util::genDisplayName(refDslObj.parseDisplayName(), refDslObj.parseName());
 
     return thisDisplayName != refDisplayName;
 }
@@ -210,13 +210,13 @@ std::string CommsRefField::commsDefFieldOptsInternal() const
     commsAddFieldDefOptions(opts);
     commsAddBitLengthOptInternal(opts);
 
-    return util::strListToString(opts, ",\n", "");
+    return util::genStrListToString(opts, ",\n", "");
 }
 
 void CommsRefField::commsAddProtocolOptInternal(StringsList& opts) const
 {
-    if (comms::isInterfaceDeepMemberField(*this)) {
-        opts.push_back(comms::scopeForOptions(strings::defaultOptionsClassStr(), generator()));
+    if (comms::genIsInterfaceDeepMemberField(*this)) {
+        opts.push_back(comms::genScopeForOptions(strings::genDefaultOptionsClassStr(), genGenerator()));
     }
     else {
         opts.push_back("TOpt");
@@ -225,10 +225,10 @@ void CommsRefField::commsAddProtocolOptInternal(StringsList& opts) const
 
 void CommsRefField::commsAddBitLengthOptInternal(StringsList& opts) const
 {
-    auto obj = refDslObj();
+    auto obj = genRefFieldParseObj();
     auto bitLength = obj.parseBitLength();
     if (bitLength != 0U) {
-        opts.push_back("comms::option::def::FixedBitLength<" + util::numToString(bitLength) + '>');
+        opts.push_back("comms::option::def::FixedBitLength<" + util::genNumToString(bitLength) + '>');
     }    
 }
 

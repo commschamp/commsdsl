@@ -33,21 +33,23 @@ class COMMSDSL_API GenOptionalField : public GenField
 {
     using Base = GenField;
 public:
+    using ParseField = commsdsl::parse::ParseField;
+    using ParseOptionalField = commsdsl::parse::ParseOptionalField;
 
-    GenOptionalField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent = nullptr);
+    GenOptionalField(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
     virtual ~GenOptionalField();
 
-    GenField* externalField();
-    const GenField* externalField() const;
+    GenField* genExternalField();
+    const GenField* genExternalField() const;
 
-    GenField* memberField();
-    const GenField* memberField() const;
+    GenField* genMemberField();
+    const GenField* genMemberField() const;
 
 protected:    
-    virtual bool prepareImpl() override;
-    virtual void setReferencedImpl() override;
+    virtual bool genPrepareImpl() override;
+    virtual void genSetReferencedImpl() override;
 
-    commsdsl::parse::ParseOptionalField optionalDslObj() const;
+    ParseOptionalField genOptionalFieldParseObj() const;
 
 private:
     std::unique_ptr<GenOptionalFieldImpl> m_impl;

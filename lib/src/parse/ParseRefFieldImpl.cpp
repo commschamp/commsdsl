@@ -251,7 +251,7 @@ bool ParseRefFieldImpl::parseUpdateBitLength()
     }    
 
     bool ok = false;
-    m_state.m_bitLength = common::strToUnsigned(valStr, &ok);
+    m_state.m_bitLength = common::parseStrToUnsigned(valStr, &ok);
     if (!ok) {
         parseReportUnexpectedPropertyValue(common::bitLengthStr(), valStr);
         return false;

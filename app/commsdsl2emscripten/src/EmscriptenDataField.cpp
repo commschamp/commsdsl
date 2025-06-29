@@ -37,7 +37,7 @@ EmscriptenDataField::EmscriptenDataField(EmscriptenGenerator& generator, commsds
 {
 }
 
-bool EmscriptenDataField::writeImpl() const
+bool EmscriptenDataField::genWriteImpl() const
 {
     return emscriptenWrite();
 }
@@ -59,7 +59,7 @@ std::string EmscriptenDataField::emscriptenHeaderExtraPublicFuncsImpl() const
         {"JS_ARRAY_FUNC", EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenDataField::emscriptenSourceBindValueAccImpl() const
@@ -77,7 +77,7 @@ std::string EmscriptenDataField::emscriptenSourceBindFuncsImpl() const
         {"CLASS_NAME", emscriptenBindClassName()}
     };
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 } // namespace commsdsl2emscripten

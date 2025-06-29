@@ -44,7 +44,7 @@ public:
     bool hasForcedSchemaVersion() const;
     unsigned getForcedSchemaVersion() const;
     const std::string& getProtocolVersion() const;
-    unsigned getMinRemoteVersion() const;
+    unsigned genGetMinRemoteVersion() const;
     const std::string& getCustomizationLevel() const;
     bool versionIndependentCodeRequested() const;
     std::vector<std::string> getExtraInputBundles() const;

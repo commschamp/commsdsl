@@ -53,15 +53,15 @@ ToolsQtNamespace::StringsList ToolsQtNamespace::toolsSourceFiles(const ToolsQtIn
             std::move(list.begin(), list.end(), std::back_inserter(result));
         };
 
-    for (auto& mPtr : messages()) {
+    for (auto& mPtr : genMessages()) {
         assert(mPtr);
         auto* toolsMessage = static_cast<const ToolsQtMessage*>(mPtr.get());
         assert(toolsMessage != nullptr);
         addToResult(toolsMessage->toolsSourceFiles(interface));
     }    
 
-    if (hasFramesRecursive() &&
-        hasMessagesRecursive()) {
+    if (genHasFramesRecursive() &&
+        genHasMessagesRecursive()) {
         addToResult(m_factory.toolsSourceFiles(interface));
     }
 
@@ -78,10 +78,10 @@ std::string ToolsQtNamespace::toolsFactoryClassScope(const commsdsl::gen::GenInt
     return m_factory.toolsClassScope(iFace);
 }
 
-bool ToolsQtNamespace::writeImpl() const
+bool ToolsQtNamespace::genWriteImpl() const
 {
-    if ((!hasFramesRecursive()) ||
-        (!hasMessagesRecursive())) {
+    if ((!genHasFramesRecursive()) ||
+        (!genHasMessagesRecursive())) {
         return true;
     }
 

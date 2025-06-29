@@ -42,7 +42,7 @@ std::string SwigValueLayer::swigDeclFuncsImpl() const
 {
     auto obj = valueDslObj();
     if (!obj.parsePseudo()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -55,7 +55,7 @@ std::string SwigValueLayer::swigCodeFuncsImpl() const
 {
     auto obj = valueDslObj();
     if (!obj.parsePseudo()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -66,10 +66,10 @@ std::string SwigValueLayer::swigCodeFuncsImpl() const
 
 bool SwigValueLayer::swigIsMainInterfaceSupportedImpl() const
 {
-    auto& gen = SwigGenerator::cast(generator());
+    auto& gen = SwigGenerator::cast(genGenerator());
     auto* iFace = gen.swigMainInterface();
     assert(iFace != nullptr);
-    return isInterfaceSupported(iFace);
+    return genIsInterfaceSupported(iFace);
 }
 
 } // namespace commsdsl2swig

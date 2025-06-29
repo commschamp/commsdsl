@@ -30,7 +30,7 @@ public:
     explicit ToolsQtLayer(commsdsl::gen::GenLayer& layer);
     virtual ~ToolsQtLayer() = default;
 
-    bool prepare();
+    bool toolsPrepare();
 
     unsigned toolsMinFieldLength() const;
 

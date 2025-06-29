@@ -31,10 +31,11 @@ class GenFloatFieldImpl
 {
 public:
     using SpecialsList = GenFloatField::SpecialsList;
+    using ParseFloatField = GenFloatField::ParseFloatField;
 
-    bool prepare(commsdsl::parse::ParseFloatField dslObj)
+    bool genPrepare(ParseFloatField parseObj)
     {
-        auto& dslSpecials = dslObj.parseSpecialValues();
+        auto& dslSpecials = parseObj.parseSpecialValues();
         m_specialsSorted.reserve(dslSpecials.size());
         for (auto& s : dslSpecials) {
             m_specialsSorted.emplace_back(s.first, s.second);
@@ -100,7 +101,7 @@ public:
         return true;
     }
 
-    const SpecialsList& specialsSortedByValue() const
+    const SpecialsList& genSpecialsSortedByValue() const
     {
         return m_specialsSorted;
     }
@@ -109,29 +110,29 @@ private:
     SpecialsList m_specialsSorted;
 };       
 
-GenFloatField::GenFloatField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent) :
-    Base(generator, dslObj, parent),
+GenFloatField::GenFloatField(GenGenerator& generator, ParseField parseObj, GenElem* parent) :
+    Base(generator, parseObj, parent),
     m_impl(std::make_unique<GenFloatFieldImpl>())
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Float);
+    assert(parseObj.parseKind() == ParseField::Kind::Float);
 }
 
 GenFloatField::~GenFloatField() = default;
 
-const GenFloatField::SpecialsList& GenFloatField::specialsSortedByValue() const
+const GenFloatField::SpecialsList& GenFloatField::genSpecialsSortedByValue() const
 {
-    return m_impl->specialsSortedByValue();
+    return m_impl->genSpecialsSortedByValue();
 }
 
-bool GenFloatField::prepareImpl()
+bool GenFloatField::genPrepareImpl()
 {
-    return m_impl->prepare(floatDslObj());
+    return m_impl->genPrepare(genFloatFieldParseObj());
 }
 
-GenFloatField::FieldRefInfo GenFloatField::processInnerRefImpl(const std::string& refStr) const
+GenFloatField::FieldRefInfo GenFloatField::genProcessInnerRefImpl(const std::string& refStr) const
 {
     assert(!refStr.empty());
-    auto obj = floatDslObj();
+    auto obj = genFloatFieldParseObj();
     auto& specials = obj.parseSpecialValues();
 
     FieldRefInfo info;
@@ -145,9 +146,9 @@ GenFloatField::FieldRefInfo GenFloatField::processInnerRefImpl(const std::string
     return info;    
 }
 
-commsdsl::parse::ParseFloatField GenFloatField::floatDslObj() const
+GenFloatField::ParseFloatField GenFloatField::genFloatFieldParseObj() const
 {
-    return commsdsl::parse::ParseFloatField(dslObj());
+    return ParseFloatField(genParseObj());
 }
 
 } // namespace gen

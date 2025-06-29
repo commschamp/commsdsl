@@ -49,18 +49,18 @@ bool writeFileInternal(
     const CommsNamespace& ns,
     const std::string& data)
 {
-    auto filePath = comms::headerPathForDispatch(name, generator, ns);
-    generator.logger().info("Generating " + filePath);
+    auto filePath = comms::genHeaderPathForDispatch(name, generator, ns);
+    generator.genLogger().genInfo("Generating " + filePath);
 
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!generator.createDirectory(dirPath)) {
+    if (!generator.genCreateDirectory(dirPath)) {
         return false;
     }      
 
     std::ofstream stream(filePath);
     if (!stream) {
-        generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }    
 
@@ -91,9 +91,9 @@ util::ReplacementMap initialRepl(const CommsGenerator& generator, const commsdsl
 {
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
-        {"DISPATCH_NAMESPACE", strings::dispatchNamespaceStr()},
-        {"NS_BEGIN", comms::namespaceBeginFor(elem, generator)},
-        {"NS_END", comms::namespaceEndFor(elem, generator)},        
+        {"DISPATCH_NAMESPACE", strings::genCispatchNamespaceStr()},
+        {"NS_BEGIN", comms::genNamespaceBeginFor(elem, generator)},
+        {"NS_END", comms::genNamespaceEndFor(elem, generator)},        
     };
     return repl;
 }
@@ -308,8 +308,8 @@ CommsDispatch::CommsDispatch(CommsGenerator& generator, const CommsNamespace& pa
 
 bool CommsDispatch::commsWrite() const
 {
-    // auto& thisSchema = static_cast<CommsSchema&>(m_generator.currentSchema());
-    // if ((!m_generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyMessage())) {
+    // auto& thisSchema = static_cast<CommsSchema&>(m_generator.genCurrentSchema());
+    // if ((!m_generator.genIsCurrentProtocolSchema()) && (!thisSchema.commsHasAnyMessage())) {
     //     return true;
     // }
 
@@ -337,7 +337,7 @@ bool CommsDispatch::commsWriteDispatchInternal() const
         {"CODE", commsDispatchCodeInternal(std::string(), std::move(checkFunc))}
     });
     
-    return writeFileInternal(getFileName(), m_generator, m_parent, util::processTemplate(dispatchTempl(), repl, true));
+    return writeFileInternal(getFileName(), m_generator, m_parent, util::genProcessTemplate(dispatchTempl(), repl, true));
 }
 
 bool CommsDispatch::commsWriteClientDispatchInternal() const
@@ -345,7 +345,7 @@ bool CommsDispatch::commsWriteClientDispatchInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::GenMessage& msg) noexcept
         {
-            return msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client;
+            return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client;
         };
 
     util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -356,7 +356,7 @@ bool CommsDispatch::commsWriteClientDispatchInternal() const
         {"CODE", commsDispatchCodeInternal(inputPrefix, std::move(checkFunc))}
     });
 
-    return writeFileInternal(getFileName(inputPrefix), m_generator, m_parent, util::processTemplate(dispatchTempl(), repl, true));
+    return writeFileInternal(getFileName(inputPrefix), m_generator, m_parent, util::genProcessTemplate(dispatchTempl(), repl, true));
 }
 
 bool CommsDispatch::commsWriteServerDispatchInternal() const
@@ -364,7 +364,7 @@ bool CommsDispatch::commsWriteServerDispatchInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::GenMessage& msg) noexcept
         {
-            return msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server;
+            return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server;
         };
 
     util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -375,18 +375,18 @@ bool CommsDispatch::commsWriteServerDispatchInternal() const
         {"CODE", commsDispatchCodeInternal(inputPrefix, std::move(checkFunc))}
     });
 
-    return writeFileInternal(getFileName(inputPrefix), m_generator, m_parent, util::processTemplate(dispatchTempl(), repl, true));
+    return writeFileInternal(getFileName(inputPrefix), m_generator, m_parent, util::genProcessTemplate(dispatchTempl(), repl, true));
 }
 
 bool CommsDispatch::commsWritePlatformDispatchInternal() const
 {
-    auto& platforms = m_generator.currentSchema().platformNames();
+    auto& platforms = m_generator.genCurrentSchema().platformNames();
     for (auto& p : platforms) {
 
         auto platformCheckFunc = 
             [&p](const commsdsl::gen::GenMessage& msg)
             {
-                auto& msgPlatforms = msg.dslObj().parsePlatforms();
+                auto& msgPlatforms = msg.genParseObj().parsePlatforms();
                 if (msgPlatforms.empty()) {
                     return true;
                 }
@@ -402,7 +402,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
-            std::string inputPrefix = comms::className(p);
+            std::string inputPrefix = comms::genClassName(p);
             repl.insert({
                 {"DESC", p + " platform"},
                 {"INCLUDES", commsIncludesInternal(inputPrefix)},
@@ -414,7 +414,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                     getFileName(inputPrefix), 
                     m_generator, 
                     m_parent, 
-                    util::processTemplate(dispatchTempl(), repl, true));
+                    util::genProcessTemplate(dispatchTempl(), repl, true));
                     
             if (!result) {
                 return false;
@@ -427,11 +427,11 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 {
                     return 
                         platformCheckFunc(msg) &&
-                        (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
+                        (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
-            std::string inputPrefix = comms::className(p) + "ClientInput";
+            std::string inputPrefix = comms::genClassName(p) + "ClientInput";
             repl.insert({
                 {"DESC", p + " platform client input"},
                 {"INCLUDES", commsIncludesInternal(inputPrefix)},
@@ -443,7 +443,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                     getFileName(inputPrefix), 
                     m_generator, 
                     m_parent, 
-                    util::processTemplate(dispatchTempl(), repl, true));
+                    util::genProcessTemplate(dispatchTempl(), repl, true));
 
             if (!result) {
                 return false;
@@ -456,11 +456,11 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 {
                     return 
                         platformCheckFunc(msg) &&
-                        (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
+                        (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
-            std::string inputPrefix = comms::className(p) + "ServerInput";
+            std::string inputPrefix = comms::genClassName(p) + "ServerInput";
             repl.insert({
                 {"DESC", p + " platform server input"},
                 {"INCLUDES", commsIncludesInternal(inputPrefix)},
@@ -472,7 +472,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                     getFileName(inputPrefix), 
                     m_generator, 
                     m_parent, 
-                    util::processTemplate(dispatchTempl(), repl, true));
+                    util::genProcessTemplate(dispatchTempl(), repl, true));
 
             if (!result) {
                 return false;
@@ -503,7 +503,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
-            std::string inputPrefix = comms::className(b.first);
+            std::string inputPrefix = comms::genClassName(b.first);
             repl.insert({
                 {"DESC", b.first + " bundle"},
                 {"INCLUDES", commsIncludesInternal(inputPrefix)},
@@ -515,7 +515,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                     getFileName(inputPrefix), 
                     m_generator, 
                     m_parent, 
-                    util::processTemplate(dispatchTempl(), repl, true));
+                    util::genProcessTemplate(dispatchTempl(), repl, true));
                     
             if (!result) {
                 return false;
@@ -528,11 +528,11 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 {
                     return 
                         bundleCheckFunc(msg) &&
-                        (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
+                        (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
-            std::string inputPrefix = comms::className(b.first) + "ClientInput";
+            std::string inputPrefix = comms::genClassName(b.first) + "ClientInput";
             repl.insert({
                 {"DESC", b.first + " bundle client input"},
                 {"INCLUDES", commsIncludesInternal(inputPrefix)},
@@ -544,7 +544,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                     getFileName(inputPrefix), 
                     m_generator, 
                     m_parent, 
-                    util::processTemplate(dispatchTempl(), repl, true));
+                    util::genProcessTemplate(dispatchTempl(), repl, true));
 
             if (!result) {
                 return false;
@@ -557,11 +557,11 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 {
                     return 
                         bundleCheckFunc(msg) &&
-                        (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
+                        (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
-            std::string inputPrefix = comms::className(b.first) + "ServerInput";
+            std::string inputPrefix = comms::genClassName(b.first) + "ServerInput";
             repl.insert({
                 {"DESC", b.first + " bundle server input"},
                 {"INCLUDES", commsIncludesInternal(inputPrefix)},
@@ -573,7 +573,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                     getFileName(inputPrefix), 
                     m_generator, 
                     m_parent, 
-                    util::processTemplate(dispatchTempl(), repl, true));
+                    util::genProcessTemplate(dispatchTempl(), repl, true));
 
             if (!result) {
                 return false;
@@ -589,18 +589,18 @@ std::string CommsDispatch::commsIncludesInternal(const std::string& inputPrefix)
 {
     util::StringsList incs = {
         "<cstdint>",
-        comms::relHeaderForInput(inputPrefix + "Messages", m_generator, m_parent),
-        comms::relHeaderForOptions(strings::defaultOptionsClassStr(), m_generator),
+        comms::genRelHeaderForInput(inputPrefix + "Messages", m_generator, m_parent),
+        comms::genRelHeaderForOptions(strings::genDefaultOptionsClassStr(), m_generator),
     };
 
-    comms::prepareIncludeStatement(incs);
-    return util::strListToString(incs, "\n", "\n");
+    comms::genPrepareIncludeStatement(incs);
+    return util::genStrListToString(incs, "\n", "\n");
 }
 
 std::string CommsDispatch::commsDispatchCodeInternal(const std::string& name, CheckMsgFunc&& func) const
 {
     MessagesMap map;
-    auto allMessages = m_parent.getAllMessagesIdSorted();
+    auto allMessages = m_parent.genGetAllMessagesIdSorted();
     bool hasMultipleMessagesWithSameId = false;
     const commsdsl::gen::GenMessage* firstMsg = nullptr;
     const commsdsl::gen::GenMessage* secondMsg = nullptr;
@@ -609,7 +609,7 @@ std::string CommsDispatch::commsDispatchCodeInternal(const std::string& name, Ch
         if (!func(*m)) {
             continue;
         }
-        auto& mList = map[m->dslObj().parseId()];
+        auto& mList = map[m->genParseObj().parseId()];
         hasMultipleMessagesWithSameId = hasMultipleMessagesWithSameId || (!mList.empty());
         mList.push_back(m);
 
@@ -624,24 +624,24 @@ std::string CommsDispatch::commsDispatchCodeInternal(const std::string& name, Ch
         }
     }
 
-    auto allInterfaces = m_generator.getAllInterfaces();
+    auto allInterfaces = m_generator.genGetAllInterfaces();
     // assert(!allInterfaces.empty());
 
     util::ReplacementMap repl = {
         {"NAME", name},
-        {"DEFAULT_OPTIONS", comms::scopeForOptions(strings::defaultOptionsClassStr(), m_generator)},
-        {"HEADERFILE", comms::relHeaderForDispatch(getFileName(name), m_generator, m_parent)},
-        {"INTERFACE", (!allInterfaces.empty()) ? comms::scopeFor(*allInterfaces.front(), m_generator) : std::string("SomeInterface")},
-        {"MSG1", firstMsg != nullptr ? comms::scopeFor(*firstMsg, m_generator) : std::string("SomeMessage")},
-        {"MSG2", secondMsg != nullptr ? comms::scopeFor(*secondMsg, m_generator) : std::string("SomeOtherMessage")},
-        {"MSG1_NAME", firstMsg != nullptr ? comms::className(firstMsg->dslObj().parseName()) : std::string("SomeMessage")},
-        {"MSG2_NAME", secondMsg != nullptr ? comms::className(secondMsg->dslObj().parseName()) : std::string("SomeOtherMessage")},
+        {"DEFAULT_OPTIONS", comms::genScopeForOptions(strings::genDefaultOptionsClassStr(), m_generator)},
+        {"HEADERFILE", comms::genRelHeaderForDispatch(getFileName(name), m_generator, m_parent)},
+        {"INTERFACE", (!allInterfaces.empty()) ? comms::genScopeFor(*allInterfaces.front(), m_generator) : std::string("SomeInterface")},
+        {"MSG1", firstMsg != nullptr ? comms::genScopeFor(*firstMsg, m_generator) : std::string("SomeMessage")},
+        {"MSG2", secondMsg != nullptr ? comms::genScopeFor(*secondMsg, m_generator) : std::string("SomeOtherMessage")},
+        {"MSG1_NAME", firstMsg != nullptr ? comms::genClassName(firstMsg->genParseObj().parseName()) : std::string("SomeMessage")},
+        {"MSG2_NAME", secondMsg != nullptr ? comms::genClassName(secondMsg->genParseObj().parseName()) : std::string("SomeOtherMessage")},
         {"CASES", commsCasesCodeInternal(map)},
         {"DISPATCHER", commsMsgDispatcherCodeInternal(name)},
     };
 
     auto& templ = hasMultipleMessagesWithSameId ? multipleMessagesPerIdTempl() : singleMessagePerIdTempl();
-    return util::processTemplate(templ, repl);
+    return util::genProcessTemplate(templ, repl);
 }
 
 std::string CommsDispatch::commsCasesCodeInternal(const MessagesMap& map) const
@@ -650,7 +650,7 @@ std::string CommsDispatch::commsCasesCodeInternal(const MessagesMap& map) const
     for (auto& elem : map) {
         auto& msgList = elem.second;
         assert(!msgList.empty());
-        auto idStr = util::numToStringWithHexComment(elem.first);
+        auto idStr = util::genNumToStringWithHexComment(elem.first);
 
         static const std::string MsgCaseTempl =
             "case #^#MSG_ID#$#:\n"
@@ -662,19 +662,19 @@ std::string CommsDispatch::commsCasesCodeInternal(const MessagesMap& map) const
         if (msgList.size() == 1) {
             util::ReplacementMap repl = {
                 {"MSG_ID", idStr},
-                {"MSG_TYPE", comms::scopeFor(*msgList.front(), m_generator)},
+                {"MSG_TYPE", comms::genScopeFor(*msgList.front(), m_generator)},
             };
-            cases.push_back(util::processTemplate(MsgCaseTempl, repl));
+            cases.push_back(util::genProcessTemplate(MsgCaseTempl, repl));
             continue;
         }
 
         util::StringsList offsetCases;
         for (auto idx = 0U; idx < msgList.size(); ++idx) {
             util::ReplacementMap repl = {
-                {"MSG_ID", util::numToString(idx)},
-                {"MSG_TYPE", comms::scopeFor(*msgList[idx], m_generator)},
+                {"MSG_ID", util::genNumToString(idx)},
+                {"MSG_TYPE", comms::genScopeFor(*msgList[idx], m_generator)},
             };
-            offsetCases.push_back(util::processTemplate(MsgCaseTempl, repl));
+            offsetCases.push_back(util::genProcessTemplate(MsgCaseTempl, repl));
         }
 
         static const std::string Templ =
@@ -691,13 +691,13 @@ std::string CommsDispatch::commsCasesCodeInternal(const MessagesMap& map) const
 
         util::ReplacementMap repl = {
             {"MSG_ID", idStr},
-            {"IDX_CASES", util::strListToString(offsetCases, "\n", "")},
+            {"IDX_CASES", util::genStrListToString(offsetCases, "\n", "")},
         };
 
-        cases.push_back(util::processTemplate(Templ, repl));
+        cases.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    return util::strListToString(cases, "\n", "");
+    return util::genStrListToString(cases, "\n", "");
 }
 
 std::string CommsDispatch::commsMsgDispatcherCodeInternal(const std::string& inputPrefix) const
@@ -767,11 +767,11 @@ std::string CommsDispatch::commsMsgDispatcherCodeInternal(const std::string& inp
 
     util::ReplacementMap repl = {
         {"NAME", inputPrefix},
-        {"NS_SCOPE", comms::scopeFor(m_parent, m_generator)},
-        {"DEFAULT_OPTIONS", comms::scopeForOptions(strings::defaultOptionsStr(), m_generator)},
-        {"HEADERFILE", comms::relHeaderForDispatch(getFileName(inputPrefix), m_generator, m_parent)},
+        {"NS_SCOPE", comms::genScopeFor(m_parent, m_generator)},
+        {"DEFAULT_OPTIONS", comms::genScopeForOptions(strings::genDefaultOptionsStr(), m_generator)},
+        {"HEADERFILE", comms::genRelHeaderForDispatch(getFileName(inputPrefix), m_generator, m_parent)},
     };
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 

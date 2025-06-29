@@ -47,8 +47,8 @@ public:
 
 
 protected:    
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;    
 
 private:
     using EmscriptenLayersList = std::vector<EmscriptenLayer*>;

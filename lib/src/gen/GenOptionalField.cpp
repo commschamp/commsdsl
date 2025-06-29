@@ -28,109 +28,111 @@ namespace gen
 class GenOptionalFieldImpl
 {
 public:
-    GenOptionalFieldImpl(GenGenerator& generator, commsdsl::parse::ParseOptionalField dslObj, GenElem* parent): 
+    using ParseOptionalField = GenOptionalField::ParseOptionalField;
+
+    GenOptionalFieldImpl(GenGenerator& generator, ParseOptionalField parseObj, GenElem* parent): 
         m_generator(generator),
-        m_dslObj(dslObj),
+        m_parseObj(parseObj),
         m_parent(parent)
     {
     }
 
-    bool prepare()
+    bool genPrepare()
     {
-        auto field = m_dslObj.parseField();
+        auto field = m_parseObj.parseField();
         assert(field.parseValid());
 
         if (!field.parseExternalRef().empty()) {
-            m_externalField = m_generator.findField(field.parseExternalRef());
+            m_externalField = m_generator.genFindField(field.parseExternalRef());
             assert(m_externalField != nullptr);
             return true;
         }
 
-        m_memberField = GenField::create(m_generator, field, m_parent);
+        m_memberField = GenField::genCreate(m_generator, field, m_parent);
         assert(m_memberField);
-        if (!m_memberField->prepare()) {
+        if (!m_memberField->genPrepare()) {
             return false;
         }
 
         return true;
     }
 
-    GenField* externalField()
+    GenField* genExternalField()
     {
         return m_externalField;
     }
 
-    const GenField* externalField() const
+    const GenField* genExternalField() const
     {
         return m_externalField;
     }
 
-    GenField* memberField()
+    GenField* genMemberField()
     {
         return m_memberField.get();
     }
 
-    const GenField* memberField() const
+    const GenField* genMemberField() const
     {
         return m_memberField.get();
     }    
 
-    void setReferenced()
+    void genSetReferenced()
     {
-        GenField::setFieldReferencedIfExists(m_externalField);
-        GenField::setFieldReferencedIfExists(m_memberField.get());
+        GenField::genSetFieldReferencedIfExists(m_externalField);
+        GenField::genSetFieldReferencedIfExists(m_memberField.get());
     }
 
 private:
     GenGenerator& m_generator;
-    commsdsl::parse::ParseOptionalField m_dslObj;
+    ParseOptionalField m_parseObj;
     GenElem* m_parent = nullptr;
     GenField* m_externalField = nullptr;
-    FieldPtr m_memberField;
+    GenFieldPtr m_memberField;
 }; 
 
-GenOptionalField::GenOptionalField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent) :
-    Base(generator, dslObj, parent),
-    m_impl(std::make_unique<GenOptionalFieldImpl>(generator, optionalDslObj(), this))
+GenOptionalField::GenOptionalField(GenGenerator& generator, ParseField parseObj, GenElem* parent) :
+    Base(generator, parseObj, parent),
+    m_impl(std::make_unique<GenOptionalFieldImpl>(generator, genOptionalFieldParseObj(), this))
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Optional);
+    assert(parseObj.parseKind() == ParseField::Kind::Optional);
 }
 
 GenOptionalField::~GenOptionalField() = default;
 
-GenField* GenOptionalField::externalField()
+GenField* GenOptionalField::genExternalField()
 {
-    return m_impl->externalField();
+    return m_impl->genExternalField();
 }
 
-const GenField* GenOptionalField::externalField() const
+const GenField* GenOptionalField::genExternalField() const
 {
-    return m_impl->externalField();
+    return m_impl->genExternalField();
 }
 
-GenField* GenOptionalField::memberField()
+GenField* GenOptionalField::genMemberField()
 {
-    return m_impl->memberField();
+    return m_impl->genMemberField();
 }
 
-const GenField* GenOptionalField::memberField() const
+const GenField* GenOptionalField::genMemberField() const
 {
-    return m_impl->memberField();
+    return m_impl->genMemberField();
 }  
 
-bool GenOptionalField::prepareImpl()
+bool GenOptionalField::genPrepareImpl()
 {
-    return m_impl->prepare();
+    return m_impl->genPrepare();
 }
 
-void GenOptionalField::setReferencedImpl()
+void GenOptionalField::genSetReferencedImpl()
 {
-    m_impl->setReferenced();
+    m_impl->genSetReferenced();
 }
 
-commsdsl::parse::ParseOptionalField GenOptionalField::optionalDslObj() const
+GenOptionalField::ParseOptionalField GenOptionalField::genOptionalFieldParseObj() const
 {
-    return commsdsl::parse::ParseOptionalField(dslObj());
+    return ParseOptionalField(genParseObj());
 }
 
 } // namespace gen

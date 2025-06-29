@@ -50,14 +50,14 @@ CommsSetField::CommsSetField(
 {
 }
 
-bool CommsSetField::prepareImpl()
+bool CommsSetField::genPrepareImpl()
 {
     return 
-        Base::prepareImpl() && 
+        Base::genPrepareImpl() && 
         commsPrepare();
 }
 
-bool CommsSetField::writeImpl() const
+bool CommsSetField::genWriteImpl() const
 {
     return commsWrite();
 }
@@ -83,7 +83,7 @@ std::string CommsSetField::commsCommonCodeBodyImpl() const
         {"BIT_NAME_FUNC", commsCommonBitNameFuncCodeInternal()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 CommsSetField::IncludesList CommsSetField::commsDefIncludesImpl() const
@@ -103,15 +103,15 @@ std::string CommsSetField::commsDefBaseClassImpl() const
         "    #^#FIELD_OPTS#$#\n"
         ">";
 
-    auto& gen = generator();
-    auto dslObj = setDslObj();
+    auto& gen = genGenerator();
+    auto dslObj = genSetFieldParseObj();
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
+        {"PROT_NAMESPACE", gen.genSchemaOf(*this).genMainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.parseEndian())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsSetField::commsDefPublicCodeImpl() const
@@ -125,20 +125,20 @@ std::string CommsSetField::commsDefPublicCodeImpl() const
         {"BIT_NAME", commsDefBitNameFuncCodeInternal()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsSetField::commsDefValidFuncBodyImpl() const
 {
-    auto obj = setDslObj();
-    auto& gen = generator();
+    auto obj = genSetFieldParseObj();
+    auto& gen = genGenerator();
 
     bool validCheckVersion =
-        gen.schemaOf(*this).versionDependentCode() &&
+        gen.genSchemaOf(*this).genVersionDependentCode() &&
         obj.parseValidCheckVersion();
 
     if (!validCheckVersion) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     using Key = std::tuple<unsigned, unsigned>;
@@ -161,7 +161,7 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
             continue;
         }
 
-        if (!gen.doesElementExist(b.second.m_sinceVersion, b.second.m_deprecatedSince, false)) {
+        if (!gen.genDoesElementExist(b.second.m_sinceVersion, b.second.m_deprecatedSince, false)) {
             continue; // already handled
         }
 
@@ -228,12 +228,12 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
 
 
         util::ReplacementMap repl = {
-            {"BITS_MASK", util::numToString(info.second.m_reservedMask, true)},
-            {"VALUE_MASK", util::numToString(info.second.m_reservedValue, true)},
-            {"FROM_VERSION", util::numToString(std::get<0>(info.first))},
-            {"UNTIL_VERSION", util::numToString(std::get<1>(info.first))},
+            {"BITS_MASK", util::genNumToString(info.second.m_reservedMask, true)},
+            {"VALUE_MASK", util::genNumToString(info.second.m_reservedValue, true)},
+            {"FROM_VERSION", util::genNumToString(std::get<0>(info.first))},
+            {"UNTIL_VERSION", util::genNumToString(std::get<1>(info.first))},
         };
-        conditions.push_back(util::processTemplate(*condTempl, repl));
+        conditions.push_back(util::genProcessTemplate(*condTempl, repl));
     }
 
     for (auto idx : repeatingBits) {
@@ -312,11 +312,11 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
                 "}";
 
             util::ReplacementMap repl = {
-                {"FROM_VERSION", util::numToString(r.first)},
-                {"UNTIL_VERSION", util::numToString(r.second)},
+                {"FROM_VERSION", util::genNumToString(r.first)},
+                {"UNTIL_VERSION", util::genNumToString(r.second)},
             };
 
-            extraConds.push_back(util::processTemplate(Templ, repl));
+            extraConds.push_back(util::genProcessTemplate(Templ, repl));
         }
 
         static const std::string Templ =
@@ -336,17 +336,17 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
 
         if (!extraConds.empty()) {
             util::ReplacementMap repl = {
-                {"RESERVED_MASK", util::numToString(bitMask, true)},
-                {"RESERVED_VALUE", util::numToString(bitValue, true)},
-                {"CONDITIONS", util::strListToString(extraConds, "\n\n", "")}
+                {"RESERVED_MASK", util::genNumToString(bitMask, true)},
+                {"RESERVED_VALUE", util::genNumToString(bitValue, true)},
+                {"CONDITIONS", util::genStrListToString(extraConds, "\n\n", "")}
             };
 
-            conditions.push_back(util::processTemplate(Templ, repl));
+            conditions.push_back(util::genProcessTemplate(Templ, repl));
         }
     }
 
     if (conditions.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ =
@@ -358,15 +358,15 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
         ;
 
     util::ReplacementMap repl = {
-        {"CONDITIONS", util::strListToString(conditions, "\n", "")}
+        {"CONDITIONS", util::genStrListToString(conditions, "\n", "")}
     };
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool CommsSetField::commsIsVersionDependentImpl() const
 {
-    assert(generator().schemaOf(*this).versionDependentCode());
-    auto obj = setDslObj();
+    assert(genGenerator().genSchemaOf(*this).genVersionDependentCode());
+    auto obj = genSetFieldParseObj();
     if (!obj.parseValidCheckVersion()) {
         return false;
     }
@@ -390,7 +390,7 @@ bool CommsSetField::commsIsVersionDependentImpl() const
 
 std::size_t CommsSetField::commsMinLengthImpl() const
 {
-    if (setDslObj().parseAvailableLengthLimit()) {
+    if (genSetFieldParseObj().parseAvailableLengthLimit()) {
         return 1U;
     }
 
@@ -403,12 +403,12 @@ std::string CommsSetField::commsValueAccessStrImpl(const std::string& accStr, co
         return CommsBase::commsValueAccessStrImpl(accStr, prefix);
     }
 
-    auto& bits = setDslObj().parseBits();
+    auto& bits = genSetFieldParseObj().parseBits();
     auto iter = bits.find(accStr);
     if (iter == bits.end()) {
-        generator().logger().error("Failed to find bit reference " + accStr + " for field " + comms::scopeFor(*this, generator()));
+        genGenerator().genLogger().genError("Failed to find bit reference " + accStr + " for field " + comms::genScopeFor(*this, genGenerator()));
         assert(false);
-        return strings::unexpectedValueStr();
+        return strings::genUnexpectedValueStr();
     }
 
     return prefix + ".getBitValue_" + accStr + "()";
@@ -416,13 +416,13 @@ std::string CommsSetField::commsValueAccessStrImpl(const std::string& accStr, co
 
 bool CommsSetField::commsVerifyInnerRefImpl(const std::string& refStr) const
 {
-    auto& bits = setDslObj().parseBits();
+    auto& bits = genSetFieldParseObj().parseBits();
     return bits.find(refStr) != bits.end();
 }
 
 std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
 {
-    auto obj = setDslObj();
+    auto obj = genSetFieldParseObj();
     auto& bits = obj.parseBits();
     auto& revBits = obj.parseRevBits();
     std::intmax_t nextBit = 0;
@@ -445,7 +445,7 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
                 }
 
                 if (infoPair.second.m_displayName == "_") {
-                    return strings::emptyString();
+                    return strings::genEmptyString();
                 }
 
                 return infoPair.second.m_displayName;
@@ -461,7 +461,7 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
         auto bitIter = bits.find(b.second);
         assert(bitIter != bits.end());
         if ((!obj.parseIsNonUniqueAllowed()) || 
-            (generator().schemaOf(*this).schemaVersion() < bitIter->second.m_deprecatedSince) ||
+            (genGenerator().genSchemaOf(*this).genSchemaVersion() < bitIter->second.m_deprecatedSince) ||
             (obj.parseIsUnique())) {
             addElementNameFunc(*bitIter);
             continue;
@@ -472,7 +472,7 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
         for (auto iter = allRevBits.first; iter != allRevBits.second; ++iter) {
             auto bIter = bits.find(iter->second);
             assert(bIter != bits.end());
-            if (generator().schemaOf(*this).schemaVersion() < bIter->second.m_deprecatedSince) {
+            if (genGenerator().genSchemaOf(*this).genSchemaVersion() < bIter->second.m_deprecatedSince) {
                 addElementNameFunc(*bIter);
                 foundNotDeprecated = true;
                 break;
@@ -506,10 +506,10 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
             "return Map[idx];";
 
         util::ReplacementMap bodyRepl = {
-            {"NAMES", util::strListToString(names, ",\n", "")},
+            {"NAMES", util::genStrListToString(names, ",\n", "")},
         };
 
-        body = util::processTemplate(BodyTempl, bodyRepl);
+        body = util::genProcessTemplate(BodyTempl, bodyRepl);
     } while (false);
 
     static const std::string Templ =
@@ -522,9 +522,9 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
 
     util::ReplacementMap repl = {
         {"BODY", std::move(body)},
-        {"SCOPE", comms::scopeFor(*this, generator())}
+        {"SCOPE", comms::genScopeFor(*this, genGenerator())}
     };
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsSetField::commsDefFieldOptsInternal() const
@@ -537,12 +537,12 @@ std::string CommsSetField::commsDefFieldOptsInternal() const
     commsAddReservedBitsOptInternal(opts);
     commsAddAvailableLengthLimitOptInternal(opts);
 
-    return util::strListToString(opts, ",\n", "");
+    return util::genStrListToString(opts, ",\n", "");
 }
 
 std::string CommsSetField::commsDefBitsAccessCodeInternal() const
 {
-    auto obj = setDslObj();
+    auto obj = genSetFieldParseObj();
     auto& bits = obj.parseBits();
 
     std::uintmax_t usedBits = 0U;
@@ -563,7 +563,7 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
 
         auto iter = bits.find(bitInfo.second);
         assert(iter != bits.end());
-        if (generator().isElementDeprecated(iter->second.m_deprecatedSince)) {
+        if (genGenerator().genIsElementDeprecated(iter->second.m_deprecatedSince)) {
             deprecatedBits.insert(std::make_pair(bitInfo.second, iter->second.m_deprecatedSince));
         }
     }
@@ -573,7 +573,7 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
         {
             auto iter = deprecatedBits.find(n);
             if (iter == deprecatedBits.end()) {
-                return strings::emptyString();
+                return strings::genEmptyString();
             }
 
             return 
@@ -608,10 +608,10 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
             });
 
         util::ReplacementMap repl = {
-            {"ACCESS_DOC", util::strListToString(accessDoc, "\n", "")},
-            {"NAMES", util::strListToString(names, ",\n", "")}
+            {"ACCESS_DOC", util::genStrListToString(accessDoc, "\n", "")},
+            {"NAMES", util::genStrListToString(names, ",\n", "")}
         };
-        return util::processTemplate(Templ, repl);
+        return util::genProcessTemplate(Templ, repl);
     }
 
     static const std::string Templ =
@@ -666,19 +666,19 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
             if (iter == bits.end()) {
                 [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
-                return strings::emptyString();
+                return strings::genEmptyString();
             }
 
             return n + "=" + std::to_string(iter->second.m_idx);
         });
 
     util::ReplacementMap repl = {
-        {"ACCESS_DOC", util::strListToString(accessDoc, "\n", "")},
-        {"NAMES", util::strListToString(names, ",\n", "")},
-        {"BITS_DOC", util::strListToString(bitsDoc, "\n", "")},
-        {"BITS", util::strListToString(bitsList, ",\n", "")},
+        {"ACCESS_DOC", util::genStrListToString(accessDoc, "\n", "")},
+        {"NAMES", util::genStrListToString(names, ",\n", "")},
+        {"BITS_DOC", util::genStrListToString(bitsDoc, "\n", "")},
+        {"BITS", util::genStrListToString(bitsList, ",\n", "")},
     };
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 std::string CommsSetField::commsDefBitNameFuncCodeInternal() const
@@ -698,25 +698,25 @@ std::string CommsSetField::commsDefBitNameFuncCodeInternal() const
         "}\n";;
 
     util::ReplacementMap repl = {
-        {"COMMON", comms::commonScopeFor(*this, generator())}
+        {"COMMON", comms::genCommonScopeFor(*this, genGenerator())}
     };
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 void CommsSetField::commsAddLengthOptInternal(commsdsl::gen::util::StringsList& opts) const
 {
-    auto bitLength = dslObj().parseBitLength();
+    auto bitLength = genParseObj().parseBitLength();
     if (bitLength != 0U) {
-        opts.push_back("comms::option::def::FixedBitLength<" + util::numToString(bitLength) + '>');
+        opts.push_back("comms::option::def::FixedBitLength<" + util::genNumToString(bitLength) + '>');
         return;
     }
 
-    opts.push_back("comms::option::def::FixedLength<" + util::numToString(setDslObj().parseMinLength()) + '>');
+    opts.push_back("comms::option::def::FixedLength<" + util::genNumToString(genSetFieldParseObj().parseMinLength()) + '>');
 }
 
 void CommsSetField::commsAddDefaultValueOptInternal(commsdsl::gen::util::StringsList& opts) const
 {
-    auto obj = setDslObj();
+    auto obj = genSetFieldParseObj();
     std::uintmax_t defaultValue = 0U;
     if (obj.parseDefaultBitValue()) {
         defaultValue = ~defaultValue;
@@ -758,7 +758,7 @@ void CommsSetField::commsAddDefaultValueOptInternal(commsdsl::gen::util::Strings
     if ((type == commsdsl::parse::ParseSetField::Type::Uint64) || (type == commsdsl::parse::ParseSetField::Type::Uintvar)) {
         auto str =
             "comms::option::def::DefaultBigUnsignedNumValue<" +
-            util::numToString(static_cast<std::uintmax_t>(defaultValue), true) +
+            util::genNumToString(static_cast<std::uintmax_t>(defaultValue), true) +
             '>';
         opts.push_back(std::move(str));
         return;
@@ -766,18 +766,18 @@ void CommsSetField::commsAddDefaultValueOptInternal(commsdsl::gen::util::Strings
 
     auto str =
         "comms::option::def::DefaultNumValue<" +
-        util::numToString(defaultValue, true) +
+        util::genNumToString(defaultValue, true) +
         '>';
     opts.push_back(std::move(str));
 }
 
 void CommsSetField::commsAddReservedBitsOptInternal(commsdsl::gen::util::StringsList& opts) const
 {
-    auto obj = setDslObj();
-    auto& gen = generator();
+    auto obj = genSetFieldParseObj();
+    auto& gen = genGenerator();
 
     bool validCheckVersion =
-        gen.schemaOf(*this).versionDependentCode() &&
+        gen.genSchemaOf(*this).genVersionDependentCode() &&
         obj.parseValidCheckVersion();
 
     std::uintmax_t reservedMask = ~static_cast<std::uintmax_t>(0U);
@@ -796,7 +796,7 @@ void CommsSetField::commsAddReservedBitsOptInternal(commsdsl::gen::util::Strings
         }
 
         if (validCheckVersion &&
-            (!gen.doesElementExist(bitInfo.second.m_sinceVersion, bitInfo.second.m_deprecatedSince, true))) {
+            (!gen.genDoesElementExist(bitInfo.second.m_sinceVersion, bitInfo.second.m_deprecatedSince, true))) {
             continue;
         }
 
@@ -849,17 +849,17 @@ void CommsSetField::commsAddReservedBitsOptInternal(commsdsl::gen::util::Strings
 
     std::string str =
         "comms::option::def::BitmaskReservedBits<" +
-        util::numToString(reservedMask, true) +
+        util::genNumToString(reservedMask, true) +
         ", " +
-        util::numToString(reservedValue, true) +
+        util::genNumToString(reservedValue, true) +
         '>';
     opts.push_back(std::move(str));
 }
 
 void CommsSetField::commsAddAvailableLengthLimitOptInternal(StringsList& opts) const
 {
-    if (setDslObj().parseAvailableLengthLimit()) {
-        util::addToStrList("comms::option::def::AvailableLengthLimit", opts);
+    if (genSetFieldParseObj().parseAvailableLengthLimit()) {
+        util::genAddToStrList("comms::option::def::AvailableLengthLimit", opts);
     }
 }
 

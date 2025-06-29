@@ -46,8 +46,8 @@ public:
     {
     }        
 
-    bool prepare();
-    bool write();
+    bool toolsPrepare();
+    bool toolsWrite();
 
     std::string toolsProtocolName() const;
     std::string toolsInterfaceName() const;

@@ -35,15 +35,15 @@ CommsCustomLayer::CommsCustomLayer(CommsGenerator& generator, commsdsl::parse::P
 {
 }
 
-bool CommsCustomLayer::prepareImpl()
+bool CommsCustomLayer::genPrepareImpl()
 {
-    return Base::prepareImpl() && CommsBase::commsPrepare();
+    return Base::genPrepareImpl() && CommsBase::commsPrepare();
 }
 
 CommsCustomLayer::IncludesList CommsCustomLayer::commsDefIncludesImpl() const
 {
     IncludesList result = {
-        comms::relHeaderForLayer(comms::className(dslObj().parseName()), generator())
+        comms::genRelHeaderForLayer(comms::genClassName(genParseObj().parseName()), genGenerator())
     };
 
     return result;
@@ -60,13 +60,13 @@ std::string CommsCustomLayer::commsDefBaseTypeImpl(const std::string& prevName) 
         ">";
 
     util::ReplacementMap repl = {
-        {"CUSTOM_LAYER_TYPE", comms::scopeForCustomLayer(*this, generator())},
+        {"CUSTOM_LAYER_TYPE", comms::genScopeForCustomLayer(*this, genGenerator())},
         {"FIELD_TYPE", commsDefFieldType()},
         {"PREV_LAYER", prevName},
         {"EXTRA_OPT", commsDefExtraOpts()},
     };
 
-    if (customDslObj().parseSemanticLayerType() == commsdsl::parse::ParseLayer::Kind::Id) {
+    if (genCustomLayerParseObj().parseSemanticLayerType() == commsdsl::parse::ParseLayer::Kind::Id) {
         repl["ID_TEMPLATE_PARAMS"] = "TMessage,\nTAllMessages,";
     }
 
@@ -74,12 +74,12 @@ std::string CommsCustomLayer::commsDefBaseTypeImpl(const std::string& prevName) 
         repl["COMMA"] = std::string(",");
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool CommsCustomLayer::commsDefHasInputMessagesImpl() const
 {
-    return (customDslObj().parseSemanticLayerType() == commsdsl::parse::ParseLayer::Kind::Id);
+    return (genCustomLayerParseObj().parseSemanticLayerType() == commsdsl::parse::ParseLayer::Kind::Id);
 }
 
 bool CommsCustomLayer::commsIsCustomizableImpl() const
@@ -104,7 +104,7 @@ CommsCustomLayer::StringsList CommsCustomLayer::commsExtraMsgFactoryDefaultOptio
     if (commsDefHasInputMessagesImpl()) {
         return
             StringsList{
-                "comms::option::app::MsgFactoryTempl<" + commsMsgFactoryAliasInOptions(getParent()) + ">"
+                "comms::option::app::MsgFactoryTempl<" + commsMsgFactoryAliasInOptions(genGetParent()) + ">"
             };    
     }
 

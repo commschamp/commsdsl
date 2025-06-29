@@ -59,9 +59,9 @@ void SwigDataBuf::swigAddDef(const SwigGenerator& generator, StringsList& list)
         {"UINT8_T", SwigGenerator::cast(generator).swigConvertCppType("std::uint8_t")}
     };
 
-    list.push_back(util::processTemplate(Templ, repl));        
+    list.push_back(util::genProcessTemplate(Templ, repl));        
 
-    list.push_back(SwigGenerator::swigDefInclude(ClassName + strings::cppHeaderSuffixStr()));
+    list.push_back(SwigGenerator::swigDefInclude(ClassName + strings::genCppHeaderSuffixStr()));
 }
 
 void SwigDataBuf::swigAddCode(const SwigGenerator& generator, StringsList& list)
@@ -74,7 +74,7 @@ void SwigDataBuf::swigAddCode(const SwigGenerator& generator, StringsList& list)
         {"UINT8_T", SwigGenerator::cast(generator).swigConvertCppType("std::uint8_t")}
     };
 
-    list.push_back(util::processTemplate(Templ, repl));
+    list.push_back(util::genProcessTemplate(Templ, repl));
 }
 
 std::string SwigDataBuf::swigClassName(const SwigGenerator& generator)
@@ -84,19 +84,19 @@ std::string SwigDataBuf::swigClassName(const SwigGenerator& generator)
 
 bool SwigDataBuf::swigWriteInternal() const
 {
-    auto subPath = util::pathAddElem(strings::includeDirStr(), ClassName + strings::cppHeaderSuffixStr());
-    auto filePath = util::pathAddElem(m_generator.getOutputDir(), subPath);
-    m_generator.logger().info("Generating " + filePath);
+    auto subPath = util::genPathAddElem(strings::genIncludeDirStr(), ClassName + strings::genCppHeaderSuffixStr());
+    auto filePath = util::genPathAddElem(m_generator.genGetOutputDir(), subPath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
 
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_generator.genCreateDirectory(dirPath)) {
         return false;
     }
 
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -112,10 +112,10 @@ bool SwigDataBuf::swigWriteInternal() const
         {"UINT8_T", SwigGenerator::cast(m_generator).swigConvertCppType("std::uint8_t")}
     };
 
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     

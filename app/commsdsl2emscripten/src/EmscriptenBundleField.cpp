@@ -36,25 +36,25 @@ EmscriptenBundleField::EmscriptenBundleField(EmscriptenGenerator& generator, com
 {
 }
 
-bool EmscriptenBundleField::prepareImpl()
+bool EmscriptenBundleField::genPrepareImpl()
 {
-    if (!Base::prepareImpl()) {
+    if (!Base::genPrepareImpl()) {
         return false;
     }
 
-    emscriptenAssignMembers(members());
+    emscriptenAssignMembers(genMembers());
     return true;
 }
 
-bool EmscriptenBundleField::writeImpl() const
+bool EmscriptenBundleField::genWriteImpl() const
 {
     return emscriptenWrite();
 }
 
 std::string EmscriptenBundleField::emscriptenHeaderValueAccImpl() const
 {
-    if (dslObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::Length) {
-        return strings::emptyString();
+    if (genParseObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::Length) {
+        return strings::genEmptyString();
     }
     
     return emscriptenHeaderValueAccLengthField();
@@ -67,8 +67,8 @@ std::string EmscriptenBundleField::emscriptenHeaderExtraPublicFuncsImpl() const
 
 std::string EmscriptenBundleField::emscriptenSourceBindValueAccImpl() const
 {
-    if (dslObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::Length) {
-        return strings::emptyString();
+    if (genParseObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::Length) {
+        return strings::genEmptyString();
     }
 
     return emscriptenSourceBindValueAcc();

@@ -39,39 +39,40 @@ class COMMSDSL_API GenInterface : public GenElem
 public:
     using Ptr = std::unique_ptr<GenInterface>;
     using FieldsList = GenField::FieldsList;
+    using ParseInterface = commsdsl::parse::ParseInterface;
 
-    explicit GenInterface(GenGenerator& generator, commsdsl::parse::ParseInterface dslObj, GenElem* parent = nullptr);
+    explicit GenInterface(GenGenerator& generator, ParseInterface parseObj, GenElem* parent = nullptr);
     virtual ~GenInterface();
 
-    bool createAll();
-    bool prepare();
-    bool write() const;
+    bool genCreateAll();
+    bool genPrepare();
+    bool genWrite() const;
 
-    const FieldsList& fields() const;
-    commsdsl::parse::ParseInterface dslObj() const;
-    std::string adjustedExternalRef() const;
-    const std::string& adjustedName() const;
+    const FieldsList& genFields() const;
+    ParseInterface genParseObj() const;
+    std::string genAdjustedExternalRef() const;
+    const std::string& genAdjustedName() const;
 
-    GenGenerator& generator();
-    const GenGenerator& generator() const;
+    GenGenerator& genGenerator();
+    const GenGenerator& genGenerator() const;
 
-    bool hasVersionField() const;
+    bool genHasVersionField() const;
 
-    bool isReferenced() const;
-    void setReferenced(bool value = true);
+    bool genIsReferenced() const;
+    void genSetReferenced(bool value = true);
 
-    const GenNamespace* parentNamespace() const;
+    const GenNamespace* genParentNamespace() const;
 
 protected:    
-    virtual Type elemTypeImpl() const override final;
-    virtual bool prepareImpl();
-    virtual bool writeImpl() const;
+    virtual Type genElemTypeImpl() const override final;
+    virtual bool genPrepareImpl();
+    virtual bool genWriteImpl() const;
 
 private:
     std::unique_ptr<GenInterfaceImpl> m_impl;
 };
 
-using InterfacePtr = GenInterface::Ptr;
+using GenInterfacePtr = GenInterface::Ptr;
 
 } // namespace gen
 

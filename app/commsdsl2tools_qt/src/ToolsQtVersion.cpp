@@ -39,18 +39,18 @@ bool ToolsQtVersion::write(ToolsQtGenerator& generator)
 
 std::string ToolsQtVersion::toolsRelHeaderPath(const ToolsQtGenerator& generator)
 {
-    auto scope = generator.toolsScopePrefix() + comms::scopeForRoot(strings::versionFileNameStr(), generator);
-    return util::strReplace(scope, "::", "/") + strings::cppHeaderSuffixStr();
+    auto scope = generator.toolsScopePrefix() + comms::genScopeForRoot(strings::genVersionFileNameStr(), generator);
+    return util::genStrReplace(scope, "::", "/") + strings::genCppHeaderSuffixStr();
 }
 
 bool ToolsQtVersion::writeInternal() const
 {
-    auto filePath = m_generator.getOutputDir() + '/' + toolsRelHeaderPath(m_generator);
+    auto filePath = m_generator.genGetOutputDir() + '/' + toolsRelHeaderPath(m_generator);
 
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -65,15 +65,15 @@ bool ToolsQtVersion::writeInternal() const
 
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
-        {"TOOLS_QT_MIN", util::strReplace(ToolsQtGenerator::toolsMinCcToolsQtVersion(), ".", ", ")},
-        {"APPEND", util::readFileContents(m_generator.getCodeDir() + '/' + toolsRelHeaderPath(m_generator) + strings::appendFileSuffixStr())},
+        {"TOOLS_QT_MIN", util::genStrReplace(ToolsQtGenerator::toolsMinCcToolsQtVersion(), ".", ", ")},
+        {"APPEND", util::genReadFileContents(m_generator.genGetCodeDir() + '/' + toolsRelHeaderPath(m_generator) + strings::genAppendFileSuffixStr())},
     };        
     
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
 
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     

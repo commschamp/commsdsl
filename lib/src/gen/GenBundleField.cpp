@@ -29,26 +29,27 @@ class GenBundleFieldImpl
 {
 public:
     using FieldsList = GenBundleField::FieldsList;
+    using ParseBundleField = GenBundleField::ParseBundleField;
 
-    GenBundleFieldImpl(GenGenerator& generator, commsdsl::parse::ParseBundleField dslObj, GenElem* parent) :
+    GenBundleFieldImpl(GenGenerator& generator, ParseBundleField parseBundleObj, GenElem* parent) :
         m_generator(generator),
-        m_dslObj(dslObj),
+        m_bundleParseObj(parseBundleObj),
         m_parent(parent)
     {
     }
 
-    bool prepare()
+    bool genPrepare()
     {
-        if (!m_dslObj.parseValid()) {
+        if (!m_bundleParseObj.parseValid()) {
             return true;
         }
 
-        auto fields = m_dslObj.parseMembers();
+        auto fields = m_bundleParseObj.parseMembers();
         m_members.reserve(fields.size());
-        for (auto& dslObj : fields) {
-            auto ptr = GenField::create(m_generator, dslObj, m_parent);
+        for (auto& parseObj : fields) {
+            auto ptr = GenField::genCreate(m_generator, parseObj, m_parent);
             assert(ptr);
-            if (!ptr->prepare()) {
+            if (!ptr->genPrepare()) {
                 return false;
             }
 
@@ -58,62 +59,62 @@ public:
         return true;
     }
 
-    const FieldsList& members() const
+    const FieldsList& genMembers() const
     {
         return m_members;
     }
 
-    void setReferenced()
+    void genSetReferenced()
     {
         for (auto& m : m_members) {
-            m->setReferenced();
+            m->genSetReferenced();
         }
     }    
 
 private:
     GenGenerator& m_generator;
-    commsdsl::parse::ParseBundleField m_dslObj;
+    ParseBundleField m_bundleParseObj;
     GenElem* m_parent = nullptr;
     FieldsList m_members;
 };
 
-GenBundleField::GenBundleField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent) :
-    Base(generator, dslObj, parent),
-    m_impl(std::make_unique<GenBundleFieldImpl>(generator, bundleDslObj(), this))
+GenBundleField::GenBundleField(GenGenerator& generator, commsdsl::parse::ParseField parseObj, GenElem* parent) :
+    Base(generator, parseObj, parent),
+    m_impl(std::make_unique<GenBundleFieldImpl>(generator, genBundleFieldParseObj(), this))
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Bundle);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Bundle);
 }
 
 GenBundleField::~GenBundleField() = default;
 
-const GenBundleField::FieldsList& GenBundleField::members() const
+const GenBundleField::FieldsList& GenBundleField::genMembers() const
 {
-    return m_impl->members();
+    return m_impl->genMembers();
 }
 
-bool GenBundleField::prepareImpl()
+bool GenBundleField::genPrepareImpl()
 {
-    return m_impl->prepare();
+    return m_impl->genPrepare();
 }
 
-void GenBundleField::setReferencedImpl()
+void GenBundleField::genSetReferencedImpl()
 {
-    m_impl->setReferenced();
+    m_impl->genSetReferenced();
 }
 
-GenBundleField::FieldRefInfo GenBundleField::processInnerRefImpl(const std::string& refStr) const
+GenBundleField::FieldRefInfo GenBundleField::genProcessInnerRefImpl(const std::string& refStr) const
 {
-    auto& memFields = members();
+    auto& memFields = genMembers();
     if (!memFields.empty()) {
-        return processMemberRef(memFields, refStr);
+        return genProcessMemberRef(memFields, refStr);
     }    
 
-    return Base::processInnerRefImpl(refStr);
+    return Base::genProcessInnerRefImpl(refStr);
 }
 
-commsdsl::parse::ParseBundleField GenBundleField::bundleDslObj() const
+GenBundleField::ParseBundleField GenBundleField::genBundleFieldParseObj() const
 {
-    return commsdsl::parse::ParseBundleField(dslObj());
+    return ParseBundleField(genParseObj());
 }
 
 } // namespace gen

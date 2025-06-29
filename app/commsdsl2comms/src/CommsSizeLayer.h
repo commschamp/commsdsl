@@ -31,7 +31,7 @@ public:
     CommsSizeLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
 
 protected:
-    virtual bool prepareImpl() override;
+    virtual bool genPrepareImpl() override;
     
     // CommsBase overrides
     virtual IncludesList commsDefIncludesImpl() const override;

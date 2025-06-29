@@ -28,111 +28,112 @@ namespace gen
 class GenDataFieldImpl
 {
 public:
+    using ParseDataField = GenDataField::ParseDataField;
 
-    GenDataFieldImpl(GenGenerator& generator, commsdsl::parse::ParseDataField dslObj, GenElem* parent): 
+    GenDataFieldImpl(GenGenerator& generator, ParseDataField parseObj, GenElem* parent): 
         m_generator(generator),
-        m_dslObj(dslObj),
+        m_dataParseObj(parseObj),
         m_parent(parent)
     {
     }
 
-    bool prepare()
+    bool genPrepare()
     {
-        if (!m_dslObj.parseHasLengthPrefixField()) {
+        if (!m_dataParseObj.parseHasLengthPrefixField()) {
             return true;
         }
 
-        auto prefix = m_dslObj.parseLengthPrefixField();
+        auto prefix = m_dataParseObj.parseLengthPrefixField();
         if (!prefix.parseExternalRef().empty()) {
-            m_externalPrefixField = m_generator.findField(prefix.parseExternalRef());
+            m_externalPrefixField = m_generator.genFindField(prefix.parseExternalRef());
             assert(m_externalPrefixField != nullptr);
             return true;
         }
 
-        m_memberPrefixField = GenField::create(m_generator, prefix, m_parent);
-        if (!m_memberPrefixField->prepare()) {
+        m_memberPrefixField = GenField::genCreate(m_generator, prefix, m_parent);
+        if (!m_memberPrefixField->genPrepare()) {
             return false;
         }
 
         return true;
     }
 
-    GenField* externalPrefixField()
+    GenField* genExternalPrefixField()
     {
         return m_externalPrefixField;
     }
 
-    const GenField* externalPrefixField() const
+    const GenField* genExternalPrefixField() const
     {
         return m_externalPrefixField;
     }
 
-    GenField* memberPrefixField()
+    GenField* genMemberPrefixField()
     {
         return m_memberPrefixField.get();
     }
 
-    const GenField* memberPrefixField() const
+    const GenField* genMemberPrefixField() const
     {
         return m_memberPrefixField.get();
     }    
 
-    void setReferenced()
+    void genSetReferenced()
     {
-        GenField::setFieldReferencedIfExists(m_externalPrefixField);
-        GenField::setFieldReferencedIfExists(m_memberPrefixField.get());
+        GenField::genSetFieldReferencedIfExists(m_externalPrefixField);
+        GenField::genSetFieldReferencedIfExists(m_memberPrefixField.get());
     }
 
 private:
     GenGenerator& m_generator;
-    commsdsl::parse::ParseDataField m_dslObj;
+    ParseDataField m_dataParseObj;
     GenElem* m_parent = nullptr;
     GenField* m_externalPrefixField = nullptr;
-    FieldPtr m_memberPrefixField;
+    GenFieldPtr m_memberPrefixField;
 };    
 
-GenDataField::GenDataField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent) :
-    Base(generator, dslObj, parent),
-    m_impl(std::make_unique<GenDataFieldImpl>(generator, dataDslObj(), this))
+GenDataField::GenDataField(GenGenerator& generator, ParseField parseObj, GenElem* parent) :
+    Base(generator, parseObj, parent),
+    m_impl(std::make_unique<GenDataFieldImpl>(generator, genDataFieldParseObj(), this))
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Data);
+    assert(parseObj.parseKind() == ParseField::Kind::Data);
 }
 
 GenDataField::~GenDataField() = default;
 
-GenField* GenDataField::externalPrefixField()
+GenField* GenDataField::genExternalPrefixField()
 {
-    return m_impl->externalPrefixField();
+    return m_impl->genExternalPrefixField();
 }
 
-const GenField* GenDataField::externalPrefixField() const
+const GenField* GenDataField::genExternalPrefixField() const
 {
-    return m_impl->externalPrefixField();
+    return m_impl->genExternalPrefixField();
 }
 
-GenField* GenDataField::memberPrefixField()
+GenField* GenDataField::genMemberPrefixField()
 {
-    return m_impl->memberPrefixField();
+    return m_impl->genMemberPrefixField();
 }
 
-const GenField* GenDataField::memberPrefixField() const
+const GenField* GenDataField::genMemberPrefixField() const
 {
-    return m_impl->memberPrefixField();
+    return m_impl->genMemberPrefixField();
 }
 
-bool GenDataField::prepareImpl()
+bool GenDataField::genPrepareImpl()
 {
-    return m_impl->prepare();
+    return m_impl->genPrepare();
 }
 
-void GenDataField::setReferencedImpl()
+void GenDataField::genSetReferencedImpl()
 {
-    m_impl->setReferenced();
+    m_impl->genSetReferenced();
 }
 
-commsdsl::parse::ParseDataField GenDataField::dataDslObj() const
+GenDataField::ParseDataField GenDataField::genDataFieldParseObj() const
 {
-    return commsdsl::parse::ParseDataField(dslObj());
+    return ParseDataField(genParseObj());
 }
 
 } // namespace gen

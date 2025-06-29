@@ -34,32 +34,34 @@ class COMMSDSL_API GenEnumField : public GenField
 {
     using Base = GenField;
 public:
+    using ParseField = commsdsl::parse::ParseField;
+    using ParseEnumField = commsdsl::parse::ParseEnumField;
 
-    GenEnumField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent = nullptr);
+    GenEnumField(GenGenerator& generator, ParseField dslObj, GenElem* parent = nullptr);
     virtual ~GenEnumField();
 
-    bool isUnsignedUnderlyingType() const;
-    unsigned hexWidth() const;
-    std::string valueName(std::intmax_t value) const;
-    std::string adjustName(const std::string& val) const;
+    bool genIsUnsignedUnderlyingType() const;
+    unsigned genHexWidth() const;
+    std::string genValueName(std::intmax_t value) const;
+    std::string genAdjustName(const std::string& val) const;
 
-    commsdsl::parse::ParseEnumField enumDslObj() const;
+    ParseEnumField genEnumFieldParseObj() const;
 
     using RevValueInfo = std::pair<std::intmax_t, const std::string*>;
     using SortedRevValues = std::vector<RevValueInfo>;
-    const SortedRevValues& sortedRevValues() const;
+    const SortedRevValues& genSortedRevValues() const;
 
-    std::string valueToString(std::intmax_t val) const;
+    std::string genValueToString(std::intmax_t val) const;
 
-    bool hasValuesLimit() const;
+    bool genHasValuesLimit() const;
 
-    std::string firstValueStr() const;
-    std::string lastValueStr() const;
-    std::string valuesLimitStr() const;
+    std::string genFirstValueStr() const;
+    std::string genLastValueStr() const;
+    std::string genValuesLimitStr() const;
 
 protected:    
-    virtual bool prepareImpl() override;
-    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override final;
+    virtual bool genPrepareImpl() override;
+    virtual FieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
 
 private:
     std::unique_ptr<GenEnumFieldImpl> m_impl;        

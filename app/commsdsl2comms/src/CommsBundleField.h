@@ -40,8 +40,8 @@ public:
 
 protected:
     // Base overrides
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;    
 
     // CommsBase overrides
     virtual IncludesList commsCommonIncludesImpl() const override;

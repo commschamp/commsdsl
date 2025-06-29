@@ -57,7 +57,7 @@ const std::string ForcePlatformStr("force-platform");
 
 EmscriptenProgramOptions::EmscriptenProgramOptions()
 {
-    addHelpOption()
+    genAddHelpOption()
     (VersionStr, "Print version string and exit.")
     (FullQuietStr.c_str(), "Quiet, show only warnings and errors.")
     (FullOutputDirStr.c_str(), "Output directory path. When not provided current is used.", true)        
@@ -87,96 +87,96 @@ EmscriptenProgramOptions::EmscriptenProgramOptions()
 
 bool EmscriptenProgramOptions::quietRequested() const
 {
-    return isOptUsed(QuietStr);
+    return genIsOptUsed(QuietStr);
 }
 
 bool EmscriptenProgramOptions::versionRequested() const
 {
-    return isOptUsed(VersionStr);
+    return genIsOptUsed(VersionStr);
 }
 
 bool EmscriptenProgramOptions::warnAsErrRequested() const
 {
-    return isOptUsed(WarnAsErrStr);
+    return genIsOptUsed(WarnAsErrStr);
 }
 
 const std::string& EmscriptenProgramOptions::getFilesListFile() const
 {
-    return value(InputFilesListStr);
+    return genValue(InputFilesListStr);
 }
 
 const std::string& EmscriptenProgramOptions::getFilesListPrefix() const
 {
-    return value(InputFilesPrefixStr);
+    return genValue(InputFilesPrefixStr);
 }
 
 const EmscriptenProgramOptions::ArgsList& EmscriptenProgramOptions::getFiles() const
 {
-    return args();
+    return genArgs();
 }
 
 const std::string& EmscriptenProgramOptions::getOutputDirectory() const
 {
-    return value(OutputDirStr);
+    return genValue(OutputDirStr);
 }
 
 const std::string& EmscriptenProgramOptions::getCodeInputDirectory() const
 {
-    return value(CodeInputDirStr);
+    return genValue(CodeInputDirStr);
 }
 
 bool EmscriptenProgramOptions::hasNamespaceOverride() const
 {
-    return isOptUsed(NamespaceStr);
+    return genIsOptUsed(NamespaceStr);
 }
 
 const std::string& EmscriptenProgramOptions::getNamespace() const
 {
-    return value(NamespaceStr);
+    return genValue(NamespaceStr);
 }
 
 bool EmscriptenProgramOptions::multipleSchemasEnabled() const
 {
-    return isOptUsed(MultipleSchemasEnabledStr);
+    return genIsOptUsed(MultipleSchemasEnabledStr);
 }
 
-unsigned EmscriptenProgramOptions::getMinRemoteVersion() const
+unsigned EmscriptenProgramOptions::genGetMinRemoteVersion() const
 {
-    if (!isOptUsed(MinRemoteVerStr)) {
+    if (!genIsOptUsed(MinRemoteVerStr)) {
         return 0U;
     }
 
-    return util::strToUnsigned(value(MinRemoteVerStr));
+    return util::genStrToUnsigned(genValue(MinRemoteVerStr));
 }
 
 bool EmscriptenProgramOptions::isMainNamespaceInNamesForced() const
 {
-    return isOptUsed(ForceMainNamespaceInNamesStr);
+    return genIsOptUsed(ForceMainNamespaceInNamesStr);
 }
 
 bool EmscriptenProgramOptions::hasForcedInterface() const
 {
-    return isOptUsed(ForceInterfaceStr);
+    return genIsOptUsed(ForceInterfaceStr);
 }
 
 const std::string& EmscriptenProgramOptions::getForcedInterface() const
 {
-    return value(ForceInterfaceStr);
+    return genValue(ForceInterfaceStr);
 }
 
 bool EmscriptenProgramOptions::hasProtocolVersion() const
 {
-    return isOptUsed(HasProtocolStr);
+    return genIsOptUsed(HasProtocolStr);
 }
 
 const std::string& EmscriptenProgramOptions::messagesListFile() const
 {
-    return value(MessagesListStr);
+    return genValue(MessagesListStr);
 }
 
 const std::string& EmscriptenProgramOptions::forcedPlatform() const
 {
-    return value(ForcePlatformStr);
+    return genValue(ForcePlatformStr);
 }
 
 } // namespace commsdsl2emscripten

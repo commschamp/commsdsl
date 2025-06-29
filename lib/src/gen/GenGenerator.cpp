@@ -73,57 +73,57 @@ public:
     {
     }
 
-    LoggerPtr& getLogger()
+    LoggerPtr& genGetLogger()
     {
         return m_logger;
     }
 
-    const LoggerPtr& getLogger() const
+    const LoggerPtr& genGetLogger() const
     {
         return m_logger;
     }    
 
-    void setLogger(LoggerPtr logger)
+    void genSetLogger(LoggerPtr logger)
     {
         m_logger = std::move(logger);
     }
 
-    const SchemasList& schemas() const
+    const SchemasList& genSchemas() const
     {
         return m_schemas;
     }
 
-    GenSchema& currentSchema()
+    GenSchema& genCurrentSchema()
     {
         assert(m_currentSchema != nullptr);
         return *m_currentSchema;
     }
 
-    const GenSchema& currentSchema() const
+    const GenSchema& genCurrentSchema() const
     {
         assert(m_currentSchema != nullptr);
         return *m_currentSchema;
     }
 
-    GenSchema& protocolSchema()
+    GenSchema& genProtocolSchema()
     {
         assert(!m_schemas.empty());
         return *m_schemas.back();
     }
 
-    const GenSchema& protocolSchema() const
+    const GenSchema& genProtocolSchema() const
     {
         assert(!m_schemas.empty());
         return *m_schemas.back();
     }
 
-    void chooseCurrentSchema(unsigned idx)
+    void genChooseCurrentSchema(unsigned idx)
     {
         assert(idx < m_schemas.size());
         m_currentSchema = m_schemas[idx].get();
     }
 
-    unsigned currentSchemaIdx() const
+    unsigned genCurrentSchemaIdx() const
     {
         assert(m_currentSchema != nullptr);
         auto iter = 
@@ -137,40 +137,40 @@ public:
         return static_cast<unsigned>(std::distance(m_schemas.begin(), iter));
     }
 
-    void forceSchemaVersion(unsigned value)
+    void genForceSchemaVersion(unsigned value)
     {
         m_forcedSchemaVersion = static_cast<decltype(m_forcedSchemaVersion)>(value);
     }
 
-    void setMinRemoteVersion(unsigned value)
+    void genSetMinRemoteVersion(unsigned value)
     {
         m_minRemoteVersion = value;
     }
 
-    unsigned getMinRemoteVersion() const
+    unsigned genGetMinRemoteVersion() const
     {
         return m_minRemoteVersion;
     }
 
-    InterfacesAccessList getAllInterfaces() const
+    InterfacesAccessList genGetAllInterfaces() const
     {
-        return currentSchema().getAllInterfaces();
+        return genCurrentSchema().genGetAllInterfaces();
     }    
 
-    GenNamespace* addDefaultNamespace()
+    GenNamespace* genAddDefaultNamespace()
     {
-        return currentSchema().addDefaultNamespace();
+        return genCurrentSchema().genAddDefaultNamespace();
     }
     
 
-    void setNamespaceOverride(const std::string& value)
+    void genSetNamespaceOverride(const std::string& value)
     {
         m_namespaceOverrides.clear();
         if (value.empty()) {
             return;
         }
 
-        auto elems = util::strSplitByAnyChar(value, ",");
+        auto elems = util::genStrSplitByAnyChar(value, ",");
         for (auto& e : elems) {
             if (e.empty()) {
                 continue;
@@ -192,147 +192,147 @@ public:
         }
     }
 
-    void setTopNamespace(const std::string& value)
+    void genSetTopNamespace(const std::string& value)
     {
         m_topNamespace = value;
     }
 
-    const std::string& getTopNamespace() const
+    const std::string& genGetTopNamespace() const
     {
         return m_topNamespace;
     }
 
-    void setOutputDir(const std::string& outDir)
+    void genSetOutputDir(const std::string& outDir)
     {
         if (!outDir.empty()) {
             m_outputDir = outDir;
         }
     }
 
-    const std::string& getOutputDir() const
+    const std::string& genGetOutputDir() const
     {
         return m_outputDir;
     }
 
-    void setCodeDir(const std::string& dir)
+    void genSetCodeDir(const std::string& dir)
     {
         m_codeDir = dir;
     }
 
-    const std::string& getCodeDir() const
+    const std::string& genGetCodeDir() const
     {
         return m_codeDir;
     }
 
-    void parseSetMultipleSchemasEnabled(bool enabled)
+    void genSetMultipleSchemasEnabled(bool enabled)
     {
         m_protocol.parseSetMultipleSchemasEnabled(enabled);
     }
 
-    bool parseGetMultipleSchemasEnabled() const
+    bool genGetMultipleSchemasEnabled() const
     {
         return m_protocol.parseGetMultipleSchemasEnabled();
     }
 
-    void setVersionIndependentCodeForced(bool value)
+    void genSetVersionIndependentCodeForced(bool value)
     {
         m_versionIndependentCodeForced = value;
     }
 
-    bool getVersionIndependentCodeForced() const
+    bool genGetVersionIndependentCodeForced() const
     {
         return m_versionIndependentCodeForced;
     }
 
-    const GenField* findField(const std::string& externalRef) const
+    const GenField* genFindField(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
-        auto parsedRef = parseExternalRef(externalRef);
+        auto parsedRef = genParseExternalRef(externalRef);
         if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
             return nullptr;
         }
 
-        return parsedRef.first->findField(parsedRef.second);
+        return parsedRef.first->genFindField(parsedRef.second);
     }
 
-    GenField* findField(const std::string& externalRef)
+    GenField* genFindField(const std::string& externalRef)
     {
         assert(!externalRef.empty());
-        auto parsedRef = parseExternalRef(externalRef);
+        auto parsedRef = genParseExternalRef(externalRef);
         if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
             return nullptr;
         }
 
-        return const_cast<GenSchema*>(parsedRef.first)->findField(parsedRef.second);
+        return const_cast<GenSchema*>(parsedRef.first)->genFindField(parsedRef.second);
     }
 
-    const GenMessage* findMessage(const std::string& externalRef) const
+    const GenMessage* genGindMessage(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
-        auto parsedRef = parseExternalRef(externalRef);
+        auto parsedRef = genParseExternalRef(externalRef);
         if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
             return nullptr;
         }
 
-        return parsedRef.first->findMessage(parsedRef.second);
+        return parsedRef.first->genGindMessage(parsedRef.second);
     }  
 
-    GenMessage* findMessage(const std::string& externalRef)
+    GenMessage* genGindMessage(const std::string& externalRef)
     {
         assert(!externalRef.empty());
-        auto parsedRef = parseExternalRef(externalRef);
+        auto parsedRef = genParseExternalRef(externalRef);
         if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
             return nullptr;
         }
 
-        return const_cast<GenSchema*>(parsedRef.first)->findMessage(parsedRef.second);
+        return const_cast<GenSchema*>(parsedRef.first)->genGindMessage(parsedRef.second);
     }
 
-    const GenFrame* findFrame(const std::string& externalRef) const
+    const GenFrame* genFindFrame(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
-        auto parsedRef = parseExternalRef(externalRef);
+        auto parsedRef = genParseExternalRef(externalRef);
         if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
             return nullptr;
         }
 
-        return parsedRef.first->findFrame(parsedRef.second);
+        return parsedRef.first->genFindFrame(parsedRef.second);
     }
 
-    const GenInterface* findInterface(const std::string& externalRef) const
+    const GenInterface* genFindInterface(const std::string& externalRef) const
     {
         if (externalRef.empty()) {
-            return currentSchema().findInterface(externalRef);
+            return genCurrentSchema().genFindInterface(externalRef);
         }
         
         assert(!externalRef.empty());
-        auto parsedRef = parseExternalRef(externalRef);
+        auto parsedRef = genParseExternalRef(externalRef);
         if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
             return nullptr;
         }
 
-        return parsedRef.first->findInterface(parsedRef.second);
+        return parsedRef.first->genFindInterface(parsedRef.second);
     }                
 
     using CreateCompleteFunc = std::function<bool ()>;
-    bool prepare(const FilesList& files, CreateCompleteFunc createCompleteCb = CreateCompleteFunc())
+    bool genPrepare(const FilesList& files, CreateCompleteFunc createCompleteCb = CreateCompleteFunc())
     {
         m_protocol.parseSetErrorReportCallback(
             [this](commsdsl::parse::ParseErrorLevel level, const std::string& msg)
             {
                 assert(m_logger);
-                m_logger->log(level, msg);
+                m_logger->genLog(level, msg);
             });
 
         assert(m_logger);
         for (auto& f : files) {
-            m_logger->info("Parsing " + f);
+            m_logger->genInfo("Parsing " + f);
             if (!m_protocol.parse(f)) {
                 return false;
             }
 
-            if (m_logger->hadWarning()) {
-                m_logger->error("Warning treated as error");
+            if (m_logger->genHadWarning()) {
+                m_logger->genError("Warning treated as error");
                 return false;
             }
         }
@@ -341,24 +341,24 @@ public:
             return false;
         }
 
-        if (m_logger->hadWarning()) {
-            m_logger->error("Warning treated as error");
+        if (m_logger->genHadWarning()) {
+            m_logger->genError("Warning treated as error");
             return false;
         }
 
         auto allSchemas = m_protocol.parseSchemas();
         if (allSchemas.empty()) {
-            m_logger->error("No schemas available");
+            m_logger->genError("No schemas available");
             return false;
         }
 
         for (auto& s : allSchemas) {
-            auto schema = m_generator.createSchema(s);
-            schema->setVersionIndependentCodeForced(m_versionIndependentCodeForced);
+            auto schema = m_generator.genCreateSchema(s);
+            schema->genSetVersionIndependentCodeForced(m_versionIndependentCodeForced);
 
-            auto renameIter = m_namespaceOverrides.find(util::strToName(s.parseName()));
+            auto renameIter = m_namespaceOverrides.find(util::genStrToName(s.parseName()));
             if (renameIter != m_namespaceOverrides.end()) {
-                schema->setMainNamespaceOverride(renameIter->second);
+                schema->genSetMainNamespaceOverride(renameIter->second);
             }
             m_schemas.push_back(std::move(schema));
         }
@@ -366,29 +366,29 @@ public:
         assert(!m_schemas.empty());
         auto& protocolSchemaPtr = m_schemas.back();
         
-        protocolSchemaPtr->setMinRemoteVersion(m_minRemoteVersion);
+        protocolSchemaPtr->genSetMinRemoteVersion(m_minRemoteVersion);
         if (0 <= m_forcedSchemaVersion) {
-            protocolSchemaPtr->forceSchemaVersion(static_cast<unsigned>(m_forcedSchemaVersion));
+            protocolSchemaPtr->genForceSchemaVersion(static_cast<unsigned>(m_forcedSchemaVersion));
         }
 
-        auto renameIter = m_namespaceOverrides.find(strings::emptyString());
+        auto renameIter = m_namespaceOverrides.find(strings::genEmptyString());
         if (renameIter != m_namespaceOverrides.end()) {
-            protocolSchemaPtr->setMainNamespaceOverride(renameIter->second);
+            protocolSchemaPtr->genSetMainNamespaceOverride(renameIter->second);
         }
 
         for (auto& s : m_schemas) {
             m_currentSchema = s.get();
-            if (!s->createAll()) {
-                m_logger->error("Failed to create elements inside schema \"" + s->dslObj().parseName() + "\"");
+            if (!s->genCreateAll()) {
+                m_logger->genError("Failed to genCreate elements inside schema \"" + s->genParseObj().parseName() + "\"");
                 return false;
             }       
 
             if (m_allInterfacesReferencedByDefault) {
-                s->setAllInterfacesReferenced();
+                s->genSetAllInterfacesReferenced();
             }                 
 
             if (m_allMessagesReferencedByDefault) {
-                s->setAllMessagesReferenced();
+                s->genSetAllMessagesReferenced();
             }
         }   
         
@@ -398,37 +398,37 @@ public:
 
         for (auto& s : m_schemas) {
             m_currentSchema = s.get();
-            if (!s->prepare()) {
-                m_logger->error("Failed to prepare elements inside schema \"" + s->dslObj().parseName() + "\"");
+            if (!s->genPrepare()) {
+                m_logger->genError("Failed to prepare elements inside schema \"" + s->genParseObj().parseName() + "\"");
                 return false;
             }            
         }               
 
 
-        if (m_logger->hadWarning()) {
-            m_logger->error("Warning treated as error");
+        if (m_logger->genHadWarning()) {
+            m_logger->genError("Warning treated as error");
             return false;
         }      
         
-        if (!prepareDefaultInterfaceInternal()) {
+        if (!genPrepareDefaultInterfaceInternal()) {
             return false;
         }
 
         return true;
     }
 
-    bool write()
+    bool genWrite()
     {
         return std::all_of(
             m_schemas.begin(), m_schemas.end(),
             [this](auto& s)
             {
                 m_currentSchema = s.get();
-                return s->write();
+                return s->genWrite();
             });
     }
 
-    bool wasDirectoryCreated(const std::string& path) const
+    bool genWasDirectoryCreated(const std::string& path) const
     {
         auto iter = 
             std::find(m_createdDirectories.begin(), m_createdDirectories.end(), path);
@@ -436,55 +436,55 @@ public:
         return iter != m_createdDirectories.end();
     }
 
-    void recordCreatedDirectory(const std::string& path) const
+    void genRecordCreatedDirectory(const std::string& path) const
     {
         m_createdDirectories.push_back(path);
     }
 
-    const commsdsl::parse::ParseProtocol& protocol() const
+    const commsdsl::parse::ParseProtocol& genProtocol() const
     {
         return m_protocol;
     }
 
-    void referenceAllMessages()
+    void genReferenceAllMessages()
     {
         for (auto& sPtr : m_schemas) {
-            sPtr->setAllMessagesReferenced();
+            sPtr->genSetAllMessagesReferenced();
         }
     }
 
-    void referenceAllInterfaces()
+    void genReferenceAllInterfaces()
     {
         for (auto& sPtr : m_schemas) {
-            sPtr->setAllInterfacesReferenced();
+            sPtr->genSetAllInterfacesReferenced();
         }
     }    
 
-    bool getAllMessagesReferencedByDefault() const
+    bool genGetAllMessagesReferencedByDefault() const
     {
         return m_allMessagesReferencedByDefault;
     }
 
-    void setAllMessagesReferencedByDefault(bool value)
+    void genSetAllMessagesReferencedByDefault(bool value)
     {
         m_allMessagesReferencedByDefault = value;
     }
 
-    bool getAllInterfacesReferencedByDefault() const
+    bool genGetAllInterfacesReferencedByDefault() const
     {
         return m_allInterfacesReferencedByDefault;
     }
 
-    void setAllInterfacesReferencedByDefault(bool value)
+    void genSetAllInterfacesReferencedByDefault(bool value)
     {
         m_allInterfacesReferencedByDefault = value;
     }
 
 private:
-    std::pair<const GenSchema*, std::string> parseExternalRef(const std::string& externalRef) const
+    std::pair<const GenSchema*, std::string> genParseExternalRef(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
-        if (externalRef[0] != strings::schemaRefPrefix()) {
+        if (externalRef[0] != strings::genSchemaRefPrefix()) {
             return std::make_pair(m_currentSchema, externalRef);
         }
 
@@ -505,7 +505,7 @@ private:
                 m_schemas.begin(), m_schemas.end(),
                 [&schemaName](auto& s)
                 {
-                    return schemaName == s->name();
+                    return schemaName == s->genName();
                 });
 
         if (iter == m_schemas.end()) {
@@ -515,17 +515,17 @@ private:
         return std::make_pair(iter->get(), std::move(restRef));
     }
 
-    bool prepareDefaultInterfaceInternal()
+    bool genPrepareDefaultInterfaceInternal()
     {
-        auto allInterfaces = getAllInterfaces();
+        auto allInterfaces = genGetAllInterfaces();
         if (!allInterfaces.empty()) {
             return true;
         }
     
-        auto* defaultNamespace = addDefaultNamespace();
-        auto* interface = defaultNamespace->addDefaultInterface();
+        auto* defaultNamespace = genAddDefaultNamespace();
+        auto* interface = defaultNamespace->genAddDefaultInterface();
         if (interface == nullptr) {
-            m_logger->error("Failed to create default interface");
+            m_logger->genError("Failed to genCreate default interface");
             return false;
         }
     
@@ -556,734 +556,734 @@ GenGenerator::GenGenerator() :
 
 GenGenerator::~GenGenerator() = default;
 
-void GenGenerator::forceSchemaVersion(unsigned value)
+void GenGenerator::genForceSchemaVersion(unsigned value)
 {
-    m_impl->forceSchemaVersion(value);
+    m_impl->genForceSchemaVersion(value);
 }
 
-void GenGenerator::setMinRemoteVersion(unsigned value)
+void GenGenerator::genSetMinRemoteVersion(unsigned value)
 {
-    m_impl->setMinRemoteVersion(value);
+    m_impl->genSetMinRemoteVersion(value);
 }
 
-unsigned GenGenerator::getMinRemoteVersion() const
+unsigned GenGenerator::genGetMinRemoteVersion() const
 {
-    return m_impl->getMinRemoteVersion();
+    return m_impl->genGetMinRemoteVersion();
 }
 
-void GenGenerator::setNamespaceOverride(const std::string& value)
+void GenGenerator::genSetNamespaceOverride(const std::string& value)
 {
-    m_impl->setNamespaceOverride(value);
+    m_impl->genSetNamespaceOverride(value);
 }
 
-void GenGenerator::setTopNamespace(const std::string& value)
+void GenGenerator::genSetTopNamespace(const std::string& value)
 {
-    m_impl->setTopNamespace(value);
+    m_impl->genSetTopNamespace(value);
 }
 
-const std::string& GenGenerator::getTopNamespace() const
+const std::string& GenGenerator::genGetTopNamespace() const
 {
-    return m_impl->getTopNamespace();
+    return m_impl->genGetTopNamespace();
 }
 
-void GenGenerator::setOutputDir(const std::string& outDir)
+void GenGenerator::genSetOutputDir(const std::string& outDir)
 {
-    m_impl->setOutputDir(outDir);
+    m_impl->genSetOutputDir(outDir);
 }
 
-const std::string& GenGenerator::getOutputDir() const
+const std::string& GenGenerator::genGetOutputDir() const
 {
-    return m_impl->getOutputDir();
+    return m_impl->genGetOutputDir();
 }
 
-void GenGenerator::setCodeDir(const std::string& dir)
+void GenGenerator::genSetCodeDir(const std::string& dir)
 {
-    m_impl->setCodeDir(dir);
+    m_impl->genSetCodeDir(dir);
 }
 
-const std::string& GenGenerator::getCodeDir() const
+const std::string& GenGenerator::genGetCodeDir() const
 {
-    return m_impl->getCodeDir();
+    return m_impl->genGetCodeDir();
 }
 
-void GenGenerator::parseSetMultipleSchemasEnabled(bool enabled)
+void GenGenerator::genSetMultipleSchemasEnabled(bool enabled)
 {
-    m_impl->parseSetMultipleSchemasEnabled(enabled);
+    m_impl->genSetMultipleSchemasEnabled(enabled);
 }
 
-bool GenGenerator::parseGetMultipleSchemasEnabled() const
+bool GenGenerator::genGetMultipleSchemasEnabled() const
 {
-    return m_impl->parseGetMultipleSchemasEnabled();
+    return m_impl->genGetMultipleSchemasEnabled();
 }
 
-void GenGenerator::setVersionIndependentCodeForced(bool value)
+void GenGenerator::genSetVersionIndependentCodeForced(bool value)
 {
-    m_impl->setVersionIndependentCodeForced(value);
+    m_impl->genSetVersionIndependentCodeForced(value);
 }
 
-bool GenGenerator::getVersionIndependentCodeForced() const
+bool GenGenerator::genGetVersionIndependentCodeForced() const
 {
-    return m_impl->getVersionIndependentCodeForced();
+    return m_impl->genGetVersionIndependentCodeForced();
 }
 
-const GenField* GenGenerator::findField(const std::string& externalRef) const
+const GenField* GenGenerator::genFindField(const std::string& externalRef) const
 {
-    auto* field = m_impl->findField(externalRef);
-    assert((field == nullptr) || (field->isPrepared()));
+    auto* field = m_impl->genFindField(externalRef);
+    assert((field == nullptr) || (field->genIsPrepared()));
     return field;
 }
 
-GenField* GenGenerator::findField(const std::string& externalRef)
+GenField* GenGenerator::genFindField(const std::string& externalRef)
 {
-    auto* field = m_impl->findField(externalRef);
+    auto* field = m_impl->genFindField(externalRef);
     do {
-        if (field->isPrepared()) {
+        if (field->genIsPrepared()) {
             break;
         }    
 
-        if (field->prepare()) {
+        if (field->genPrepare()) {
             break;
         }
          
-        logger().warning("Failed to prepare field: " + field->dslObj().parseExternalRef());
+        genLogger().genWarning("Failed to prepare field: " + field->genParseObj().parseExternalRef());
         field = nullptr;
     } while (false);
     return field;
 }
 
-const GenMessage* GenGenerator::findMessage(const std::string& externalRef) const
+const GenMessage* GenGenerator::genGindMessage(const std::string& externalRef) const
 {
-    return m_impl->findMessage(externalRef);
+    return m_impl->genGindMessage(externalRef);
 }
 
-GenMessage* GenGenerator::findMessage(const std::string& externalRef) 
+GenMessage* GenGenerator::genGindMessage(const std::string& externalRef) 
 {
-    auto* msg = m_impl->findMessage(externalRef);
+    auto* msg = m_impl->genGindMessage(externalRef);
     do {
-        if (msg->isPrepared()) {
+        if (msg->genIsPrepared()) {
             break;
         }
 
-        if (msg->prepare()) {
+        if (msg->genPrepare()) {
             break;
         }
 
-        logger().warning("Failed to prepare message: " + msg->dslObj().parseExternalRef());
+        genLogger().genWarning("Failed to prepare message: " + msg->genParseObj().parseExternalRef());
         msg = nullptr;
     } while (false);
     return msg;
 }
 
-const GenFrame* GenGenerator::findFrame(const std::string& externalRef) const
+const GenFrame* GenGenerator::genFindFrame(const std::string& externalRef) const
 {
-    return m_impl->findFrame(externalRef);
+    return m_impl->genFindFrame(externalRef);
 }
 
-const GenInterface* GenGenerator::findInterface(const std::string& externalRef) const
+const GenInterface* GenGenerator::genFindInterface(const std::string& externalRef) const
 {
-    return m_impl->findInterface(externalRef);
+    return m_impl->genFindInterface(externalRef);
 }
 
-const GenSchema& GenGenerator::schemaOf(const GenElem& elem)
+const GenSchema& GenGenerator::genSchemaOf(const GenElem& elem)
 {
-    auto* parent = elem.getParent();
+    auto* parent = elem.genGetParent();
     assert(parent != nullptr);
-    if (parent->elemType() == GenElem::Type_Schema) {
+    if (parent->genElemType() == GenElem::Type_Schema) {
         return static_cast<const GenSchema&>(*parent);
     }
 
-    return schemaOf(*parent);
+    return genSchemaOf(*parent);
 }
 
-GenGenerator::NamespacesAccessList GenGenerator::getAllNamespaces() const
+GenGenerator::NamespacesAccessList GenGenerator::genGetAllNamespaces() const
 {
-    return currentSchema().getAllNamespaces();
+    return genCurrentSchema().genGetAllNamespaces();
 }
 
-GenGenerator::InterfacesAccessList GenGenerator::getAllInterfaces() const
+GenGenerator::InterfacesAccessList GenGenerator::genGetAllInterfaces() const
 {
-    return currentSchema().getAllInterfaces();
+    return genCurrentSchema().genGetAllInterfaces();
 }
 
-GenGenerator::MessagesAccessList GenGenerator::getAllMessages() const
+GenGenerator::MessagesAccessList GenGenerator::genGetAllMessages() const
 {
-    return currentSchema().getAllMessages();
+    return genCurrentSchema().genGetAllMessages();
 }
 
-void GenGenerator::sortMessages(MessagesAccessList& list)
+void GenGenerator::genSortMessages(MessagesAccessList& list)
 {
     std::sort(
         list.begin(), list.end(),
         [](auto* msg1, auto* msg2)
         {
-            auto id1 = msg1->dslObj().parseId();
-            auto id2 = msg2->dslObj().parseId();
+            auto id1 = msg1->genParseObj().parseId();
+            auto id2 = msg2->genParseObj().parseId();
 
             if (id1 != id2) {
                 return id1 < id2;
             }
 
-            return msg1->dslObj().parseOrder() < msg2->dslObj().parseOrder();
+            return msg1->genParseObj().parseOrder() < msg2->genParseObj().parseOrder();
         });
 }
 
-GenGenerator::MessagesAccessList GenGenerator::getAllMessagesIdSorted() const
+GenGenerator::MessagesAccessList GenGenerator::genGetAllMessagesIdSorted() const
 {
-    auto result = getAllMessages();
-    sortMessages(result);
+    auto result = genGetAllMessages();
+    genSortMessages(result);
     return result;
 }
 
-GenGenerator::FramesAccessList GenGenerator::getAllFrames() const
+GenGenerator::FramesAccessList GenGenerator::genGetAllFrames() const
 {
-    return currentSchema().getAllFrames();
+    return genCurrentSchema().genGetAllFrames();
 }
 
-GenGenerator::FieldsAccessList GenGenerator::getAllFields() const
+GenGenerator::FieldsAccessList GenGenerator::genGetAllFields() const
 {
-    return currentSchema().getAllFields();
+    return genCurrentSchema().genGetAllFields();
 }
 
-GenGenerator::NamespacesAccessList GenGenerator::getAllNamespacesFromAllSchemas() const
+GenGenerator::NamespacesAccessList GenGenerator::genGetAllNamespacesFromAllSchemas() const
 {
     NamespacesAccessList result;
-    for (auto& sPtr : schemas()) {
-        auto list = sPtr->getAllNamespaces();
+    for (auto& sPtr : genSchemas()) {
+        auto list = sPtr->genGetAllNamespaces();
         result.insert(result.end(), list.begin(), list.end());
     }
 
     return result;
 }
 
-GenGenerator::InterfacesAccessList GenGenerator::getAllInterfacesFromAllSchemas() const
+GenGenerator::InterfacesAccessList GenGenerator::genGetAllInterfacesFromAllSchemas() const
 {
     InterfacesAccessList result;
-    for (auto& sPtr : schemas()) {
-        auto list = sPtr->getAllInterfaces();
+    for (auto& sPtr : genSchemas()) {
+        auto list = sPtr->genGetAllInterfaces();
         result.insert(result.end(), list.begin(), list.end());
     }
 
     return result;
 }
 
-GenGenerator::MessagesAccessList GenGenerator::getAllMessagesFromAllSchemas() const
+GenGenerator::MessagesAccessList GenGenerator::genGetAllMessagesFromAllSchemas() const
 {
     MessagesAccessList result;
-    for (auto& sPtr : schemas()) {
-        auto list = sPtr->getAllMessages();
+    for (auto& sPtr : genSchemas()) {
+        auto list = sPtr->genGetAllMessages();
         result.insert(result.end(), list.begin(), list.end());
     }
 
     return result;
 }
 
-GenGenerator::MessagesAccessList GenGenerator::getAllMessagesIdSortedFromAllSchemas() const
+GenGenerator::MessagesAccessList GenGenerator::genGetAllMessagesIdSortedFromAllSchemas() const
 {
-    auto result = getAllMessagesFromAllSchemas();
-    sortMessages(result);
+    auto result = genGetAllMessagesFromAllSchemas();
+    genSortMessages(result);
     return result;    
 }
 
-GenGenerator::FramesAccessList GenGenerator::getAllFramesFromAllSchemas() const
+GenGenerator::FramesAccessList GenGenerator::genGetAllFramesFromAllSchemas() const
 {
     FramesAccessList result;
-    for (auto& sPtr : schemas()) {
-        auto list = sPtr->getAllFrames();
+    for (auto& sPtr : genSchemas()) {
+        auto list = sPtr->genGetAllFrames();
         result.insert(result.end(), list.begin(), list.end());
     }
 
     return result;
 }
 
-GenGenerator::FieldsAccessList GenGenerator::getAllFieldsFromAllSchemas() const
+GenGenerator::FieldsAccessList GenGenerator::genGetAllFieldsFromAllSchemas() const
 {
     FieldsAccessList result;
-    for (auto& sPtr : schemas()) {
-        auto list = sPtr->getAllFields();
+    for (auto& sPtr : genSchemas()) {
+        auto list = sPtr->genGetAllFields();
         result.insert(result.end(), list.begin(), list.end());
     }
 
     return result;
 }
 
-bool GenGenerator::prepare(const FilesList& files)
+bool GenGenerator::genPrepare(const FilesList& files)
 {
     // Make sure the logger is created
-    [[maybe_unused]] auto& l = logger();
+    [[maybe_unused]] auto& l = genLogger();
 
     auto createCompleteFunc = 
         [this]()
         {
-            return createCompleteImpl();
+            return genCreateCompleteImpl();
         };
 
-    if (!m_impl->prepare(files, createCompleteFunc)) {
+    if (!m_impl->genPrepare(files, createCompleteFunc)) {
         return false;
     }
 
-    return prepareImpl();
+    return genPrepareImpl();
 }
 
-bool GenGenerator::write()
+bool GenGenerator::genWrite()
 {
-    auto& outDir = getOutputDir();
-    if ((!outDir.empty()) && (!createDirectory(outDir))) {
+    auto& outDir = genGetOutputDir();
+    if ((!outDir.empty()) && (!genCreateDirectory(outDir))) {
         return false;
     }
 
-    if (!m_impl->write()) {
+    if (!m_impl->genWrite()) {
         return false;
     }
     
-    return writeImpl();
+    return genWriteImpl();
 }
 
-bool GenGenerator::doesElementExist(
+bool GenGenerator::genDoesElementExist(
     unsigned sinceVersion,
     unsigned deprecatedSince,
     bool deprecatedRemoved) const
 {
-    return currentSchema().doesElementExist(sinceVersion, deprecatedSince, deprecatedRemoved);
+    return genCurrentSchema().genDoesElementExist(sinceVersion, deprecatedSince, deprecatedRemoved);
 }
 
-bool GenGenerator::isElementOptional(
+bool GenGenerator::genIsElementOptional(
     unsigned sinceVersion,
     unsigned deprecatedSince,
     bool deprecatedRemoved) const
 {
-    return currentSchema().isElementOptional(sinceVersion, deprecatedSince, deprecatedRemoved);
+    return genCurrentSchema().genIsElementOptional(sinceVersion, deprecatedSince, deprecatedRemoved);
 }
 
-bool GenGenerator::isElementDeprecated(unsigned deprecatedSince) const
+bool GenGenerator::genIsElementDeprecated(unsigned deprecatedSince) const
 {
-    return currentSchema().isElementDeprecated(deprecatedSince);
+    return genCurrentSchema().genIsElementDeprecated(deprecatedSince);
 } 
 
-GenLogger& GenGenerator::logger()
+GenLogger& GenGenerator::genLogger()
 {
-    auto& loggerPtr = m_impl->getLogger();
+    auto& loggerPtr = m_impl->genGetLogger();
     if (loggerPtr) {
         return *loggerPtr;
     }
 
-    auto newLogger = createLoggerImpl();
+    auto newLogger = genCreateLoggerImpl();
     if (!newLogger) {
-        newLogger = GenGenerator::createLoggerImpl();
+        newLogger = GenGenerator::genCreateLoggerImpl();
         assert(newLogger);
     }
     
     auto& logger = *newLogger;
-    m_impl->setLogger(std::move(newLogger));
+    m_impl->genSetLogger(std::move(newLogger));
     return logger;    
 }
 
-const GenLogger& GenGenerator::logger() const
+const GenLogger& GenGenerator::genLogger() const
 {
-    auto& loggerPtr = m_impl->getLogger();
+    auto& loggerPtr = m_impl->genGetLogger();
     assert(loggerPtr);
     return *loggerPtr;
 }
 
-const GenGenerator::SchemasList& GenGenerator::schemas() const
+const GenGenerator::SchemasList& GenGenerator::genSchemas() const
 {
-    return m_impl->schemas();
+    return m_impl->genSchemas();
 }
 
-GenSchema& GenGenerator::currentSchema()
+GenSchema& GenGenerator::genCurrentSchema()
 {
-    return m_impl->currentSchema();
+    return m_impl->genCurrentSchema();
 }
 
-const GenSchema& GenGenerator::currentSchema() const
+const GenSchema& GenGenerator::genCurrentSchema() const
 {
-    return m_impl->currentSchema();
+    return m_impl->genCurrentSchema();
 }
 
-GenSchema& GenGenerator::protocolSchema()
+GenSchema& GenGenerator::genProtocolSchema()
 {
-    return m_impl->protocolSchema();
+    return m_impl->genProtocolSchema();
 }
 
-const GenSchema& GenGenerator::protocolSchema() const
+const GenSchema& GenGenerator::genProtocolSchema() const
 {
-    return m_impl->protocolSchema();
+    return m_impl->genProtocolSchema();
 }
 
-bool GenGenerator::isCurrentProtocolSchema() const
+bool GenGenerator::genIsCurrentProtocolSchema() const
 {
-    return &currentSchema() == &protocolSchema();
+    return &genCurrentSchema() == &genProtocolSchema();
 }
 
-SchemaPtr GenGenerator::createSchema(commsdsl::parse::ParseSchema dslObj, GenElem* parent)
+GenSchemaPtr GenGenerator::genCreateSchema(commsdsl::parse::ParseSchema parseObj, GenElem* parent)
 {
-    return createSchemaImpl(dslObj, parent);
+    return genCreateSchemaImpl(parseObj, parent);
 }
 
-NamespacePtr GenGenerator::createNamespace(commsdsl::parse::ParseNamespace dslObj, GenElem* parent)
+GenNamespacePtr GenGenerator::genCreateNamespace(commsdsl::parse::ParseNamespace parseObj, GenElem* parent)
 {
-    return createNamespaceImpl(dslObj, parent);
+    return genCreateNamespaceImpl(parseObj, parent);
 }
 
-InterfacePtr GenGenerator::createInterface(commsdsl::parse::ParseInterface dslObj, GenElem* parent)
+GenInterfacePtr GenGenerator::genCreateInterface(commsdsl::parse::ParseInterface parseObj, GenElem* parent)
 {
-    return createInterfaceImpl(dslObj, parent);
+    return genCreateInterfaceImpl(parseObj, parent);
 }
 
-MessagePtr GenGenerator::createMessage(commsdsl::parse::ParseMessage dslObj, GenElem* parent)
+GenMessagePtr GenGenerator::genCreateMessage(commsdsl::parse::ParseMessage parseObj, GenElem* parent)
 {
-    return createMessageImpl(dslObj, parent);
+    return genCreateMessageImpl(parseObj, parent);
 }
 
-FramePtr GenGenerator::createFrame(commsdsl::parse::ParseFrame dslObj, GenElem* parent)
+FramePtr GenGenerator::genCreateFrame(commsdsl::parse::ParseFrame parseObj, GenElem* parent)
 {
-    return createFrameImpl(dslObj, parent);
+    return genCreateFrameImpl(parseObj, parent);
 }
 
-FieldPtr GenGenerator::createIntField(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateIntField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Int);
-    return createIntFieldImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Int);
+    return genCreateIntFieldImpl(parseObj, parent);
 }
 
-FieldPtr GenGenerator::createEnumField(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateEnumField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Enum);
-    return createEnumFieldImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Enum);
+    return genCreateEnumFieldImpl(parseObj, parent);
 }
 
-FieldPtr GenGenerator::createSetField(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateSetField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Set);
-    return createSetFieldImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Set);
+    return genCreateSetFieldImpl(parseObj, parent);
 }
 
-FieldPtr GenGenerator::createFloatField(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateFloatField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Float);
-    return createFloatFieldImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Float);
+    return genCreateFloatFieldImpl(parseObj, parent);
 }
 
-FieldPtr GenGenerator::createBitfieldField(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateBitfieldField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Bitfield);
-    return createBitfieldFieldImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Bitfield);
+    return genCreateBitfieldFieldImpl(parseObj, parent);
 }
 
-FieldPtr GenGenerator::createBundleField(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateBundleField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Bundle);
-    return createBundleFieldImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Bundle);
+    return genCreateBundleFieldImpl(parseObj, parent);
 }
 
-FieldPtr GenGenerator::createStringField(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateStringField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::String);
-    return createStringFieldImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::String);
+    return genCreateStringFieldImpl(parseObj, parent);
 }
 
-FieldPtr GenGenerator::createDataField(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateDataField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Data);
-    return createDataFieldImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Data);
+    return genCreateDataFieldImpl(parseObj, parent);
 }
 
-FieldPtr GenGenerator::createListField(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateListField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::List);
-    return createListFieldImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::List);
+    return genCreateListFieldImpl(parseObj, parent);
 }
 
-FieldPtr GenGenerator::createRefField(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateRefField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Ref);
-    return createRefFieldImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Ref);
+    return genCreateRefFieldImpl(parseObj, parent);
 }
 
-FieldPtr GenGenerator::createOptionalField(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateOptionalField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Optional);
-    return createOptionalFieldImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Optional);
+    return genCreateOptionalFieldImpl(parseObj, parent);
 }
 
-FieldPtr GenGenerator::createVariantField(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateVariantField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Variant);
-    return createVariantFieldImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Variant);
+    return genCreateVariantFieldImpl(parseObj, parent);
 }
 
-LayerPtr GenGenerator::createCustomLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateCustomLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Custom);
-    return createCustomLayerImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Custom);
+    return genCreateCustomLayerImpl(parseObj, parent);
 }
 
-LayerPtr GenGenerator::createSyncLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateSyncLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Sync);
-    return createSyncLayerImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Sync);
+    return genCreateSyncLayerImpl(parseObj, parent);
 }
 
-LayerPtr GenGenerator::createSizeLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateSizeLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Size);
-    return createSizeLayerImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Size);
+    return genCreateSizeLayerImpl(parseObj, parent);
 }
 
-LayerPtr GenGenerator::createIdLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateIdLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Id);
-    return createIdLayerImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Id);
+    return genCreateIdLayerImpl(parseObj, parent);
 }
 
-LayerPtr GenGenerator::createValueLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateValueLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Value);
-    return createValueLayerImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Value);
+    return genCreateValueLayerImpl(parseObj, parent);
 }
 
-LayerPtr GenGenerator::createPayloadLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreatePayloadLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Payload);
-    return createPayloadLayerImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Payload);
+    return genCreatePayloadLayerImpl(parseObj, parent);
 }
 
-LayerPtr GenGenerator::createChecksumLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateChecksumLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Checksum);
-    return createChecksumLayerImpl(dslObj, parent);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Checksum);
+    return genCreateChecksumLayerImpl(parseObj, parent);
 }
 
-unsigned GenGenerator::currentSchemaIdx() const
+unsigned GenGenerator::genCurrentSchemaIdx() const
 {
-    return m_impl->currentSchemaIdx();
+    return m_impl->genCurrentSchemaIdx();
 }
 
-void GenGenerator::chooseCurrentSchema(unsigned idx)
+void GenGenerator::genChooseCurrentSchema(unsigned idx)
 {
-    m_impl->chooseCurrentSchema(idx);
+    m_impl->genChooseCurrentSchema(idx);
 }
 
-void GenGenerator::chooseCurrentSchema(unsigned idx) const
+void GenGenerator::genChooseCurrentSchema(unsigned idx) const
 {
-    const_cast<GenGenerator*>(this)->chooseCurrentSchema(idx);
+    const_cast<GenGenerator*>(this)->genChooseCurrentSchema(idx);
 }
 
-void GenGenerator::chooseProtocolSchema()
+void GenGenerator::genChooseProtocolSchema()
 {
-    assert(!schemas().empty());
-    chooseCurrentSchema(static_cast<unsigned>(schemas().size() - 1U));
+    assert(!genSchemas().empty());
+    genChooseCurrentSchema(static_cast<unsigned>(genSchemas().size() - 1U));
 }
 
-void GenGenerator::chooseProtocolSchema() const
+void GenGenerator::genChooseProtocolSchema() const
 {
-    const_cast<GenGenerator*>(this)->chooseProtocolSchema();
+    const_cast<GenGenerator*>(this)->genChooseProtocolSchema();
 }
 
-bool GenGenerator::createDirectory(const std::string& path) const
+bool GenGenerator::genCreateDirectory(const std::string& path) const
 {
-    if (m_impl->wasDirectoryCreated(path)) {
+    if (m_impl->genWasDirectoryCreated(path)) {
         return true;
     }
 
     std::error_code ec;
     if (fs::is_directory(path, ec)) {
-        m_impl->recordCreatedDirectory(path);
+        m_impl->genRecordCreatedDirectory(path);
         return true;
     }
 
     fs::create_directories(path, ec);
     if (ec) {
-        logger().error("Failed to create directory \"" + path + "\" with error: " + ec.message());
+        genLogger().genError("Failed to genCreate directory \"" + path + "\" with error: " + ec.message());
         return false;
     }
 
-    m_impl->recordCreatedDirectory(path);
+    m_impl->genRecordCreatedDirectory(path);
     return true;
 }
 
-void GenGenerator::referenceAllMessages()
+void GenGenerator::genReferenceAllMessages()
 {
-    m_impl->referenceAllMessages();
+    m_impl->genReferenceAllMessages();
 }
 
-bool GenGenerator::getAllMessagesReferencedByDefault() const
+bool GenGenerator::genGetAllMessagesReferencedByDefault() const
 {
-    return m_impl->getAllMessagesReferencedByDefault();
+    return m_impl->genGetAllMessagesReferencedByDefault();
 }
 
-void GenGenerator::setAllMessagesReferencedByDefault(bool value)
+void GenGenerator::genSetAllMessagesReferencedByDefault(bool value)
 {
-    m_impl->setAllMessagesReferencedByDefault(value);
+    m_impl->genSetAllMessagesReferencedByDefault(value);
 }
 
-void GenGenerator::referenceAllInterfaces()
+void GenGenerator::genReferenceAllInterfaces()
 {
-    m_impl->referenceAllInterfaces();
+    m_impl->genReferenceAllInterfaces();
 }
 
-bool GenGenerator::getAllInterfacesReferencedByDefault() const
+bool GenGenerator::genGetAllInterfacesReferencedByDefault() const
 {
-    return m_impl->getAllInterfacesReferencedByDefault();
+    return m_impl->genGetAllInterfacesReferencedByDefault();
 }
 
-void GenGenerator::setAllInterfacesReferencedByDefault(bool value)
+void GenGenerator::genSetAllInterfacesReferencedByDefault(bool value)
 {
-    m_impl->setAllInterfacesReferencedByDefault(value);
+    m_impl->genSetAllInterfacesReferencedByDefault(value);
 }    
 
-bool GenGenerator::createCompleteImpl()
+bool GenGenerator::genCreateCompleteImpl()
 {
     return true;
 }
 
-bool GenGenerator::prepareImpl()
+bool GenGenerator::genPrepareImpl()
 {
     return true;
 }
 
-SchemaPtr GenGenerator::createSchemaImpl(commsdsl::parse::ParseSchema dslObj, GenElem* parent)
+GenSchemaPtr GenGenerator::genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, GenElem* parent)
 {
-    return std::make_unique<GenSchema>(*this, dslObj, parent);
+    return std::make_unique<GenSchema>(*this, parseObj, parent);
 }
 
-NamespacePtr GenGenerator::createNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, GenElem* parent)
+GenNamespacePtr GenGenerator::genCreateNamespaceImpl(commsdsl::parse::ParseNamespace parseObj, GenElem* parent)
 {
-    return std::make_unique<GenNamespace>(*this, dslObj, parent);
+    return std::make_unique<GenNamespace>(*this, parseObj, parent);
 }
 
-InterfacePtr GenGenerator::createInterfaceImpl(commsdsl::parse::ParseInterface dslObj, GenElem* parent)
+GenInterfacePtr GenGenerator::genCreateInterfaceImpl(commsdsl::parse::ParseInterface parseObj, GenElem* parent)
 {
-    return std::make_unique<GenInterface>(*this, dslObj, parent);
+    return std::make_unique<GenInterface>(*this, parseObj, parent);
 }
 
-MessagePtr GenGenerator::createMessageImpl(commsdsl::parse::ParseMessage dslObj, GenElem* parent)
+GenMessagePtr GenGenerator::genCreateMessageImpl(commsdsl::parse::ParseMessage parseObj, GenElem* parent)
 {
-    return std::make_unique<GenMessage>(*this, dslObj, parent);
+    return std::make_unique<GenMessage>(*this, parseObj, parent);
 }
 
-FramePtr GenGenerator::createFrameImpl(commsdsl::parse::ParseFrame dslObj, GenElem* parent)
+FramePtr GenGenerator::genCreateFrameImpl(commsdsl::parse::ParseFrame parseObj, GenElem* parent)
 {
-    return std::make_unique<GenFrame>(*this, dslObj, parent);
+    return std::make_unique<GenFrame>(*this, parseObj, parent);
 }
 
-FieldPtr GenGenerator::createIntFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateIntFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    return std::make_unique<GenIntField>(*this, dslObj, parent);
+    return std::make_unique<GenIntField>(*this, parseObj, parent);
 }
 
-FieldPtr GenGenerator::createEnumFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateEnumFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    return std::make_unique<GenEnumField>(*this, dslObj, parent);
+    return std::make_unique<GenEnumField>(*this, parseObj, parent);
 }
 
-FieldPtr GenGenerator::createSetFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateSetFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    return std::make_unique<GenSetField>(*this, dslObj, parent);
+    return std::make_unique<GenSetField>(*this, parseObj, parent);
 }
 
-FieldPtr GenGenerator::createFloatFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateFloatFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    return std::make_unique<GenFloatField>(*this, dslObj, parent);
+    return std::make_unique<GenFloatField>(*this, parseObj, parent);
 }
 
-FieldPtr GenGenerator::createBitfieldFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateBitfieldFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    return std::make_unique<GenBitfieldField>(*this, dslObj, parent);
+    return std::make_unique<GenBitfieldField>(*this, parseObj, parent);
 }
 
-FieldPtr GenGenerator::createBundleFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateBundleFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    return std::make_unique<GenBundleField>(*this, dslObj, parent);
+    return std::make_unique<GenBundleField>(*this, parseObj, parent);
 }
 
-FieldPtr GenGenerator::createStringFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateStringFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    return std::make_unique<GenStringField>(*this, dslObj, parent);
+    return std::make_unique<GenStringField>(*this, parseObj, parent);
 }
 
-FieldPtr GenGenerator::createDataFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateDataFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    return std::make_unique<GenDataField>(*this, dslObj, parent);
+    return std::make_unique<GenDataField>(*this, parseObj, parent);
 }
 
-FieldPtr GenGenerator::createListFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateListFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    return std::make_unique<GenListField>(*this, dslObj, parent);
+    return std::make_unique<GenListField>(*this, parseObj, parent);
 }
 
-FieldPtr GenGenerator::createRefFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateRefFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    return std::make_unique<GenRefField>(*this, dslObj, parent);
+    return std::make_unique<GenRefField>(*this, parseObj, parent);
 }
 
-FieldPtr GenGenerator::createOptionalFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateOptionalFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    return std::make_unique<GenOptionalField>(*this, dslObj, parent);
+    return std::make_unique<GenOptionalField>(*this, parseObj, parent);
 }
 
-FieldPtr GenGenerator::createVariantFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateVariantFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    return std::make_unique<GenVariantField>(*this, dslObj, parent);
+    return std::make_unique<GenVariantField>(*this, parseObj, parent);
 }
 
-LayerPtr GenGenerator::createCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateCustomLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    return std::make_unique<GenCustomLayer>(*this, dslObj, parent);
+    return std::make_unique<GenCustomLayer>(*this, parseObj, parent);
 }
 
-LayerPtr GenGenerator::createSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateSyncLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    return std::make_unique<GenSyncLayer>(*this, dslObj, parent);
+    return std::make_unique<GenSyncLayer>(*this, parseObj, parent);
 }
 
-LayerPtr GenGenerator::createSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateSizeLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    return std::make_unique<GenSizeLayer>(*this, dslObj, parent);
+    return std::make_unique<GenSizeLayer>(*this, parseObj, parent);
 }
 
-LayerPtr GenGenerator::createIdLayerImpl(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateIdLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    return std::make_unique<GenIdLayer>(*this, dslObj, parent);
+    return std::make_unique<GenIdLayer>(*this, parseObj, parent);
 }
 
-LayerPtr GenGenerator::createValueLayerImpl(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateValueLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    return std::make_unique<GenValueLayer>(*this, dslObj, parent);
+    return std::make_unique<GenValueLayer>(*this, parseObj, parent);
 }
 
-LayerPtr GenGenerator::createPayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    return std::make_unique<GenPayloadLayer>(*this, dslObj, parent);
+    return std::make_unique<GenPayloadLayer>(*this, parseObj, parent);
 }
 
-LayerPtr GenGenerator::createChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    return std::make_unique<GenChecksumLayer>(*this, dslObj, parent);
+    return std::make_unique<GenChecksumLayer>(*this, parseObj, parent);
 }
 
-bool GenGenerator::writeImpl()
+bool GenGenerator::genWriteImpl()
 {
     return true;
 }
 
-GenGenerator::LoggerPtr GenGenerator::createLoggerImpl()
+GenGenerator::LoggerPtr GenGenerator::genCreateLoggerImpl()
 {
     return std::make_unique<GenLogger>();
 }
 
-GenNamespace* GenGenerator::addDefaultNamespace()
+GenNamespace* GenGenerator::genAddDefaultNamespace()
 {
-    return currentSchema().addDefaultNamespace();
+    return genCurrentSchema().genAddDefaultNamespace();
 }
 
-bool GenGenerator::copyExtraSourceFiles(const std::vector<std::string>& reservedExtensions) const
+bool GenGenerator::genCopyExtraSourceFiles(const std::vector<std::string>& reservedExtensions) const
 {
-    auto& inputDir = getCodeDir();
+    auto& inputDir = genGetCodeDir();
     if (inputDir.empty()) {
         return true;
     }
 
-    auto& outputDir = getOutputDir();
+    auto& outputDir = genGetOutputDir();
     auto pos = inputDir.size();
     auto endIter = fs::recursive_directory_iterator();
     for (auto iter = fs::recursive_directory_iterator(inputDir); iter != endIter; ++iter) {
@@ -1314,58 +1314,58 @@ bool GenGenerator::copyExtraSourceFiles(const std::vector<std::string>& reserved
         }
 
         std::string relPath(pathStr, posTmp);
-        auto& protSchema = protocolSchema();
-        auto schemaNs = util::strToName(protSchema.schemaName());
+        auto& protSchema = genProtocolSchema();
+        auto schemaNs = util::genStrToName(protSchema.genSchemaName());
         do {
-            if (protSchema.mainNamespace() == schemaNs) {
+            if (protSchema.genMainNamespace() == schemaNs) {
                 break;
             }
 
-            auto srcPrefix = (fs::path(strings::includeDirStr()) / schemaNs).string();
-            if (!util::strStartsWith(relPath, srcPrefix)) {
+            auto srcPrefix = (fs::path(strings::genIncludeDirStr()) / schemaNs).string();
+            if (!util::genStrStartsWith(relPath, srcPrefix)) {
                 break;
             }
 
-            auto dstPrefix = (fs::path(strings::includeDirStr()) / protSchema.mainNamespace()).string();
+            auto dstPrefix = (fs::path(strings::genIncludeDirStr()) / protSchema.genMainNamespace()).string();
             relPath = dstPrefix + std::string(relPath, srcPrefix.size());
         } while (false);
 
         auto destPath = fs::path(outputDir) / relPath;
-        logger().info("Copying " + destPath.string());
+        genLogger().genInfo("Copying " + destPath.string());
 
-        if (!createDirectory(destPath.parent_path().string())) {
+        if (!genCreateDirectory(destPath.parent_path().string())) {
             return false;
         }
 
         std::error_code ec;
         fs::copy_file(srcPath, destPath, fs::copy_options::overwrite_existing, ec);
         if (ec) {
-            logger().error("Failed to copy with reason: " + ec.message());
+            genLogger().genError("Failed to copy with reason: " + ec.message());
             return false;
         }
 
-        if (protSchema.mainNamespace() != schemaNs) {
+        if (protSchema.genMainNamespace() != schemaNs) {
             // The namespace has changed
 
             auto destStr = destPath.string();
             std::ifstream stream(destStr);
             if (!stream) {
-                logger().error("Failed to open " + destStr + " for modification.");
+                genLogger().genError("Failed to open " + destStr + " for modification.");
                 return false;
             }
 
             std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
             stream.close();
 
-            content = util::strReplace(content, "namespace " + schemaNs, "namespace " + protSchema.mainNamespace());
+            content = util::genStrReplace(content, "namespace " + schemaNs, "namespace " + protSchema.genMainNamespace());
             std::ofstream outStream(destStr, std::ios_base::trunc);
             if (!outStream) {
-                logger().error("Failed to modify " + destStr + ".");
+                genLogger().genError("Failed to modify " + destStr + ".");
                 return false;
             }
 
             outStream << content;
-            logger().info("Updated " + destStr + " to have proper main namespace.");
+            genLogger().genInfo("Updated " + destStr + " to have proper main namespace.");
         }
     }
     return true;    

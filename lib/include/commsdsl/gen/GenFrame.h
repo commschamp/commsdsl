@@ -38,29 +38,30 @@ class COMMSDSL_API GenFrame : public GenElem
     using Base = GenElem;
 public:
     using Ptr = std::unique_ptr<GenFrame>;
-    using LayersList = std::vector<LayerPtr>;
+    using LayersList = std::vector<GenLayerPtr>;
     using LayersAccessList = GenLayer::LayersAccessList;
+    using ParseFrame = commsdsl::parse::ParseFrame;
 
-    explicit GenFrame(GenGenerator& generator, commsdsl::parse::ParseFrame dslObj, GenElem* parent = nullptr);
+    explicit GenFrame(GenGenerator& generator, ParseFrame parseObj, GenElem* parent = nullptr);
     virtual ~GenFrame();
 
-    bool prepare();
-    bool write() const;
+    bool genPrepare();
+    bool genWrite() const;
 
-    commsdsl::parse::ParseFrame dslObj() const;
-    const LayersList& layers() const;
+    commsdsl::parse::ParseFrame genParseObj() const;
+    const LayersList& genLayers() const;
 
-    GenGenerator& generator();
-    const GenGenerator& generator() const;
+    GenGenerator& genGenerator();
+    const GenGenerator& genGenerator() const;
 
     LayersAccessList getCommsOrderOfLayers(bool& success) const;
 
-    const GenNamespace* parentNamespace() const;
+    const GenNamespace* genParentNamespace() const;
 
 protected:    
-    virtual Type elemTypeImpl() const override final;
-    virtual bool prepareImpl();
-    virtual bool writeImpl() const;
+    virtual Type genElemTypeImpl() const override final;
+    virtual bool genPrepareImpl();
+    virtual bool genWriteImpl() const;
 
 private:
     std::unique_ptr<GenFrameImpl> m_impl;

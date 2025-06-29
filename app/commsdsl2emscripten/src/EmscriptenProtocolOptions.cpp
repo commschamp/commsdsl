@@ -38,18 +38,18 @@ namespace
 
 std::string emscriptenCodeInternal(EmscriptenGenerator& generator, std::size_t idx)
 {
-    assert(idx < generator.schemas().size());
+    assert(idx < generator.genSchemas().size());
 
-    generator.chooseCurrentSchema(static_cast<unsigned>(idx));
-    if (!generator.currentSchema().hasAnyReferencedComponent()) {
+    generator.genChooseCurrentSchema(static_cast<unsigned>(idx));
+    if (!generator.genCurrentSchema().genHasAnyReferencedComponent()) {
         if (idx == 0U) {
-            return strings::emptyString();
+            return strings::genEmptyString();
         }
 
         return emscriptenCodeInternal(generator, idx - 1U);
     }
 
-    auto scope = comms::scopeForOptions(strings::defaultOptionsClassStr(), generator);
+    auto scope = comms::genScopeForOptions(strings::genDefaultOptionsClassStr(), generator);
 
     if (idx == 0U) {
         return scope;
@@ -70,7 +70,7 @@ std::string emscriptenCodeInternal(EmscriptenGenerator& generator, std::size_t i
         {"NEXT", std::move(nextScope)}
     };
     
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace 
@@ -78,10 +78,10 @@ std::string emscriptenCodeInternal(EmscriptenGenerator& generator, std::size_t i
 std::string EmscriptenProtocolOptions::emscriptenClassName(const EmscriptenGenerator& generator)
 {
     if (!emscriptenIsDefined(generator)) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    return generator.protocolSchema().mainNamespace() + "_ProtocolOptions";
+    return generator.genProtocolSchema().genMainNamespace() + "_ProtocolOptions";
 }
 
 bool EmscriptenProtocolOptions::emscriptenIsDefined([[maybe_unused]] const EmscriptenGenerator& generator)
@@ -119,17 +119,17 @@ bool EmscriptenProtocolOptions::emsciptenWriteHeaderInternal()
 {
     auto name = emscriptenClassName(m_generator);
     auto filePath = m_generator.emscriptenAbsHeaderForRoot(name);
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
 
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_generator.genCreateDirectory(dirPath)) {
         return false;
     }
 
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -145,10 +145,10 @@ bool EmscriptenProtocolOptions::emsciptenWriteHeaderInternal()
         {"DEF", emscriptenTypeDefInternal()}
     };
 
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     
@@ -157,7 +157,7 @@ bool EmscriptenProtocolOptions::emsciptenWriteHeaderInternal()
 
 std::string EmscriptenProtocolOptions::emscriptenTypeDefInternal()
 {
-    assert(m_generator.isCurrentProtocolSchema());
+    assert(m_generator.genIsCurrentProtocolSchema());
 
     const std::string Templ = 
         "using #^#OPT_TYPE#$# =\n"
@@ -165,37 +165,37 @@ std::string EmscriptenProtocolOptions::emscriptenTypeDefInternal()
         "        #^#CODE#$#\n"
         "    >;\n\n";
 
-    auto msgFactOptions = comms::scopeForOptions(strings::allMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_generator);
+    auto msgFactOptions = comms::genScopeForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_generator);
     util::ReplacementMap repl = {
         {"OPT_TYPE", emscriptenClassName(m_generator)},
-        {"CODE", emscriptenCodeInternal(m_generator, m_generator.schemas().size() - 1U)},
+        {"CODE", emscriptenCodeInternal(m_generator, m_generator.genSchemas().size() - 1U)},
         {"MSG_FACT_OPTS", std::move(msgFactOptions)}
     };
 
-    m_generator.chooseProtocolSchema();
-    return util::processTemplate(Templ, repl);
+    m_generator.genChooseProtocolSchema();
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenProtocolOptions::emscriptenIncludesInternal()
 {
-    assert(m_generator.isCurrentProtocolSchema());
+    assert(m_generator.genIsCurrentProtocolSchema());
 
     util::StringsList list;
-    list.push_back(comms::relHeaderForOptions(strings::allMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_generator));
-    auto& schemas = m_generator.schemas();
+    list.push_back(comms::genRelHeaderForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_generator));
+    auto& schemas = m_generator.genSchemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
-        m_generator.chooseCurrentSchema(idx);
-        if (!m_generator.currentSchema().hasAnyReferencedComponent()) {
+        m_generator.genChooseCurrentSchema(idx);
+        if (!m_generator.genCurrentSchema().genHasAnyReferencedComponent()) {
             continue;
         }
 
-        list.push_back(comms::relHeaderForOptions(strings::defaultOptionsClassStr(), m_generator));
+        list.push_back(comms::genRelHeaderForOptions(strings::genDefaultOptionsClassStr(), m_generator));
     }
 
-    m_generator.chooseProtocolSchema();
-    comms::prepareIncludeStatement(list);
+    m_generator.genChooseProtocolSchema();
+    comms::genPrepareIncludeStatement(list);
 
-    return util::strListToString(list, "\n", "\n");
+    return util::genStrListToString(list, "\n", "\n");
 }
 
 } // namespace commsdsl2emscripten

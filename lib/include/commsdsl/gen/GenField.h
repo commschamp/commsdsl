@@ -39,6 +39,7 @@ class COMMSDSL_API GenField : public GenElem
 public:
     using Ptr = std::unique_ptr<GenField>;
     using FieldsList = std::vector<Ptr>;
+    using ParseField = commsdsl::parse::ParseField;
 
     enum FieldRefType
     {
@@ -57,44 +58,44 @@ public:
 
     virtual ~GenField();
 
-    static Ptr create(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent = nullptr);    
+    static Ptr genCreate(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);    
 
-    bool isPrepared() const;
-    bool prepare();
-    bool write() const;
+    bool genIsPrepared() const;
+    bool genPrepare();
+    bool genWrite() const;
 
-    const commsdsl::parse::ParseField& dslObj() const;    
+    const ParseField& genParseObj() const;    
 
-    GenGenerator& generator();
-    const GenGenerator& generator() const;
+    GenGenerator& genGenerator();
+    const GenGenerator& genGenerator() const;
 
-    bool isReferenced() const;
-    void setReferenced();
+    bool genIsReferenced() const;
+    void genSetReferenced();
 
-    static void setFieldReferencedIfExists(GenField* field);
+    static void genSetFieldReferencedIfExists(GenField* field);
 
-    std::string templateScopeOfComms(const std::string& protOptionsStr) const;
+    std::string genTemplateScopeOfComms(const std::string& protOptionsStr) const;
 
-    FieldRefInfo processInnerRef(const std::string& refStr) const;
-    static FieldRefInfo processMemberRef(const FieldsList& fields, const std::string& refStr);
+    FieldRefInfo genProcessInnerRef(const std::string& refStr) const;
+    static FieldRefInfo genProcessMemberRef(const FieldsList& fields, const std::string& refStr);
 
-    const GenNamespace* parentNamespace() const;
+    const GenNamespace* genParentNamespace() const;
 
 protected:    
-    GenField(GenGenerator& generator, const commsdsl::parse::ParseField& dslObj, GenElem* parent = nullptr);
+    GenField(GenGenerator& generator, const ParseField& parseObj, GenElem* parent = nullptr);
 
-    virtual Type elemTypeImpl() const override final;
-    virtual bool prepareImpl();
-    virtual bool writeImpl() const;
-    virtual void setReferencedImpl();
-    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const;
+    virtual Type genElemTypeImpl() const override final;
+    virtual bool genPrepareImpl();
+    virtual bool genWriteImpl() const;
+    virtual void genSetReferencedImpl();
+    virtual FieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const;
 
 
 private:
     std::unique_ptr<GenFieldImpl> m_impl;
 };
 
-using FieldPtr = GenField::Ptr;
+using GenFieldPtr = GenField::Ptr;
 
 } // namespace gen
 

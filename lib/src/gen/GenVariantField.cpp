@@ -28,26 +28,27 @@ class GenVariantFieldImpl
 {
 public:
     using FieldsList = GenVariantField::FieldsList;
+    using ParseVariantField = GenVariantField::ParseVariantField;
 
-    GenVariantFieldImpl(GenGenerator& generator, commsdsl::parse::ParseVariantField dslObj, GenElem* parent) :
+    GenVariantFieldImpl(GenGenerator& generator, ParseVariantField parseObj, GenElem* parent) :
         m_generator(generator),
-        m_dslObj(dslObj),
+        m_parseObj(parseObj),
         m_parent(parent)
     {
     }
 
-    bool prepare()
+    bool genPrepare()
     {
-        if (!m_dslObj.parseValid()) {
+        if (!m_parseObj.parseValid()) {
             return true;
         }
 
-        auto fields = m_dslObj.parseMembers();
+        auto fields = m_parseObj.parseMembers();
         m_members.reserve(fields.size());
-        for (auto& dslObj : fields) {
-            auto ptr = GenField::create(m_generator, dslObj, m_parent);
+        for (auto& parseObj : fields) {
+            auto ptr = GenField::genCreate(m_generator, parseObj, m_parent);
             assert(ptr);
-            if (!ptr->prepare()) {
+            if (!ptr->genPrepare()) {
                 return false;
             }
 
@@ -57,62 +58,62 @@ public:
         return true;
     }
 
-    const FieldsList& members() const
+    const FieldsList& genMembers() const
     {
         return m_members;
     }
 
-    void setReferenced()
+    void genSetReferenced()
     {
         for (auto& m : m_members) {
-            m->setReferenced();
+            m->genSetReferenced();
         }
     }    
 
 private:
     GenGenerator& m_generator;
-    commsdsl::parse::ParseVariantField m_dslObj;
+    ParseVariantField m_parseObj;
     GenElem* m_parent = nullptr;
     FieldsList m_members;
 };
 
-GenVariantField::GenVariantField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent) :
-    Base(generator, dslObj, parent),
-    m_impl(std::make_unique<GenVariantFieldImpl>(generator, variantDslObj(), this))
+GenVariantField::GenVariantField(GenGenerator& generator, ParseField parseObj, GenElem* parent) :
+    Base(generator, parseObj, parent),
+    m_impl(std::make_unique<GenVariantFieldImpl>(generator, genVariantFieldParseObj(), this))
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Variant);
+    assert(parseObj.parseKind() == ParseField::Kind::Variant);
 }
 
 GenVariantField::~GenVariantField() = default;
 
-const GenVariantField::FieldsList& GenVariantField::members() const
+const GenVariantField::FieldsList& GenVariantField::genMembers() const
 {
-    return m_impl->members();
+    return m_impl->genMembers();
 }
 
-bool GenVariantField::prepareImpl()
+bool GenVariantField::genPrepareImpl()
 {
-    return m_impl->prepare();
+    return m_impl->genPrepare();
 }
 
-void GenVariantField::setReferencedImpl()
+void GenVariantField::genSetReferencedImpl()
 {
-    m_impl->setReferenced();
+    m_impl->genSetReferenced();
 }
 
-GenVariantField::FieldRefInfo GenVariantField::processInnerRefImpl(const std::string& refStr) const
+GenVariantField::FieldRefInfo GenVariantField::genProcessInnerRefImpl(const std::string& refStr) const
 {
-    auto& memFields = members();
+    auto& memFields = genMembers();
     if (!memFields.empty()) {
-        return processMemberRef(memFields, refStr);
+        return genProcessMemberRef(memFields, refStr);
     }    
 
-    return Base::processInnerRefImpl(refStr);
+    return Base::genProcessInnerRefImpl(refStr);
 }
 
-commsdsl::parse::ParseVariantField GenVariantField::variantDslObj() const
+GenVariantField::ParseVariantField GenVariantField::genVariantFieldParseObj() const
 {
-    return commsdsl::parse::ParseVariantField(dslObj());
+    return ParseVariantField(genParseObj());
 }
 
 } // namespace gen

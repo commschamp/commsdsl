@@ -33,7 +33,7 @@ namespace commsdsl2swig
 
 void SwigAllMessages::swigAddCode(const SwigGenerator& generator, StringsList& list)
 {
-    auto allMessages = generator.getAllMessagesIdSorted();
+    auto allMessages = generator.genGetAllMessagesIdSorted();
     util::StringsList msgList;
     msgList.reserve(allMessages.size());
 
@@ -43,7 +43,7 @@ void SwigAllMessages::swigAddCode(const SwigGenerator& generator, StringsList& l
 
 
     for (auto* m : allMessages) {
-        if (!m->isReferenced()) {
+        if (!m->genIsReferenced()) {
             continue;
         }
         msgList.push_back(generator.swigClassName(*m));
@@ -56,11 +56,11 @@ void SwigAllMessages::swigAddCode(const SwigGenerator& generator, StringsList& l
         "    >;\n";
 
     util::ReplacementMap repl = {
-        {"NAME", strings::allMessagesStr()},
-        {"MESSAGES", util::strListToString(msgList, ",\n", "")}
+        {"NAME", strings::genAllMessagesStr()},
+        {"MESSAGES", util::genStrListToString(msgList, ",\n", "")}
     };
 
-    list.push_back(util::processTemplate(Templ, repl));
+    list.push_back(util::genProcessTemplate(Templ, repl));
 }
 
 } // namespace commsdsl2swig

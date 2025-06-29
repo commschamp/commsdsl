@@ -33,7 +33,7 @@ public:
 
 protected:
     // Base overrides
-    virtual bool writeImpl() const override;    
+    virtual bool genWriteImpl() const override;    
 
     // SwigBase overrides
     virtual std::string swigValueTypeDeclImpl() const override;

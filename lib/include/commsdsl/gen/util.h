@@ -30,43 +30,43 @@ namespace gen
 namespace util
 {
 
-std::string strReplace(const std::string& str, const std::string& what, const std::string& with);
-std::string strToName(const std::string& value);
-std::vector<std::string> strSplitByAnyChar(const std::string& str, const std::string& splitChars, bool compressed = true);
-std::string strInsertIndent(const std::string& str);
-unsigned strToUnsigned(const std::string& str);
-bool strStartsWith(const std::string& str, const std::string& prefix);
-bool strEndsWith(const std::string& str, const std::string& suffix);
-std::string strToUpper(const std::string& str);
-std::string strToLower(const std::string& str);
-std::string strToMacroName(const std::string& str);
-std::string numToString(std::uintmax_t value, unsigned hexWidth = 0U);
-std::string numToString(std::intmax_t value);
-std::string numToStringWithHexComment(std::intmax_t value);
-std::string numToString(unsigned value, unsigned hexWidth = 0U);
-const std::string& boolToString(bool value);
-std::string pathAddElem(const std::string& path, const std::string& elem);
-std::string pathUp(const std::string& path);
-std::string nameToNs(const std::string& value);
+std::string genStrReplace(const std::string& str, const std::string& what, const std::string& with);
+std::string genStrToName(const std::string& value);
+std::vector<std::string> genStrSplitByAnyChar(const std::string& str, const std::string& splitChars, bool compressed = true);
+std::string genStrInsertIndent(const std::string& str);
+unsigned genStrToUnsigned(const std::string& str);
+bool genStrStartsWith(const std::string& str, const std::string& prefix);
+bool genStrEndsWith(const std::string& str, const std::string& suffix);
+std::string genStrToUpper(const std::string& str);
+std::string genStrToLower(const std::string& str);
+std::string genStrToMacroName(const std::string& str);
+std::string genNumToString(std::uintmax_t value, unsigned hexWidth = 0U);
+std::string genNumToString(std::intmax_t value);
+std::string genNumToStringWithHexComment(std::intmax_t value);
+std::string genNumToString(unsigned value, unsigned hexWidth = 0U);
+const std::string& genBoolToString(bool value);
+std::string genPathAddElem(const std::string& path, const std::string& elem);
+std::string genPathUp(const std::string& path);
+std::string genNameToNs(const std::string& value);
 
 using ReplacementMap = std::map<std::string, std::string>;
-std::string processTemplate(const std::string& templ, const ReplacementMap& repl, bool tidyCode = false);
+std::string genProcessTemplate(const std::string& templ, const ReplacementMap& repl, bool tidyCode = false);
 
 using StringsList = std::vector<std::string>;
-std::string strListToString(
+std::string genStrListToString(
     const StringsList& list,
     const std::string& join = ",\n",
     const std::string& last = "\n");
 
-void addToStrList(std::string&& value, StringsList& list);
-void addToStrList(const std::string& value, StringsList& list);
+void genAddToStrList(std::string&& value, StringsList& list);
+void genAddToStrList(const std::string& value, StringsList& list);
 
-std::string strMakeMultiline(const std::string& value, unsigned len = 60, bool dropReplacedWhiteChar = true);
+std::string genStrMakeMultiline(const std::string& value, unsigned len = 60, bool dropReplacedWhiteChar = true);
 
-std::string readFileContents(const std::string& filePath);
-bool isFileReadable(const std::string& filePath);
+std::string genReadFileContents(const std::string& filePath);
+bool genIsFileReadable(const std::string& filePath);
 
-const std::string& displayName(const std::string& dslDisplayName, const std::string& dslName);
+const std::string& genDisplayName(const std::string& dslDisplayName, const std::string& dslName);
 
 } // namespace util
 

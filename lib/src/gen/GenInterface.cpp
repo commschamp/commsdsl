@@ -33,24 +33,25 @@ class GenInterfaceImpl
 {
 public:
     using FieldsList = GenInterface::FieldsList;
+    using ParseInterface = GenInterface::ParseInterface;
 
-    GenInterfaceImpl(GenGenerator& generator, commsdsl::parse::ParseInterface dslObj, GenElem* parent) :
+    GenInterfaceImpl(GenGenerator& generator, ParseInterface parseObj, GenElem* parent) :
         m_generator(generator),
-        m_dslObj(dslObj),
+        m_parseObj(parseObj),
         m_parent(parent)
     {
     }
 
-    bool createAll()
+    bool genCreateAll()
     {
-        if (!m_dslObj.parseValid()) {
+        if (!m_parseObj.parseValid()) {
             return true;
         }
 
-        auto fields = m_dslObj.parseFields();
+        auto fields = m_parseObj.parseFields();
         m_fields.reserve(fields.size());
-        for (auto& dslObj : fields) {
-            auto ptr = GenField::create(m_generator, dslObj, m_parent);
+        for (auto& parseObj : fields) {
+            auto ptr = GenField::genCreate(m_generator, parseObj, m_parent);
             assert(ptr);
             m_fields.push_back(std::move(ptr));
         }
@@ -58,7 +59,7 @@ public:
         return true;        
     }
 
-    bool prepare()
+    bool genPrepare()
     {
         if (!m_referenced) {
             return true;
@@ -72,15 +73,15 @@ public:
             m_fields.begin(), m_fields.end(),
             [](auto& f)
             {
-                bool result = f->prepare();
+                bool result = f->genPrepare();
                 if (result) {
-                    f->setReferenced();
+                    f->genSetReferenced();
                 }
                 return result;
             });
     }
 
-    bool write() const
+    bool genWrite() const
     {
         if (!m_referenced) {
             return true;
@@ -91,172 +92,172 @@ public:
                 m_fields.begin(), m_fields.end(),
                 [](auto& fieldPtr) -> bool
                 {
-                    return fieldPtr->write();
+                    return fieldPtr->genWrite();
                 });
 
         return result;
     }
 
-    const FieldsList& fields() const
+    const FieldsList& genFields() const
     {
         return m_fields;
     }
 
-    commsdsl::parse::ParseInterface dslObj() const
+    ParseInterface genParseObj() const
     {
-        return m_dslObj;
+        return m_parseObj;
     }
 
-    GenGenerator& generator()
-    {
-        return m_generator;
-    }
-
-    const GenGenerator& generator() const
+    GenGenerator& genGenerator()
     {
         return m_generator;
     }
 
-    bool isReferenced() const
+    const GenGenerator& genGenerator() const
+    {
+        return m_generator;
+    }
+
+    bool genIsReferenced() const
     {
         return m_referenced;
     }
 
-    void setReferenced(bool value)
+    void genSetReferenced(bool value)
     {
         m_referenced = value;
     }
 
 private:
     GenGenerator& m_generator;
-    commsdsl::parse::ParseInterface m_dslObj;
+    ParseInterface m_parseObj;
     GenElem* m_parent = nullptr;
     FieldsList m_fields;
     bool m_referenced = false;
 }; 
 
-GenInterface::GenInterface(GenGenerator& generator, commsdsl::parse::ParseInterface dslObj, GenElem* parent) :
+GenInterface::GenInterface(GenGenerator& generator, ParseInterface parseObj, GenElem* parent) :
     Base(parent),
-    m_impl(std::make_unique<GenInterfaceImpl>(generator, dslObj, this))
+    m_impl(std::make_unique<GenInterfaceImpl>(generator, parseObj, this))
 {
 }
 
 GenInterface::~GenInterface() = default;
 
-bool GenInterface::createAll()
+bool GenInterface::genCreateAll()
 {
-    return m_impl->createAll();
+    return m_impl->genCreateAll();
 }
 
-bool GenInterface::prepare()
+bool GenInterface::genPrepare()
 {
-    if (!m_impl->prepare()) {
+    if (!m_impl->genPrepare()) {
         return false;
     }
 
-    if (!isReferenced()) {
+    if (!genIsReferenced()) {
         return true;
     }
 
-    return prepareImpl();
+    return genPrepareImpl();
 }
 
-bool GenInterface::write() const
+bool GenInterface::genWrite() const
 {
-    if (!m_impl->write()) {
+    if (!m_impl->genWrite()) {
         return false;
     }
 
-    if (!isReferenced()) {
+    if (!genIsReferenced()) {
         return true;
     }
 
-    return writeImpl();
+    return genWriteImpl();
 }
 
-const GenInterface::FieldsList& GenInterface::fields() const
+const GenInterface::FieldsList& GenInterface::genFields() const
 {
-    return m_impl->fields();
+    return m_impl->genFields();
 }
 
-commsdsl::parse::ParseInterface GenInterface::dslObj() const
+GenInterface::ParseInterface GenInterface::genParseObj() const
 {
-    return m_impl->dslObj();
+    return m_impl->genParseObj();
 }
 
-std::string GenInterface::adjustedExternalRef() const
+std::string GenInterface::genAdjustedExternalRef() const
 {
-    auto obj = dslObj();
+    auto obj = genParseObj();
     if (obj.parseValid()) {
         return obj.parseExternalRef();
     }
 
-    auto* ns = static_cast<const GenNamespace*>(getParent());
+    auto* ns = static_cast<const GenNamespace*>(genGetParent());
     assert(ns != nullptr);
-    return ns->adjustedExternalRef() + '.' + strings::messageClassStr();
+    return ns->genAdjustedExternalRef() + '.' + strings::genMessageClassStr();
 }
 
-const std::string& GenInterface::adjustedName() const
+const std::string& GenInterface::genAdjustedName() const
 {
-    auto& str = name();
+    auto& str = genName();
     if (!str.empty()) {
         return str;
     }
 
-    return strings::messageClassStr();
+    return strings::genMessageClassStr();
 }
 
-GenGenerator& GenInterface::generator()
+GenGenerator& GenInterface::genGenerator()
 {
-    return m_impl->generator();
+    return m_impl->genGenerator();
 }
 
-const GenGenerator& GenInterface::generator() const
+const GenGenerator& GenInterface::genGenerator() const
 {
-    return m_impl->generator();
+    return m_impl->genGenerator();
 }
 
-bool GenInterface::hasVersionField() const
+bool GenInterface::genHasVersionField() const
 {
-    auto& fList = fields();
+    auto& fList = genFields();
     return
         std::any_of(
             fList.begin(), fList.end(),
             [](auto& f)
             {
-                return f->dslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Version;
+                return f->genParseObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Version;
             });    
 }
 
-bool GenInterface::isReferenced() const
+bool GenInterface::genIsReferenced() const
 {
-    return m_impl->isReferenced();
+    return m_impl->genIsReferenced();
 }
 
-void GenInterface::setReferenced(bool value)
+void GenInterface::genSetReferenced(bool value)
 {
-    m_impl->setReferenced(value);
+    m_impl->genSetReferenced(value);
 }
 
-const GenNamespace* GenInterface::parentNamespace() const
+const GenNamespace* GenInterface::genParentNamespace() const
 {
-    auto* parent = getParent();
+    auto* parent = genGetParent();
     assert(parent != nullptr);
-    assert(parent->elemType() == GenElem::Type_Namespace);
+    assert(parent->genElemType() == GenElem::Type_Namespace);
     return static_cast<const GenNamespace*>(parent);
 }
 
-GenElem::Type GenInterface::elemTypeImpl() const
+GenElem::Type GenInterface::genElemTypeImpl() const
 {
     return Type_Interface;
 }
 
-bool GenInterface::prepareImpl()
+bool GenInterface::genPrepareImpl()
 {
     return true;
 }
 
-bool GenInterface::writeImpl() const
+bool GenInterface::genWriteImpl() const
 {
     return true;
 }

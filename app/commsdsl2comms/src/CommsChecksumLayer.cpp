@@ -38,9 +38,9 @@ CommsChecksumLayer::CommsChecksumLayer(CommsGenerator& generator, commsdsl::pars
 {
 }
 
-bool CommsChecksumLayer::prepareImpl()
+bool CommsChecksumLayer::genPrepareImpl()
 {
-    return Base::prepareImpl() && CommsBase::commsPrepare();
+    return Base::genPrepareImpl() && CommsBase::commsPrepare();
 }
 
 CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() const
@@ -57,7 +57,7 @@ CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() cons
     }
 
     const std::string ChecksumMap[] = {
-        /* Custom */ strings::emptyString(),
+        /* Custom */ strings::genEmptyString(),
         /* Sum */ "BasicSum",
         /* Crc_CCITT */ "Crc",
         /* Crc_16 */ "Crc",
@@ -77,11 +77,11 @@ CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() cons
     }
 
     if (!ChecksumMap[idx].empty()) {
-        result.push_back("comms/frame/checksum/" + ChecksumMap[idx] + strings::cppHeaderSuffixStr());
+        result.push_back("comms/frame/checksum/" + ChecksumMap[idx] + strings::genCppHeaderSuffixStr());
     }
     else {
         assert(!obj.parseCustomAlgName().empty());
-        result.push_back(comms::relHeaderForChecksum(comms::className(obj.parseCustomAlgName()), generator()));
+        result.push_back(comms::genRelHeaderForChecksum(comms::genClassName(obj.parseCustomAlgName()), genGenerator()));
     }
     return result;
 }
@@ -111,13 +111,13 @@ std::string CommsChecksumLayer::commsDefBaseTypeImpl(const std::string& prevName
         repl["PREFIX_VAR"] = "Prefix";
     }    
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsChecksumLayer::commsDefAlgInternal() const
 {
     const std::string ClassMap[] = {
-        /* Custom */ strings::emptyString(),
+        /* Custom */ strings::genEmptyString(),
         /* Sum */ "BasicSum",
         /* Crc_CCITT */ "Crc_CCITT",
         /* Crc_16 */ "Crc_16",
@@ -142,7 +142,7 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
 
     if (ClassMap[idx].empty()) {
         assert(!obj.parseCustomAlgName().empty());
-        return comms::scopeForChecksum(obj.parseCustomAlgName(), generator());
+        return comms::genScopeForChecksum(obj.parseCustomAlgName(), genGenerator());
     }
 
     auto str = "comms::frame::checksum::" + ClassMap[idx];
@@ -161,11 +161,11 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
         {"FIELD", commsDefFieldType()},
     };
 
-    if (!util::strStartsWith(repl["FIELD"], "typename")) {
+    if (!util::genStrStartsWith(repl["FIELD"], "typename")) {
         repl["FIELD"] = "typename " + repl["FIELD"];
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsChecksumLayer::commsDefExtraOptInternal() const

@@ -54,7 +54,7 @@ const std::string ForceMainNamespaceInOptionsStr("force-main-ns-in-options");
 
 ToolsQtProgramOptions::ToolsQtProgramOptions()
 {
-    addHelpOption()
+    genAddHelpOption()
     (VersionStr, "Print version string and exit.")
     (FullQuietStr, "Quiet, show only warnings and errors.")
     (FullOutputDirStr, "Output directory path. When not provided current is used.", true)        
@@ -86,62 +86,62 @@ ToolsQtProgramOptions::ToolsQtProgramOptions()
 
 bool ToolsQtProgramOptions::quietRequested() const
 {
-    return isOptUsed(QuietStr);
+    return genIsOptUsed(QuietStr);
 }
 
 bool ToolsQtProgramOptions::versionRequested() const
 {
-    return isOptUsed(VersionStr);
+    return genIsOptUsed(VersionStr);
 }
 
 bool ToolsQtProgramOptions::warnAsErrRequested() const
 {
-    return isOptUsed(WarnAsErrStr);
+    return genIsOptUsed(WarnAsErrStr);
 }
 
 const std::string& ToolsQtProgramOptions::getFilesListFile() const
 {
-    return value(InputFilesListStr);
+    return genValue(InputFilesListStr);
 }
 
 const std::string& ToolsQtProgramOptions::getFilesListPrefix() const
 {
-    return value(InputFilesPrefixStr);
+    return genValue(InputFilesPrefixStr);
 }
 
 const ToolsQtProgramOptions::ArgsList& ToolsQtProgramOptions::getFiles() const
 {
-    return args();
+    return genArgs();
 }
 
 const std::string& ToolsQtProgramOptions::getOutputDirectory() const
 {
-    return value(OutputDirStr);
+    return genValue(OutputDirStr);
 }
 
 bool ToolsQtProgramOptions::hasNamespaceOverride() const
 {
-    return isOptUsed(NamespaceStr);
+    return genIsOptUsed(NamespaceStr);
 }
 
 const std::string& ToolsQtProgramOptions::getNamespace() const
 {
-    return value(NamespaceStr);
+    return genValue(NamespaceStr);
 }
 
 const std::string& ToolsQtProgramOptions::getCodeInputDirectory() const
 {
-    return value(CodeInputDirStr);
+    return genValue(CodeInputDirStr);
 }
 
 ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::getPlugins() const
 {
     PluginInfosList result;
-    if (!isOptUsed(ProtocolStr)) {
+    if (!genIsOptUsed(ProtocolStr)) {
         return result;
     }
 
-    auto infos = util::strSplitByAnyChar(value(ProtocolStr), ",");
+    auto infos = util::genStrSplitByAnyChar(genValue(ProtocolStr), ",");
     for (auto& i : infos) {
         enum ValueIdx : unsigned
         {
@@ -153,7 +153,7 @@ ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::getPlugins() const
             ValueIdx_NumOfValues
         };
 
-        auto values = util::strSplitByAnyChar(i, ":", false);
+        auto values = util::genStrSplitByAnyChar(i, ":", false);
         values.resize(std::max(values.size(), std::size_t(ValueIdx_NumOfValues)));
         result.resize(result.size() + 1U);
         auto& resInfo = result.back();
@@ -168,12 +168,12 @@ ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::getPlugins() const
 
 bool ToolsQtProgramOptions::multipleSchemasEnabled() const
 {
-    return isOptUsed(MultipleSchemasEnabledStr);
+    return genIsOptUsed(MultipleSchemasEnabledStr);
 }
 
 bool ToolsQtProgramOptions::isMainNamespaceInOptionsForced() const
 {
-    return isOptUsed(ForceMainNamespaceInOptionsStr);
+    return genIsOptUsed(ForceMainNamespaceInOptionsStr);
 }
 
 

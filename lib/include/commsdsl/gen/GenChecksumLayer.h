@@ -34,13 +34,16 @@ class COMMSDSL_API GenChecksumLayer : public GenLayer
     using Base = GenLayer;
 public:
 
-    GenChecksumLayer(GenGenerator& generator, commsdsl::parse::ParseLayer dslObj, GenElem* parent = nullptr);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using ParseChecksumLayer = commsdsl::parse::ParseChecksumLayer;
+
+    GenChecksumLayer(GenGenerator& generator, ParseLayer dslObj, GenElem* parent = nullptr);
     virtual ~GenChecksumLayer();
 
 protected:    
-    virtual bool forceCommsOrderImpl(LayersAccessList& layers, bool& success) const override final;
+    virtual bool genForceCommsOrderImpl(LayersAccessList& layers, bool& success) const override final;
     
-    commsdsl::parse::ParseChecksumLayer checksumDslObj() const;
+    ParseChecksumLayer checksumDslObj() const;
 };
 
 } // namespace gen

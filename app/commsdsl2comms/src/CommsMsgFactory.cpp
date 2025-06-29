@@ -61,10 +61,10 @@ std::string commsDynMemAllocCodeFuncInternal(const commsdsl::gen::GenMessage& ms
             "return MsgPtr(new #^#MSG_TYPE#$#<TInterface, TProtOptions>);";
 
         util::ReplacementMap repl = {
-            {"MSG_TYPE", comms::scopeFor(msg, generator)},
+            {"MSG_TYPE", comms::genScopeFor(msg, generator)},
         };            
 
-        return util::processTemplate(Templ, repl);
+        return util::genProcessTemplate(Templ, repl);
     }
 
     static const std::string Templ = 
@@ -73,11 +73,11 @@ std::string commsDynMemAllocCodeFuncInternal(const commsdsl::gen::GenMessage& ms
         "}";
 
     util::ReplacementMap repl = {
-        {"MSG_TYPE", comms::scopeFor(msg, generator)},
-        {"IDX", util::numToString(static_cast<std::intmax_t>(idx))},
+        {"MSG_TYPE", comms::genScopeFor(msg, generator)},
+        {"IDX", util::genNumToString(static_cast<std::intmax_t>(idx))},
     };            
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string commsInPlaceAllocCodeFuncInternal(
@@ -122,11 +122,11 @@ std::string commsGetMsgAllocCodeInternal(
                 "case #^#ID#$#: #^#CODE#$#";
 
             util::ReplacementMap caseRepl = {
-                {"ID", util::numToStringWithHexComment(elem.first)},
+                {"ID", util::genNumToStringWithHexComment(elem.first)},
                 {"CODE", func(*elem.second.front(), generator, -1)},
             };
 
-            cases.push_back(util::processTemplate(CaseTempl, caseRepl));
+            cases.push_back(util::genProcessTemplate(CaseTempl, caseRepl));
             continue;
         }
 
@@ -142,15 +142,15 @@ std::string commsGetMsgAllocCodeInternal(
             ;
 
         util::ReplacementMap caseRepl = {
-            {"ID", util::numToStringWithHexComment(elem.first)},
-            {"CODE", util::strListToString(allocs, "\n", "")},
+            {"ID", util::genNumToStringWithHexComment(elem.first)},
+            {"CODE", util::genStrListToString(allocs, "\n", "")},
         };
 
-        cases.push_back(util::processTemplate(CaseTempl, caseRepl));
+        cases.push_back(util::genProcessTemplate(CaseTempl, caseRepl));
     }        
 
     util::ReplacementMap repl {
-        {"CASES", util::strListToString(cases, "\n", "")},
+        {"CASES", util::genStrListToString(cases, "\n", "")},
     };
 
     if (hasUniqueIds) {
@@ -161,7 +161,7 @@ std::string commsGetMsgAllocCodeInternal(
             "}\n";
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string commsGetMsgCountCodeInternal(const MessagesMap& map)
@@ -182,18 +182,18 @@ std::string commsGetMsgCountCodeInternal(const MessagesMap& map)
             "case #^#ID#$#: return #^#SIZE#$#;";
 
         util::ReplacementMap caseRepl = {
-            {"ID", util::numToStringWithHexComment(elem.first)},
-            {"SIZE", util::numToString(elem.second.size())},
+            {"ID", util::genNumToStringWithHexComment(elem.first)},
+            {"SIZE", util::genNumToString(elem.second.size())},
         };
 
-        cases.push_back(util::processTemplate(CaseTempl, caseRepl));
+        cases.push_back(util::genProcessTemplate(CaseTempl, caseRepl));
     }
 
     util::ReplacementMap repl = {
-        {"CASES", util::strListToString(cases, "\n", "")}
+        {"CASES", util::genStrListToString(cases, "\n", "")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool commsWriteFileInternal(
@@ -213,19 +213,19 @@ bool commsWriteFileInternal(
         codeFunc = &commsInPlaceAllocCodeFuncInternal;
     }
 
-    auto name = prefix + *typeStr + strings::msgFactorySuffixStr();
-    auto filePath = comms::headerPathForFactory(name, generator, parent);
-    generator.logger().info("Generating " + filePath);
+    auto name = prefix + *typeStr + strings::genMsgFactorySuffixStr();
+    auto filePath = comms::genHeaderPathForFactory(name, generator, parent);
+    generator.genLogger().genInfo("Generating " + filePath);
 
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!generator.createDirectory(dirPath)) {
+    if (!generator.genCreateDirectory(dirPath)) {
         return false;
     }      
 
     std::ofstream stream(filePath);
     if (!stream) {
-        generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }    
 
@@ -335,13 +335,13 @@ bool commsWriteFileInternal(
         "<cstdint>",
         "<memory>",
         "comms/MsgFactoryCreateFailureReason.h",
-        comms::relHeaderForInput(prefix, generator, parent),
+        comms::genRelHeaderForInput(prefix, generator, parent),
         
     };
 
-    comms::prepareIncludeStatement(includes);
+    comms::genPrepareIncludeStatement(includes);
 
-    auto allMessages = parent.getAllMessagesIdSorted();
+    auto allMessages = parent.genGetAllMessagesIdSorted();
 
     MessagesMap mappedMessages;
 
@@ -350,7 +350,7 @@ bool commsWriteFileInternal(
             continue;
         }
 
-        mappedMessages[m->dslObj().parseId()].push_back(m);
+        mappedMessages[m->genParseObj().parseId()].push_back(m);
     }    
 
     bool hasUniqueIds = 
@@ -363,24 +363,24 @@ bool commsWriteFileInternal(
 
         util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
-        {"NS_BEGIN", comms::namespaceBeginFor(parent, generator)},
-        {"NS_END", comms::namespaceEndFor(parent, generator)},         
-        {"FACTORY_NAMESPACE", strings::factoryNamespaceStr()},
+        {"NS_BEGIN", comms::genNamespaceBeginFor(parent, generator)},
+        {"NS_END", comms::genNamespaceEndFor(parent, generator)},         
+        {"FACTORY_NAMESPACE", strings::genFactoryNamespaceStr()},
         {"NAME", name},
         {"POLICY", *policyStr},
         {"DESC", desc},
-        {"INCLUDES", util::strListToString(includes, "\n", "\n")},
-        {"EXTEND", util::readFileContents(comms::inputCodePathForFactory(name, generator, parent) + strings::extendFileSuffixStr())},
-        {"APPEND", util::readFileContents(comms::inputCodePathForFactory(name, generator, parent) + strings::appendFileSuffixStr())},
-        {"HAS_UNIQUE_IDS", util::boolToString(hasUniqueIds)},
-        {"IN_PLACE_ALLOC", util::boolToString(inPlaceAlloc)},
+        {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
+        {"EXTEND", util::genReadFileContents(comms::genInputCodePathForFactory(name, generator, parent) + strings::genExtendFileSuffixStr())},
+        {"APPEND", util::genReadFileContents(comms::genInputCodePathForFactory(name, generator, parent) + strings::genAppendFileSuffixStr())},
+        {"HAS_UNIQUE_IDS", util::genBoolToString(hasUniqueIds)},
+        {"IN_PLACE_ALLOC", util::genBoolToString(inPlaceAlloc)},
         {"CAN_ALLOCATE", "true"},
         {"MSG_COUNT_CODE", commsGetMsgCountCodeInternal(mappedMessages)},
         {"CREATE_CODE", commsGetMsgAllocCodeInternal(mappedMessages, generator, codeFunc, hasUniqueIds)},
     };
 
     if (!repl["EXTEND"].empty()) {
-        repl["ORIG"] = strings::origSuffixStr();
+        repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
     if (inPlaceAlloc) {
@@ -388,7 +388,7 @@ bool commsWriteFileInternal(
         assert(false); // Not implemented
     }
 
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -414,12 +414,12 @@ bool CommsMsgFactory::commsWrite() const
 
 std::string CommsMsgFactory::commsScope(const std::string& prefix) const
 {
-    return comms::scopeForFactory(prefix + strings::msgFactorySuffixStr(), m_generator, m_parent);
+    return comms::genScopeForFactory(prefix + strings::genMsgFactorySuffixStr(), m_generator, m_parent);
 }
 
 std::string CommsMsgFactory::commsRelHeaderPath(const std::string& prefix) const
 {
-    return comms::relHeaderForFactory(prefix + strings::msgFactorySuffixStr(), m_generator, m_parent);
+    return comms::genRelHeaderForFactory(prefix + strings::genMsgFactorySuffixStr(), m_generator, m_parent);
 }
 
 bool CommsMsgFactory::commsWriteAllMsgFactoryInternal() const
@@ -433,7 +433,7 @@ bool CommsMsgFactory::commsWriteAllMsgFactoryInternal() const
 
     auto dynMemWrite = 
         commsWriteFileInternal(
-            strings::allMessagesStr(),
+            strings::genAllMessagesStr(),
             AllMessagesDesc,
             m_generator,
             m_parent,
@@ -448,7 +448,7 @@ bool CommsMsgFactory::commsWriteClientMsgFactoryInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::GenMessage& msg)
         {
-            return msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client;
+            return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client;
         };
 
     auto dynMemWrite = 
@@ -468,7 +468,7 @@ bool CommsMsgFactory::commsWriteServerMsgFactoryInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::GenMessage& msg)
         {
-            return msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server;
+            return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server;
         };
 
     auto dynMemWrite = 
@@ -485,13 +485,13 @@ bool CommsMsgFactory::commsWriteServerMsgFactoryInternal() const
 
 bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
 {
-    auto& platforms = m_generator.currentSchema().platformNames();
+    auto& platforms = m_generator.genCurrentSchema().platformNames();
     for (auto& p : platforms) {
 
         auto platformCheckFunc = 
             [&p](const commsdsl::gen::GenMessage& msg)
             {
-                auto& msgPlatforms = msg.dslObj().parsePlatforms();
+                auto& msgPlatforms = msg.genParseObj().parsePlatforms();
                 if (msgPlatforms.empty()) {
                     return true;
                 }
@@ -507,7 +507,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
 
         auto allDynMemWrite = 
             commsWriteFileInternal(
-                comms::className(p) + "Messages",
+                comms::genClassName(p) + "Messages",
                 AllMessagesDesc + " \"" + p + "\" platform specific",
                 m_generator,
                 m_parent,
@@ -523,12 +523,12 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
             {
                 return 
                     platformCheckFunc(msg) &&
-                    (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
+                    (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
             };
 
         auto clientDynMemWrite = 
             commsWriteFileInternal(
-                comms::className(p) + ClientPrefixStr,
+                comms::genClassName(p) + ClientPrefixStr,
                 ClientDesc + " \"" + p + "\" platform specific",
                 m_generator,
                 m_parent,
@@ -544,12 +544,12 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
             {
                 return 
                     platformCheckFunc(msg) &&
-                    (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
+                    (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
             };
 
         auto serverDynMemWrite = 
             commsWriteFileInternal(
-                comms::className(p) + ServerPrefixStr,
+                comms::genClassName(p) + ServerPrefixStr,
                 ServerDesc + " \"" + p + "\" platform specific",
                 m_generator,
                 m_parent,
@@ -583,7 +583,7 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
 
         auto allDynMemWrite = 
             commsWriteFileInternal(
-                comms::className(b.first) + "Messages",
+                comms::genClassName(b.first) + "Messages",
                 AllMessagesDesc + " \"" + b.first+ "\" bundle specific",
                 m_generator,
                 m_parent,
@@ -599,12 +599,12 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
             {
                 return 
                     bundleCheckFunc(msg) &&
-                    (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
+                    (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
             };
 
         auto clientDynMemWrite = 
             commsWriteFileInternal(
-                comms::className(b.first) + ClientPrefixStr,
+                comms::genClassName(b.first) + ClientPrefixStr,
                 ClientDesc + " \"" + b.first+ "\" bundle specific",
                 m_generator,
                 m_parent,
@@ -620,12 +620,12 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
             {
                 return 
                     bundleCheckFunc(msg) &&
-                    (msg.dslObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
+                    (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
             };
 
         auto serverDynMemWrite = 
             commsWriteFileInternal(
-                comms::className(b.first) + ServerPrefixStr,
+                comms::genClassName(b.first) + ServerPrefixStr,
                 ServerDesc + " \"" + b.first + "\" bundle specific",
                 m_generator,
                 m_parent,

@@ -34,9 +34,9 @@ ToolsQtSyncLayer::ToolsQtSyncLayer(ToolsQtGenerator& generator, commsdsl::parse:
 {
 }
 
-bool ToolsQtSyncLayer::prepareImpl() 
+bool ToolsQtSyncLayer::genPrepareImpl() 
 {
-    return Base::prepareImpl() && ToolsBase::prepare();
+    return Base::genPrepareImpl() && ToolsBase::toolsPrepare();
 }
 
 } // namespace commsdsl2tools_qt

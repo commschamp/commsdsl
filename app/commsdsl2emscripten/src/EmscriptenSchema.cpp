@@ -40,7 +40,7 @@ EmscriptenSchema::~EmscriptenSchema() = default;
 
 void EmscriptenSchema::emscriptenAddSourceFiles(StringsList& sources) const
 {
-    for (auto& nPtr : namespaces()) {
+    for (auto& nPtr : genNamespaces()) {
         auto* n = EmscriptenNamespace::cast(nPtr.get());
         n->emscriptenAddSourceFiles(sources);
     }

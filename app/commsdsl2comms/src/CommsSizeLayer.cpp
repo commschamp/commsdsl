@@ -32,9 +32,9 @@ CommsSizeLayer::CommsSizeLayer(CommsGenerator& generator, commsdsl::parse::Parse
 {
 }
 
-bool CommsSizeLayer::prepareImpl()
+bool CommsSizeLayer::genPrepareImpl()
 {
-    return Base::prepareImpl() && CommsBase::commsPrepare();
+    return Base::genPrepareImpl() && CommsBase::commsPrepare();
 }
 
 CommsSizeLayer::IncludesList CommsSizeLayer::commsDefIncludesImpl() const
@@ -60,7 +60,7 @@ std::string CommsSizeLayer::commsDefBaseTypeImpl(const std::string& prevName) co
         {"PREV_LAYER", prevName},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2comms

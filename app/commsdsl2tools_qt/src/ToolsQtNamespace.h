@@ -46,7 +46,7 @@ public:
 
 
 protected:
-    virtual bool writeImpl() const override;    
+    virtual bool genWriteImpl() const override;    
 
 private:
     ToolsQtMsgFactory m_factory;

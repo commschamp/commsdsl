@@ -33,14 +33,16 @@ class COMMSDSL_API GenCustomLayer : public GenLayer
 {
     using Base = GenLayer;
 public:
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using ParseCustomLayer = commsdsl::parse::ParseCustomLayer;
 
-    GenCustomLayer(GenGenerator& generator, commsdsl::parse::ParseLayer dslObj, GenElem* parent = nullptr);
+    GenCustomLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent = nullptr);
     virtual ~GenCustomLayer();
 
-    commsdsl::parse::ParseCustomLayer customDslObj() const;
+    ParseCustomLayer genCustomLayerParseObj() const;
 
 protected:
-    virtual bool forceCommsOrderImpl(LayersAccessList& layers, bool& success) const override final;    
+    virtual bool genForceCommsOrderImpl(LayersAccessList& layers, bool& success) const override final;    
 
 };
 

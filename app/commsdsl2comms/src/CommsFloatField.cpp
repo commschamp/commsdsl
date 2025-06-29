@@ -74,7 +74,7 @@ double getMax(commsdsl::parse::ParseFloatField::Type type)
     return std::numeric_limits<double>::max();
 }
 
-std::string valueToString(double val, commsdsl::parse::ParseFloatField::Type type)
+std::string genValueToString(double val, commsdsl::parse::ParseFloatField::Type type)
 {
     if (isLimit(val)) {
         return limitToString(val);
@@ -114,10 +114,10 @@ std::string cmpToString(double val, commsdsl::parse::ParseFloatField::Type type)
         util::ReplacementMap repl = {
             {"COMP", std::move(comp)}
         };
-        return util::processTemplate(Templ, repl);
+        return util::genProcessTemplate(Templ, repl);
     }
 
-    return "std::abs(Base::getValue() - " + valueToString(val, type) + ") < std::numeric_limits<ValueType>::epsilon()";
+    return "std::abs(Base::getValue() - " + genValueToString(val, type) + ") < std::numeric_limits<ValueType>::epsilon()";
 }
 
 const std::string& specialNamesMapTempl()
@@ -156,7 +156,7 @@ void addCondition(util::StringsList& condList, std::string&& str)
         {"COND", std::move(str)},
     };
 
-    condList.push_back(util::processTemplate(Templ, repl));
+    condList.push_back(util::genProcessTemplate(Templ, repl));
 }
 
 void addRangeComparison(
@@ -178,11 +178,11 @@ void addRangeComparison(
     }
 
     util::ReplacementMap repl = {
-        {"MIN", valueToString(min, type)},
-        {"MAX", valueToString(max, type)},
+        {"MIN", genValueToString(min, type)},
+        {"MAX", genValueToString(max, type)},
     };
 
-    addCondition(condList, util::processTemplate(*templ, repl));
+    addCondition(condList, util::genProcessTemplate(*templ, repl));
 }
 
 } // namespace 
@@ -197,12 +197,12 @@ CommsFloatField::CommsFloatField(
 {
 }
 
-bool CommsFloatField::prepareImpl()
+bool CommsFloatField::genPrepareImpl()
 {
-    return Base::prepareImpl() && commsPrepare();
+    return Base::genPrepareImpl() && commsPrepare();
 }
 
-bool CommsFloatField::writeImpl() const
+bool CommsFloatField::genWriteImpl() const
 {
     return commsWrite();
 }
@@ -211,7 +211,7 @@ CommsFloatField::IncludesList CommsFloatField::commsCommonIncludesImpl() const
 {
     IncludesList result;
 
-    auto& specials = specialsSortedByValue();
+    auto& specials = genSpecialsSortedByValue();
     bool hasLimits =
         std::any_of(
             specials.begin(), specials.end(),
@@ -240,16 +240,16 @@ std::string CommsFloatField::commsCommonCodeBodyImpl() const
         "#^#SPECIAL_NAMES_MAP#$#\n"    
     ;
 
-    auto& gen = generator();
-    auto dslObj = floatDslObj();
+    auto& gen = genGenerator();
+    auto dslObj = genFloatFieldParseObj();
     util::ReplacementMap repl = {
-        {"SCOPE", comms::scopeFor(*this, gen)},
-        {"VALUE_TYPE", comms::cppFloatTypeFor(dslObj.parseType())},
+        {"SCOPE", comms::genScopeFor(*this, gen)},
+        {"VALUE_TYPE", comms::genCppFloatTypeFor(dslObj.parseType())},
         {"NAME_FUNC", commsCommonNameFuncCode()},
         {"HAS_SPECIAL_FUNC", commsCommonHasSpecialsFuncCodeInternal()}
     };
 
-    if (!specialsSortedByValue().empty()) {
+    if (!genSpecialsSortedByValue().empty()) {
         repl.insert({
             {"SPECIAL_VALUE_NAMES_MAP_DEFS", commsCommonValueNamesMapCodeInternal()},
             {"SPECIALS", commsCommonSpecialsCodeInternal()},
@@ -257,25 +257,25 @@ std::string CommsFloatField::commsCommonCodeBodyImpl() const
         });
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsFloatField::commsDefConstructCodeImpl() const
 {
-    auto obj = floatDslObj();
+    auto obj = genFloatFieldParseObj();
     double defaultValue = obj.parseDefaultValue();
     if (defaultValue == 0) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ =
         "Base::setValue(#^#VAL#$#);\n";
 
     util::ReplacementMap repl = {
-        {"VAL", valueToString(defaultValue, obj.parseType())}
+        {"VAL", genValueToString(defaultValue, obj.parseType())}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 CommsFloatField::IncludesList CommsFloatField::commsDefIncludesImpl() const
@@ -286,7 +286,7 @@ CommsFloatField::IncludesList CommsFloatField::commsDefIncludesImpl() const
 
     bool hasLimits = false;
     do {
-        auto obj = floatDslObj();
+        auto obj = genFloatFieldParseObj();
         hasLimits = isLimit(obj.parseDefaultValue());
         if (hasLimits) {
             break;
@@ -323,12 +323,12 @@ std::string CommsFloatField::commsDefBaseClassImpl() const
         "    #^#FIELD_OPTS#$#\n"
         ">";    
 
-    auto& gen = generator();
-    auto dslObj = floatDslObj();
+    auto& gen = genGenerator();
+    auto dslObj = genFloatFieldParseObj();
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
+        {"PROT_NAMESPACE", gen.genSchemaOf(*this).genMainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.parseEndian())},
-        {"FIELD_TYPE", comms::cppFloatTypeFor(dslObj.parseType())},
+        {"FIELD_TYPE", comms::genCppFloatTypeFor(dslObj.parseType())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };
 
@@ -336,7 +336,7 @@ std::string CommsFloatField::commsDefBaseClassImpl() const
         repl["COMMA"] = ",";
     }
 
-    return util::processTemplate(Templ, repl);     
+    return util::genProcessTemplate(Templ, repl);     
 }
 
 std::string CommsFloatField::commsDefPublicCodeImpl() const
@@ -359,20 +359,20 @@ std::string CommsFloatField::commsDefPublicCodeImpl() const
         {"DISPLAY_DECIMALS", commsDefDisplayDecimalsCodeInternal()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsFloatField::commsDefValidFuncBodyImpl() const
 {
-    auto obj = floatDslObj();
+    auto obj = genFloatFieldParseObj();
 
     auto& validRanges = obj.parseValidRanges();
     if (validRanges.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     bool validCheckVersion =
-        generator().schemaOf(*this).versionDependentCode() &&
+        genGenerator().genSchemaOf(*this).genVersionDependentCode() &&
         obj.parseValidCheckVersion();
 
     StringsList conditions;
@@ -409,15 +409,15 @@ std::string CommsFloatField::commsDefValidFuncBodyImpl() const
         "return false;";
 
     util::ReplacementMap repl = {
-        {"CONDITIONS", util::strListToString(conditions, "\n", "")}
+        {"CONDITIONS", util::genStrListToString(conditions, "\n", "")}
     };
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool CommsFloatField::commsIsVersionDependentImpl() const
 {
-    assert(generator().schemaOf(*this).versionDependentCode());
-    auto obj = floatDslObj();
+    assert(genGenerator().genSchemaOf(*this).genVersionDependentCode());
+    auto obj = genFloatFieldParseObj();
     if (!obj.parseValidCheckVersion()) {
         return false;
     }
@@ -444,26 +444,26 @@ bool CommsFloatField::commsIsVersionDependentImpl() const
 
 bool CommsFloatField::commsVerifyInnerRefImpl(const std::string& refStr) const
 {
-    auto obj = floatDslObj();
+    auto obj = genFloatFieldParseObj();
     auto& specials = obj.parseSpecialValues();
     return (specials.find(refStr) != specials.end());
 }
 
 std::string CommsFloatField::commsCommonHasSpecialsFuncCodeInternal() const
 {
-    auto& specials = specialsSortedByValue();    
+    auto& specials = genSpecialsSortedByValue();    
     util::ReplacementMap repl = {
-        {"VALUE", util::boolToString(!specials.empty())}
+        {"VALUE", util::genBoolToString(!specials.empty())}
     };
 
-    return util::processTemplate(hasSpecialsFuncTempl(), repl);
+    return util::genProcessTemplate(hasSpecialsFuncTempl(), repl);
 }
 
 std::string CommsFloatField::commsCommonValueNamesMapCodeInternal() const
 {
-    auto& specials = specialsSortedByValue();    
+    auto& specials = genSpecialsSortedByValue();    
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     util::ReplacementMap repl = {
@@ -471,19 +471,19 @@ std::string CommsFloatField::commsCommonValueNamesMapCodeInternal() const
         {"MAP_DEF", "std::pair<const SpecialNameInfo*, std::size_t>"}
     };
 
-    return util::processTemplate(specialNamesMapTempl(), repl);
+    return util::genProcessTemplate(specialNamesMapTempl(), repl);
 }
 
 std::string CommsFloatField::commsCommonSpecialsCodeInternal() const
 {
-    auto& specials = specialsSortedByValue();
+    auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     util::StringsList specialsList;
     for (auto& s : specials) {
-        if (!generator().doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
+        if (!genGenerator().genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
         }
 
@@ -500,28 +500,28 @@ std::string CommsFloatField::commsCommonSpecialsCodeInternal() const
         if (!desc.empty()) {
             static const std::string Prefix("/// @details ");
             desc.insert(desc.begin(), Prefix.begin(), Prefix.end());
-            desc = util::strMakeMultiline(desc);
-            desc = util::strReplace(desc, "\n", "\n///     ");
+            desc = util::genStrMakeMultiline(desc);
+            desc = util::genStrReplace(desc, "\n", "\n///     ");
         }
 
         util::ReplacementMap repl = {
             {"SPEC_NAME", s.first},
-            {"SPEC_ACC", comms::className(s.first)},
-            {"SPEC_VAL", valueToString(s.second.m_value, floatDslObj().parseType())},
+            {"SPEC_ACC", comms::genClassName(s.first)},
+            {"SPEC_VAL", genValueToString(s.second.m_value, genFloatFieldParseObj().parseType())},
             {"SPECIAL_DOC", std::move(desc)},
         };
 
-        specialsList.push_back(util::processTemplate(Templ, repl));
+        specialsList.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    return util::strListToString(specialsList, "\n", "\n");
+    return util::genStrListToString(specialsList, "\n", "\n");
 }
 
 std::string CommsFloatField::commsCommonSpecialNamesMapCodeInternal() const
 {
-    auto& specials = specialsSortedByValue();
+    auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -541,33 +541,33 @@ std::string CommsFloatField::commsCommonSpecialNamesMapCodeInternal() const
             "std::make_pair(value#^#SPEC_ACC#$#(), \"#^#SPEC_NAME#$#\")";
 
         util::ReplacementMap specRepl = {
-            {"SPEC_ACC", comms::className(s.first)},
+            {"SPEC_ACC", comms::genClassName(s.first)},
             {"SPEC_NAME", s.first}
         };
-        specialInfos.push_back(util::processTemplate(SpecTempl, specRepl));
+        specialInfos.push_back(util::genProcessTemplate(SpecTempl, specRepl));
     }
 
     util::ReplacementMap repl {
-        {"INFOS", util::strListToString(specialInfos, ",\n", "")}
+        {"INFOS", util::genStrListToString(specialInfos, ",\n", "")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsFloatField::commsDefSpecialsCodeInternal() const
 {
-    auto& specials = specialsSortedByValue();
+    auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    auto obj = floatDslObj();
+    auto obj = genFloatFieldParseObj();
     auto type = obj.parseType();
 
     util::StringsList specialsList;
     
     for (auto& s : specials) {
-        if (!generator().doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
+        if (!genGenerator().genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
         }
 
@@ -592,22 +592,22 @@ std::string CommsFloatField::commsDefSpecialsCodeInternal() const
 
         util::ReplacementMap repl = {
             {"SPEC_NAME", s.first},
-            {"SPEC_ACC", comms::className(s.first)},
-            {"COMMON", comms::commonScopeFor(*this, generator())},
+            {"SPEC_ACC", comms::genClassName(s.first)},
+            {"COMMON", comms::genCommonScopeFor(*this, genGenerator())},
             {"SPEC_CMP", cmpToString(s.second.m_value, type)}
         };
 
-        specialsList.push_back(util::processTemplate(Templ, repl));
+        specialsList.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    return util::strListToString(specialsList, "\n", "");
+    return util::genStrListToString(specialsList, "\n", "");
 }
 
 std::string CommsFloatField::commsDefSpecialNamesMapCodeInternal() const
 {
-    auto& specials = specialsSortedByValue();
+    auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -618,10 +618,10 @@ std::string CommsFloatField::commsDefSpecialNamesMapCodeInternal() const
         "}\n";    
 
     util::ReplacementMap repl {
-        {"COMMON", comms::commonScopeFor(*this, generator())}
+        {"COMMON", comms::genCommonScopeFor(*this, genGenerator())}
     };
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 std::string CommsFloatField::commsDefDisplayDecimalsCodeInternal() const
@@ -635,10 +635,10 @@ std::string CommsFloatField::commsDefDisplayDecimalsCodeInternal() const
         "}";
         
     util::ReplacementMap repl = {
-        {"DISPLAY_DECIMALS", util::numToString(floatDslObj().parseDisplayDecimals())}
+        {"DISPLAY_DECIMALS", util::genNumToString(genFloatFieldParseObj().parseDisplayDecimals())}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsFloatField::commsDefFieldOptsInternal() const
@@ -650,50 +650,50 @@ std::string CommsFloatField::commsDefFieldOptsInternal() const
     commsAddVersionOptInternal(opts);
     commsAddInvalidOptInternal(opts);
 
-    return util::strListToString(opts, ",\n", "");
+    return util::genStrListToString(opts, ",\n", "");
 }
 
 std::string CommsFloatField::commsDefValueNamesMapCodeInternal() const
 {
-    auto& specials = specialsSortedByValue();    
+    auto& specials = genSpecialsSortedByValue();    
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    auto scope = comms::commonScopeFor(*this, generator());
+    auto scope = comms::genCommonScopeFor(*this, genGenerator());
 
     util::ReplacementMap repl = {
         {"INFO_DEF", scope + "::SpecialNameInfo"},
         {"MAP_DEF", scope + "::SpecialNamesMapInfo"}
     };
 
-    return util::processTemplate(specialNamesMapTempl(), repl);    
+    return util::genProcessTemplate(specialNamesMapTempl(), repl);    
 }
 
 std::string CommsFloatField::commsDefHasSpecialsFuncCodeInternal() const
 {
     util::ReplacementMap repl = {
-        {"VALUE", comms::commonScopeFor(*this, generator()) + "::hasSpecials()"}
+        {"VALUE", comms::genCommonScopeFor(*this, genGenerator()) + "::hasSpecials()"}
     };
 
-    return util::processTemplate(hasSpecialsFuncTempl(), repl);
+    return util::genProcessTemplate(hasSpecialsFuncTempl(), repl);
 }
 
 void CommsFloatField::commsAddUnitsOptInternal(StringsList& opts) const
 {
-    auto obj = floatDslObj();
+    auto obj = genFloatFieldParseObj();
     auto units = obj.parseUnits();
-    auto& str = comms::dslUnitsToOpt(units);
+    auto& str = comms::genParseUnitsToOpt(units);
     if (!str.empty()) {
-        util::addToStrList(str, opts);
+        util::genAddToStrList(str, opts);
     }
 }
 
 void CommsFloatField::commsAddVersionOptInternal(StringsList& opts) const
 {
-    auto obj = floatDslObj();
+    auto obj = genFloatFieldParseObj();
     bool validCheckVersion =
-        generator().schemaOf(*this).versionDependentCode() &&
+        genGenerator().genSchemaOf(*this).genVersionDependentCode() &&
         obj.parseValidCheckVersion();
 
     if (!validCheckVersion) {
@@ -722,7 +722,7 @@ void CommsFloatField::commsAddVersionOptInternal(StringsList& opts) const
 
 void CommsFloatField::commsAddInvalidOptInternal(StringsList& opts) const
 {
-    auto obj = floatDslObj();
+    auto obj = genFloatFieldParseObj();
 
     if (!obj.parseValidRanges().empty()) {
         opts.push_back("comms::option::def::InvalidByDefault");
@@ -732,7 +732,7 @@ void CommsFloatField::commsAddInvalidOptInternal(StringsList& opts) const
 CommsFloatField::StringsList CommsFloatField::commsValidNormalConditionsInternal() const
 {
     util::StringsList conditions;
-    auto obj = floatDslObj();
+    auto obj = genFloatFieldParseObj();
     auto type = obj.parseType();
 
     auto& validRanges = obj.parseValidRanges();
@@ -750,7 +750,7 @@ CommsFloatField::StringsList CommsFloatField::commsValidNormalConditionsInternal
 
 CommsFloatField::StringsList CommsFloatField::commsValidVersionBasedConditionsInternal() const
 {
-    auto obj = floatDslObj();
+    auto obj = genFloatFieldParseObj();
     auto validRanges = obj.parseValidRanges(); // copy
 
     std::sort(
@@ -855,12 +855,12 @@ CommsFloatField::StringsList CommsFloatField::commsValidVersionBasedConditionsIn
         }
 
         util::ReplacementMap repl = {
-            {"MIN_VERSION", util::numToString(fromVersion)},
-            {"MAX_VERSION", util::numToString(untilVersion)},
-            {"CONDITIONS", util::strListToString(innerConditions, "\n", "")},
+            {"MIN_VERSION", util::genNumToString(fromVersion)},
+            {"MAX_VERSION", util::genNumToString(untilVersion)},
+            {"CONDITIONS", util::genStrListToString(innerConditions, "\n", "")},
         };
 
-        conditions.push_back(util::processTemplate(*templ, repl));
+        conditions.push_back(util::genProcessTemplate(*templ, repl));
         verDepIter = nextIter;
     }
 

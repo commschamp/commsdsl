@@ -26,7 +26,7 @@ public:
     static const std::string& fileGeneratedComment();
 
 protected:
-    virtual bool writeImpl() override;    
+    virtual bool genWriteImpl() override;    
 
 private:
     bool testWriteExtraFilesInternal() const;

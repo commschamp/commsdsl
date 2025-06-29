@@ -277,7 +277,7 @@ bool ParseListFieldImpl::parseUpdateCount()
     }
 
     bool ok = false;
-    auto newVal = common::strToUnsigned(iter->second, &ok);
+    auto newVal = common::parseStrToUnsigned(iter->second, &ok);
     if ((!ok) || (newVal == 0U)) {
         parseReportUnexpectedPropertyValue(common::countStr(), iter->second);
         return false;

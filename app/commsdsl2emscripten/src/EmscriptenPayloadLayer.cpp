@@ -75,12 +75,12 @@ std::string EmscriptenPayloadLayer::emscriptenHeaderFieldDefImpl() const
         {"JS_ARRAY_FUNC", EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenPayloadLayer::emscriptenFieldClassNameImpl() const
 {
-    auto& gen = EmscriptenGenerator::cast(generator());
+    auto& gen = EmscriptenGenerator::cast(genGenerator());
     return gen.emscriptenClassName(*this) + FieldClassNameSuffix;
 }
 
@@ -101,7 +101,7 @@ std::string EmscriptenPayloadLayer::emscriptenSourceFieldBindImpl() const
         {"CLASS_NAME", emscriptenFieldClassNameImpl()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 

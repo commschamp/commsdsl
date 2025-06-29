@@ -37,13 +37,13 @@ namespace
 {
 
 template <typename TList>
-bool writeElements(TList& list)
+bool genWriteElements(TList& list)
 {
     return std::all_of(
         list.begin(), list.end(),
         [](auto& elem)
         {
-            return elem->write();
+            return elem->genWrite();
         });    
 }
 
@@ -58,88 +58,89 @@ public:
     using InterfacesList = GenNamespace::InterfacesList;
     using MessagesList = GenNamespace::MessagesList;
     using FramesList = GenNamespace::FramesList;
+    using ParseNamespace = GenNamespace::ParseNamespace;
 
-    GenNamespaceImpl(GenGenerator& generator, commsdsl::parse::ParseNamespace dslObj, GenElem* parent) :
+    GenNamespaceImpl(GenGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
         m_generator(generator),
-        m_dslObj(dslObj),
+        m_parseObj(parseObj),
         m_parent(parent)
     {
     }
 
-    bool createAll()
+    bool genCreateAll()
     {
-        if (!m_dslObj.parseValid()) {
+        if (!m_parseObj.parseValid()) {
             return true;
         }
 
         return
-            createNamespaces() &&
-            createFields() &&
-            createInterfaces() &&
-            createMessages() &&
-            createFrames();
+            genCreateNamespaces() &&
+            genCreateFields() &&
+            genCreateInterfaces() &&
+            genCreateMessages() &&
+            genCreateFrames();
     }    
 
-    bool prepare()
+    bool genPrepare()
     {
-        if (!m_dslObj.parseValid()) {
+        if (!m_parseObj.parseValid()) {
             return true;
         }
 
         return
-            prepareNamespaces() &&
-            prepareFields() &&
-            prepareInterfaces() &&
-            prepareMessages() &&
-            prepareFrames();
+            genPrepareNamespaces() &&
+            genPrepareFields() &&
+            genPrepareInterfaces() &&
+            genPrepareMessages() &&
+            genPrepareFrames();
     }
 
-    bool write() const
+    bool genWrite() const
     {
         return
-            writeElements(m_namespaces) &&
-            writeElements(m_fields) &&
-            writeElements(m_interfaces) &&
-            writeElements(m_messages) &&
-            writeElements(m_frames);
+            genWriteElements(m_namespaces) &&
+            genWriteElements(m_fields) &&
+            genWriteElements(m_interfaces) &&
+            genWriteElements(m_messages) &&
+            genWriteElements(m_frames);
     }
 
-    commsdsl::parse::ParseNamespace dslObj() const
+    ParseNamespace genParseObj() const
     {
-        return m_dslObj;
+        return m_parseObj;
     }
 
-    const NamespacesList& namespaces() const
+    const NamespacesList& genNamespaces() const
     {
         return m_namespaces;
     }
 
-    const FieldsList& fields() const
+    const FieldsList& genFields() const
     {
         return m_fields;
     }
 
-    const InterfacesList& interfaces() const
+    const InterfacesList& genInterfaces() const
     {
         return m_interfaces;
     }
 
-    InterfacesList& interfaces()
+    InterfacesList& genInterfaces()
     {
         return m_interfaces;
     }    
 
-    const MessagesList& messages() const
+    const MessagesList& genMessages() const
     {
         return m_messages;
     }
 
-    const FramesList& frames() const
+    const FramesList& genFrames() const
     {
         return m_frames;
     }
 
-    bool hasFramesRecursive() const
+    bool genHasFramesRecursive() const
     {
         if (!m_frames.empty()) {
             return true;
@@ -150,11 +151,11 @@ public:
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& ns)
                 {
-                    return ns->hasFramesRecursive();
+                    return ns->genHasFramesRecursive();
                 });
     }
 
-    bool hasMessagesRecursive() const
+    bool genHasMessagesRecursive() const
     {
         if (!m_messages.empty()) {
             return true;
@@ -165,35 +166,35 @@ public:
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& ns)
                 {
-                    return ns->hasMessagesRecursive();
+                    return ns->genHasMessagesRecursive();
                 });
     }    
 
-    GenGenerator& generator()
+    GenGenerator& genGenerator()
     {
         return m_generator;
     }
 
-    const GenGenerator& generator() const
+    const GenGenerator& genGenerator() const
     {
         return m_generator;
     }    
 
-    void setAllInterfacesReferenced()
+    void genSetAllInterfacesReferenced()
     {
         for (auto& iPtr : m_interfaces) {
-            iPtr->setReferenced(true);
+            iPtr->genSetReferenced(true);
         }
     }
 
-    void setAllMessagesReferenced()
+    void genSetAllMessagesReferenced()
     {
         for (auto& mPtr : m_messages) {
-            mPtr->setReferenced(true);
+            mPtr->genSetReferenced(true);
         }
     }
 
-    bool hasReferencedMessageIdField() const
+    bool genHasReferencedMessageIdField() const
     {
         bool hasInFields = 
             std::any_of(
@@ -201,8 +202,8 @@ public:
                 [](auto& f)
                 {
                     return 
-                        (f->isReferenced()) && 
-                        (f->dslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::MessageId);
+                        (f->genIsReferenced()) && 
+                        (f->genParseObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::MessageId);
                 });   
 
         if (hasInFields) {
@@ -214,18 +215,18 @@ public:
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& n)
                 {
-                    return n->hasReferencedMessageIdField();
+                    return n->genHasReferencedMessageIdField();
                 });
     }
 
-    bool hasAnyReferencedMessage() const
+    bool genHasAnyReferencedMessage() const
     {
         bool hasMessage = 
             std::any_of(
                 m_messages.begin(), m_messages.end(),
                 [](auto& m)
                 {
-                    return m->isReferenced();
+                    return m->genIsReferenced();
                 });   
 
         if (hasMessage) {
@@ -237,11 +238,11 @@ public:
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& n)
                 {
-                    return n->hasAnyReferencedMessage();
+                    return n->genHasAnyReferencedMessage();
                 });        
     }
 
-    bool hasAnyReferencedComponent() const
+    bool genHasAnyReferencedComponent() const
     {
         if (!m_frames.empty()) {
             return true;
@@ -252,7 +253,7 @@ public:
                 m_messages.begin(), m_messages.end(),
                 [](auto& m)
                 {
-                    return m->isReferenced();
+                    return m->genIsReferenced();
                 });   
 
         if (hasMessage) {
@@ -264,7 +265,7 @@ public:
                 m_interfaces.begin(), m_interfaces.end(),
                 [](auto& i)
                 {
-                    return i->isReferenced();
+                    return i->genIsReferenced();
                 });   
 
         if (hasInterface) {
@@ -276,7 +277,7 @@ public:
                 m_fields.begin(), m_fields.end(),
                 [](auto& f)
                 {
-                    return f->isReferenced();
+                    return f->genIsReferenced();
                 });   
 
         if (hasField) {
@@ -288,19 +289,19 @@ public:
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& n)
                 {
-                    return n->hasAnyReferencedComponent();
+                    return n->genHasAnyReferencedComponent();
                 });        
     }    
 
 private:
-    bool createNamespaces()
+    bool genCreateNamespaces()
     {
-        auto namespaces = m_dslObj.parseNamespaces();
+        auto namespaces = m_parseObj.parseNamespaces();
         m_namespaces.reserve(namespaces.size());
         for (auto& n : namespaces) {
-            auto ptr = m_generator.createNamespace(n, m_parent);
+            auto ptr = m_generator.genCreateNamespace(n, m_parent);
             assert(ptr);
-            if (!ptr->createAll()) {
+            if (!ptr->genCreateAll()) {
                 return false;
             }
             m_namespaces.push_back(std::move(ptr));
@@ -309,7 +310,7 @@ private:
         return true;
     }
 
-    bool prepareNamespaces()
+    bool genPrepareNamespaces()
     {
         return 
             std::all_of(
@@ -317,20 +318,20 @@ private:
                 [](auto& n)
                 {
                     assert(n);
-                    return n->prepare();
+                    return n->genPrepare();
                 });
     }
 
-    bool createFields()
+    bool genCreateFields()
     {
-        if (!m_dslObj.parseValid()) {
+        if (!m_parseObj.parseValid()) {
             return true;
         }
 
-        auto fields = m_dslObj.parseFields();
+        auto fields = m_parseObj.parseFields();
         m_fields.reserve(fields.size());
-        for (auto& dslObj : fields) {
-            auto ptr = GenField::create(m_generator, dslObj, m_parent);
+        for (auto& parseObj : fields) {
+            auto ptr = GenField::genCreate(m_generator, parseObj, m_parent);
             assert(ptr);
             m_fields.push_back(std::move(ptr));
         }
@@ -338,7 +339,7 @@ private:
         return true;
     }    
 
-    bool prepareFields()
+    bool genPrepareFields()
     {
         return 
             std::all_of(
@@ -346,19 +347,19 @@ private:
                 [](auto& f)
                 {
                     assert(f);
-                    return f->prepare();
+                    return f->genPrepare();
                 });
 
     }
 
-    bool createInterfaces()
+    bool genCreateInterfaces()
     {
-        auto interfaces = m_dslObj.parseInterfaces();
+        auto interfaces = m_parseObj.parseInterfaces();
         m_interfaces.reserve(interfaces.size());
         for (auto& i : interfaces) {
-            auto ptr = m_generator.createInterface(i, m_parent);
+            auto ptr = m_generator.genCreateInterface(i, m_parent);
             assert(ptr);
-            if (!ptr->createAll()) {
+            if (!ptr->genCreateAll()) {
                 return false;
             }
             
@@ -368,7 +369,7 @@ private:
         return true;
     }    
 
-    bool prepareInterfaces()
+    bool genPrepareInterfaces()
     {
         return 
             std::all_of(
@@ -376,17 +377,17 @@ private:
                 [](auto& i)
                 {
                     assert(i);
-                    return i->prepare();
+                    return i->genPrepare();
                 });
     }
 
-    bool createMessages()
+    bool genCreateMessages()
     {
-        auto messages = m_dslObj.parseMessages();
+        auto messages = m_parseObj.parseMessages();
         m_messages.reserve(messages.size());
         for (auto& m : messages) {
-            auto ptr = m_generator.createMessage(m, m_parent);
-            if (!ptr->createAll()) {
+            auto ptr = m_generator.genCreateMessage(m, m_parent);
+            if (!ptr->genCreateAll()) {
                 return false;
             }            
             assert(ptr);
@@ -396,7 +397,7 @@ private:
         return true;
     }    
 
-    bool prepareMessages()
+    bool genPrepareMessages()
     {
         return 
             std::all_of(
@@ -404,16 +405,16 @@ private:
                 [](auto& m)
                 {
                     assert(m);
-                    return m->prepare();
+                    return m->genPrepare();
                 });
     }
 
-    bool createFrames()
+    bool genCreateFrames()
     {
-        auto frames = m_dslObj.parseFrames();
+        auto frames = m_parseObj.parseFrames();
         m_frames.reserve(frames.size());
         for (auto& f : frames) {
-            auto ptr = m_generator.createFrame(f, m_parent);
+            auto ptr = m_generator.genCreateFrame(f, m_parent);
             assert(ptr);
             m_frames.push_back(std::move(ptr));
         }
@@ -421,7 +422,7 @@ private:
         return true;
     }    
 
-    bool prepareFrames()
+    bool genPrepareFrames()
     {
         return 
             std::all_of(
@@ -429,12 +430,12 @@ private:
                 [](auto& f)
                 {
                     assert(f);
-                    return f->prepare();
+                    return f->genPrepare();
                 });
     }
 
     GenGenerator& m_generator;
-    commsdsl::parse::ParseNamespace m_dslObj;
+    ParseNamespace m_parseObj;
     GenElem* m_parent = nullptr;
     NamespacesList m_namespaces;
     FieldsList m_fields;
@@ -443,98 +444,98 @@ private:
     FramesList m_frames;
 }; 
 
-GenNamespace::GenNamespace(GenGenerator& generator, commsdsl::parse::ParseNamespace dslObj, GenElem* parent) :
+GenNamespace::GenNamespace(GenGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
     Base(parent),
-    m_impl(std::make_unique<GenNamespaceImpl>(generator, dslObj, this))
+    m_impl(std::make_unique<GenNamespaceImpl>(generator, parseObj, this))
 {
 }
 
 GenNamespace::~GenNamespace() = default;
 
-bool GenNamespace::createAll()
+bool GenNamespace::genCreateAll()
 {
-    return m_impl->createAll();
+    return m_impl->genCreateAll();
 }
 
-bool GenNamespace::prepare()
+bool GenNamespace::genPrepare()
 {
-    return m_impl->prepare() && prepareImpl();
+    return m_impl->genPrepare() && genPrepareImpl();
 }
 
-bool GenNamespace::write() const
+bool GenNamespace::genWrite() const
 {
-    if (!m_impl->write()) {
+    if (!m_impl->genWrite()) {
         return false;
     }
 
-    return writeImpl();
+    return genWriteImpl();
 }
 
-commsdsl::parse::ParseNamespace GenNamespace::dslObj() const
+GenNamespace::ParseNamespace GenNamespace::genParseObj() const
 {
-    return m_impl->dslObj();
+    return m_impl->genParseObj();
 }
 
-std::string GenNamespace::adjustedExternalRef() const
+std::string GenNamespace::genAdjustedExternalRef() const
 {
-    auto obj = dslObj();
+    auto obj = genParseObj();
     if (obj.parseValid()) {
         return obj.parseExternalRef();
     }
 
-    auto* parent = getParent();
+    auto* parent = genGetParent();
     assert(parent != nullptr);
-    assert(parent->elemType() == GenElem::Type_Schema);
+    assert(parent->genElemType() == GenElem::Type_Schema);
     auto* schema = static_cast<const GenSchema*>(parent);
-    assert(schema->dslObj().parseValid());
-    return schema->dslObj().parseExternalRef();
+    assert(schema->genParseObj().parseValid());
+    return schema->genParseObj().parseExternalRef();
 }
 
-const GenNamespace::NamespacesList& GenNamespace::namespaces() const
+const GenNamespace::NamespacesList& GenNamespace::genNamespaces() const
 {
-    return m_impl->namespaces();
+    return m_impl->genNamespaces();
 }
 
-const GenNamespace::FieldsList& GenNamespace::fields() const
+const GenNamespace::FieldsList& GenNamespace::genFields() const
 {
-    return m_impl->fields();
+    return m_impl->genFields();
 }
 
-const GenNamespace::InterfacesList& GenNamespace::interfaces() const
+const GenNamespace::InterfacesList& GenNamespace::genInterfaces() const
 {
-    return m_impl->interfaces();
+    return m_impl->genInterfaces();
 }
 
-const GenNamespace::MessagesList& GenNamespace::messages() const
+const GenNamespace::MessagesList& GenNamespace::genMessages() const
 {
-    return m_impl->messages();
+    return m_impl->genMessages();
 }
 
-const GenNamespace::FramesList& GenNamespace::frames() const
+const GenNamespace::FramesList& GenNamespace::genFrames() const
 {
-    return m_impl->frames();
+    return m_impl->genFrames();
 }
 
-bool GenNamespace::hasFramesRecursive() const
+bool GenNamespace::genHasFramesRecursive() const
 {
-    return m_impl->hasFramesRecursive();
+    return m_impl->genHasFramesRecursive();
 }
 
-bool GenNamespace::hasMessagesRecursive() const
+bool GenNamespace::genHasMessagesRecursive() const
 {
-    return m_impl->hasMessagesRecursive();
+    return m_impl->genHasMessagesRecursive();
 }
 
-GenNamespace::FieldsAccessList GenNamespace::findMessageIdFields() const
+GenNamespace::FieldsAccessList GenNamespace::genFindMessageIdFields() const
 {
     FieldsAccessList result;
-    for (auto& f : fields()) {
-        if (f->dslObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::MessageId) {
+    for (auto& f : genFields()) {
+        if (f->genParseObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::MessageId) {
             continue;
         }
 
-        if ((f->dslObj().parseKind() != commsdsl::parse::ParseField::Kind::Enum) &&
-            (f->dslObj().parseKind() != commsdsl::parse::ParseField::Kind::Int)) {
+        if ((f->genParseObj().parseKind() != commsdsl::parse::ParseField::Kind::Enum) &&
+            (f->genParseObj().parseKind() != commsdsl::parse::ParseField::Kind::Int)) {
             [[maybe_unused]] static constexpr bool Unexpected_kind = false;
             assert(Unexpected_kind);  
             continue;
@@ -543,15 +544,15 @@ GenNamespace::FieldsAccessList GenNamespace::findMessageIdFields() const
         result.push_back(f.get());
     }
 
-    for (auto& n : namespaces()) {
-        auto nsResult = n->findMessageIdFields();
+    for (auto& n : genNamespaces()) {
+        auto nsResult = n->genFindMessageIdFields();
         std::move(nsResult.begin(), nsResult.end(), std::back_inserter(result));
     }
 
     return result;
 }
 
-const GenField* GenNamespace::findField(const std::string& externalRef) const
+const GenField* GenNamespace::genFindField(const std::string& externalRef) const
 {
     assert(!externalRef.empty());
     auto pos = externalRef.find_first_of('.');
@@ -560,33 +561,33 @@ const GenField* GenNamespace::findField(const std::string& externalRef) const
         nsName.assign(externalRef.begin(), externalRef.begin() + pos);
     }
 
-    auto& fList = fields();
+    auto& fList = genFields();
     if (nsName.empty()) {
         auto fieldIter =
             std::lower_bound(
                 fList.begin(), fList.end(), externalRef,
                 [](auto& f, auto& n)
                 {
-                    return f->name() < n;
+                    return f->genName() < n;
                 });
 
-        if ((fieldIter == fList.end()) || ((*fieldIter)->name() != externalRef)) {
+        if ((fieldIter == fList.end()) || ((*fieldIter)->genName() != externalRef)) {
             return nullptr;
         }
 
         return fieldIter->get();
     }
 
-    auto& nsList = namespaces();
+    auto& nsList = genNamespaces();
     auto nsIter =
         std::lower_bound(
             nsList.begin(), nsList.end(), nsName,
             [](auto& ns, const std::string& n)
             {
-                return ns->name() < n;
+                return ns->genName() < n;
             });
 
-    if ((nsIter == nsList.end()) || ((*nsIter)->name() != nsName)) {
+    if ((nsIter == nsList.end()) || ((*nsIter)->genName() != nsName)) {
         return nullptr;
     }
 
@@ -595,10 +596,10 @@ const GenField* GenNamespace::findField(const std::string& externalRef) const
         fromPos = pos + 1U;
     }
     std::string remStr(externalRef, fromPos);
-    return (*nsIter)->findField(remStr);
+    return (*nsIter)->genFindField(remStr);
 }
 
-const GenMessage* GenNamespace::findMessage(const std::string& externalRef) const
+const GenMessage* GenNamespace::genGindMessage(const std::string& externalRef) const
 {
     assert(!externalRef.empty());
     auto pos = externalRef.find_first_of('.');
@@ -607,33 +608,33 @@ const GenMessage* GenNamespace::findMessage(const std::string& externalRef) cons
         nsName.assign(externalRef.begin(), externalRef.begin() + pos);
     }
 
-    auto& mList = messages();
+    auto& mList = genMessages();
     if (nsName.empty()) {
         auto messageIter =
             std::lower_bound(
                 mList.begin(), mList.end(), externalRef,
                 [](auto& m, auto& n)
                 {
-                    return m->name() < n;
+                    return m->genName() < n;
                 });
 
-        if ((messageIter == mList.end()) || ((*messageIter)->name() != externalRef)) {
+        if ((messageIter == mList.end()) || ((*messageIter)->genName() != externalRef)) {
             return nullptr;
         }
 
         return messageIter->get();
     }
 
-    auto& nsList = namespaces();
+    auto& nsList = genNamespaces();
     auto nsIter =
         std::lower_bound(
             nsList.begin(), nsList.end(), nsName,
             [](auto& ns, const std::string& n)
             {
-                return ns->name() < n;
+                return ns->genName() < n;
             });
 
-    if ((nsIter == nsList.end()) || ((*nsIter)->name() != nsName)) {
+    if ((nsIter == nsList.end()) || ((*nsIter)->genName() != nsName)) {
         return nullptr;
     }
 
@@ -642,10 +643,10 @@ const GenMessage* GenNamespace::findMessage(const std::string& externalRef) cons
         fromPos = pos + 1U;
     }
     std::string remStr(externalRef, fromPos);
-    return (*nsIter)->findMessage(remStr);
+    return (*nsIter)->genGindMessage(remStr);
 }
 
-const GenFrame* GenNamespace::findFrame(const std::string& externalRef) const
+const GenFrame* GenNamespace::genFindFrame(const std::string& externalRef) const
 {
     assert(!externalRef.empty());
     auto pos = externalRef.find_first_of('.');
@@ -654,33 +655,33 @@ const GenFrame* GenNamespace::findFrame(const std::string& externalRef) const
         nsName.assign(externalRef.begin(), externalRef.begin() + pos);
     }
 
-    auto& framesList = frames();
+    auto& framesList = genFrames();
     if (nsName.empty()) {
         auto frameIter =
             std::lower_bound(
                 framesList.begin(), framesList.end(), externalRef,
                 [](auto& f, auto& n)
                 {
-                    return f->name() < n;
+                    return f->genName() < n;
                 });
 
-        if ((frameIter == framesList.end()) || ((*frameIter)->name() != externalRef)) {
+        if ((frameIter == framesList.end()) || ((*frameIter)->genName() != externalRef)) {
             return nullptr;
         }
 
         return frameIter->get();
     }
 
-    auto& nsList = namespaces();
+    auto& nsList = genNamespaces();
     auto nsIter =
         std::lower_bound(
             nsList.begin(), nsList.end(), nsName,
             [](auto& ns, const std::string& n)
             {
-                return ns->name() < n;
+                return ns->genName() < n;
             });
 
-    if ((nsIter == nsList.end()) || ((*nsIter)->name() != nsName)) {
+    if ((nsIter == nsList.end()) || ((*nsIter)->genName() != nsName)) {
         return nullptr;
     }
 
@@ -689,10 +690,10 @@ const GenFrame* GenNamespace::findFrame(const std::string& externalRef) const
         fromPos = pos + 1U;
     }
     std::string remStr(externalRef, fromPos);
-    return (*nsIter)->findFrame(remStr);
+    return (*nsIter)->genFindFrame(remStr);
 }
 
-const GenInterface* GenNamespace::findInterface(const std::string& externalRef) const
+const GenInterface* GenNamespace::genFindInterface(const std::string& externalRef) const
 {
     auto pos = externalRef.find_first_of('.');
     std::string nsName;
@@ -700,34 +701,34 @@ const GenInterface* GenNamespace::findInterface(const std::string& externalRef) 
         nsName.assign(externalRef.begin(), externalRef.begin() + pos);
     }
 
-    auto& ifList = interfaces();
+    auto& ifList = genInterfaces();
     if (nsName.empty()) {
-        auto& adjustedExternalRef = externalRef.empty() ? strings::messageClassStr() : externalRef;
+        auto& adjustedExternalRef = externalRef.empty() ? strings::genMessageClassStr() : externalRef;
         auto ifIter =
             std::lower_bound(
                 ifList.begin(), ifList.end(), adjustedExternalRef,
                 [](auto& f, auto& n)
                 {
-                    return f->adjustedName() < n;
+                    return f->genAdjustedName() < n;
                 });
 
-        if ((ifIter == ifList.end()) || ((*ifIter)->adjustedName() != adjustedExternalRef)) {
+        if ((ifIter == ifList.end()) || ((*ifIter)->genAdjustedName() != adjustedExternalRef)) {
             return nullptr;
         }
 
         return ifIter->get();
     }
 
-    auto& nsList = namespaces();
+    auto& nsList = genNamespaces();
     auto nsIter =
         std::lower_bound(
             nsList.begin(), nsList.end(), nsName,
             [](auto& ns, const std::string& n)
             {
-                return ns->name() < n;
+                return ns->genName() < n;
             });
 
-    if ((nsIter == nsList.end()) || ((*nsIter)->name() != nsName)) {
+    if ((nsIter == nsList.end()) || ((*nsIter)->genName() != nsName)) {
         return nullptr;
     }
 
@@ -736,15 +737,15 @@ const GenInterface* GenNamespace::findInterface(const std::string& externalRef) 
         fromPos = pos + 1U;
     }
     std::string remStr(externalRef, fromPos);
-    return (*nsIter)->findInterface(remStr);
+    return (*nsIter)->genFindInterface(remStr);
 }
 
-GenNamespace::NamespacesAccessList GenNamespace::getAllNamespaces() const
+GenNamespace::NamespacesAccessList GenNamespace::genGetAllNamespaces() const
 {
     NamespacesAccessList result;
-    auto& subNs = m_impl->namespaces();
+    auto& subNs = m_impl->genNamespaces();
     for (auto& n : subNs) {
-        auto list = n->getAllNamespaces();
+        auto list = n->genGetAllNamespaces();
         result.insert(result.end(), list.begin(), list.end());
         result.emplace_back(n.get());
     }
@@ -752,104 +753,104 @@ GenNamespace::NamespacesAccessList GenNamespace::getAllNamespaces() const
     return result;
 }
 
-GenNamespace::InterfacesAccessList GenNamespace::getAllInterfaces() const
+GenNamespace::InterfacesAccessList GenNamespace::genGetAllInterfaces() const
 {
     InterfacesAccessList result;
-    auto& subNs = m_impl->namespaces();
+    auto& subNs = m_impl->genNamespaces();
     for (auto& n : subNs) {
-        auto list = n->getAllInterfaces();
+        auto list = n->genGetAllInterfaces();
         result.insert(result.end(), list.begin(), list.end());
     }
 
-    result.reserve(result.size() + m_impl->interfaces().size());
-    for (auto& i : m_impl->interfaces()) {
+    result.reserve(result.size() + m_impl->genInterfaces().size());
+    for (auto& i : m_impl->genInterfaces()) {
         result.emplace_back(i.get());
     }
 
     return result;
 }
 
-GenNamespace::MessagesAccessList GenNamespace::getAllMessages() const
+GenNamespace::MessagesAccessList GenNamespace::genGetAllMessages() const
 {
     MessagesAccessList result;
-    auto& subNs = m_impl->namespaces();
+    auto& subNs = m_impl->genNamespaces();
     for (auto& n : subNs) {
-        auto list = n->getAllMessages();
+        auto list = n->genGetAllMessages();
         result.insert(result.end(), list.begin(), list.end());
     }
 
-    result.reserve(result.size() + m_impl->messages().size());
-    for (auto& i : m_impl->messages()) {
+    result.reserve(result.size() + m_impl->genMessages().size());
+    for (auto& i : m_impl->genMessages()) {
         result.emplace_back(i.get());
     }
 
     return result;
 }
 
-GenNamespace::MessagesAccessList GenNamespace::getAllMessagesIdSorted() const
+GenNamespace::MessagesAccessList GenNamespace::genGetAllMessagesIdSorted() const
 {
-    auto result = getAllMessages();
-    GenGenerator::sortMessages(result);
+    auto result = genGetAllMessages();
+    GenGenerator::genSortMessages(result);
     return result;
 }
 
-GenNamespace::FramesAccessList GenNamespace::getAllFrames() const
+GenNamespace::FramesAccessList GenNamespace::genGetAllFrames() const
 {
     FramesAccessList result;
-    auto& subNs = m_impl->namespaces();
+    auto& subNs = m_impl->genNamespaces();
     for (auto& n : subNs) {
-        auto list = n->getAllFrames();
+        auto list = n->genGetAllFrames();
         result.insert(result.end(), list.begin(), list.end());
     }
 
-    result.reserve(result.size() + m_impl->frames().size());
-    for (auto& f : m_impl->frames()) {
+    result.reserve(result.size() + m_impl->genFrames().size());
+    for (auto& f : m_impl->genFrames()) {
         result.emplace_back(f.get());
     }
 
     return result;
 }
 
-GenNamespace::FieldsAccessList GenNamespace::getAllFields() const
+GenNamespace::FieldsAccessList GenNamespace::genGetAllFields() const
 {
     FieldsAccessList result;
-    auto& subNs = m_impl->namespaces();
+    auto& subNs = m_impl->genNamespaces();
     for (auto& n : subNs) {
-        auto list = n->getAllFields();
+        auto list = n->genGetAllFields();
         result.insert(result.end(), list.begin(), list.end());
     }
 
-    result.reserve(result.size() + m_impl->fields().size());
-    for (auto& f : m_impl->fields()) {
+    result.reserve(result.size() + m_impl->genFields().size());
+    for (auto& f : m_impl->genFields()) {
         result.emplace_back(f.get());
     }
 
     return result;
 }
 
-GenGenerator& GenNamespace::generator()
+GenGenerator& GenNamespace::genGenerator()
 {
-    return m_impl->generator();
+    return m_impl->genGenerator();
 }
 
-const GenGenerator& GenNamespace::generator() const
+const GenGenerator& GenNamespace::genGenerator() const
 {
-    return m_impl->generator();
+    return m_impl->genGenerator();
 }
 
-GenInterface* GenNamespace::addDefaultInterface()
+GenInterface* GenNamespace::genAddDefaultInterface()
 {
-    auto& intList = m_impl->interfaces();
+    auto& intList = m_impl->genInterfaces();
     for (auto& intPtr : intList) {
         assert(intPtr);
-        if ((!intPtr->dslObj().parseValid()) || intPtr->dslObj().parseName().empty()) {
+        if ((!intPtr->genParseObj().parseValid()) || intPtr->genParseObj().parseName().empty()) {
             return intPtr.get();
         }
     }
 
-    auto iter = intList.insert(intList.begin(), generator().createInterface(commsdsl::parse::ParseInterface(nullptr), this));
-    (*iter)->setReferenced(true);
-    if (!(*iter)->prepare()) {
+    auto iter = intList.insert(intList.begin(), genGenerator().genCreateInterface(commsdsl::parse::ParseInterface(nullptr), this));
+    (*iter)->genSetReferenced(true);
+    if (!(*iter)->genPrepare()) {
         intList.erase(iter);
         return nullptr;
     }
@@ -857,42 +858,42 @@ GenInterface* GenNamespace::addDefaultInterface()
     return iter->get();    
 }
 
-void GenNamespace::setAllInterfacesReferenced()
+void GenNamespace::genSetAllInterfacesReferenced()
 {
-    m_impl->setAllInterfacesReferenced();
+    m_impl->genSetAllInterfacesReferenced();
 }
 
-void GenNamespace::setAllMessagesReferenced()
+void GenNamespace::genSetAllMessagesReferenced()
 {
-    m_impl->setAllMessagesReferenced();
+    m_impl->genSetAllMessagesReferenced();
 }
 
-bool GenNamespace::hasReferencedMessageIdField() const
+bool GenNamespace::genHasReferencedMessageIdField() const
 {
-    return m_impl->hasReferencedMessageIdField();
+    return m_impl->genHasReferencedMessageIdField();
 }
 
-bool GenNamespace::hasAnyReferencedMessage() const
+bool GenNamespace::genHasAnyReferencedMessage() const
 {
-    return m_impl->hasAnyReferencedMessage();
+    return m_impl->genHasAnyReferencedMessage();
 }
 
-bool GenNamespace::hasAnyReferencedComponent() const
+bool GenNamespace::genHasAnyReferencedComponent() const
 {
-    return m_impl->hasAnyReferencedComponent();
+    return m_impl->genHasAnyReferencedComponent();
 }
 
-GenElem::Type GenNamespace::elemTypeImpl() const
+GenElem::Type GenNamespace::genElemTypeImpl() const
 {
     return Type_Namespace;
 }
 
-bool GenNamespace::prepareImpl()
+bool GenNamespace::genPrepareImpl()
 {
     return true;
 }
 
-bool GenNamespace::writeImpl() const
+bool GenNamespace::genWriteImpl() const
 {
     return true;
 }

@@ -42,9 +42,9 @@ const std::string& TestGenerator::fileGeneratedComment()
     return Str;
 }
 
-bool TestGenerator::writeImpl()
+bool TestGenerator::genWriteImpl()
 {
-    assert(&currentSchema() == &protocolSchema());
+    assert(&genCurrentSchema() == &genProtocolSchema());
     return 
         Test::write(*this) &&
         TestCmake::write(*this) &&
@@ -54,10 +54,10 @@ bool TestGenerator::writeImpl()
 bool TestGenerator::testWriteExtraFilesInternal() const
 {
     const std::vector<std::string> ReservedExt = {
-        strings::sourcesFileSuffixStr(),
+        strings::genSourcesFileSuffixStr(),
     }; 
 
-    return copyExtraSourceFiles(ReservedExt);
+    return genCopyExtraSourceFiles(ReservedExt);
 }
 
 } // namespace commsdsl2test

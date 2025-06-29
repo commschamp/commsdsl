@@ -56,7 +56,7 @@ public:
     bool emscriptenHasInput() const;
 
 protected:
-    virtual bool writeImpl() const override;    
+    virtual bool genWriteImpl() const override;    
 
 private:
     EmscriptenMsgId m_msgId; 

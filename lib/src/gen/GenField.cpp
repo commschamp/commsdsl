@@ -31,82 +31,84 @@ namespace gen
 class GenFieldImpl
 {
 public:
-    GenFieldImpl(GenGenerator& generator, const commsdsl::parse::ParseField& dslObj) : 
+    using ParseField = GenField::ParseField;
+
+    GenFieldImpl(GenGenerator& generator, const ParseField& parseObj) : 
         m_generator(generator),
-        m_dslObj(dslObj)
+        m_parseObj(parseObj)
     {
     }
 
-    bool isPrepared()
+    bool genIsPrepared()
     {
         return m_prepared;
     }
 
-    void setPrepared()
+    void genSetPrepared()
     {
         m_prepared = true;
     }
 
-    const commsdsl::parse::ParseField& dslObj() const
+    const ParseField& genParseObj() const
     {
-        return m_dslObj;
+        return m_parseObj;
     } 
 
-    GenGenerator& generator()
+    GenGenerator& genGenerator()
     {
         return m_generator;
     }
 
-    const GenGenerator& generator() const
+    const GenGenerator& genGenerator() const
     {
         return m_generator;
     }
 
-    bool isReferenced() const
+    bool genIsReferenced() const
     {
         return m_referenced;
     }
 
-    void setReferenced()
+    void genSetReferenced()
     {
         m_referenced = true;
     }
 
 private:
     GenGenerator& m_generator;
-    commsdsl::parse::ParseField m_dslObj;
+    ParseField m_parseObj;
     bool m_prepared = false;
     bool m_referenced = false;
 };    
 
-GenField::GenField(GenGenerator& generator, const commsdsl::parse::ParseField& dslObj, GenElem* parent) :
+GenField::GenField(GenGenerator& generator, const ParseField& parseObj, GenElem* parent) :
     Base(parent),
-    m_impl(std::make_unique<GenFieldImpl>(generator, dslObj))
+    m_impl(std::make_unique<GenFieldImpl>(generator, parseObj))
 {
 }
 
 GenField::~GenField() = default;
 
-GenField::Ptr GenField::create(GenGenerator& generator, commsdsl::parse::ParseField dslobj, GenElem* parent)
+GenField::Ptr GenField::genCreate(GenGenerator& generator, ParseField dslobj, GenElem* parent)
 {
-    using CreateFunc = FieldPtr (GenGenerator::*)(commsdsl::parse::ParseField dslobj, GenElem* parent);
+    using CreateFunc = GenFieldPtr (GenGenerator::*)(ParseField dslobj, GenElem* parent);
     static const CreateFunc Map[] = {
-        /* Int */ &GenGenerator::createIntField,
-        /* Enum */ &GenGenerator::createEnumField,
-        /* Set */ &GenGenerator::createSetField,
-        /* Float */ &GenGenerator::createFloatField,
-        /* Bitfield */ &GenGenerator::createBitfieldField,
-        /* Bundle */ &GenGenerator::createBundleField,
-        /* String */ &GenGenerator::createStringField,
-        /* Data */ &GenGenerator::createDataField,
-        /* List */ &GenGenerator::createListField,
-        /* Ref */ &GenGenerator::createRefField,
-        /* Optional */ &GenGenerator::createOptionalField,
-        /* Variant */ &GenGenerator::createVariantField,
+        /* Int */ &GenGenerator::genCreateIntField,
+        /* Enum */ &GenGenerator::genCreateEnumField,
+        /* Set */ &GenGenerator::genCreateSetField,
+        /* Float */ &GenGenerator::genCreateFloatField,
+        /* Bitfield */ &GenGenerator::genCreateBitfieldField,
+        /* Bundle */ &GenGenerator::genCreateBundleField,
+        /* String */ &GenGenerator::genCreateStringField,
+        /* Data */ &GenGenerator::genCreateDataField,
+        /* List */ &GenGenerator::genCreateListField,
+        /* Ref */ &GenGenerator::genCreateRefField,
+        /* Optional */ &GenGenerator::genCreateOptionalField,
+        /* Variant */ &GenGenerator::genCreateVariantField,
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::ParseField::Kind::NumOfValues), "Invalid map");
+    static_assert(MapSize == static_cast<unsigned>(ParseField::Kind::NumOfValues), "Invalid map");
 
     auto idx = static_cast<std::size_t>(dslobj.parseKind());
     if (MapSize <= idx) {
@@ -120,80 +122,80 @@ GenField::Ptr GenField::create(GenGenerator& generator, commsdsl::parse::ParseFi
     return (generator.*func)(dslobj, parent);
 }
 
-bool GenField::isPrepared() const
+bool GenField::genIsPrepared() const
 {
-    return m_impl->isPrepared();
+    return m_impl->genIsPrepared();
 }
 
-bool GenField::prepare()
+bool GenField::genPrepare()
 {
-    if (m_impl->isPrepared()) {
+    if (m_impl->genIsPrepared()) {
         return true;
     }
 
-    bool result = prepareImpl();
+    bool result = genPrepareImpl();
     if (result) {
-        m_impl->setPrepared();
+        m_impl->genSetPrepared();
     }
 
-    if (dslObj().parseIsForceGen()) {
-        setReferenced();
+    if (genParseObj().parseIsForceGen()) {
+        genSetReferenced();
     }
     
     return result;
 }
 
-bool GenField::write() const
+bool GenField::genWrite() const
 {
-    return writeImpl();
+    return genWriteImpl();
 }
 
-const commsdsl::parse::ParseField& GenField::dslObj() const
+const GenField::ParseField& GenField::genParseObj() const
 {
-    return m_impl->dslObj();
+    return m_impl->genParseObj();
 }
 
-GenGenerator& GenField::generator()
+GenGenerator& GenField::genGenerator()
 {
-    return m_impl->generator();
+    return m_impl->genGenerator();
 }
 
-const GenGenerator& GenField::generator() const
+const GenGenerator& GenField::genGenerator() const
 {
-    return m_impl->generator();
+    return m_impl->genGenerator();
 }
 
-bool GenField::isReferenced() const
+bool GenField::genIsReferenced() const
 {
-    return m_impl->isReferenced();
+    return m_impl->genIsReferenced();
 }
 
-void GenField::setReferenced()
+void GenField::genSetReferenced()
 {
-    m_impl->setReferenced();
-    setReferencedImpl();
+    m_impl->genSetReferenced();
+    genSetReferencedImpl();
 }
 
-void GenField::setFieldReferencedIfExists(GenField* field)
+void GenField::genSetFieldReferencedIfExists(GenField* field)
 {
     if (field != nullptr) {
-        field->setReferenced();
+        field->genSetReferenced();
     }
 }
 
-std::string GenField::templateScopeOfComms(const std::string& protOptionsStr) const
+std::string GenField::genTemplateScopeOfComms(const std::string& protOptionsStr) const
 {
-    auto commsScope = comms::scopeFor(*this, generator());
+    auto commsScope = comms::genScopeFor(*this, genGenerator());
     std::string optionsParams = "<" + protOptionsStr + ">";
 
-    if (comms::isGlobalField(*this)) {
+    if (comms::genIsGlobalField(*this)) {
         return commsScope + optionsParams;
     }
 
     auto formScopeFunc = 
         [this, &commsScope, &optionsParams](const GenElem* parent, const std::string& suffix)
         {
-            auto optLevelScope = comms::scopeFor(*parent, generator()) + suffix;
+            auto optLevelScope = comms::genScopeFor(*parent, genGenerator()) + suffix;
             assert(optLevelScope.size() < commsScope.size());
             assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
             
@@ -201,34 +203,34 @@ std::string GenField::templateScopeOfComms(const std::string& protOptionsStr) co
         };
 
     
-    auto* parent = getParent();
+    auto* parent = genGetParent();
     while (parent != nullptr)  {
-        auto elemType = parent->elemType();
+        auto elemType = parent->genElemType();
 
         if (elemType == GenElem::Type_Interface) {
             return commsScope;
         }        
 
-        if ((elemType == GenElem::Type_Field) && (comms::isGlobalField(*parent))) {
-            return formScopeFunc(parent, strings::membersSuffixStr());
+        if ((elemType == GenElem::Type_Field) && (comms::genIsGlobalField(*parent))) {
+            return formScopeFunc(parent, strings::genMembersSuffixStr());
         }        
 
         if (elemType == GenElem::Type_Message) {
-            return formScopeFunc(parent, strings::fieldsSuffixStr());
+            return formScopeFunc(parent, strings::genFieldsSuffixStr());
         }
 
         if (elemType == GenElem::Type_Frame) {
-            return formScopeFunc(parent, strings::layersSuffixStr());
+            return formScopeFunc(parent, strings::genLayersSuffixStr());
         }        
 
-        parent = parent->getParent();
+        parent = parent->genGetParent();
     }
 
     assert(false); // Should not happen
     return commsScope;
 }
 
-GenField::FieldRefInfo GenField::processInnerRef(const std::string& refStr) const
+GenField::FieldRefInfo GenField::genProcessInnerRef(const std::string& refStr) const
 {
     if (refStr.empty()) {
         FieldRefInfo info;
@@ -237,10 +239,10 @@ GenField::FieldRefInfo GenField::processInnerRef(const std::string& refStr) cons
         return info;
     }
 
-    return processInnerRefImpl(refStr);
+    return genProcessInnerRefImpl(refStr);
 }
 
-GenField::FieldRefInfo GenField::processMemberRef(const FieldsList& fields, const std::string& refStr)
+GenField::FieldRefInfo GenField::genProcessMemberRef(const FieldsList& fields, const std::string& refStr)
 {
     FieldRefInfo info;
     auto dotPos = refStr.find_first_of('.');
@@ -254,7 +256,7 @@ GenField::FieldRefInfo GenField::processMemberRef(const FieldsList& fields, cons
             fields.begin(), fields.end(),
             [&fieldName](auto& f)
             {
-                return f->name() == fieldName;
+                return f->genName() == fieldName;
             });
 
     if (iter == fields.end()) {
@@ -266,43 +268,43 @@ GenField::FieldRefInfo GenField::processMemberRef(const FieldsList& fields, cons
         nextPos = dotPos + 1U;
     }
 
-    return (*iter)->processInnerRef(refStr.substr(nextPos));
+    return (*iter)->genProcessInnerRef(refStr.substr(nextPos));
 }
 
-const GenNamespace* GenField::parentNamespace() const
+const GenNamespace* GenField::genParentNamespace() const
 {
-    auto* parent = getParent();
+    auto* parent = genGetParent();
     while (parent != nullptr) {
-        if (parent->elemType() == GenElem::Type_Namespace) {
+        if (parent->genElemType() == GenElem::Type_Namespace) {
             return static_cast<const GenNamespace*>(parent);
         }
 
-        parent = parent->getParent();
+        parent = parent->genGetParent();
     }
 
     return static_cast<const GenNamespace*>(parent);
 }
 
-GenElem::Type GenField::elemTypeImpl() const
+GenElem::Type GenField::genElemTypeImpl() const
 {
     return Type_Field;
 }
 
-bool GenField::prepareImpl()
+bool GenField::genPrepareImpl()
 {
     return true;
 }
 
-bool GenField::writeImpl() const
+bool GenField::genWriteImpl() const
 {
     return true;
 }
 
-void GenField::setReferencedImpl()
+void GenField::genSetReferencedImpl()
 {
 }
 
-GenField::FieldRefInfo GenField::processInnerRefImpl([[maybe_unused]] const std::string& refStr) const
+GenField::FieldRefInfo GenField::genProcessInnerRefImpl([[maybe_unused]] const std::string& refStr) const
 {
     assert(!refStr.empty());
     FieldRefInfo info;

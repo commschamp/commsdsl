@@ -34,9 +34,9 @@ ToolsQtPayloadLayer::ToolsQtPayloadLayer(ToolsQtGenerator& generator, commsdsl::
 {
 }
 
-bool ToolsQtPayloadLayer::prepareImpl() 
+bool ToolsQtPayloadLayer::genPrepareImpl() 
 {
-    return Base::prepareImpl() && ToolsBase::prepare();
+    return Base::genPrepareImpl() && ToolsBase::toolsPrepare();
 }
 
 } // namespace commsdsl2tools_qt

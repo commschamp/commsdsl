@@ -38,7 +38,7 @@ namespace
 
 const std::string getFieldAccessPrefixInternal(const CommsField& field)
 {
-    if (comms::isInterfaceShallowMemberField(field.field())) {
+    if (comms::genIsInterfaceShallowMemberField(field.field())) {
         static const std::string Str("Base::transportField_");
         return Str;        
     }
@@ -49,7 +49,7 @@ const std::string getFieldAccessPrefixInternal(const CommsField& field)
 
 const std::string getFieldTypePrefixInternal(const CommsField& field)
 {
-    if (comms::isInterfaceShallowMemberField(field.field())) {
+    if (comms::genIsInterfaceShallowMemberField(field.field())) {
         static const std::string Str("Base::TransportField_");
         return Str;        
     }
@@ -58,7 +58,7 @@ const std::string getFieldTypePrefixInternal(const CommsField& field)
     return Str;
 }
 
-const CommsField* findInterfaceFieldInternal(const commsdsl::gen::GenGenerator& generator, const std::string refStr)
+const CommsField* genFindInterfaceFieldInternal(const commsdsl::gen::GenGenerator& generator, const std::string refStr)
 {
     if (refStr.empty()) {
         return nullptr;
@@ -72,8 +72,8 @@ const CommsField* findInterfaceFieldInternal(const commsdsl::gen::GenGenerator& 
         restRefStr = refStr.substr(dotPos + 1);
     }
 
-    auto& schema = generator.currentSchema();
-    auto interfaces = schema.getAllInterfaces();
+    auto& schema = generator.genCurrentSchema();
+    auto interfaces = schema.genGetAllInterfaces();
     for (auto* i : interfaces) {
         auto& commsFields = CommsInterface::cast(i)->commsFields();
         auto iter = 
@@ -81,7 +81,7 @@ const CommsField* findInterfaceFieldInternal(const commsdsl::gen::GenGenerator& 
                 commsFields.begin(), commsFields.end(),
                 [&fieldName, &restRefStr](auto* f)
                 {
-                    if (f->field().dslObj().parseName() != fieldName) {
+                    if (f->field().genParseObj().parseName() != fieldName) {
                         return false;
                     }
 
@@ -104,8 +104,8 @@ bool hasInterfaceReferenceInternal(const commsdsl::parse::ParseOptCond& cond)
         auto& right = exprCond.parseRight();
 
         return 
-            ((!left.empty()) && (left[0] == strings::interfaceFieldRefPrefix())) ||
-            ((!right.empty()) && (right[0] == strings::interfaceFieldRefPrefix()));
+            ((!left.empty()) && (left[0] == strings::genInterfaceFieldRefPrefix())) ||
+            ((!right.empty()) && (right[0] == strings::genInterfaceFieldRefPrefix()));
     }
 
     if ((cond.parseKind() != commsdsl::parse::ParseOptCond::Kind::List)) {
@@ -153,7 +153,7 @@ std::string CommsOptionalField::commsDslCondToString(
                         siblings.begin(), siblings.end(),
                         [&name](auto& f)
                         {
-                            return f->field().dslObj().parseName() == name;
+                            return f->field().genParseObj().parseName() == name;
                         });
 
                 if (iter == siblings.end()) {
@@ -188,7 +188,7 @@ std::string CommsOptionalField::commsDslCondToString(
 
             const CommsField* leftField = nullptr;
             if (leftInfo.m_type == OperandType::InterfaceRef) {
-                leftField = findInterfaceFieldInternal(generator, leftInfo.m_access);
+                leftField = genFindInterfaceFieldInternal(generator, leftInfo.m_access);
             }
             else if (leftInfo.m_type == OperandType::SiblingRef) {
                 leftField = findSiblingFieldFunc(leftFieldName);
@@ -197,7 +197,7 @@ std::string CommsOptionalField::commsDslCondToString(
             if (leftField == nullptr) {
                 [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
-                return strings::emptyString();
+                return strings::genEmptyString();
             }
 
             std::string remLeft;
@@ -222,7 +222,7 @@ std::string CommsOptionalField::commsDslCondToString(
 
             const CommsField* rightField = nullptr;
             if (rightInfo.m_type == OperandType::InterfaceRef) {
-                rightField = findInterfaceFieldInternal(generator, rightInfo.m_access);
+                rightField = genFindInterfaceFieldInternal(generator, rightInfo.m_access);
             }
             else if (rightInfo.m_type == OperandType::SiblingRef) {
                 rightField = findSiblingFieldFunc(rightFieldName);
@@ -231,7 +231,7 @@ std::string CommsOptionalField::commsDslCondToString(
             if (rightField == nullptr) {
                 [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
-                return strings::emptyString();
+                return strings::genEmptyString();
             }
 
             std::string remRight;
@@ -247,7 +247,7 @@ std::string CommsOptionalField::commsDslCondToString(
             (rightInfo.m_type != OperandType::SiblingRef)) {
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
-            return strings::emptyString();
+            return strings::genEmptyString();
         }
 
         auto rightSepPos = rightInfo.m_access.find(".");
@@ -255,7 +255,7 @@ std::string CommsOptionalField::commsDslCondToString(
 
         const CommsField* rightField = nullptr;
         if (rightInfo.m_type == OperandType::InterfaceRef) {
-            rightField = findInterfaceFieldInternal(generator, rightInfo.m_access);
+            rightField = genFindInterfaceFieldInternal(generator, rightInfo.m_access);
         }
         else if (rightInfo.m_type == OperandType::SiblingRef) {
             rightField = findSiblingFieldFunc(rightFieldName);
@@ -264,7 +264,7 @@ std::string CommsOptionalField::commsDslCondToString(
         if (rightField == nullptr) {
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
-            return strings::emptyString();
+            return strings::genEmptyString();
         }
 
         assert(rightInfo.m_mode != AccMode::Size);
@@ -278,17 +278,17 @@ std::string CommsOptionalField::commsDslCondToString(
             return commsDslCondToStringFieldExistsCompInternal(rightField, remRight, op);
         }          
 
-        auto rightAccName = comms::accessName(rightField->field().dslObj().parseName());
+        auto rightAccName = comms::genAccessName(rightField->field().genParseObj().parseName());
         auto checks = rightField->commsCompOptChecks(remRight, getFieldAccessPrefixInternal(*rightField) + rightAccName + "()");
         checks.push_back(op + getFieldAccessPrefixInternal(*rightField) + rightAccName + "()" + rightField->commsValueAccessStr(remRight));
 
-        return util::strListToString(checks, " &&\n", "");
+        return util::genStrListToString(checks, " &&\n", "");
     }
 
     if ((cond.parseKind() != commsdsl::parse::ParseOptCond::Kind::List)) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     commsdsl::parse::ParseOptCondList listCond(cond);
@@ -339,25 +339,25 @@ std::string CommsOptionalField::commsDslCondToString(
         condTempl += ')';
     }
 
-    return util::processTemplate(condTempl, repl);
+    return util::genProcessTemplate(condTempl, repl);
 }
 
-bool CommsOptionalField::prepareImpl()
+bool CommsOptionalField::genPrepareImpl()
 {
     bool result = 
-        Base::prepareImpl() && 
+        Base::genPrepareImpl() && 
         commsPrepare() &&
         commsCheckCondSupportedInternal();
 
     if (result) {
-        m_commsExternalField = dynamic_cast<CommsField*>(externalField());
-        m_commsMemberField = dynamic_cast<CommsField*>(memberField());
+        m_commsExternalField = dynamic_cast<CommsField*>(genExternalField());
+        m_commsMemberField = dynamic_cast<CommsField*>(genMemberField());
     }
 
     return result;
 }
 
-bool CommsOptionalField::writeImpl() const
+bool CommsOptionalField::genWriteImpl() const
 {
     return commsWrite();
 }
@@ -383,7 +383,7 @@ std::string CommsOptionalField::commsCommonMembersCodeImpl() const
         return m_commsMemberField->commsCommonCode();
     }
 
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 CommsOptionalField::IncludesList CommsOptionalField::commsDefIncludesImpl() const
@@ -393,7 +393,7 @@ CommsOptionalField::IncludesList CommsOptionalField::commsDefIncludesImpl() cons
     };
 
     if (m_commsExternalField != nullptr) {
-        result.push_back(comms::relHeaderPathFor(m_commsExternalField->field(), generator()));
+        result.push_back(comms::genRelHeaderPathFor(m_commsExternalField->field(), genGenerator()));
         return result;
     }
 
@@ -410,7 +410,7 @@ std::string CommsOptionalField::commsDefMembersCodeImpl() const
         return m_commsMemberField->commsDefCode();
     }
 
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string CommsOptionalField::commsDefBaseClassImpl() const
@@ -430,29 +430,29 @@ std::string CommsOptionalField::commsDefBaseClassImpl() const
         repl["COMMA"] = ",";
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsOptionalField::commsDefBundledReadPrepareFuncBodyImpl([[maybe_unused]] const CommsFieldsList& siblings) const
 {
-    auto c = optionalDslObj().parseCond();
+    auto c = genOptionalFieldParseObj().parseCond();
     if (!c.parseValid()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    return "refresh_" + comms::accessName(dslObj().parseName()) + "();\n";
+    return "refresh_" + comms::genAccessName(genParseObj().parseName()) + "();\n";
 }
 
 std::string CommsOptionalField::commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const
 {
-    auto c = optionalDslObj().parseCond();
+    auto c = genOptionalFieldParseObj().parseCond();
     if (!c.parseValid()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     auto cond = commsDslCondToStringInternal(siblings, c);
     if (cond.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ =
@@ -467,7 +467,7 @@ std::string CommsOptionalField::commsDefBundledRefreshFuncBodyImpl(const CommsFi
         "return true;\n";
 
     util::ReplacementMap repl {
-        {"NAME", comms::accessName(name())},
+        {"NAME", comms::genAccessName(genName())},
         {"COND", std::move(cond)}
     };
 
@@ -475,7 +475,7 @@ std::string CommsOptionalField::commsDefBundledRefreshFuncBodyImpl(const CommsFi
         repl["FIELD_ACC"] = ".field()";
     }
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 bool CommsOptionalField::commsIsVersionDependentImpl() const
@@ -486,7 +486,7 @@ bool CommsOptionalField::commsIsVersionDependentImpl() const
 std::string CommsOptionalField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
 {
     if (m_commsMemberField == nullptr) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     assert(fieldOptsFunc != nullptr);
@@ -588,16 +588,16 @@ std::string CommsOptionalField::commsCompPrepValueStrImpl(const std::string& acc
 
 bool CommsOptionalField::commsCheckCondSupportedInternal() const
 {
-    auto obj = optionalDslObj();
+    auto obj = genOptionalFieldParseObj();
     auto cond = obj.parseCond();
 
-    if ((!cond.parseValid()) || (comms::isMessageShallowMemberField(*this))) {
+    if ((!cond.parseValid()) || (comms::genIsMessageShallowMemberField(*this))) {
         return true;
     }    
 
     if (hasInterfaceReferenceInternal(cond)) {
-        generator().logger().error(
-            "Referencing interface member fields from within " + comms::scopeFor(*this, generator()) + 
+        genGenerator().genLogger().genError(
+            "Referencing interface member fields from within " + comms::genScopeFor(*this, genGenerator()) + 
             " is not supported, only direct member fields of the message can use such conditions.");
         return false;
     }
@@ -609,20 +609,20 @@ std::string CommsOptionalField::commsDefFieldRefInternal() const
 {
     if (m_commsExternalField != nullptr) {
             std::string templOpt;
-        if (!comms::isInterfaceDeepMemberField(*this)) {
+        if (!comms::genIsInterfaceDeepMemberField(*this)) {
             templOpt = "TOpt";
         }
 
-        return comms::scopeFor(m_commsExternalField->field(), generator()) + '<' + templOpt + '>';
+        return comms::genScopeFor(m_commsExternalField->field(), genGenerator()) + '<' + templOpt + '>';
     }
 
     assert(m_commsMemberField != nullptr);
-    auto ref = "typename " + comms::className(name()) + strings::membersSuffixStr();
-    if (comms::isGlobalField(*this)) {
+    auto ref = "typename " + comms::genClassName(genName()) + strings::genMembersSuffixStr();
+    if (comms::genIsGlobalField(*this)) {
         ref += "<TOpt>";
     }
 
-    ref += "::" + comms::className(m_commsMemberField->field().name());    
+    ref += "::" + comms::genClassName(m_commsMemberField->field().genName());    
     return ref;
 }
 
@@ -635,13 +635,13 @@ std::string CommsOptionalField::commsDefFieldOptsInternal() const
     commsAddMissingOnReadFailOptInternal(opts);
     commsAddMissingOnInvalidOptInternal(opts);
 
-    return util::strListToString(opts, ",\n", "");
+    return util::genStrListToString(opts, ",\n", "");
 }
 
 void CommsOptionalField::commsAddModeOptInternal(StringsList& opts) const
 {
     static const std::string Map[] = {
-        strings::emptyString(),
+        strings::genEmptyString(),
         "comms::option::def::ExistsByDefault",
         "comms::option::def::MissingByDefault"
     };
@@ -651,7 +651,7 @@ void CommsOptionalField::commsAddModeOptInternal(StringsList& opts) const
 
     static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::ParseOptionalField::Mode::NumOfValues), "Invalid map");
 
-    auto obj = optionalDslObj();
+    auto obj = genOptionalFieldParseObj();
     auto mode = obj.parseDefaultMode();
     auto idx = static_cast<std::size_t>(mode);
     if (MapSize <= idx) {
@@ -669,7 +669,7 @@ void CommsOptionalField::commsAddModeOptInternal(StringsList& opts) const
 
 void CommsOptionalField::commsAddMissingOnReadFailOptInternal(StringsList& opts) const
 {
-    auto obj = optionalDslObj();
+    auto obj = genOptionalFieldParseObj();
     if (!obj.parseMissingOnReadFail()) {
         return;
     }
@@ -679,7 +679,7 @@ void CommsOptionalField::commsAddMissingOnReadFailOptInternal(StringsList& opts)
 
 void CommsOptionalField::commsAddMissingOnInvalidOptInternal(StringsList& opts) const
 {
-    auto obj = optionalDslObj();
+    auto obj = genOptionalFieldParseObj();
     if (!obj.parseMissingOnInvalid()) {
         return;
     }
@@ -695,7 +695,7 @@ std::string CommsOptionalField::commsDslCondToStringInternal(
     const commsdsl::parse::ParseOptCond& cond,
     bool bracketsWrap) const 
 {
-    return commsDslCondToString(CommsGenerator::cast(generator()), siblings, cond, bracketsWrap);
+    return commsDslCondToString(CommsGenerator::cast(genGenerator()), siblings, cond, bracketsWrap);
 }
 
 std::string CommsOptionalField::commsMemberAccessStringInternal(const std::string& accStr) const
@@ -713,7 +713,7 @@ std::string CommsOptionalField::commsMemberAccessStringInternal(const std::strin
     }
 
     assert(field != nullptr);
-    assert(accStr.substr(0, sepPos) == field->field().dslObj().parseName());
+    assert(accStr.substr(0, sepPos) == field->field().genParseObj().parseName());
 #endif    
 
     return remAccStr;
@@ -725,7 +725,7 @@ std::string CommsOptionalField::commsDslCondToStringFieldValueCompInternal(
     const std::string& op, 
     const std::string& value)
 {
-    auto accName = comms::accessName(field->field().dslObj().parseName());
+    auto accName = comms::genAccessName(field->field().genParseObj().parseName());
     auto prefix = getFieldAccessPrefixInternal(*field) + accName + "()";
     auto optConds = field->commsCompOptChecks(accStr, prefix);
     auto valueStr = field->commsCompPrepValueStr(accStr, value);
@@ -745,11 +745,11 @@ std::string CommsOptionalField::commsDslCondToStringFieldValueCompInternal(
         "(#^#EXPR#$#)";
     
     util::ReplacementMap repl = {
-        {"COND", util::strListToString(optConds, " &&\n", "")},
+        {"COND", util::genStrListToString(optConds, " &&\n", "")},
         {"EXPR", std::move(expr)},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsOptionalField::commsDslCondToStringFieldFieldCompInternal(
@@ -759,9 +759,9 @@ std::string CommsOptionalField::commsDslCondToStringFieldFieldCompInternal(
     const CommsField* rightField, 
     const std::string& rightAccStr)
 {
-    auto leftAccName = comms::accessName(leftField->field().dslObj().parseName());
+    auto leftAccName = comms::genAccessName(leftField->field().genParseObj().parseName());
     auto leftPrefix = getFieldAccessPrefixInternal(*leftField) + leftAccName + "()";
-    auto rightAccName = comms::accessName(rightField->field().dslObj().parseName());
+    auto rightAccName = comms::genAccessName(rightField->field().genParseObj().parseName());
     auto rightPrefix = getFieldAccessPrefixInternal(*rightField) + rightAccName + "()";
 
     auto optConds = leftField->commsCompOptChecks(leftAccStr, leftPrefix);
@@ -769,7 +769,7 @@ std::string CommsOptionalField::commsDslCondToStringFieldFieldCompInternal(
     auto valueStr = rightPrefix + rightField->commsValueAccessStr(rightAccStr);
     auto typeCast = leftField->commsCompValueCastType(leftAccStr);
     if (!typeCast.empty()) {
-        auto accName = comms::accessName(leftField->field().dslObj().parseName());
+        auto accName = comms::genAccessName(leftField->field().genParseObj().parseName());
         valueStr = "static_cast<typename Field_" + accName + "::" + typeCast + ">(" + valueStr + ")";
     }
 
@@ -784,11 +784,11 @@ std::string CommsOptionalField::commsDslCondToStringFieldFieldCompInternal(
         "(#^#EXPR#$#)";
     
     util::ReplacementMap repl = {
-        {"COND", util::strListToString(optConds, " &&\n", "")},
+        {"COND", util::genStrListToString(optConds, " &&\n", "")},
         {"EXPR", std::move(expr)},
     };
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 std::string CommsOptionalField::commsDslCondToStringFieldSizeCompInternal(
@@ -797,7 +797,7 @@ std::string CommsOptionalField::commsDslCondToStringFieldSizeCompInternal(
     const std::string& op, 
     const std::string& value)
 {
-    auto accName = comms::accessName(field->field().dslObj().parseName());
+    auto accName = comms::genAccessName(field->field().genParseObj().parseName());
     auto prefix = getFieldAccessPrefixInternal(*field) + accName + "()";
     auto optConds = field->commsCompOptChecks(accStr, prefix);
 
@@ -814,10 +814,10 @@ std::string CommsOptionalField::commsDslCondToStringFieldSizeCompInternal(
         
 
     if (emptyCheck) {
-        expr = util::strReplace(sizeAccStr, ".size()", ".empty()");
+        expr = util::genStrReplace(sizeAccStr, ".size()", ".empty()");
     }
     else if (notEmptyCheck) {
-        expr = "!" + util::strReplace(sizeAccStr, ".size()", ".empty()");
+        expr = "!" + util::genStrReplace(sizeAccStr, ".size()", ".empty()");
     }
     else {
         auto valueStr = "static_cast<std::size_t>(" + value + ")";
@@ -833,11 +833,11 @@ std::string CommsOptionalField::commsDslCondToStringFieldSizeCompInternal(
         "(#^#EXPR#$#)";
     
     util::ReplacementMap repl = {
-        {"COND", util::strListToString(optConds, " &&\n", "")},
+        {"COND", util::genStrListToString(optConds, " &&\n", "")},
         {"EXPR", std::move(expr)},
     };
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 std::string CommsOptionalField::commsDslCondToStringFieldExistsCompInternal(
@@ -846,15 +846,15 @@ std::string CommsOptionalField::commsDslCondToStringFieldExistsCompInternal(
     const std::string& op)
 {
 
-    auto accName = comms::accessName(field->field().dslObj().parseName());
+    auto accName = comms::genAccessName(field->field().genParseObj().parseName());
     auto prefix = getFieldAccessPrefixInternal(*field) + accName + "()";
     auto optConds = field->commsCompOptChecks(accStr, prefix);
 
     if (optConds.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    auto condsStr = util::strListToString(optConds, " &&\n", "");
+    auto condsStr = util::genStrListToString(optConds, " &&\n", "");
     if (op.empty()) {
         return condsStr;
     }
@@ -867,7 +867,7 @@ std::string CommsOptionalField::commsDslCondToStringFieldExistsCompInternal(
         {"COND", std::move(condsStr)},
     };
 
-    return util::processTemplate(Templ, repl);       
+    return util::genProcessTemplate(Templ, repl);       
 }
 
 } // namespace commsdsl2comms

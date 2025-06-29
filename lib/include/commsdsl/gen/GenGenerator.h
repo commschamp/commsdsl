@@ -43,7 +43,7 @@ public:
     using LoggerPtr = std::unique_ptr<GenLogger>;
     using NamespacesList = GenNamespace::NamespacesList;
     using PlatformNamesList = std::vector<std::string>;
-    using SchemasList = std::vector<SchemaPtr>;
+    using SchemasList = std::vector<GenSchemaPtr>;
 
     using NamespacesAccessList = GenNamespace::NamespacesAccessList;
     using InterfacesAccessList = GenNamespace::InterfacesAccessList;
@@ -54,155 +54,155 @@ public:
     GenGenerator();
     virtual ~GenGenerator();
 
-    void forceSchemaVersion(unsigned value);
-    void setMinRemoteVersion(unsigned value);
-    unsigned getMinRemoteVersion() const;
-    void setNamespaceOverride(const std::string& value);    
+    void genForceSchemaVersion(unsigned value);
+    void genSetMinRemoteVersion(unsigned value);
+    unsigned genGetMinRemoteVersion() const;
+    void genSetNamespaceOverride(const std::string& value);    
 
-    void setTopNamespace(const std::string& value);
-    const std::string& getTopNamespace() const;
+    void genSetTopNamespace(const std::string& value);
+    const std::string& genGetTopNamespace() const;
 
-    void setOutputDir(const std::string& outDir);
-    const std::string& getOutputDir() const;
+    void genSetOutputDir(const std::string& outDir);
+    const std::string& genGetOutputDir() const;
 
-    void setCodeDir(const std::string& dir);
-    const std::string& getCodeDir() const;   
+    void genSetCodeDir(const std::string& dir);
+    const std::string& genGetCodeDir() const;   
 
-    void parseSetMultipleSchemasEnabled(bool enabled);
-    bool parseGetMultipleSchemasEnabled() const;
+    void genSetMultipleSchemasEnabled(bool enabled);
+    bool genGetMultipleSchemasEnabled() const;
 
-    void setVersionIndependentCodeForced(bool value = true); 
-    bool getVersionIndependentCodeForced() const;
+    void genSetVersionIndependentCodeForced(bool value = true); 
+    bool genGetVersionIndependentCodeForced() const;
 
-    const GenField* findField(const std::string& externalRef) const;
-    GenField* findField(const std::string& externalRef);
-    const GenMessage* findMessage(const std::string& externalRef) const;
-    GenMessage* findMessage(const std::string& externalRef);
-    const GenFrame* findFrame(const std::string& externalRef) const;
-    const GenInterface* findInterface(const std::string& externalRef) const;
-    static const GenSchema& schemaOf(const GenElem& elem);
+    const GenField* genFindField(const std::string& externalRef) const;
+    GenField* genFindField(const std::string& externalRef);
+    const GenMessage* genGindMessage(const std::string& externalRef) const;
+    GenMessage* genGindMessage(const std::string& externalRef);
+    const GenFrame* genFindFrame(const std::string& externalRef) const;
+    const GenInterface* genFindInterface(const std::string& externalRef) const;
+    static const GenSchema& genSchemaOf(const GenElem& elem);
 
-    NamespacesAccessList getAllNamespaces() const;
-    InterfacesAccessList getAllInterfaces() const;
-    MessagesAccessList getAllMessages() const;
-    static void sortMessages(MessagesAccessList& list);
-    MessagesAccessList getAllMessagesIdSorted() const;
-    FramesAccessList getAllFrames() const;
-    FieldsAccessList getAllFields() const;
+    NamespacesAccessList genGetAllNamespaces() const;
+    InterfacesAccessList genGetAllInterfaces() const;
+    MessagesAccessList genGetAllMessages() const;
+    static void genSortMessages(MessagesAccessList& list);
+    MessagesAccessList genGetAllMessagesIdSorted() const;
+    FramesAccessList genGetAllFrames() const;
+    FieldsAccessList genGetAllFields() const;
 
-    NamespacesAccessList getAllNamespacesFromAllSchemas() const;
-    InterfacesAccessList getAllInterfacesFromAllSchemas() const;
-    MessagesAccessList getAllMessagesFromAllSchemas() const;
-    MessagesAccessList getAllMessagesIdSortedFromAllSchemas() const;
-    FramesAccessList getAllFramesFromAllSchemas() const;
-    FieldsAccessList getAllFieldsFromAllSchemas() const;    
+    NamespacesAccessList genGetAllNamespacesFromAllSchemas() const;
+    InterfacesAccessList genGetAllInterfacesFromAllSchemas() const;
+    MessagesAccessList genGetAllMessagesFromAllSchemas() const;
+    MessagesAccessList genGetAllMessagesIdSortedFromAllSchemas() const;
+    FramesAccessList genGetAllFramesFromAllSchemas() const;
+    FieldsAccessList genGetAllFieldsFromAllSchemas() const;    
 
-    bool prepare(const FilesList& files);
-    bool write();
+    bool genPrepare(const FilesList& files);
+    bool genWrite();
 
-    bool doesElementExist(
+    bool genDoesElementExist(
         unsigned sinceVersion,
         unsigned deprecatedSince,
         bool deprecatedRemoved) const;
 
-    bool isElementOptional(
+    bool genIsElementOptional(
         unsigned sinceVersion,
         unsigned deprecatedSince,
         bool deprecatedRemoved) const;
 
-    bool isElementDeprecated(unsigned deprecatedSince) const;
+    bool genIsElementDeprecated(unsigned deprecatedSince) const;
 
-    GenLogger& logger();
-    const GenLogger& logger() const;
+    GenLogger& genLogger();
+    const GenLogger& genLogger() const;
 
-    const SchemasList& schemas() const;
+    const SchemasList& genSchemas() const;
 
-    GenSchema& currentSchema();
-    const GenSchema& currentSchema() const;
-    GenSchema& protocolSchema();
-    const GenSchema& protocolSchema() const;    
-    bool isCurrentProtocolSchema() const;
+    GenSchema& genCurrentSchema();
+    const GenSchema& genCurrentSchema() const;
+    GenSchema& genProtocolSchema();
+    const GenSchema& genProtocolSchema() const;    
+    bool genIsCurrentProtocolSchema() const;
 
-    SchemaPtr createSchema(commsdsl::parse::ParseSchema dslObj, GenElem* parent = nullptr);
-    NamespacePtr createNamespace(commsdsl::parse::ParseNamespace dslObj, GenElem* parent = nullptr);
-    InterfacePtr createInterface(commsdsl::parse::ParseInterface dslObj, GenElem* parent);
-    MessagePtr createMessage(commsdsl::parse::ParseMessage dslObj, GenElem* parent);
-    FramePtr createFrame(commsdsl::parse::ParseFrame dslObj, GenElem* parent);
+    GenSchemaPtr genCreateSchema(commsdsl::parse::ParseSchema parseObj, GenElem* parent = nullptr);
+    GenNamespacePtr genCreateNamespace(commsdsl::parse::ParseNamespace parseObj, GenElem* parent = nullptr);
+    GenInterfacePtr genCreateInterface(commsdsl::parse::ParseInterface parseObj, GenElem* parent);
+    GenMessagePtr genCreateMessage(commsdsl::parse::ParseMessage parseObj, GenElem* parent);
+    FramePtr genCreateFrame(commsdsl::parse::ParseFrame parseObj, GenElem* parent);
 
-    FieldPtr createIntField(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    FieldPtr createEnumField(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    FieldPtr createSetField(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    FieldPtr createFloatField(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    FieldPtr createBitfieldField(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    FieldPtr createBundleField(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    FieldPtr createStringField(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    FieldPtr createDataField(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    FieldPtr createListField(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    FieldPtr createRefField(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    FieldPtr createOptionalField(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    FieldPtr createVariantField(commsdsl::parse::ParseField dslObj, GenElem* parent);
+    GenFieldPtr genCreateIntField(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateEnumField(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateSetField(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateFloatField(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateBitfieldField(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateBundleField(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateStringField(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateDataField(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateListField(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateRefField(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateOptionalField(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateVariantField(commsdsl::parse::ParseField parseObj, GenElem* parent);
 
-    LayerPtr createCustomLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent);
-    LayerPtr createSyncLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent);
-    LayerPtr createSizeLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent);
-    LayerPtr createIdLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent);
-    LayerPtr createValueLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent);
-    LayerPtr createPayloadLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent);
-    LayerPtr createChecksumLayer(commsdsl::parse::ParseLayer dslObj, GenElem* parent);
+    GenLayerPtr genCreateCustomLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateSyncLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateSizeLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateIdLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateValueLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreatePayloadLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateChecksumLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
 
-    unsigned currentSchemaIdx() const;
-    void chooseCurrentSchema(unsigned idx);
-    void chooseCurrentSchema(unsigned idx) const;
-    void chooseProtocolSchema();
-    void chooseProtocolSchema() const;
+    unsigned genCurrentSchemaIdx() const;
+    void genChooseCurrentSchema(unsigned idx);
+    void genChooseCurrentSchema(unsigned idx) const;
+    void genChooseProtocolSchema();
+    void genChooseProtocolSchema() const;
 
-    bool createDirectory(const std::string& path) const;
+    bool genCreateDirectory(const std::string& path) const;
 
-    void referenceAllMessages();
-    bool getAllMessagesReferencedByDefault() const;
-    void setAllMessagesReferencedByDefault(bool value = true);
+    void genReferenceAllMessages();
+    bool genGetAllMessagesReferencedByDefault() const;
+    void genSetAllMessagesReferencedByDefault(bool value = true);
 
-    void referenceAllInterfaces();
-    bool getAllInterfacesReferencedByDefault() const;
-    void setAllInterfacesReferencedByDefault(bool value = true);    
+    void genReferenceAllInterfaces();
+    bool genGetAllInterfacesReferencedByDefault() const;
+    void genSetAllInterfacesReferencedByDefault(bool value = true);    
 
 protected:
-    virtual bool createCompleteImpl();
-    virtual bool prepareImpl();
+    virtual bool genCreateCompleteImpl();
+    virtual bool genPrepareImpl();
 
-    virtual SchemaPtr createSchemaImpl(commsdsl::parse::ParseSchema dslObj, GenElem* parent);
-    virtual NamespacePtr createNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, GenElem* parent);
-    virtual InterfacePtr createInterfaceImpl(commsdsl::parse::ParseInterface dslObj, GenElem* parent);
-    virtual MessagePtr createMessageImpl(commsdsl::parse::ParseMessage dslObj, GenElem* parent);
-    virtual FramePtr createFrameImpl(commsdsl::parse::ParseFrame dslObj, GenElem* parent);
+    virtual GenSchemaPtr genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, GenElem* parent);
+    virtual GenNamespacePtr genCreateNamespaceImpl(commsdsl::parse::ParseNamespace parseObj, GenElem* parent);
+    virtual GenInterfacePtr genCreateInterfaceImpl(commsdsl::parse::ParseInterface parseObj, GenElem* parent);
+    virtual GenMessagePtr genCreateMessageImpl(commsdsl::parse::ParseMessage parseObj, GenElem* parent);
+    virtual FramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame parseObj, GenElem* parent);
 
-    virtual FieldPtr createIntFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    virtual FieldPtr createEnumFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    virtual FieldPtr createSetFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    virtual FieldPtr createFloatFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    virtual FieldPtr createBitfieldFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    virtual FieldPtr createBundleFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    virtual FieldPtr createStringFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    virtual FieldPtr createDataFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    virtual FieldPtr createListFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    virtual FieldPtr createRefFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    virtual FieldPtr createOptionalFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent);
-    virtual FieldPtr createVariantFieldImpl(commsdsl::parse::ParseField dslObj, GenElem* parent);
+    virtual GenFieldPtr genCreateIntFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateEnumFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateSetFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateFloatFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateBitfieldFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateBundleFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateStringFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateDataFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateListFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateRefFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateOptionalFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateVariantFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
 
-    virtual LayerPtr createCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, GenElem* parent);
-    virtual LayerPtr createSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, GenElem* parent);
-    virtual LayerPtr createSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, GenElem* parent);
-    virtual LayerPtr createIdLayerImpl(commsdsl::parse::ParseLayer dslObj, GenElem* parent);
-    virtual LayerPtr createValueLayerImpl(commsdsl::parse::ParseLayer dslObj, GenElem* parent);
-    virtual LayerPtr createPayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, GenElem* parent);
-    virtual LayerPtr createChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, GenElem* parent);
+    virtual GenLayerPtr genCreateCustomLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateSyncLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateSizeLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateIdLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateValueLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
 
-    virtual bool writeImpl();
-    virtual LoggerPtr createLoggerImpl();
+    virtual bool genWriteImpl();
+    virtual LoggerPtr genCreateLoggerImpl();
 
-    GenNamespace* addDefaultNamespace();
+    GenNamespace* genAddDefaultNamespace();
 
-    bool copyExtraSourceFiles(const std::vector<std::string>& reservedExtensions) const;
+    bool genCopyExtraSourceFiles(const std::vector<std::string>& reservedExtensions) const;
 
 private:
     std::unique_ptr<GenGeneratorImpl> m_impl;    

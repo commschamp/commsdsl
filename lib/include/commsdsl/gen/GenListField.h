@@ -33,46 +33,48 @@ class COMMSDSL_API GenListField : public GenField
 {
     using Base = GenField;
 public:
+    using ParseField = commsdsl::parse::ParseField;
+    using ParseListField = commsdsl::parse::ParseListField;
 
-    GenListField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent = nullptr);
+    GenListField(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
     virtual ~GenListField();
 
-    GenField* externalElementField();
-    const GenField* externalElementField() const;
+    GenField* genExternalElementField();
+    const GenField* genExternalElementField() const;
 
-    GenField* memberElementField();
-    const GenField* memberElementField() const;
+    GenField* genMemberElementField();
+    const GenField* genMemberElementField() const;
 
-    GenField* externalCountPrefixField();
-    const GenField* externalCountPrefixField() const;
+    GenField* genExternalCountPrefixField();
+    const GenField* genExternalCountPrefixField() const;
 
-    GenField* memberCountPrefixField();
-    const GenField* memberCountPrefixField() const;
+    GenField* genMemberCountPrefixField();
+    const GenField* genMemberCountPrefixField() const;
 
-    GenField* externalLengthPrefixField();
-    const GenField* externalLengthPrefixField() const;
+    GenField* genExternalLengthPrefixField();
+    const GenField* genExternalLengthPrefixField() const;
 
-    GenField* memberLengthPrefixField();
-    const GenField* memberLengthPrefixField() const;
+    GenField* genMemberLengthPrefixField();
+    const GenField* genMemberLengthPrefixField() const;
 
-    GenField* externalElemLengthPrefixField();
-    const GenField* externalElemLengthPrefixField() const;
+    GenField* genExternalElemLengthPrefixField();
+    const GenField* genExternalElemLengthPrefixField() const;
 
-    GenField* memberElemLengthPrefixField();
-    const GenField* memberElemLengthPrefixField() const;
+    GenField* genMemberElemLengthPrefixField();
+    const GenField* genMemberElemLengthPrefixField() const;
 
-    GenField* externalTermSuffixField();
-    const GenField* externalTermSuffixField() const;
+    GenField* genExternalTermSuffixField();
+    const GenField* genExternalTermSuffixField() const;
 
-    GenField* memberTermSuffixField();
-    const GenField* memberTermSuffixField() const;
+    GenField* genMemberTermSuffixField();
+    const GenField* genMemberTermSuffixField() const;
 
 
 protected:    
-    virtual bool prepareImpl() override;
-    virtual void setReferencedImpl() override;
+    virtual bool genPrepareImpl() override;
+    virtual void genSetReferencedImpl() override;
 
-    commsdsl::parse::ParseListField listDslObj() const;
+    ParseListField genListFieldParseObj() const;
 
 private:
     std::unique_ptr<GenListFieldImpl> m_impl;

@@ -25,17 +25,17 @@ namespace commsdsl
 namespace gen
 {
 
-GenSyncLayer::GenSyncLayer(GenGenerator& generator, commsdsl::parse::ParseLayer dslObj, GenElem* parent) :
-    Base(generator, dslObj, parent)
+GenSyncLayer::GenSyncLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent) :
+    Base(generator, parseObj, parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Sync);
+    assert(parseObj.parseKind() == ParseLayer::Kind::Sync);
 }
 
 GenSyncLayer::~GenSyncLayer() = default;
 
-commsdsl::parse::ParseSyncLayer GenSyncLayer::syncDslObj() const
+GenSyncLayer::ParseSyncLayer GenSyncLayer::genSyncLayerDslObj() const
 {
-    return commsdsl::parse::ParseSyncLayer(dslObj());
+    return ParseSyncLayer(genParseObj());
 }
 
 } // namespace gen

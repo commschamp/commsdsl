@@ -30,142 +30,144 @@ namespace gen
 class GenListFieldImpl
 {
 public:
-    GenListFieldImpl(GenGenerator& generator, commsdsl::parse::ParseListField dslObj, GenElem* parent): 
+    using ParseListField = GenListField::ParseListField;
+
+    GenListFieldImpl(GenGenerator& generator, ParseListField parseObj, GenElem* parent): 
         m_generator(generator),
-        m_dslObj(dslObj),
+        m_parseObj(parseObj),
         m_parent(parent)
     {
     }
 
-    bool prepare()
+    bool genPrepare()
     {
         do {
-            auto elementField = m_dslObj.parseElementField();
+            auto elementField = m_parseObj.parseElementField();
             assert(elementField.parseValid());
             if (!elementField.parseExternalRef().empty()) {
-                m_externalElementField = m_generator.findField(elementField.parseExternalRef());
+                m_externalElementField = m_generator.genFindField(elementField.parseExternalRef());
                 assert(m_externalElementField != nullptr);
                 break;
             }
 
-            m_memberElementField = GenField::create(m_generator, elementField, m_parent);
-            if (!m_memberElementField->prepare()) {
+            m_memberElementField = GenField::genCreate(m_generator, elementField, m_parent);
+            if (!m_memberElementField->genPrepare()) {
                 return false;
             }
         } while (false);
 
         do {
-            if (!m_dslObj.parseHasCountPrefixField()) {
+            if (!m_parseObj.parseHasCountPrefixField()) {
                 break;
             }
 
-            auto prefix = m_dslObj.parseCountPrefixField();
+            auto prefix = m_parseObj.parseCountPrefixField();
             if (!prefix.parseExternalRef().empty()) {
-                m_externalCountPrefixField = m_generator.findField(prefix.parseExternalRef());
+                m_externalCountPrefixField = m_generator.genFindField(prefix.parseExternalRef());
                 assert(m_externalCountPrefixField != nullptr);
                 break;
             }
 
-            m_memberCountPrefixField = GenField::create(m_generator, prefix, m_parent);
-            if (!m_memberCountPrefixField->prepare()) {
+            m_memberCountPrefixField = GenField::genCreate(m_generator, prefix, m_parent);
+            if (!m_memberCountPrefixField->genPrepare()) {
                 return false;
             }
 
             if ((m_memberElementField) &&
-                (comms::className(m_memberElementField->name()) == comms::className(m_memberCountPrefixField->name()))) {
-                m_generator.logger().error("Count prefix and element fields of \"" + m_dslObj.parseName() + "\" list must have different names.");
+                (comms::genClassName(m_memberElementField->genName()) == comms::genClassName(m_memberCountPrefixField->genName()))) {
+                m_generator.genLogger().genError("Count prefix and element fields of \"" + m_parseObj.parseName() + "\" list must have different names.");
                 return false;
             }
 
         } while (false);   
 
         do {
-            if (!m_dslObj.parseHasLengthPrefixField()) {
+            if (!m_parseObj.parseHasLengthPrefixField()) {
                 break;
             }
 
             assert(!m_memberCountPrefixField);
-            assert(!m_dslObj.parseHasCountPrefixField());
-            auto prefix = m_dslObj.parseLengthPrefixField();
+            assert(!m_parseObj.parseHasCountPrefixField());
+            auto prefix = m_parseObj.parseLengthPrefixField();
             if (!prefix.parseExternalRef().empty()) {
-                m_externalLengthPrefixField = m_generator.findField(prefix.parseExternalRef());
+                m_externalLengthPrefixField = m_generator.genFindField(prefix.parseExternalRef());
                 assert(m_externalLengthPrefixField != nullptr);
                 break;
             }
 
-            m_memberLengthPrefixField = GenField::create(m_generator, prefix, m_parent);
-            if (!m_memberLengthPrefixField->prepare()) {
+            m_memberLengthPrefixField = GenField::genCreate(m_generator, prefix, m_parent);
+            if (!m_memberLengthPrefixField->genPrepare()) {
                 return false;
             }
 
             if ((m_memberElementField) &&
-                (comms::className(m_memberElementField->name()) == comms::className(m_memberLengthPrefixField->name()))) {
-                m_generator.logger().error("Length prefix and element fields of \"" + m_dslObj.parseName() + "\" list must have different names.");
+                (comms::genClassName(m_memberElementField->genName()) == comms::genClassName(m_memberLengthPrefixField->genName()))) {
+                m_generator.genLogger().genError("Length prefix and element fields of \"" + m_parseObj.parseName() + "\" list must have different names.");
                 return false;
             }            
         } while (false);  
 
         do {
-            if (!m_dslObj.parseHasElemLengthPrefixField()) {
+            if (!m_parseObj.parseHasElemLengthPrefixField()) {
                 break;
             }
 
-            auto prefix = m_dslObj.parseElemLengthPrefixField();
+            auto prefix = m_parseObj.parseElemLengthPrefixField();
             if (!prefix.parseExternalRef().empty()) {
-                m_externalElemLengthPrefixField = m_generator.findField(prefix.parseExternalRef());
+                m_externalElemLengthPrefixField = m_generator.genFindField(prefix.parseExternalRef());
                 assert(m_externalElemLengthPrefixField != nullptr);
                 break;
             }
 
-            m_memberElemLengthPrefixField = GenField::create(m_generator, prefix, m_parent);
-            if (!m_memberElemLengthPrefixField->prepare()) {
+            m_memberElemLengthPrefixField = GenField::genCreate(m_generator, prefix, m_parent);
+            if (!m_memberElemLengthPrefixField->genPrepare()) {
                 return false;
             }
 
             if ((m_memberElementField) &&
-                (comms::className(m_memberElementField->name()) == comms::className(m_memberElemLengthPrefixField->name()))) {
-                m_generator.logger().error("Element length prefix and element fields of \"" + m_dslObj.parseName() + "\" list must have different names.");
+                (comms::genClassName(m_memberElementField->genName()) == comms::genClassName(m_memberElemLengthPrefixField->genName()))) {
+                m_generator.genLogger().genError("Element length prefix and element fields of \"" + m_parseObj.parseName() + "\" list must have different names.");
                 return false;
             }  
 
             if ((m_memberCountPrefixField) &&
-                (comms::className(m_memberCountPrefixField->name()) == comms::className(m_memberElemLengthPrefixField->name()))) {
-                m_generator.logger().error("Element length prefix and count prefix fields of \"" + m_dslObj.parseName() + "\" list must have different names.");
+                (comms::genClassName(m_memberCountPrefixField->genName()) == comms::genClassName(m_memberElemLengthPrefixField->genName()))) {
+                m_generator.genLogger().genError("Element length prefix and count prefix fields of \"" + m_parseObj.parseName() + "\" list must have different names.");
                 return false;
             } 
 
             if ((m_memberLengthPrefixField) &&
-                (comms::className(m_memberLengthPrefixField->name()) == comms::className(m_memberElemLengthPrefixField->name()))) {
-                m_generator.logger().error("Element length prefix and list length prefix fields of \"" + m_dslObj.parseName() + "\" list must have different names.");
+                (comms::genClassName(m_memberLengthPrefixField->genName()) == comms::genClassName(m_memberElemLengthPrefixField->genName()))) {
+                m_generator.genLogger().genError("Element length prefix and list length prefix fields of \"" + m_parseObj.parseName() + "\" list must have different names.");
                 return false;
             }                                
 
         } while (false);   
 
         do {
-            if (!m_dslObj.parseHasTermSuffixField()) {
+            if (!m_parseObj.parseHasTermSuffixField()) {
                 break;
             }
 
             assert(!m_memberCountPrefixField);
             assert(!m_memberLengthPrefixField);
-            assert(!m_dslObj.parseHasCountPrefixField());
-            assert(!m_dslObj.parseHasLengthPrefixField());
-            auto suffix = m_dslObj.parseTermSuffixField();
+            assert(!m_parseObj.parseHasCountPrefixField());
+            assert(!m_parseObj.parseHasLengthPrefixField());
+            auto suffix = m_parseObj.parseTermSuffixField();
             if (!suffix.parseExternalRef().empty()) {
-                m_externalTermSuffixField = m_generator.findField(suffix.parseExternalRef());
+                m_externalTermSuffixField = m_generator.genFindField(suffix.parseExternalRef());
                 assert(m_externalTermSuffixField != nullptr);
                 break;
             }
 
-            m_memberTermSuffixField = GenField::create(m_generator, suffix, m_parent);
-            if (!m_memberTermSuffixField->prepare()) {
+            m_memberTermSuffixField = GenField::genCreate(m_generator, suffix, m_parent);
+            if (!m_memberTermSuffixField->genPrepare()) {
                 return false;
             }
 
             if ((m_memberElementField) &&
-                (comms::className(m_memberElementField->name()) == comms::className(m_memberTermSuffixField->name()))) {
-                m_generator.logger().error("Termination suffix and element fields of \"" + m_dslObj.parseName() + "\" list must have different names.");
+                (comms::genClassName(m_memberElementField->genName()) == comms::genClassName(m_memberTermSuffixField->genName()))) {
+                m_generator.genLogger().genError("Termination suffix and element fields of \"" + m_parseObj.parseName() + "\" list must have different names.");
                 return false;
             }            
         } while (false);                          
@@ -173,258 +175,258 @@ public:
         return true;
     }
 
-    GenField* externalElementField()
+    GenField* genExternalElementField()
     {
         return m_externalElementField;
     }
 
-    const GenField* externalElementField() const
+    const GenField* genExternalElementField() const
     {
         return m_externalElementField;
     }
 
-    GenField* memberElementField()
+    GenField* genMemberElementField()
     {
         return m_memberElementField.get();
     }
 
-    const GenField* memberElementField() const
+    const GenField* genMemberElementField() const
     {
         return m_memberElementField.get();
     }
 
-    GenField* externalCountPrefixField()
+    GenField* genExternalCountPrefixField()
     {
         return m_externalCountPrefixField;
     }
 
-    const GenField* externalCountPrefixField() const
+    const GenField* genExternalCountPrefixField() const
     {
         return m_externalCountPrefixField;
     }
 
-    GenField* memberCountPrefixField()
+    GenField* genMemberCountPrefixField()
     {
         return m_memberCountPrefixField.get();
     }
 
-    const GenField* memberCountPrefixField() const
+    const GenField* genMemberCountPrefixField() const
     {
         return m_memberCountPrefixField.get();
     }
 
-    GenField* externalLengthPrefixField()
+    GenField* genExternalLengthPrefixField()
     {
         return m_externalLengthPrefixField;
     }
 
-    const GenField* externalLengthPrefixField() const
+    const GenField* genExternalLengthPrefixField() const
     {
         return m_externalLengthPrefixField;
     }
 
-    GenField* memberLengthPrefixField()
+    GenField* genMemberLengthPrefixField()
     {
         return m_memberLengthPrefixField.get();
     }
 
-    const GenField* memberLengthPrefixField() const
+    const GenField* genMemberLengthPrefixField() const
     {
         return m_memberLengthPrefixField.get();
     } 
 
-    GenField* externalElemLengthPrefixField()
+    GenField* genExternalElemLengthPrefixField()
     {
         return m_externalElemLengthPrefixField;
     }
 
-    const GenField* externalElemLengthPrefixField() const
+    const GenField* genExternalElemLengthPrefixField() const
     {
         return m_externalElemLengthPrefixField;
     }
 
-    GenField* memberElemLengthPrefixField()
+    GenField* genMemberElemLengthPrefixField()
     {
         return m_memberElemLengthPrefixField.get();
     }
 
-    const GenField* memberElemLengthPrefixField() const
+    const GenField* genMemberElemLengthPrefixField() const
     {
         return m_memberElemLengthPrefixField.get();
     }     
 
-    GenField* externalTermSuffixField()
+    GenField* genExternalTermSuffixField()
     {
         return m_externalTermSuffixField;
     }
 
-    const GenField* externalTermSuffixField() const
+    const GenField* genExternalTermSuffixField() const
     {
         return m_externalTermSuffixField;
     }             
 
-    GenField* memberTermSuffixField()
+    GenField* genMemberTermSuffixField()
     {
         return m_memberTermSuffixField.get();
     }
 
-    const GenField* memberTermSuffixField() const
+    const GenField* genMemberTermSuffixField() const
     {
         return m_memberTermSuffixField.get();
     }   
 
-    void setReferenced()
+    void genSetReferenced()
     {
-        GenField::setFieldReferencedIfExists(m_externalElementField);
-        GenField::setFieldReferencedIfExists(m_memberElementField.get());
-        GenField::setFieldReferencedIfExists(m_externalCountPrefixField);
-        GenField::setFieldReferencedIfExists(m_memberCountPrefixField.get());
-        GenField::setFieldReferencedIfExists(m_externalLengthPrefixField);
-        GenField::setFieldReferencedIfExists(m_memberLengthPrefixField.get());    
-        GenField::setFieldReferencedIfExists(m_externalElemLengthPrefixField);
-        GenField::setFieldReferencedIfExists(m_memberElemLengthPrefixField.get());   
-        GenField::setFieldReferencedIfExists(m_externalTermSuffixField);
-        GenField::setFieldReferencedIfExists(m_memberTermSuffixField.get());                     
+        GenField::genSetFieldReferencedIfExists(m_externalElementField);
+        GenField::genSetFieldReferencedIfExists(m_memberElementField.get());
+        GenField::genSetFieldReferencedIfExists(m_externalCountPrefixField);
+        GenField::genSetFieldReferencedIfExists(m_memberCountPrefixField.get());
+        GenField::genSetFieldReferencedIfExists(m_externalLengthPrefixField);
+        GenField::genSetFieldReferencedIfExists(m_memberLengthPrefixField.get());    
+        GenField::genSetFieldReferencedIfExists(m_externalElemLengthPrefixField);
+        GenField::genSetFieldReferencedIfExists(m_memberElemLengthPrefixField.get());   
+        GenField::genSetFieldReferencedIfExists(m_externalTermSuffixField);
+        GenField::genSetFieldReferencedIfExists(m_memberTermSuffixField.get());                     
     }
 
 private:
     GenGenerator& m_generator;
-    commsdsl::parse::ParseListField m_dslObj;
+    ParseListField m_parseObj;
     GenElem* m_parent = nullptr;
     GenField* m_externalElementField = nullptr;
-    FieldPtr m_memberElementField;
+    GenFieldPtr m_memberElementField;
     GenField* m_externalCountPrefixField = nullptr;
-    FieldPtr m_memberCountPrefixField;    
+    GenFieldPtr m_memberCountPrefixField;    
     GenField* m_externalLengthPrefixField = nullptr;
-    FieldPtr m_memberLengthPrefixField;   
+    GenFieldPtr m_memberLengthPrefixField;   
     GenField* m_externalElemLengthPrefixField = nullptr;
-    FieldPtr m_memberElemLengthPrefixField;        
+    GenFieldPtr m_memberElemLengthPrefixField;        
     GenField* m_externalTermSuffixField = nullptr;
-    FieldPtr m_memberTermSuffixField = nullptr;
+    GenFieldPtr m_memberTermSuffixField = nullptr;
 };    
 
-GenListField::GenListField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent) :
-    Base(generator, dslObj, parent),
-    m_impl(std::make_unique<GenListFieldImpl>(generator, listDslObj(), this))
+GenListField::GenListField(GenGenerator& generator, ParseField parseObj, GenElem* parent) :
+    Base(generator, parseObj, parent),
+    m_impl(std::make_unique<GenListFieldImpl>(generator, genListFieldParseObj(), this))
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::List);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::List);
 }
 
 GenListField::~GenListField() = default;
 
-GenField* GenListField::externalElementField()
+GenField* GenListField::genExternalElementField()
 {
-    return m_impl->externalElementField();
+    return m_impl->genExternalElementField();
 }
 
-const GenField* GenListField::externalElementField() const
+const GenField* GenListField::genExternalElementField() const
 {
-    return m_impl->externalElementField();
+    return m_impl->genExternalElementField();
 }
 
-GenField* GenListField::memberElementField()
+GenField* GenListField::genMemberElementField()
 {
-    return m_impl->memberElementField();
+    return m_impl->genMemberElementField();
 }
 
-const GenField* GenListField::memberElementField() const
+const GenField* GenListField::genMemberElementField() const
 {
-    return m_impl->memberElementField();
+    return m_impl->genMemberElementField();
 }
 
-GenField* GenListField::externalCountPrefixField()
+GenField* GenListField::genExternalCountPrefixField()
 {
-    return m_impl->externalCountPrefixField();
+    return m_impl->genExternalCountPrefixField();
 }
 
-const GenField* GenListField::externalCountPrefixField() const
+const GenField* GenListField::genExternalCountPrefixField() const
 {
-    return m_impl->externalCountPrefixField();
+    return m_impl->genExternalCountPrefixField();
 }
 
-GenField* GenListField::memberCountPrefixField()
+GenField* GenListField::genMemberCountPrefixField()
 {
-    return m_impl->memberCountPrefixField();
+    return m_impl->genMemberCountPrefixField();
 }
 
-const GenField* GenListField::memberCountPrefixField() const
+const GenField* GenListField::genMemberCountPrefixField() const
 {
-    return m_impl->memberCountPrefixField();
+    return m_impl->genMemberCountPrefixField();
 }
 
-GenField* GenListField::externalLengthPrefixField()
+GenField* GenListField::genExternalLengthPrefixField()
 {
-    return m_impl->externalLengthPrefixField();
+    return m_impl->genExternalLengthPrefixField();
 }
 
-const GenField* GenListField::externalLengthPrefixField() const
+const GenField* GenListField::genExternalLengthPrefixField() const
 {
-    return m_impl->externalLengthPrefixField();
+    return m_impl->genExternalLengthPrefixField();
 }
 
-GenField* GenListField::memberLengthPrefixField()
+GenField* GenListField::genMemberLengthPrefixField()
 {
-    return m_impl->memberLengthPrefixField();
+    return m_impl->genMemberLengthPrefixField();
 }
 
-const GenField* GenListField::memberLengthPrefixField() const
+const GenField* GenListField::genMemberLengthPrefixField() const
 {
-    return m_impl->memberLengthPrefixField();
+    return m_impl->genMemberLengthPrefixField();
 } 
 
-GenField* GenListField::externalElemLengthPrefixField()
+GenField* GenListField::genExternalElemLengthPrefixField()
 {
-    return m_impl->externalElemLengthPrefixField();
+    return m_impl->genExternalElemLengthPrefixField();
 }
 
-const GenField* GenListField::externalElemLengthPrefixField() const
+const GenField* GenListField::genExternalElemLengthPrefixField() const
 {
-    return m_impl->externalElemLengthPrefixField();
+    return m_impl->genExternalElemLengthPrefixField();
 }
 
-GenField* GenListField::memberElemLengthPrefixField()
+GenField* GenListField::genMemberElemLengthPrefixField()
 {
-    return m_impl->memberElemLengthPrefixField();
+    return m_impl->genMemberElemLengthPrefixField();
 }
 
-const GenField* GenListField::memberElemLengthPrefixField() const
+const GenField* GenListField::genMemberElemLengthPrefixField() const
 {
-    return m_impl->memberElemLengthPrefixField();
+    return m_impl->genMemberElemLengthPrefixField();
 }
 
-GenField* GenListField::externalTermSuffixField()
+GenField* GenListField::genExternalTermSuffixField()
 {
-    return m_impl->externalTermSuffixField();
+    return m_impl->genExternalTermSuffixField();
 }
 
-const GenField* GenListField::externalTermSuffixField() const
+const GenField* GenListField::genExternalTermSuffixField() const
 {
-    return m_impl->externalTermSuffixField();
+    return m_impl->genExternalTermSuffixField();
 }
 
-GenField* GenListField::memberTermSuffixField()
+GenField* GenListField::genMemberTermSuffixField()
 {
-    return m_impl->memberTermSuffixField();
+    return m_impl->genMemberTermSuffixField();
 }
 
-const GenField* GenListField::memberTermSuffixField() const
+const GenField* GenListField::genMemberTermSuffixField() const
 {
-    return m_impl->memberTermSuffixField();
+    return m_impl->genMemberTermSuffixField();
 }
 
-bool GenListField::prepareImpl()
+bool GenListField::genPrepareImpl()
 {
-    return m_impl->prepare();
+    return m_impl->genPrepare();
 }
 
-void GenListField::setReferencedImpl()
+void GenListField::genSetReferencedImpl()
 {
-    m_impl->setReferenced();
+    m_impl->genSetReferenced();
 }
 
-commsdsl::parse::ParseListField GenListField::listDslObj() const
+GenListField::ParseListField GenListField::genListFieldParseObj() const
 {
-    return commsdsl::parse::ParseListField(dslObj());
+    return ParseListField(genParseObj());
 }
 
 } // namespace gen

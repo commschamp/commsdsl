@@ -26,15 +26,15 @@ namespace commsdsl
 namespace gen
 {
 
-GenChecksumLayer::GenChecksumLayer(GenGenerator& generator, commsdsl::parse::ParseLayer dslObj, GenElem* parent) :
+GenChecksumLayer::GenChecksumLayer(GenGenerator& generator, ParseLayer dslObj, GenElem* parent) :
     Base(generator, dslObj, parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Checksum);
+    assert(dslObj.parseKind() == ParseLayer::Kind::Checksum);
 }
 
 GenChecksumLayer::~GenChecksumLayer() = default;
 
-bool GenChecksumLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success) const
+bool GenChecksumLayer::genForceCommsOrderImpl(LayersAccessList& layers, bool& success) const
 {
     auto iter =
         std::find_if(
@@ -60,7 +60,7 @@ bool GenChecksumLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& succe
                 layers.begin(), layers.end(),
                 [&untilStr](const auto* l)
                 {
-                    return l->dslObj().parseName() == untilStr;
+                    return l->genParseObj().parseName() == untilStr;
                 });
 
         if (untilIter == layers.end()) {
@@ -70,8 +70,8 @@ bool GenChecksumLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& succe
             return false;
         }
 
-        if ((*untilIter)->dslObj().parseKind() != commsdsl::parse::ParseLayer::Kind::Payload) {
-            generator().logger().error("Checksum prefix must be until payload layer");
+        if ((*untilIter)->genParseObj().parseKind() != ParseLayer::Kind::Payload) {
+            genGenerator().genLogger().genError("Checksum prefix must be until payload layer");
             success = false;
             return false;
         }
@@ -84,7 +84,7 @@ bool GenChecksumLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& succe
     if (fromStr.empty()) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
-        generator().logger().error("Info on checksum layer is missing");
+        genGenerator().genLogger().genError("Info on checksum layer is missing");
         success = false;
         return false;
     }
@@ -94,7 +94,7 @@ bool GenChecksumLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& succe
             layers.begin(), layers.end(),
             [&fromStr](const auto* l)
             {
-                return l->dslObj().parseName() == fromStr;
+                return l->genParseObj().parseName() == fromStr;
             });
 
 
@@ -120,9 +120,9 @@ bool GenChecksumLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& succe
     return true;    
 }
 
-commsdsl::parse::ParseChecksumLayer GenChecksumLayer::checksumDslObj() const
+GenChecksumLayer::ParseChecksumLayer GenChecksumLayer::checksumDslObj() const
 {
-    return commsdsl::parse::ParseChecksumLayer(dslObj());
+    return ParseChecksumLayer(genParseObj());
 }
 
 } // namespace gen

@@ -35,7 +35,7 @@ namespace gen
 namespace 
 {
 
-std::uintmax_t maxTypeValueInternal(commsdsl::parse::ParseEnumField::Type val)
+std::uintmax_t genMaxTypeValueInternal(commsdsl::parse::ParseEnumField::Type val)
 {
     static const std::uintmax_t Map[] = {
         /* Int8 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int8_t>::max()),
@@ -68,18 +68,18 @@ std::uintmax_t maxTypeValueInternal(commsdsl::parse::ParseEnumField::Type val)
 class GenEnumFieldImpl
 {
 public:
-
+    using ParseEnumField = GenEnumField::ParseEnumField;
     using RevValueInfo = GenEnumField::RevValueInfo;
     using SortedRevValues = GenEnumField::SortedRevValues;
 
-    explicit GenEnumFieldImpl(commsdsl::parse::ParseEnumField dslObj) : m_dslObj(dslObj) {}
+    explicit GenEnumFieldImpl(ParseEnumField dslObj) : m_dslObj(dslObj) {}
 
-    bool prepare()
+    bool genPrepare()
     {
         auto type = m_dslObj.parseType();
         m_bigUnsigned =
-            (type == commsdsl::parse::ParseEnumField::Type::Uint64) ||
-            (type == commsdsl::parse::ParseEnumField::Type::Uintvar);
+            (type == ParseEnumField::Type::Uint64) ||
+            (type == ParseEnumField::Type::Uintvar);
 
         for (auto& v : m_dslObj.parseRevValues()) {
             m_sortedRevValues.push_back(std::make_pair(v.first, &v.second));
@@ -97,7 +97,7 @@ public:
         return true;
     }
 
-    unsigned hexWidth() const
+    unsigned genHexWidth() const
     {
         std::uintmax_t hexWidth = 0U;
         if (m_dslObj.parseHexAssign()) {
@@ -106,10 +106,10 @@ public:
         return static_cast<unsigned>(hexWidth);
     }
 
-    std::string adjustName(const std::string& val) const
+    std::string genAdjustName(const std::string& val) const
     {
         std::string result = val;        
-        adjustFirstLetterInName(result);
+        genAdjustFirstLetterInName(result);
 
         auto& values = m_dslObj.parseValues();        
         while (true) {
@@ -123,20 +123,20 @@ public:
         return result;
     }
 
-    std::string valueToString(std::intmax_t val) const
+    std::string genValueToString(std::intmax_t val) const
     {
-        unsigned hexW = hexWidth();
+        unsigned hexW = genHexWidth();
 
         if ((m_bigUnsigned) || (0U < hexW)) {
-            return util::numToString(static_cast<std::uintmax_t>(val), hexW);
+            return util::genNumToString(static_cast<std::uintmax_t>(val), hexW);
         }
 
-        return util::numToString(val);
+        return util::genNumToString(val);
     }    
 
-    bool hasValuesLimit() const    
+    bool genHasValuesLimit() const    
     {
-        auto maxTypeValue = maxTypeValueInternal(m_dslObj.parseType());
+        auto maxTypeValue = genMaxTypeValueInternal(m_dslObj.parseType());
         if (m_bigUnsigned) {
             return static_cast<std::uintmax_t>(m_sortedRevValues.back().first) < maxTypeValue;
         }
@@ -144,13 +144,13 @@ public:
         return m_sortedRevValues.back().first < static_cast<std::intmax_t>(maxTypeValue);        
     }
 
-    const SortedRevValues& sortedRevValues() const
+    const SortedRevValues& genSortedRevValues() const
     {
         return m_sortedRevValues;
     }
 
 private:
-    void adjustFirstLetterInName(std::string& val) const
+    void genAdjustFirstLetterInName(std::string& val) const
     {
         auto& firstElem = m_sortedRevValues.front();
         assert(firstElem.second != nullptr);
@@ -167,92 +167,92 @@ private:
         val[0] = static_cast<char>(std::tolower(val[0]));
     }
 
-    commsdsl::parse::ParseEnumField m_dslObj;
+    ParseEnumField m_dslObj;
     SortedRevValues m_sortedRevValues;       
     bool m_bigUnsigned = false;
 };    
 
 GenEnumField::GenEnumField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent) :
     Base(generator, dslObj, parent),
-    m_impl(std::make_unique<GenEnumFieldImpl>(enumDslObj()))
+    m_impl(std::make_unique<GenEnumFieldImpl>(genEnumFieldParseObj()))
 {
     assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Enum);
 }
 
 GenEnumField::~GenEnumField() = default;
 
-bool GenEnumField::isUnsignedUnderlyingType() const
+bool GenEnumField::genIsUnsignedUnderlyingType() const
 {
-    return GenIntField::isUnsignedType(enumDslObj().parseType());
+    return GenIntField::genIsUnsignedType(genEnumFieldParseObj().parseType());
 }
 
-unsigned GenEnumField::hexWidth() const
+unsigned GenEnumField::genHexWidth() const
 {
-    return m_impl->hexWidth();
+    return m_impl->genHexWidth();
 }
 
-std::string GenEnumField::valueName(std::intmax_t value) const
+std::string GenEnumField::genValueName(std::intmax_t value) const
 {
-    auto obj = enumDslObj();
+    auto obj = genEnumFieldParseObj();
     auto& revValues = obj.parseRevValues();
     auto iter = revValues.find(value);
     if (iter != revValues.end()) {
         return iter->second;
     }
 
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
-std::string GenEnumField::adjustName(const std::string& val) const
+std::string GenEnumField::genAdjustName(const std::string& val) const
 {
-    return m_impl->adjustName(val);
+    return m_impl->genAdjustName(val);
 }
 
-commsdsl::parse::ParseEnumField GenEnumField::enumDslObj() const
+GenEnumField::ParseEnumField GenEnumField::genEnumFieldParseObj() const
 {
-    return commsdsl::parse::ParseEnumField(dslObj());
+    return ParseEnumField(genParseObj());
 }
 
-const GenEnumField::SortedRevValues& GenEnumField::sortedRevValues() const
+const GenEnumField::SortedRevValues& GenEnumField::genSortedRevValues() const
 {
-    return m_impl->sortedRevValues();
+    return m_impl->genSortedRevValues();
 }
 
-std::string GenEnumField::valueToString(std::intmax_t val) const
+std::string GenEnumField::genValueToString(std::intmax_t val) const
 {
-    return m_impl->valueToString(val);
+    return m_impl->genValueToString(val);
 }
 
-bool GenEnumField::hasValuesLimit() const
+bool GenEnumField::genHasValuesLimit() const
 {
-    return m_impl->hasValuesLimit();
+    return m_impl->genHasValuesLimit();
 }
 
-std::string GenEnumField::firstValueStr() const
+std::string GenEnumField::genFirstValueStr() const
 {
-    return adjustName(strings::enumFirstValueStr());
+    return genAdjustName(strings::genEnumFirstValueStr());
 }
 
-std::string GenEnumField::lastValueStr() const
+std::string GenEnumField::genLastValueStr() const
 {
-    return adjustName(strings::enumLastValueStr());
+    return genAdjustName(strings::genEnumLastValueStr());
 }
 
-std::string GenEnumField::valuesLimitStr() const
+std::string GenEnumField::genValuesLimitStr() const
 {
-    return adjustName(strings::enumValuesLimitStr());
+    return genAdjustName(strings::genEnumValuesLimitStr());
 }
 
-bool GenEnumField::prepareImpl()
+bool GenEnumField::genPrepareImpl()
 {
-    return m_impl->prepare();
+    return m_impl->genPrepare();
 }
 
-GenEnumField::FieldRefInfo GenEnumField::processInnerRefImpl(const std::string& refStr) const
+GenEnumField::FieldRefInfo GenEnumField::genProcessInnerRefImpl(const std::string& refStr) const
 {
     assert(!refStr.empty());
 
-    auto obj = enumDslObj();
+    auto obj = genEnumFieldParseObj();
     auto& values = obj.parseValues();
 
     FieldRefInfo info;

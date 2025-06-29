@@ -64,11 +64,11 @@ std::string SwigLayer::swigDeclCode() const
         "    #^#FUNCS#$#\n"
         "};\n";
 
-    auto& gen = SwigGenerator::cast(m_layer.generator());
-    auto* memField = SwigField::cast(m_layer.memberField());
+    auto& gen = SwigGenerator::cast(m_layer.genGenerator());
+    auto* memField = SwigField::cast(m_layer.genMemberField());
     auto* field = memField;
     if (field == nullptr) {
-        field = SwigField::cast(m_layer.externalField());
+        field = SwigField::cast(m_layer.genExternalField());
     }
 
     std::string fieldDef = swigFieldTypeImpl();
@@ -87,14 +87,14 @@ std::string SwigLayer::swigDeclCode() const
         repl["MEMBER"] = memField->swigClassDecl();
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 void SwigLayer::swigAddDef(StringsList& list) const
 {
-    auto* field = SwigField::cast(m_layer.memberField());
+    auto* field = SwigField::cast(m_layer.genMemberField());
     if (field == nullptr) {
-        field = SwigField::cast(m_layer.externalField());
+        field = SwigField::cast(m_layer.genExternalField());
     }
 
     if (field != nullptr) {
@@ -104,9 +104,9 @@ void SwigLayer::swigAddDef(StringsList& list) const
 
 void SwigLayer::swigAddCode(StringsList& list) const
 {
-    auto* field = SwigField::cast(m_layer.memberField());
+    auto* field = SwigField::cast(m_layer.genMemberField());
     if (field == nullptr) {
-        field = SwigField::cast(m_layer.externalField());
+        field = SwigField::cast(m_layer.genExternalField());
     }
 
     if (field != nullptr) {
@@ -124,7 +124,7 @@ void SwigLayer::swigAddCode(StringsList& list) const
         "    #^#FUNCS#$#\n"
         "};\n";
 
-    auto& gen = SwigGenerator::cast(m_layer.generator());
+    auto& gen = SwigGenerator::cast(m_layer.genGenerator());
 
     std::string fieldDef = swigFieldTypeImpl();
     if (field != nullptr) {
@@ -138,7 +138,7 @@ void SwigLayer::swigAddCode(StringsList& list) const
         {"FUNCS", swigCodeFuncsImpl()},
     };
 
-    list.push_back(util::processTemplate(Templ, repl));
+    list.push_back(util::genProcessTemplate(Templ, repl));
 }
 
 void SwigLayer::swigAddToAllFieldsDecl(StringsList& list) const
@@ -146,13 +146,13 @@ void SwigLayer::swigAddToAllFieldsDecl(StringsList& list) const
     static const std::string Templ = 
         "#^#CLASS_NAME#$#::Field #^#ACC_NAME#$#;\n";
 
-    auto& gen = SwigGenerator::cast(m_layer.generator());
+    auto& gen = SwigGenerator::cast(m_layer.genGenerator());
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(m_layer)},
         {"ACC_NAME", swigFieldAccName()}
     };
 
-    list.push_back(util::processTemplate(Templ, repl));
+    list.push_back(util::genProcessTemplate(Templ, repl));
 }
 
 bool SwigLayer::swigIsMainInterfaceSupported() const
@@ -162,17 +162,17 @@ bool SwigLayer::swigIsMainInterfaceSupported() const
 
 std::string SwigLayer::swigFieldAccName() const
 {
-    return "m_" + comms::accessName(m_layer.dslObj().parseName());
+    return "m_" + comms::genAccessName(m_layer.genParseObj().parseName());
 }
 
 std::string SwigLayer::swigDeclFuncsImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string SwigLayer::swigCodeFuncsImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 bool SwigLayer::swigIsMainInterfaceSupportedImpl() const
@@ -182,7 +182,7 @@ bool SwigLayer::swigIsMainInterfaceSupportedImpl() const
 
 std::string SwigLayer::swigMemberFieldDeclImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 void SwigLayer::swigAddCodeImpl([[maybe_unused]] StringsList& list) const
@@ -191,15 +191,15 @@ void SwigLayer::swigAddCodeImpl([[maybe_unused]] StringsList& list) const
 
 std::string SwigLayer::swigFieldTypeImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string SwigLayer::swigTemplateScope() const
 {
-    auto& gen = SwigGenerator::cast(m_layer.generator());
+    auto& gen = SwigGenerator::cast(m_layer.genGenerator());
     auto* iFace = gen.swigMainInterface();
     assert(iFace != nullptr);
-    return m_layer.templateScopeOfComms(gen.swigClassName(*iFace), strings::allMessagesStr(), SwigProtocolOptions::swigClassName(gen));
+    return m_layer.genTemplateScopeOfComms(gen.swigClassName(*iFace), strings::genAllMessagesStr(), SwigProtocolOptions::swigClassName(gen));
 }
 
 

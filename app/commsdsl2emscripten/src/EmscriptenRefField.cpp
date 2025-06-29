@@ -36,21 +36,21 @@ EmscriptenRefField::EmscriptenRefField(EmscriptenGenerator& generator, commsdsl:
 {
 }
 
-bool EmscriptenRefField::writeImpl() const
+bool EmscriptenRefField::genWriteImpl() const
 {
     return emscriptenWrite();
 }
 
 void EmscriptenRefField::emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const
 {
-    auto* refField = EmscriptenField::cast(referencedField());
+    auto* refField = EmscriptenField::cast(genReferencedField());
     assert(refField != nullptr);
     incs.push_back(refField->emscriptenRelHeaderPath());
 }
 
 std::string EmscriptenRefField::emscriptenHeaderValueAccImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string EmscriptenRefField::emscriptenHeaderExtraPublicFuncsImpl() const
@@ -63,8 +63,8 @@ std::string EmscriptenRefField::emscriptenHeaderExtraPublicFuncsImpl() const
         "            reinterpret_cast<#^#REF_BASE#$#*>(this));\n"
         "}\n";
 
-    auto& gen = EmscriptenGenerator::cast(generator());
-    auto* refField = EmscriptenField::cast(referencedField());
+    auto& gen = EmscriptenGenerator::cast(genGenerator());
+    auto* refField = EmscriptenField::cast(genReferencedField());
     assert(refField != nullptr);
 
     util::ReplacementMap repl = {
@@ -72,12 +72,12 @@ std::string EmscriptenRefField::emscriptenHeaderExtraPublicFuncsImpl() const
         {"REF_BASE", refField->emscriptenTemplateScope()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenRefField::emscriptenSourceBindValueAccImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string EmscriptenRefField::emscriptenSourceBindFuncsImpl() const
@@ -89,7 +89,7 @@ std::string EmscriptenRefField::emscriptenSourceBindFuncsImpl() const
         {"CLASS_NAME", emscriptenBindClassName()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 

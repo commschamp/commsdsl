@@ -564,7 +564,7 @@ bool ParseSetFieldImpl::parseUpdateBits()
         assert(idxIter != props.end());
 
         bool ok = false;
-        unsigned idx = common::strToUnsigned(idxIter->second, &ok);
+        unsigned idx = common::parseStrToUnsigned(idxIter->second, &ok);
         if (!ok) {
             ParseXmlWrap::ParseXmlWrap::parseReportUnexpectedPropertyValue(b, nameIter->second, common::idxStr(), idxIter->second, parseProtocol().parseLogger());
             return false;

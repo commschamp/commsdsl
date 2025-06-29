@@ -34,9 +34,9 @@ ToolsQtCustomLayer::ToolsQtCustomLayer(ToolsQtGenerator& generator, commsdsl::pa
 {
 }
 
-bool ToolsQtCustomLayer::prepareImpl() 
+bool ToolsQtCustomLayer::genPrepareImpl() 
 {
-    return Base::prepareImpl() && ToolsBase::prepare();
+    return Base::genPrepareImpl() && ToolsBase::toolsPrepare();
 }
 
 } // namespace commsdsl2tools_qt

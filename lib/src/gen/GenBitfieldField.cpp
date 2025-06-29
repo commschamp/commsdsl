@@ -29,15 +29,16 @@ class GenBitfieldFieldImpl
 {
 public:
     using FieldsList = GenBitfieldField::FieldsList;
+    using ParseBitfieldField = GenBitfieldField::ParseBitfieldField;
 
-    GenBitfieldFieldImpl(GenGenerator& generator, commsdsl::parse::ParseBitfieldField dslObj, GenElem* parent) :
+    GenBitfieldFieldImpl(GenGenerator& generator, ParseBitfieldField dslObj, GenElem* parent) :
         m_generator(generator),
         m_dslObj(dslObj),
         m_parent(parent)
     {
     }
 
-    bool prepare()
+    bool genPrepare()
     {
         if (!m_dslObj.parseValid()) {
             return true;
@@ -46,9 +47,9 @@ public:
         auto fields = m_dslObj.parseMembers();
         m_members.reserve(fields.size());
         for (auto& dslObj : fields) {
-            auto ptr = GenField::create(m_generator, dslObj, m_parent);
+            auto ptr = GenField::genCreate(m_generator, dslObj, m_parent);
             assert(ptr);
-            if (!ptr->prepare()) {
+            if (!ptr->genPrepare()) {
                 return false;
             }
 
@@ -58,63 +59,62 @@ public:
         return true;
     }
 
-    const FieldsList& members() const
+    const FieldsList& genMembers() const
     {
         return m_members;
     }
 
-    void setReferenced()
+    void genSetReferenced()
     {
         for (auto& m : m_members) {
-            m->setReferenced();
+            m->genSetReferenced();
         }
     }
 
 private:
     GenGenerator& m_generator;
-    commsdsl::parse::ParseBitfieldField m_dslObj;
+    ParseBitfieldField m_dslObj;
     GenElem* m_parent = nullptr;
     FieldsList m_members;
 };
 
-GenBitfieldField::GenBitfieldField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent) :
+GenBitfieldField::GenBitfieldField(GenGenerator& generator, ParseField dslObj, GenElem* parent) :
     Base(generator, dslObj, parent),
-    m_impl(std::make_unique<GenBitfieldFieldImpl>(generator, bitfieldDslObj(), this))
+    m_impl(std::make_unique<GenBitfieldFieldImpl>(generator, genBitfieldFieldParseObj(), this))
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Bitfield);
+    assert(dslObj.parseKind() == ParseField::Kind::Bitfield);
 }
 
 GenBitfieldField::~GenBitfieldField() = default;
 
-const GenBitfieldField::FieldsList& GenBitfieldField::members() const
+const GenBitfieldField::FieldsList& GenBitfieldField::genMembers() const
 {
-    return m_impl->members();
+    return m_impl->genMembers();
 }
 
-bool GenBitfieldField::prepareImpl()
+bool GenBitfieldField::genPrepareImpl()
 {
-    return m_impl->prepare();
+    return m_impl->genPrepare();
 }
 
-void GenBitfieldField::setReferencedImpl()
+void GenBitfieldField::genSetReferencedImpl()
 {
-    m_impl->setReferenced();
+    m_impl->genSetReferenced();
 }
 
-GenBitfieldField::FieldRefInfo GenBitfieldField::processInnerRefImpl(const std::string& refStr) const
+GenBitfieldField::FieldRefInfo GenBitfieldField::genProcessInnerRefImpl(const std::string& refStr) const
 {
-    auto& memFields = members();
+    auto& memFields = genMembers();
     if (!memFields.empty()) {
-        return processMemberRef(memFields, refStr);
+        return genProcessMemberRef(memFields, refStr);
     }    
 
-    return Base::processInnerRefImpl(refStr);
+    return Base::genProcessInnerRefImpl(refStr);
 }
 
-
-commsdsl::parse::ParseBitfieldField GenBitfieldField::bitfieldDslObj() const
+GenBitfieldField::ParseBitfieldField GenBitfieldField::genBitfieldFieldParseObj() const
 {
-    return commsdsl::parse::ParseBitfieldField(dslObj());
+    return GenBitfieldField::ParseBitfieldField(genParseObj());
 }
 
 } // namespace gen

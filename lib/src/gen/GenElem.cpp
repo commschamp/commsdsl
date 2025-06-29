@@ -39,47 +39,47 @@ namespace
 {
 
 template <typename TElem>
-decltype(auto) elemName(const TElem& elem)
+decltype(auto) genElemName(const TElem& elem)
 {
-    if (!elem.dslObj().parseValid()) {
-        return strings::emptyString();
+    if (!elem.genParseObj().parseValid()) {
+        return strings::genEmptyString();
     }
-    return elem.dslObj().parseName();
+    return elem.genParseObj().parseName();
 }  
 
-const std::string& nameOfNamespace(const GenElem& elem)
+const std::string& genNameOfNamespace(const GenElem& elem)
 {
-    return elemName(static_cast<const GenNamespace&>(elem));
+    return genElemName(static_cast<const GenNamespace&>(elem));
 }
 
-const std::string& nameOfMessage(const GenElem& elem)
+const std::string& genNameOfMessage(const GenElem& elem)
 {
-    return elemName(static_cast<const GenMessage&>(elem));
+    return genElemName(static_cast<const GenMessage&>(elem));
 }
 
-const std::string& nameOfField(const GenElem& elem)
+const std::string& genNameOfField(const GenElem& elem)
 {
-    return elemName(static_cast<const GenField&>(elem));
+    return genElemName(static_cast<const GenField&>(elem));
 }
 
-const std::string& nameOfInterface(const GenElem& elem)
+const std::string& genNameOfInterface(const GenElem& elem)
 {
-    return elemName(static_cast<const GenInterface&>(elem));
+    return genElemName(static_cast<const GenInterface&>(elem));
 }
 
-const std::string& nameOfFrame(const GenElem& elem)
+const std::string& genNameOfFrame(const GenElem& elem)
 {
-    return elemName(static_cast<const GenFrame&>(elem));
+    return genElemName(static_cast<const GenFrame&>(elem));
 }
 
-const std::string& nameOfLayer(const GenElem& elem)
+const std::string& genNameOfLayer(const GenElem& elem)
 {
-    return elemName(static_cast<const GenLayer&>(elem));
+    return genElemName(static_cast<const GenLayer&>(elem));
 }
 
-const std::string& nameOfSchema(const GenElem& elem)
+const std::string& genNameOfSchema(const GenElem& elem)
 {
-    return elemName(static_cast<const GenSchema&>(elem));
+    return genElemName(static_cast<const GenSchema&>(elem));
 }
 
 } // namespace 
@@ -87,46 +87,46 @@ const std::string& nameOfSchema(const GenElem& elem)
 
 GenElem::~GenElem() = default;
 
-void GenElem::setParent(GenElem* parent)
+void GenElem::genSetParent(GenElem* parent)
 {
     m_parent = parent;
 }
 
-GenElem* GenElem::getParent()
+GenElem* GenElem::genGetParent()
 {
     return m_parent;
 }
 
-const GenElem* GenElem::getParent() const
+const GenElem* GenElem::genGetParent() const
 {
     return m_parent;
 }
 
-GenElem::Type GenElem::elemType() const
+GenElem::Type GenElem::genElemType() const
 {
-    return elemTypeImpl();
+    return genElemTypeImpl();
 }
 
-const std::string& GenElem::name() const
+const std::string& GenElem::genName() const
 {
     using Func = const std::string& (*)(const GenElem& elem);
     static const Func Map[] = {
         /* Type_Invalid */ nullptr,
-        /* Type_Namespace */ &nameOfNamespace,
-        /* Type_Message */ &nameOfMessage,
-        /* Type_Field */ &nameOfField,
-        /* Type_Interface */ &nameOfInterface,
-        /* Type_Frame */ &nameOfFrame,
-        /* Type_Layer */ &nameOfLayer,    
-        /* Type_Schema */ &nameOfSchema,    
+        /* Type_Namespace */ &genNameOfNamespace,
+        /* Type_Message */ &genNameOfMessage,
+        /* Type_Field */ &genNameOfField,
+        /* Type_Interface */ &genNameOfInterface,
+        /* Type_Frame */ &genNameOfFrame,
+        /* Type_Layer */ &genNameOfLayer,    
+        /* Type_Schema */ &genNameOfSchema,    
     };
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == Type_NumOfValues, "Invalid map");
 
-    auto idx = static_cast<unsigned>(elemType());
+    auto idx = static_cast<unsigned>(genElemType());
     if ((MapSize <= idx) || (Map[idx] == nullptr)) {
         assert(false); // Should not happen
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     return Map[idx](*this);

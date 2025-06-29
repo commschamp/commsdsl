@@ -33,14 +33,14 @@ class COMMSDSL_API GenSetField : public GenField
 {
     using Base = GenField;
 public:
+    using ParseField = commsdsl::parse::ParseField;
+    using ParseSetField = commsdsl::parse::ParseSetField;
 
-    GenSetField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent = nullptr);
+    GenSetField(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
     virtual ~GenSetField();
 
 protected:    
-    commsdsl::parse::ParseSetField setDslObj() const;
-
-private:
+    ParseSetField genSetFieldParseObj() const;
 };
 
 } // namespace gen

@@ -45,35 +45,35 @@ EmscriptenMessage::~EmscriptenMessage() = default;
 
 std::string EmscriptenMessage::emscriptenRelHeader() const
 {
-    auto& gen = EmscriptenGenerator::cast(generator());
+    auto& gen = EmscriptenGenerator::cast(genGenerator());
     return gen.emscriptenRelHeaderFor(*this);
 }
 
 void EmscriptenMessage::emscriptenAddSourceFiles(StringsList& sources) const
 {
-    if (!isReferenced()) {
+    if (!genIsReferenced()) {
         return;
     }
     
-    auto& gen = EmscriptenGenerator::cast(generator());
+    auto& gen = EmscriptenGenerator::cast(genGenerator());
     sources.push_back(gen.emscriptenRelSourceFor(*this));
 }
 
-bool EmscriptenMessage::prepareImpl()
+bool EmscriptenMessage::genPrepareImpl()
 {
-    if (!Base::prepareImpl()) {
+    if (!Base::genPrepareImpl()) {
         return false;
     }
 
-    assert(isReferenced());
+    assert(genIsReferenced());
 
-    m_emscriptenFields = EmscriptenField::emscriptenTransformFieldsList(fields());
+    m_emscriptenFields = EmscriptenField::emscriptenTransformFieldsList(genFields());
     return true;
 }
 
-bool EmscriptenMessage::writeImpl() const
+bool EmscriptenMessage::genWriteImpl() const
 {
-    assert(isReferenced());
+    assert(genIsReferenced());
     return 
         emscriptenWriteHeaderInternal() &&
         emscriptenWriteSourceInternal();
@@ -81,20 +81,20 @@ bool EmscriptenMessage::writeImpl() const
 
 bool EmscriptenMessage::emscriptenWriteHeaderInternal() const
 {
-    auto& gen = EmscriptenGenerator::cast(generator());
+    auto& gen = EmscriptenGenerator::cast(genGenerator());
     auto filePath = gen.emscriptenAbsHeaderFor(*this);
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!gen.createDirectory(dirPath)) {
+    if (!gen.genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    auto& logger = gen.logger();
-    logger.info("Generating " + filePath);
+    auto& logger = gen.genLogger();
+    logger.genInfo("Generating " + filePath);
 
     std::ofstream stream(filePath);
     if (!stream) {
-        logger.error("Failed to open \"" + filePath + "\" for writing.");
+        logger.genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -113,27 +113,27 @@ bool EmscriptenMessage::emscriptenWriteHeaderInternal() const
         {"DEF", emscriptenHeaderClassInternal()},
     };
     
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();   
 }
 
 bool EmscriptenMessage::emscriptenWriteSourceInternal() const
 {
-    auto& gen = EmscriptenGenerator::cast(generator());
+    auto& gen = EmscriptenGenerator::cast(genGenerator());
     auto filePath = gen.emscriptenAbsSourceFor(*this);
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!gen.createDirectory(dirPath)) {
+    if (!gen.genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    auto& logger = gen.logger();
-    logger.info("Generating " + filePath);
+    auto& logger = gen.genLogger();
+    logger.genInfo("Generating " + filePath);
 
     std::ofstream stream(filePath);
     if (!stream) {
-        logger.error("Failed to open \"" + filePath + "\" for writing.");
+        logger.genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -152,20 +152,20 @@ bool EmscriptenMessage::emscriptenWriteSourceInternal() const
         {"CODE", emscriptenSourceCodeInternal()},
     };
     
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();   
 }
 
 std::string EmscriptenMessage::emscriptenHeaderIncludesInternal() const
 {
-    auto& gen = EmscriptenGenerator::cast(generator());
+    auto& gen = EmscriptenGenerator::cast(genGenerator());
     auto* iFace = gen.emscriptenMainInterface();
     assert(iFace != nullptr);
-    auto* parentNs = iFace->parentNamespace();
+    auto* parentNs = iFace->genParentNamespace();
     
     util::StringsList includes = {
-        comms::relHeaderPathFor(*this, gen),
+        comms::genRelHeaderPathFor(*this, gen),
         iFace->emscriptenRelHeader(),
         EmscriptenNamespace::cast(parentNs)->emscriptenHandlerRelHeader(),
     };
@@ -181,8 +181,8 @@ std::string EmscriptenMessage::emscriptenHeaderIncludesInternal() const
         f->emscriptenHeaderAddExtraIncludes(includes);
     }
 
-    comms::prepareIncludeStatement(includes);
-    return util::strListToString(includes, "\n", "");
+    comms::genPrepareIncludeStatement(includes);
+    return util::genStrListToString(includes, "\n", "");
 }
 
 std::string EmscriptenMessage::emscriptenHeaderFieldsInternal() const
@@ -192,12 +192,12 @@ std::string EmscriptenMessage::emscriptenHeaderFieldsInternal() const
         fields.push_back(f->emscriptenHeaderClass());
     }
 
-    return util::strListToString(fields, "\n", "\n");
+    return util::genStrListToString(fields, "\n", "\n");
 }
 
 std::string EmscriptenMessage::emscriptenHeaderClassInternal() const
 {
-    auto& gen = EmscriptenGenerator::cast(generator());
+    auto& gen = EmscriptenGenerator::cast(genGenerator());
     util::StringsList fields;
     for (auto* f : m_emscriptenFields) {
         static const std::string Templ = 
@@ -209,10 +209,10 @@ std::string EmscriptenMessage::emscriptenHeaderClassInternal() const
 
         util::ReplacementMap repl = {
             {"FIELD_CLASS", gen.emscriptenClassName(f->field())},
-            {"NAME", comms::accessName(f->field().dslObj().parseName())},
+            {"NAME", comms::genAccessName(f->field().genParseObj().parseName())},
         };
 
-        fields.push_back(util::processTemplate(Templ, repl));
+        fields.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ =
@@ -236,16 +236,16 @@ std::string EmscriptenMessage::emscriptenHeaderClassInternal() const
 
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(*this)},
-        {"COMMS_CLASS", comms::scopeFor(*this, gen)},
+        {"COMMS_CLASS", comms::genScopeFor(*this, gen)},
         {"INTERFACE", gen.emscriptenClassName(*iFace)},
-        {"FIELDS", util::strListToString(fields, "\n", "")}
+        {"FIELDS", util::genStrListToString(fields, "\n", "")}
     };
 
     if (EmscriptenProtocolOptions::emscriptenIsDefined(gen)) {
         repl["PROT_OPTS"] = ", " + EmscriptenProtocolOptions::emscriptenClassName(gen);
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenMessage::emscriptenSourceFieldsInternal() const
@@ -255,12 +255,12 @@ std::string EmscriptenMessage::emscriptenSourceFieldsInternal() const
         fields.push_back(f->emscriptenSourceCode());
     }
 
-    return util::strListToString(fields, "\n", "");
+    return util::genStrListToString(fields, "\n", "");
 }
 
 std::string EmscriptenMessage::emscriptenSourceCodeInternal() const
 {
-    auto& gen = EmscriptenGenerator::cast(generator());
+    auto& gen = EmscriptenGenerator::cast(genGenerator());
 
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(*this)},
@@ -271,8 +271,8 @@ std::string EmscriptenMessage::emscriptenSourceCodeInternal() const
         static const std::string Templ = 
             ".function(\"field_#^#NAME#$#\", &#^#CLASS_NAME#$#::field_#^#NAME#$#_, emscripten::allow_raw_pointers())";
 
-        repl["NAME"] = comms::accessName(f->field().dslObj().parseName());
-        fields.push_back(util::processTemplate(Templ, repl));
+        repl["NAME"] = comms::genAccessName(f->field().genParseObj().parseName());
+        fields.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ = 
@@ -288,8 +288,8 @@ std::string EmscriptenMessage::emscriptenSourceCodeInternal() const
     auto* iFace = gen.emscriptenMainInterface();
     assert(iFace != nullptr);
     repl["INTERFACE"] = gen.emscriptenClassName(*iFace);
-    repl["FIELDS"] = util::strListToString(fields, "\n", "");
-    return util::processTemplate(Templ, repl);
+    repl["FIELDS"] = util::genStrListToString(fields, "\n", "");
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2emscripten

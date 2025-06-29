@@ -36,9 +36,9 @@ ToolsQtValueLayer::ToolsQtValueLayer(ToolsQtGenerator& generator, commsdsl::pars
 {
 }
 
-bool ToolsQtValueLayer::prepareImpl() 
+bool ToolsQtValueLayer::genPrepareImpl() 
 {
-    return Base::prepareImpl() && ToolsBase::prepare();
+    return Base::genPrepareImpl() && ToolsBase::toolsPrepare();
 }
 
 } // namespace commsdsl2tools_qt

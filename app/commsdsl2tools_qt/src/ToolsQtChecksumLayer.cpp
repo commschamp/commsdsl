@@ -34,9 +34,9 @@ ToolsQtChecksumLayer::ToolsQtChecksumLayer(ToolsQtGenerator& generator, commsdsl
 {
 }
 
-bool ToolsQtChecksumLayer::prepareImpl() 
+bool ToolsQtChecksumLayer::genPrepareImpl() 
 {
-    return Base::prepareImpl() && ToolsBase::prepare();
+    return Base::genPrepareImpl() && ToolsBase::toolsPrepare();
 }
 
 } // namespace commsdsl2tools_qt

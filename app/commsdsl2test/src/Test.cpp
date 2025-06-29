@@ -49,14 +49,14 @@ bool Test::write(TestGenerator& generator)
 bool Test::writeInputTest() const
 {
     auto testName = 
-        m_generator.currentSchema().mainNamespace() + '_' + "input_test.cpp";
+        m_generator.genCurrentSchema().genMainNamespace() + '_' + "input_test.cpp";
 
-    auto filePath = commsdsl::gen::util::pathAddElem(m_generator.getOutputDir(), testName);
+    auto filePath = commsdsl::gen::util::genPathAddElem(m_generator.genGetOutputDir(), testName);
 
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -65,30 +65,30 @@ bool Test::writeInputTest() const
     };
     
     std::string idType;
-    auto allMsgIds = m_generator.currentSchema().getAllMessageIdFields();
+    auto allMsgIds = m_generator.genCurrentSchema().genGetAllMessageIdFields();
     const commsdsl::gen::GenField* idField = nullptr;
     if (allMsgIds.size() == 1U) {
         idField = allMsgIds.front();
     }
 
-    if ((idField != nullptr) && (idField->dslObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum)) {
+    if ((idField != nullptr) && (idField->genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum)) {
         auto* enumMsgIdField = static_cast<const commsdsl::gen::GenEnumField*>(idField);
-        if (enumMsgIdField->isUnsignedUnderlyingType()) {
+        if (enumMsgIdField->genIsUnsignedUnderlyingType()) {
             idType = "std::uintmax_t";
         }
         else {
             idType = "std::intmax_t";
         }
 
-        auto hexWidth = enumMsgIdField->hexWidth();
+        auto hexWidth = enumMsgIdField->genHexWidth();
         if (hexWidth != 0U) {
             repl.insert(std::make_pair("BEFORE_ID", " << \"0x\" << std::hex << std::setfill('0') << std::setw(" + std::to_string(hexWidth) + ")"));
             repl.insert(std::make_pair("AFTER_ID", " << std::dec"));
         }
     }
-    else if ((idField != nullptr) && (idField->dslObj().parseKind() == commsdsl::parse::ParseField::Kind::Int)) {
+    else if ((idField != nullptr) && (idField->genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Int)) {
         auto* intMsgIdField = static_cast<const commsdsl::gen::GenIntField*>(idField);
-        if (intMsgIdField->isUnsignedType()) {
+        if (intMsgIdField->genIsUnsignedType()) {
             idType = "std::uintmax_t";
         }
         else {
@@ -444,12 +444,12 @@ bool Test::writeInputTest() const
         "    return 0;\n"
         "}\n\n";
 
-    auto str = commsdsl::gen::util::processTemplate(Template, repl, true);
+    auto str = commsdsl::gen::util::genProcessTemplate(Template, repl, true);
     stream << str;
 
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
 

@@ -77,12 +77,12 @@ std::string CommsNamespace::commsDefaultOptions() const
             false
         );
 
-    auto nsName = name();
+    auto nsName = genName();
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
-    return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
+    return util::genProcessTemplate(optsTemplInternal(nsName.empty()), repl);
 }
 
 std::string CommsNamespace::commsClientDefaultOptions() const
@@ -97,24 +97,24 @@ std::string CommsNamespace::commsClientDefaultOptions() const
         );
 
     if (body.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    auto& nsName = name();
+    auto& nsName = genName();
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
 
-    auto& commsGen = static_cast<const CommsGenerator&>(generator());
+    auto& commsGen = static_cast<const CommsGenerator&>(genGenerator());
     bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
-    auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
+    auto thisNsScope = comms::genScopeFor(*this, genGenerator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
         repl["EXT"] = ": public TBase::" + thisNsScope;
     }
         
-    return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
+    return util::genProcessTemplate(optsTemplInternal(nsName.empty()), repl);
 }
 
 std::string CommsNamespace::commsServerDefaultOptions() const
@@ -129,24 +129,24 @@ std::string CommsNamespace::commsServerDefaultOptions() const
         );
 
     if (body.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    auto& nsName = name();
+    auto& nsName = genName();
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)}
     };
 
-    auto& commsGen = static_cast<const CommsGenerator&>(generator());
+    auto& commsGen = static_cast<const CommsGenerator&>(genGenerator());
     bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
-    auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
+    auto thisNsScope = comms::genScopeFor(*this, genGenerator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
         repl["EXT"] = ": public TBase::" + thisNsScope;
     }
 
-    return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
+    return util::genProcessTemplate(optsTemplInternal(nsName.empty()), repl);
 }
 
 std::string CommsNamespace::commsDataViewDefaultOptions() const
@@ -161,24 +161,24 @@ std::string CommsNamespace::commsDataViewDefaultOptions() const
         );
 
     if (body.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    auto& nsName = name();
+    auto& nsName = genName();
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
 
-    auto& commsGen = static_cast<const CommsGenerator&>(generator());
+    auto& commsGen = static_cast<const CommsGenerator&>(genGenerator());
     bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
-    auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
+    auto thisNsScope = comms::genScopeFor(*this, genGenerator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
         repl["EXT"] = ": public TBase::" + thisNsScope;
     }
 
-    return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
+    return util::genProcessTemplate(optsTemplInternal(nsName.empty()), repl);
 }
 
 std::string CommsNamespace::commsBareMetalDefaultOptions() const
@@ -193,24 +193,24 @@ std::string CommsNamespace::commsBareMetalDefaultOptions() const
         );
 
     if (body.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    auto& nsName = name();
+    auto& nsName = genName();
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
 
-    auto& commsGen = static_cast<const CommsGenerator&>(generator());
+    auto& commsGen = static_cast<const CommsGenerator&>(genGenerator());
     bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
-    auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
+    auto thisNsScope = comms::genScopeFor(*this, genGenerator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
         repl["EXT"] = ": public TBase::" + thisNsScope;
     }
 
-    return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
+    return util::genProcessTemplate(optsTemplInternal(nsName.empty()), repl);
 }
 
 std::string CommsNamespace::commsMsgFactoryDefaultOptions() const
@@ -225,24 +225,24 @@ std::string CommsNamespace::commsMsgFactoryDefaultOptions() const
         );
 
     if (body.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    auto& nsName = name();
+    auto& nsName = genName();
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
 
-    auto& commsGen = static_cast<const CommsGenerator&>(generator());
+    auto& commsGen = static_cast<const CommsGenerator&>(genGenerator());
     bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
-    auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
+    auto thisNsScope = comms::genScopeFor(*this, genGenerator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
         repl["EXT"] = ": public TBase::" + thisNsScope;
     }
 
-    return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
+    return util::genProcessTemplate(optsTemplInternal(nsName.empty()), repl);
 }
 
 bool CommsNamespace::commsHasReferencedMsgId() const
@@ -253,16 +253,16 @@ bool CommsNamespace::commsHasReferencedMsgId() const
             [](auto* f)
             {
                 return 
-                    (f->field().isReferenced()) && 
-                    (f->field().dslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::MessageId);
+                    (f->field().genIsReferenced()) && 
+                    (f->field().genParseObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::MessageId);
             });
 }
 
 bool CommsNamespace::commsHasAnyGeneratedCode() const
 {
-    if ((!frames().empty()) ||
-        (!messages().empty()) || 
-        (!interfaces().empty())) {
+    if ((!genFrames().empty()) ||
+        (!genMessages().empty()) || 
+        (!genInterfaces().empty())) {
         return true;
     }
 
@@ -271,7 +271,7 @@ bool CommsNamespace::commsHasAnyGeneratedCode() const
             m_commsFields.begin(), m_commsFields.end(),
             [](auto* f)
             {
-                return f->field().isReferenced();
+                return f->field().genIsReferenced();
             });
 
 
@@ -279,7 +279,7 @@ bool CommsNamespace::commsHasAnyGeneratedCode() const
         return true;
     }
 
-    auto& allNs = namespaces();
+    auto& allNs = genNamespaces();
     return 
         std::any_of(
             allNs.begin(), allNs.end(),
@@ -292,11 +292,11 @@ bool CommsNamespace::commsHasAnyGeneratedCode() const
 
 bool CommsNamespace::commsHasAnyField() const
 {
-    if (!frames().empty()) {
+    if (!genFrames().empty()) {
         return true;
     }
 
-    auto& allMsgs = messages();
+    auto& allMsgs = genMessages();
     bool hasFieldInMessage = 
         std::any_of(
             allMsgs.begin(), allMsgs.end(),
@@ -310,7 +310,7 @@ bool CommsNamespace::commsHasAnyField() const
         return true;
     }
 
-    auto& allInterfaces = interfaces();
+    auto& allInterfaces = genInterfaces();
     bool hasFieldInInterface = 
         std::any_of(
             allInterfaces.begin(), allInterfaces.end(),
@@ -329,14 +329,14 @@ bool CommsNamespace::commsHasAnyField() const
             m_commsFields.begin(), m_commsFields.end(),
             [](auto* f)
             {
-                return f->field().isReferenced();
+                return f->field().genIsReferenced();
             });
 
     if (hasReferencedFields) {
         return true;
     }
 
-    auto& allNs = namespaces();
+    auto& allNs = genNamespaces();
     return 
         std::any_of(
             allNs.begin(), allNs.end(),
@@ -348,7 +348,7 @@ bool CommsNamespace::commsHasAnyField() const
 
 const CommsField* CommsNamespace::findValidInterfaceReferencedField(const std::string& refStr) const
 {
-    for (auto& iPtr : interfaces()) {
+    for (auto& iPtr : genInterfaces()) {
         auto* commsInterface = CommsInterface::cast(iPtr.get());
         auto field = commsInterface->findValidReferencedField(refStr);
         if (field != nullptr) {
@@ -356,7 +356,7 @@ const CommsField* CommsNamespace::findValidInterfaceReferencedField(const std::s
         }
     }
 
-    for (auto& nPtr : namespaces()) {
+    for (auto& nPtr : genNamespaces()) {
         auto* commsNamespace = CommsNamespace::cast(nPtr.get());
         auto field = commsNamespace->findValidInterfaceReferencedField(refStr);
         if (field != nullptr) {
@@ -369,18 +369,18 @@ const CommsField* CommsNamespace::findValidInterfaceReferencedField(const std::s
 
 std::string CommsNamespace::commsMsgFactoryAliasType() const
 {
-    auto result = util::strReplace(comms::scopeFor(*this, generator(), false, true), "::" , "_");
-    if (!name().empty()) {
+    auto result = util::genStrReplace(comms::genScopeFor(*this, genGenerator(), false, true), "::" , "_");
+    if (!genName().empty()) {
         result += "_";
     }    
-    result += strings::msgFactorySuffixStr();
+    result += strings::genMsgFactorySuffixStr();
     return result;
 }
 
 std::string CommsNamespace::commsMsgFactoryAliasDef(const std::string& namePrefix, const std::string& typeSuffix) const
 {
-    if ((!hasFramesRecursive()) ||
-        (!hasMessagesRecursive())) {
+    if ((!genHasFramesRecursive()) ||
+        (!genHasMessagesRecursive())) {
         return std::string();
     }
 
@@ -396,7 +396,7 @@ std::string CommsNamespace::commsMsgFactoryAliasDef(const std::string& namePrefi
         {"SCOPE", m_factory.commsScope(namePrefix)},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsNamespace::commsRelHeaderPath(const std::string& namePrefix) const
@@ -406,28 +406,28 @@ std::string CommsNamespace::commsRelHeaderPath(const std::string& namePrefix) co
 
 bool CommsNamespace::commsHasMsgId() const
 {
-    return (!interfaces().empty());
+    return (!genInterfaces().empty());
 }
 
-bool CommsNamespace::prepareImpl()
+bool CommsNamespace::genPrepareImpl()
 {
-    if (!Base::prepareImpl()) {
+    if (!Base::genPrepareImpl()) {
         return false;
     }
 
-    m_commsFields = CommsField::commsTransformFieldsList(fields());
+    m_commsFields = CommsField::commsTransformFieldsList(genFields());
     return true;
 }
 
-bool CommsNamespace::writeImpl() const
+bool CommsNamespace::genWriteImpl() const
 {
     if ((commsHasMsgId()) && 
-        (!m_msgId.write())) {
+        (!m_msgId.commsWrite())) {
         return false;
     }
     
-    if ((!hasFramesRecursive()) ||
-        (!hasMessagesRecursive())) {
+    if ((!genHasFramesRecursive()) ||
+        (!genHasMessagesRecursive())) {
         return true;
     }
 
@@ -453,7 +453,7 @@ std::string CommsNamespace::commsOptionsInternal(
             }
         };
 
-    auto& subNsList = namespaces();
+    auto& subNsList = genNamespaces();
     for (auto& nsPtr : subNsList) {
         addStrFunc((static_cast<const CommsNamespace*>(nsPtr.get())->*nsOptsFunc)());
     }
@@ -473,9 +473,9 @@ std::string CommsNamespace::commsOptionsInternal(
             }
         };
 
-    auto& commsGen = static_cast<const CommsGenerator&>(generator());
+    auto& commsGen = static_cast<const CommsGenerator&>(genGenerator());
     bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
-    auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
+    auto thisNsScope = comms::genScopeFor(*this, genGenerator(), hasMainNs);
     if (!thisNsScope.empty()) {
         thisNsScope.append("::");
     }
@@ -488,64 +488,64 @@ std::string CommsNamespace::commsOptionsInternal(
 
         if (!fieldElems.empty()) {
             util::ReplacementMap repl {
-                {"NAME", strings::fieldNamespaceStr()},
-                {"BODY", util::strListToString(fieldElems, "\n", "")},
+                {"NAME", strings::genFieldNamespaceStr()},
+                {"BODY", util::genStrListToString(fieldElems, "\n", "")},
                 {"DESC", "fields"}
             };
 
             if (hasBase) {
-                repl["EXT"] = " : public TBase::" + thisNsScope + strings::fieldNamespaceStr();
+                repl["EXT"] = " : public TBase::" + thisNsScope + strings::genFieldNamespaceStr();
             }
 
-            addStrFunc(util::processTemplate(Templ, repl));
+            addStrFunc(util::genProcessTemplate(Templ, repl));
         }
     }
 
     if (messageOptsFunc != nullptr) {
         util::StringsList messageElems;
-        for (auto& msgPtr : messages()) {
+        for (auto& msgPtr : genMessages()) {
             assert(msgPtr);
             addSubElemFunc((static_cast<const CommsMessage*>(msgPtr.get())->*messageOptsFunc)(), messageElems);
         }
 
         if (!messageElems.empty()) {
             util::ReplacementMap repl {
-                {"NAME", strings::messageNamespaceStr()},
-                {"BODY", util::strListToString(messageElems, "\n", "")},
+                {"NAME", strings::genMessageNamespaceStr()},
+                {"BODY", util::genStrListToString(messageElems, "\n", "")},
                 {"DESC", "messages"}
             };
 
             if (hasBase) {
-                repl["EXT"] = " : public TBase::" + thisNsScope + strings::messageNamespaceStr();
+                repl["EXT"] = " : public TBase::" + thisNsScope + strings::genMessageNamespaceStr();
             }
 
-            addStrFunc(util::processTemplate(Templ, repl));
+            addStrFunc(util::genProcessTemplate(Templ, repl));
         }
     }
 
     if (frameOptsFunc != nullptr) {
         util::StringsList frameElems;
-        for (auto& framePtr : frames()) {
+        for (auto& framePtr : genFrames()) {
             assert(framePtr);
             addSubElemFunc((static_cast<const CommsFrame*>(framePtr.get())->*frameOptsFunc)(), frameElems);
         } 
 
         if (!frameElems.empty()) {
             util::ReplacementMap repl {
-                {"NAME", strings::frameNamespaceStr()},
-                {"BODY", util::strListToString(frameElems, "\n", "")},
+                {"NAME", strings::genFrameNamespaceStr()},
+                {"BODY", util::genStrListToString(frameElems, "\n", "")},
                 {"DESC", "frames"}
             };
 
             if (hasBase) {
-                repl["EXT"] = " : public TBase::" + thisNsScope + strings::frameNamespaceStr();
+                repl["EXT"] = " : public TBase::" + thisNsScope + strings::genFrameNamespaceStr();
             }
 
-            addStrFunc(util::processTemplate(Templ, repl));
+            addStrFunc(util::genProcessTemplate(Templ, repl));
         }
     }
 
-    return util::strListToString(elems, "\n", "");
+    return util::genStrListToString(elems, "\n", "");
 }
 
 

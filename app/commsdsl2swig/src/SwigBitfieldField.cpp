@@ -37,21 +37,21 @@ SwigBitfieldField::SwigBitfieldField(SwigGenerator& generator, commsdsl::parse::
 {
 }
 
-bool SwigBitfieldField::prepareImpl()
+bool SwigBitfieldField::genPrepareImpl()
 {
     return 
-        Base::prepareImpl() &&
+        Base::genPrepareImpl() &&
         swigPrepareInternal();
 }
 
-bool SwigBitfieldField::writeImpl() const
+bool SwigBitfieldField::genWriteImpl() const
 {
     return swigWrite();
 }
 
 bool SwigBitfieldField::swigPrepareInternal()
 {
-    m_swigMembers = swigTransformFieldsList(members());
+    m_swigMembers = swigTransformFieldsList(genMembers());
     return true;
 }
 
@@ -64,13 +64,13 @@ std::string SwigBitfieldField::swigMembersDeclImpl() const
         memberDefs.push_back(m->swigClassDecl());
     }
 
-    return util::strListToString(memberDefs, "\n", "\n");
+    return util::genStrListToString(memberDefs, "\n", "\n");
 }
 
 std::string SwigBitfieldField::swigValueAccDeclImpl() const
 {
-    if (dslObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::Length) {
-        return strings::emptyString();
+    if (genParseObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::Length) {
+        return strings::genEmptyString();
     }
 
     return swigSemanticTypeLengthValueAccDecl();
@@ -81,7 +81,7 @@ std::string SwigBitfieldField::swigExtraPublicFuncsDeclImpl() const
     StringsList accFuncs;
     accFuncs.reserve(m_swigMembers.size());
 
-    auto& gen = SwigGenerator::cast(generator());
+    auto& gen = SwigGenerator::cast(genGenerator());
     for (auto* m : m_swigMembers) {
         static const std::string Templ = 
             "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#();\n"
@@ -89,13 +89,13 @@ std::string SwigBitfieldField::swigExtraPublicFuncsDeclImpl() const
 
         util::ReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(m->field())},
-            {"ACC_NAME", comms::accessName(m->field().dslObj().parseName())}
+            {"ACC_NAME", comms::genAccessName(m->field().genParseObj().parseName())}
         };
 
-        accFuncs.push_back(util::processTemplate(Templ, repl));
+        accFuncs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    return util::strListToString(accFuncs, "", "");
+    return util::genStrListToString(accFuncs, "", "");
 }
 
 std::string SwigBitfieldField::swigExtraPublicFuncsCodeImpl() const
@@ -103,7 +103,7 @@ std::string SwigBitfieldField::swigExtraPublicFuncsCodeImpl() const
     StringsList accFuncs;
     accFuncs.reserve(m_swigMembers.size());
 
-    auto& gen = SwigGenerator::cast(generator());
+    auto& gen = SwigGenerator::cast(genGenerator());
     for (auto* m : m_swigMembers) {
         static const std::string Templ = 
             "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#()\n"
@@ -118,14 +118,14 @@ std::string SwigBitfieldField::swigExtraPublicFuncsCodeImpl() const
 
         util::ReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(m->field())},
-            {"ACC_NAME", comms::accessName(m->field().dslObj().parseName())}
+            {"ACC_NAME", comms::genAccessName(m->field().genParseObj().parseName())}
         };
 
-        accFuncs.push_back(util::processTemplate(Templ, repl));
+        accFuncs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     std::string valueAccCode;
-    if (dslObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Length) {
+    if (genParseObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Length) {
         valueAccCode = swigSemanticTypeLengthValueAccCode();
     }
 
@@ -135,10 +135,10 @@ std::string SwigBitfieldField::swigExtraPublicFuncsCodeImpl() const
 
     util::ReplacementMap repl = {
         {"VALUE_ACC", std::move(valueAccCode)},
-        {"MEM_ACC", util::strListToString(accFuncs, "\n", "")}
+        {"MEM_ACC", util::genStrListToString(accFuncs, "\n", "")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 void SwigBitfieldField::swigAddDefImpl(StringsList& list) const

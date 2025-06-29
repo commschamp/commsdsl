@@ -32,7 +32,7 @@ public:
 
 protected:
     // Base overrides
-    virtual bool writeImpl() const override;    
+    virtual bool genWriteImpl() const override;    
 
     // EmscriptenBase overrides
     virtual std::string emscriptenHeaderValueAccImpl() const override;

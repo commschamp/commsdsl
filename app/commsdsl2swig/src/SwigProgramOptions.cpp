@@ -57,7 +57,7 @@ const std::string ForcePlatformStr("force-platform");
 
 SwigProgramOptions::SwigProgramOptions()
 {
-    addHelpOption()
+    genAddHelpOption()
     (VersionStr, "Print version string and exit.")
     (FullQuietStr.c_str(), "Quiet, show only warnings and errors.")
     (FullOutputDirStr.c_str(), "Output directory path. When not provided current is used.", true)        
@@ -87,96 +87,96 @@ SwigProgramOptions::SwigProgramOptions()
 
 bool SwigProgramOptions::quietRequested() const
 {
-    return isOptUsed(QuietStr);
+    return genIsOptUsed(QuietStr);
 }
 
 bool SwigProgramOptions::versionRequested() const
 {
-    return isOptUsed(VersionStr);
+    return genIsOptUsed(VersionStr);
 }
 
 bool SwigProgramOptions::warnAsErrRequested() const
 {
-    return isOptUsed(WarnAsErrStr);
+    return genIsOptUsed(WarnAsErrStr);
 }
 
 const std::string& SwigProgramOptions::getFilesListFile() const
 {
-    return value(InputFilesListStr);
+    return genValue(InputFilesListStr);
 }
 
 const std::string& SwigProgramOptions::getFilesListPrefix() const
 {
-    return value(InputFilesPrefixStr);
+    return genValue(InputFilesPrefixStr);
 }
 
 const SwigProgramOptions::ArgsList& SwigProgramOptions::getFiles() const
 {
-    return args();
+    return genArgs();
 }
 
 const std::string& SwigProgramOptions::getOutputDirectory() const
 {
-    return value(OutputDirStr);
+    return genValue(OutputDirStr);
 }
 
 const std::string& SwigProgramOptions::getCodeInputDirectory() const
 {
-    return value(CodeInputDirStr);
+    return genValue(CodeInputDirStr);
 }
 
 bool SwigProgramOptions::hasNamespaceOverride() const
 {
-    return isOptUsed(NamespaceStr);
+    return genIsOptUsed(NamespaceStr);
 }
 
 const std::string& SwigProgramOptions::getNamespace() const
 {
-    return value(NamespaceStr);
+    return genValue(NamespaceStr);
 }
 
 bool SwigProgramOptions::multipleSchemasEnabled() const
 {
-    return isOptUsed(MultipleSchemasEnabledStr);
+    return genIsOptUsed(MultipleSchemasEnabledStr);
 }
 
-unsigned SwigProgramOptions::getMinRemoteVersion() const
+unsigned SwigProgramOptions::genGetMinRemoteVersion() const
 {
-    if (!isOptUsed(MinRemoteVerStr)) {
+    if (!genIsOptUsed(MinRemoteVerStr)) {
         return 0U;
     }
 
-    return util::strToUnsigned(value(MinRemoteVerStr));
+    return util::genStrToUnsigned(genValue(MinRemoteVerStr));
 }
 
 bool SwigProgramOptions::isMainNamespaceInNamesForced() const
 {
-    return isOptUsed(ForceMainNamespaceInNamesStr);
+    return genIsOptUsed(ForceMainNamespaceInNamesStr);
 }
 
 bool SwigProgramOptions::hasForcedInterface() const
 {
-    return isOptUsed(ForceInterfaceStr);
+    return genIsOptUsed(ForceInterfaceStr);
 }
 
 const std::string& SwigProgramOptions::getForcedInterface() const
 {
-    return value(ForceInterfaceStr);
+    return genValue(ForceInterfaceStr);
 }
 
 bool SwigProgramOptions::hasProtocolVersion() const
 {
-    return isOptUsed(HasProtocolStr);
+    return genIsOptUsed(HasProtocolStr);
 }
 
 const std::string& SwigProgramOptions::messagesListFile() const
 {
-    return value(MessagesListStr);
+    return genValue(MessagesListStr);
 }
 
 const std::string& SwigProgramOptions::forcedPlatform() const
 {
-    return value(ForcePlatformStr);
+    return genValue(ForcePlatformStr);
 }
 
 } // namespace commsdsl2swig

@@ -32,15 +32,16 @@ class GenFrameImpl
 {
 public:
     using LayersList = GenFrame::LayersList;
+    using ParseFrame = GenFrame::ParseFrame;
 
-    GenFrameImpl(GenGenerator& generator, commsdsl::parse::ParseFrame dslObj, GenElem* parent) :
+    GenFrameImpl(GenGenerator& generator, ParseFrame parseObj, GenElem* parent) :
         m_generator(generator),
-        m_dslObj(dslObj),
+        m_dslObj(parseObj),
         m_parent(parent)
     {
     }
 
-    bool prepare()
+    bool genPrepare()
     {
         if (!m_dslObj.parseValid()) {
             return true;
@@ -48,10 +49,10 @@ public:
 
         auto layers = m_dslObj.parseLayers();
         m_layers.reserve(layers.size());
-        for (auto& dslObj : layers) {
-            auto ptr = GenLayer::create(m_generator, dslObj, m_parent);
+        for (auto& parseObj : layers) {
+            auto ptr = GenLayer::genCreate(m_generator, parseObj, m_parent);
             assert(ptr);
-            if (!ptr->prepare()) {
+            if (!ptr->genPrepare()) {
                 return false;
             }
 
@@ -61,101 +62,101 @@ public:
         return true;
     }
 
-    bool write() const
+    bool genWrite() const
     {
         bool result = 
             std::all_of(
                 m_layers.begin(), m_layers.end(),
                 [](auto& layerPtr) -> bool
                 {
-                    return layerPtr->write();
+                    return layerPtr->genWrite();
                 });
 
         return result;
     }
 
-    commsdsl::parse::ParseFrame dslObj() const
+    ParseFrame genParseObj() const
     {
         return m_dslObj;
     }
 
-    const LayersList& layers() const
+    const LayersList& genLayers() const
     {
         return m_layers;
     }
 
-    LayersList& layers()
+    LayersList& genLayers()
     {
         return m_layers;
     }
 
-    const GenGenerator& generator() const
+    const GenGenerator& genGenerator() const
     {
         return m_generator;
     }
 
-    GenGenerator& generator()
+    GenGenerator& genGenerator()
     {
         return m_generator;
     }    
 
 private:
     GenGenerator& m_generator;
-    commsdsl::parse::ParseFrame m_dslObj;
+    ParseFrame m_dslObj;
     GenElem* m_parent = nullptr;
     LayersList m_layers;
 }; 
 
-GenFrame::GenFrame(GenGenerator& generator, commsdsl::parse::ParseFrame dslObj, GenElem* parent) :
+GenFrame::GenFrame(GenGenerator& generator, ParseFrame parseObj, GenElem* parent) :
     Base(parent),
-    m_impl(std::make_unique<GenFrameImpl>(generator, dslObj, this))
+    m_impl(std::make_unique<GenFrameImpl>(generator, parseObj, this))
 {
 }
 
 GenFrame::~GenFrame() = default;
 
-bool GenFrame::prepare()
+bool GenFrame::genPrepare()
 {
-    if (!m_impl->prepare()) {
+    if (!m_impl->genPrepare()) {
         return false;
     }
 
-    return prepareImpl();
+    return genPrepareImpl();
 }
 
-bool GenFrame::write() const
+bool GenFrame::genWrite() const
 {
-    if (!m_impl->write()) {
+    if (!m_impl->genWrite()) {
         return false;
     }
 
-    return writeImpl();
+    return genWriteImpl();
 }
 
-commsdsl::parse::ParseFrame GenFrame::dslObj() const
+GenFrame::ParseFrame GenFrame::genParseObj() const
 {
-    return m_impl->dslObj();
+    return m_impl->genParseObj();
 }
 
-const GenFrame::LayersList& GenFrame::layers() const
+const GenFrame::LayersList& GenFrame::genLayers() const
 {
-    return m_impl->layers();
+    return m_impl->genLayers();
 }
 
-GenGenerator& GenFrame::generator()
+GenGenerator& GenFrame::genGenerator()
 {
-    return m_impl->generator();
+    return m_impl->genGenerator();
 }
 
-const GenGenerator& GenFrame::generator() const
+const GenGenerator& GenFrame::genGenerator() const
 {
-    return m_impl->generator();
+    return m_impl->genGenerator();
 }
 
 GenFrame::LayersAccessList GenFrame::getCommsOrderOfLayers(bool& success) const
 {
     LayersAccessList result;
-    for (auto& lPtr : layers()) {
+    for (auto& lPtr : genLayers()) {
         result.push_back(lPtr.get());
     }
 
@@ -163,7 +164,7 @@ GenFrame::LayersAccessList GenFrame::getCommsOrderOfLayers(bool& success) const
     while (true) {
         bool rearanged = false;
         for (auto* l : result) {
-            rearanged = l->forceCommsOrder(result, success);
+            rearanged = l->genForceCommsOrder(result, success);
 
             if (!success) {
                 break;
@@ -184,25 +185,25 @@ GenFrame::LayersAccessList GenFrame::getCommsOrderOfLayers(bool& success) const
     return result;    
 }
 
-const GenNamespace* GenFrame::parentNamespace() const
+const GenNamespace* GenFrame::genParentNamespace() const
 {
-    auto* parent = getParent();
+    auto* parent = genGetParent();
     assert(parent != nullptr);
-    assert(parent->elemType() == GenElem::Type_Namespace);
+    assert(parent->genElemType() == GenElem::Type_Namespace);
     return static_cast<const GenNamespace*>(parent);
 }
 
-GenElem::Type GenFrame::elemTypeImpl() const
+GenElem::Type GenFrame::genElemTypeImpl() const
 {
     return Type_Frame;
 }
 
-bool GenFrame::prepareImpl()
+bool GenFrame::genPrepareImpl()
 {
     return true;
 }
 
-bool GenFrame::writeImpl() const
+bool GenFrame::genWriteImpl() const
 {
     return true;
 }

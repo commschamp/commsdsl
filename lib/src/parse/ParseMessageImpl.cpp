@@ -542,7 +542,7 @@ bool ParseMessageImpl::parseUpdateOrder()
     }
 
     bool ok = false;
-    m_state.m_order = common::strToUnsigned(iter->second, &ok);
+    m_state.m_order = common::parseStrToUnsigned(iter->second, &ok);
     if (!ok) {
         parseReportUnexpectedPropertyValue(common::orderStr(), iter->second);
         return false;
@@ -749,7 +749,7 @@ bool ParseMessageImpl::parseUpdateValidateMinLength()
     }
 
     bool ok = false;
-    m_state.m_validateMinLength = static_cast<decltype(m_state.m_validateMinLength)>(common::strToUnsigned(iter->second, &ok));
+    m_state.m_validateMinLength = static_cast<decltype(m_state.m_validateMinLength)>(common::parseStrToUnsigned(iter->second, &ok));
     if (!ok) {
         parseReportUnexpectedPropertyValue(propStr, iter->second);
         return false;

@@ -58,16 +58,16 @@ bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
 {
     auto name = m_generator.emscriptenScopeToName(ErrorStatusScopeStr);
     auto filePath = m_generator.emscriptenAbsSourceForRoot(name);
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_generator.genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }     
 
@@ -94,7 +94,7 @@ bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
             {"SCOPE", ErrorStatusScopeStr}
         };
 
-        binds.push_back(util::processTemplate(Templ, repl));
+        binds.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     const std::string Templ = 
@@ -111,14 +111,14 @@ bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"NAME", name},
         {"SCOPE", ErrorStatusScopeStr},
-        {"BINDS", util::strListToString(binds, "\n", "")}
+        {"BINDS", util::genStrListToString(binds, "\n", "")}
     };
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
+    auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
 
@@ -130,16 +130,16 @@ bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
 {
     auto name = m_generator.emscriptenScopeToName(OptionalModeScopeStr);
     auto filePath = m_generator.emscriptenAbsSourceForRoot(name);
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_generator.genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }     
 
@@ -160,7 +160,7 @@ bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
             {"SCOPE", OptionalModeScopeStr}
         };
 
-        binds.push_back(util::processTemplate(Templ, repl));
+        binds.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     const std::string Templ = 
@@ -177,14 +177,14 @@ bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"NAME", name},
         {"SCOPE", OptionalModeScopeStr},
-        {"BINDS", util::strListToString(binds, "\n", "")}
+        {"BINDS", util::genStrListToString(binds, "\n", "")}
     };
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
+    auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
 

@@ -36,7 +36,7 @@ SwigStringField::SwigStringField(SwigGenerator& generator, commsdsl::parse::Pars
 {
 }
 
-bool SwigStringField::writeImpl() const
+bool SwigStringField::genWriteImpl() const
 {
     return swigWrite();
 }

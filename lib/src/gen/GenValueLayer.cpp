@@ -26,15 +26,15 @@ namespace commsdsl
 namespace gen
 {
 
-GenValueLayer::GenValueLayer(GenGenerator& generator, commsdsl::parse::ParseLayer dslObj, GenElem* parent) :
-    Base(generator, dslObj, parent)
+GenValueLayer::GenValueLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent) :
+    Base(generator, parseObj, parent)
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Value);
+    assert(parseObj.parseKind() == ParseLayer::Kind::Value);
 }
 
 GenValueLayer::~GenValueLayer() = default;
 
-bool GenValueLayer::isInterfaceSupported(const GenInterface* iFace) const
+bool GenValueLayer::genIsInterfaceSupported(const GenInterface* iFace) const
 {
     auto obj = valueDslObj();
     auto supportedInterfaces = obj.parseInterfaces();
@@ -48,13 +48,13 @@ bool GenValueLayer::isInterfaceSupported(const GenInterface* iFace) const
             supportedInterfaces.begin(), supportedInterfaces.end(),
             [this, iFace](auto& i)
             {
-                return generator().findInterface(i.parseExternalRef()) == iFace;
+                return genGenerator().genFindInterface(i.parseExternalRef()) == iFace;
             });  
 }
 
-commsdsl::parse::ParseValueLayer GenValueLayer::valueDslObj() const
+GenValueLayer::ParseValueLayer GenValueLayer::valueDslObj() const
 {
-    return commsdsl::parse::ParseValueLayer(dslObj());
+    return ParseValueLayer(genParseObj());
 }
 
 } // namespace gen

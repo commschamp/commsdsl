@@ -36,7 +36,7 @@ EmscriptenStringField::EmscriptenStringField(EmscriptenGenerator& generator, com
 {
 }
 
-bool EmscriptenStringField::writeImpl() const
+bool EmscriptenStringField::genWriteImpl() const
 {
     return emscriptenWrite();
 }

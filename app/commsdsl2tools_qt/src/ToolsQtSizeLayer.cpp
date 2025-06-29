@@ -34,9 +34,9 @@ ToolsQtSizeLayer::ToolsQtSizeLayer(ToolsQtGenerator& generator, commsdsl::parse:
 {
 }
 
-bool ToolsQtSizeLayer::prepareImpl() 
+bool ToolsQtSizeLayer::genPrepareImpl() 
 {
-    return Base::prepareImpl() && ToolsBase::prepare();
+    return Base::genPrepareImpl() && ToolsBase::toolsPrepare();
 }
 
 } // namespace commsdsl2tools_qt

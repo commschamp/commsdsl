@@ -41,7 +41,7 @@ public:
     bool hasNamespaceOverride() const;
     const std::string& getNamespace() const;
     bool multipleSchemasEnabled() const;
-    unsigned getMinRemoteVersion() const;
+    unsigned genGetMinRemoteVersion() const;
     bool isMainNamespaceInNamesForced() const;
     bool hasForcedInterface() const;
     const std::string& getForcedInterface() const;

@@ -67,8 +67,8 @@ namespace commsdsl2swig
 
 SwigGenerator::SwigGenerator()
 {
-    Base::setAllInterfacesReferencedByDefault(false);
-    Base::setAllMessagesReferencedByDefault(false);
+    Base::genSetAllInterfacesReferencedByDefault(false);
+    Base::genSetAllMessagesReferencedByDefault(false);
 }    
 
 const std::string& SwigGenerator::fileGeneratedComment()
@@ -82,42 +82,42 @@ const std::string& SwigGenerator::fileGeneratedComment()
 
 std::string SwigGenerator::swigInputCodePathFor(const commsdsl::gen::GenElem& elem) const
 {
-    return getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderPathFor(elem, *this);
+    return genGetCodeDir() + '/' + strings::genIncludeDirStr() + '/' + comms::genRelHeaderPathFor(elem, *this);
 }
 
 std::string SwigGenerator::swigInputCodePathForFile(const std::string& name) const
 {
-    return getCodeDir() + '/' + name;
+    return genGetCodeDir() + '/' + name;
 }
 
 std::string SwigGenerator::swigClassName(const commsdsl::gen::GenElem& elem) const
 {
-    bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
-    auto str = comms::scopeFor(elem, *this, addMainNamespace);
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U); 
+    auto str = comms::genScopeFor(elem, *this, addMainNamespace);
     return swigScopeToName(str);
 }
 
 std::string SwigGenerator::swigScopeNameForRoot(const std::string& name) const
 {
-    bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
-    auto str = comms::scopeForRoot(name, *this, addMainNamespace);
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U); 
+    auto str = comms::genScopeForRoot(name, *this, addMainNamespace);
     return swigScopeToName(str);
 }
 
 std::string SwigGenerator::swigScopeNameForMsgId(const std::string& name, const SwigNamespace& parent) const
 {
-    bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
-    auto str = comms::scopeForMsgId(name, *this, parent, addMainNamespace);
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U); 
+    auto str = comms::genScopeForMsgId(name, *this, parent, addMainNamespace);
     return swigScopeToName(str);
 }
 
 std::string SwigGenerator::swigProtocolClassNameForRoot(const std::string& name) const
 {
-    bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
-    auto schemaIdx = currentSchemaIdx();
-    chooseProtocolSchema();
-    auto str = comms::scopeForRoot(name, *this, addMainNamespace);
-    chooseCurrentSchema(schemaIdx);
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U); 
+    auto schemaIdx = genCurrentSchemaIdx();
+    genChooseProtocolSchema();
+    auto str = comms::genScopeForRoot(name, *this, addMainNamespace);
+    genChooseCurrentSchema(schemaIdx);
     return swigScopeToName(str);
 }
 
@@ -145,12 +145,12 @@ const std::string& SwigGenerator::swigConvertCppType(const std::string& str) con
 
 const std::string& SwigGenerator::swigConvertIntType(commsdsl::parse::ParseIntField::Type value, std::size_t len) const
 {
-    return swigConvertCppType(comms::cppIntTypeFor(value, len));
+    return swigConvertCppType(comms::genCppIntTypeFor(value, len));
 }
 
 std::string SwigGenerator::swigScopeToName(const std::string& scope)
 {
-    return util::strReplace(scope, "::", "_");
+    return util::genStrReplace(scope, "::", "_");
 }
 
 std::string SwigGenerator::swigDefInclude(const std::string& path)
@@ -158,16 +158,16 @@ std::string SwigGenerator::swigDefInclude(const std::string& path)
     return "%include \"include/" + path + '\"';
 }
 
-bool SwigGenerator::createCompleteImpl()
+bool SwigGenerator::genCreateCompleteImpl()
 {
     return 
         swigReferenceRequestedInterfaceInternal() &&
         swigReferenceRequestedMessagesInternal();
 }
 
-bool SwigGenerator::prepareImpl()
+bool SwigGenerator::genPrepareImpl()
 {
-    if (!Base::prepareImpl()) {
+    if (!Base::genPrepareImpl()) {
         return false;
     }
 
@@ -175,19 +175,19 @@ bool SwigGenerator::prepareImpl()
         return true;
     }
     
-    auto* iFace = findInterface(m_forcedInterface);
+    auto* iFace = genFindInterface(m_forcedInterface);
     if (iFace == nullptr) {
-        logger().error("The selected forced interface \"" + m_forcedInterface + "\" hasn't been found");
+        genLogger().genError("The selected forced interface \"" + m_forcedInterface + "\" hasn't been found");
         return false;
     }
 
     return true;
 }
 
-bool SwigGenerator::writeImpl()
+bool SwigGenerator::genWriteImpl()
 {
-    for (auto idx = 0U; idx < schemas().size(); ++idx) {
-        chooseCurrentSchema(idx);
+    for (auto idx = 0U; idx < genSchemas().size(); ++idx) {
+        genChooseCurrentSchema(idx);
         bool result = 
             SwigVersion::swigWrite(*this);
 
@@ -243,7 +243,7 @@ const SwigInterface* SwigGenerator::swigMainInterface() const
             break;
         }
 
-        auto iFace = findInterface(m_forcedInterface);
+        auto iFace = genFindInterface(m_forcedInterface);
         if (iFace == nullptr) {
             break;
         }
@@ -251,7 +251,7 @@ const SwigInterface* SwigGenerator::swigMainInterface() const
         return static_cast<const SwigInterface*>(iFace);
     } while (false);
 
-    auto allInterfaces = getAllInterfaces();
+    auto allInterfaces = genGetAllInterfaces();
     if (allInterfaces.empty()) {
         return nullptr;
     }
@@ -263,122 +263,122 @@ SwigInterface* SwigGenerator::swigMainInterface()
     return const_cast<SwigInterface*>(static_cast<const SwigGenerator*>(this)->swigMainInterface());
 }
 
-SwigGenerator::SchemaPtr SwigGenerator::createSchemaImpl(commsdsl::parse::ParseSchema dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenSchemaPtr SwigGenerator::genCreateSchemaImpl(commsdsl::parse::ParseSchema dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigSchema>(*this, dslObj, parent);
 }
 
-SwigGenerator::NamespacePtr SwigGenerator::createNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenNamespacePtr SwigGenerator::genCreateNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigNamespace>(*this, dslObj, parent);
 }
 
-SwigGenerator::InterfacePtr SwigGenerator::createInterfaceImpl(commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenInterfacePtr SwigGenerator::genCreateInterfaceImpl(commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigInterface>(*this, dslObj, parent);
 }
 
-SwigGenerator::MessagePtr SwigGenerator::createMessageImpl(commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenMessagePtr SwigGenerator::genCreateMessageImpl(commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigMessage>(*this, dslObj, parent);
 }
 
-SwigGenerator::FramePtr SwigGenerator::createFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::FramePtr SwigGenerator::genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigFrame>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createIntFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenFieldPtr SwigGenerator::genCreateIntFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigIntField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createEnumFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenFieldPtr SwigGenerator::genCreateEnumFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigEnumField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createSetFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenFieldPtr SwigGenerator::genCreateSetFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigSetField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createFloatFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenFieldPtr SwigGenerator::genCreateFloatFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigFloatField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createBitfieldFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenFieldPtr SwigGenerator::genCreateBitfieldFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigBitfieldField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createBundleFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenFieldPtr SwigGenerator::genCreateBundleFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigBundleField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createStringFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenFieldPtr SwigGenerator::genCreateStringFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigStringField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createDataFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenFieldPtr SwigGenerator::genCreateDataFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigDataField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createListFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenFieldPtr SwigGenerator::genCreateListFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigListField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createRefFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenFieldPtr SwigGenerator::genCreateRefFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigRefField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createOptionalFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenFieldPtr SwigGenerator::genCreateOptionalFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigOptionalField>(*this, dslObj, parent);
 }
 
-SwigGenerator::FieldPtr SwigGenerator::createVariantFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenFieldPtr SwigGenerator::genCreateVariantFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigVariantField>(*this, dslObj, parent);
 }
 
-SwigGenerator::LayerPtr SwigGenerator::createCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenLayerPtr SwigGenerator::genCreateCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigCustomLayer>(*this, dslObj, parent);
 }
 
-SwigGenerator::LayerPtr SwigGenerator::createSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenLayerPtr SwigGenerator::genCreateSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigSyncLayer>(*this, dslObj, parent);
 }
 
-SwigGenerator::LayerPtr SwigGenerator::createSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenLayerPtr SwigGenerator::genCreateSizeLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigSizeLayer>(*this, dslObj, parent);
 }
 
-SwigGenerator::LayerPtr SwigGenerator::createIdLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenLayerPtr SwigGenerator::genCreateIdLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigIdLayer>(*this, dslObj, parent);
 }
 
-SwigGenerator::LayerPtr SwigGenerator::createValueLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenLayerPtr SwigGenerator::genCreateValueLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigValueLayer>(*this, dslObj, parent);
 }
 
-SwigGenerator::LayerPtr SwigGenerator::createPayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenLayerPtr SwigGenerator::genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigPayloadLayer>(*this, dslObj, parent);
 }
 
-SwigGenerator::LayerPtr SwigGenerator::createChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenLayerPtr SwigGenerator::genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigChecksumLayer>(*this, dslObj, parent);
 }
@@ -386,24 +386,24 @@ SwigGenerator::LayerPtr SwigGenerator::createChecksumLayerImpl(commsdsl::parse::
 bool SwigGenerator::swigWriteExtraFilesInternal() const
 {
     const std::vector<std::string> ReservedExt = {
-        strings::replaceFileSuffixStr(),
-        strings::extendFileSuffixStr(),
-        strings::publicFileSuffixStr(),
-        strings::incFileSuffixStr(),
-        strings::appendFileSuffixStr(),
-        strings::prependFileSuffixStr(),
-        strings::prependLangFileSuffixStr(),
-        strings::sourcesFileSuffixStr(),
+        strings::genReplaceFileSuffixStr(),
+        strings::genExtendFileSuffixStr(),
+        strings::genPublicFileSuffixStr(),
+        strings::genIncFileSuffixStr(),
+        strings::genAppendFileSuffixStr(),
+        strings::genPrependFileSuffixStr(),
+        strings::genPrependLangFileSuffixStr(),
+        strings::genSourcesFileSuffixStr(),
     }; 
 
-    return copyExtraSourceFiles(ReservedExt);
+    return genCopyExtraSourceFiles(ReservedExt);
 }
 
 bool SwigGenerator::swigReferenceRequestedInterfaceInternal()
 {
     auto* mainInterface = swigMainInterface();
     if (mainInterface != nullptr) {
-        mainInterface->setReferenced(true);
+        mainInterface->genSetReferenced(true);
     }
 
     return true;
@@ -412,12 +412,12 @@ bool SwigGenerator::swigReferenceRequestedInterfaceInternal()
 bool SwigGenerator::swigReferenceRequestedMessagesInternal()
 {
     if ((m_messagesListFile.empty()) && (m_forcedPlatform.empty())) {
-        referenceAllMessages();
+        genReferenceAllMessages();
         return true;
     }
 
     if ((!m_messagesListFile.empty()) && (!m_forcedPlatform.empty())) {
-        logger().error("Cannot force platform messages together with explicit message list.");
+        genLogger().genError("Cannot force platform messages together with explicit message list.");
         return false;
     }    
 
@@ -436,21 +436,21 @@ bool SwigGenerator::swigProcessMessagesListFileInternal()
 {
     std::ifstream stream(m_messagesListFile);
     if (!stream) {
-        logger().error("Failed to open messages list file: \"" + m_messagesListFile + "\".");
+        genLogger().genError("Failed to open messages list file: \"" + m_messagesListFile + "\".");
         return false;
     }
 
     std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
-    auto lines = util::strSplitByAnyChar(contents, "\n\r");
+    auto lines = util::genStrSplitByAnyChar(contents, "\n\r");
 
     for (auto& l : lines) {
-        auto* m = findMessage(l);
+        auto* m = genGindMessage(l);
         if (m == nullptr) {
-            logger().error("Failed to fined message \"" + l + "\" listed in \"" + m_messagesListFile + "\".");
+            genLogger().genError("Failed to fined message \"" + l + "\" listed in \"" + m_messagesListFile + "\".");
             return false;
         }
 
-        m->setReferenced(true);
+        m->genSetReferenced(true);
     }
 
     return true;
@@ -461,10 +461,10 @@ bool SwigGenerator::swigProcessForcedPlatformInternal()
     bool validPlatform = false;
 
     assert(!m_forcedPlatform.empty());
-    for (auto* m : getAllMessages()) {
+    for (auto* m : genGetAllMessages()) {
         assert(m != nullptr);
-        auto& s = schemaOf(*m);
-        auto& schemaPlatforms = s.dslObj().parsePlatforms();
+        auto& s = genSchemaOf(*m);
+        auto& schemaPlatforms = s.genParseObj().parsePlatforms();
         auto iter = std::find(schemaPlatforms.begin(), schemaPlatforms.end(), m_forcedPlatform);
         if (iter == schemaPlatforms.end()) {
             continue;
@@ -473,19 +473,19 @@ bool SwigGenerator::swigProcessForcedPlatformInternal()
         validPlatform = true;
 
         auto* swigM = const_cast<SwigMessage*>(SwigMessage::cast(m));
-        auto& messagePlatforms = swigM->dslObj().parsePlatforms();
+        auto& messagePlatforms = swigM->genParseObj().parsePlatforms();
 
         bool messageSupported = 
             (messagePlatforms.empty()) || 
             (std::find(messagePlatforms.begin(), messagePlatforms.end(), m_forcedPlatform) != messagePlatforms.end());
 
         if (messageSupported) {
-            swigM->setReferenced(true);
+            swigM->genSetReferenced(true);
         }
     }
     
     if (!validPlatform) {
-        logger().error("Unknown platform: \"" + m_forcedPlatform + "\".");
+        genLogger().genError("Unknown platform: \"" + m_forcedPlatform + "\".");
         return false;
     }
 

@@ -30,9 +30,9 @@ CommsValueLayer::CommsValueLayer(CommsGenerator& generator, commsdsl::parse::Par
 {
 }
 
-bool CommsValueLayer::prepareImpl()
+bool CommsValueLayer::genPrepareImpl()
 {
-    bool result = Base::prepareImpl() && CommsBase::commsPrepare();
+    bool result = Base::genPrepareImpl() && CommsBase::commsPrepare();
     if (!result) {
         return false;
     }
@@ -66,7 +66,7 @@ std::string CommsValueLayer::commsDefBaseTypeImpl(const std::string& prevName) c
 
     util::ReplacementMap repl = {
         {"FIELD_TYPE", commsDefFieldType()},
-        {"INTERFACE_FIELD_IDX", util::numToString(valueDslObj().parseFieldIdx())},
+        {"INTERFACE_FIELD_IDX", util::genNumToString(valueDslObj().parseFieldIdx())},
         {"PREV_LAYER", prevName},
         {"EXTRA_OPTS", commsDefExtraOptsInternal()}
     };
@@ -75,7 +75,7 @@ std::string CommsValueLayer::commsDefBaseTypeImpl(const std::string& prevName) c
         repl["COMMA"] = std::string(",");
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsValueLayer::commsDefExtraOptsInternal() const
@@ -85,7 +85,7 @@ std::string CommsValueLayer::commsDefExtraOptsInternal() const
     if (obj.parsePseudo()) {
         result.push_back("comms::option::def::PseudoValue");
     }
-    return util::strListToString(result, ",\n", "");
+    return util::genStrListToString(result, ",\n", "");
 }
 
 

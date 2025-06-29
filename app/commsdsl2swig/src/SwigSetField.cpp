@@ -35,7 +35,7 @@ SwigSetField::SwigSetField(SwigGenerator& generator, commsdsl::parse::ParseField
 {
 }
 
-bool SwigSetField::writeImpl() const
+bool SwigSetField::genWriteImpl() const
 {
     return swigWrite();
 }
@@ -45,17 +45,17 @@ std::string SwigSetField::swigValueTypeDeclImpl() const
     static const std::string Templ = 
         "using ValueType = #^#TYPE#$#;\n";
 
-    auto obj = setDslObj();
+    auto obj = genSetFieldParseObj();
     util::ReplacementMap repl = {
-        {"TYPE", SwigGenerator::cast(generator()).swigConvertIntType(obj.parseType(), obj.parseMaxLength())}
+        {"TYPE", SwigGenerator::cast(genGenerator()).swigConvertIntType(obj.parseType(), obj.parseMaxLength())}
     };
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
 {
-    auto obj = setDslObj();
+    auto obj = genSetFieldParseObj();
 
     util::StringsList indices;
     util::StringsList accesses;
@@ -71,7 +71,7 @@ std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
             {"NAME", bitInfo.second}
         };
 
-        accesses.push_back(util::processTemplate(Templ, repl));
+        accesses.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ = 
@@ -86,11 +86,11 @@ std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
         ;    
 
     util::ReplacementMap repl = {
-        {"INDICES", util::strListToString(indices, ",\n", ",")},
-        {"ACCESS_FUNCS", util::strListToString(accesses, "\n", "")}
+        {"INDICES", util::genStrListToString(indices, ",\n", ",")},
+        {"ACCESS_FUNCS", util::genStrListToString(accesses, "\n", "")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2swig

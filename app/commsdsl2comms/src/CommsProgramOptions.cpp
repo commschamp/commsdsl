@@ -59,7 +59,7 @@ const std::string ForceMainNamespaceInOptionsStr("force-main-ns-in-options");
 
 CommsProgramOptions::CommsProgramOptions()
 {
-    addHelpOption()
+    genAddHelpOption()
     (VersionStr, "Print version string and exit.")
     (FullQuietStr, "Quiet, show only warnings and errors.")
     (FullDebugStr, "Show debug logging.")
@@ -107,106 +107,106 @@ CommsProgramOptions::CommsProgramOptions()
 
 bool CommsProgramOptions::quietRequested() const
 {
-    return isOptUsed(QuietStr);
+    return genIsOptUsed(QuietStr);
 }
 
 bool CommsProgramOptions::debugRequested() const
 {
-    return isOptUsed(DebugStr);
+    return genIsOptUsed(DebugStr);
 }
 
 bool CommsProgramOptions::versionRequested() const
 {
-    return isOptUsed(VersionStr);
+    return genIsOptUsed(VersionStr);
 }
 
 bool CommsProgramOptions::warnAsErrRequested() const
 {
-    return isOptUsed(WarnAsErrStr);
+    return genIsOptUsed(WarnAsErrStr);
 }
 
 const std::string& CommsProgramOptions::getFilesListFile() const
 {
-    return value(InputFilesListStr);
+    return genValue(InputFilesListStr);
 }
 
 const std::string& CommsProgramOptions::getFilesListPrefix() const
 {
-    return value(InputFilesPrefixStr);
+    return genValue(InputFilesPrefixStr);
 }
 
 const CommsProgramOptions::ArgsList& CommsProgramOptions::getFiles() const
 {
-    return args();
+    return genArgs();
 }
 
 const std::string& CommsProgramOptions::getOutputDirectory() const
 {
-    return value(OutputDirStr);
+    return genValue(OutputDirStr);
 }
 
 bool CommsProgramOptions::hasNamespaceOverride() const
 {
-    return isOptUsed(NamespaceStr);
+    return genIsOptUsed(NamespaceStr);
 }
 
 const std::string& CommsProgramOptions::getNamespace() const
 {
-    return value(NamespaceStr);
+    return genValue(NamespaceStr);
 }
 
 const std::string& CommsProgramOptions::getCodeInputDirectory() const
 {
-    return value(CodeInputDirStr);
+    return genValue(CodeInputDirStr);
 }
 
 bool CommsProgramOptions::hasForcedSchemaVersion() const
 {
-    return isOptUsed(ForceVerStr);
+    return genIsOptUsed(ForceVerStr);
 }
 
 unsigned CommsProgramOptions::getForcedSchemaVersion() const
 {
-    return commsdsl::gen::util::strToUnsigned(value(ForceVerStr));
+    return commsdsl::gen::util::genStrToUnsigned(genValue(ForceVerStr));
 }
 
 const std::string& CommsProgramOptions::getProtocolVersion() const
 {
-    return value(ProtocolVerStr);
+    return genValue(ProtocolVerStr);
 }
 
-unsigned CommsProgramOptions::getMinRemoteVersion() const
+unsigned CommsProgramOptions::genGetMinRemoteVersion() const
 {
-    if (!isOptUsed(MinRemoteVerStr)) {
+    if (!genIsOptUsed(MinRemoteVerStr)) {
         return 0U;
     }
 
-    return commsdsl::gen::util::strToUnsigned(value(MinRemoteVerStr));
+    return commsdsl::gen::util::genStrToUnsigned(genValue(MinRemoteVerStr));
 }
 
 const std::string& CommsProgramOptions::getCustomizationLevel() const
 {
-    return value(CustomizationStr);
+    return genValue(CustomizationStr);
 }
 
 bool CommsProgramOptions::versionIndependentCodeRequested() const
 {
-    return isOptUsed(VersionIndependentCodeStr);
+    return genIsOptUsed(VersionIndependentCodeStr);
 }
 
 std::vector<std::string> CommsProgramOptions::getExtraInputBundles() const
 {
-    return commsdsl::gen::util::strSplitByAnyChar(value(ExtraMessagesBundleStr), ",");    
+    return commsdsl::gen::util::genStrSplitByAnyChar(genValue(ExtraMessagesBundleStr), ",");    
 }
 
 bool CommsProgramOptions::multipleSchemasEnabled() const
 {
-    return isOptUsed(MultipleSchemasEnabledStr);
+    return genIsOptUsed(MultipleSchemasEnabledStr);
 }
 
 bool CommsProgramOptions::isMainNamespaceInOptionsForced() const
 {
-    return isOptUsed(ForceMainNamespaceInOptionsStr);
+    return genIsOptUsed(ForceMainNamespaceInOptionsStr);
 }
 
 } // namespace commsdsl2comms

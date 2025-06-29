@@ -36,17 +36,19 @@ class COMMSDSL_API GenFloatField : public GenField
 public:
     using SpecialsListElem = std::pair<std::string, commsdsl::parse::ParseFloatField::SpecialValueInfo>;
     using SpecialsList = std::vector<SpecialsListElem>;
+    using ParseField = commsdsl::parse::ParseField;
+    using ParseFloatField = commsdsl::parse::ParseFloatField;
 
-    GenFloatField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent = nullptr);
+    GenFloatField(GenGenerator& generator, ParseField dslObj, GenElem* parent = nullptr);
     virtual ~GenFloatField();
 
-    const SpecialsList& specialsSortedByValue() const;
+    const SpecialsList& genSpecialsSortedByValue() const;
 
 protected:    
-    virtual bool prepareImpl() override;
-    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override final;
+    virtual bool genPrepareImpl() override;
+    virtual FieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
     
-    commsdsl::parse::ParseFloatField floatDslObj() const;
+    ParseFloatField genFloatFieldParseObj() const;
 
 private:
     std::unique_ptr<GenFloatFieldImpl> m_impl;

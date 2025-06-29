@@ -18,19 +18,19 @@ class GenProgramOptionsImpl
 public:
     using ArgsList = GenProgramOptions::ArgsList;
 
-    void add(const std::string& optStr, const std::string& desc, bool hasParam)
+    void genAdd(const std::string& optStr, const std::string& desc, bool hasParam)
     {
-        addInternal(optStr, desc, hasParam);
+        genAddInternal(optStr, desc, hasParam);
     }
 
-    void add(const std::string& optStr, const std::string& desc, const std::string& defaultValue)
+    void genAdd(const std::string& optStr, const std::string& desc, const std::string& defaultValue)
     {
-        addInternal(optStr, desc, true, defaultValue);
+        genAddInternal(optStr, desc, true, defaultValue);
     }
 
-    void parse(int argc, const char** argv)
+    void genParse(int argc, const char** argv)
     {
-        prepareOpts();
+        genPrepareOpts();
 
         OptInfo* opt = nullptr;
         for (auto idx = 1; idx < argc; ++idx) {
@@ -55,7 +55,7 @@ public:
             }
 
             if (nextStr.size() < 2) {
-                reportUnknownOption(nextStr);
+                genReportUnknownOption(nextStr);
                 continue;
             }
 
@@ -64,7 +64,7 @@ public:
                 {
                     auto iter = map.find(optStr);
                     if (iter == map.end()) {
-                        reportUnknownOption(nextStr);
+                        genReportUnknownOption(nextStr);
                         return;
                     }
 
@@ -86,30 +86,30 @@ public:
         }
     }
 
-    bool isOptUsed(const std::string& optStr) const
+    bool genIsOptUsed(const std::string& optStr) const
     {
-        if ((optStr.size() == 1) && isOptUsedInternal(optStr, m_shortOpts)) {
+        if ((optStr.size() == 1) && genIsOptUsedInternal(optStr, m_shortOpts)) {
             return true;
         }
 
-        return isOptUsedInternal(optStr, m_longOpts);
+        return genIsOptUsedInternal(optStr, m_longOpts);
     }
 
-    const std::string& value(const std::string& optStr) const
+    const std::string& genValue(const std::string& optStr) const
     {
-        if ((optStr.size() == 1) && (findOptInfo(optStr, m_shortOpts) != nullptr)) {
-            return valueInternal(optStr, m_shortOpts);
+        if ((optStr.size() == 1) && (genFindOptInfo(optStr, m_shortOpts) != nullptr)) {
+            return genValueInternal(optStr, m_shortOpts);
         }
 
-        return valueInternal(optStr, m_longOpts);
+        return genValueInternal(optStr, m_longOpts);
     }
 
-    const ArgsList& args() const
+    const ArgsList& genArgs() const
     {
         return m_args;
     }
 
-    std::string helpStr() const
+    std::string genHelpStr() const
     {
         util::StringsList opts;
         for (auto& optPtr : m_opts) {
@@ -152,7 +152,7 @@ public:
             }
 
             
-            right += util::strReplace(util::strMakeMultiline(optPtr->m_desc, 60), "\n", Ind);
+            right += util::genStrReplace(util::genStrMakeMultiline(optPtr->m_desc, 60), "\n", Ind);
             opts.push_back(left + right);
         }
 
@@ -161,10 +161,10 @@ public:
             "  #^#OPTS_LIST#$#\n";
 
         util::ReplacementMap repl = {
-            std::make_pair("OPTS_LIST", util::strListToString(opts, "\n"))
+            std::make_pair("OPTS_LIST", util::genStrListToString(opts, "\n"))
         };
         
-        return util::processTemplate(Templ, repl);
+        return util::genProcessTemplate(Templ, repl);
     }
 
 private:
@@ -181,9 +181,9 @@ private:
     using OptInfosList = std::vector<OptInfoPtr>;
     using OptInfosMap = std::map<std::string, OptInfo*>;
 
-    void addInternal(const std::string& optStr, const std::string& desc, bool hasParam = false, const std::string& defaultValue = std::string())
+    void genAddInternal(const std::string& optStr, const std::string& desc, bool hasParam = false, const std::string& defaultValue = std::string())
     {
-        auto tokens = util::strSplitByAnyChar(optStr, ",");
+        auto tokens = util::genStrSplitByAnyChar(optStr, ",");
 
         auto opt = std::make_unique<OptInfo>();
         opt->m_desc = desc;
@@ -209,7 +209,7 @@ private:
         m_opts.push_back(std::move(opt));
     }
 
-    void prepareOpts()
+    void genPrepareOpts()
     {
         m_shortOpts.clear();
         m_longOpts.clear();
@@ -224,12 +224,12 @@ private:
         }
     }
 
-    void reportUnknownOption(const std::string& opt)
+    void genReportUnknownOption(const std::string& opt)
     {
         std::cerr << "WARNING: Unknown option \"" << opt << "\"!" << std::endl;
     }
 
-    static const OptInfo* findOptInfo(const std::string& optStr, const OptInfosMap& map)
+    static const OptInfo* genFindOptInfo(const std::string& optStr, const OptInfosMap& map)
     {
         auto iter = map.find(optStr);
         if (iter == map.end()) {
@@ -241,9 +241,9 @@ private:
         return optInfo;
     }
 
-    static bool isOptUsedInternal(const std::string& optStr, const OptInfosMap& map)
+    static bool genIsOptUsedInternal(const std::string& optStr, const OptInfosMap& map)
     {
-        auto* optInfo = findOptInfo(optStr, map);
+        auto* optInfo = genFindOptInfo(optStr, map);
         if (optInfo == nullptr) {
             return false;
         }
@@ -251,9 +251,9 @@ private:
         return optInfo->m_wasUsed;
     }
 
-    static const std::string& valueInternal(const std::string& optStr, const OptInfosMap& map)
+    static const std::string& genValueInternal(const std::string& optStr, const OptInfosMap& map)
     {
-        auto* optInfo = findOptInfo(optStr, map);
+        auto* optInfo = genFindOptInfo(optStr, map);
         if ((optInfo == nullptr) || (!optInfo->m_hasParam)) {
             static const std::string EmptyStr;
             return EmptyStr;
@@ -275,51 +275,51 @@ GenProgramOptions::GenProgramOptions() :
  
 GenProgramOptions::~GenProgramOptions() = default;
 
-GenProgramOptions& GenProgramOptions::addHelpOption()
+GenProgramOptions& GenProgramOptions::genAddHelpOption()
 {
     return (*this)("h,help", "This help");
 }
 
 GenProgramOptions& GenProgramOptions::operator()(const std::string& optStr, const std::string& desc, bool hasParam)
 {
-    m_impl->add(optStr, desc, hasParam);
+    m_impl->genAdd(optStr, desc, hasParam);
     return *this;
 }
 
 GenProgramOptions& GenProgramOptions::operator()(const std::string& optStr, const std::string& desc, const std::string& defaultValue)
 {
-    m_impl->add(optStr, desc, defaultValue);
+    m_impl->genAdd(optStr, desc, defaultValue);
     return *this;
 }
 
-void GenProgramOptions::parse(int argc, const char** argv)
+void GenProgramOptions::genParse(int argc, const char** argv)
 {
-    m_impl->parse(argc, argv);
+    m_impl->genParse(argc, argv);
 }
 
-bool GenProgramOptions::isOptUsed(const std::string& optStr) const
+bool GenProgramOptions::genIsOptUsed(const std::string& optStr) const
 {
-    return m_impl->isOptUsed(optStr);
+    return m_impl->genIsOptUsed(optStr);
 }
 
-bool GenProgramOptions::helpRequested() const
+bool GenProgramOptions::genHelpRequested() const
 {
-    return isOptUsed("h");
+    return genIsOptUsed("h");
 }
 
-const std::string& GenProgramOptions::value(const std::string& optStr) const
+const std::string& GenProgramOptions::genValue(const std::string& optStr) const
 {
-    return m_impl->value(optStr);
+    return m_impl->genValue(optStr);
 }
 
-const GenProgramOptions::ArgsList& GenProgramOptions::args() const
+const GenProgramOptions::ArgsList& GenProgramOptions::genArgs() const
 {
-    return m_impl->args();
+    return m_impl->genArgs();
 }
 
-std::string GenProgramOptions::helpStr() const
+std::string GenProgramOptions::genHelpStr() const
 {
-    return m_impl->helpStr();
+    return m_impl->genHelpStr();
 }
 
 } // namespace gen

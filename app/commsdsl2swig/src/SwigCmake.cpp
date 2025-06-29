@@ -37,17 +37,17 @@ bool SwigCmake::swigWrite(SwigGenerator& generator)
 
 bool SwigCmake::swigWriteInternal() const
 {
-    auto filePath = util::pathAddElem(m_generator.getOutputDir(), strings::cmakeListsFileStr());
-    auto dirPath = util::pathUp(filePath);
+    auto filePath = util::genPathAddElem(m_generator.genGetOutputDir(), strings::genCmakeListsFileStr());
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_generator.genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }     
 
@@ -120,18 +120,18 @@ bool SwigCmake::swigWriteInternal() const
         ;      
 
     util::ReplacementMap repl = {
-        {"PROJ_NAME", m_generator.protocolSchema().mainNamespace()},
+        {"PROJ_NAME", m_generator.genProtocolSchema().genMainNamespace()},
         {"PREPEND", swigPrependInternal()},
         {"PREPEND_LANG", swigPrependLangInternal()},
         {"APPEND", swigAppendInternal()},
-        {"EXTRA_SOURCES", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::sourcesFileSuffixStr())},
+        {"EXTRA_SOURCES", util::genReadFileContents(util::genPathAddElem(m_generator.genGetCodeDir(), strings::genCmakeListsFileStr()) + strings::genSourcesFileSuffixStr())},
     };
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
+    auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write " + filePath + ".");
+        m_generator.genLogger().genError("Failed to write " + filePath + ".");
         return false;
     }
 
@@ -140,8 +140,8 @@ bool SwigCmake::swigWriteInternal() const
 
 std::string SwigCmake::swigPrependInternal() const
 {
-    auto& name = strings::cmakeListsFileStr();
-    auto fromFile = util::readFileContents(m_generator.swigInputCodePathForFile(name + strings::prependFileSuffixStr()));
+    auto& name = strings::genCmakeListsFileStr();
+    auto fromFile = util::genReadFileContents(m_generator.swigInputCodePathForFile(name + strings::genPrependFileSuffixStr()));
     if (!fromFile.empty()) {
         return fromFile;
     }
@@ -151,17 +151,17 @@ std::string SwigCmake::swigPrependInternal() const
 
     util::ReplacementMap repl = {
         {"FILE_NAME", name},
-        {"SUFFIX", strings::prependFileSuffixStr()},
+        {"SUFFIX", strings::genPrependFileSuffixStr()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string SwigCmake::swigPrependLangInternal() const
 {
-    auto& name = strings::cmakeListsFileStr();
-    std::string langSuffix(strings::prependFileSuffixStr() + "_lang");
-    auto fromFile = util::readFileContents(m_generator.swigInputCodePathForFile(name + langSuffix));
+    auto& name = strings::genCmakeListsFileStr();
+    std::string langSuffix(strings::genPrependFileSuffixStr() + "_lang");
+    auto fromFile = util::genReadFileContents(m_generator.swigInputCodePathForFile(name + langSuffix));
     if (!fromFile.empty()) {
         return fromFile;
     }
@@ -174,14 +174,14 @@ std::string SwigCmake::swigPrependLangInternal() const
         {"SUFFIX", langSuffix}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string SwigCmake::swigAppendInternal() const
 {
-    auto& name = strings::cmakeListsFileStr();
-    auto& suffix = strings::appendFileSuffixStr();
-    auto fromFile = util::readFileContents(m_generator.swigInputCodePathForFile(name + suffix));
+    auto& name = strings::genCmakeListsFileStr();
+    auto& suffix = strings::genAppendFileSuffixStr();
+    auto fromFile = util::genReadFileContents(m_generator.swigInputCodePathForFile(name + suffix));
     if (!fromFile.empty()) {
         return fromFile;
     }
@@ -194,7 +194,7 @@ std::string SwigCmake::swigAppendInternal() const
         {"SUFFIX", suffix},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2swig

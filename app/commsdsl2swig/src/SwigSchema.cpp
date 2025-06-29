@@ -41,31 +41,31 @@ SwigSchema::~SwigSchema() = default;
 
 bool SwigSchema::swigHasAnyMessage() const
 {
-    return hasAnyReferencedMessage();
+    return genHasAnyReferencedMessage();
 }
 
 bool SwigSchema::swigHasReferencedMsgId() const
 {
-    return hasReferencedMessageIdField();
+    return genHasReferencedMessageIdField();
 }
 
 void SwigSchema::swigAddCodeIncludes(StringsList& list) const
 {
-    for (auto& ns : namespaces()) {
+    for (auto& ns : genNamespaces()) {
         SwigNamespace::cast(ns.get())->swigAddCodeIncludes(list);
     }
 }
 
 void SwigSchema::swigAddCode(StringsList& list) const
 {
-    for (auto& ns : namespaces()) {
+    for (auto& ns : genNamespaces()) {
         SwigNamespace::cast(ns.get())->swigAddCode(list);
     }
 }
 
 void SwigSchema::swigAddDef(StringsList& list) const
 {
-    for (auto& ns : namespaces()) {
+    for (auto& ns : genNamespaces()) {
         SwigNamespace::cast(ns.get())->swigAddDef(list);
     }
 }

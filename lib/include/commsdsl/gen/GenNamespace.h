@@ -41,68 +41,69 @@ public:
     using Ptr = std::unique_ptr<GenNamespace>;
     using NamespacesList = std::vector<Ptr>;
     using FieldsList = GenField::FieldsList;
-    using InterfacesList = std::vector<InterfacePtr>;
-    using MessagesList = std::vector<MessagePtr>;
+    using InterfacesList = std::vector<GenInterfacePtr>;
+    using MessagesList = std::vector<GenMessagePtr>;
     using FramesList = std::vector<FramePtr>;
     using NamespacesAccessList = std::vector<const GenNamespace*>;
     using InterfacesAccessList = std::vector<const GenInterface*>;
     using MessagesAccessList = std::vector<const GenMessage*>;
     using FramesAccessList = std::vector<const GenFrame*>;
     using FieldsAccessList = std::vector<const GenField*>;
+    using ParseNamespace = commsdsl::parse::ParseNamespace;
 
-    explicit GenNamespace(GenGenerator& generator, commsdsl::parse::ParseNamespace dslObj, GenElem* parent = nullptr);
+    explicit GenNamespace(GenGenerator& generator, ParseNamespace parseObj, GenElem* parent = nullptr);
     virtual ~GenNamespace();
 
-    bool createAll();
-    bool prepare();
-    bool write() const;
+    bool genCreateAll();
+    bool genPrepare();
+    bool genWrite() const;
 
-    commsdsl::parse::ParseNamespace dslObj() const;
-    std::string adjustedExternalRef() const;
+    ParseNamespace genParseObj() const;
+    std::string genAdjustedExternalRef() const;
 
-    const NamespacesList& namespaces() const;
-    const FieldsList& fields() const;
-    const InterfacesList& interfaces() const;
-    const MessagesList& messages() const;
-    const FramesList& frames() const;
-    bool hasFramesRecursive() const;
-    bool hasMessagesRecursive() const;
+    const NamespacesList& genNamespaces() const;
+    const FieldsList& genFields() const;
+    const InterfacesList& genInterfaces() const;
+    const MessagesList& genMessages() const;
+    const FramesList& genFrames() const;
+    bool genHasFramesRecursive() const;
+    bool genHasMessagesRecursive() const;
 
-    FieldsAccessList findMessageIdFields() const;
-    const GenField* findField(const std::string& externalRef) const;
-    const GenMessage* findMessage(const std::string& externalRef) const;
-    const GenFrame* findFrame(const std::string& externalRef) const;
-    const GenInterface* findInterface(const std::string& externalRef) const;
+    FieldsAccessList genFindMessageIdFields() const;
+    const GenField* genFindField(const std::string& externalRef) const;
+    const GenMessage* genGindMessage(const std::string& externalRef) const;
+    const GenFrame* genFindFrame(const std::string& externalRef) const;
+    const GenInterface* genFindInterface(const std::string& externalRef) const;
 
-    NamespacesAccessList getAllNamespaces() const;
-    InterfacesAccessList getAllInterfaces() const;
-    MessagesAccessList getAllMessages() const;
-    MessagesAccessList getAllMessagesIdSorted() const;
-    FramesAccessList getAllFrames() const;
-    FieldsAccessList getAllFields() const;
+    NamespacesAccessList genGetAllNamespaces() const;
+    InterfacesAccessList genGetAllInterfaces() const;
+    MessagesAccessList genGetAllMessages() const;
+    MessagesAccessList genGetAllMessagesIdSorted() const;
+    FramesAccessList genGetAllFrames() const;
+    FieldsAccessList genGetAllFields() const;
 
-    GenGenerator& generator();
-    const GenGenerator& generator() const;
+    GenGenerator& genGenerator();
+    const GenGenerator& genGenerator() const;
 
-    GenInterface* addDefaultInterface();
+    GenInterface* genAddDefaultInterface();
 
-    void setAllInterfacesReferenced();
-    void setAllMessagesReferenced();
+    void genSetAllInterfacesReferenced();
+    void genSetAllMessagesReferenced();
 
-    bool hasReferencedMessageIdField() const;
-    bool hasAnyReferencedMessage() const;
-    bool hasAnyReferencedComponent() const;
+    bool genHasReferencedMessageIdField() const;
+    bool genHasAnyReferencedMessage() const;
+    bool genHasAnyReferencedComponent() const;
 
 protected:    
-    virtual Type elemTypeImpl() const override final;
-    virtual bool prepareImpl();
-    virtual bool writeImpl() const;
+    virtual Type genElemTypeImpl() const override final;
+    virtual bool genPrepareImpl();
+    virtual bool genWriteImpl() const;
 
 private:
     std::unique_ptr<GenNamespaceImpl> m_impl;
 };
 
-using NamespacePtr = GenNamespace::Ptr;
+using GenNamespacePtr = GenNamespace::Ptr;
 
 } // namespace gen
 

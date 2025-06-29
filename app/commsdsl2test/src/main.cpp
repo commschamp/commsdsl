@@ -44,13 +44,13 @@ std::vector<std::string> getFilesList(
         
         std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
 
-        result = commsdsl::gen::util::strSplitByAnyChar(contents, "\r\n");
+        result = commsdsl::gen::util::genStrSplitByAnyChar(contents, "\r\n");
         if (prefix.empty()) {
             break;
         }
 
         for (auto& f : result) {
-            f = commsdsl::gen::util::pathAddElem(prefix, f);
+            f = commsdsl::gen::util::genPathAddElem(prefix, f);
         }
     } while (false);
     return result;
@@ -61,10 +61,10 @@ int main(int argc, const char* argv[])
 {
     try {
         commsdsl2test::TestProgramOptions options;
-        options.parse(argc, argv);
-        if (options.helpRequested()) {
+        options.genParse(argc, argv);
+        if (options.genHelpRequested()) {
             std::cout << "Usage:\n\t" << argv[0] << " [OPTIONS] schema_file1 [schema_file2] [schema_file3] ...\n\n";
-            std::cout << options.helpStr();
+            std::cout << options.genHelpStr();
             return 0;
         }
 
@@ -77,38 +77,38 @@ int main(int argc, const char* argv[])
         }        
 
         commsdsl2test::TestGenerator generator;
-        auto& logger = generator.logger();
+        auto& logger = generator.genLogger();
 
         if (options.quietRequested()) {
-            logger.setMinLevel(commsdsl::parse::ParseErrorLevel_Warning);
+            logger.genSetMinLevel(commsdsl::parse::ParseErrorLevel_Warning);
         }
 
         if (options.warnAsErrRequested()) {
-            logger.setWarnAsError();
+            logger.genSetWarnAsError();
         }
 
         if (options.hasNamespaceOverride()) {
-            generator.setNamespaceOverride(options.getNamespace());
+            generator.genSetNamespaceOverride(options.getNamespace());
         }
 
-        generator.setOutputDir(options.getOutputDirectory());
-        generator.setCodeDir(options.getCodeInputDirectory());
-        generator.parseSetMultipleSchemasEnabled(options.multipleSchemasEnabled());
+        generator.genSetOutputDir(options.getOutputDirectory());
+        generator.genSetCodeDir(options.getCodeInputDirectory());
+        generator.genSetMultipleSchemasEnabled(options.multipleSchemasEnabled());
 
         auto files = commsdsl2test::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
         auto otherFiles = options.getFiles();
         files.insert(files.end(), otherFiles.begin(), otherFiles.end());
 
         if (files.empty()) {
-            logger.error("No input files are provided");
+            logger.genError("No input files are provided");
             return -1;
         }
 
-        if (!generator.prepare(files)) {
+        if (!generator.genPrepare(files)) {
             return -1;
         }
 
-        if (!generator.write()) {
+        if (!generator.genWrite()) {
             return -1;
         }
         

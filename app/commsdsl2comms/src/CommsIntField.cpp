@@ -78,15 +78,15 @@ std::string CommsIntField::commsVariantPropKeyType() const
 
 std::string CommsIntField::commsVariantPropKeyValueStr() const
 {
-    auto obj = intDslObj();
-    if (!isUnsignedType()) {
-        return util::numToString(obj.parseDefaultValue());
+    auto obj = genIntFieldParseObj();
+    if (!genIsUnsignedType()) {
+        return util::genNumToString(obj.parseDefaultValue());
     }
 
     unsigned hexWidth = static_cast<unsigned>(obj.parseMaxLength() * 2U);
     auto val = static_cast<std::uintmax_t>(obj.parseDefaultValue());
-    auto decValue = util::numToString(val);
-    auto hexValue = util::numToString(val, hexWidth);
+    auto decValue = util::genNumToString(val);
+    auto hexValue = util::genNumToString(val, hexWidth);
 
     static const std::string Templ = 
         "#^#DEC#$# /* #^#HEX#$# */";
@@ -95,12 +95,12 @@ std::string CommsIntField::commsVariantPropKeyValueStr() const
         {"DEC", std::move(decValue)},
         {"HEX", std::move(hexValue)},
     };
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool CommsIntField::commsVariantIsValidPropKey() const
 {
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
     if (!obj.parseIsFailOnInvalid()) {
         return false;
     }
@@ -128,11 +128,11 @@ bool CommsIntField::commsVariantIsValidPropKey() const
 
 bool CommsIntField::commsVariantIsPropKeyEquivalent(const CommsIntField& other) const
 {
-    auto thisDslObj = intDslObj();
-    auto otherDslObj = other.intDslObj();
+    auto thisDslObj = genIntFieldParseObj();
+    auto otherDslObj = other.genIntFieldParseObj();
 
-    auto thisType = comms::cppIntTypeFor(thisDslObj.parseType(), thisDslObj.parseMaxLength());
-    auto otherType = comms::cppIntTypeFor(otherDslObj.parseType(), otherDslObj.parseMaxLength());
+    auto thisType = comms::genCppIntTypeFor(thisDslObj.parseType(), thisDslObj.parseMaxLength());
+    auto otherType = comms::genCppIntTypeFor(otherDslObj.parseType(), otherDslObj.parseMaxLength());
     if (thisType != otherType) {
         return false;
     }
@@ -146,12 +146,12 @@ bool CommsIntField::commsVariantIsPropKeyEquivalent(const CommsIntField& other) 
     return thisDslObj.parseEndian() == otherDslObj.parseEndian();
 }
 
-bool CommsIntField::prepareImpl()
+bool CommsIntField::genPrepareImpl()
 {
-    return Base::prepareImpl() && commsPrepare();
+    return Base::genPrepareImpl() && commsPrepare();
 }
 
-bool CommsIntField::writeImpl() const
+bool CommsIntField::genWriteImpl() const
 {
     return commsWrite();
 }
@@ -162,7 +162,7 @@ CommsIntField::IncludesList CommsIntField::commsCommonIncludesImpl() const
         "<cstdint>"
     };
 
-    auto& specials = specialsSortedByValue(); 
+    auto& specials = genSpecialsSortedByValue(); 
     if (!specials.empty()) {
         list.insert(list.end(),
             {
@@ -187,20 +187,20 @@ std::string CommsIntField::commsCommonCodeBodyImpl() const
         "#^#SPECIAL_NAMES_MAP#$#\n"   
     ;
 
-    //auto& specials = specialsSortedByValue();
+    //auto& specials = genSpecialsSortedByValue();
 
-    auto& gen = generator();
-    auto dslObj = intDslObj();
+    auto& gen = genGenerator();
+    auto dslObj = genIntFieldParseObj();
     util::ReplacementMap repl = {
-        {"SCOPE", comms::scopeFor(*this, gen, true, true)},
-        {"VALUE_TYPE", comms::cppIntTypeFor(dslObj.parseType(), dslObj.parseMaxLength())},
+        {"SCOPE", comms::genScopeFor(*this, gen, true, true)},
+        {"VALUE_TYPE", comms::genCppIntTypeFor(dslObj.parseType(), dslObj.parseMaxLength())},
         {"SPECIAL_VALUE_NAMES_MAP_DEFS", commsCommonValueNamesMapCodeInternal()},
         {"NAME_FUNC", commsCommonNameFuncCode()},
         {"HAS_SPECIAL_FUNC", commsCommonHasSpecialsFuncCodeInternal()},
         {"SPECIALS", commsCommonSpecialsCodeInternal()},
         {"SPECIAL_NAMES_MAP", commsCommonSpecialNamesMapCodeInternal()},
     };
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 CommsIntField::IncludesList CommsIntField::commsDefIncludesImpl() const
@@ -237,13 +237,13 @@ std::string CommsIntField::commsDefPublicCodeImpl() const
         {"DISPLAY_DECIMALS", commsDefDisplayDecimalsCodeInternal()},
     };
     
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsIntField::commsDefRefreshFuncBodyImpl() const
 {
     if (!commsRequiresFailOnInvalidRefreshInternal()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -254,24 +254,24 @@ std::string CommsIntField::commsDefRefreshFuncBodyImpl() const
         "Base::setValue(#^#VALID_VALUE#$#);\n"
         "return true;\n";
 
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
     auto& validRanges = obj.parseValidRanges();    
     util::ReplacementMap repl = {
-        {"VALID_VALUE", util::numToString(validRanges.front().m_min)},
+        {"VALID_VALUE", util::genNumToString(validRanges.front().m_min)},
     };
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 std::string CommsIntField::commsDefValidFuncBodyImpl() const
 {
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
 
     bool validCheckVersion =
-        generator().schemaOf(*this).versionDependentCode() &&
+        genGenerator().genSchemaOf(*this).genVersionDependentCode() &&
         obj.parseValidCheckVersion();
 
     if (!validCheckVersion) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     auto validRanges = obj.parseValidRanges(); // copy
@@ -280,12 +280,12 @@ std::string CommsIntField::commsDefValidFuncBodyImpl() const
             validRanges.begin(), validRanges.end(),
             [this](auto& r)
             {
-                return !this->generator().isElementOptional(r.m_sinceVersion, r.m_deprecatedSince, true);
+                return !this->genGenerator().genIsElementOptional(r.m_sinceVersion, r.m_deprecatedSince, true);
             }),
         validRanges.end());
 
     if (validRanges.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ =
@@ -316,21 +316,21 @@ std::string CommsIntField::commsDefValidFuncBodyImpl() const
         std::string maxVal;
 
         if (bigUnsigned) {
-            minVal = util::numToString(static_cast<std::uintmax_t>(r.m_min));
-            maxVal = util::numToString(static_cast<std::uintmax_t>(r.m_max));
+            minVal = util::genNumToString(static_cast<std::uintmax_t>(r.m_min));
+            maxVal = util::genNumToString(static_cast<std::uintmax_t>(r.m_max));
         }
         else {
-            minVal = util::numToString(r.m_min);
-            maxVal = util::numToString(r.m_max);
+            minVal = util::genNumToString(r.m_min);
+            maxVal = util::genNumToString(r.m_max);
         }
 
         util::StringsList conds;
         if (0U < r.m_sinceVersion) {
-            conds.push_back('(' + util::numToString(r.m_sinceVersion) + " <= Base::getVersion())");
+            conds.push_back('(' + util::genNumToString(r.m_sinceVersion) + " <= Base::getVersion())");
         }
 
         if (r.m_deprecatedSince < commsdsl::parse::ParseProtocol::parseNotYetDeprecated()) {
-            conds.push_back("(Base::getVersion() < " + util::numToString(r.m_deprecatedSince) + ")");
+            conds.push_back("(Base::getVersion() < " + util::genNumToString(r.m_deprecatedSince) + ")");
         }
 
         if (r.m_min == r.m_max) {
@@ -342,22 +342,22 @@ std::string CommsIntField::commsDefValidFuncBodyImpl() const
         }
 
         util::ReplacementMap rangeRepl = {
-            {"COND", util::strListToString(conds, " &&\n", "")}
+            {"COND", util::genStrListToString(conds, " &&\n", "")}
         };
-        rangesChecks += util::processTemplate(RangeTempl, rangeRepl);
+        rangesChecks += util::genProcessTemplate(RangeTempl, rangeRepl);
     }
 
     util::ReplacementMap repl = {
         {"RANGES_CHECKS", std::move(rangesChecks)},
     };
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 bool CommsIntField::commsIsVersionDependentImpl() const
 {
-    assert(generator().schemaOf(*this).versionDependentCode());
-    auto obj = intDslObj();
+    assert(genGenerator().genSchemaOf(*this).genVersionDependentCode());
+    auto obj = genIntFieldParseObj();
     if (!obj.parseValidCheckVersion()) {
         return false;
     }
@@ -384,7 +384,7 @@ bool CommsIntField::commsIsVersionDependentImpl() const
 
 std::size_t CommsIntField::commsMinLengthImpl() const
 {
-    if (intDslObj().parseAvailableLengthLimit()) {
+    if (genIntFieldParseObj().parseAvailableLengthLimit()) {
         return 1U;
     }
 
@@ -398,41 +398,41 @@ std::string CommsIntField::commsCompPrepValueStrImpl([[maybe_unused]] const std:
     auto valToString = 
         [this](std::intmax_t val)
         {
-            if (isUnsignedType()) {
-                return util::numToString(static_cast<std::uintmax_t>(val));
+            if (genIsUnsignedType()) {
+                return util::genNumToString(static_cast<std::uintmax_t>(val));
             }
 
-            return util::numToString(val);      
+            return util::genNumToString(val);      
         };
 
     if (value.empty()) {
-        return valToString(intDslObj().parseDefaultValue());
+        return valToString(genIntFieldParseObj().parseDefaultValue());
     }
     
     try {
-        if (isUnsignedType()) {
-            return util::numToString(static_cast<std::uintmax_t>(std::stoull(value, nullptr, 0)));
+        if (genIsUnsignedType()) {
+            return util::genNumToString(static_cast<std::uintmax_t>(std::stoull(value, nullptr, 0)));
         }
 
-        return util::numToString(static_cast<std::intmax_t>(std::stoll(value, nullptr, 0)));
+        return util::genNumToString(static_cast<std::intmax_t>(std::stoll(value, nullptr, 0)));
     }
     catch (...) {
         // nothing to do
     }
 
-    auto& specials = intDslObj().parseSpecialValues();
+    auto& specials = genIntFieldParseObj().parseSpecialValues();
     auto iter = specials.find(value);
     if (iter != specials.end()) {
         return valToString(iter->second.m_value);
     }
 
-    auto& gen = generator();
+    auto& gen = genGenerator();
     do {
         auto pos = value.find_first_of(".");
         auto fieldRef = value; // copy
         std::string valueSubstr;
 
-        if (pos < value.size() && (value[0] == strings::schemaRefPrefix())) {
+        if (pos < value.size() && (value[0] == strings::genSchemaRefPrefix())) {
             pos = value.find_first_of(".", pos + 1); // find second
         }
 
@@ -441,7 +441,7 @@ std::string CommsIntField::commsCompPrepValueStrImpl([[maybe_unused]] const std:
             valueSubstr = value.substr(pos + 1);
         }
 
-        auto field = gen.findField(fieldRef);
+        auto field = gen.genFindField(fieldRef);
         if (field == nullptr) {
             break;        
         }
@@ -449,41 +449,41 @@ std::string CommsIntField::commsCompPrepValueStrImpl([[maybe_unused]] const std:
         auto* commsField = dynamic_cast<const CommsField*>(field);
         assert(commsField != nullptr);
         auto newValue = commsField->commsCompPrepValueStr(std::string(), valueSubstr);
-        if (newValue.empty() || (newValue == strings::unexpectedValueStr())) {
+        if (newValue.empty() || (newValue == strings::genUnexpectedValueStr())) {
             break;
         }
 
         return commsCompPrepValueStrImpl(std::string(), newValue);
     } while (false);
 
-    gen.logger().error("Unknown value comparison string \"" + value + "\" for field " + comms::scopeFor(*this, gen));
+    gen.genLogger().genError("Unknown value comparison string \"" + value + "\" for field " + comms::genScopeFor(*this, gen));
     [[maybe_unused]] static constexpr bool Not_yet_implemented = false;
     assert(Not_yet_implemented);
-    return strings::unexpectedValueStr();
+    return strings::genUnexpectedValueStr();
 }
 
 bool CommsIntField::commsVerifyInnerRefImpl(const std::string& refStr) const
 {
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
     auto& specials = obj.parseSpecialValues();
     return (specials.find(refStr) != specials.end());    
 }
 
 std::string CommsIntField::commsCommonHasSpecialsFuncCodeInternal() const
 {
-    auto& specials = specialsSortedByValue();    
+    auto& specials = genSpecialsSortedByValue();    
     util::ReplacementMap repl = {
-        {"VALUE", util::boolToString(!specials.empty())}
+        {"VALUE", util::genBoolToString(!specials.empty())}
     };
 
-    return util::processTemplate(hasSpecialsFuncTempl(), repl);
+    return util::genProcessTemplate(hasSpecialsFuncTempl(), repl);
 }
 
 std::string CommsIntField::commsCommonValueNamesMapCodeInternal() const
 {
-    auto& specials = specialsSortedByValue();    
+    auto& specials = genSpecialsSortedByValue();    
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     util::ReplacementMap repl = {
@@ -491,19 +491,19 @@ std::string CommsIntField::commsCommonValueNamesMapCodeInternal() const
         {"MAP_DEF", "std::pair<const SpecialNameInfo*, std::size_t>"}
     };
 
-    return util::processTemplate(specialNamesMapTempl(), repl);
+    return util::genProcessTemplate(specialNamesMapTempl(), repl);
 }
 
 std::string CommsIntField::commsCommonSpecialsCodeInternal() const
 {
-    auto& specials = specialsSortedByValue();
+    auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     util::StringsList specialsList;
     for (auto& s : specials) {
-        if (!generator().doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
+        if (!genGenerator().genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
         }
 
@@ -517,42 +517,42 @@ std::string CommsIntField::commsCommonSpecialsCodeInternal() const
         );
 
         std::string specVal;
-        auto obj = intDslObj();
+        auto obj = genIntFieldParseObj();
         auto type = obj.parseType();
         if ((type == commsdsl::parse::ParseIntField::Type::Uint64) ||
             (type == commsdsl::parse::ParseIntField::Type::Uintvar)) {
-            specVal = util::numToString(static_cast<std::uintmax_t>(s.second.m_value));
+            specVal = util::genNumToString(static_cast<std::uintmax_t>(s.second.m_value));
         }
         else {
-            specVal = util::numToString(s.second.m_value);
+            specVal = util::genNumToString(s.second.m_value);
         }
 
         std::string desc = s.second.m_description;
         if (!desc.empty()) {
             static const std::string Prefix("/// @details ");
             desc.insert(desc.begin(), Prefix.begin(), Prefix.end());
-            desc = util::strMakeMultiline(desc);
-            desc = util::strReplace(desc, "\n", "\n///     ");
+            desc = util::genStrMakeMultiline(desc);
+            desc = util::genStrReplace(desc, "\n", "\n///     ");
         }
 
         util::ReplacementMap repl = {
             {"SPEC_NAME", s.first},
-            {"SPEC_ACC", comms::className(s.first)},
+            {"SPEC_ACC", comms::genClassName(s.first)},
             {"SPEC_VAL", std::move(specVal)},
             {"SPECIAL_DOC", std::move(desc)},
         };
 
-        specialsList.push_back(util::processTemplate(Templ, repl));
+        specialsList.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    return util::strListToString(specialsList, "\n", "\n");
+    return util::genStrListToString(specialsList, "\n", "\n");
 }
 
 std::string CommsIntField::commsCommonSpecialNamesMapCodeInternal() const
 {
-    auto& specials = specialsSortedByValue();
+    auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -572,17 +572,17 @@ std::string CommsIntField::commsCommonSpecialNamesMapCodeInternal() const
             "std::make_pair(value#^#SPEC_ACC#$#(), \"#^#SPEC_NAME#$#\")";
 
         util::ReplacementMap specRepl = {
-            {"SPEC_ACC", comms::className(s.first)},
+            {"SPEC_ACC", comms::genClassName(s.first)},
             {"SPEC_NAME", s.first}
         };
-        specialInfos.push_back(util::processTemplate(SpecTempl, specRepl));
+        specialInfos.push_back(util::genProcessTemplate(SpecTempl, specRepl));
     }
 
     util::ReplacementMap repl {
-        {"INFOS", util::strListToString(specialInfos, ",\n", "")}
+        {"INFOS", util::genStrListToString(specialInfos, ",\n", "")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsIntField::commsDefFieldOptsInternal(bool variantPropKey) const
@@ -602,45 +602,45 @@ std::string CommsIntField::commsDefFieldOptsInternal(bool variantPropKey) const
         commsAddAvailableLengthLimitOptInternal(opts);
     }
 
-    return util::strListToString(opts, ",\n", "");
+    return util::genStrListToString(opts, ",\n", "");
 }
 
 std::string CommsIntField::commsDefValueNamesMapCodeInternal() const
 {
-    auto& specials = specialsSortedByValue();    
+    auto& specials = genSpecialsSortedByValue();    
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    auto scope = comms::commonScopeFor(*this, generator());
+    auto scope = comms::genCommonScopeFor(*this, genGenerator());
 
     util::ReplacementMap repl = {
         {"INFO_DEF", scope + "::SpecialNameInfo"},
         {"MAP_DEF", scope + "::SpecialNamesMapInfo"}
     };
 
-    return util::processTemplate(specialNamesMapTempl(), repl);    
+    return util::genProcessTemplate(specialNamesMapTempl(), repl);    
 }
 
 std::string CommsIntField::commsDefHasSpecialsFuncCodeInternal() const
 {
     util::ReplacementMap repl = {
-        {"VALUE", comms::commonScopeFor(*this, generator()) + "::hasSpecials()"}
+        {"VALUE", comms::genCommonScopeFor(*this, genGenerator()) + "::hasSpecials()"}
     };
 
-    return util::processTemplate(hasSpecialsFuncTempl(), repl);
+    return util::genProcessTemplate(hasSpecialsFuncTempl(), repl);
 }
 
 std::string CommsIntField::commsDefSpecialsCodeInternal() const
 {
-    auto& specials = specialsSortedByValue();
+    auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     util::StringsList specialsList;
     for (auto& s : specials) {
-        if (!generator().doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
+        if (!genGenerator().genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
         }
 
@@ -665,21 +665,21 @@ std::string CommsIntField::commsDefSpecialsCodeInternal() const
 
         util::ReplacementMap repl = {
             {"SPEC_NAME", s.first},
-            {"SPEC_ACC", comms::className(s.first)},
-            {"COMMON", comms::commonScopeFor(*this, generator())},
+            {"SPEC_ACC", comms::genClassName(s.first)},
+            {"COMMON", comms::genCommonScopeFor(*this, genGenerator())},
         };
 
-        specialsList.push_back(util::processTemplate(Templ, repl));
+        specialsList.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    return util::strListToString(specialsList, "\n", "");
+    return util::genStrListToString(specialsList, "\n", "");
 }
 
 std::string CommsIntField::commsDefSpecialNamesMapCodeInternal() const
 {
-    auto& specials = specialsSortedByValue();
+    auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -690,15 +690,15 @@ std::string CommsIntField::commsDefSpecialNamesMapCodeInternal() const
         "}\n";    
 
     util::ReplacementMap repl {
-        {"COMMON", comms::commonScopeFor(*this, generator())}
+        {"COMMON", comms::genCommonScopeFor(*this, genGenerator())}
     };
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 std::string CommsIntField::commsDefDisplayDecimalsCodeInternal() const
 {
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
     auto scaling = obj.parseScaling();
     std::string result;
     if (scaling.first == scaling.second) {
@@ -714,10 +714,10 @@ std::string CommsIntField::commsDefDisplayDecimalsCodeInternal() const
         "}";
         
     util::ReplacementMap repl = {
-        {"DISPLAY_DECIMALS", util::numToString(obj.parseDisplayDecimals())}
+        {"DISPLAY_DECIMALS", util::genNumToString(obj.parseDisplayDecimals())}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsIntField::commsDefBaseClassInternal(bool variantPropKey) const
@@ -729,34 +729,34 @@ std::string CommsIntField::commsDefBaseClassInternal(bool variantPropKey) const
         "    #^#FIELD_OPTS#$#\n"
         ">";  
 
-    auto& gen = generator();
-    auto dslObj = intDslObj();
+    auto& gen = genGenerator();
+    auto dslObj = genIntFieldParseObj();
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
+        {"PROT_NAMESPACE", gen.genSchemaOf(*this).genMainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.parseEndian())},
-        {"FIELD_TYPE", comms::cppIntTypeFor(dslObj.parseType(), dslObj.parseMaxLength())},
+        {"FIELD_TYPE", comms::genCppIntTypeFor(dslObj.parseType(), dslObj.parseMaxLength())},
         {"FIELD_OPTS", commsDefFieldOptsInternal(variantPropKey)}
     };
 
     if (!repl["FIELD_OPTS"].empty()) {
         repl["COMMA"] = ",";
     }
-    return util::processTemplate(Templ, repl);      
+    return util::genProcessTemplate(Templ, repl);      
 }
 
 void CommsIntField::commsAddLengthOptInternal(StringsList& opts) const
 {
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
     auto type = obj.parseType();
     if ((type == commsdsl::parse::ParseIntField::Type::Intvar) ||
         (type == commsdsl::parse::ParseIntField::Type::Uintvar)) {
         auto str =
             "comms::option::def::VarLength<" +
-            util::numToString(obj.parseMinLength()) +
+            util::genNumToString(obj.parseMinLength()) +
             ", " +
-            util::numToString(obj.parseMaxLength()) +
+            util::genNumToString(obj.parseMaxLength()) +
             '>';
-        util::addToStrList(std::move(str), opts);
+        util::genAddToStrList(std::move(str), opts);
         return;
     }
 
@@ -768,9 +768,9 @@ void CommsIntField::commsAddLengthOptInternal(StringsList& opts) const
 
         auto str =
             "comms::option::def::FixedBitLength<" +
-            util::numToString(obj.parseBitLength()) + secondParam +
+            util::genNumToString(obj.parseBitLength()) + secondParam +
             '>';
-        util::addToStrList(std::move(str), opts);
+        util::genAddToStrList(std::move(str), opts);
         return;
     }
 
@@ -804,15 +804,15 @@ void CommsIntField::commsAddLengthOptInternal(StringsList& opts) const
         }
         auto str =
             "comms::option::def::FixedLength<" +
-            util::numToString(obj.parseMinLength()) + secondParam +
+            util::genNumToString(obj.parseMinLength()) + secondParam +
             '>';
-        util::addToStrList(std::move(str), opts);
+        util::genAddToStrList(std::move(str), opts);
     }
 }
 
 void CommsIntField::commsAddSerOffsetOptInternal(StringsList& opts) const
 {
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
     auto serOffset = obj.parseSerOffset();
     if (serOffset == 0) {
         return;
@@ -820,14 +820,14 @@ void CommsIntField::commsAddSerOffsetOptInternal(StringsList& opts) const
 
     auto str =
         "comms::option::def::NumValueSerOffset<" +
-        util::numToString(serOffset) +
+        util::genNumToString(serOffset) +
         '>';
-    util::addToStrList(std::move(str), opts);
+    util::genAddToStrList(std::move(str), opts);
 }
 
 void CommsIntField::commsAddDisplayOffsetOptInternal(StringsList& opts) const
 {
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
     auto displayOffset = obj.parseDisplayOffset();
     if (displayOffset == 0) {
         return;
@@ -835,14 +835,14 @@ void CommsIntField::commsAddDisplayOffsetOptInternal(StringsList& opts) const
 
     auto str =
         "comms::option::def::DisplayOffset<" +
-        util::numToString(displayOffset) +
+        util::genNumToString(displayOffset) +
         '>';
-    util::addToStrList(std::move(str), opts);
+    util::genAddToStrList(std::move(str), opts);
 }
 
 void CommsIntField::commsAddScalingOptInternal(StringsList& opts) const
 {
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
     auto scaling = obj.parseScaling();
     auto num = scaling.first;
     auto denom = scaling.second;
@@ -859,33 +859,33 @@ void CommsIntField::commsAddScalingOptInternal(StringsList& opts) const
 
     auto str =
         "comms::option::def::ScalingRatio<" +
-        util::numToString(num) +
+        util::genNumToString(num) +
         ", " +
-        util::numToString(denom) +
+        util::genNumToString(denom) +
         '>';
-    util::addToStrList(std::move(str), opts);
+    util::genAddToStrList(std::move(str), opts);
 }
 
 void CommsIntField::commsAddUnitsOptInternal(StringsList& opts) const
 {
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
     auto units = obj.parseUnits();
-    auto& str = comms::dslUnitsToOpt(units);
+    auto& str = comms::genParseUnitsToOpt(units);
     if (!str.empty()) {
-        util::addToStrList(str, opts);
+        util::genAddToStrList(str, opts);
     }
 }
 
 void CommsIntField::commsAddDefaultValueOptInternal(StringsList& opts) const
 {
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
     auto defaultValue = obj.parseDefaultValue();
     if ((defaultValue == 0) &&
         (obj.parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Version)) {
         std::string str = "comms::option::def::DefaultNumValue<";
-        str += util::numToString(generator().schemaOf(*this).schemaVersion());
+        str += util::genNumToString(genGenerator().genSchemaOf(*this).genSchemaVersion());
         str += '>';
-        util::addToStrList(std::move(str), opts);
+        util::genAddToStrList(std::move(str), opts);
         return;
     }
 
@@ -898,22 +898,22 @@ void CommsIntField::commsAddDefaultValueOptInternal(StringsList& opts) const
         ((type == commsdsl::parse::ParseIntField::Type::Uint64) || (type == commsdsl::parse::ParseIntField::Type::Uintvar))) {
         auto str =
             "comms::option::def::DefaultBigUnsignedNumValue<" +
-            util::numToString(static_cast<std::uintmax_t>(defaultValue)) +
+            util::genNumToString(static_cast<std::uintmax_t>(defaultValue)) +
             '>';
-        util::addToStrList(std::move(str), opts);
+        util::genAddToStrList(std::move(str), opts);
         return;
     }
 
     auto str =
         "comms::option::def::DefaultNumValue<" +
-        util::numToString(defaultValue) +
+        util::genNumToString(defaultValue) +
         '>';
-    util::addToStrList(std::move(str), opts);
+    util::genAddToStrList(std::move(str), opts);
 }
 
 void CommsIntField::commsAddValidRangesOptInternal(StringsList& opts) const
 {
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
     auto validRanges = obj.parseValidRanges(); // copy
     if (validRanges.empty()) {
         return;
@@ -925,7 +925,7 @@ void CommsIntField::commsAddValidRangesOptInternal(StringsList& opts) const
         ((type != commsdsl::parse::ParseIntField::Type::Uintvar) && (obj.parseMaxLength() >= sizeof(std::int64_t)));
 
     bool validCheckVersion =
-        generator().schemaOf(*this).versionDependentCode() &&
+        genGenerator().genSchemaOf(*this).genVersionDependentCode() &&
         obj.parseValidCheckVersion();
 
     if (!validCheckVersion) {
@@ -996,11 +996,11 @@ void CommsIntField::commsAddValidRangesOptInternal(StringsList& opts) const
     bool versionStorageRequired = false;
     bool addedRangeOpt = false;
     for (auto& r : validRanges) {
-        if (!generator().doesElementExist(r.m_sinceVersion, r.m_deprecatedSince, !validCheckVersion)) {
+        if (!genGenerator().genDoesElementExist(r.m_sinceVersion, r.m_deprecatedSince, !validCheckVersion)) {
             continue;
         }
 
-        if (validCheckVersion && (generator().isElementOptional(r.m_sinceVersion, r.m_deprecatedSince, false))) {
+        if (validCheckVersion && (genGenerator().genIsElementOptional(r.m_sinceVersion, r.m_deprecatedSince, false))) {
             versionStorageRequired = true;
             continue;
         }
@@ -1023,18 +1023,18 @@ void CommsIntField::commsAddValidRangesOptInternal(StringsList& opts) const
 
             if (r.m_min == r.m_max) {
                 str += "ValidBigUnsignedNumValue<";
-                str += util::numToString(static_cast<std::uintmax_t>(r.m_min));
+                str += util::genNumToString(static_cast<std::uintmax_t>(r.m_min));
                 str += '>';
             }
             else {
                 str += "ValidBigUnsignedNumValueRange<";
-                str += util::numToString(static_cast<std::uintmax_t>(r.m_min));
+                str += util::genNumToString(static_cast<std::uintmax_t>(r.m_min));
                 str += ", ";
-                str += util::numToString(static_cast<std::uintmax_t>(r.m_max));
+                str += util::genNumToString(static_cast<std::uintmax_t>(r.m_max));
                 str += '>';
             }
 
-            util::addToStrList(std::move(str), opts);
+            util::genAddToStrList(std::move(str), opts);
             big = true;
             addedRangeOpt = true;
         } while (false);
@@ -1045,26 +1045,26 @@ void CommsIntField::commsAddValidRangesOptInternal(StringsList& opts) const
 
         if (r.m_min == r.m_max) {
             str += "ValidNumValue<";
-            str += util::numToString(r.m_min);
+            str += util::genNumToString(r.m_min);
             str += '>';
         }
         else {
             str += "ValidNumValueRange<";
-            str += util::numToString(r.m_min);
+            str += util::genNumToString(r.m_min);
             str += ", ";
-            str += util::numToString(r.m_max);
+            str += util::genNumToString(r.m_max);
             str += '>';
         }
 
-        util::addToStrList(std::move(str), opts);
+        util::genAddToStrList(std::move(str), opts);
         addedRangeOpt = true;
     }
 
     if (versionStorageRequired) {
-        util::addToStrList("comms::option::def::VersionStorage", opts);
+        util::genAddToStrList("comms::option::def::VersionStorage", opts);
 
         if (!addedRangeOpt) {
-            util::addToStrList("comms::option::def::InvalidByDefault", opts);
+            util::genAddToStrList("comms::option::def::InvalidByDefault", opts);
         }
     }
 }
@@ -1072,25 +1072,25 @@ void CommsIntField::commsAddValidRangesOptInternal(StringsList& opts) const
 void CommsIntField::commsAddCustomRefreshOptInternal(StringsList& opts) const
 {
     if (commsRequiresFailOnInvalidRefreshInternal()) {
-        util::addToStrList("comms::option::def::HasCustomRefresh", opts);
+        util::genAddToStrList("comms::option::def::HasCustomRefresh", opts);
     }
 }
 
 void CommsIntField::commsAddAvailableLengthLimitOptInternal(StringsList& opts) const
 {
-    if (intDslObj().parseAvailableLengthLimit()) {
-        util::addToStrList("comms::option::def::AvailableLengthLimit", opts);
+    if (genIntFieldParseObj().parseAvailableLengthLimit()) {
+        util::genAddToStrList("comms::option::def::AvailableLengthLimit", opts);
     }
 }
 
 bool CommsIntField::commsRequiresFailOnInvalidRefreshInternal() const
 {
-    if ((!dslObj().parseIsFailOnInvalid()) ||
-        (dslObj().parseIsFixedValue())) {
+    if ((!genParseObj().parseIsFailOnInvalid()) ||
+        (genParseObj().parseIsFixedValue())) {
         return false;
     }
 
-    auto obj = intDslObj();
+    auto obj = genIntFieldParseObj();
     auto& validRanges = obj.parseValidRanges();
     if (validRanges.empty()) {
         return false;

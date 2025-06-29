@@ -297,7 +297,7 @@ bool ParseSchemaImpl::parseUpdateUnsignedProperty(const PropsMap& map, const std
     }
 
     bool ok = false;
-    unsigned val = common::strToUnsigned(iter->second, &ok);
+    unsigned val = common::parseStrToUnsigned(iter->second, &ok);
     if (!ok) {
         parseLogError(m_protocol.parseLogger()) << m_node->doc->URL << ':' << m_node->line <<
             ": Invalid value of \"" << name << "\" property for \"" << m_node->name << "\" element.";

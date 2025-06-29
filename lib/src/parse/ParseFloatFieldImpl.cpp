@@ -690,7 +690,7 @@ bool ParseFloatFieldImpl::parseUpdateDisplayDecimals()
     }
 
     bool ok = false;
-    m_state.m_displayDecimals = common::strToUnsigned(iter->second, &ok);
+    m_state.m_displayDecimals = common::parseStrToUnsigned(iter->second, &ok);
     if (!ok) {
         parseReportUnexpectedPropertyValue(common::displayDesimalsStr(), iter->second);
         return false;

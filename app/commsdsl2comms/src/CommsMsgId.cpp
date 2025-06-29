@@ -49,21 +49,21 @@ CommsMsgId::CommsMsgId(CommsGenerator& generator, const CommsNamespace& parent) 
 {
 }
 
-bool CommsMsgId::write() const
+bool CommsMsgId::commsWrite() const
 {
-    auto filePath = comms::headerPathForMsgId(strings::msgIdEnumNameStr(), m_generator, m_parent);
+    auto filePath = comms::genHeaderPathForMsgId(strings::genMsgIdEnumNameStr(), m_generator, m_parent);
 
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
 
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_generator.genCreateDirectory(dirPath)) {
         return false;
     }
 
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -85,17 +85,17 @@ bool CommsMsgId::write() const
 
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
-        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
+        {"PROT_NAMESPACE", m_generator.genCurrentSchema().genMainNamespace()},
         {"TYPE", commsTypeInternal()},
         {"IDS", commsIdsInternal()},
-        {"NS_BEGIN", comms::namespaceBeginFor(m_parent, m_generator)},
-        {"NS_END", comms::namespaceEndFor(m_parent, m_generator)},           
+        {"NS_BEGIN", comms::genNamespaceBeginFor(m_parent, m_generator)},
+        {"NS_END", comms::genNamespaceEndFor(m_parent, m_generator)},           
     };
 
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     
@@ -104,22 +104,22 @@ bool CommsMsgId::write() const
 
 std::string CommsMsgId::commsTypeInternal() const
 {
-    auto allMsgIdFields = m_parent.findMessageIdFields();
+    auto allMsgIdFields = m_parent.genFindMessageIdFields();
     if (allMsgIdFields.size() == 1U) {
         auto* msgIdField = allMsgIdFields.front();
-        assert(msgIdField->dslObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
+        assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
         auto* castedMsgIdField = static_cast<const CommsEnumField*>(msgIdField);
-        auto dslObj = castedMsgIdField->enumDslObj();
-        return comms::cppIntTypeFor(dslObj.parseType(), dslObj.parseMaxLength());
+        auto dslObj = castedMsgIdField->genEnumFieldParseObj();
+        return comms::genCppIntTypeFor(dslObj.parseType(), dslObj.parseMaxLength());
     }
 
-    auto allMessages = m_parent.getAllMessages();
+    auto allMessages = m_parent.genGetAllMessages();
     auto iter = 
         std::max_element(
             allMessages.begin(), allMessages.end(),
             [](auto* first, auto* second)
             {
-                return first->dslObj().parseId() < second->dslObj().parseId();
+                return first->genParseObj().parseId() < second->genParseObj().parseId();
             });
 
     std::string result = "unsigned";
@@ -128,7 +128,7 @@ std::string CommsMsgId::commsTypeInternal() const
             break;
         }
 
-        auto maxId = (*iter)->dslObj().parseId();
+        auto maxId = (*iter)->genParseObj().parseId();
         bool fitsUnsigned = maxId <= std::numeric_limits<unsigned>::max();
         if (fitsUnsigned) {
             break;
@@ -142,15 +142,15 @@ std::string CommsMsgId::commsTypeInternal() const
 
 std::string CommsMsgId::commsIdsInternal() const
 {
-    auto& prefix = strings::msgIdPrefixStr();
-    auto allMsgIdFields = m_parent.findMessageIdFields();
-    if (allMsgIdFields.empty() && m_parent.name().empty()) {
-        allMsgIdFields = m_generator.currentSchema().getAllMessageIdFields();
+    auto& prefix = strings::genMsgIdPrefixStr();
+    auto allMsgIdFields = m_parent.genFindMessageIdFields();
+    if (allMsgIdFields.empty() && m_parent.genName().empty()) {
+        allMsgIdFields = m_generator.genCurrentSchema().genGetAllMessageIdFields();
     }
 
     if (allMsgIdFields.size() == 1U) {    
         auto* msgIdField = allMsgIdFields.front();
-        assert(msgIdField->dslObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
+        assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
         auto* castedMsgIdField = static_cast<const CommsEnumField*>(msgIdField);
         auto enumValues = castedMsgIdField->commsEnumValues();
         static const std::string CommentPrefix("// ---");
@@ -163,20 +163,20 @@ std::string CommsMsgId::commsIdsInternal() const
             v.insert(v.begin(), prefix.begin(), prefix.end());
         }
 
-        return util::strListToString(enumValues, "\n", "");
+        return util::genStrListToString(enumValues, "\n", "");
     }
 
-    auto allMessages = m_parent.getAllMessagesIdSorted();
-    if (allMessages.empty() && m_parent.name().empty()) {
-        allMessages = m_generator.currentSchema().getAllMessagesIdSorted();
+    auto allMessages = m_parent.genGetAllMessagesIdSorted();
+    if (allMessages.empty() && m_parent.genName().empty()) {
+        allMessages = m_generator.genCurrentSchema().genGetAllMessagesIdSorted();
     }
 
     util::StringsList ids;
     ids.reserve(allMessages.size());
     for (auto* m : allMessages) {
-        ids.push_back(prefix + comms::fullNameFor(*m) + " = " + util::numToString(m->dslObj().parseId()));
+        ids.push_back(prefix + comms::genFullNameFor(*m) + " = " + util::genNumToString(m->genParseObj().parseId()));
     }
-    return util::strListToString(ids, ",\n", "");
+    return util::genStrListToString(ids, ",\n", "");
 }
 
 } // namespace commsdsl2comms

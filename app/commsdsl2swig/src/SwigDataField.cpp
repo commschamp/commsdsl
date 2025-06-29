@@ -36,7 +36,7 @@ SwigDataField::SwigDataField(SwigGenerator& generator, commsdsl::parse::ParseFie
 {
 }
 
-bool SwigDataField::writeImpl() const
+bool SwigDataField::genWriteImpl() const
 {
     return swigWrite();
 }
@@ -46,12 +46,12 @@ std::string SwigDataField::swigValueTypeDeclImpl() const
     static const std::string Templ = 
         "using ValueType = std::vector<#^#UINT8_T#$#>;\n";
 
-    auto& gen = SwigGenerator::cast(generator());
+    auto& gen = SwigGenerator::cast(genGenerator());
     util::ReplacementMap repl = {
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string SwigDataField::swigValueAccDeclImpl() const

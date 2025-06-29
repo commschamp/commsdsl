@@ -36,33 +36,33 @@ EmscriptenListField::EmscriptenListField(EmscriptenGenerator& generator, commsds
 {
 }
 
-bool EmscriptenListField::prepareImpl()
+bool EmscriptenListField::genPrepareImpl()
 {
-    if (!Base::prepareImpl()) {
+    if (!Base::genPrepareImpl()) {
         return false;
     }
 
-    auto* memElement = memberElementField();
+    auto* memElement = genMemberElementField();
     if (memElement != nullptr) {
         emscriptenAddMember(memElement);
         m_element = EmscriptenField::cast(memElement);
     }
     else {
-        m_element = EmscriptenField::cast(externalElementField());
+        m_element = EmscriptenField::cast(genExternalElementField());
     }
     assert(m_element != nullptr);
     m_element->emscriptenSetListElement();
     return true;
 }
 
-bool EmscriptenListField::writeImpl() const
+bool EmscriptenListField::genWriteImpl() const
 {
     return emscriptenWrite();
 }
 
 void EmscriptenListField::emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const
 {
-    auto* extElement = externalElementField();
+    auto* extElement = genExternalElementField();
     if (extElement == nullptr) {
         return;
     }
@@ -86,7 +86,7 @@ std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
         "}\n"
         ;   
 
-    if (!field().dslObj().parseIsFixedValue()) {
+    if (!field().genParseObj().parseIsFixedValue()) {
         templ += 
             "\n"
             "void setValue(const ValueType& val)\n"
@@ -97,13 +97,13 @@ std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
     }             
 
     assert(m_element != nullptr);
-    auto& gen = EmscriptenGenerator::cast(generator());
+    auto& gen = EmscriptenGenerator::cast(genGenerator());
     util::ReplacementMap repl = {
         {"ELEMENT", gen.emscriptenClassName(m_element->field())},
         {"STORAGE", emscriptenHeaderValueStorageAccByPointer()},
     };
 
-    return util::processTemplate(templ, repl);
+    return util::genProcessTemplate(templ, repl);
 }
 
 std::string EmscriptenListField::emscriptenSourceBindValueAccImpl() const
@@ -117,7 +117,7 @@ std::string EmscriptenListField::emscriptenSourceBindValueAccImpl() const
         {"ACC", emscriptenSourceBindValueAccByPointer()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 

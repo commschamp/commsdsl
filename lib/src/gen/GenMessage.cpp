@@ -31,34 +31,35 @@ class GenMessageImpl
 {
 public:
     using FieldsList = GenMessage::FieldsList;
+    using ParseMessage = GenMessage::ParseMessage;
 
-    GenMessageImpl(GenGenerator& generator, commsdsl::parse::ParseMessage dslObj, GenElem* parent) :
+    GenMessageImpl(GenGenerator& generator, ParseMessage parseObj, GenElem* parent) :
         m_generator(generator),
-        m_dslObj(dslObj),
+        m_parseObj(parseObj),
         m_parent(parent)
     {
     }
 
-    bool isPrepared() const
+    bool genIsPrepared() const
     {
         return m_prepared;
     }
 
-    void setPrepared()
+    void genSetPrepared()
     {
         m_prepared = true;
     }    
 
-    bool createAll()
+    bool genCreateAll()
     {
-        if (!m_dslObj.parseValid()) {
+        if (!m_parseObj.parseValid()) {
             return true;
         }
 
-        auto fields = m_dslObj.parseFields();
+        auto fields = m_parseObj.parseFields();
         m_fields.reserve(fields.size());
-        for (auto& dslObj : fields) {
-            auto ptr = GenField::create(m_generator, dslObj, m_parent);
+        for (auto& parseObj : fields) {
+            auto ptr = GenField::genCreate(m_generator, parseObj, m_parent);
             assert(ptr);
             m_fields.push_back(std::move(ptr));
         }
@@ -66,13 +67,13 @@ public:
         return true;        
     }    
 
-    bool prepare()
+    bool genPrepare()
     {
         if (!m_referenced) {
             return true;
         }
 
-        if (!m_dslObj.parseValid()) {
+        if (!m_parseObj.parseValid()) {
             return true;
         }
 
@@ -80,15 +81,15 @@ public:
             m_fields.begin(), m_fields.end(),
             [](auto& f)
             {
-                bool result = f->prepare();
+                bool result = f->genPrepare();
                 if (result) {
-                    f->setReferenced();
+                    f->genSetReferenced();
                 }
                 return result;
             });        
     }
 
-    bool write() const
+    bool genWrite() const
     {
         if (!m_referenced) {
             return true;
@@ -99,144 +100,144 @@ public:
                 m_fields.begin(), m_fields.end(),
                 [](auto& fieldPtr) -> bool
                 {
-                    return fieldPtr->write();
+                    return fieldPtr->genWrite();
                 });
 
         return result;
     }
 
-    commsdsl::parse::ParseMessage dslObj() const
+    ParseMessage genParseObj() const
     {
-        return m_dslObj;
+        return m_parseObj;
     }
 
-    const FieldsList& fields() const
+    const FieldsList& genFields() const
     {
         return m_fields;
     }
 
-    GenGenerator& generator()
+    GenGenerator& genGenerator()
     {
         return m_generator;
     }
 
-    const GenGenerator& generator() const
+    const GenGenerator& genGenerator() const
     {
         return m_generator;
     }
 
-    bool isReferenced() const
+    bool genIsReferenced() const
     {
         return m_referenced;
     }
 
-    void setReferenced(bool value)
+    void genSetReferenced(bool value)
     {
         m_referenced = value;
     }
 
 private:
     GenGenerator& m_generator;
-    commsdsl::parse::ParseMessage m_dslObj;
+    ParseMessage m_parseObj;
     GenElem* m_parent = nullptr;
     FieldsList m_fields;
     bool m_prepared = false;
     bool m_referenced = false;
 }; 
 
-GenMessage::GenMessage(GenGenerator& generator, commsdsl::parse::ParseMessage dslObj, GenElem* parent) :
+GenMessage::GenMessage(GenGenerator& generator, ParseMessage parseObj, GenElem* parent) :
     Base(parent),
-    m_impl(std::make_unique<GenMessageImpl>(generator, dslObj, this))
+    m_impl(std::make_unique<GenMessageImpl>(generator, parseObj, this))
 {
 }
 
 GenMessage::~GenMessage() = default;
 
-bool GenMessage::isPrepared() const
+bool GenMessage::genIsPrepared() const
 {
-    return m_impl->isPrepared();
+    return m_impl->genIsPrepared();
 }
 
-bool GenMessage::createAll()
+bool GenMessage::genCreateAll()
 {
-    return m_impl->createAll();
+    return m_impl->genCreateAll();
 }
 
-bool GenMessage::prepare()
+bool GenMessage::genPrepare()
 {
-    if (m_impl->isPrepared()) {
+    if (m_impl->genIsPrepared()) {
         return true;
     }
 
-    if (!m_impl->prepare()) {
+    if (!m_impl->genPrepare()) {
         return false;
     }
 
-    if (!isReferenced()) {
+    if (!genIsReferenced()) {
         return true;
     }
 
-    bool result = prepareImpl();
+    bool result = genPrepareImpl();
     if (result) {
-        m_impl->setPrepared();
+        m_impl->genSetPrepared();
     }
     return result;
 }
 
-bool GenMessage::write() const
+bool GenMessage::genWrite() const
 {
-    if (!m_impl->write()) {
+    if (!m_impl->genWrite()) {
         return false;
     }
 
-    if (!m_impl->isReferenced()) {
+    if (!m_impl->genIsReferenced()) {
         return false;
     }
 
-    return writeImpl();
+    return genWriteImpl();
 }
 
-bool GenMessage::isReferenced() const
+bool GenMessage::genIsReferenced() const
 {
-    return m_impl->isReferenced();
+    return m_impl->genIsReferenced();
 }
 
-void GenMessage::setReferenced(bool value = true)
+void GenMessage::genSetReferenced(bool value = true)
 {
-    m_impl->setReferenced(value);
+    m_impl->genSetReferenced(value);
 }
 
-commsdsl::parse::ParseMessage GenMessage::dslObj() const
+GenMessage::ParseMessage GenMessage::genParseObj() const
 {
-    return m_impl->dslObj();
+    return m_impl->genParseObj();
 }
 
-const GenMessage::FieldsList& GenMessage::fields() const
+const GenMessage::FieldsList& GenMessage::genFields() const
 {
-    return m_impl->fields();
+    return m_impl->genFields();
 }
 
-GenGenerator& GenMessage::generator()
+GenGenerator& GenMessage::genGenerator()
 {
-    return m_impl->generator();
+    return m_impl->genGenerator();
 }
 
-const GenGenerator& GenMessage::generator() const
+const GenGenerator& GenMessage::genGenerator() const
 {
-    return m_impl->generator();
+    return m_impl->genGenerator();
 }
 
-GenElem::Type GenMessage::elemTypeImpl() const
+GenElem::Type GenMessage::genElemTypeImpl() const
 {
     return Type_Message;
 }
 
-bool GenMessage::prepareImpl()
+bool GenMessage::genPrepareImpl()
 {
     return true;
 }
 
-bool GenMessage::writeImpl() const
+bool GenMessage::genWriteImpl() const
 {
     return true;
 }

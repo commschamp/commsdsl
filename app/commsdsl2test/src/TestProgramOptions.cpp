@@ -46,7 +46,7 @@ const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr
 
 TestProgramOptions::TestProgramOptions()
 {
-    addHelpOption()
+    genAddHelpOption()
     (VersionStr, "Print version string and exit.")
     (FullQuietStr.c_str(), "Quiet, show only warnings and errors.")
     (FullOutputDirStr.c_str(), "Output directory path. When not provided current is used.", true)        
@@ -65,57 +65,57 @@ TestProgramOptions::TestProgramOptions()
 
 bool TestProgramOptions::quietRequested() const
 {
-    return isOptUsed(QuietStr);
+    return genIsOptUsed(QuietStr);
 }
 
 bool TestProgramOptions::versionRequested() const
 {
-    return isOptUsed(VersionStr);
+    return genIsOptUsed(VersionStr);
 }
 
 bool TestProgramOptions::warnAsErrRequested() const
 {
-    return isOptUsed(WarnAsErrStr);
+    return genIsOptUsed(WarnAsErrStr);
 }
 
 const std::string& TestProgramOptions::getFilesListFile() const
 {
-    return value(InputFilesListStr);
+    return genValue(InputFilesListStr);
 }
 
 const std::string& TestProgramOptions::getFilesListPrefix() const
 {
-    return value(InputFilesPrefixStr);
+    return genValue(InputFilesPrefixStr);
 }
 
 const TestProgramOptions::ArgsList& TestProgramOptions::getFiles() const
 {
-    return args();
+    return genArgs();
 }
 
 const std::string& TestProgramOptions::getOutputDirectory() const
 {
-    return value(OutputDirStr);
+    return genValue(OutputDirStr);
 }
 
 const std::string& TestProgramOptions::getCodeInputDirectory() const
 {
-    return value(CodeInputDirStr);
+    return genValue(CodeInputDirStr);
 }
 
 bool TestProgramOptions::hasNamespaceOverride() const
 {
-    return isOptUsed(NamespaceStr);
+    return genIsOptUsed(NamespaceStr);
 }
 
 const std::string& TestProgramOptions::getNamespace() const
 {
-    return value(NamespaceStr);
+    return genValue(NamespaceStr);
 }
 
 bool TestProgramOptions::multipleSchemasEnabled() const
 {
-    return isOptUsed(MultipleSchemasEnabledStr);
+    return genIsOptUsed(MultipleSchemasEnabledStr);
 }
 
 } // namespace commsdsl2test

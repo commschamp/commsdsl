@@ -35,19 +35,21 @@ namespace gen
 class GenLayerImpl
 {
 public:    
-    GenLayerImpl(GenGenerator& generator, const commsdsl::parse::ParseLayer& dslObj, GenElem* parent) :
+    using ParseLayer = GenLayer::ParseLayer;
+
+    GenLayerImpl(GenGenerator& generator, const ParseLayer& parseObj, GenElem* parent) :
         m_generator(generator),
-        m_dslObj(dslObj),
+        m_parseObj(parseObj),
         m_parent(parent)
     {
     }
 
-    bool prepare()
+    bool genPrepare()
     {
-        auto dslField = m_dslObj.parseField();
+        auto dslField = m_parseObj.parseField();
         if (!dslField.parseValid()) {
-            if (m_dslObj.parseKind() != commsdsl::parse::ParseLayer::Kind::Payload) {
-                m_generator.logger().error("GenLayer field definition is missing.");
+            if (m_parseObj.parseKind() != ParseLayer::Kind::Payload) {
+                m_generator.genLogger().genError("GenLayer field definition is missing.");
                 [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
                 return false;
@@ -58,97 +60,97 @@ public:
 
         auto extRef = dslField.parseExternalRef();
         if (!extRef.empty()) {
-            m_externalField = m_generator.findField(extRef);
+            m_externalField = m_generator.genFindField(extRef);
             assert(m_externalField != nullptr);
-            m_externalField->setReferenced();
+            m_externalField->genSetReferenced();
             return true;
         }
 
-        m_memberField = GenField::create(m_generator, dslField, m_parent);
-        if (!m_memberField->prepare()) {
+        m_memberField = GenField::genCreate(m_generator, dslField, m_parent);
+        if (!m_memberField->genPrepare()) {
             return false;
         }
 
-        m_memberField->setReferenced();
+        m_memberField->genSetReferenced();
         return true;
     }
 
-    bool write()
+    bool genWrite()
     {
         if (m_memberField != nullptr) {
-            return m_memberField->write();
+            return m_memberField->genWrite();
         }
 
         return true;
     }
 
-    commsdsl::parse::ParseLayer dslObj() const
+    ParseLayer genParseObj() const
     {
-        return m_dslObj;
+        return m_parseObj;
     }
 
 
-    GenField* externalField()
-    {
-        return m_externalField;
-    }
-
-    const GenField* externalField() const
+    GenField* genExternalField()
     {
         return m_externalField;
     }
 
-    GenField* memberField()
+    const GenField* genExternalField() const
+    {
+        return m_externalField;
+    }
+
+    GenField* genMemberField()
     {
         return m_memberField.get();
     }
 
-    const GenField* memberField() const
+    const GenField* genMemberField() const
     {
         return m_memberField.get();
     }        
 
-    GenGenerator& generator()
+    GenGenerator& genGenerator()
     {
         return m_generator;
     }
 
-    const GenGenerator& generator() const
+    const GenGenerator& genGenerator() const
     {
         return m_generator;
     }    
 
 private:
     GenGenerator& m_generator;
-    commsdsl::parse::ParseLayer m_dslObj;
+    ParseLayer m_parseObj;
     GenElem* m_parent = nullptr;
     GenField* m_externalField = nullptr;
-    FieldPtr m_memberField;    
+    GenFieldPtr m_memberField;    
 };
 
-GenLayer::GenLayer(GenGenerator& generator, const commsdsl::parse::ParseLayer& dslObj, GenElem* parent) :
+GenLayer::GenLayer(GenGenerator& generator, const ParseLayer& parseObj, GenElem* parent) :
     Base(parent),
-    m_impl(std::make_unique<GenLayerImpl>(generator, dslObj, this))
+    m_impl(std::make_unique<GenLayerImpl>(generator, parseObj, this))
 {
 }
 
 GenLayer::~GenLayer() = default;
 
-GenLayer::Ptr GenLayer::create(GenGenerator& generator, commsdsl::parse::ParseLayer dslobj, GenElem* parent)
+GenLayer::Ptr GenLayer::genCreate(GenGenerator& generator, ParseLayer dslobj, GenElem* parent)
 {
-    using CreateFunc = LayerPtr (GenGenerator::*)(commsdsl::parse::ParseLayer dslobj, GenElem* parent);
+    using CreateFunc = GenLayerPtr (GenGenerator::*)(ParseLayer dslobj, GenElem* parent);
     static const CreateFunc Map[] = {
-        /* Custom */ &GenGenerator::createCustomLayer,
-        /* Sync */ &GenGenerator::createSyncLayer,
-        /* Size */ &GenGenerator::createSizeLayer,
-        /* Id */ &GenGenerator::createIdLayer,
-        /* Value */ &GenGenerator::createValueLayer,
-        /* Payload */ &GenGenerator::createPayloadLayer,
-        /* Checksum */ &GenGenerator::createChecksumLayer,
+        /* Custom */ &GenGenerator::genCreateCustomLayer,
+        /* Sync */ &GenGenerator::genCreateSyncLayer,
+        /* Size */ &GenGenerator::genCreateSizeLayer,
+        /* Id */ &GenGenerator::genCreateIdLayer,
+        /* Value */ &GenGenerator::genCreateValueLayer,
+        /* Payload */ &GenGenerator::genCreatePayloadLayer,
+        /* Checksum */ &GenGenerator::genCreateChecksumLayer,
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::ParseLayer::Kind::NumOfValues), "Invalid map");
+    static_assert(MapSize == static_cast<unsigned>(ParseLayer::Kind::NumOfValues), "Invalid map");
 
     auto idx = static_cast<std::size_t>(dslobj.parseKind());
     if (MapSize <= idx) {
@@ -162,69 +164,69 @@ GenLayer::Ptr GenLayer::create(GenGenerator& generator, commsdsl::parse::ParseLa
     return (generator.*func)(dslobj, parent);
 }
 
-bool GenLayer::prepare()
+bool GenLayer::genPrepare()
 {
-    if (!m_impl->prepare()) {
+    if (!m_impl->genPrepare()) {
         return false;
     }
-    return prepareImpl();
+    return genPrepareImpl();
 }
 
-bool GenLayer::write() const
+bool GenLayer::genWrite() const
 {
-    return m_impl->write() && writeImpl();
+    return m_impl->genWrite() && genWriteImpl();
 }
 
-commsdsl::parse::ParseLayer GenLayer::dslObj() const
+GenLayer::ParseLayer GenLayer::genParseObj() const
 {
-    return m_impl->dslObj();
+    return m_impl->genParseObj();
 }
 
-GenField* GenLayer::externalField()
+GenField* GenLayer::genExternalField()
 {
-    return m_impl->externalField();
+    return m_impl->genExternalField();
 }
 
-const GenField* GenLayer::externalField() const
+const GenField* GenLayer::genExternalField() const
 {
-    return m_impl->externalField();
+    return m_impl->genExternalField();
 }
 
-GenField* GenLayer::memberField()
+GenField* GenLayer::genMemberField()
 {
-    return m_impl->memberField();
+    return m_impl->genMemberField();
 }
 
-const GenField* GenLayer::memberField() const
+const GenField* GenLayer::genMemberField() const
 {
-    return m_impl->memberField();
+    return m_impl->genMemberField();
 }
 
-GenGenerator& GenLayer::generator()
+GenGenerator& GenLayer::genGenerator()
 {
-    return m_impl->generator();
+    return m_impl->genGenerator();
 }
 
-const GenGenerator& GenLayer::generator() const
+const GenGenerator& GenLayer::genGenerator() const
 {
-    return m_impl->generator();
+    return m_impl->genGenerator();
 }
 
-bool GenLayer::forceCommsOrder(LayersAccessList& layers, bool& success) const
+bool GenLayer::genForceCommsOrder(LayersAccessList& layers, bool& success) const
 {
-    return forceCommsOrderImpl(layers, success);
+    return genForceCommsOrderImpl(layers, success);
 }
 
-std::string GenLayer::templateScopeOfComms(const std::string& iFaceStr, const std::string& allMessagesStr, const std::string& protOptionsStr) const
+std::string GenLayer::genTemplateScopeOfComms(const std::string& iFaceStr, const std::string& allMessagesStr, const std::string& protOptionsStr) const
 {
-    auto commsScope = comms::scopeFor(*this, generator());
+    auto commsScope = comms::genScopeFor(*this, genGenerator());
     std::string optionsParams = "<" + protOptionsStr + ">";
 
-    auto* parent = getParent();
+    auto* parent = genGetParent();
     assert(parent != nullptr);
-    assert(parent->elemType() == commsdsl::gen::GenElem::Type_Frame);
+    assert(parent->genElemType() == commsdsl::gen::GenElem::Type_Frame);
 
-    auto optLevelScope = comms::scopeFor(*parent, generator()) + strings::layersSuffixStr();
+    auto optLevelScope = comms::genScopeFor(*parent, genGenerator()) + strings::genLayersSuffixStr();
     assert(optLevelScope.size() < commsScope.size());
     assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
     
@@ -259,23 +261,23 @@ std::string GenLayer::templateScopeOfComms(const std::string& iFaceStr, const st
                 {"ALL_MESSAGES", allMessagesStr}
             };
 
-            result += util::processTemplate(Templ, repl);
+            result += util::genProcessTemplate(Templ, repl);
         };
 
     for (auto iterTmp = iter; iterTmp != allLayers.end(); ++iterTmp) {
-        auto kind = (*iterTmp)->dslObj().parseKind();
-        if (kind == commsdsl::parse::ParseLayer::Kind::Id) {
+        auto kind = (*iterTmp)->genParseObj().parseKind();
+        if (kind == ParseLayer::Kind::Id) {
             addIdParams();
             break;
         }
 
-        if (kind != commsdsl::parse::ParseLayer::Kind::Custom) {
+        if (kind != ParseLayer::Kind::Custom) {
             continue;
         }
 
         auto& customLayer = static_cast<const GenCustomLayer&>(**iterTmp);
-        auto customKind = customLayer.customDslObj().parseSemanticLayerType();
-        if (customKind == commsdsl::parse::ParseLayer::Kind::Id) {
+        auto customKind = customLayer.genCustomLayerParseObj().parseSemanticLayerType();
+        if (customKind == ParseLayer::Kind::Id) {
             addIdParams();
             break;            
         }
@@ -284,22 +286,22 @@ std::string GenLayer::templateScopeOfComms(const std::string& iFaceStr, const st
     return result;
 }
 
-GenElem::Type GenLayer::elemTypeImpl() const
+GenElem::Type GenLayer::genElemTypeImpl() const
 {
     return Type_Layer;
 }
 
-bool GenLayer::prepareImpl()
+bool GenLayer::genPrepareImpl()
 {
     return true;
 }
 
-bool GenLayer::writeImpl() const
+bool GenLayer::genWriteImpl() const
 {
     return true;
 }
 
-bool GenLayer::forceCommsOrderImpl([[maybe_unused]] LayersAccessList& layers, bool& success) const
+bool GenLayer::genForceCommsOrderImpl([[maybe_unused]] LayersAccessList& layers, bool& success) const
 {
     success = true;
     return false;

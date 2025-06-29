@@ -36,9 +36,9 @@ CommsPayloadLayer::CommsPayloadLayer(CommsGenerator& generator, commsdsl::parse:
 {
 }
 
-bool CommsPayloadLayer::prepareImpl()
+bool CommsPayloadLayer::genPrepareImpl()
 {
-    return Base::prepareImpl() && CommsBase::commsPrepare();
+    return Base::genPrepareImpl() && CommsBase::commsPrepare();
 }
 
 CommsPayloadLayer::IncludesList CommsPayloadLayer::commsDefIncludesImpl() const
@@ -60,11 +60,11 @@ std::string CommsPayloadLayer::commsDefBaseTypeImpl([[maybe_unused]] const std::
         ">";
     
     util::ReplacementMap repl {
-        {"SUFFIX", strings::membersSuffixStr()},
-        {"CLASS_NAME", comms::className(dslObj().parseName())},
+        {"SUFFIX", strings::genMembersSuffixStr()},
+        {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
     };
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 std::string CommsPayloadLayer::commsCustomDefMembersCodeImpl() const
@@ -90,17 +90,17 @@ std::string CommsPayloadLayer::commsCustomDefMembersCodeImpl() const
         "    };\n"
         "};\n";
 
-    auto& gen = CommsGenerator::cast(generator());
+    auto& gen = CommsGenerator::cast(genGenerator());
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().parseName())},
-        {"SUFFIX", strings::membersSuffixStr()},
-        {"PROT_NAMESPACE", generator().schemaOf(*this).mainNamespace()},
-        {"OPTS", "typename TOpt::" + comms::scopeFor(*this, gen, gen.commsHasMainNamespaceInOptions(), true) + strings::membersSuffixStr() + "::Field"},
-        {"NAME", dslObj().parseName()},
-        {"SCOPE", comms::scopeFor(*this, gen)}
+        {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
+        {"SUFFIX", strings::genMembersSuffixStr()},
+        {"PROT_NAMESPACE", genGenerator().genSchemaOf(*this).genMainNamespace()},
+        {"OPTS", "typename TOpt::" + comms::genScopeFor(*this, gen, gen.commsHasMainNamespaceInOptions(), true) + strings::genMembersSuffixStr() + "::Field"},
+        {"NAME", genParseObj().parseName()},
+        {"SCOPE", comms::genScopeFor(*this, gen)}
     };     
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsPayloadLayer::commsCustomFieldOptsImpl() const
@@ -114,12 +114,12 @@ std::string CommsPayloadLayer::commsCustomFieldOptsImpl() const
         "}; // struct #^#CLASS_NAME#$##^#SUFFIX#$#\n";
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().parseName())},
-        {"SUFFIX", strings::membersSuffixStr()},
-        {"SCOPE", comms::scopeFor(*this, generator())}
+        {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
+        {"SUFFIX", strings::genMembersSuffixStr()},
+        {"SCOPE", comms::genScopeFor(*this, genGenerator())}
     };     
 
-    return util::processTemplate(Templ, repl);        
+    return util::genProcessTemplate(Templ, repl);        
 }
 
 std::string CommsPayloadLayer::commsCustomFieldDataViewOptsImpl() const
@@ -137,13 +137,13 @@ std::string CommsPayloadLayer::commsCustomFieldDataViewOptsImpl() const
         "}; // struct #^#CLASS_NAME#$##^#SUFFIX#$#\n";
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().parseName())},
-        {"SUFFIX", strings::membersSuffixStr()},
-        {"SCOPE", comms::scopeFor(*this, generator())},
-        {"OPT_SCOPE", comms::scopeFor(*this, generator(), false, true)}
+        {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
+        {"SUFFIX", strings::genMembersSuffixStr()},
+        {"SCOPE", comms::genScopeFor(*this, genGenerator())},
+        {"OPT_SCOPE", comms::genScopeFor(*this, genGenerator(), false, true)}
     };     
 
-    return util::processTemplate(Templ, repl);  
+    return util::genProcessTemplate(Templ, repl);  
 }
 
 std::string CommsPayloadLayer::commsCustomFieldBareMetalOptsImpl() const
@@ -161,13 +161,13 @@ std::string CommsPayloadLayer::commsCustomFieldBareMetalOptsImpl() const
         "}; // struct #^#CLASS_NAME#$##^#SUFFIX#$#\n";
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().parseName())},
-        {"SUFFIX", strings::membersSuffixStr()},
-        {"SCOPE", comms::scopeFor(*this, generator())},
-        {"OPT_SCOPE", comms::scopeFor(*this, generator(), false, true)}
+        {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
+        {"SUFFIX", strings::genMembersSuffixStr()},
+        {"SCOPE", comms::genScopeFor(*this, genGenerator())},
+        {"OPT_SCOPE", comms::genScopeFor(*this, genGenerator(), false, true)}
     };     
 
-    return util::processTemplate(Templ, repl);  
+    return util::genProcessTemplate(Templ, repl);  
 }
 
 } // namespace commsdsl2comms

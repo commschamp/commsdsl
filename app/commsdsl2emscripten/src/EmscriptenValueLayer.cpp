@@ -39,17 +39,17 @@ EmscriptenValueLayer::EmscriptenValueLayer(EmscriptenGenerator& generator, comms
 
 bool EmscriptenValueLayer::emscriptenIsMainInterfaceSupportedImpl() const
 {
-    auto& gen = EmscriptenGenerator::cast(generator());
+    auto& gen = EmscriptenGenerator::cast(genGenerator());
     auto* iFace = gen.emscriptenMainInterface();
     assert(iFace != nullptr);
-    return isInterfaceSupported(iFace);
+    return genIsInterfaceSupported(iFace);
 }
 
 std::string EmscriptenValueLayer::emscriptenHeaderExtraFuncsImpl() const
 {
     auto obj = valueDslObj();
     if (!obj.parsePseudo()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -65,18 +65,18 @@ std::string EmscriptenValueLayer::emscriptenSourceExtraFuncsImpl() const
 {
     auto obj = valueDslObj();
     if (!obj.parsePseudo()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
         ".function(\"pseudoField\", &#^#CLASS_NAME#$#::pseudoField, emscripten::allow_raw_pointers())";
 
-    auto& gen = EmscriptenGenerator::cast(generator());
+    auto& gen = EmscriptenGenerator::cast(genGenerator());
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(*this)}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2emscripten

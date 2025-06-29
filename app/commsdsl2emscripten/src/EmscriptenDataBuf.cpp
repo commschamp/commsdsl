@@ -77,16 +77,16 @@ void EmscriptenDataBuf::emscriptenAddSourceFiles(const EmscriptenGenerator& gene
 bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
 {
     auto filePath = m_generator.emscriptenAbsHeaderForRoot(ClassName);
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_generator.genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }     
 
@@ -107,11 +107,11 @@ bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
         {"JS_ARRAY", emscriptenJsArrayToDataBufFuncName()},
     };
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
+    auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
 
@@ -122,16 +122,16 @@ bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
 bool EmscriptenDataBuf::emscriptenWriteSrcInternal() const
 {
     auto filePath = m_generator.emscriptenAbsSourceForRoot(ClassName);
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_generator.genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }     
 
@@ -162,11 +162,11 @@ bool EmscriptenDataBuf::emscriptenWriteSrcInternal() const
         {"JS_ARRAY", emscriptenJsArrayToDataBufFuncName()},
     };
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
+    auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
 

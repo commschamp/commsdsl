@@ -36,7 +36,7 @@ namespace commsdsl2emscripten
 
 bool EmscriptenVersion::emscriptenWrite(EmscriptenGenerator& generator)
 {
-    if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+    if ((!generator.genIsCurrentProtocolSchema()) && (!generator.genCurrentSchema().genHasAnyReferencedComponent())) {
         return true;
     }
 
@@ -47,30 +47,30 @@ bool EmscriptenVersion::emscriptenWrite(EmscriptenGenerator& generator)
 void EmscriptenVersion::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources)
 {
 
-    for (auto idx = 0U; idx < generator.schemas().size(); ++idx) {
-        auto& schema = generator.schemas()[idx];
-        if ((schema.get() != &generator.protocolSchema()) && (!schema->hasAnyReferencedComponent())) {
+    for (auto idx = 0U; idx < generator.genSchemas().size(); ++idx) {
+        auto& schema = generator.genSchemas()[idx];
+        if ((schema.get() != &generator.genProtocolSchema()) && (!schema->genHasAnyReferencedComponent())) {
             continue;
         }
         
-        sources.push_back(generator.emscriptenSchemaRelSourceForRoot(idx, strings::versionFileNameStr()));
+        sources.push_back(generator.emscriptenSchemaRelSourceForRoot(idx, strings::genVersionFileNameStr()));
     }
 }
 
 bool EmscriptenVersion::emscriptenWriteSrcInternal() const
 {
-    auto filePath = m_generator.emscriptenAbsSourceForRoot(strings::versionFileNameStr());
-    m_generator.logger().info("Generating " + filePath);
+    auto filePath = m_generator.emscriptenAbsSourceForRoot(strings::genVersionFileNameStr());
+    m_generator.genLogger().genInfo("Generating " + filePath);
 
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_generator.genCreateDirectory(dirPath)) {
         return false;
     }
 
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -86,16 +86,16 @@ bool EmscriptenVersion::emscriptenWriteSrcInternal() const
 
     util::ReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
-        {"HEADER", comms::relHeaderForRoot(strings::versionFileNameStr(), m_generator)},
-        {"NAME", m_generator.emscriptenScopeNameForRoot(strings::versionFileNameStr())},
+        {"HEADER", comms::genRelHeaderForRoot(strings::genVersionFileNameStr(), m_generator)},
+        {"NAME", m_generator.emscriptenScopeNameForRoot(strings::genVersionFileNameStr())},
         {"SPEC", emscriptenSpecConstantsInternal()},
         {"PROT", emscriptenProtConstantsInternal()},
     };
 
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     
@@ -108,16 +108,16 @@ std::string EmscriptenVersion::emscriptenSpecConstantsInternal() const
         "emscripten::constant(\"#^#NS#$#_SPEC_VERSION\", #^#NS#$#_SPEC_VERSION);";
 
     util::ReplacementMap repl = {
-        {"NS", util::strToUpper(m_generator.currentSchema().mainNamespace())}
+        {"NS", util::genStrToUpper(m_generator.genCurrentSchema().genMainNamespace())}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenVersion::emscriptenProtConstantsInternal() const
 {
     if (!m_generator.emscriptenHasProtocolVersion()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     const std::string Templ = 
@@ -127,10 +127,10 @@ std::string EmscriptenVersion::emscriptenProtConstantsInternal() const
         ;
 
     util::ReplacementMap repl = {
-        {"NS", util::strToUpper(m_generator.currentSchema().mainNamespace())}
+        {"NS", util::genStrToUpper(m_generator.genCurrentSchema().genMainNamespace())}
     };
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 } // namespace commsdsl2emscripten
