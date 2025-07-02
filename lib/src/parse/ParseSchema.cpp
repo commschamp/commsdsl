@@ -50,7 +50,7 @@ const std::string& ParseSchema::parseName() const
 {
     if (!parseValid()) {
         assert(Unexpected_call_on_invalid_schema_object);
-        return common::emptyString();
+        return common::parseEmptyString();
     }
 
     return m_pImpl->parseName();
@@ -60,7 +60,7 @@ const std::string& ParseSchema::parseDescription() const
 {
     if (!parseValid()) {
         assert(Unexpected_call_on_invalid_schema_object);
-        return common::emptyString();
+        return common::parseEmptyString();
     }
 
     return m_pImpl->parseDescription();

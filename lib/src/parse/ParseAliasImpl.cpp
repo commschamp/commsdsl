@@ -34,9 +34,9 @@ namespace
 const ParseXmlWrap::NamesList& parseCommonProps()
 {
     static const ParseXmlWrap::NamesList CommonNames = {
-        common::nameStr(),
-        common::descriptionStr(),
-        common::fieldStr(),
+        common::parseNameStr(),
+        common::parseDescriptionStr(),
+        common::parseFieldStr(),
     };
 
     return CommonNames;
@@ -174,12 +174,12 @@ bool ParseAliasImpl::parseVerifyAlias(
 bool ParseAliasImpl::parseUpdateName(const PropsMap& props)
 {
     bool mustHave = m_state.m_name.empty();
-    if (!parseValidateAndUpdateStringPropValue(props, common::nameStr(), m_state.m_name, mustHave)) {
+    if (!parseValidateAndUpdateStringPropValue(props, common::parseNameStr(), m_state.m_name, mustHave)) {
         return false;
     }
 
-    if (!common::isValidName(m_state.m_name)) {
-        parseReportUnexpectedPropertyValue(common::nameStr(), m_state.m_name);
+    if (!common::parseIsValidName(m_state.m_name)) {
+        parseReportUnexpectedPropertyValue(common::parseNameStr(), m_state.m_name);
         return false;
     }
 
@@ -188,24 +188,24 @@ bool ParseAliasImpl::parseUpdateName(const PropsMap& props)
 
 bool ParseAliasImpl::parseUpdateDescription(const PropsMap& props)
 {
-    return parseValidateAndUpdateStringPropValue(props, common::descriptionStr(), m_state.m_description, false, true);
+    return parseValidateAndUpdateStringPropValue(props, common::parseDescriptionStr(), m_state.m_description, false, true);
 }
 
 bool ParseAliasImpl::parseUpdateFieldName(const PropsMap& props)
 {
-    if (!parseValidateAndUpdateStringPropValue(props, common::fieldStr(), m_state.m_fieldName, true)) {
+    if (!parseValidateAndUpdateStringPropValue(props, common::parseFieldStr(), m_state.m_fieldName, true)) {
         return false;
     }
 
-    if (m_state.m_fieldName.empty() || (m_state.m_fieldName[0] != common::siblingRefPrefix())) {
-        parseReportUnexpectedPropertyValue(common::fieldStr(), m_state.m_fieldName);
+    if (m_state.m_fieldName.empty() || (m_state.m_fieldName[0] != common::parseSiblingRefPrefix())) {
+        parseReportUnexpectedPropertyValue(common::parseFieldStr(), m_state.m_fieldName);
         return false;
     }
 
     m_state.m_fieldName.erase(m_state.m_fieldName.begin()); // remove sibling ref prefix;
 
-    if (!common::isValidRefName(m_state.m_fieldName)) {
-        parseReportUnexpectedPropertyValue(common::fieldStr(), m_state.m_fieldName);
+    if (!common::parseIsValidRefName(m_state.m_fieldName)) {
+        parseReportUnexpectedPropertyValue(common::parseFieldStr(), m_state.m_fieldName);
         return false;
     }
 
@@ -249,7 +249,7 @@ bool ParseAliasImpl::parseValidateSinglePropInstance(const PropsMap& props, cons
 
 void ParseAliasImpl::parseReportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue)
 {
-    ParseXmlWrap::parseReportUnexpectedPropertyValue(m_node, common::aliasStr(), propName, propValue, m_protocol.parseLogger());
+    ParseXmlWrap::parseReportUnexpectedPropertyValue(m_node, common::parseAliasStr(), propName, propValue, m_protocol.parseLogger());
 }
 
 bool ParseAliasImpl::parseUpdateExtraAttrs(const ParseXmlWrap::NamesList& names)

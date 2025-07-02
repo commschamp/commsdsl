@@ -35,13 +35,13 @@ namespace
 {
 
 const ParseXmlWrap::NamesList PropNames = {
-    common::nameStr(),
-    common::idStr(),
-    common::versionStr(),
-    common::dslVersionStr(),
-    common::endianStr(),
-    common::descriptionStr(),
-    common::nonUniqueMsgIdAllowedStr()
+    common::parseNameStr(),
+    common::parseIdStr(),
+    common::parseVersionStr(),
+    common::parseDslVersionStr(),
+    common::parseEndianStr(),
+    common::parseDescriptionStr(),
+    common::parseNonUniqueMsgIdAllowedStr()
 };
 
 ParseXmlWrap::NamesList parseGetChildrenList()
@@ -49,8 +49,8 @@ ParseXmlWrap::NamesList parseGetChildrenList()
     ParseXmlWrap::NamesList result = PropNames;
     auto& nsNames = ParseNamespaceImpl::expectedChildrenNames();
     result.insert(result.end(), nsNames.begin(), nsNames.end());
-    result.push_back(common::platformsStr());
-    result.push_back(common::platformStr());
+    result.push_back(common::parsePlatformsStr());
+    result.push_back(common::parsePlatformStr());
     return result;
 }
 
@@ -70,21 +70,21 @@ bool ParseSchemaImpl::parseProcessNode()
         return false;
     }
 
-    if ((!parseUpdateStringProperty(m_props, common::nameStr(), m_name)) ||
-        (!parseUpdateStringProperty(m_props, common::descriptionStr(), m_description)) ||
-        (!parseUpdateUnsignedProperty(m_props, common::idStr(), m_id)) ||
-        (!parseUpdateUnsignedProperty(m_props, common::versionStr(), m_version)) ||
-        (!parseUpdateUnsignedProperty(m_props, common::dslVersionStr(), m_dslVersion)) ||
-        (!parseUpdateEndianProperty(m_props, common::endianStr(), m_endian)) ||
-        (!parseUpdateBooleanProperty(m_props, common::nonUniqueMsgIdAllowedStr(), m_nonUniqueMsgIdAllowed)) ||
+    if ((!parseUpdateStringProperty(m_props, common::parseNameStr(), m_name)) ||
+        (!parseUpdateStringProperty(m_props, common::parseDescriptionStr(), m_description)) ||
+        (!parseUpdateUnsignedProperty(m_props, common::parseIdStr(), m_id)) ||
+        (!parseUpdateUnsignedProperty(m_props, common::parseVersionStr(), m_version)) ||
+        (!parseUpdateUnsignedProperty(m_props, common::parseDslVersionStr(), m_dslVersion)) ||
+        (!parseUpdateEndianProperty(m_props, common::parseEndianStr(), m_endian)) ||
+        (!parseUpdateBooleanProperty(m_props, common::parseNonUniqueMsgIdAllowedStr(), m_nonUniqueMsgIdAllowed)) ||
         (!parseUpdateExtraAttrs()) ||
         (!parseUpdateExtraChildren())) {
         return false;
     }
 
-    if ((!m_name.empty()) && (!common::isValidName(m_name))) {
+    if ((!m_name.empty()) && (!common::parseIsValidName(m_name))) {
         parseLogError(m_protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(m_node) <<
-              "Property \"" << common::nameStr() << "\" has unexpected value (" << m_name << ").";
+              "Property \"" << common::parseNameStr() << "\" has unexpected value (" << m_name << ").";
         return false;
     }
 
@@ -218,7 +218,7 @@ void ParseSchemaImpl::parseAddNamespace(ParseNamespaceImplPtr ns)
 
 ParseNamespaceImpl& ParseSchemaImpl::parseDefaultNamespace()
 {
-    auto& globalNsPtr = m_namespaces[common::emptyString()]; // create if needed
+    auto& globalNsPtr = m_namespaces[common::parseEmptyString()]; // create if needed
     if (!globalNsPtr) {
         globalNsPtr.reset(new ParseNamespaceImpl(nullptr, m_protocol));
         globalNsPtr->parseSetParent(this);
@@ -252,7 +252,7 @@ unsigned ParseSchemaImpl::parseCountMessageIds() const
 
 std::string ParseSchemaImpl::parseExternalRef() const
 {
-    return common::schemaRefPrefix() + parseName();
+    return common::parseSchemaRefPrefix() + parseName();
 }
 
 ParseSchemaImpl::FieldRefInfosList ParseSchemaImpl::parseProcessInterfaceFieldRef(const std::string& refStr) const
@@ -310,7 +310,7 @@ bool ParseSchemaImpl::parseUpdateUnsignedProperty(const PropsMap& map, const std
 
 bool ParseSchemaImpl::parseUpdateEndianProperty(const PropsMap& map, const std::string& name, ParseEndian& prop)
 {
-    auto& endianStr = common::getStringProp(map, name);
+    auto& endianStr = common::parseGetStringProp(map, name);
     prop = common::parseEndian(endianStr, ParseEndian_Little);
     if (prop == ParseEndian_NumOfValues) {
         parseLogError(m_protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(m_node) <<
@@ -357,13 +357,13 @@ bool ParseSchemaImpl::parseUpdateExtraChildren()
 const ParseNamespaceImpl* ParseSchemaImpl::parseGetNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const
 {
     if (checkRef) {
-        if (!common::isValidRefName(ref)) {
+        if (!common::parseIsValidRefName(ref)) {
             parseLogInfo(m_protocol.parseLogger()) << "Invalid ref name: " << ref;
             return nullptr;
         }
     }
     else {
-        assert(common::isValidRefName(ref));
+        assert(common::parseIsValidRefName(ref));
     }
 
 
@@ -371,7 +371,7 @@ const ParseNamespaceImpl* ParseSchemaImpl::parseGetNsFromPath(const std::string&
     const ParseNamespaceImpl* ns = nullptr;
     do {
         if (nameSepPos == std::string::npos) {
-            auto iter = m_namespaces.find(common::emptyString());
+            auto iter = m_namespaces.find(common::parseEmptyString());
             if (iter == m_namespaces.end()) {
                 return nullptr;
             }

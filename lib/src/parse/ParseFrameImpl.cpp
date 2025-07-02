@@ -47,8 +47,8 @@ const ParseXmlWrap::NamesList& parseFrameSupportedTypes()
 ParseFrameImpl::ParseFrameImpl(::xmlNodePtr node, ParseProtocolImpl& protocol)
   : m_node(node),
     m_protocol(protocol),
-    m_name(&common::emptyString()),
-    m_description(&common::emptyString())
+    m_name(&common::parseEmptyString()),
+    m_description(&common::parseEmptyString())
 {
 }
 
@@ -158,8 +158,8 @@ void ParseFrameImpl::parseReportUnexpectedPropertyValue(const std::string& propN
 const ParseXmlWrap::NamesList& ParseFrameImpl::parseCommonProps()
 {
     static const ParseXmlWrap::NamesList CommonNames = {
-        common::nameStr(),
-        common::descriptionStr(),
+        common::parseNameStr(),
+        common::parseDescriptionStr(),
     };
 
     return CommonNames;
@@ -170,7 +170,7 @@ ParseXmlWrap::NamesList ParseFrameImpl::parseAllNames()
     auto names = parseCommonProps();
     auto& layerTypes = parseFrameSupportedTypes();
     names.insert(names.end(), layerTypes.begin(), layerTypes.end());
-    names.push_back(common::layersStr());
+    names.push_back(common::parseLayersStr());
     return names;
 }
 
@@ -178,11 +178,11 @@ bool ParseFrameImpl::parseUpdateName()
 {
     assert(m_name != nullptr);
     bool mustHave = m_name->empty();
-    if (!parseValidateAndUpdateStringPropValue(common::nameStr(), m_name, mustHave)) {
+    if (!parseValidateAndUpdateStringPropValue(common::parseNameStr(), m_name, mustHave)) {
         return false;
     }
 
-    if (!common::isValidName(*m_name)) {
+    if (!common::parseIsValidName(*m_name)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                       "Invalid value for name property \"" << *m_name << "\".";
         return false;
@@ -193,31 +193,31 @@ bool ParseFrameImpl::parseUpdateName()
 
 bool ParseFrameImpl::parseUpdateDescription()
 {
-    return parseValidateAndUpdateStringPropValue(common::descriptionStr(), m_description);
+    return parseValidateAndUpdateStringPropValue(common::parseDescriptionStr(), m_description);
 }
 
 bool ParseFrameImpl::parseUpdateLayers()
 {
-    auto layersNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::layersStr());
+    auto layersNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::parseLayersStr());
     if (1U < layersNodes.size()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                      "Only single \"" << common::layersStr() << "\" child element is "
-                      "supported for \"" << common::frameStr() << "\".";
+                      "Only single \"" << common::parseLayersStr() << "\" child element is "
+                      "supported for \"" << common::parseFrameStr() << "\".";
         return false;
     }
 
     auto layersTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseFrameSupportedTypes());
     if ((!layersNodes.empty()) && (!layersTypes.empty())) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                      "The \"" << common::frameStr() << "\" element does not support "
+                      "The \"" << common::parseFrameStr() << "\" element does not support "
                       "list of stand alone layers as child elements together with \"" <<
-                      common::layersStr() << "\" child element.";
+                      common::parseLayersStr() << "\" child element.";
         return false;
     }
 
     if ((layersNodes.empty()) && (layersTypes.empty())) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The \"" << common::framesStr() << "\" element must contain at least one layer";
+            "The \"" << common::parseFramesStr() << "\" element must contain at least one layer";
         return false;
     }
 
@@ -226,8 +226,8 @@ bool ParseFrameImpl::parseUpdateLayers()
         auto allChildren = ParseXmlWrap::parseGetChildren(parseGetNode());
         if (allChildren.size() != layersTypes.size()) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                          "The layer types of \"" << common::frameStr() <<
-                          "\" must be defined inside \"<" << common::layersStr() << ">\" child element "
+                          "The layer types of \"" << common::parseFrameStr() <<
+                          "\" must be defined inside \"<" << common::parseLayersStr() << ">\" child element "
                           "when there are other property describing children.";
             return false;
         }
@@ -239,8 +239,8 @@ bool ParseFrameImpl::parseUpdateLayers()
         auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(layersNodes.front(), parseFrameSupportedTypes());
         if (cleanMemberFieldsTypes.size() != layersTypes.size()) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(layersNodes.front()) <<
-                "The \"" << common::layersStr() << "\" child node of \"" <<
-                common::frameStr() << "\" element must contain only supported layer types.";
+                "The \"" << common::parseLayersStr() << "\" child node of \"" <<
+                common::parseFrameStr() << "\" element must contain only supported layer types.";
             return false;
         }
 
@@ -290,7 +290,7 @@ bool ParseFrameImpl::parseUpdateLayers()
     if (!hasPayloadLayer) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "The frame \"" << parseName() << "\" must contain a \"" <<
-            common::payloadStr() << "\" layer.";
+            common::parsePayloadStr() << "\" layer.";
         return false;
     }
 

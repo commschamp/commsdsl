@@ -242,7 +242,7 @@ bool ParseInterfaceImpl::parseValidateAndUpdateBoolPropValue(const std::string& 
 
     if (!m_protocol.parseIsPropertySupported(propName)) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "Property \"" << common::availableLengthLimitStr() << "\" is not available for dslVersion= " << m_protocol.parseCurrSchema().parseDslVersion();                
+            "Property \"" << common::parseAvailableLengthLimitStr() << "\" is not available for dslVersion= " << m_protocol.parseCurrSchema().parseDslVersion();                
         return true;
     }
 
@@ -282,13 +282,13 @@ void ParseInterfaceImpl::parseReportUnexpectedPropertyValue(const std::string& p
 const ParseXmlWrap::NamesList& ParseInterfaceImpl::parseCommonProps()
 {
     static const ParseXmlWrap::NamesList CommonNames = {
-        common::nameStr(),
-        common::descriptionStr(),
-        common::copyFieldsFromStr(),
-        common::copyFieldsAliasesStr(),
-        common::reuseStr(),
-        common::reuseCodeStr(),
-        common::reuseAliasesStr(),
+        common::parseNameStr(),
+        common::parseDescriptionStr(),
+        common::parseCopyFieldsFromStr(),
+        common::parseCopyFieldsAliasesStr(),
+        common::parseReuseStr(),
+        common::parseReuseCodeStr(),
+        common::parseReuseAliasesStr(),
     };
 
     return CommonNames;
@@ -299,14 +299,14 @@ ParseXmlWrap::NamesList ParseInterfaceImpl::parseAllNames()
     auto names = parseCommonProps();
     auto& fieldTypes = parseInterfaceSupportedTypes();
     names.insert(names.end(), fieldTypes.begin(), fieldTypes.end());
-    names.push_back(common::fieldsStr());
-    names.push_back(common::aliasStr());
+    names.push_back(common::parseFieldsStr());
+    names.push_back(common::parseAliasStr());
     return names;
 }
 
 bool ParseInterfaceImpl::parseCheckReuse()
 {
-    auto& propStr = common::reuseStr();
+    auto& propStr = common::parseReuseStr();
     if (!parseValidateSinglePropInstance(propStr)) {
         return false;
     }
@@ -336,7 +336,7 @@ bool ParseInterfaceImpl::parseCheckReuse()
 
     do {
         bool reuseAliases = true;
-        if (!parseValidateAndUpdateBoolPropValue(common::reuseAliasesStr(), reuseAliases)) {
+        if (!parseValidateAndUpdateBoolPropValue(common::parseReuseAliasesStr(), reuseAliases)) {
             return false;
         }
 
@@ -348,7 +348,7 @@ bool ParseInterfaceImpl::parseCheckReuse()
     } while (false);     
 
     do {
-        auto& codeProp = common::reuseCodeStr();
+        auto& codeProp = common::parseReuseCodeStr();
         if (!parseValidateSinglePropInstance(codeProp, false)) {
             return false;
         }
@@ -376,11 +376,11 @@ bool ParseInterfaceImpl::parseCheckReuse()
 bool ParseInterfaceImpl::parseUpdateName()
 {
     bool mustHave = m_state.m_name.empty();
-    if (!parseValidateAndUpdateStringPropValue(common::nameStr(), m_state.m_name, mustHave)) {
+    if (!parseValidateAndUpdateStringPropValue(common::parseNameStr(), m_state.m_name, mustHave)) {
         return false;
     }
 
-    if (!common::isValidName(m_state.m_name)) {
+    if (!common::parseIsValidName(m_state.m_name)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                       "Invalid value for name property \"" << m_state.m_name << "\".";
         return false;
@@ -391,16 +391,16 @@ bool ParseInterfaceImpl::parseUpdateName()
 
 bool ParseInterfaceImpl::parseUpdateDescription()
 {
-    return parseValidateAndUpdateStringPropValue(common::descriptionStr(), m_state.m_description);
+    return parseValidateAndUpdateStringPropValue(common::parseDescriptionStr(), m_state.m_description);
 }
 
 bool ParseInterfaceImpl::parseCopyFields()
 {
-    if (!parseValidateSinglePropInstance(common::copyFieldsFromStr())) {
+    if (!parseValidateSinglePropInstance(common::parseCopyFieldsFromStr())) {
         return false;
     }
 
-    auto iter = parseProps().find(common::copyFieldsFromStr());
+    auto iter = parseProps().find(common::parseCopyFieldsFromStr());
     if (iter == parseProps().end()) {
         return true;
     }
@@ -441,20 +441,20 @@ bool ParseInterfaceImpl::parseCopyFields()
 bool ParseInterfaceImpl::parseUpdateFields()
 {
     do {
-        auto fieldsNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::fieldsStr());
+        auto fieldsNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::parseFieldsStr());
         if (1U < fieldsNodes.size()) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                          "Only single \"" << common::fieldsStr() << "\" child element is "
-                          "supported for \"" << common::interfaceStr() << "\".";
+                          "Only single \"" << common::parseFieldsStr() << "\" child element is "
+                          "supported for \"" << common::parseInterfaceStr() << "\".";
             return false;
         }
 
         auto fieldsTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseInterfaceSupportedTypes());
         if ((!fieldsNodes.empty()) && (!fieldsTypes.empty())) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                          "The \"" << common::interfaceStr() << "\" element does not support "
+                          "The \"" << common::parseInterfaceStr() << "\" element does not support "
                           "list of stand alone fields as child elements together with \"" <<
-                          common::fieldsStr() << "\" child element.";
+                          common::parseFieldsStr() << "\" child element.";
             return false;
         }
 
@@ -467,8 +467,8 @@ bool ParseInterfaceImpl::parseUpdateFields()
             auto allChildren = ParseXmlWrap::parseGetChildren(parseGetNode());
             if (allChildren.size() != fieldsTypes.size()) {
                 parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                              "The field types of \"" << common::interfaceStr() <<
-                              "\" must be defined inside \"<" << common::fieldsStr() << ">\" child element "
+                              "The field types of \"" << common::parseInterfaceStr() <<
+                              "\" must be defined inside \"<" << common::parseFieldsStr() << ">\" child element "
                               "when there are other property describing children.";
                 return false;
             }
@@ -480,8 +480,8 @@ bool ParseInterfaceImpl::parseUpdateFields()
             auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(fieldsNodes.front(), parseInterfaceSupportedTypes());
             if (cleanMemberFieldsTypes.size() != fieldsTypes.size()) {
                 parseLogError() << ParseXmlWrap::parseLogPrefix(fieldsNodes.front()) <<
-                    "The \"" << common::fieldsStr() << "\" child node of \"" <<
-                    common::interfaceStr() << "\" element must contain only supported field types.";
+                    "The \"" << common::parseFieldsStr() << "\" child node of \"" <<
+                    common::parseInterfaceStr() << "\" element must contain only supported field types.";
                 return false;
             }
 
@@ -523,7 +523,7 @@ bool ParseInterfaceImpl::parseUpdateFields()
 
 bool ParseInterfaceImpl::parseCopyAliases()
 {
-    auto& propStr = common::copyFieldsAliasesStr();
+    auto& propStr = common::parseCopyFieldsAliasesStr();
     if (!parseValidateSinglePropInstance(propStr)) {
         return false;
     }
@@ -555,7 +555,7 @@ bool ParseInterfaceImpl::parseCopyAliases()
 
     if ((iter != parseProps().end()) && (m_copyFieldsFromInterface == nullptr) && (m_copyFieldsFromBundle == nullptr)) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "Property \"" << propStr << "\" is inapplicable without \"" << common::copyFieldsFromStr() << "\".";
+            "Property \"" << propStr << "\" is inapplicable without \"" << common::parseCopyFieldsFromStr() << "\".";
         return true;
     }
 
@@ -626,7 +626,7 @@ void ParseInterfaceImpl::parseCloneAliasesFrom(const ParseBundleFieldImpl& other
 
 bool ParseInterfaceImpl::parseUpdateAliases()
 {
-    auto aliasNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::aliasStr());
+    auto aliasNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::parseAliasStr());
 
     if (aliasNodes.empty()) {
         return true;
@@ -634,8 +634,8 @@ bool ParseInterfaceImpl::parseUpdateAliases()
 
     if (!m_protocol.parseIsFieldAliasSupported()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(aliasNodes.front()) <<
-              "Using \"" << common::aliasStr() << "\" nodes for too early \"" <<
-              common::dslVersionStr() << "\".";
+              "Using \"" << common::parseAliasStr() << "\" nodes for too early \"" <<
+              common::parseDslVersionStr() << "\".";
         return false;
     }
 

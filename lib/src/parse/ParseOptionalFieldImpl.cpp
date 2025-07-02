@@ -43,9 +43,9 @@ const ParseXmlWrap::NamesList& parseOptionalSupportedTypes()
 ParseXmlWrap::NamesList parseGetExtraNames()
 {
     auto names = parseOptionalSupportedTypes();
-    names.push_back(common::fieldStr());
-    names.push_back(common::andStr());
-    names.push_back(common::orStr());
+    names.push_back(common::parseFieldStr());
+    names.push_back(common::parseAndStr());
+    names.push_back(common::parseOrStr());
     return names;
 }
 
@@ -84,11 +84,11 @@ ParseFieldImpl::Ptr ParseOptionalFieldImpl::parseCloneImpl() const
 const ParseXmlWrap::NamesList& ParseOptionalFieldImpl::parseExtraPropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
-        common::defaultModeStr(),
-        common::condStr(),
-        common::displayExtModeCtrlStr(),
-        common::missingOnReadFailStr(),
-        common::missingOnInvalidStr(),
+        common::parseDefaultModeStr(),
+        common::parseCondStr(),
+        common::parseDisplayExtModeCtrlStr(),
+        common::parseMissingOnReadFailStr(),
+        common::parseMissingOnInvalparseIdStr(),
     };
 
     return List;
@@ -97,7 +97,7 @@ const ParseXmlWrap::NamesList& ParseOptionalFieldImpl::parseExtraPropsNamesImpl(
 const ParseXmlWrap::NamesList&ParseOptionalFieldImpl::parseExtraPossiblePropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
-        common::fieldStr(),
+        common::parseFieldStr(),
     };
 
     return List;
@@ -263,11 +263,11 @@ bool ParseOptionalFieldImpl::parseIsValidRefTypeImpl(FieldRefType type) const
 
 bool ParseOptionalFieldImpl::parseUpdateMode()
 {
-    if (!parseValidateSinglePropInstance(common::defaultModeStr())) {
+    if (!parseValidateSinglePropInstance(common::parseDefaultModeStr())) {
         return false;
     }
 
-    auto iter = parseProps().find(common::defaultModeStr());
+    auto iter = parseProps().find(common::parseDefaultModeStr());
     if (iter == parseProps().end()) {
         return true;
     }
@@ -284,10 +284,10 @@ bool ParseOptionalFieldImpl::parseUpdateMode()
         std::make_pair("e", Mode::Exists),
     };
 
-    auto modeStr = common::toLowerCopy(iter->second);
+    auto modeStr = common::parseToLowerCopy(iter->second);
     auto mapIter = Map.find(modeStr);
     if (mapIter == Map.end()) {
-        parseReportUnexpectedPropertyValue(common::defaultModeStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::parseDefaultModeStr(), iter->second);
         return false;
     }
 
@@ -297,18 +297,18 @@ bool ParseOptionalFieldImpl::parseUpdateMode()
 
 bool ParseOptionalFieldImpl::parseUpdateExternalModeCtrl()
 {
-    parseCheckAndReportDeprecatedPropertyValue(common::displayExtModeCtrlStr());
+    parseCheckAndReportDeprecatedPropertyValue(common::parseDisplayExtModeCtrlStr());
     return true;
 }
 
 bool ParseOptionalFieldImpl::parseUpdateMissingOnReadFail()
 {
-    return parseValidateAndUpdateBoolPropValue(common::missingOnReadFailStr(), m_state.m_missingOnReadFail);
+    return parseValidateAndUpdateBoolPropValue(common::parseMissingOnReadFailStr(), m_state.m_missingOnReadFail);
 }
 
 bool ParseOptionalFieldImpl::parseUpdateMissingOnInvalid()
 {
-    return parseValidateAndUpdateBoolPropValue(common::missingOnInvalidStr(), m_state.m_missingOnInvalid);
+    return parseValidateAndUpdateBoolPropValue(common::parseMissingOnInvalparseIdStr(), m_state.m_missingOnInvalid);
 }
 
 bool ParseOptionalFieldImpl::parseUpdateField()
@@ -329,11 +329,11 @@ bool ParseOptionalFieldImpl::parseUpdateField()
 
 bool ParseOptionalFieldImpl::parseUpdateSingleCondition()
 {
-    if (!parseValidateSinglePropInstance(common::condStr())) {
+    if (!parseValidateSinglePropInstance(common::parseCondStr())) {
         return false;
     }
 
-    auto iter = parseProps().find(common::condStr());
+    auto iter = parseProps().find(common::parseCondStr());
     if (iter == parseProps().end()) {
         return true;
     }
@@ -341,7 +341,7 @@ bool ParseOptionalFieldImpl::parseUpdateSingleCondition()
     if ((!parseIsBundleMember()) && (!parseIsMessageMember())) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Condition for existing mode are applicable only to members of \"" <<
-            common::bundleStr() << "\" and \"" << common::messageStr() << "\".";
+            common::parseBundleStr() << "\" and \"" << common::parseMessageStr() << "\".";
     }
 
     auto cond = std::make_unique<ParseOptCondExprImpl>();
@@ -356,8 +356,8 @@ bool ParseOptionalFieldImpl::parseUpdateSingleCondition()
 bool ParseOptionalFieldImpl::parseUpdateMultiCondition()
 {
     static const ParseXmlWrap::NamesList ElemNames = {
-        common::andStr(),
-        common::orStr()
+        common::parseAndStr(),
+        common::parseOrStr()
     };
 
     auto multiChildren = ParseXmlWrap::parseGetChildren(parseGetNode(), ElemNames);
@@ -365,21 +365,21 @@ bool ParseOptionalFieldImpl::parseUpdateMultiCondition()
         return true;
     }
 
-    if (parseProps().find(common::condStr()) != parseProps().end()) {
+    if (parseProps().find(common::parseCondStr()) != parseProps().end()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(multiChildren.front()) <<
             "Cannot use \"" << multiChildren.front()->name << "\" condition bundling together with \"" <<
-            common::condStr() << "\" property.";
+            common::parseCondStr() << "\" property.";
         return false;
     }
 
     if (1U < multiChildren.size()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(multiChildren.front()) <<
-            "Cannot use more that one \"" << common::andStr() << "\" or \"" <<
-            common::orStr() << "\" element.";
+            "Cannot use more that one \"" << common::parseAndStr() << "\" or \"" <<
+            common::parseOrStr() << "\" element.";
         return false;
     }
 
-    auto iter = parseProps().find(common::condStr());
+    auto iter = parseProps().find(common::parseCondStr());
     if (iter != parseProps().end()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(multiChildren.front()) <<
             "Multiple definitions of existance conditions are not allowed";
@@ -398,11 +398,11 @@ bool ParseOptionalFieldImpl::parseUpdateMultiCondition()
 
 bool ParseOptionalFieldImpl::parseCheckFieldFromRef()
 {
-    if (!parseValidateSinglePropInstance(common::fieldStr())) {
+    if (!parseValidateSinglePropInstance(common::parseFieldStr())) {
         return false;
     }
 
-    auto iter = parseProps().find(common::fieldStr());
+    auto iter = parseProps().find(common::parseFieldStr());
     if (iter == parseProps().end()) {
         return true;
     }
@@ -410,7 +410,7 @@ bool ParseOptionalFieldImpl::parseCheckFieldFromRef()
     auto* field = parseProtocol().parseFindField(iter->second);
     if (field == nullptr) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "Cannot find field referenced by \"" << common::fieldStr() <<
+            "Cannot find field referenced by \"" << common::parseFieldStr() <<
             "\" property (" << iter->second << ").";
         return false;
     }
@@ -423,18 +423,18 @@ bool ParseOptionalFieldImpl::parseCheckFieldFromRef()
 
 bool ParseOptionalFieldImpl::parseCheckFieldAsChild()
 {
-    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::fieldStr());
+    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::parseFieldStr());
     if (1U < children.size()) {
-        parseLogError() << "There must be only one occurance of \"" << common::fieldStr() << "\" child element.";
+        parseLogError() << "There must be only one occurance of \"" << common::parseFieldStr() << "\" child element.";
         return false;
     }
 
     auto fieldTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseOptionalSupportedTypes());
     if ((0U < children.size()) && (0U < fieldTypes.size())) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                  "The \"" << common::optionalStr() << "\" element does not support "
+                  "The \"" << common::parseOptionalStr() << "\" element does not support "
                   "stand alone field as child element together with \"" <<
-                  common::fieldStr() << "\" child element.";
+                  common::parseFieldStr() << "\" child element.";
         return false;
     }
 
@@ -450,7 +450,7 @@ bool ParseOptionalFieldImpl::parseCheckFieldAsChild()
 
         if (1U < fieldTypes.size()) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                "The \"" << common::optionalStr() << "\" element is expected to define only "
+                "The \"" << common::parseOptionalStr() << "\" element is expected to define only "
                 "single field";
             return false;
         }
@@ -458,14 +458,14 @@ bool ParseOptionalFieldImpl::parseCheckFieldAsChild()
         auto allChildren = ParseXmlWrap::parseGetChildren(parseGetNode());
         if (allChildren.size() != fieldTypes.size()) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                  "The field type of \"" << common::optionalStr() <<
-                  "\" must be defined inside \"<" << common::fieldsStr() << ">\" child element "
+                  "The field type of \"" << common::parseOptionalStr() <<
+                  "\" must be defined inside \"<" << common::parseFieldsStr() << ">\" child element "
                   "when there are other property describing children.";
             return false;
         }
 
-        if (parseProps().find(common::fieldStr()) != parseProps().end()) {
-            parseLogError() << "There must be only one occurance of \"" << common::fieldStr() << "\" definition.";
+        if (parseProps().find(common::parseFieldStr()) != parseProps().end()) {
+            parseLogError() << "There must be only one occurance of \"" << common::parseFieldStr() << "\" definition.";
             return false;
         }
 
@@ -485,19 +485,19 @@ bool ParseOptionalFieldImpl::parseCheckFieldAsChild()
         auto fields = ParseXmlWrap::parseGetChildren(child);
         if (1U < fields.size()) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(child) <<
-                "The \"" << common::fieldStr() << "\" element is expected to define only "
+                "The \"" << common::parseFieldStr() << "\" element is expected to define only "
                 "single field";
             return false;
         }
 
-        if (parseProps().find(common::fieldStr()) == parseProps().end()) {
+        if (parseProps().find(common::parseFieldStr()) == parseProps().end()) {
             fieldNode = fields.front();
             break;
         }
 
         auto attrs = ParseXmlWrap::parseNodeProps(parseGetNode());
-        if (attrs.find(common::fieldsStr()) != attrs.end()) {
-            parseLogError() << "There must be only one occurance of \"" << common::fieldStr() << "\" definition.";
+        if (attrs.find(common::parseFieldsStr()) != attrs.end()) {
+            parseLogError() << "There must be only one occurance of \"" << common::parseFieldStr() << "\" definition.";
             return false;
         }
 

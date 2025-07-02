@@ -43,7 +43,7 @@ const ParseXmlWrap::NamesList& parseVariantSupportedTypes()
 ParseXmlWrap::NamesList parseGetExtraNames()
 {
     auto names = parseVariantSupportedTypes();
-    names.push_back(common::membersStr());
+    names.push_back(common::parseMembersStr());
     return names;
 }
 
@@ -90,8 +90,8 @@ ParseFieldImpl::Ptr ParseVariantFieldImpl::parseCloneImpl() const
 const ParseXmlWrap::NamesList& ParseVariantFieldImpl::parseExtraPropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
-        common::defaultMemberStr(),
-        common::displayIdxReadOnlyHiddenStr()
+        common::parseDefaultMemberStr(),
+        common::parseDisplayIdxReadOnlyHiddenStr()
     };
 
     return List;
@@ -160,7 +160,7 @@ std::size_t ParseVariantFieldImpl::parseMinLengthImpl() const
 
 std::size_t ParseVariantFieldImpl::parseMaxLengthImpl() const
 {
-    auto maxLen = common::maxPossibleLength();
+    auto maxLen = common::parseMaxPossibleLength();
     std::size_t sum = 0U;
     for (auto& m : m_members) {
         auto val = m->parseMaxLength();
@@ -224,27 +224,27 @@ bool ParseVariantFieldImpl::parseUpdateMembers()
     }
 
     do {
-        auto membersNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::membersStr());
+        auto membersNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::parseMembersStr());
         if (1U < membersNodes.size()) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                          "Only single \"" << common::membersStr() << "\" child element is "
-                          "supported for \"" << common::variantStr() << "\".";
+                          "Only single \"" << common::parseMembersStr() << "\" child element is "
+                          "supported for \"" << common::parseVariantStr() << "\".";
             return false;
         }
 
         auto memberFieldsTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseVariantSupportedTypes());
         if ((0U < membersNodes.size()) && (0U < memberFieldsTypes.size())) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                          "The \"" << common::variantStr() << "\" element does not support "
+                          "The \"" << common::parseVariantStr() << "\" element does not support "
                           "list of stand alone member fields as child elements together with \"" <<
-                          common::membersStr() << "\" child element.";
+                          common::parseMembersStr() << "\" child element.";
             return false;
         }
 
         if ((0U == membersNodes.size()) && (0U == memberFieldsTypes.size())) {
             if (m_members.empty()) {
                 parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                              "The \"" << common::variantStr() << "\" must contain member fields.";
+                              "The \"" << common::parseVariantStr() << "\" must contain member fields.";
                 return false;
             }
 
@@ -256,8 +256,8 @@ bool ParseVariantFieldImpl::parseUpdateMembers()
             auto allChildren = ParseXmlWrap::parseGetChildren(parseGetNode());
             if (allChildren.size() != memberFieldsTypes.size()) {
                 parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                              "The member types of \"" << common::variantStr() <<
-                              "\" must be defined inside \"<" << common::membersStr() << ">\" child element "
+                              "The member types of \"" << common::parseVariantStr() <<
+                              "\" must be defined inside \"<" << common::parseMembersStr() << ">\" child element "
                               "when there are other property describing children.";
                 return false;
             }
@@ -269,8 +269,8 @@ bool ParseVariantFieldImpl::parseUpdateMembers()
             auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(membersNodes.front(), parseVariantSupportedTypes());
             if (cleanMemberFieldsTypes.size() != memberFieldsTypes.size()) {
                 parseLogError() << ParseXmlWrap::parseLogPrefix(membersNodes.front()) <<
-                              "The \"" << common::membersStr() << "\" child node of \"" <<
-                              common::variantStr() << "\" element must contain only supported types.";
+                              "The \"" << common::parseMembersStr() << "\" child node of \"" <<
+                              common::parseVariantStr() << "\" element must contain only supported types.";
                 return false;
             }
 
@@ -326,17 +326,17 @@ bool ParseVariantFieldImpl::parseUpdateMembers()
 
 bool ParseVariantFieldImpl::parseUpdateDefaultMember()
 {
-    auto& propName = common::defaultMemberStr();
+    auto& propName = common::parseDefaultMemberStr();
     if (!parseValidateSinglePropInstance(propName)) {
         return false;
     }
 
-    auto& valueStr = common::getStringProp(parseProps(), propName);
+    auto& valueStr = common::parseGetStringProp(parseProps(), propName);
     if (valueStr.empty()) {
         return true;
     }
 
-    if (common::isValidName(valueStr)) {
+    if (common::parseIsValidName(valueStr)) {
         auto iter = 
             std::find_if(
                 m_members.begin(), m_members.end(),
@@ -359,7 +359,7 @@ bool ParseVariantFieldImpl::parseUpdateDefaultMember()
 
     std::intmax_t val = 0U;
     do {
-        if (common::isValidRefName(valueStr)) {
+        if (common::parseIsValidRefName(valueStr)) {
             if (parseProtocol().parseStrToEnumValue(valueStr, val, false)) {
                 break;
             }
@@ -369,7 +369,7 @@ bool ParseVariantFieldImpl::parseUpdateDefaultMember()
         }
         
         bool ok = false;
-        val = common::strToIntMax(valueStr, &ok);
+        val = common::parseStrToIntMax(valueStr, &ok);
         if (!ok) {
             parseReportUnexpectedPropertyValue(propName, valueStr);
             return false;
@@ -392,7 +392,7 @@ bool ParseVariantFieldImpl::parseUpdateDefaultMember()
     
 bool ParseVariantFieldImpl::parseUpdateIdxHidden()
 {
-    parseCheckAndReportDeprecatedPropertyValue(common::displayIdxReadOnlyHiddenStr());
+    parseCheckAndReportDeprecatedPropertyValue(common::parseDisplayIdxReadOnlyHiddenStr());
     return true;
 }
 

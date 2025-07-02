@@ -161,12 +161,12 @@ bool ParseProtocolImpl::parseStrToEnumValue(
     bool checkRef) const
 {
     if (checkRef) {
-        if (!common::isValidRefName(ref)) {
+        if (!common::parseIsValidRefName(ref)) {
             return false;
         }
     }
     else {
-        assert(common::isValidRefName(ref));
+        assert(common::parseIsValidRefName(ref));
     }
 
     auto dotCount = static_cast<std::size_t>(std::count(ref.begin(), ref.end(), '.'));
@@ -290,26 +290,26 @@ bool ParseProtocolImpl::parseIsFeatureDeprecated(unsigned deprecatedVersion) con
 bool ParseProtocolImpl::parseIsPropertySupported(const std::string& name) const
 {
     static const std::map<std::string, unsigned> Map = {
-        {common::validateMinLengthStr(), 4U},
-        {common::defaultValidValueStr(), 4U},
-        {common::availableLengthLimitStr(), 4U},
-        {common::copyCodeFromStr(), 5U},
-        {common::semanticLayerTypeStr(), 5U},
-        {common::checksumFromStr(), 5U},
-        {common::checksumUntilStr(), 5U},
-        {common::termSuffixStr(), 5U},
-        {common::missingOnReadFailStr(), 5U},
-        {common::missingOnInvalidStr(), 5U},
-        {common::reuseCodeStr(), 5U},
-        {common::constructStr(), 6U},
-        {common::readCondStr(), 6U},
-        {common::validCondStr(), 6U},
-        {common::constructAsReadCondStr(), 6U},
-        {common::constructAsValidCondStr(), 6U},
-        {common::fixedValueStr(), 7U},
-        {common::copyConstructFromStr(), 7U},
-        {common::copyReadCondFromStr(), 7U},
-        {common::copyValidCondFromStr(), 7U},
+        {common::parseValidateMinLengthStr(), 4U},
+        {common::parseDefaultValidValueStr(), 4U},
+        {common::parseAvailableLengthLimitStr(), 4U},
+        {common::parseCopyCodeFromStr(), 5U},
+        {common::parseSemanticLayerTypeStr(), 5U},
+        {common::parseChecksumFromStr(), 5U},
+        {common::parseChecksumUntilStr(), 5U},
+        {common::parseTermSuffixStr(), 5U},
+        {common::parseMissingOnReadFailStr(), 5U},
+        {common::parseMissingOnInvalparseIdStr(), 5U},
+        {common::parseReuseCodeStr(), 5U},
+        {common::parseConstructStr(), 6U},
+        {common::parseReadCondStr(), 6U},
+        {common::parseValidCondStr(), 6U},
+        {common::parseConstructAsReadCondStr(), 6U},
+        {common::parseConstructAsValidCondStr(), 6U},
+        {common::parseFixedValueStr(), 7U},
+        {common::parseCopyConstructFromStr(), 7U},
+        {common::parseCopyReadCondFromStr(), 7U},
+        {common::parseCopyValidCondFromStr(), 7U},
     };
 
     auto iter = Map.find(name);
@@ -323,11 +323,11 @@ bool ParseProtocolImpl::parseIsPropertySupported(const std::string& name) const
 bool ParseProtocolImpl::parseIsPropertyDeprecated(const std::string& name) const
 {
     static const std::map<std::string, unsigned> Map = {
-        {common::displayReadOnlyStr(), 7U},
-        {common::displayHiddenStr(), 7U},
-        {common::displaySpecialsStr(), 7U},
-        {common::displayExtModeCtrlStr(), 7U},
-        {common::displayIdxReadOnlyHiddenStr(), 7U},
+        {common::parseDisplayReadOnlyStr(), 7U},
+        {common::parseDisplayHiddenStr(), 7U},
+        {common::parseDisplaySpecialsStr(), 7U},
+        {common::parseDisplayExtModeCtrlStr(), 7U},
+        {common::parseDisplayIdxReadOnlyHiddenStr(), 7U},
     };
 
     auto iter = Map.find(name);
@@ -514,7 +514,7 @@ bool ParseProtocolImpl::parseValidateSchema(::xmlNodePtr node)
 
     if (schemaName.empty()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(schema->parseGetNode()) <<
-            "First schema definition must define \"" << common::nameStr() << "\" property.";
+            "First schema definition must define \"" << common::parseNameStr() << "\" property.";
         return false;
     }    
 
@@ -530,7 +530,7 @@ bool ParseProtocolImpl::parseValidateSchema(::xmlNodePtr node)
         assert(!schema->parseName().empty());
         if ((!m_schemas.empty()) && (!parseIsMultiSchemaSupported())) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(schema->parseGetNode()) <<
-                "Multiple schemas is not supported in the selected " << common::dslVersionStr();
+                "Multiple schemas is not supported in the selected " << common::parseDslVersionStr();
             return false;
         }
 
@@ -590,15 +590,15 @@ bool ParseProtocolImpl::parseValidateSchema(::xmlNodePtr node)
 
 bool ParseProtocolImpl::parseValidatePlatforms(::xmlNodePtr root)
 {
-    auto platforms = ParseXmlWrap::parseGetChildren(root, common::platformsStr());
+    auto platforms = ParseXmlWrap::parseGetChildren(root, common::parsePlatformsStr());
     for (auto& p : platforms) {
         auto pChildren = ParseXmlWrap::parseGetChildren(p);
         for (auto c : pChildren) {
             assert(c->name != nullptr);
             std::string name(reinterpret_cast<const char*>(c->name));
-            if (name != common::platformStr()) {
+            if (name != common::parsePlatformStr()) {
                 parseLogError() << ParseXmlWrap::parseLogPrefix(c) <<
-                    "Unexpected element, \"" << common::platformStr() << "\" is expected.";
+                    "Unexpected element, \"" << common::parsePlatformStr() << "\" is expected.";
                 return false;
             }
 
@@ -608,7 +608,7 @@ bool ParseProtocolImpl::parseValidatePlatforms(::xmlNodePtr root)
         }
     }
 
-    auto singlePlatforms = ParseXmlWrap::parseGetChildren(root, common::platformStr());
+    auto singlePlatforms = ParseXmlWrap::parseGetChildren(root, common::parsePlatformStr());
     return std::all_of(
                 singlePlatforms.begin(), singlePlatforms.end(),
                 [this](auto p)
@@ -620,7 +620,7 @@ bool ParseProtocolImpl::parseValidatePlatforms(::xmlNodePtr root)
 bool ParseProtocolImpl::parseValidateSinglePlatform(::xmlNodePtr node)
 {
     static const ParseXmlWrap::NamesList Names = {
-        common::nameStr()
+        common::parseNameStr()
     };
 
     auto props = ParseXmlWrap::parseNodeProps(node);
@@ -628,10 +628,10 @@ bool ParseProtocolImpl::parseValidateSinglePlatform(::xmlNodePtr node)
         return false;
     }
 
-    auto iter = props.find(common::nameStr());
+    auto iter = props.find(common::parseNameStr());
     if (iter == props.end()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(node) <<
-            "Required property \"" << common::nameStr() << "\" is not defined.";
+            "Required property \"" << common::parseNameStr() << "\" is not defined.";
         return false;
     }
 
@@ -666,7 +666,7 @@ bool ParseProtocolImpl::parseValidateNamespaces(::xmlNodePtr root)
             continue;
         }
 
-        if (cName == common::nsStr()) {
+        if (cName == common::parseNsStr()) {
             ParseNamespaceImplPtr ns(new ParseNamespaceImpl(c, *this));
             ns->parseSetParent(&parseCurrSchema());
             if (!ns->parseProps()) {
@@ -751,12 +751,12 @@ bool ParseProtocolImpl::parseStrToValue(const std::string& ref, bool checkRef, S
 {
     do {
         if (!checkRef) {
-            assert(common::isValidRefName(ref));
+            assert(common::parseIsValidRefName(ref));
             break;
         }
 
 
-        if (!common::isValidRefName(ref)) {
+        if (!common::parseIsValidRefName(ref)) {
             return false;
         }
 
@@ -772,7 +772,7 @@ bool ParseProtocolImpl::parseStrToValue(const std::string& ref, bool checkRef, S
     auto redirectToGlobalNs =
         [&func, &parsedRef, &namespaces]() -> bool
         {
-            auto iter = namespaces.find(common::emptyString());
+            auto iter = namespaces.find(common::parseEmptyString());
             if (iter == namespaces.end()) {
                 return false;
             }
@@ -800,7 +800,7 @@ bool ParseProtocolImpl::parseStrToValue(const std::string& ref, bool checkRef, S
 std::pair<const ParseSchemaImpl*, std::string> ParseProtocolImpl::parseExternalRef(const std::string& externalRef) const
 {
     assert(!externalRef.empty());
-    if (externalRef[0] != common::schemaRefPrefix()) {
+    if (externalRef[0] != common::parseSchemaRefPrefix()) {
         return std::make_pair(&parseCurrSchema(), externalRef);
     }
 
@@ -845,7 +845,7 @@ bool ParseProtocolImpl::parseStrToStringValue(
         return true;
     }
 
-    static const char Prefix = common::stringRefPrefix();
+    static const char Prefix = common::parseStringRefPrefix();
     if (str[0] == Prefix) {
         return parseStrToString(std::string(str, 1), true, val);
     }

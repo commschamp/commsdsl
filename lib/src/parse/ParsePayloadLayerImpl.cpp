@@ -36,7 +36,7 @@ ParseLayerImpl::Kind ParsePayloadLayerImpl::parseKindImpl() const
 
 bool ParsePayloadLayerImpl::parseVerifyImpl(const ParseLayerImpl::LayersList& layers)
 {
-    return parseVerifySingleLayer(layers, common::payloadStr());
+    return parseVerifySingleLayer(layers, common::parsePayloadStr());
 }
 
 bool ParsePayloadLayerImpl::parseMustHaveFieldImpl() const

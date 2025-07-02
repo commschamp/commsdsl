@@ -158,7 +158,7 @@ ParseIntFieldImpl::Type ParseIntFieldImpl::parseTypeValue(const std::string& val
         std::make_pair("uintvar", Type::Uintvar)
     };
 
-    auto iter = Map.find(common::toLowerCopy(value));
+    auto iter = Map.find(common::parseToLowerCopy(value));
     if (iter == Map.end()) {
         return Type::NumOfValues;
     }
@@ -324,26 +324,26 @@ ParseFieldImpl::Ptr ParseIntFieldImpl::parseCloneImpl() const
 const ParseXmlWrap::NamesList& ParseIntFieldImpl::parseExtraPropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
-        common::typeStr(),
-        common::defaultValueStr(),
-        common::unitsStr(),
-        common::scalingStr(),
-        common::endianStr(),
-        common::lengthStr(),
-        common::bitLengthStr(),
-        common::serOffsetStr(),
-        common::validRangeStr(),
-        common::validValueStr(),
-        common::validMinStr(),
-        common::validMaxStr(),
-        common::validCheckVersionStr(),
-        common::nonUniqueSpecialsAllowedStr(),
-        common::displayDesimalsStr(),
-        common::displayOffsetStr(),
-        common::signExtStr(),
-        common::displaySpecialsStr(),
-        common::defaultValidValueStr(),
-        common::availableLengthLimitStr()
+        common::parseTypeStr(),
+        common::parseDefaultValueStr(),
+        common::parseUnitsStr(),
+        common::parseScalingStr(),
+        common::parseEndianStr(),
+        common::parseLengthStr(),
+        common::parseBitLengthStr(),
+        common::parseSerOffparseSetStr(),
+        common::parseValidRangeStr(),
+        common::parseValidValueStr(),
+        common::parseValidMinStr(),
+        common::parseValidMaxStr(),
+        common::parseValidCheckVersionStr(),
+        common::parseNonUniqueSpecialsAllowedStr(),
+        common::parseDisplayDesimalsStr(),
+        common::parseDisplayOffsetStr(),
+        common::parseSignExtStr(),
+        common::parseDisplaySpecialsStr(),
+        common::parseDefaultValidValueStr(),
+        common::parseAvailableLengthLimitStr()
     };
 
     return List;
@@ -352,7 +352,7 @@ const ParseXmlWrap::NamesList& ParseIntFieldImpl::parseExtraPropsNamesImpl() con
 const ParseXmlWrap::NamesList& ParseIntFieldImpl::parseExtraChildrenNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
-        common::specialStr()
+        common::parseSpecialStr()
     };
 
     return List;
@@ -469,7 +469,7 @@ bool ParseIntFieldImpl::parseValidateBitLengthValueImpl(::xmlNodePtr node, std::
     auto maxBitLength = m_state.m_length * BitsInByte;
     if (maxBitLength < bitLength) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(node) <<
-                      "Value of property \"" << common::bitLengthStr() << "\" exceeds "
+                      "Value of property \"" << common::parseBitLengthStr() << "\" exceeds "
                       "maximal length available by the type and/or forced serialisation length.";
         return false;
     }
@@ -513,11 +513,11 @@ bool ParseIntFieldImpl::parseIsValidRefTypeImpl(FieldRefType type) const
 bool ParseIntFieldImpl::parseUpdateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);
-    if (!parseValidateSinglePropInstance(common::typeStr(), mustHave)) {
+    if (!parseValidateSinglePropInstance(common::parseTypeStr(), mustHave)) {
         return false;
     }
 
-    auto propsIter = parseProps().find(common::typeStr());
+    auto propsIter = parseProps().find(common::parseTypeStr());
     if (propsIter == parseProps().end()) {
         assert(m_state.m_type != Type::NumOfValues);
         return true;
@@ -525,7 +525,7 @@ bool ParseIntFieldImpl::parseUpdateType()
 
     auto type = parseTypeValue(propsIter->second);
     if (type == Type::NumOfValues) {
-        parseReportUnexpectedPropertyValue(common::typeStr(), propsIter->second);
+        parseReportUnexpectedPropertyValue(common::parseTypeStr(), propsIter->second);
         return false;
     }
 
@@ -545,18 +545,18 @@ bool ParseIntFieldImpl::parseUpdateType()
 
 bool ParseIntFieldImpl::parseUpdateEndian()
 {
-    if (!parseValidateSinglePropInstance(common::endianStr())) {
+    if (!parseValidateSinglePropInstance(common::parseEndianStr())) {
         return false;
     }
 
-    auto& endianStr = common::getStringProp(parseProps(), common::endianStr());
+    auto& endianStr = common::parseGetStringProp(parseProps(), common::parseEndianStr());
     if ((endianStr.empty()) && (m_state.m_endian != ParseEndian_NumOfValues)) {
         return true;
     }
 
     m_state.m_endian = common::parseEndian(endianStr, parseProtocol().parseCurrSchema().parseEndian());
     if (m_state.m_endian == ParseEndian_NumOfValues) {
-        parseReportUnexpectedPropertyValue(common::endianStr(), endianStr);
+        parseReportUnexpectedPropertyValue(common::parseEndianStr(), endianStr);
         return false;
     }
     return true;
@@ -564,12 +564,12 @@ bool ParseIntFieldImpl::parseUpdateEndian()
 
 bool ParseIntFieldImpl::parseUpdateLength()
 {
-    if (!parseValidateSinglePropInstance(common::lengthStr())) {
+    if (!parseValidateSinglePropInstance(common::parseLengthStr())) {
         return false;
     }
 
     auto maxLength = parseMaxTypeLength(m_state.m_type);
-    auto& lengthStr = common::getStringProp(parseProps(), common::lengthStr());
+    auto& lengthStr = common::parseGetStringProp(parseProps(), common::parseLengthStr());
     if (lengthStr.empty()) {
         if (m_state.m_length == 0) {
             m_state.m_length = maxLength;
@@ -581,10 +581,10 @@ bool ParseIntFieldImpl::parseUpdateLength()
     }
 
     bool ok = false;
-    auto newLength = static_cast<decltype(m_state.m_length)>(common::strToUintMax(lengthStr, &ok));
+    auto newLength = static_cast<decltype(m_state.m_length)>(common::parseStrToUintMax(lengthStr, &ok));
 
     if ((!ok) || (newLength == 0)) {
-        parseReportUnexpectedPropertyValue(common::lengthStr(), lengthStr);
+        parseReportUnexpectedPropertyValue(common::parseLengthStr(), lengthStr);
         return false;
     }
 
@@ -615,13 +615,13 @@ bool ParseIntFieldImpl::parseUpdateLength()
 
 bool ParseIntFieldImpl::parseUpdateBitLength()
 {
-    if (!parseValidateSinglePropInstance(common::bitLengthStr())) {
+    if (!parseValidateSinglePropInstance(common::parseBitLengthStr())) {
         return false;
     }
 
     auto maxBitLength = m_state.m_length * BitsInByte;
     assert((m_state.m_bitLength == 0) || (m_state.m_bitLength == maxBitLength));
-    auto& valStr = common::getStringProp(parseProps(), common::bitLengthStr());
+    auto& valStr = common::parseGetStringProp(parseProps(), common::parseBitLengthStr());
     if (valStr.empty()) {
         assert(0 < m_state.m_length);
         if (m_state.m_bitLength == 0) {
@@ -635,8 +635,8 @@ bool ParseIntFieldImpl::parseUpdateBitLength()
 
     if (!parseIsBitfieldMember()) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix((parseGetNode())) <<
-                        "The property \"" << common::bitLengthStr() << "\" is "
-                        "applicable only to the members of \"" << common::bitfieldStr() << "\"";
+                        "The property \"" << common::parseBitLengthStr() << "\" is "
+                        "applicable only to the members of \"" << common::parseBitparseFieldStr() << "\"";
         m_state.m_bitLength = maxBitLength;
         return true;
     }
@@ -644,7 +644,7 @@ bool ParseIntFieldImpl::parseUpdateBitLength()
     bool ok = false;
     m_state.m_bitLength = common::parseStrToUnsigned(valStr, &ok);
     if (!ok) {
-        parseReportUnexpectedPropertyValue(common::bitLengthStr(), valStr);
+        parseReportUnexpectedPropertyValue(common::parseBitLengthStr(), valStr);
         return false;
     }
 
@@ -657,21 +657,21 @@ bool ParseIntFieldImpl::parseUpdateBitLength()
 
 bool ParseIntFieldImpl::parseUpdateSerOffset()
 {
-    if (!parseValidateSinglePropInstance(common::serOffsetStr())) {
+    if (!parseValidateSinglePropInstance(common::parseSerOffparseSetStr())) {
         return false;
     }
 
-    auto& valueStr = common::getStringProp(parseProps(), common::serOffsetStr());
+    auto& valueStr = common::parseGetStringProp(parseProps(), common::parseSerOffparseSetStr());
 
     if (valueStr.empty()) {
         return true;
     }
 
     bool ok = false;
-    m_state.m_serOffset = common::strToIntMax(valueStr, &ok);
+    m_state.m_serOffset = common::parseStrToIntMax(valueStr, &ok);
 
     if (!ok) {
-        parseReportUnexpectedPropertyValue(common::serOffsetStr(), valueStr);
+        parseReportUnexpectedPropertyValue(common::parseSerOffparseSetStr(), valueStr);
         return false;
     }
 
@@ -759,12 +759,12 @@ bool ParseIntFieldImpl::parseUpdateMinMaxValues()
 
 bool ParseIntFieldImpl::parseUpdateDefaultValue()
 {
-    auto& prop = common::defaultValueStr();
+    auto& prop = common::parseDefaultValueStr();
     if (!parseValidateSinglePropInstance(prop)) {
         return false;
     }
 
-    auto& valueStr = common::getStringProp(parseProps(), prop);
+    auto& valueStr = common::parseGetStringProp(parseProps(), prop);
     if (valueStr.empty()) {
         return true;
     }
@@ -774,7 +774,7 @@ bool ParseIntFieldImpl::parseUpdateDefaultValue()
 
 bool ParseIntFieldImpl::parseUpdateDefaultValidValue()
 {
-    auto& prop = common::defaultValidValueStr();
+    auto& prop = common::parseDefaultValidValueStr();
     if (!parseValidateSinglePropInstance(prop)) {
         return false;
     }
@@ -790,7 +790,7 @@ bool ParseIntFieldImpl::parseUpdateDefaultValidValue()
         return true;
     }
 
-    auto& valueStr = common::getStringProp(parseProps(), prop);
+    auto& valueStr = common::parseGetStringProp(parseProps(), prop);
     if (!parseUpdateDefaultValueInternal(valueStr)) {
         return false;
     }
@@ -806,7 +806,7 @@ bool ParseIntFieldImpl::parseUpdateDefaultValidValue()
 
 bool ParseIntFieldImpl::parseUpdateScaling()
 {
-    if (!parseValidateSinglePropInstance(common::scalingStr())) {
+    if (!parseValidateSinglePropInstance(common::parseScalingStr())) {
         return false;
     }
 
@@ -820,7 +820,7 @@ bool ParseIntFieldImpl::parseUpdateScaling()
     }
 
     do {
-        auto& valueStr = common::getStringProp(parseProps(), common::scalingStr());
+        auto& valueStr = common::parseGetStringProp(parseProps(), common::parseScalingStr());
         if (valueStr.empty()) {
             break;
         }
@@ -839,7 +839,7 @@ bool ParseIntFieldImpl::parseUpdateScaling()
             denom = 1;
 
             bool ok = false;
-            num = common::strToIntMax(valueStr, &ok);
+            num = common::parseStrToIntMax(valueStr, &ok);
             if (!ok) {
                 reportErrorFunc();
                 return false;
@@ -861,13 +861,13 @@ bool ParseIntFieldImpl::parseUpdateScaling()
         }
 
         bool ok = false;
-        num = common::strToIntMax(numStr, &ok);
+        num = common::parseStrToIntMax(numStr, &ok);
         if (!ok) {
             reportErrorFunc();
             return false;
         }
 
-        denom = common::strToIntMax(denomStr, &ok);
+        denom = common::parseStrToIntMax(denomStr, &ok);
         if (!ok) {
             reportErrorFunc();
             return false;
@@ -888,7 +888,7 @@ bool ParseIntFieldImpl::parseUpdateScaling()
 
 bool ParseIntFieldImpl::parseUpdateValidCheckVersion()
 {
-    return parseValidateAndUpdateBoolPropValue(common::validCheckVersionStr(), m_state.m_validCheckVersion);
+    return parseValidateAndUpdateBoolPropValue(common::parseValidCheckVersionStr(), m_state.m_validCheckVersion);
 }
 
 bool ParseIntFieldImpl::parseUpdateValidRanges()
@@ -1004,25 +1004,25 @@ bool ParseIntFieldImpl::parseUpdateValidRanges()
 
 bool ParseIntFieldImpl::parseUpdateNonUniqueSpecialsAllowed()
 {
-    return parseValidateAndUpdateBoolPropValue(common::nonUniqueSpecialsAllowedStr(), m_state.m_nonUniqueSpecialsAllowed);
+    return parseValidateAndUpdateBoolPropValue(common::parseNonUniqueSpecialsAllowedStr(), m_state.m_nonUniqueSpecialsAllowed);
 }
 
 bool ParseIntFieldImpl::parseUpdateSpecials()
 {
     bool bigUnsignedType = parseIsBigUnsigned(m_state.m_type);
-    auto specials = ParseXmlWrap::parseGetChildren(parseGetNode(), common::specialStr());
+    auto specials = ParseXmlWrap::parseGetChildren(parseGetNode(), common::parseSpecialStr());
 
     using RecSpecials = std::multimap<std::intmax_t, std::string>;
     RecSpecials recSpecials;
 
     for (auto* s : specials) {
         static const ParseXmlWrap::NamesList PropNames = {
-            common::nameStr(),
-            common::valStr(),
-            common::sinceVersionStr(),
-            common::deprecatedStr(),
-            common::descriptionStr(),
-            common::displayNameStr(),
+            common::parseNameStr(),
+            common::parseValStr(),
+            common::parseSinceVersionStr(),
+            common::parseDeprecatedStr(),
+            common::parseDescriptionStr(),
+            common::parseDisplayNameStr(),
         };
 
         auto props = ParseXmlWrap::parseNodeProps(s);
@@ -1030,36 +1030,36 @@ bool ParseIntFieldImpl::parseUpdateSpecials()
             return false;
         }
 
-        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::nameStr(), parseProtocol().parseLogger(), true)) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::parseNameStr(), parseProtocol().parseLogger(), true)) {
             return false;
         }
 
-        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::valStr(), parseProtocol().parseLogger(), true)) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::parseValStr(), parseProtocol().parseLogger(), true)) {
             return false;
         }
 
-        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::sinceVersionStr(), parseProtocol().parseLogger())) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::parseSinceVersionStr(), parseProtocol().parseLogger())) {
             return false;
         }
 
-        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::deprecatedStr(), parseProtocol().parseLogger())) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::parseDeprecatedStr(), parseProtocol().parseLogger())) {
             return false;
         }
 
-        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::descriptionStr(), parseProtocol().parseLogger())) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::parseDescriptionStr(), parseProtocol().parseLogger())) {
             return false;
         }
 
-        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::displayNameStr(), parseProtocol().parseLogger())) {
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(s, props, common::parseDisplayNameStr(), parseProtocol().parseLogger())) {
             return false;
         }
 
-        auto nameIter = props.find(common::nameStr());
+        auto nameIter = props.find(common::parseNameStr());
         assert(nameIter != props.end());
 
-        if (!common::isValidName(nameIter->second)) {
+        if (!common::parseIsValidName(nameIter->second)) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(s) <<
-                  "Property \"" << common::nameStr() <<
+                  "Property \"" << common::parseNameStr() <<
                   "\" has unexpected value (" << nameIter->second << ").";
             return false;
         }
@@ -1071,7 +1071,7 @@ bool ParseIntFieldImpl::parseUpdateSpecials()
             return false;
         }
 
-        auto valIter = props.find(common::valStr());
+        auto valIter = props.find(common::parseValStr());
         assert(valIter != props.end());
 
         std::intmax_t val = 0;
@@ -1134,12 +1134,12 @@ bool ParseIntFieldImpl::parseUpdateSpecials()
             return false;
         }
 
-        auto descIter = props.find(common::descriptionStr());
+        auto descIter = props.find(common::parseDescriptionStr());
         if (descIter != props.end()) {
             info.m_description = descIter->second;
         }
 
-        auto displayNameIter = props.find(common::displayNameStr());
+        auto displayNameIter = props.find(common::parseDisplayNameStr());
         if (displayNameIter != props.end()) {
             info.m_displayName = displayNameIter->second;
         }
@@ -1152,19 +1152,19 @@ bool ParseIntFieldImpl::parseUpdateSpecials()
 
 bool ParseIntFieldImpl::parseUpdateUnits()
 {
-    if (!parseValidateSinglePropInstance(common::unitsStr())) {
+    if (!parseValidateSinglePropInstance(common::parseUnitsStr())) {
         return false;
     }
 
-    auto iter = parseProps().find(common::unitsStr());
+    auto iter = parseProps().find(common::parseUnitsStr());
     if (iter == parseProps().end()) {
         return true;
     }
 
     bool ok = false;
-    m_state.m_units = common::strToUnits(iter->second, &ok);
+    m_state.m_units = common::parseStrToUnits(iter->second, &ok);
     if (!ok) {
-        parseReportUnexpectedPropertyValue(common::unitsStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::parseUnitsStr(), iter->second);
         return false;
     }
 
@@ -1173,11 +1173,11 @@ bool ParseIntFieldImpl::parseUpdateUnits()
 
 bool ParseIntFieldImpl::parseUpdateDisplayDecimals()
 {
-    if (!parseValidateSinglePropInstance(common::displayDesimalsStr())) {
+    if (!parseValidateSinglePropInstance(common::parseDisplayDesimalsStr())) {
         return false;
     }
 
-    auto iter = parseProps().find(common::displayDesimalsStr());
+    auto iter = parseProps().find(common::parseDisplayDesimalsStr());
     if (iter == parseProps().end()) {
         return true;
     }
@@ -1185,7 +1185,7 @@ bool ParseIntFieldImpl::parseUpdateDisplayDecimals()
     bool ok = false;
     m_state.m_displayDecimals = common::parseStrToUnsigned(iter->second, &ok);
     if (!ok) {
-        parseReportUnexpectedPropertyValue(common::displayDesimalsStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::parseDisplayDesimalsStr(), iter->second);
         return false;
     }
 
@@ -1194,19 +1194,19 @@ bool ParseIntFieldImpl::parseUpdateDisplayDecimals()
 
 bool ParseIntFieldImpl::parseUpdateDisplayOffset()
 {
-    if (!parseValidateSinglePropInstance(common::displayOffsetStr())) {
+    if (!parseValidateSinglePropInstance(common::parseDisplayOffsetStr())) {
         return false;
     }
 
-    auto iter = parseProps().find(common::displayOffsetStr());
+    auto iter = parseProps().find(common::parseDisplayOffsetStr());
     if (iter == parseProps().end()) {
         return true;
     }
 
     bool ok = false;
-    m_state.m_displayOffset = common::strToIntMax(iter->second, &ok);
+    m_state.m_displayOffset = common::parseStrToIntMax(iter->second, &ok);
     if (!ok) {
-        parseReportUnexpectedPropertyValue(common::displayOffsetStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::parseDisplayOffsetStr(), iter->second);
         return false;
     }
 
@@ -1215,11 +1215,11 @@ bool ParseIntFieldImpl::parseUpdateDisplayOffset()
 
 bool ParseIntFieldImpl::parseUpdateSignExt()
 {
-    if (!parseValidateAndUpdateBoolPropValue(common::signExtStr(), m_state.m_signExt)) {
+    if (!parseValidateAndUpdateBoolPropValue(common::parseSignExtStr(), m_state.m_signExt)) {
         return false;
     }
 
-    auto& valueStr = common::getStringProp(parseProps(), common::signExtStr());
+    auto& valueStr = common::parseGetStringProp(parseProps(), common::parseSignExtStr());
     if (valueStr.empty()) {
         return true;
     }
@@ -1242,7 +1242,7 @@ bool ParseIntFieldImpl::parseUpdateSignExt()
     } while (false);
 
     parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-        "Property \"" << common::signExtStr() << "\" is relevant only to signed types with "
+        "Property \"" << common::parseSignExtStr() << "\" is relevant only to signed types with "
         "length limitation.";
 
     return true;
@@ -1250,18 +1250,18 @@ bool ParseIntFieldImpl::parseUpdateSignExt()
 
 bool ParseIntFieldImpl::parseUpdateDisplaySpecials()
 {
-    parseCheckAndReportDeprecatedPropertyValue(common::displaySpecialsStr());
+    parseCheckAndReportDeprecatedPropertyValue(common::parseDisplaySpecialsStr());
     return true;
 }
 
 bool ParseIntFieldImpl::parseUpdateAvailableLengthLimit()
 {
-    return parseValidateAndUpdateBoolPropValue(common::availableLengthLimitStr(), m_state.m_availableLengthLimit);
+    return parseValidateAndUpdateBoolPropValue(common::parseAvailableLengthLimitStr(), m_state.m_availableLengthLimit);
 }
 
 bool ParseIntFieldImpl::parseCheckValidRangeAsAttr(const ParseFieldImpl::PropsMap& xmlAttrs)
 {
-    auto iter = xmlAttrs.find(common::validRangeStr());
+    auto iter = xmlAttrs.find(common::parseValidRangeStr());
     if (iter == xmlAttrs.end()) {
         return true;
     }
@@ -1307,7 +1307,7 @@ bool ParseIntFieldImpl::parseCheckValidRangeProps(const ParseFieldImpl::PropsMap
         return false;
     }
 
-    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::validRangeStr());
+    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::parseValidRangeStr());
     for (auto* c : children) {
         if (!parseCheckValidRangeAsChild(c)) {
             return false;
@@ -1319,13 +1319,13 @@ bool ParseIntFieldImpl::parseCheckValidRangeProps(const ParseFieldImpl::PropsMap
 
 bool ParseIntFieldImpl::parseCheckValidValueAsAttr(const ParseFieldImpl::PropsMap& xmlAttrs)
 {
-    auto iter = xmlAttrs.find(common::validValueStr());
+    auto iter = xmlAttrs.find(common::parseValidValueStr());
     if (iter == xmlAttrs.end()) {
         return true;
     }
 
     ValidRangeInfo info;
-    if (!parseValidateValidValueStr(iter->second, common::validValueStr(), info.m_min)) {
+    if (!parseValidateValidValueStr(iter->second, common::parseValidValueStr(), info.m_min)) {
         return false;
     }
 
@@ -1346,7 +1346,7 @@ bool ParseIntFieldImpl::parseCheckValidValueAsChild(::xmlNodePtr child)
 
     ValidRangeInfo info;
 
-    if (!parseValidateValidValueStr(str, common::validValueStr(), info.m_min)) {
+    if (!parseValidateValidValueStr(str, common::parseValidValueStr(), info.m_min)) {
         return false;
     }
 
@@ -1368,7 +1368,7 @@ bool ParseIntFieldImpl::parseCheckValidValueProps(const ParseFieldImpl::PropsMap
         return false;
     }
 
-    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::validValueStr());
+    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::parseValidValueStr());
     for (auto* c : children) {
         if (!parseCheckValidValueAsChild(c)) {
             return false;
@@ -1380,13 +1380,13 @@ bool ParseIntFieldImpl::parseCheckValidValueProps(const ParseFieldImpl::PropsMap
 
 bool ParseIntFieldImpl::parseCheckValidMinAsAttr(const ParseFieldImpl::PropsMap& xmlAttrs)
 {
-    auto iter = xmlAttrs.find(common::validMinStr());
+    auto iter = xmlAttrs.find(common::parseValidMinStr());
     if (iter == xmlAttrs.end()) {
         return true;
     }
 
     ValidRangeInfo info;
-    if (!parseValidateValidValueStr(iter->second, common::validMinStr(), info.m_min)) {
+    if (!parseValidateValidValueStr(iter->second, common::parseValidMinStr(), info.m_min)) {
         return false;
     }
 
@@ -1407,7 +1407,7 @@ bool ParseIntFieldImpl::parseCheckValidMinAsChild(::xmlNodePtr child)
 
     ValidRangeInfo info;
 
-    if (!parseValidateValidValueStr(str, common::validMinStr(), info.m_min)) {
+    if (!parseValidateValidValueStr(str, common::parseValidMinStr(), info.m_min)) {
         return false;
     }
 
@@ -1429,7 +1429,7 @@ bool ParseIntFieldImpl::parseCheckValidMinProps(const ParseFieldImpl::PropsMap& 
         return false;
     }
 
-    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::validMinStr());
+    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::parseValidMinStr());
     for (auto* c : children) {
         if (!parseCheckValidMinAsChild(c)) {
             return false;
@@ -1441,13 +1441,13 @@ bool ParseIntFieldImpl::parseCheckValidMinProps(const ParseFieldImpl::PropsMap& 
 
 bool ParseIntFieldImpl::parseCheckValidMaxAsAttr(const ParseFieldImpl::PropsMap& xmlAttrs)
 {
-    auto iter = xmlAttrs.find(common::validMaxStr());
+    auto iter = xmlAttrs.find(common::parseValidMaxStr());
     if (iter == xmlAttrs.end()) {
         return true;
     }
 
     ValidRangeInfo info;
-    if (!parseValidateValidValueStr(iter->second, common::validMaxStr(), info.m_max)) {
+    if (!parseValidateValidValueStr(iter->second, common::parseValidMaxStr(), info.m_max)) {
         return false;
     }
 
@@ -1468,7 +1468,7 @@ bool ParseIntFieldImpl::parseCheckValidMaxAsChild(::xmlNodePtr child)
 
     ValidRangeInfo info;
 
-    if (!parseValidateValidValueStr(str, common::validMaxStr(), info.m_max)) {
+    if (!parseValidateValidValueStr(str, common::parseValidMaxStr(), info.m_max)) {
         return false;
     }
 
@@ -1490,7 +1490,7 @@ bool ParseIntFieldImpl::parseCheckValidMaxProps(const ParseFieldImpl::PropsMap& 
         return false;
     }
 
-    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::validMaxStr());
+    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::parseValidMaxStr());
     for (auto* c : children) {
         if (!parseCheckValidMaxAsChild(c)) {
             return false;
@@ -1505,7 +1505,7 @@ bool ParseIntFieldImpl::parseValidateValidRangeStr(const std::string& str, std::
     bool ok = false;
     auto range = common::parseRange(str, &ok);
     if (!ok) {
-        parseReportUnexpectedPropertyValue(common::validRangeStr(), str);
+        parseReportUnexpectedPropertyValue(common::parseValidRangeStr(), str);
         return false;
     }
 
@@ -1608,7 +1608,7 @@ bool ParseIntFieldImpl::parseStrToValue(
     const std::string& str,
     std::intmax_t& val) const
 {
-    if (common::isValidName(str)) {
+    if (common::parseIsValidName(str)) {
         // Check among specials
         auto iter = m_state.m_specials.find(str);
         if (iter != m_state.m_specials.end()) {
@@ -1617,7 +1617,7 @@ bool ParseIntFieldImpl::parseStrToValue(
         }
     }
 
-    if (common::isValidRefName(str)) {
+    if (common::parseIsValidRefName(str)) {
         bool bigUnsigned = false;
         if (!parseProtocol().parseStrToNumeric(str, false, val, bigUnsigned)) {
             return false;
@@ -1643,10 +1643,10 @@ bool ParseIntFieldImpl::parseStrToValue(
 
     bool ok = false;
     if (parseIsBigUnsigned(m_state.m_type)) {
-        val = static_cast<std::intmax_t>(common::strToUintMax(str, &ok));
+        val = static_cast<std::intmax_t>(common::parseStrToUintMax(str, &ok));
     }
     else {
-        val = common::strToIntMax(str, &ok);
+        val = common::parseStrToIntMax(str, &ok);
     }
     return ok;
 }

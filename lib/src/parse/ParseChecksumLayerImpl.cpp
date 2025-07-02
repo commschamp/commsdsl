@@ -29,9 +29,9 @@ namespace parse
 
 ParseChecksumLayerImpl::ParseChecksumLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol)
   : Base(node, protocol),
-    m_algName(&common::emptyString()),
-    m_from(&common::emptyString()),
-    m_until(&common::emptyString())
+    m_algName(&common::parseEmptyString()),
+    m_from(&common::parseEmptyString()),
+    m_until(&common::parseEmptyString())
 {
     assert(parseFrom().empty());
     assert(parseUntil().empty());
@@ -45,11 +45,11 @@ ParseLayerImpl::Kind ParseChecksumLayerImpl::parseKindImpl() const
 const ParseXmlWrap::NamesList& ParseChecksumLayerImpl::parseExtraPropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList Names = {
-        common::algStr(),
-        common::algNameStr(),
-        common::fromStr(),
-        common::untilStr(),
-        common::verifyBeforeReadStr()
+        common::parseAlgStr(),
+        common::parseAlgNameStr(),
+        common::parseFromStr(),
+        common::parseUntilStr(),
+        common::parseVerifyBeforeReadStr()
     };
     return Names;
 }
@@ -70,15 +70,15 @@ bool ParseChecksumLayerImpl::parseVerifyImpl(const ParseLayerImpl::LayersList& l
 
     if (parseFrom().empty() && parseUntil().empty()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) << 
-            "Checksum layer must set \"" << common::fromStr() << "\" or \"" << 
-            common::untilStr() << "\" property to indicate on what values checksum is calculated.";
+            "Checksum layer must set \"" << common::parseFromStr() << "\" or \"" << 
+            common::parseUntilStr() << "\" property to indicate on what values checksum is calculated.";
         return false;
     }
 
     if (!parseFrom().empty()) {
         auto fromIdx = parseFindLayerIndex(layers, parseFrom());
         if (layers.size() <= fromIdx) {
-            parseReportUnexpectedPropertyValue(common::fromStr(), parseFrom());
+            parseReportUnexpectedPropertyValue(common::parseFromStr(), parseFrom());
             return false;
         }
 
@@ -92,7 +92,7 @@ bool ParseChecksumLayerImpl::parseVerifyImpl(const ParseLayerImpl::LayersList& l
     if (!parseUntil().empty()) {
         auto untilIdx = parseFindLayerIndex(layers, parseUntil());
         if (layers.size() <= untilIdx) {
-            parseReportUnexpectedPropertyValue(common::untilStr(), parseUntil());
+            parseReportUnexpectedPropertyValue(common::parseUntilStr(), parseUntil());
             return false;
         }
 
@@ -108,13 +108,13 @@ bool ParseChecksumLayerImpl::parseVerifyImpl(const ParseLayerImpl::LayersList& l
 
 bool ParseChecksumLayerImpl::parseUpdateAlg()
 {
-    if (!parseValidateSinglePropInstance(common::algStr(), true)) {
+    if (!parseValidateSinglePropInstance(common::parseAlgStr(), true)) {
         return false;
     }
 
-    auto iter = parseProps().find(common::algStr());
+    auto iter = parseProps().find(common::parseAlgStr());
     assert(iter != parseProps().end());
-    auto algStr = common::toLowerCopy(iter->second);
+    auto algStr = common::parseToLowerCopy(iter->second);
 
     static const std::map<std::string, Alg> Map = {
         std::make_pair("custom", Alg::Custom),
@@ -130,7 +130,7 @@ bool ParseChecksumLayerImpl::parseUpdateAlg()
 
     auto algIter = Map.find(algStr);
     if (algIter == Map.end()) {
-        parseReportUnexpectedPropertyValue(common::algStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::parseAlgStr(), iter->second);
         return false;
     }
 
@@ -139,15 +139,15 @@ bool ParseChecksumLayerImpl::parseUpdateAlg()
         return true;
     }
 
-    if (!parseValidateSinglePropInstance(common::algNameStr(), true)) {
+    if (!parseValidateSinglePropInstance(common::parseAlgNameStr(), true)) {
         return false;
     }
 
-    auto algNameIter = parseProps().find(common::algNameStr());
+    auto algNameIter = parseProps().find(common::parseAlgNameStr());
     m_algName = &algNameIter->second;
 
-    if (!common::isValidName(*m_algName)) {
-        parseReportUnexpectedPropertyValue(common::algNameStr(), iter->second);
+    if (!common::parseIsValidName(*m_algName)) {
+        parseReportUnexpectedPropertyValue(common::parseAlgNameStr(), iter->second);
         return false;
     }
 
@@ -156,21 +156,21 @@ bool ParseChecksumLayerImpl::parseUpdateAlg()
 
 bool ParseChecksumLayerImpl::parseUpdateFrom()
 {
-    return parseValidateAndUpdateStringPropValue(common::fromStr(), m_from);
+    return parseValidateAndUpdateStringPropValue(common::parseFromStr(), m_from);
 }
 
 bool ParseChecksumLayerImpl::parseUpdateUntil()
 {
-    return parseValidateAndUpdateStringPropValue(common::untilStr(), m_until);
+    return parseValidateAndUpdateStringPropValue(common::parseUntilStr(), m_until);
 }
 
 bool ParseChecksumLayerImpl::parseUpdateVerifyBeforeRead()
 {
-    if (!parseValidateSinglePropInstance(common::verifyBeforeReadStr())) {
+    if (!parseValidateSinglePropInstance(common::parseVerifyBeforeReadStr())) {
         return false;
     }
 
-    auto iter = parseProps().find(common::verifyBeforeReadStr());
+    auto iter = parseProps().find(common::parseVerifyBeforeReadStr());
     if (iter == parseProps().end()) {
         return true;
     }
@@ -178,7 +178,7 @@ bool ParseChecksumLayerImpl::parseUpdateVerifyBeforeRead()
     bool ok = false;
     m_verifyBeforeRead = common::parseStrToBool(iter->second, &ok);
     if (!ok) {
-        parseReportUnexpectedPropertyValue(common::verifyBeforeReadStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::parseVerifyBeforeReadStr(), iter->second);
         return false;
     }
     return true;

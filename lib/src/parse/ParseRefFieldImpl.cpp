@@ -53,8 +53,8 @@ ParseFieldImpl::Ptr ParseRefFieldImpl::parseCloneImpl() const
 const ParseXmlWrap::NamesList& ParseRefFieldImpl::parseExtraPropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
-        common::fieldStr(),
-        common::bitLengthStr(),
+        common::parseFieldStr(),
+        common::parseBitLengthStr(),
     };
 
     return List;
@@ -73,11 +73,11 @@ bool ParseRefFieldImpl::parseReuseImpl(const ParseFieldImpl& other)
 bool ParseRefFieldImpl::parseImpl()
 {
     bool mustHaveField = (m_field == nullptr);
-    if (!parseValidateSinglePropInstance(common::fieldStr(), mustHaveField)) {
+    if (!parseValidateSinglePropInstance(common::parseFieldStr(), mustHaveField)) {
         return false;
     }
 
-    auto propsIter = parseProps().find(common::fieldStr());
+    auto propsIter = parseProps().find(common::parseFieldStr());
     if (propsIter == parseProps().end()) {
         assert(m_field != nullptr);
         assert(!parseName().empty());
@@ -86,7 +86,7 @@ bool ParseRefFieldImpl::parseImpl()
 
     m_field = parseProtocol().parseFindField(propsIter->second);
     if (m_field == nullptr) {
-        parseReportUnexpectedPropertyValue(common::fieldStr(), propsIter->second);
+        parseReportUnexpectedPropertyValue(common::parseFieldStr(), propsIter->second);
         return false;
     }
 
@@ -226,11 +226,11 @@ bool ParseRefFieldImpl::parseIsValidRefTypeImpl(FieldRefType type) const
 
 bool ParseRefFieldImpl::parseUpdateBitLength()
 {
-    if (!parseValidateSinglePropInstance(common::bitLengthStr())) {
+    if (!parseValidateSinglePropInstance(common::parseBitLengthStr())) {
         return false;
     }
 
-    auto& valStr = common::getStringProp(parseProps(), common::bitLengthStr());
+    auto& valStr = common::parseGetStringProp(parseProps(), common::parseBitLengthStr());
     assert(0 < parseMaxLength());
     auto maxBitLength = parseMaxLength() * BitsInByte;
     if (valStr.empty()) {
@@ -245,15 +245,15 @@ bool ParseRefFieldImpl::parseUpdateBitLength()
 
     if (!parseIsBitfieldMember()) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix((parseGetNode())) <<
-                        "The property \"" << common::bitLengthStr() << "\" is "
-                        "applicable only to the members of \"" << common::bitfieldStr() << "\"";
+                        "The property \"" << common::parseBitLengthStr() << "\" is "
+                        "applicable only to the members of \"" << common::parseBitparseFieldStr() << "\"";
         return true;
     }    
 
     bool ok = false;
     m_state.m_bitLength = common::parseStrToUnsigned(valStr, &ok);
     if (!ok) {
-        parseReportUnexpectedPropertyValue(common::bitLengthStr(), valStr);
+        parseReportUnexpectedPropertyValue(common::parseBitLengthStr(), valStr);
         return false;
     }
 

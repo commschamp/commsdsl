@@ -38,349 +38,349 @@ const std::size_t MaxPossibleLength = std::numeric_limits<std::size_t>::max();
 
 }
 
-const std::string& emptyString()
+const std::string& parseEmptyString()
 {
     static const std::string Str;
     return Str;
 }
 
-const std::string& nameStr()
+const std::string& parseNameStr()
 {
     static const std::string Str("name");
     return Str;
 }
 
-const std::string& displayNameStr()
+const std::string& parseDisplayNameStr()
 {
     static const std::string Str("displayName");
     return Str;
 }
 
-const std::string& idStr()
+const std::string& parseIdStr()
 {
     static const std::string Str("id");
     return Str;
 }
 
-const std::string& versionStr()
+const std::string& parseVersionStr()
 {
     static const std::string Str("version");
     return Str;
 }
 
-const std::string& dslVersionStr()
+const std::string& parseDslVersionStr()
 {
     static const std::string Str("dslVersion");
     return Str;
 }
 
-const std::string& descriptionStr()
+const std::string& parseDescriptionStr()
 {
     static const std::string Str("description");
     return Str;
 }
 
-const std::string& endianStr()
+const std::string& parseEndianStr()
 {
     static const std::string Str("endian");
     return Str;
 }
 
-const std::string& bigStr()
+const std::string& parseBigStr()
 {
     static const std::string Str("big");
     return Str;
 }
 
-const std::string& littleStr()
+const std::string& parseLittleStr()
 {
     static const std::string Str("little");
     return Str;
 }
 
-const std::string& fieldsStr()
+const std::string& parseFieldsStr()
 {
     static const std::string Str("fields");
     return Str;
 }
 
-const std::string& messagesStr()
+const std::string& parseMessagesStr()
 {
     static const std::string Str("messages");
     return Str;
 }
 
-const std::string& messageStr()
+const std::string& parseMessageStr()
 {
     static const std::string Str("message");
     return Str;
 }
 
-const std::string& frameStr()
+const std::string& parseFrameStr()
 {
     static const std::string Str("frame");
     return Str;
 }
 
-const std::string& framesStr()
+const std::string& parseFramesStr()
 {
     static const std::string Str("frames");
     return Str;
 }
 
-const std::string& intStr()
+const std::string& parseIntStr()
 {
     static const std::string Str("int");
     return Str;
 }
 
-const std::string& floatStr()
+const std::string& parseFloatStr()
 {
     static const std::string Str("float");
     return Str;
 }
 
-const std::string& typeStr()
+const std::string& parseTypeStr()
 {
     static const std::string Str("type");
     return Str;
 }
 
-const std::string& defaultValueStr()
+const std::string& parseDefaultValueStr()
 {
     static const std::string Str("defaultValue");
     return Str;
 }
 
-const std::string& unitsStr()
+const std::string& parseUnitsStr()
 {
     static const std::string Str("units");
     return Str;
 }
 
-const std::string& scalingStr()
+const std::string& parseScalingStr()
 {
     static const std::string Str("scaling");
     return Str;
 }
 
-const std::string& lengthStr()
+const std::string& parseLengthStr()
 {
     static const std::string Str("length");
     return Str;
 }
 
-const std::string& bitLengthStr()
+const std::string& parseBitLengthStr()
 {
     static const std::string Str("bitLength");
     return Str;
 }
 
-const std::string& serOffsetStr()
+const std::string& parseSerOffparseSetStr()
 {
     static const std::string Str("serOffset");
     return Str;
 }
 
-const std::string& validRangeStr()
+const std::string& parseValidRangeStr()
 {
     static const std::string Str("validRange");
     return Str;
 }
 
-const std::string& validFullRangeStr()
+const std::string& parseValidFullRangeStr()
 {
     static const std::string Str("validFullRange");
     return Str;
 }
 
-const std::string& validValueStr()
+const std::string& parseValidValueStr()
 {
     static const std::string Str("validValue");
     return Str;
 }
 
-const std::string& specialStr()
+const std::string& parseSpecialStr()
 {
     static const std::string Str("special");
     return Str;
 }
 
-const std::string& valStr()
+const std::string& parseValStr()
 {
     static const std::string Str("val");
     return Str;
 }
 
-const std::string& metaStr()
+const std::string& parseMetaStr()
 {
     static const std::string Str("meta");
     return Str;
 }
 
-const std::string& validMinStr()
+const std::string& parseValidMinStr()
 {
     static const std::string Str("validMin");
     return Str;
 }
 
-const std::string& validMaxStr()
+const std::string& parseValidMaxStr()
 {
     static const std::string Str("validMax");
     return Str;
 }
 
-const std::string& nanStr()
+const std::string& parseNanStr()
 {
     static const std::string Str("nan");
     return Str;
 }
 
-const std::string& infStr()
+const std::string& parseInfStr()
 {
     static const std::string Str("inf");
     return Str;
 }
 
-const std::string& negInfStr()
+const std::string& parseNegInfStr()
 {
     static const std::string Str("-inf");
     return Str;
 }
 
-const std::string& bitfieldStr()
+const std::string& parseBitparseFieldStr()
 {
     static const std::string Str("bitfield");
     return Str;
 }
 
-const std::string& bundleStr()
+const std::string& parseBundleStr()
 {
     static const std::string Str("bundle");
     return Str;
 }
 
-const std::string& variantStr()
+const std::string& parseVariantStr()
 {
     static const std::string Str("variant");
     return Str;
 }
 
-const std::string& membersStr()
+const std::string& parseMembersStr()
 {
     static const std::string Str("members");
     return Str;
 }
 
-const std::string& sinceVersionStr()
+const std::string& parseSinceVersionStr()
 {
     static const std::string Str("sinceVersion");
     return Str;
 }
 
-const std::string& deprecatedStr()
+const std::string& parseDeprecatedStr()
 {
     static const std::string Str("deprecated");
     return Str;
 }
 
-const std::string& removedStr()
+const std::string& parseRemovedStr()
 {
     static const std::string Str("removed");
     return Str;
 }
 
-const std::string& refStr()
+const std::string& parseRefStr()
 {
     static const std::string Str("ref");
     return Str;
 }
 
-const std::string& fieldStr()
+const std::string& parseFieldStr()
 {
     static const std::string Str("field");
     return Str;
 }
 
-const std::string& nsStr()
+const std::string& parseNsStr()
 {
     static const std::string Str("ns");
     return Str;
 }
 
-const std::string& enumStr()
+const std::string& parseEnumStr()
 {
     static const std::string Str("enum");
     return Str;
 }
 
-const std::string& nonUniqueAllowedStr()
+const std::string& parseNonUniqueAllowedStr()
 {
     static const std::string Str("nonUniqueAllowed");
     return Str;
 }
 
-const std::string& nonUniqueSpecialsAllowedStr()
+const std::string& parseNonUniqueSpecialsAllowedStr()
 {
     static const std::string Str("nonUniqueSpecialsAllowed");
     return Str;
 }
 
-const std::string& nonUniqueMsgIdAllowedStr()
+const std::string& parseNonUniqueMsgIdAllowedStr()
 {
     static const std::string Str("nonUniqueMsgIdAllowed");
     return Str;
 }
 
-const std::string& reservedValueStr()
+const std::string& parseReservedValueStr()
 {
     static const std::string Str("reservedValue");
     return Str;
 }
 
-const std::string& reservedStr()
+const std::string& parseReservedStr()
 {
     static const std::string Str("reserved");
     return Str;
 }
 
-const std::string& bitStr()
+const std::string& parseBitStr()
 {
     static const std::string Str("bit");
     return Str;
 }
 
-const std::string& idxStr()
+const std::string& parseIdxStr()
 {
     static const std::string Str("idx");
     return Str;
 }
 
-const std::string& setStr()
+const std::string& parseSetStr()
 {
     static const std::string Str("set");
     return Str;
 }
 
-const std::string& reuseStr()
+const std::string& parseReuseStr()
 {
     static const std::string Str("reuse");
     return Str;
 }
 
-const std::string& validCheckVersionStr()
+const std::string& parseValidCheckVersionStr()
 {
     static const std::string Str("validCheckVersion");
     return Str;
 }
 
-const std::string& lengthPrefixStr()
+const std::string& parseLengthPrefixStr()
 {
     static const std::string Str("lengthPrefix");
     return Str;
 }
 
-const std::string& countPrefixStr()
+const std::string& parseCountPrefixStr()
 {
     static const std::string Str("countPrefix");
     return Str;
@@ -392,193 +392,193 @@ const std::string& parseEncodingStr()
     return Str;
 }
 
-const std::string& zeroTermSuffixStr()
+const std::string& parseZeroTermSuffixStr()
 {
     static const std::string Str("zeroTermSuffix");
     return Str;
 }
 
-const std::string& stringStr()
+const std::string& parseStringStr()
 {
     static const std::string Str("string");
     return Str;
 }
 
-const std::string& dataStr()
+const std::string& parseDataStr()
 {
     static const std::string Str("data");
     return Str;
 }
 
-const std::string& countStr()
+const std::string& parseCountStr()
 {
     static const std::string Str("count");
     return Str;
 }
 
-const std::string& elemFixedLengthStr()
+const std::string& parseElemFixedLengthStr()
 {
     static const std::string Str("elemFixedLength");
     return Str;
 }
 
-const std::string& elementStr()
+const std::string& parseElementStr()
 {
     static const std::string Str("element");
     return Str;
 }
 
-const std::string& elemLengthPrefixStr()
+const std::string& parseElemLengthPrefixStr()
 {
     static const std::string Str("elemLengthPrefix");
     return Str;
 }
 
-const std::string& listStr()
+const std::string& parseListStr()
 {
     static const std::string Str("list");
     return Str;
 }
 
-const std::string& optionalStr()
+const std::string& parseOptionalStr()
 {
     static const std::string Str("optional");
     return Str;
 }
 
-const std::string& defaultModeStr()
+const std::string& parseDefaultModeStr()
 {
     static const std::string Str("defaultMode");
     return Str;
 }
 
-const std::string& condStr()
+const std::string& parseCondStr()
 {
     static const std::string Str("cond");
     return Str;
 }
 
-const std::string& andStr()
+const std::string& parseAndStr()
 {
     static const std::string Str("and");
     return Str;
 }
 
-const std::string& orStr()
+const std::string& parseOrStr()
 {
     static const std::string Str("or");
     return Str;
 }
 
-const std::string& copyFieldsFromStr()
+const std::string& parseCopyFieldsFromStr()
 {
     static const std::string Str("copyFieldsFrom");
     return Str;
 }
 
-const std::string& copyFieldsAliasesStr()
+const std::string& parseCopyFieldsAliasesStr()
 {
     static const std::string Str("copyFieldsAliases");
     return Str;
 }
 
-const std::string& orderStr()
+const std::string& parseOrderStr()
 {
     static const std::string Str("order");
     return Str;
 }
 
-const std::string& platformsStr()
+const std::string& parsePlatformsStr()
 {
     static const std::string Str("platforms");
     return Str;
 }
 
-const std::string& platformStr()
+const std::string& parsePlatformStr()
 {
     static const std::string Str("platform");
     return Str;
 }
 
-const std::string& interfacesStr()
+const std::string& parseInterfacesStr()
 {
     static const std::string Str("interfaces");
     return Str;
 }
 
-const std::string& interfaceStr()
+const std::string& parseInterfaceStr()
 {
     static const std::string Str("interface");
     return Str;
 }
 
-const std::string& layersStr()
+const std::string& parseLayersStr()
 {
     static const std::string Str("layers");
     return Str;
 }
 
-const std::string& payloadStr()
+const std::string& parsePayloadStr()
 {
     static const std::string Str("payload");
     return Str;
 }
 
-const std::string& sizeStr()
+const std::string& parseSizeStr()
 {
     static const std::string Str("size");
     return Str;
 }
 
-const std::string& syncStr()
+const std::string& parseSyncStr()
 {
     static const std::string Str("sync");
     return Str;
 }
 
-const std::string& checksumStr()
+const std::string& parseChecksumStr()
 {
     static const std::string Str("checksum");
     return Str;
 }
 
-const std::string& algStr()
+const std::string& parseAlgStr()
 {
     static const std::string Str("alg");
     return Str;
 }
 
-const std::string& algNameStr()
+const std::string& parseAlgNameStr()
 {
     static const std::string Str("algName");
     return Str;
 }
 
-const std::string& fromStr()
+const std::string& parseFromStr()
 {
     static const std::string Str("from");
     return Str;
 }
 
-const std::string& untilStr()
+const std::string& parseUntilStr()
 {
     static const std::string Str("until");
     return Str;
 }
 
-const std::string& verifyBeforeReadStr()
+const std::string& parseVerifyBeforeReadStr()
 {
     static const std::string Str("verifyBeforeRead");
     return Str;
 }
 
-const std::string& interfaceFieldNameStr()
+const std::string& parseInterfaceFieldNameStr()
 {
     static const std::string Str("interfaceFieldName");
     return Str;
 }
 
-const std::string& valueStr()
+const std::string& parseValueStr()
 {
     static const std::string Str("value");
     return Str;
@@ -590,334 +590,334 @@ const std::string& pseudoStr()
     return Str;
 }
 
-const std::string& fixedValueStr()
+const std::string& parseFixedValueStr()
 {
     static const std::string Str("fixedValue");
     return Str;
 }
 
-const std::string& customStr()
+const std::string& parseCustomStr()
 {
     static const std::string Str("custom");
     return Str;
 }
 
-const std::string& semanticTypeStr()
+const std::string& parseSemanticTypeStr()
 {
     static const std::string Str("semanticType");
     return Str;
 }
 
-const std::string& noneStr()
+const std::string& parseNoneStr()
 {
     static const std::string Str("none");
     return Str;
 }
 
-const std::string& messageIdStr()
+const std::string& parseMessageIdStr()
 {
     static const std::string Str("messageId");
     return Str;
 }
 
-const std::string& idReplacementStr()
+const std::string& parseIdReplacementStr()
 {
     static const std::string Str("idReplacement");
     return Str;
 }
 
-const std::string& displayDesimalsStr()
+const std::string& parseDisplayDesimalsStr()
 {
     static const std::string Str("displayDecimals");
     return Str;
 }
 
-const std::string& displayOffsetStr()
+const std::string& parseDisplayOffsetStr()
 {
     static const std::string Str("displayOffset");
     return Str;
 }
 
-const std::string& displayExtModeCtrlStr()
+const std::string& parseDisplayExtModeCtrlStr()
 {
     static const std::string Str("displayExtModeCtrl");
     return Str;
 }
 
-const std::string& hexAssignStr()
+const std::string& parseHexAssignStr()
 {
     static const std::string Str("hexAssign");
     return Str;
 }
 
-const std::string& signExtStr()
+const std::string& parseSignExtStr()
 {
     static const std::string Str("signExt");
     return Str;
 }
 
-const std::string& displayReadOnlyStr()
+const std::string& parseDisplayReadOnlyStr()
 {
     static const std::string Str("displayReadOnly");
     return Str;
 }
 
-const std::string& displayHiddenStr()
+const std::string& parseDisplayHiddenStr()
 {
     static const std::string Str("displayHidden");
     return Str;
 }
 
-const std::string& customizableStr()
+const std::string& parseCustomizableStr()
 {
     static const std::string Str("customizable");
     return Str;
 }
 
-const std::string& failOnInvalidStr()
+const std::string& parseFailOnInvalidStr()
 {
     static const std::string Str("failOnInvalid");
     return Str;
 }
 
-const std::string& senderStr()
+const std::string& parseSenderStr()
 {
     static const std::string Str("sender");
     return Str;
 }
 
-const std::string& clientStr()
+const std::string& parseClientStr()
 {
     static const std::string Str("client");
     return Str;
 }
 
-const std::string& serverStr()
+const std::string& parseServerStr()
 {
     static const std::string Str("server");
     return Str;
 }
 
-const std::string& bothStr()
+const std::string& parseBothStr()
 {
     static const std::string Str("both");
     return Str;
 }
 
-const std::string& defaultMemberStr()
+const std::string& parseDefaultMemberStr()
 {
     static const std::string Str("defaultMember");
     return Str;
 }
 
-const std::string& displayIdxReadOnlyHiddenStr()
+const std::string& parseDisplayIdxReadOnlyHiddenStr()
 {
     static const std::string Str("displayIdxReadOnlyHidden");
     return Str;
 }
 
-const std::string& displaySpecialsStr()
+const std::string& parseDisplaySpecialsStr()
 {
     static const std::string Str("displaySpecials");
     return Str;
 }
 
-const std::string& aliasStr()
+const std::string& parseAliasStr()
 {
     static const std::string Str("alias");
     return Str;
 }
 
-const std::string& reuseAliasesStr()
+const std::string& parseReuseAliasesStr()
 {
     static const std::string Str("reuseAliases");
     return Str;
 }
 
-const std::string& forceGenStr()
+const std::string& parseForceGenStr()
 {
     static const std::string Str("forceGen");
     return Str;    
 }
 
-const std::string& validateMinLengthStr()
+const std::string& parseValidateMinLengthStr()
 {
     static const std::string Str("validateMinLength");
     return Str;    
 }
 
-const std::string& defaultValidValueStr()
+const std::string& parseDefaultValidValueStr()
 {
     static const std::string Str("defaultValidValue");
     return Str;      
 }
 
-const std::string& availableLengthLimitStr()
+const std::string& parseAvailableLengthLimitStr()
 {
     static const std::string Str("availableLengthLimit");
     return Str; 
 }
 
-const std::string& valueOverrideStr()
+const std::string& parseValueOverrideStr()
 {
     static const std::string Str("valueOverride");
     return Str; 
 }
 
-const std::string& readOverrideStr()
+const std::string& parseReadOverrideStr()
 {
     static const std::string Str("readOverride");
     return Str; 
 }
 
-const std::string& writeOverrideStr()
+const std::string& parseWriteOverrideStr()
 {
     static const std::string Str("writeOverride");
     return Str; 
 }
 
-const std::string& refreshOverrideStr()
+const std::string& parseRefreshOverrideStr()
 {
     static const std::string Str("refreshOverride");
     return Str; 
 }
 
-const std::string& lengthOverrideStr()
+const std::string& parseLengthOverrideStr()
 {
     static const std::string Str("lengthOverride");
     return Str; 
 }
 
-const std::string& validOverrideStr()
+const std::string& parseValidOverrideStr()
 {
     static const std::string Str("validOverride");
     return Str; 
 }
 
-const std::string& nameOverrideStr()
+const std::string& parseNameOverrideStr()
 {
     static const std::string Str("nameOverride");
     return Str; 
 }
 
-const std::string& replaceStr()
+const std::string& parseReplaceStr()
 {
     static const std::string Str("replace");
     return Str; 
 }
 
-const std::string& copyCodeFromStr()
+const std::string& parseCopyCodeFromStr()
 {
     static const std::string Str("copyCodeFrom");
     return Str; 
 }
 
-const std::string& semanticLayerTypeStr()
+const std::string& parseSemanticLayerTypeStr()
 {
     static const std::string Str("semanticLayerType");
     return Str; 
 }
 
-const std::string& checksumFromStr()
+const std::string& parseChecksumFromStr()
 {
     static const std::string Str("checksumFrom");
     return Str; 
 }
 
-const std::string& checksumUntilStr()
+const std::string& parseChecksumUntilStr()
 {
     static const std::string Str("checksumUntil");
     return Str; 
 }
 
-const std::string& termSuffixStr()
+const std::string& parseTermSuffixStr()
 {
     static const std::string Str("termSuffix");
     return Str;     
 }
 
-const std::string& missingOnReadFailStr()
+const std::string& parseMissingOnReadFailStr()
 {
     static const std::string Str("missingOnReadFail");
     return Str; 
 }
 
-const std::string& missingOnInvalidStr()
+const std::string& parseMissingOnInvalparseIdStr()
 {
     static const std::string Str("missingOnInvalid");
     return Str; 
 }
 
-const std::string& reuseCodeStr()
+const std::string& parseReuseCodeStr()
 {
     static const std::string Str("reuseCode");
     return Str;    
 }
 
-const std::string& constructStr()
+const std::string& parseConstructStr()
 {
     static const std::string Str("construct");
     return Str;    
 }
 
-const std::string& readCondStr()
+const std::string& parseReadCondStr()
 {
     static const std::string Str("readCond");
     return Str;    
 }
 
-const std::string& validCondStr()
+const std::string& parseValidCondStr()
 {
     static const std::string Str("validCond");
     return Str;    
 }
 
-const std::string& constructAsReadCondStr()
+const std::string& parseConstructAsReadCondStr()
 {
     static const std::string Str("constructAsReadCond");
     return Str;       
 }
 
-const std::string& constructAsValidCondStr()
+const std::string& parseConstructAsValidCondStr()
 {
     static const std::string Str("constructAsValidCond");
     return Str;       
 }
 
-const std::string& copyConstructFromStr()
+const std::string& parseCopyConstructFromStr()
 {
     static const std::string Str("copyConstructFrom");
     return Str;      
 }
 
-const std::string& copyReadCondFromStr()
+const std::string& parseCopyReadCondFromStr()
 {
     static const std::string Str("copyReadCondFrom");
     return Str;      
 }
 
-const std::string& copyValidCondFromStr()
+const std::string& parseCopyValidCondFromStr()
 {
     static const std::string Str("copyValidCondFrom");
     return Str;      
 }
 
-char siblingRefPrefix()
+char parseSiblingRefPrefix()
 {
     return '$';
 }
 
-char stringRefPrefix()
+char parseStringRefPrefix()
 {
     return '^';
 }
 
-char schemaRefPrefix()
+char parseSchemaRefPrefix()
 {
     return '@';
 }
 
-char interfaceRefPrefix()
+char parseInterfaceRefPrefix()
 {
     return '%';
 }
@@ -939,7 +939,7 @@ unsigned parseStrToUnsigned(const std::string& str, bool* ok, int base)
     return result;
 }
 
-std::intmax_t strToIntMax(const std::string& str, bool* ok, int base)
+std::intmax_t parseStrToIntMax(const std::string& str, bool* ok, int base)
 {
     std::intmax_t result = 0;
     try {
@@ -956,7 +956,7 @@ std::intmax_t strToIntMax(const std::string& str, bool* ok, int base)
     return result;
 }
 
-std::uintmax_t strToUintMax(const std::string& str, bool* ok, int base)
+std::uintmax_t parseStrToUintMax(const std::string& str, bool* ok, int base)
 {
     std::uintmax_t result = 0U;
     try {
@@ -973,7 +973,7 @@ std::uintmax_t strToUintMax(const std::string& str, bool* ok, int base)
     return result;
 }
 
-double strToDouble(const std::string& str, bool* ok, bool allowSpecials)
+double parseStrToDouble(const std::string& str, bool* ok, bool allowSpecials)
 {
     auto updateOk =
         [ok](bool val)
@@ -985,9 +985,9 @@ double strToDouble(const std::string& str, bool* ok, bool allowSpecials)
 
     if (allowSpecials) {
         static const std::map<std::string, double> Map = {
-            std::make_pair(nanStr(), std::numeric_limits<double>::quiet_NaN()),
-            std::make_pair(infStr(), std::numeric_limits<double>::infinity()),
-            std::make_pair(negInfStr(), -(std::numeric_limits<double>::infinity()))
+            std::make_pair(parseNanStr(), std::numeric_limits<double>::quiet_NaN()),
+            std::make_pair(parseInfStr(), std::numeric_limits<double>::infinity()),
+            std::make_pair(parseNegInfStr(), -(std::numeric_limits<double>::infinity()))
         };
 
         auto iter = Map.find(str);
@@ -1023,7 +1023,7 @@ bool parseStrToBool(const std::string& str, bool* ok)
         "1"
     };
 
-    auto strCopy = toLowerCopy(str);
+    auto strCopy = parseToLowerCopy(str);
     auto trueIter = std::find(std::begin(TrueMap), std::end(TrueMap), strCopy);
     if (trueIter != std::end(TrueMap)) {
         updateOkFunc(true);
@@ -1044,22 +1044,22 @@ bool parseStrToBool(const std::string& str, bool* ok)
     return false;
 }
 
-bool isFpSpecial(const std::string& str)
+bool parseIsFpSpecial(const std::string& str)
 {
     static const std::string Map[] = {
-        nanStr(),
-        infStr(),
-        negInfStr()
+        parseNanStr(),
+        parseInfStr(),
+        parseNegInfStr()
     };
 
     auto iter = std::find(std::begin(Map), std::end(Map), str);
     return iter != std::end(Map);
 }
 
-ParseUnits strToUnits(const std::string& str, bool* ok)
+ParseUnits parseStrToUnits(const std::string& str, bool* ok)
 {
     static const std::map<std::string, ParseUnits> Map = {
-        std::make_pair(emptyString(), ParseUnits::Unknown),
+        std::make_pair(parseEmptyString(), ParseUnits::Unknown),
         std::make_pair("ns", ParseUnits::Nanoseconds),
         std::make_pair("nanosec", ParseUnits::Nanoseconds),
         std::make_pair("nanosecs", ParseUnits::Nanoseconds),
@@ -1247,7 +1247,7 @@ ParseUnits strToUnits(const std::string& str, bool* ok)
             }
         };
 
-    auto strToLook = toLowerCopy(str);
+    auto strToLook = parseToLowerCopy(str);
     strToLook.erase(
         std::remove_if(
             strToLook.begin(), strToLook.end(),
@@ -1267,7 +1267,7 @@ ParseUnits strToUnits(const std::string& str, bool* ok)
     return iter->second;
 }
 
-const std::string& getStringProp(
+const std::string& parseGetStringProp(
     const PropsMap& map,
     const std::string& prop,
     const std::string& defaultValue)
@@ -1287,14 +1287,14 @@ commsdsl::parse::ParseEndian parseEndian(const std::string& value, commsdsl::par
     }
 
     static const std::string Map[] = {
-        /* ParseEndian_Little */ common::littleStr(),
-        /* Endian_Big */ common::bigStr()
+        /* ParseEndian_Little */ common::parseLittleStr(),
+        /* Endian_Big */ common::parseBigStr()
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == ParseEndian_NumOfValues, "Invalid map");
 
-    auto valueCpy = toLowerCopy(value);
+    auto valueCpy = parseToLowerCopy(value);
     auto mapIter = std::find(std::begin(Map), std::end(Map), valueCpy);
     if (mapIter == std::end(Map)) {
         return ParseEndian_NumOfValues;
@@ -1303,7 +1303,7 @@ commsdsl::parse::ParseEndian parseEndian(const std::string& value, commsdsl::par
     return static_cast<ParseEndian>(std::distance(std::begin(Map), mapIter));
 }
 
-void toLower(std::string& str)
+void parseToLower(std::string& str)
 {
     std::transform(
         str.begin(), str.end(), str.begin(),
@@ -1313,7 +1313,7 @@ void toLower(std::string& str)
         });
 }
 
-std::string toLowerCopy(const std::string& str)
+std::string parseToLowerCopy(const std::string& str)
 {
     std::string result;
     result.reserve(str.size());
@@ -1326,7 +1326,7 @@ std::string toLowerCopy(const std::string& str)
     return result;
 }
 
-void removeHeadingTrailingWhitespaces(std::string& str)
+void parseRemoveHeadingTrailingWhitespaces(std::string& str)
 {
     static const std::string WhiteSpaces(" \r\n\t");
     auto startPos = str.find_first_not_of(WhiteSpaces);
@@ -1349,7 +1349,7 @@ void removeHeadingTrailingWhitespaces(std::string& str)
     str.erase(str.begin() + endPos + 1, str.end());
 }
 
-void normaliseString(std::string& str)
+void parseNormaliseString(std::string& str)
 {
     static const std::string ReplaceChars("\t\r\n");
     for (auto& ch : str) {
@@ -1433,7 +1433,7 @@ std::pair<std::string, std::string> parseRange(const std::string& str, bool* ok)
     return result;
 }
 
-bool isValidName(const std::string& value)
+bool parseIsValidName(const std::string& value)
 {
     if (value.empty()) {
         return false;
@@ -1451,9 +1451,9 @@ bool isValidName(const std::string& value)
                 });
 }
 
-bool isValidRefName(const char* buf, std::size_t len)
+bool parseIsValidRefName(const char* buf, std::size_t len)
 {
-    if ((0U < len) && (buf[0] == schemaRefPrefix())) {
+    if ((0U < len) && (buf[0] == parseSchemaRefPrefix())) {
         // Allow first character to be interschema ref
         ++buf;
         --len;
@@ -1497,30 +1497,30 @@ bool isValidRefName(const char* buf, std::size_t len)
     return true;
 }
 
-bool isValidRefName(const std::string& value)
+bool parseIsValidRefName(const std::string& value)
 {
-    return isValidRefName(value.c_str(), value.size());
+    return parseIsValidRefName(value.c_str(), value.size());
 }
 
-bool isValidExternalRefName(const std::string& value)
+bool parseIsValidExternalRefName(const std::string& value)
 {
     if (value.size() <= 1U) {
         return false;
     }
 
-    if (value[0] != stringRefPrefix()) {
+    if (value[0] != parseStringRefPrefix()) {
         return false;
     }
 
-    return isValidRefName(&value[1], value.size() - 1U);
+    return parseIsValidRefName(&value[1], value.size() - 1U);
 }
 
-std::size_t maxPossibleLength()
+std::size_t parseMaxPossibleLength()
 {
     return MaxPossibleLength;
 }
 
-void addToLength(std::size_t newLen, std::size_t& accLen)
+void parseAddToLength(std::size_t newLen, std::size_t& accLen)
 {
     if ((MaxPossibleLength - accLen) <= newLen) {
         accLen = MaxPossibleLength;
@@ -1530,7 +1530,7 @@ void addToLength(std::size_t newLen, std::size_t& accLen)
     accLen += newLen;
 }
 
-std::size_t mulLength(std::size_t len, std::size_t factor)
+std::size_t parseMulLength(std::size_t len, std::size_t factor)
 {
     if ((((MaxPossibleLength - 1) / factor) + 1) <= len) {
         return MaxPossibleLength;

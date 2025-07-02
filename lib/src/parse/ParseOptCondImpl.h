@@ -72,7 +72,7 @@ protected:
     virtual bool parseVerifyImpl(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const = 0;
     virtual bool parseHasInterfaceReferenceImpl() const = 0;
 
-    const std::string& condStr() const
+    const std::string& parseCondStr() const
     {
         return m_condStr;
     }

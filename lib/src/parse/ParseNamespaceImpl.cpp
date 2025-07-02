@@ -34,19 +34,19 @@ namespace
 {
 
 static const ParseXmlWrap::NamesList PropNames = {
-    common::nameStr(),
-    common::descriptionStr()
+    common::parseNameStr(),
+    common::parseDescriptionStr()
 };
 
 static const ParseXmlWrap::NamesList ChildrenNames = {
-    common::fieldsStr(),
-    common::messagesStr(),
-    common::messageStr(),
-    common::framesStr(),
-    common::frameStr(),
-    common::nsStr(),
-    common::interfacesStr(),
-    common::interfaceStr()
+    common::parseFieldsStr(),
+    common::parseMessagesStr(),
+    common::parseMessageStr(),
+    common::parseFramesStr(),
+    common::parseFrameStr(),
+    common::parseNsStr(),
+    common::parseInterfacesStr(),
+    common::parseInterfaceStr()
 };
 
 ParseXmlWrap::NamesList parseAllNames()
@@ -90,16 +90,16 @@ bool ParseNamespaceImpl::parseProps()
         return false;
     }
 
-    if ((!parseUpdateStringProperty(m_props, common::nameStr(), m_name)) ||
-        (!parseUpdateStringProperty(m_props, common::descriptionStr(), m_description)) ||
+    if ((!parseUpdateStringProperty(m_props, common::parseNameStr(), m_name)) ||
+        (!parseUpdateStringProperty(m_props, common::parseDescriptionStr(), m_description)) ||
         (!parseUpdateExtraAttrs()) ||
         (!parseUpdateExtraChildren())) {
         return false;
     }
 
-    if (!common::isValidName(m_name)) {
+    if (!common::parseIsValidName(m_name)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
-              "Property \"" << common::nameStr() << "\" has unexpected value (" << m_name << ").";
+              "Property \"" << common::parseNameStr() << "\" has unexpected value (" << m_name << ").";
         return false;
     }
 
@@ -135,14 +135,14 @@ bool ParseNamespaceImpl::processChild(::xmlNodePtr node, ParseNamespaceImpl* rea
 {
     using ProcessFunc = bool (ParseNamespaceImpl::*)(::xmlNodePtr node);
     static const std::map<std::string, ProcessFunc> ParseFuncMap = {
-        std::make_pair(common::nsStr(), &ParseNamespaceImpl::processNamespace),
-        std::make_pair(common::fieldsStr(), &ParseNamespaceImpl::processMultipleFields),
-        std::make_pair(common::messageStr(), &ParseNamespaceImpl::processMessage),
-        std::make_pair(common::messagesStr(), &ParseNamespaceImpl::processMultipleMessages),
-        std::make_pair(common::frameStr(), &ParseNamespaceImpl::processFrame),
-        std::make_pair(common::framesStr(), &ParseNamespaceImpl::processMultipleFrames),
-        std::make_pair(common::interfaceStr(), &ParseNamespaceImpl::processInterface),
-        std::make_pair(common::interfacesStr(), &ParseNamespaceImpl::processMultipleInterfaces),
+        std::make_pair(common::parseNsStr(), &ParseNamespaceImpl::processNamespace),
+        std::make_pair(common::parseFieldsStr(), &ParseNamespaceImpl::processMultipleFields),
+        std::make_pair(common::parseMessageStr(), &ParseNamespaceImpl::processMessage),
+        std::make_pair(common::parseMessagesStr(), &ParseNamespaceImpl::processMultipleMessages),
+        std::make_pair(common::parseFrameStr(), &ParseNamespaceImpl::processFrame),
+        std::make_pair(common::parseFramesStr(), &ParseNamespaceImpl::processMultipleFrames),
+        std::make_pair(common::parseInterfaceStr(), &ParseNamespaceImpl::processInterface),
+        std::make_pair(common::parseInterfacesStr(), &ParseNamespaceImpl::processMultipleInterfaces),
     };
 
     std::string cName(reinterpret_cast<const char*>(node->name));
@@ -492,7 +492,7 @@ bool ParseNamespaceImpl::parseValidateAllMessages(bool allowNonUniquIds)
         if (iter->parseOrder() == nextIter->parseOrder()) {
             parseLogError() << "Messages \"" << iter->parseExternalRef() << "\" and \"" <<
                           nextIter->parseExternalRef() << "\" have the same \"" <<
-                          common::idStr() << "\" and \"" << common::orderStr() << "\" values.";
+                          common::parseIdStr() << "\" and \"" << common::parseOrderStr() << "\" values.";
             return false;
         }
 
@@ -627,9 +627,9 @@ bool ParseNamespaceImpl::processMultipleMessages(::xmlNodePtr node)
     for (auto c : childrenNodes) {
         assert(c != nullptr);
         std::string cName(reinterpret_cast<const char*>(c->name));
-        if (cName != common::messageStr()) {
+        if (cName != common::parseMessageStr()) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(c) <<
-                "The \"" << common::messagesStr() << "\" element cannot contain \"" <<
+                "The \"" << common::parseMessagesStr() << "\" element cannot contain \"" <<
                 cName << "\".";
             return false;
         }
@@ -668,9 +668,9 @@ bool ParseNamespaceImpl::processMultipleInterfaces(::xmlNodePtr node)
     for (auto c : childrenNodes) {
         assert(c != nullptr);
         std::string cName(reinterpret_cast<const char*>(c->name));
-        if (cName != common::interfaceStr()) {
+        if (cName != common::parseInterfaceStr()) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(c) <<
-                "The \"" << common::interfacesStr() << "\" element cannot contain \"" <<
+                "The \"" << common::parseInterfacesStr() << "\" element cannot contain \"" <<
                 cName << "\".";
             return false;
         }
@@ -709,9 +709,9 @@ bool ParseNamespaceImpl::processMultipleFrames(::xmlNodePtr node)
     for (auto c : childrenNodes) {
         assert(c != nullptr);
         std::string cName(reinterpret_cast<const char*>(c->name));
-        if (cName != common::frameStr()) {
+        if (cName != common::parseFrameStr()) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(c) <<
-                "The \"" << common::framesStr() << "\" element cannot contain \"" <<
+                "The \"" << common::parseFramesStr() << "\" element cannot contain \"" <<
                 cName << "\".";
             return false;
         }
@@ -746,7 +746,7 @@ bool ParseNamespaceImpl::parseStrToValue(const std::string& ref, StrToValueNsCon
         }
 
         assert(fieldIter->second);
-        return fFunc(*fieldIter->second, common::emptyString());
+        return fFunc(*fieldIter->second, common::parseEmptyString());
     }
 
     std::string firstName(ref, 0, firstDotPos);

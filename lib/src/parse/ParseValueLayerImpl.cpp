@@ -29,7 +29,7 @@ namespace parse
 
 ParseValueLayerImpl::ParseValueLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol)
   : Base(node, protocol),
-    m_fieldName(&common::emptyString())
+    m_fieldName(&common::parseEmptyString())
 {
 }
 
@@ -62,8 +62,8 @@ ParseLayerImpl::Kind ParseValueLayerImpl::parseKindImpl() const
 const ParseXmlWrap::NamesList& ParseValueLayerImpl::parseExtraPropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList Names = {
-        common::interfacesStr(),
-        common::interfaceFieldNameStr(),
+        common::parseInterfacesStr(),
+        common::parseInterfaceFieldNameStr(),
         common::pseudoStr()
     };
     return Names;
@@ -84,12 +84,12 @@ bool ParseValueLayerImpl::parseVerifyImpl(const ParseLayerImpl::LayersList& laye
 
 bool ParseValueLayerImpl::parseUpdateInterfaces()
 {
-    if (!parseValidateSinglePropInstance(common::interfacesStr())) {
+    if (!parseValidateSinglePropInstance(common::parseInterfacesStr())) {
         return false;
     }
 
     do {
-        auto iter = parseProps().find(common::interfacesStr());
+        auto iter = parseProps().find(common::parseInterfacesStr());
         if (iter == parseProps().end()) {
             auto& namespaces = parseProtocol().parseCurrSchema().parseNamespaces();
             for (auto& n : namespaces) {
@@ -103,7 +103,7 @@ bool ParseValueLayerImpl::parseUpdateInterfaces()
         }
 
         if (iter->second.empty()) {
-            parseReportUnexpectedPropertyValue(common::interfacesStr(), iter->second);
+            parseReportUnexpectedPropertyValue(common::parseInterfacesStr(), iter->second);
             return false;
         }
 
@@ -111,9 +111,9 @@ bool ParseValueLayerImpl::parseUpdateInterfaces()
         while (true) {
             auto commaPos = iter->second.find(',', pos);
             std::string ref(iter->second, pos, commaPos - pos);
-            common::removeHeadingTrailingWhitespaces(ref);
+            common::parseRemoveHeadingTrailingWhitespaces(ref);
             if (ref.empty()) {
-                parseReportUnexpectedPropertyValue(common::interfacesStr(), iter->second);
+                parseReportUnexpectedPropertyValue(common::parseInterfacesStr(), iter->second);
                 return false;
             }
 
@@ -142,15 +142,15 @@ bool ParseValueLayerImpl::parseUpdateInterfaces()
 
 bool ParseValueLayerImpl::parseUpdateFieldName()
 {
-    if (!parseValidateSinglePropInstance(common::interfaceFieldNameStr(), true)) {
+    if (!parseValidateSinglePropInstance(common::parseInterfaceFieldNameStr(), true)) {
         return false;
     }
 
-    auto iter = parseProps().find(common::interfaceFieldNameStr());
+    auto iter = parseProps().find(common::parseInterfaceFieldNameStr());
     assert(iter != parseProps().end());
     m_fieldName = &iter->second;
     if (parseFieldName().empty()) {
-        parseReportUnexpectedPropertyValue(common::interfaceFieldNameStr(), parseFieldName());
+        parseReportUnexpectedPropertyValue(common::parseInterfaceFieldNameStr(), parseFieldName());
         return false;
     }
 

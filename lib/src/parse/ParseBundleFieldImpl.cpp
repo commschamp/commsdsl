@@ -43,9 +43,9 @@ const ParseXmlWrap::NamesList& parseBundleSupportedTypes()
 ParseXmlWrap::NamesList parseGetExtraNames()
 {
     auto names = parseBundleSupportedTypes();
-    names.push_back(common::membersStr());
-    names.push_back(common::aliasStr());
-    names.push_back(common::validCondStr());
+    names.push_back(common::parseMembersStr());
+    names.push_back(common::parseAliasStr());
+    names.push_back(common::parseValidCondStr());
     return names;
 }
 
@@ -104,8 +104,8 @@ ParseFieldImpl::Ptr ParseBundleFieldImpl::parseCloneImpl() const
 const ParseXmlWrap::NamesList& ParseBundleFieldImpl::parseExtraPropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
-        common::reuseAliasesStr(),
-        common::copyValidCondFromStr(),
+        common::parseReuseAliasesStr(),
+        common::parseCopyValidCondFromStr(),
     };
 
     return List;
@@ -114,7 +114,7 @@ const ParseXmlWrap::NamesList& ParseBundleFieldImpl::parseExtraPropsNamesImpl() 
 const ParseXmlWrap::NamesList& ParseBundleFieldImpl::parseExtraPossiblePropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
-        common::validCondStr(),
+        common::parseValidCondStr(),
     };
 
     return List;
@@ -146,7 +146,7 @@ bool ParseBundleFieldImpl::parseReuseImpl(const ParseFieldImpl& other)
         }
 
         bool reuseAliases = true;
-        if (!parseValidateAndUpdateBoolPropValue(common::reuseAliasesStr(), reuseAliases)) {
+        if (!parseValidateAndUpdateBoolPropValue(common::parseReuseAliasesStr(), reuseAliases)) {
             return false;
         }
 
@@ -222,10 +222,10 @@ std::size_t ParseBundleFieldImpl::parseMaxLengthImpl() const
     std::size_t sum = 0U;
     for (auto& m : m_members) {
         if (m->parseSemanticType() == SemanticType::Length) {
-            return common::maxPossibleLength();
+            return common::parseMaxPossibleLength();
         }
 
-        common::addToLength(m->parseMaxLength(), sum);
+        common::parseAddToLength(m->parseMaxLength(), sum);
     }
 
     return sum;
@@ -321,27 +321,27 @@ bool ParseBundleFieldImpl::parseUpdateMembers()
     }
 
     do {
-        auto membersNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::membersStr());
+        auto membersNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::parseMembersStr());
         if (1U < membersNodes.size()) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                          "Only single \"" << common::membersStr() << "\" child element is "
-                          "supported for \"" << common::bundleStr() << "\".";
+                          "Only single \"" << common::parseMembersStr() << "\" child element is "
+                          "supported for \"" << common::parseBundleStr() << "\".";
             return false;
         }
 
         auto memberFieldsTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseBundleSupportedTypes());
         if ((0U < membersNodes.size()) && (0U < memberFieldsTypes.size())) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                          "The \"" << common::bundleStr() << "\" element does not support "
+                          "The \"" << common::parseBundleStr() << "\" element does not support "
                           "list of stand alone member fields as child elements together with \"" <<
-                          common::membersStr() << "\" child element.";
+                          common::parseMembersStr() << "\" child element.";
             return false;
         }
 
         if ((0U == membersNodes.size()) && (0U == memberFieldsTypes.size())) {
             if (m_members.empty()) {
                 parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                              "The \"" << common::bundleStr() << "\" must contain member fields.";
+                              "The \"" << common::parseBundleStr() << "\" must contain member fields.";
                 return false;
             }
 
@@ -353,8 +353,8 @@ bool ParseBundleFieldImpl::parseUpdateMembers()
             auto allChildren = ParseXmlWrap::parseGetChildren(parseGetNode());
             if (allChildren.size() != memberFieldsTypes.size()) {
                 parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                              "The member types of \"" << common::bundleStr() <<
-                              "\" must be defined inside \"<" << common::membersStr() << ">\" child element "
+                              "The member types of \"" << common::parseBundleStr() <<
+                              "\" must be defined inside \"<" << common::parseMembersStr() << ">\" child element "
                               "when there are other property describing children.";
                 return false;
             }
@@ -366,8 +366,8 @@ bool ParseBundleFieldImpl::parseUpdateMembers()
             auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(membersNodes.front(), parseBundleSupportedTypes());
             if (cleanMemberFieldsTypes.size() != memberFieldsTypes.size()) {
                 parseLogError() << ParseXmlWrap::parseLogPrefix(membersNodes.front()) <<
-                              "The \"" << common::membersStr() << "\" child node of \"" <<
-                              common::bundleStr() << "\" element must contain only supported types.";
+                              "The \"" << common::parseMembersStr() << "\" child node of \"" <<
+                              common::parseBundleStr() << "\" element must contain only supported types.";
                 return false;
             }
 
@@ -428,8 +428,8 @@ bool ParseBundleFieldImpl::parseUpdateMembers()
 
     if (1 < lengthFieldsCount) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "No more that single field with semantiType=\"" << common::lengthStr() << "\" "
-            "is allowed within \"" << common::bundleStr() << "\".";
+            "No more that single field with semantiType=\"" << common::parseLengthStr() << "\" "
+            "is allowed within \"" << common::parseBundleStr() << "\".";
         return false;
     }
 
@@ -459,7 +459,7 @@ bool ParseBundleFieldImpl::parseUpdateAliases()
             m_aliases.end());
     }
 
-    auto aliasNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::aliasStr());
+    auto aliasNodes = ParseXmlWrap::parseGetChildren(parseGetNode(), common::parseAliasStr());
 
     if (aliasNodes.empty()) {
         return true;
@@ -467,8 +467,8 @@ bool ParseBundleFieldImpl::parseUpdateAliases()
 
     if (!parseProtocol().parseIsFieldAliasSupported()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(aliasNodes.front()) <<
-              "Using \"" << common::aliasStr() << "\" nodes for too early \"" <<
-              common::dslVersionStr() << "\".";
+              "Using \"" << common::parseAliasStr() << "\" nodes for too early \"" <<
+              common::parseDslVersionStr() << "\".";
         return false;
     }
 
@@ -499,23 +499,23 @@ bool ParseBundleFieldImpl::parseUpdateAliases()
 
 bool ParseBundleFieldImpl::parseUpdateSingleValidCond()
 {
-    return parseUpdateSingleCondInternal(common::validCondStr(), m_validCond);
+    return parseUpdateSingleCondInternal(common::parseValidCondStr(), m_validCond);
 }
 
 bool ParseBundleFieldImpl::parseUpdateMultiValidCond()
 {
-    return parseUpdateMultiCondInternal(common::validCondStr(), m_validCond);
+    return parseUpdateMultiCondInternal(common::parseValidCondStr(), m_validCond);
 }
 
 
 bool ParseBundleFieldImpl::parseCopyValidCond()
 {
-    auto& prop = common::copyValidCondFromStr();
+    auto& prop = common::parseCopyValidCondFromStr();
     if (!parseValidateSinglePropInstance(prop)) {
         return false;
     }
 
-    auto& copySrc = common::getStringProp(parseProps(), prop);
+    auto& copySrc = common::parseGetStringProp(parseProps(), prop);
     if (copySrc.empty()) {
         return true;
     }
@@ -619,14 +619,14 @@ bool ParseBundleFieldImpl::parseUpdateMultiCondInternal(const std::string& prop,
     }
 
     static const ParseXmlWrap::NamesList ElemNames = {
-        common::andStr(),
-        common::orStr()
+        common::parseAndStr(),
+        common::parseOrStr()
     };
 
     auto condChildren = ParseXmlWrap::parseGetChildren(condNodes.front(), ElemNames);
     if (condChildren.size() != condNodes.size()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "Only single \"" << common::andStr() << "\" or \"" << common::orStr() << "\" child of the \"" << prop << "\" element is supported.";           
+            "Only single \"" << common::parseAndStr() << "\" or \"" << common::parseOrStr() << "\" child of the \"" << prop << "\" element is supported.";           
         return false;
     }    
 

@@ -60,7 +60,7 @@ struct ParseXmlWrap
 
     static const NamesList& parseEmptyNamesList();
     static PropsMap parseNodeProps(::xmlNodePtr node);
-    static NodesList parseGetChildren(::xmlNodePtr node, const std::string& name = common::emptyString(), bool skipValueAttr = false);
+    static NodesList parseGetChildren(::xmlNodePtr node, const std::string& name = common::parseEmptyString(), bool skipValueAttr = false);
     static NodesList parseGetChildren(::xmlNodePtr node, const NamesList& names, bool skipValueAttr = false);
     static std::string parseGetText(::xmlNodePtr node);
     static bool parseNodeValue(

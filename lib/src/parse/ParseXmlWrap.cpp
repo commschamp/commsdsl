@@ -43,7 +43,7 @@ ParseXmlWrap::PropsMap ParseXmlWrap::parseNodeProps(::xmlNodePtr node)
             std::make_pair(
                 reinterpret_cast<const char*>(prop->name),
                 reinterpret_cast<const char*>(valuePtr.get())));
-        common::removeHeadingTrailingWhitespaces(iter->second);
+        common::parseRemoveHeadingTrailingWhitespaces(iter->second);
         prop = prop->next;
     }
 
@@ -103,7 +103,7 @@ std::string ParseXmlWrap::parseGetText(::xmlNodePtr node)
     auto* child = node->children;
     while (child != nullptr) {
         if (child->type == XML_ELEMENT_NODE) {
-            return common::emptyString();
+            return common::parseEmptyString();
         }
 
         child = child->next;
@@ -132,11 +132,11 @@ bool ParseXmlWrap::parseNodeValue(
     std::string valueTmp;
     if (valIter != props.end()) {
         valueTmp = valIter->second;
-        common::removeHeadingTrailingWhitespaces(valueTmp);
+        common::parseRemoveHeadingTrailingWhitespaces(valueTmp);
     }
 
     auto text = parseGetText(node);
-    common::removeHeadingTrailingWhitespaces(text);
+    common::parseRemoveHeadingTrailingWhitespaces(text);
     if (valueTmp.empty() && text.empty()) {
         if (!mustHaveValue) {
             return true;
@@ -159,7 +159,7 @@ bool ParseXmlWrap::parseNodeValue(
     }
 
     assert(!text.empty());
-    common::normaliseString(text);
+    common::parseNormaliseString(text);
     value = std::move(text);
     return true;
 }
@@ -330,28 +330,28 @@ bool ParseXmlWrap::parseCheckVersions(
     assert(parentVersion < parentDeprecated);
     if (protocol.parseCurrSchema().parseVersion() < sinceVersion) {
         parseLogError(protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(node) <<
-            "The value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ") cannot "
-            "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol.parseCurrSchema().parseVersion() << ").";
+            "The value of \"" << common::parseSinceVersionStr() << "\" property (" << sinceVersion << ") cannot "
+            "be greater than value of \"" << common::parseVersionStr() << "\" property of the schema (" << protocol.parseCurrSchema().parseVersion() << ").";
         return false;
     }
 
     if (sinceVersion < parentVersion) {
         parseLogError(protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(node) <<
-            "The value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ") cannot "
+            "The value of \"" << common::parseSinceVersionStr() << "\" property (" << sinceVersion << ") cannot "
             "be less than " << parentVersion << ".";
         return false;
     }
 
     if (parentDeprecated <= sinceVersion) {
         parseLogError(protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(node) <<
-            "The value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ") must "
+            "The value of \"" << common::parseSinceVersionStr() << "\" property (" << sinceVersion << ") must "
             "be less than " << parentDeprecated << ".";
         return false;
     }
 
     if (parentDeprecated < deprecatedSince) {
         parseLogError(protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(node) <<
-            "The value of \"" << common::deprecatedStr() << "\" property (" << deprecatedSince << ") cannot "
+            "The value of \"" << common::parseDeprecatedStr() << "\" property (" << deprecatedSince << ") cannot "
             "be greater than " << parentDeprecated << ".";
         return false;
     }
@@ -359,16 +359,16 @@ bool ParseXmlWrap::parseCheckVersions(
 
     if (deprecatedSince <= sinceVersion) {
         parseLogError(protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(node) <<
-            "The value of \"" << common::deprecatedStr() << "\" property (" << deprecatedSince << ") must "
-            "be greater than value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ").";
+            "The value of \"" << common::parseDeprecatedStr() << "\" property (" << deprecatedSince << ") must "
+            "be greater than value of \"" << common::parseSinceVersionStr() << "\" property (" << sinceVersion << ").";
         return false;
     }
 
     if ((deprecatedSince < commsdsl::parse::ParseProtocol::parseNotYetDeprecated()) &&
         (protocol.parseCurrSchema().parseVersion() < deprecatedSince)) {
         parseLogError(protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(node) <<
-            "The value of \"" << common::deprecatedStr() << "\" property (" << deprecatedSince << ") cannot "
-            "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol.parseCurrSchema().parseVersion() << ").";
+            "The value of \"" << common::parseDeprecatedStr() << "\" property (" << deprecatedSince << ") cannot "
+            "be greater than value of \"" << common::parseVersionStr() << "\" property of the schema (" << protocol.parseCurrSchema().parseVersion() << ").";
         return false;
     }
 
@@ -385,7 +385,7 @@ bool ParseXmlWrap::parseGetAndCheckVersions(
 {
     auto parentVersion = sinceVersion;
     auto parentDeprecated = deprecatedSince;
-    auto sinceVerIter = props.find(common::sinceVersionStr());
+    auto sinceVerIter = props.find(common::parseSinceVersionStr());
     do {
         if (sinceVerIter == props.end()) {
             assert(sinceVersion <= protocol.parseCurrSchema().parseVersion());
@@ -396,13 +396,13 @@ bool ParseXmlWrap::parseGetAndCheckVersions(
         bool ok = false;
         sinceVersion = common::parseStrToUnsigned(sinceVerStr, &ok);
         if (!ok) {
-            parseReportUnexpectedPropertyValue(node, name, common::sinceVersionStr(), sinceVerStr, protocol.parseLogger());
+            parseReportUnexpectedPropertyValue(node, name, common::parseSinceVersionStr(), sinceVerStr, protocol.parseLogger());
             return false;
         }
 
     } while (false);
 
-    auto deprecatedIter = props.find(common::deprecatedStr());
+    auto deprecatedIter = props.find(common::parseDeprecatedStr());
     do {
         if (deprecatedIter == props.end()) {
             break;
@@ -412,7 +412,7 @@ bool ParseXmlWrap::parseGetAndCheckVersions(
         bool ok = false;
         deprecatedSince = common::parseStrToUnsigned(deprecatedStr, &ok);
         if (!ok) {
-            ParseXmlWrap::parseReportUnexpectedPropertyValue(node, name, common::deprecatedStr(), deprecatedStr, protocol.parseLogger());
+            ParseXmlWrap::parseReportUnexpectedPropertyValue(node, name, common::parseDeprecatedStr(), deprecatedStr, protocol.parseLogger());
             return false;
         }
 
@@ -434,8 +434,8 @@ bool ParseXmlWrap::parseGetAndCheckVersions(
 {
     auto props = parseNodeProps(node);
     static const NamesList Names = {
-        common::sinceVersionStr(),
-        common::deprecatedStr()
+        common::parseSinceVersionStr(),
+        common::parseDeprecatedStr()
     };
 
     if (!parseChildrenAsProps(node, Names, protocol.parseLogger(), props)) {

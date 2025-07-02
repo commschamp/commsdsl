@@ -36,7 +36,7 @@ ParseLayerImpl::Kind ParseSizeLayerImpl::parseKindImpl() const
 
 bool ParseSizeLayerImpl::parseVerifyImpl(const ParseLayerImpl::LayersList& layers)
 {
-    return parseVerifySingleLayer(layers, common::sizeStr()) &&
+    return parseVerifySingleLayer(layers, common::parseSizeStr()) &&
            parseVerifyBeforePayload(layers);
 }
 

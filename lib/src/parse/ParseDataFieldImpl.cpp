@@ -67,10 +67,10 @@ ParseFieldImpl::Ptr ParseDataFieldImpl::parseCloneImpl() const
 const ParseXmlWrap::NamesList& ParseDataFieldImpl::parseExtraPropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
-        common::lengthStr(),
-        common::defaultValueStr(),
-        common::defaultValidValueStr(),
-        common::validValueStr(),
+        common::parseLengthStr(),
+        common::parseDefaultValueStr(),
+        common::parseDefaultValidValueStr(),
+        common::parseValidValueStr(),
     };
 
     return List;
@@ -79,7 +79,7 @@ const ParseXmlWrap::NamesList& ParseDataFieldImpl::parseExtraPropsNamesImpl() co
 const ParseXmlWrap::NamesList&ParseDataFieldImpl::parseExtraPossiblePropsNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
-        common::lengthPrefixStr(),
+        common::parseLengthPrefixStr(),
     };
 
     return List;
@@ -88,7 +88,7 @@ const ParseXmlWrap::NamesList&ParseDataFieldImpl::parseExtraPossiblePropsNamesIm
 const ParseXmlWrap::NamesList& ParseDataFieldImpl::parseExtraChildrenNamesImpl() const
 {
     static const ParseXmlWrap::NamesList List = {
-        common::lengthPrefixStr()
+        common::parseLengthPrefixStr()
     };
 
     return List;
@@ -133,7 +133,7 @@ bool ParseDataFieldImpl::parseVerifySiblingsImpl(const ParseFieldImpl::FieldsLis
     auto fieldKind = parseGetNonRefFieldKind(*sibling);
     if ((fieldKind != Kind::Int) && (sibling->parseSemanticType() != SemanticType::Length)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "Detached length prefix is expected to be of \"" << common::intStr() << "\" type "
+            "Detached length prefix is expected to be of \"" << common::parseIntStr() << "\" type "
             "or have semanticType=\"length\" property set.";
         return false;
     }
@@ -166,11 +166,11 @@ std::size_t ParseDataFieldImpl::parseMaxLengthImpl() const
         assert(prefixField->parseKind() == ParseField::Kind::Int);
         auto& castedPrefix = static_cast<const ParseIntFieldImpl&>(*prefixField);
         auto len = castedPrefix.parseMaxLength();
-        common::addToLength(static_cast<std::size_t>(castedPrefix.parseMaxValue()), len);
+        common::parseAddToLength(static_cast<std::size_t>(castedPrefix.parseMaxValue()), len);
         return len;
     }
 
-    return common::maxPossibleLength();
+    return common::parseMaxPossibleLength();
 }
 
 bool ParseDataFieldImpl::parseStrToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const
@@ -194,19 +194,19 @@ bool ParseDataFieldImpl::parseIsValidRefTypeImpl(FieldRefType type) const
 
 bool ParseDataFieldImpl::parseUpdateDefaultValue()
 {
-    if (!parseValidateSinglePropInstance(common::defaultValueStr())) {
+    if (!parseValidateSinglePropInstance(common::parseDefaultValueStr())) {
         return false;
     }
 
     do {
-        auto iter = parseProps().find(common::defaultValueStr());
+        auto iter = parseProps().find(common::parseDefaultValueStr());
         if (iter == parseProps().end()) {
             break;
         }
 
         if (!parseStrToValue(iter->second, m_state.m_defaultValue)) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                "Property \"" << common::defaultValueStr() << "\" of element \"" << parseName() <<
+                "Property \"" << common::parseDefaultValueStr() << "\" of element \"" << parseName() <<
                 "\" has unexpected value (" << iter->second << "), expected to "
                 "be hex values string with even number of non-white characters.";
             return false;
@@ -224,7 +224,7 @@ bool ParseDataFieldImpl::parseUpdateDefaultValue()
 
 bool ParseDataFieldImpl::parseUpdateDefaultValidValue()
 {
-    auto& propName = common::defaultValidValueStr();
+    auto& propName = common::parseDefaultValidValueStr();
     if (!parseValidateSinglePropInstance(propName)) {
         return false;
     }
@@ -236,7 +236,7 @@ bool ParseDataFieldImpl::parseUpdateDefaultValidValue()
 
     if (!parseProtocol().parseIsValidValueInStringAndDataSupported()) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) << 
-            "Property \"" << common::defaultValidValueStr() << "\" for <data> field is not supported for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion() << ", ignoring...";        
+            "Property \"" << common::parseDefaultValidValueStr() << "\" for <data> field is not supported for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion() << ", ignoring...";        
         return true;
     }     
 
@@ -261,11 +261,11 @@ bool ParseDataFieldImpl::parseUpdateDefaultValidValue()
 
 bool ParseDataFieldImpl::parseUpdateLength()
 {
-    if (!parseValidateSinglePropInstance(common::lengthStr())) {
+    if (!parseValidateSinglePropInstance(common::parseLengthStr())) {
         return false;
     }
 
-    auto iter = parseProps().find(common::lengthStr());
+    auto iter = parseProps().find(common::parseLengthStr());
     if (iter == parseProps().end()) {
         return true;
     }
@@ -273,7 +273,7 @@ bool ParseDataFieldImpl::parseUpdateLength()
     bool ok = false;
     auto newVal = common::parseStrToUnsigned(iter->second, &ok);
     if ((!ok) || (newVal == 0U)) {
-        parseReportUnexpectedPropertyValue(common::lengthStr(), iter->second);
+        parseReportUnexpectedPropertyValue(common::parseLengthStr(), iter->second);
         return false;
     }
 
@@ -317,7 +317,7 @@ bool ParseDataFieldImpl::parseUpdateValidValues()
         return false;
     }
 
-    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::validValueStr());
+    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::parseValidValueStr());
     for (auto* c : children) {
         if (!parseCheckValidValueAsChild(c)) {
             return false;
@@ -335,31 +335,31 @@ bool ParseDataFieldImpl::parseUpdateValidValues()
 
 bool ParseDataFieldImpl::parseCheckPrefixFromRef()
 {
-    if (!parseValidateSinglePropInstance(common::lengthPrefixStr())) {
+    if (!parseValidateSinglePropInstance(common::parseLengthPrefixStr())) {
         return false;
     }
 
-    auto iter = parseProps().find(common::lengthPrefixStr());
+    auto iter = parseProps().find(common::parseLengthPrefixStr());
     if (iter == parseProps().end()) {
         return true;
     }
 
     auto& str = iter->second;
     if (str.empty()) {
-        parseReportUnexpectedPropertyValue(common::lengthPrefixStr(), str);
+        parseReportUnexpectedPropertyValue(common::parseLengthPrefixStr(), str);
         return false;
     }
 
-    if (str[0] == common::siblingRefPrefix()) {
+    if (str[0] == common::parseSiblingRefPrefix()) {
         if (!parseCheckDetachedPrefixAllowed()) {
             return false;
         }
 
         m_state.m_detachedPrefixField = std::string(str, 1);
-        common::normaliseString(m_state.m_detachedPrefixField);
+        common::parseNormaliseString(m_state.m_detachedPrefixField);
 
         if (m_state.m_detachedPrefixField.empty()) {
-            parseReportUnexpectedPropertyValue(common::lengthPrefixStr(), str);
+            parseReportUnexpectedPropertyValue(common::parseLengthPrefixStr(), str);
             return false;
         }
 
@@ -371,15 +371,15 @@ bool ParseDataFieldImpl::parseCheckPrefixFromRef()
     auto* field = parseProtocol().parseFindField(iter->second);
     if (field == nullptr) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "Cannot find field referenced by \"" << common::lengthPrefixStr() <<
+            "Cannot find field referenced by \"" << common::parseLengthPrefixStr() <<
             "\" property (" << iter->second << ").";
         return false;
     }
 
     if ((field->parseKind() != Kind::Int) && (field->parseSemanticType() != SemanticType::Length)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The field referenced by \"" << common::lengthPrefixStr() <<
-            "\" property (" << iter->second << ") must be of type \"" << common::intStr() << 
+            "The field referenced by \"" << common::parseLengthPrefixStr() <<
+            "\" property (" << iter->second << ") must be of type \"" << common::parseIntStr() << 
             "\" or have semanticType=\"length\" property set.";
         return false;
     }
@@ -393,13 +393,13 @@ bool ParseDataFieldImpl::parseCheckPrefixFromRef()
 
 bool ParseDataFieldImpl::parseCheckPrefixAsChild()
 {
-    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::lengthPrefixStr());
+    auto children = ParseXmlWrap::parseGetChildren(parseGetNode(), common::parseLengthPrefixStr());
     if (children.empty()) {
         return true;
     }
 
     if (1U < children.size()) {
-        parseLogError() << "There must be only one occurance of \"" << common::lengthPrefixStr() << "\".";
+        parseLogError() << "There must be only one occurance of \"" << common::parseLengthPrefixStr() << "\".";
         return false;
     }
 
@@ -407,12 +407,12 @@ bool ParseDataFieldImpl::parseCheckPrefixAsChild()
     auto prefixFields = ParseXmlWrap::parseGetChildren(child);
     if (1U < prefixFields.size()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(child) <<
-            "The \"" << common::lengthPrefixStr() << "\" element is expected to define only "
+            "The \"" << common::parseLengthPrefixStr() << "\" element is expected to define only "
             "single field";
         return false;
     }
 
-    auto iter = parseProps().find(common::lengthPrefixStr());
+    auto iter = parseProps().find(common::parseLengthPrefixStr());
     bool hasInProps = iter != parseProps().end();
     if (prefixFields.empty()) {
         if (hasInProps) {
@@ -420,7 +420,7 @@ bool ParseDataFieldImpl::parseCheckPrefixAsChild()
         }
 
         parseLogError() << ParseXmlWrap::parseLogPrefix(child) <<
-            "The \"" << common::lengthPrefixStr() << "\" element "
+            "The \"" << common::parseLengthPrefixStr() << "\" element "
             "is expected to define field as child element";
 
         return false;
@@ -428,7 +428,7 @@ bool ParseDataFieldImpl::parseCheckPrefixAsChild()
 
     if (hasInProps) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The \"" << common::lengthPrefixStr() << "\" element is expected to define only "
+            "The \"" << common::parseLengthPrefixStr() << "\" element is expected to define only "
             "single field";
         return false;
     }
@@ -451,7 +451,7 @@ bool ParseDataFieldImpl::parseCheckPrefixAsChild()
 
     if ((field->parseKind() != Kind::Int) && (field->parseSemanticType() != SemanticType::Length)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The \"" << common::lengthPrefixStr() << "\" element must be of type \"" << common::intStr() << 
+            "The \"" << common::parseLengthPrefixStr() << "\" element must be of type \"" << common::parseIntStr() << 
             "\" or have semanticType=\"length\" property set.";
         return false;
     }      
@@ -465,21 +465,21 @@ bool ParseDataFieldImpl::parseCheckPrefixAsChild()
 
 bool ParseDataFieldImpl::parseCheckValidValueAsAttr(const ParseFieldImpl::PropsMap& xmlAttrs)
 {
-    auto iter = xmlAttrs.find(common::validValueStr());
+    auto iter = xmlAttrs.find(common::parseValidValueStr());
     if (iter == xmlAttrs.end()) {
         return true;
     }
 
     if (!parseProtocol().parseIsValidValueInStringAndDataSupported()) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) << 
-            "Property \"" << common::validValueStr() << "\" for <data> field is not supported for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion() << ", ignoring...";        
+            "Property \"" << common::parseValidValueStr() << "\" for <data> field is not supported for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion() << ", ignoring...";        
         return true;
     }    
 
     ValidValueInfo info;
     if (!parseStrToValue(iter->second, info.m_value)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                      "Property value \"" << common::validValueStr() << "\" of <data> element \"" <<
+                      "Property value \"" << common::parseValidValueStr() << "\" of <data> element \"" <<
                       parseName() << "\" cannot be properly parsed.";
         return false;
     }    
@@ -500,14 +500,14 @@ bool ParseDataFieldImpl::parseCheckValidValueAsChild(::xmlNodePtr child)
 
     if (!parseProtocol().parseIsValidValueInStringAndDataSupported()) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) << 
-            "Property \"" << common::validValueStr() << "\" for <data> field is not supported for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion() << ", ignoring...";        
+            "Property \"" << common::parseValidValueStr() << "\" for <data> field is not supported for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion() << ", ignoring...";        
         return true;
     }        
 
     ValidValueInfo info;
     if (!parseStrToValue(str, info.m_value)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                      "Property value \"" << common::validValueStr() << "\" of <data> element \"" <<
+                      "Property value \"" << common::parseValidValueStr() << "\" of <data> element \"" <<
                       parseName() << "\" cannot be properly parsed.";
         return false;
     }    
@@ -537,7 +537,7 @@ const ParseFieldImpl* ParseDataFieldImpl::parseGetPrefixField() const
 
 bool ParseDataFieldImpl::parseStrToValue(const std::string& str, ValueType& val) const
 {
-    if ((!str.empty()) && (str[0] == common::stringRefPrefix()) && parseProtocol().parseIsFieldValueReferenceSupported()) {
+    if ((!str.empty()) && (str[0] == common::parseStringRefPrefix()) && parseProtocol().parseIsFieldValueReferenceSupported()) {
         return parseProtocol().parseStrToData(std::string(str, 1), false, val);
     }
 
