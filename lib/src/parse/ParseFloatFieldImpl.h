@@ -15,13 +15,13 @@
 
 #pragma once
 
-#include <utility>
-#include <vector>
-#include <map>
-
 #include "commsdsl/parse/ParseEndian.h"
 #include "commsdsl/parse/ParseFloatField.h"
 #include "ParseFieldImpl.h"
+
+#include <map>
+#include <utility>
+#include <vector>
 
 namespace commsdsl
 {

@@ -14,9 +14,10 @@
 // limitations under the License.
 
 #include "commsdsl/parse/ParseInterface.h"
-#include <cassert>
 
 #include "ParseInterfaceImpl.h"
+
+#include <cassert>
 
 namespace commsdsl
 {

@@ -15,10 +15,10 @@
 
 #pragma once
 
-#include <sstream>
-
 #include "commsdsl/parse/ParseErrorLevel.h"
 #include "commsdsl/parse/ParseProtocol.h"
+
+#include <sstream>
 
 namespace commsdsl
 {

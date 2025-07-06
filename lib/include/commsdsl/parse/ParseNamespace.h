@@ -15,14 +15,14 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
-
 #include "commsdsl/CommsdslApi.h"
 #include "commsdsl/parse/ParseField.h"
-#include "commsdsl/parse/ParseMessage.h"
-#include "commsdsl/parse/ParseInterface.h"
 #include "commsdsl/parse/ParseFrame.h"
+#include "commsdsl/parse/ParseInterface.h"
+#include "commsdsl/parse/ParseMessage.h"
+
+#include <string>
+#include <vector>
 
 namespace commsdsl
 {

@@ -15,9 +15,9 @@
 
 #include "commsdsl/parse/ParseIntField.h"
 
-#include <cassert>
-
 #include "ParseIntFieldImpl.h"
+
+#include <cassert>
 
 namespace commsdsl
 {

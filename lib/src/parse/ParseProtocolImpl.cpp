@@ -15,15 +15,15 @@
 
 #include "ParseProtocolImpl.h"
 
+#include "ParseEnumFieldImpl.h"
+#include "ParseFieldImpl.h"
+#include "ParseXmlWrap.h"
+
 #include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <numeric>
 #include <type_traits>
-
-#include "ParseEnumFieldImpl.h"
-#include "ParseFieldImpl.h"
-#include "ParseXmlWrap.h"
 
 namespace commsdsl
 {

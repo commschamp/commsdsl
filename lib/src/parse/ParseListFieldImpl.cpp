@@ -15,15 +15,16 @@
 
 #include "ParseListFieldImpl.h"
 
-#include <type_traits>
+#include "ParseIntFieldImpl.h"
+#include "ParseProtocolImpl.h"
+#include "parse_common.h"
+
 #include <algorithm>
+#include <cassert>
 #include <iterator>
 #include <limits>
-#include <cassert>
+#include <type_traits>
 
-#include "parse_common.h"
-#include "ParseProtocolImpl.h"
-#include "ParseIntFieldImpl.h"
 
 namespace commsdsl
 {

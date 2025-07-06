@@ -18,8 +18,8 @@
 #include "commsdsl/gen/util.h"
 
 #include <algorithm>
-#include <iostream>
 #include <cassert>
+#include <iostream>
 #include <vector>
 
 namespace util = commsdsl::gen::util;

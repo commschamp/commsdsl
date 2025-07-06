@@ -15,22 +15,22 @@
 
 #pragma once
 
-#include <cstdint>
-#include <string>
-#include <memory>
-#include <vector>
-#include <utility>
-
-#include <libxml/xmlmemory.h>
-#include <libxml/parser.h>
-#include <libxml/xmlerror.h>
-
 #include "commsdsl/parse/ParseErrorLevel.h"
 #include "commsdsl/parse/ParseProtocol.h"
 #include "commsdsl/parse/ParseSchema.h"
 #include "ParseLogger.h"
 #include "ParseNamespaceImpl.h"
 #include "ParseSchemaImpl.h"
+
+#include <libxml/parser.h>
+#include <libxml/xmlmemory.h>
+#include <libxml/xmlerror.h>
+
+#include <cstdint>
+#include <string>
+#include <memory>
+#include <vector>
+#include <utility>
 
 namespace commsdsl
 {

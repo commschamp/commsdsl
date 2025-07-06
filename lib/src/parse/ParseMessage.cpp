@@ -14,9 +14,10 @@
 // limitations under the License.
 
 #include "commsdsl/parse/ParseMessage.h"
-#include <cassert>
 
 #include "ParseMessageImpl.h"
+
+#include <cassert>
 
 namespace commsdsl
 {

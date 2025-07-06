@@ -15,6 +15,7 @@
 // limitations under the License.
 
 #include "commsdsl/gen/GenIntField.h"
+
 #include "commsdsl/gen/GenGenerator.h"
 
 #include <cassert>

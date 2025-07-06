@@ -14,9 +14,10 @@
 // limitations under the License.
 
 #include "commsdsl/parse/ParseField.h"
-#include <cassert>
 
 #include "ParseFieldImpl.h"
+
+#include <cassert>
 
 namespace commsdsl
 {

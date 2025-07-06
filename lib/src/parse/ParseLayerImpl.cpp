@@ -15,22 +15,24 @@
 
 #include "ParseLayerImpl.h"
 
-#include <cassert>
-#include <limits>
-#include <algorithm>
-#include <set>
-#include <iterator>
-
-#include "ParseProtocolImpl.h"
-#include "ParseNamespaceImpl.h"
-#include "parse_common.h"
-#include "ParsePayloadLayerImpl.h"
+#include "ParseChecksumLayerImpl.h"
+#include "ParseCustomLayerImpl.h"
 #include "ParseIdLayerImpl.h"
+#include "ParseNamespaceImpl.h"
+#include "ParsePayloadLayerImpl.h"
+#include "ParseProtocolImpl.h"
 #include "ParseSizeLayerImpl.h"
 #include "ParseSyncLayerImpl.h"
-#include "ParseChecksumLayerImpl.h"
 #include "ParseValueLayerImpl.h"
-#include "ParseCustomLayerImpl.h"
+#include "ParseXmlWrap.h"
+#include "parse_common.h"
+
+
+#include <algorithm>
+#include <cassert>
+#include <iterator>
+#include <limits>
+#include <set>
 
 namespace commsdsl
 {

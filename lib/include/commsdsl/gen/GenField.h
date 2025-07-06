@@ -17,8 +17,8 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/ParseField.h"
 #include "commsdsl/gen/GenElem.h"
+#include "commsdsl/parse/ParseField.h"
 
 #include <memory>
 #include <vector>

@@ -15,9 +15,9 @@
 
 #include "CommsSyncLayer.h"
 
-#include "commsdsl/gen/util.h"
-
 #include "CommsGenerator.h"
+
+#include "commsdsl/gen/util.h"
 
 namespace util = commsdsl::gen::util;
 

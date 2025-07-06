@@ -15,9 +15,9 @@
 
 #include "ParseEnumFieldImpl.h"
 
-#include "parse_common.h"
-#include "ParseProtocolImpl.h"
 #include "ParseIntFieldImpl.h"
+#include "ParseProtocolImpl.h"
+#include "parse_common.h"
 #include "parse_util.h"
 
 #include <algorithm>

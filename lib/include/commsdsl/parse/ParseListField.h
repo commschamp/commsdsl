@@ -17,6 +17,9 @@
 
 #include "ParseField.h"
 
+#include <cstddef>
+#include <string>
+
 namespace commsdsl
 {
 

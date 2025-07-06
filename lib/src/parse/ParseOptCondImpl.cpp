@@ -15,11 +15,6 @@
 
 #include "ParseOptCondImpl.h"
 
-#include <algorithm>
-#include <cassert>
-#include <iterator>
-#include <vector>
-
 #include "ParseBitfieldFieldImpl.h"
 #include "ParseBundleFieldImpl.h"
 #include "ParseLogger.h"
@@ -29,6 +24,11 @@
 #include "ParseSetFieldImpl.h"
 #include "parse_common.h"
 #include "parse_util.h"
+
+#include <algorithm>
+#include <cassert>
+#include <iterator>
+#include <vector>
 
 namespace commsdsl
 {

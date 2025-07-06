@@ -15,9 +15,9 @@
 
 #pragma once
 
-#include "commsdsl/gen/GenStringField.h"
-
 #include "CommsField.h"
+
+#include "commsdsl/gen/GenStringField.h"
 
 namespace commsdsl2comms
 {

@@ -18,8 +18,8 @@
 #include "ParseFieldImpl.h"
 #include "ParseOptCondImpl.h"
 
-#include "commsdsl/parse/ParseEndian.h"
 #include "commsdsl/parse/ParseBitfieldField.h"
+#include "commsdsl/parse/ParseEndian.h"
 
 namespace commsdsl
 {

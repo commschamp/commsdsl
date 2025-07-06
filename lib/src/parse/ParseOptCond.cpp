@@ -15,9 +15,9 @@
 
 #include "commsdsl/parse/ParseOptCond.h"
 
-#include <cassert>
-
 #include "ParseOptCondImpl.h"
+
+#include <cassert>
 
 namespace commsdsl
 {

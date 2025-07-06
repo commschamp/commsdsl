@@ -15,11 +15,11 @@
 
 #include "CommsChecksumLayer.h"
 
+#include "CommsGenerator.h"
+
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
-
-#include "CommsGenerator.h"
 
 #include <algorithm>
 #include <cassert>

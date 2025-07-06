@@ -15,14 +15,14 @@
 
 #include "ParseNamespaceImpl.h"
 
-#include <type_traits>
-#include <algorithm>
-#include <iterator>
-#include <cassert>
-#include <numeric>
-
-#include "parse_common.h"
 #include "ParseProtocolImpl.h"
+#include "parse_common.h"
+
+#include <algorithm>
+#include <cassert>
+#include <iterator>
+#include <numeric>
+#include <type_traits>
 
 namespace commsdsl
 {

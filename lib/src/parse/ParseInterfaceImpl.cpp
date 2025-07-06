@@ -15,17 +15,17 @@
 
 #include "ParseInterfaceImpl.h"
 
-#include <cassert>
-#include <limits>
-#include <algorithm>
-#include <set>
-#include <numeric>
-#include <iterator>
-
-#include "ParseProtocolImpl.h"
 #include "ParseNamespaceImpl.h"
-#include "parse_common.h"
 #include "ParseOptionalFieldImpl.h"
+#include "ParseProtocolImpl.h"
+#include "parse_common.h"
+
+#include <algorithm>
+#include <cassert>
+#include <iterator>
+#include <limits>
+#include <numeric>
+#include <set>
 
 namespace commsdsl
 {

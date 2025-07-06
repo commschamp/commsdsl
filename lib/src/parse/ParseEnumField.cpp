@@ -15,9 +15,9 @@
 
 #include "commsdsl/parse/ParseEnumField.h"
 
-#include <cassert>
-
 #include "ParseEnumFieldImpl.h"
+
+#include <cassert>
 
 namespace commsdsl
 {

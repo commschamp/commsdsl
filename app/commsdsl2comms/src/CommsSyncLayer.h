@@ -15,9 +15,9 @@
 
 #pragma once
 
-#include "commsdsl/gen/GenSyncLayer.h"
-
 #include "CommsLayer.h"
+
+#include "commsdsl/gen/GenSyncLayer.h"
 
 namespace commsdsl2comms
 {

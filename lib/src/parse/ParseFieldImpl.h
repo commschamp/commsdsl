@@ -15,16 +15,16 @@
 
 #pragma once
 
-#include <cstdint>
-#include <memory>
-#include <map>
-#include <functional>
-#include <string>
-
 #include "commsdsl/parse/ParseField.h"
 #include "ParseXmlWrap.h"
 #include "ParseLogger.h"
 #include "ParseObject.h"
+
+#include <cstdint>
+#include <functional>
+#include <map>
+#include <memory>
+#include <string>
 
 namespace commsdsl
 {

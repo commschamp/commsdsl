@@ -15,10 +15,10 @@
 
 #pragma once
 
+#include "commsdsl/CommsdslApi.h"
+
 #include <string>
 #include <vector>
-
-#include "commsdsl/CommsdslApi.h"
 
 namespace commsdsl
 {

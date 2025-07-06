@@ -15,16 +15,16 @@
 
 #pragma once
 
-#include <memory>
-#include <string>
-#include <functional>
-#include <vector>
-#include <limits>
-
 #include "commsdsl/CommsdslApi.h"
 #include "commsdsl/parse/ParseErrorLevel.h"
-#include "commsdsl/parse/ParseSchema.h"
 #include "commsdsl/parse/ParseField.h"
+#include "commsdsl/parse/ParseSchema.h"
+
+#include <functional>
+#include <limits>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace commsdsl
 {

@@ -14,16 +14,17 @@
 // limitations under the License.
 
 #include "commsdsl/parse/ParseLayer.h"
-#include <cassert>
 
+#include "ParseChecksumLayerImpl.h"
+#include "ParseCustomLayerImpl.h"
+#include "ParseIdLayerImpl.h"
 #include "ParseLayerImpl.h"
 #include "ParsePayloadLayerImpl.h"
-#include "ParseIdLayerImpl.h"
 #include "ParseSizeLayerImpl.h"
 #include "ParseSyncLayerImpl.h"
-#include "ParseChecksumLayerImpl.h"
 #include "ParseValueLayerImpl.h"
-#include "ParseCustomLayerImpl.h"
+
+#include <cassert>
 
 namespace commsdsl
 {

@@ -15,12 +15,12 @@
 
 #pragma once
 
+#include "commsdsl/CommsdslApi.h"
+#include "commsdsl/parse/ParseOverrideType.h"
+
 #include <map>
 #include <string>
 #include <vector>
-
-#include "commsdsl/CommsdslApi.h"
-#include "ParseOverrideType.h"
 
 namespace commsdsl
 {

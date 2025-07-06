@@ -15,10 +15,10 @@
 
 #pragma once
 
+#include "CommsField.h"
+
 #include "commsdsl/gen/GenLayer.h"
 #include "commsdsl/gen/util.h"
-
-#include "CommsField.h"
 
 #include <string>
 #include <vector>

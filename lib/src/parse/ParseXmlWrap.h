@@ -15,16 +15,16 @@
 
 #pragma once
 
-#include <map>
-#include <string>
-#include <memory>
-#include <vector>
+#include "ParseLogger.h"
+#include "parse_common.h"
 
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 
-#include "ParseLogger.h"
-#include "parse_common.h"
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace commsdsl
 {

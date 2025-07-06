@@ -16,13 +16,13 @@
 
 #pragma once
 
+#include "CommsField.h"
+
 #include "commsdsl/gen/GenMessage.h"
 #include "commsdsl/gen/util.h"
 
-#include "CommsField.h"
-
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace commsdsl2comms
 {

@@ -15,9 +15,9 @@
 
 #pragma once
 
-#include "commsdsl/gen/GenRefField.h"
-
 #include "CommsField.h"
+
+#include "commsdsl/gen/GenRefField.h"
 
 namespace commsdsl2comms
 {

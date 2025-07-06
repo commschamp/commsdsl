@@ -15,22 +15,22 @@
 
 #pragma once
 
-#include <cstdint>
-#include <memory>
-#include <map>
-#include <string>
-#include <tuple>
-#include <utility>
-
 #include "commsdsl/parse/ParseMessage.h"
 
 #include "ParseAliasImpl.h"
 #include "ParseBundleFieldImpl.h"
 #include "ParseFieldImpl.h"
 #include "ParseLogger.h"
-#include "ParseOptCondImpl.h"
 #include "ParseObject.h"
+#include "ParseOptCondImpl.h"
 #include "ParseXmlWrap.h"
+
+#include <cstdint>
+#include <map>
+#include <memory>
+#include <string>
+#include <tuple>
+#include <utility>
 
 namespace commsdsl
 {

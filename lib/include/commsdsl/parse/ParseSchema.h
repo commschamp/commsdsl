@@ -15,13 +15,13 @@
 
 #pragma once
 
-#include <string>
-#include <map>
-#include <vector>
-
 #include "commsdsl/CommsdslApi.h"
 #include "commsdsl/parse/ParseEndian.h"
 #include "commsdsl/parse/ParseNamespace.h"
+
+#include <map>
+#include <string>
+#include <vector>
 
 namespace commsdsl
 {

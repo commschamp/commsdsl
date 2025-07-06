@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include "commsdsl/gen/GenFrame.h"
-
 #include "CommsLayer.h"
+
+#include "commsdsl/gen/GenFrame.h"
 
 #include <vector>
 #include <string>

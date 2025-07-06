@@ -18,11 +18,11 @@
 #include "EmscriptenGenerator.h"
 #include "EmscriptenNamespace.h"
 
-#include <algorithm>
-
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
+
+#include <algorithm>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;

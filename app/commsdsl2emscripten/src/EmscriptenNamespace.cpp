@@ -21,12 +21,12 @@
 #include "EmscriptenMessage.h"
 #include "EmscriptenFrame.h"
 
-#include <algorithm>
-#include <cassert>
-
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
+
+#include <algorithm>
+#include <cassert>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;

@@ -15,11 +15,12 @@
 
 #pragma once
 
+#include "commsdsl/parse/ParseVariantField.h"
+#include "ParseFieldImpl.h"
+
 #include <cstdint>
 #include <limits>
 
-#include "commsdsl/parse/ParseVariantField.h"
-#include "ParseFieldImpl.h"
 
 namespace commsdsl
 {

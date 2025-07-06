@@ -15,11 +15,12 @@
 // limitations under the License.
 
 #include "commsdsl/gen/GenMessage.h"
+
 #include "commsdsl/gen/GenField.h"
 #include "commsdsl/gen/GenGenerator.h"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 
 namespace commsdsl
 {

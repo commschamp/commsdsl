@@ -21,8 +21,8 @@
 #include "commsdsl/gen/util.h"
 #include "commsdsl/gen/comms.h"
 
-#include <fstream>
 #include <cassert>
+#include <fstream>
 
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;

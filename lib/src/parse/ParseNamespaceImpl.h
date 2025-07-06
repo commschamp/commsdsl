@@ -15,20 +15,19 @@
 
 #pragma once
 
+#include "commsdsl/parse/ParseNamespace.h"
+#include "ParseFieldImpl.h"
+#include "ParseFrameImpl.h"
+#include "ParseInterfaceImpl.h"
+#include "ParseLogger.h"
+#include "ParseMessageImpl.h"
+#include "ParseObject.h"
+#include "ParseXmlWrap.h"
+
 #include <cstdint>
 #include <memory>
 #include <algorithm>
 #include <cctype>
-
-#include "commsdsl/parse/ParseNamespace.h"
-
-#include "ParseXmlWrap.h"
-#include "ParseLogger.h"
-#include "ParseFieldImpl.h"
-#include "ParseMessageImpl.h"
-#include "ParseInterfaceImpl.h"
-#include "ParseFrameImpl.h"
-#include "ParseObject.h"
 
 namespace commsdsl
 {

@@ -15,10 +15,10 @@
 
 #include "ParseXmlWrap.h"
 
-#include <cassert>
-#include <algorithm>
-
 #include "ParseProtocolImpl.h"
+
+#include <algorithm>
+#include <cassert>
 
 namespace commsdsl
 {

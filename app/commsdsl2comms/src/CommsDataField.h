@@ -15,9 +15,9 @@
 
 #pragma once
 
-#include "commsdsl/gen/GenDataField.h"
-
 #include "CommsField.h"
+
+#include "commsdsl/gen/GenDataField.h"
 
 namespace commsdsl2comms
 {

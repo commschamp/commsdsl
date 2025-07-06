@@ -15,9 +15,9 @@
 
 #pragma once
 
-#include "commsdsl/gen/GenChecksumLayer.h"
-
 #include "CommsLayer.h"
+
+#include "commsdsl/gen/GenChecksumLayer.h"
 
 namespace commsdsl2comms
 {

@@ -15,16 +15,16 @@
 
 #pragma once
 
-#include <cstdint>
-#include <cstddef>
-#include <utility>
-#include <map>
-#include <string>
-
 #include "commsdsl/parse/ParseEndian.h"
 #include "commsdsl/parse/ParseField.h"
 #include "commsdsl/parse/ParseProtocol.h"
 #include "commsdsl/parse/ParseUnits.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <map>
+#include <string>
+#include <utility>
 
 namespace commsdsl
 {

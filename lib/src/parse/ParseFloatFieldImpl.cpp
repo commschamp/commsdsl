@@ -15,16 +15,16 @@
 
 #include "ParseFloatFieldImpl.h"
 
-#include <algorithm>
-#include <iterator>
-#include <cassert>
-#include <limits>
-#include <cmath>
-#include <map>
-
+#include "ParseProtocolImpl.h"
 #include "parse_common.h"
 #include "parse_util.h"
-#include "ParseProtocolImpl.h"
+
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <iterator>
+#include <limits>
+#include <map>
 
 namespace commsdsl
 {

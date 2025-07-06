@@ -15,11 +15,11 @@
 
 #include "ParseChecksumLayerImpl.h"
 
-#include <cassert>
-#include <map>
-
 #include "ParseProtocolImpl.h"
 #include "parse_common.h"
+
+#include <cassert>
+#include <map>
 
 namespace commsdsl
 {

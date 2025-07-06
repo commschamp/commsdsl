@@ -23,7 +23,6 @@
 #include "commsdsl/gen/GenMessage.h"
 #include "commsdsl/gen/GenNamespace.h"
 #include "commsdsl/gen/GenSchema.h"
-
 #include "commsdsl/gen/strings.h"
 
 #include <cassert>

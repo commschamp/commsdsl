@@ -15,16 +15,16 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
-#include <cstdint>
 
 #include "commsdsl/CommsdslApi.h"
-
 #include "commsdsl/parse/ParseAlias.h"
 #include "commsdsl/parse/ParseField.h"
 #include "commsdsl/parse/ParseOptCond.h"
 #include "commsdsl/parse/ParseOverrideType.h"
+
+#include <cstdint>
+#include <string>
+#include <vector>
 
 namespace commsdsl
 {

@@ -14,9 +14,10 @@
 // limitations under the License.
 
 #include "commsdsl/parse/ParseAlias.h"
-#include <cassert>
 
 #include "ParseAliasImpl.h"
+
+#include <cassert>
 
 namespace commsdsl
 {

@@ -15,8 +15,6 @@
 
 #include "Test.h"
 
-#include <fstream>
-
 #include "TestGenerator.h"
 
 #include "commsdsl/gen/comms.h"
@@ -24,6 +22,8 @@
 #include "commsdsl/gen/util.h"
 #include "commsdsl/gen/GenEnumField.h"
 #include "commsdsl/gen/GenIntField.h"
+
+#include <fstream>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;

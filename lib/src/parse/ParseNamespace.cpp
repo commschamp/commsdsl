@@ -15,9 +15,9 @@
 
 #include "commsdsl/parse/ParseNamespace.h"
 
-#include <cassert>
-
 #include "ParseNamespaceImpl.h"
+
+#include <cassert>
 
 namespace commsdsl
 {

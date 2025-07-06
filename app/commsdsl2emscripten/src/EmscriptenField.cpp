@@ -24,8 +24,8 @@
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 #include <fstream>
 
 namespace comms = commsdsl::gen::comms;

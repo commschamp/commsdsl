@@ -16,11 +16,11 @@
 
 #pragma once
 
-#include <string>
-#include <memory>
-
-#include "ParseXmlWrap.h"
 #include "ParseFieldImpl.h"
+#include "ParseXmlWrap.h"
+
+#include <memory>
+#include <string>
 
 namespace commsdsl
 {

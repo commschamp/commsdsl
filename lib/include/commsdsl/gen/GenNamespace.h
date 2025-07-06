@@ -17,12 +17,12 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/ParseNamespace.h"
 #include "commsdsl/gen/GenElem.h"
 #include "commsdsl/gen/GenField.h"
 #include "commsdsl/gen/GenFrame.h"
 #include "commsdsl/gen/GenInterface.h"
 #include "commsdsl/gen/GenMessage.h"
+#include "commsdsl/parse/ParseNamespace.h"
 
 #include <memory>
 #include <vector>

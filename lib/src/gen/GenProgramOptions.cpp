@@ -2,10 +2,10 @@
 
 #include "commsdsl/gen/util.h"
 
-#include <vector>
 #include <cassert>
-#include <map>
 #include <iostream>
+#include <map>
+#include <vector>
 
 namespace commsdsl
 {

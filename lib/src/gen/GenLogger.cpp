@@ -15,8 +15,8 @@
 
 #include "commsdsl/gen/GenLogger.h"
 
-#include <type_traits>
 #include <iostream>
+#include <type_traits>
 
 namespace commsdsl
 {

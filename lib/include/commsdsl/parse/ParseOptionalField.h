@@ -15,8 +15,6 @@
 
 #pragma once
 
-#include <vector>
-
 #include "commsdsl/parse/ParseField.h"
 #include "commsdsl/parse/ParseOptCond.h"
 

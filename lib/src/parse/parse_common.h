@@ -15,13 +15,13 @@
 
 #pragma once
 
-#include <string>
-#include <map>
-#include <cstdint>
-#include <utility>
-
 #include "commsdsl/parse/ParseEndian.h"
 #include "commsdsl/parse/ParseUnits.h"
+
+#include <cstdint>
+#include <map>
+#include <string>
+#include <utility>
 
 namespace commsdsl
 {

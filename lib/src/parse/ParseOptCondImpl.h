@@ -15,12 +15,12 @@
 
 #pragma once
 
+#include "commsdsl/parse/ParseOptCond.h"
+#include "ParseFieldImpl.h"
+#include "ParseXmlWrap.h"
+
 #include <memory>
 #include <vector>
-
-#include "commsdsl/parse/ParseOptCond.h"
-#include "ParseXmlWrap.h"
-#include "ParseFieldImpl.h"
 
 namespace commsdsl
 {

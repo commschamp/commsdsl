@@ -15,8 +15,8 @@
 
 #include "TestProgramOptions.h"
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 #include <vector>
 
 namespace commsdsl2test

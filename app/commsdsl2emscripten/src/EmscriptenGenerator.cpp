@@ -52,8 +52,8 @@
 
 #include <algorithm>
 #include <cassert>
-#include <fstream>
 #include <filesystem>
+#include <fstream>
 #include <map>
 
 namespace comms = commsdsl::gen::comms;

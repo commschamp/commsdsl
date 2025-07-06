@@ -18,6 +18,8 @@
 #include "commsdsl/parse/ParseEndian.h"
 #include "commsdsl/parse/ParseIntField.h"
 
+#include <string>
+
 namespace commsdsl
 {
 

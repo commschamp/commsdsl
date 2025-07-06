@@ -16,14 +16,14 @@
 
 #include "commsdsl/gen/GenSchema.h"
 
+#include "commsdsl/version.h"
 #include "commsdsl/gen/GenGenerator.h"
 #include "commsdsl/gen/util.h"
 
 #include "commsdsl/parse/ParseProtocol.h"
-#include "commsdsl/version.h"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 #include <filesystem>
 #include <iterator>
 #include <system_error>

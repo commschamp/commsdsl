@@ -13,16 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "commsdsl/version.h"
-#include "commsdsl/gen/util.h"
-
 #include "TestGenerator.h"
 #include "TestProgramOptions.h"
 
-#include <stdexcept>
-#include <iostream>
+#include "commsdsl/version.h"
+#include "commsdsl/gen/util.h"
+
 #include <cassert>
 #include <fstream>
+#include <iostream>
+#include <stdexcept>
 
 namespace commsdsl2test
 {

@@ -15,12 +15,12 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
-#include <cstdint>
-
 #include "commsdsl/CommsdslApi.h"
 #include "commsdsl/parse/ParseLayer.h"
+
+#include <cstdint>
+#include <string>
+#include <vector>
 
 namespace commsdsl
 {

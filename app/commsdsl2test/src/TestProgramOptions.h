@@ -15,11 +15,11 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
-#include <iosfwd>
-
 #include "commsdsl/gen/GenProgramOptions.h"
+
+#include <iosfwd>
+#include <string>
+#include <vector>
 
 namespace commsdsl2test
 {

@@ -15,8 +15,8 @@
 
 #pragma once
 
-#include "ParseLayerImpl.h"
 #include "ParseInterfaceImpl.h"
+#include "ParseLayerImpl.h"
 
 namespace commsdsl
 {

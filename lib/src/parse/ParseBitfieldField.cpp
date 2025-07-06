@@ -15,9 +15,9 @@
 
 #include "commsdsl/parse/ParseBitfieldField.h"
 
-#include <cassert>
-
 #include "ParseBitfieldFieldImpl.h"
+
+#include <cassert>
 
 namespace commsdsl
 {

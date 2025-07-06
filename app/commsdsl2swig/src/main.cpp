@@ -13,16 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "commsdsl/version.h"
-#include "commsdsl/gen/util.h"
-
 #include "SwigGenerator.h"
 #include "SwigProgramOptions.h"
 
-#include <stdexcept>
-#include <iostream>
+#include "commsdsl/gen/util.h"
+#include "commsdsl/version.h"
+
 #include <cassert>
 #include <fstream>
+#include <iostream>
+#include <stdexcept>
 
 namespace commsdsl2swig
 {

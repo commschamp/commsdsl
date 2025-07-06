@@ -13,16 +13,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "commsdsl/version.h"
-#include "commsdsl/gen/util.h"
-
 #include "ToolsQtGenerator.h"
 #include "ToolsQtProgramOptions.h"
 
-#include <stdexcept>
-#include <iostream>
+#include "commsdsl/version.h"
+#include "commsdsl/gen/util.h"
+
 #include <cassert>
 #include <fstream>
+#include <iostream>
+#include <stdexcept>
+#include <string>
 
 namespace commsdsl2tools_qt
 {

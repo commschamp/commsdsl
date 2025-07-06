@@ -15,9 +15,9 @@
 
 #pragma once
 
-#include <string>
-
 #include "commsdsl/gen/util.h"
+
+#include <string>
 
 namespace commsdsl2emscripten
 {

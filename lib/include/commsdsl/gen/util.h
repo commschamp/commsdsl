@@ -16,10 +16,10 @@
 
 #pragma once
 
-#include <string>
 #include <cstdint>
-#include <vector>
 #include <map>
+#include <string>
+#include <vector>
 
 namespace commsdsl  
 {

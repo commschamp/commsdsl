@@ -17,8 +17,8 @@
 
 #include "commsdsl/parse/ParseEndian.h"
 
-#include "ParseXmlWrap.h"
 #include "ParseNamespaceImpl.h"
+#include "ParseXmlWrap.h"
 
 namespace commsdsl
 {

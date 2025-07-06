@@ -15,8 +15,6 @@
 
 #pragma once
 
-#include <limits>
-
 #include "commsdsl/parse/ParseProtocol.h"
 
 namespace commsdsl

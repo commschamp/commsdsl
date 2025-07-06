@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include "commsdsl/gen/GenInterface.h"
-
 #include "CommsField.h"
+
+#include "commsdsl/gen/GenInterface.h"
 
 #include <vector>
 #include <string>

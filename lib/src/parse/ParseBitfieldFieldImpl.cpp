@@ -17,12 +17,12 @@
 
 #include "ParseProtocolImpl.h"
 
+#include <algorithm>
 #include <cassert>
+#include <iterator>
 #include <limits>
 #include <numeric>
 #include <utility>
-#include <algorithm>
-#include <iterator>
 
 namespace commsdsl
 {

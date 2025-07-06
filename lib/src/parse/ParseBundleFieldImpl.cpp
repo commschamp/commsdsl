@@ -15,15 +15,15 @@
 
 #include "ParseBundleFieldImpl.h"
 
+#include "ParseOptionalFieldImpl.h"
+#include "ParseProtocolImpl.h"
+
+#include <algorithm>
 #include <cassert>
+#include <iterator>
 #include <limits>
 #include <numeric>
 #include <utility>
-#include <algorithm>
-#include <iterator>
-
-#include "ParseProtocolImpl.h"
-#include "ParseOptionalFieldImpl.h"
 
 namespace commsdsl
 {

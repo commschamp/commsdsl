@@ -15,10 +15,11 @@
 
 #include "ParseRefFieldImpl.h"
 
-#include <cassert>
-#include "parse_common.h"
-#include "ParseProtocolImpl.h"
 #include "ParseBitfieldFieldImpl.h"
+#include "ParseProtocolImpl.h"
+#include "parse_common.h"
+
+#include <cassert>
 
 namespace commsdsl
 {

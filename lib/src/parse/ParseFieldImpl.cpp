@@ -15,28 +15,28 @@
 
 #include "ParseFieldImpl.h"
 
+#include "ParseBitfieldFieldImpl.h"
+#include "ParseBundleFieldImpl.h"
+#include "ParseDataFieldImpl.h"
+#include "ParseEnumFieldImpl.h"
+#include "ParseFloatFieldImpl.h"
+#include "ParseIntFieldImpl.h"
+#include "ParseListFieldImpl.h"
+#include "ParseNamespaceImpl.h"
+#include "ParseOptionalFieldImpl.h"
+#include "ParseProtocolImpl.h"
+#include "ParseRefFieldImpl.h"
+#include "ParseSetFieldImpl.h"
+#include "ParseStringFieldImpl.h"
+#include "ParseVariantFieldImpl.h"
+#include "parse_common.h"
+
 #include <algorithm>
 #include <cassert>
 #include <iterator>
 #include <limits>
 #include <map>
 #include <set>
-
-#include "ParseProtocolImpl.h"
-#include "ParseIntFieldImpl.h"
-#include "ParseFloatFieldImpl.h"
-#include "ParseEnumFieldImpl.h"
-#include "ParseSetFieldImpl.h"
-#include "ParseBitfieldFieldImpl.h"
-#include "ParseBundleFieldImpl.h"
-#include "ParseStringFieldImpl.h"
-#include "ParseDataFieldImpl.h"
-#include "ParseListFieldImpl.h"
-#include "ParseRefFieldImpl.h"
-#include "ParseOptionalFieldImpl.h"
-#include "ParseVariantFieldImpl.h"
-#include "ParseNamespaceImpl.h"
-#include "parse_common.h"
 
 namespace commsdsl
 {
