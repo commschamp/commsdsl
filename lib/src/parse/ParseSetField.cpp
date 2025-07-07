@@ -44,10 +44,10 @@ ParseSetField::ParseSetField(const ParseSetFieldImpl* impl)
 ParseSetField::ParseSetField(ParseField field)
   : Base(field)
 {
-    assert(parseKind() == Kind::Set);
+    assert(parseKind() == ParseKind::Set);
 }
 
-ParseSetField::Type ParseSetField::parseType() const
+ParseSetField::ParseType ParseSetField::parseType() const
 {
     return cast(m_pImpl)->parseType();
 }
@@ -67,12 +67,12 @@ bool ParseSetField::parseReservedBitValue() const
     return cast(m_pImpl)->parseReservedBitValue();
 }
 
-const ParseSetField::Bits& ParseSetField::parseBits() const
+const ParseSetField::ParseBits& ParseSetField::parseBits() const
 {
     return cast(m_pImpl)->parseBits();
 }
 
-const ParseSetField::RevBits& ParseSetField::parseRevBits() const
+const ParseSetField::ParseRevBits& ParseSetField::parseRevBits() const
 {
     return cast(m_pImpl)->parseRevBits();
 }

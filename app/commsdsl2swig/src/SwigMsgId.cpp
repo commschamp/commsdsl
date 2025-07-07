@@ -121,7 +121,7 @@ std::string SwigMsgId::swigTypeInternal() const
     auto allMsgIds = m_generator.genCurrentSchema().genGetAllMessageIdFields();
     if (allMsgIds.size() == 1U) {
         auto* msgIdField = allMsgIds.front();
-        assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
+        assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Enum);
         auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
         auto dslObj = castedMsgIdField->genEnumFieldParseObj();
         return comms::genCppIntTypeFor(dslObj.parseType(), dslObj.parseMaxLength());
@@ -164,7 +164,7 @@ std::string SwigMsgId::swigIdsInternal() const
 
     if (allMsgIds.size() == 1U) {
         auto* msgIdField = allMsgIds.front();    
-        assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
+        assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Enum);
         auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
         auto enumValues = castedMsgIdField->swigEnumValues();
         static const std::string CommentPrefix("// ---");
@@ -185,7 +185,7 @@ std::string SwigMsgId::swigIdsInternal() const
         allMessages = m_generator.genCurrentSchema().genGetAllMessagesIdSorted();
     }
 
-    util::StringsList ids;
+    util::GenStringsList ids;
     ids.reserve(allMessages.size());
     for (auto* m : allMessages) {
         if (!m->genIsReferenced()) {
@@ -211,14 +211,14 @@ std::string SwigMsgId::swigCodeInternal() const
 
     if (allMsgIds.size() == 1U) {
         auto* msgIdField = allMsgIds.front();      
-        assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
+        assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Enum);
         auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
         auto enumValues = castedMsgIdField->swigEnumValues();
 
 
         static const std::string CommentPrefix("// ---");
         static const std::string EqStr(" = ");
-        util::StringsList result;
+        util::GenStringsList result;
         for (auto& v : enumValues) {
             auto commentPos = v.find(CommentPrefix);
             if (commentPos != std::string::npos) {
@@ -245,7 +245,7 @@ std::string SwigMsgId::swigCodeInternal() const
         allMessages = m_generator.genCurrentSchema().genGetAllMessagesIdSorted();
     }
 
-    util::StringsList result;
+    util::GenStringsList result;
     result.reserve(allMessages.size());
     for (auto* m : allMessages) {
         if (!m->genIsReferenced()) {

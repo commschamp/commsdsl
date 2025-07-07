@@ -75,7 +75,7 @@ CommsField::CommsField(commsdsl::gen::GenField& field) :
 
 CommsField::~CommsField() = default;
 
-CommsField::CommsFieldsList CommsField::commsTransformFieldsList(const commsdsl::gen::GenField::FieldsList& fields)
+CommsField::CommsFieldsList CommsField::commsTransformFieldsList(const GenFieldsList& fields)
 {
     CommsFieldsList result;
     result.reserve(fields.size());
@@ -228,7 +228,7 @@ std::size_t CommsField::commsMinLength() const
 
 std::size_t CommsField::commsMaxLength() const
 {
-    if (m_field.genParseObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Length) {
+    if (m_field.genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Length) {
         return comms::genMaxPossibleLength();
     }
     
@@ -465,12 +465,12 @@ const CommsField* CommsField::commsFindSibling(const std::string& name) const
 
     auto* parentField = static_cast<const commsdsl::gen::GenField*>(parent);
     auto fieldKind = parentField->genParseObj().parseKind();
-    if (fieldKind == commsdsl::parse::ParseField::Kind::Bitfield) {
+    if (fieldKind == commsdsl::parse::ParseField::ParseKind::Bitfield) {
         auto* bitfield = static_cast<const CommsBitfieldField*>(parentField);
         return findFieldFunc(bitfield->commsMembers());
     }
 
-    if (fieldKind == commsdsl::parse::ParseField::Kind::Bundle) {
+    if (fieldKind == commsdsl::parse::ParseField::ParseKind::Bundle) {
         auto* bundle = static_cast<const CommsBundleField*>(parentField);
         return findFieldFunc(bundle->commsMembers());
     }    
@@ -744,7 +744,7 @@ std::string CommsField::commsFieldBaseParams(commsdsl::parse::ParseEndian endian
     return comms::genParseEndianToOpt(endian);
 }
 
-void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts, bool tempFieldObj) const
+void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::GenStringsList& opts, bool tempFieldObj) const
 {
     if (comms::genIsGlobalField(m_field)) {
         opts.push_back("TExtraOpts...");
@@ -803,7 +803,7 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts,
     }
 }
 
-void CommsField::commsAddFieldTypeOption(commsdsl::gen::util::StringsList& opts) const
+void CommsField::commsAddFieldTypeOption(commsdsl::gen::util::GenStringsList& opts) const
 {
     static const std::string Templ = 
         "comms::option::def::FieldType<#^#NAME#$##^#SUFFIX#$##^#ORIG#$##^#PARAMS#$#>";
@@ -1613,7 +1613,7 @@ std::string CommsField::commsDefReadFuncCodeInternal() const
 
         auto warnings = commsDefReadMsvcSuppressWarningsImpl();
         if (!warnings.empty()) {
-            util::StringsList disableStrings;
+            util::GenStringsList disableStrings;
             for (auto& w : warnings) {
                 disableStrings.push_back("COMMS_MSVC_WARNING_DISABLE(" + w + ')');
             }
@@ -1893,7 +1893,7 @@ std::string CommsField::commsCustomizationOptionsInternal(
         return strings::genEmptyString();
     }
     
-    util::StringsList elems;
+    util::GenStringsList elems;
     auto membersBody = commsMembersCustomizationOptionsBodyImpl(fieldOptsFunc);
     if (!membersBody.empty()) {
         static const std::string Templ = 
@@ -1922,7 +1922,7 @@ std::string CommsField::commsCustomizationOptionsInternal(
             break;
         }
 
-        util::StringsList extraOpts;
+        util::GenStringsList extraOpts;
         if (extraFieldOptsFunc != nullptr) {
             extraOpts = (this->*extraFieldOptsFunc)();
         }

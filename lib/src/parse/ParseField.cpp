@@ -57,13 +57,13 @@ const std::string& ParseField::parseDescription() const
     return m_pImpl->parseDescription();
 }
 
-ParseField::Kind ParseField::parseKind() const
+ParseField::ParseKind ParseField::parseKind() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseKind();
 }
 
-ParseField::SemanticType ParseField::parseSemanticType() const
+ParseField::ParseSemanticType ParseField::parseSemanticType() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseSemanticType();
@@ -201,13 +201,13 @@ bool ParseField::parseIsValidInnerRef(const std::string& refStr) const
     return m_pImpl->parseIsValidInnerRef(refStr);
 }
 
-const ParseField::AttributesMap& ParseField::parseExtraAttributes() const
+const ParseField::ParseAttributesMap& ParseField::parseExtraAttributes() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseExtraAttributes();
 }
 
-const ParseField::ElementsList& ParseField::parseExtraElements() const
+const ParseField::ParseElementsList& ParseField::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseExtraChildren();

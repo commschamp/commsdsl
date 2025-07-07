@@ -107,7 +107,7 @@ std::string CommsMsgId::commsTypeInternal() const
     auto allMsgIdFields = m_parent.genFindMessageIdFields();
     if (allMsgIdFields.size() == 1U) {
         auto* msgIdField = allMsgIdFields.front();
-        assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
+        assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Enum);
         auto* castedMsgIdField = static_cast<const CommsEnumField*>(msgIdField);
         auto dslObj = castedMsgIdField->genEnumFieldParseObj();
         return comms::genCppIntTypeFor(dslObj.parseType(), dslObj.parseMaxLength());
@@ -150,7 +150,7 @@ std::string CommsMsgId::commsIdsInternal() const
 
     if (allMsgIdFields.size() == 1U) {    
         auto* msgIdField = allMsgIdFields.front();
-        assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
+        assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Enum);
         auto* castedMsgIdField = static_cast<const CommsEnumField*>(msgIdField);
         auto enumValues = castedMsgIdField->commsEnumValues();
         static const std::string CommentPrefix("// ---");
@@ -171,7 +171,7 @@ std::string CommsMsgId::commsIdsInternal() const
         allMessages = m_generator.genCurrentSchema().genGetAllMessagesIdSorted();
     }
 
-    util::StringsList ids;
+    util::GenStringsList ids;
     ids.reserve(allMessages.size());
     for (auto* m : allMessages) {
         ids.push_back(prefix + comms::genFullNameFor(*m) + " = " + util::genNumToString(m->genParseObj().parseId()));

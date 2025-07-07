@@ -35,7 +35,7 @@ public:
 
     const std::string& getFilesListFile() const;
     const std::string& getFilesListPrefix() const;
-    const ArgsList& getFiles() const;
+    const GenArgsList& getFiles() const;
     const std::string& getOutputDirectory() const;
     const std::string& getCodeInputDirectory() const;
     bool hasNamespaceOverride() const;

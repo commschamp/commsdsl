@@ -29,16 +29,16 @@ class ParseBundleFieldImpl;
 class COMMSDSL_API ParseBundleField : public ParseField
 {
     using Base = ParseField;
-public:
 
-    using Members = std::vector<ParseField>;
-    using Aliases = std::vector<ParseAlias>;
+public:
+    using ParseMembers = std::vector<ParseField>;
+    using ParseAliases = std::vector<ParseAlias>;
 
     explicit ParseBundleField(const ParseBundleFieldImpl* impl);
     explicit ParseBundleField(ParseField field);
 
-    Members parseMembers() const;
-    Aliases parseAliases() const;
+    ParseMembers parseMembers() const;
+    ParseAliases parseAliases() const;
     ParseOptCond parseValidCond() const;    
 };
 

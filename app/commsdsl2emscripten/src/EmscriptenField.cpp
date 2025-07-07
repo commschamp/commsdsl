@@ -65,7 +65,7 @@ EmscriptenField* EmscriptenField::cast(commsdsl::gen::GenField* field)
     return emscriptenField;
 }
 
-EmscriptenField::EmscriptenFieldsList EmscriptenField::emscriptenTransformFieldsList(const commsdsl::gen::GenField::FieldsList& fields)
+EmscriptenField::EmscriptenFieldsList EmscriptenField::emscriptenTransformFieldsList(const commsdsl::gen::GenField::GenFieldsList& fields)
 {
     EmscriptenFieldsList result;
     result.reserve(fields.size());
@@ -209,7 +209,7 @@ std::string EmscriptenField::emscriptenSourceBindExtraImpl() const
     return strings::genEmptyString();
 }
 
-void EmscriptenField::emscriptenAssignMembers(const commsdsl::gen::GenField::FieldsList& fields)
+void EmscriptenField::emscriptenAssignMembers(const commsdsl::gen::GenField::GenFieldsList& fields)
 {
     m_members = emscriptenTransformFieldsList(fields);
 }
@@ -397,7 +397,7 @@ std::string EmscriptenField::emscriptenBindClassName(bool checkVersionOptional) 
 std::string EmscriptenField::emscriptenMembersAccessFuncs() const
 {
     auto& gen = EmscriptenGenerator::cast(m_field.genGenerator());
-    util::StringsList fields;
+    util::GenStringsList fields;
     for (auto* f : emscriptenMembers()) {
         static const std::string Templ = 
             "using Base::field_#^#NAME#$#;\n"
@@ -419,7 +419,7 @@ std::string EmscriptenField::emscriptenMembersAccessFuncs() const
 
 std::string EmscriptenField::emscriptenMembersBindFuncs() const
 {
-    util::StringsList fields;
+    util::GenStringsList fields;
 
     util::ReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()},
@@ -790,7 +790,7 @@ std::string EmscriptenField::emscriptenSourceBindCommonInternal(bool skipVersion
 
 std::string EmscriptenField::emscriptenHeaderMembersInternal() const
 {
-    util::StringsList members;
+    util::GenStringsList members;
     for (auto* m : m_members) {
         auto str = m->emscriptenHeaderClass();
         if (!str.empty()) {
@@ -803,7 +803,7 @@ std::string EmscriptenField::emscriptenHeaderMembersInternal() const
 
 std::string EmscriptenField::emscriptenSourceMembersInternal() const
 {
-    util::StringsList members;
+    util::GenStringsList members;
     for (auto* m : m_members) {
         auto str = m->emscriptenSourceCode();
         if (!str.empty()) {

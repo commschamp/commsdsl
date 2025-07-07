@@ -53,7 +53,7 @@ bool EmscriptenVariantField::genWriteImpl() const
 
 std::string EmscriptenVariantField::emscriptenHeaderExtraCodePrefixImpl() const
 {
-    util::StringsList funcs;
+    util::GenStringsList funcs;
     auto& gen = EmscriptenGenerator::cast(genGenerator());
     for (auto* m : emscriptenMembers()) {
         static const std::string MemTempl = 
@@ -92,7 +92,7 @@ std::string EmscriptenVariantField::emscriptenHeaderValueAccImpl() const
 std::string EmscriptenVariantField::emscriptenHeaderExtraPublicFuncsImpl() const
 {
     auto& membersList = emscriptenMembers();
-    util::StringsList cases;
+    util::GenStringsList cases;
     for (auto idx = 0U; idx < membersList.size(); ++idx) {
         static const std::string MemTempl = 
             "case #^#IDX#$#: handler.handle_#^#NAME#$#(accessField_#^#NAME#$#()); break;";
@@ -175,7 +175,7 @@ std::string EmscriptenVariantField::emscriptenSourceBindValueAccImpl() const
 
 std::string EmscriptenVariantField::emscriptenSourceBindFuncsImpl() const
 {
-    util::StringsList access;
+    util::GenStringsList access;
     for (auto* m : emscriptenMembers()) {
         static const std::string MemTempl = 
             ".function(\"initField_#^#NAME#$#\", &#^#CLASS_NAME#$#::initField_#^#NAME#$#, emscripten::allow_raw_pointers())\n"
@@ -209,7 +209,7 @@ std::string EmscriptenVariantField::emscriptenSourceBindFuncsImpl() const
 std::string EmscriptenVariantField::emscriptenHeaderMembersAccessInternal() const
 {
     auto& gen = EmscriptenGenerator::cast(genGenerator());
-    util::StringsList fields;
+    util::GenStringsList fields;
     for (auto* f : emscriptenMembers()) {
         static const std::string Templ = 
             "#^#FIELD_CLASS#$#* initField_#^#NAME#$#()\n"
@@ -245,7 +245,7 @@ std::string EmscriptenVariantField::emscriptenHandlerWrapperClassInternal() cons
 
 std::string EmscriptenVariantField::emscriptenSourceWrapperFuncsInternal() const
 {
-    util::StringsList funcs;
+    util::GenStringsList funcs;
     auto& gen = EmscriptenGenerator::cast(genGenerator());
     for (auto* m : emscriptenMembers()) {
         static const std::string Templ = 
@@ -267,7 +267,7 @@ std::string EmscriptenVariantField::emscriptenSourceWrapperFuncsInternal() const
 
 std::string EmscriptenVariantField::emscriptenSourceWrapperBindsInternal() const
 {
-    util::StringsList funcs;
+    util::GenStringsList funcs;
     util::ReplacementMap repl = {
         {"HANDLER", emscriptenHandlerClassInternal()},
     };
@@ -287,7 +287,7 @@ std::string EmscriptenVariantField::emscriptenSourceWrapperBindsInternal() const
 
 std::string EmscriptenVariantField::emscriptenSourceHandleFuncsInternal() const
 {
-    util::StringsList funcs;
+    util::GenStringsList funcs;
     auto& gen = EmscriptenGenerator::cast(genGenerator());
 
     util::ReplacementMap repl = {

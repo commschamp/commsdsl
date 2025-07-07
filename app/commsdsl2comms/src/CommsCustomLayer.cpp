@@ -66,7 +66,7 @@ std::string CommsCustomLayer::commsDefBaseTypeImpl(const std::string& prevName) 
         {"EXTRA_OPT", commsDefExtraOpts()},
     };
 
-    if (genCustomLayerParseObj().parseSemanticLayerType() == commsdsl::parse::ParseLayer::Kind::Id) {
+    if (genCustomLayerParseObj().parseSemanticLayerType() == commsdsl::parse::ParseLayer::ParseKind::Id) {
         repl["ID_TEMPLATE_PARAMS"] = "TMessage,\nTAllMessages,";
     }
 
@@ -79,7 +79,7 @@ std::string CommsCustomLayer::commsDefBaseTypeImpl(const std::string& prevName) 
 
 bool CommsCustomLayer::commsDefHasInputMessagesImpl() const
 {
-    return (genCustomLayerParseObj().parseSemanticLayerType() == commsdsl::parse::ParseLayer::Kind::Id);
+    return (genCustomLayerParseObj().parseSemanticLayerType() == commsdsl::parse::ParseLayer::ParseKind::Id);
 }
 
 bool CommsCustomLayer::commsIsCustomizableImpl() const

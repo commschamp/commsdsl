@@ -31,8 +31,8 @@ class ParseAliasImpl;
 class COMMSDSL_API ParseAlias
 {
 public:
-    using AttributesMap = std::multimap<std::string, std::string>;
-    using ElementsList = std::vector<std::string>;
+    using ParseAttributesMap = std::multimap<std::string, std::string>;
+    using ParseElementsList = std::vector<std::string>;
 
     explicit ParseAlias(const ParseAliasImpl* impl);
     ParseAlias(const ParseAlias& other);
@@ -42,8 +42,8 @@ public:
     const std::string& parseDescription() const;
     const std::string& parseFieldName() const;
 
-    const AttributesMap& parseExtraAttributes() const;
-    const ElementsList& parseExtraElements() const;
+    const ParseAttributesMap& parseExtraAttributes() const;
+    const ParseElementsList& parseExtraElements() const;
 
 protected:
     const ParseAliasImpl* m_pImpl;

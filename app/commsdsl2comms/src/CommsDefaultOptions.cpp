@@ -47,7 +47,7 @@ std::string optionsBodyInternal(
     bool hasBase)
 {
     auto& allNs = generator.genCurrentSchema().genNamespaces();
-    util::StringsList opts;
+    util::GenStringsList opts;
     for (auto& nsPtr : allNs) {
         auto elem = (static_cast<const CommsNamespace*>(nsPtr.get())->*nsFunc)();
         if (!elem.empty()) {
@@ -467,11 +467,11 @@ bool CommsDefaultOptions::commsWriteSingleMsgFactoryDefaultOptionsInternal(
 {
     auto name = prefix + MsgFactoryOptionsSuffix;
 
-    util::StringsList includes = {
+    util::GenStringsList includes = {
         comms::genRelHeaderForOptions(strings::genDefaultOptionsClassStr(), m_generator, true),
     };
 
-    util::StringsList allFactories;
+    util::GenStringsList allFactories;
     auto allNamespaces = m_generator.genGetAllNamespaces();
     for (auto* ns : allNamespaces) {
         auto suffix = "<TInterface, " + name + "T<TBase> >";

@@ -108,7 +108,7 @@ std::string EmscriptenMsgId::emscriptenIdsInternal() const
 
     if (allMsgIdFields.size() == 1U) {  
         auto* msgIdField = allMsgIdFields.front();
-        assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Enum);
+        assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Enum);
         auto* castedMsgIdField = EmscriptenEnumField::cast(msgIdField);
         return castedMsgIdField->emscriptenBindValues(&m_parent);        
     }
@@ -117,7 +117,7 @@ std::string EmscriptenMsgId::emscriptenIdsInternal() const
     if (allMessages.empty() && m_parent.genName().empty()) {
         allMessages = m_generator.genCurrentSchema().genGetAllMessagesIdSorted();
     }    
-    util::StringsList ids;
+    util::GenStringsList ids;
     ids.reserve(allMessages.size());
 
     static const std::string Templ = 

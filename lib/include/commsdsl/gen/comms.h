@@ -159,9 +159,9 @@ std::string genNamespaceEndFor(
 
 void genPrepareIncludeStatement(std::vector<std::string>& includes); 
 
-const std::string& genCppIntTypeFor(commsdsl::parse::ParseIntField::Type value, std::size_t len);
-std::string genCppIntChangedSignTypeFor(commsdsl::parse::ParseIntField::Type value, std::size_t len);
-const std::string& genCppFloatTypeFor(commsdsl::parse::ParseFloatField::Type value);
+const std::string& genCppIntTypeFor(commsdsl::parse::ParseIntField::ParseType value, std::size_t len);
+std::string genCppIntChangedSignTypeFor(commsdsl::parse::ParseIntField::ParseType value, std::size_t len);
+const std::string& genCppFloatTypeFor(commsdsl::parse::ParseFloatField::ParseType value);
 
 bool genIsGlobalField(const GenElem& elem);
 bool genIsInterfaceDeepMemberField(const GenElem& elem);

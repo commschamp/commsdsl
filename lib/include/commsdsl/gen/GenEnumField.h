@@ -33,9 +33,13 @@ class GenEnumFieldImpl;
 class COMMSDSL_API GenEnumField : public GenField
 {
     using Base = GenField;
+    
 public:
     using ParseField = commsdsl::parse::ParseField;
     using ParseEnumField = commsdsl::parse::ParseEnumField;
+
+    using GenRevValueInfo = std::pair<std::intmax_t, const std::string*>;
+    using GenSortedRevValues = std::vector<GenRevValueInfo>;
 
     GenEnumField(GenGenerator& generator, ParseField dslObj, GenElem* parent = nullptr);
     virtual ~GenEnumField();
@@ -47,9 +51,7 @@ public:
 
     ParseEnumField genEnumFieldParseObj() const;
 
-    using RevValueInfo = std::pair<std::intmax_t, const std::string*>;
-    using SortedRevValues = std::vector<RevValueInfo>;
-    const SortedRevValues& genSortedRevValues() const;
+    const GenSortedRevValues& genSortedRevValues() const;
 
     std::string genValueToString(std::intmax_t val) const;
 
@@ -61,7 +63,7 @@ public:
 
 protected:    
     virtual bool genPrepareImpl() override;
-    virtual FieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
+    virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
 
 private:
     std::unique_ptr<GenEnumFieldImpl> m_impl;        

@@ -96,7 +96,7 @@ GenOptionalField::GenOptionalField(GenGenerator& generator, ParseField parseObj,
     Base(generator, parseObj, parent),
     m_impl(std::make_unique<GenOptionalFieldImpl>(generator, genOptionalFieldParseObj(), this))
 {
-    assert(parseObj.parseKind() == ParseField::Kind::Optional);
+    assert(parseObj.parseKind() == ParseField::ParseKind::Optional);
 }
 
 GenOptionalField::~GenOptionalField() = default;

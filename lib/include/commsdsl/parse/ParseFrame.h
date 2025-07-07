@@ -32,9 +32,9 @@ class ParseFrameImpl;
 class COMMSDSL_API ParseFrame
 {
 public:
-    using LayersList = std::vector<ParseLayer>;
-    using AttributesMap = ParseLayer::AttributesMap;
-    using ElementsList = ParseLayer::ElementsList;
+    using ParseLayersList = std::vector<ParseLayer>;
+    using ParseAttributesMap = ParseLayer::ParseAttributesMap;
+    using ParseElementsList = ParseLayer::ParseElementsList;
 
     explicit ParseFrame(const ParseFrameImpl* impl);
     ParseFrame(const ParseFrame& other);
@@ -43,11 +43,11 @@ public:
     bool parseValid() const;
     const std::string& parseName() const;
     const std::string& parseDescription() const;
-    LayersList parseLayers() const;
+    ParseLayersList parseLayers() const;
     std::string parseExternalRef(bool schemaRef = true) const;
 
-    const AttributesMap& parseExtraAttributes() const;
-    const ElementsList& parseExtraElements() const;
+    const ParseAttributesMap& parseExtraAttributes() const;
+    const ParseElementsList& parseExtraElements() const;
 
 protected:
     const ParseFrameImpl* m_pImpl;

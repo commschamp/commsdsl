@@ -114,7 +114,7 @@ std::string CommsListField::commsCommonCodeBodyImpl() const
 
 std::string CommsListField::commsCommonMembersCodeImpl() const
 {
-    util::StringsList memberDefs;
+    util::GenStringsList memberDefs;
     auto addMemberCode = 
         [&memberDefs](const CommsField* commsField)
         {
@@ -192,7 +192,7 @@ CommsListField::IncludesList CommsListField::commsDefIncludesImpl() const
 
 std::string CommsListField::commsDefMembersCodeImpl() const
 {
-    util::StringsList memberDefs;
+    util::GenStringsList memberDefs;
     auto addMemberCode = 
         [&memberDefs](const CommsField* commsField)
         {
@@ -236,7 +236,7 @@ std::string CommsListField::commsDefBaseClassImpl() const
 std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const
 {
     auto obj = genListFieldParseObj();
-    util::StringsList preps;
+    util::GenStringsList preps;
     auto processPrefixFunc = 
         [this, &siblings, &preps](const std::string& prefixName, const util::ReplacementMap& replacements)
         {
@@ -330,7 +330,7 @@ std::string CommsListField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
 {
     auto obj = genListFieldParseObj();
 
-    util::StringsList refreshes;
+    util::GenStringsList refreshes;
     auto processPrefixFunc = 
         [&siblings, &refreshes](const std::string& prefixName, const util::ReplacementMap& replacements)
         {
@@ -486,7 +486,7 @@ bool CommsListField::commsIsVersionDependentImpl() const
 
 std::string CommsListField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
 {
-    util::StringsList elems;
+    util::GenStringsList elems;
 
     auto addStr = 
         [&elems](std::string&& str)
@@ -555,7 +555,7 @@ std::string CommsListField::commsSizeAccessStrImpl([[maybe_unused]] const std::s
 
 std::string CommsListField::commsDefFieldOptsInternal() const
 {
-    util::StringsList opts;
+    util::GenStringsList opts;
 
     commsAddFieldDefOptions(opts);
     commsAddFixedLengthOptInternal(opts);

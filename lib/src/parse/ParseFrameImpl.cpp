@@ -35,9 +35,9 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::NamesList& parseFrameSupportedTypes()
+const ParseXmlWrap::ParseNamesList& parseFrameSupportedTypes()
 {
-    static const ParseXmlWrap::NamesList Names = ParseLayerImpl::parseSupportedTypes();
+    static const ParseXmlWrap::ParseNamesList Names = ParseLayerImpl::parseSupportedTypes();
     return Names;
 }
 
@@ -80,9 +80,9 @@ const std::string& ParseFrameImpl::parseDescription() const
     return *m_description;
 }
 
-ParseFrameImpl::LayersList ParseFrameImpl::parseLayersList() const
+ParseFrameImpl::ParseLayersList ParseFrameImpl::parseLayersList() const
 {
-    LayersList result;
+    ParseLayersList result;
     result.reserve(m_layers.size());
     std::transform(
         m_layers.begin(), m_layers.end(), std::back_inserter(result),
@@ -96,7 +96,7 @@ ParseFrameImpl::LayersList ParseFrameImpl::parseLayersList() const
 std::string ParseFrameImpl::parseExternalRef(bool schemaRef) const
 {
     assert(parseGetParent() != nullptr);
-    assert(parseGetParent()->parseObjKind() == ObjKind::Namespace);
+    assert(parseGetParent()->parseObjKind() == ParseObjKind::Namespace);
 
     auto& ns = static_cast<const ParseNamespaceImpl&>(*parseGetParent());
     auto nsRef = ns.parseExternalRef(schemaRef);
@@ -107,22 +107,22 @@ std::string ParseFrameImpl::parseExternalRef(bool schemaRef) const
     return nsRef + '.' + parseName();
 }
 
-ParseObject::ObjKind ParseFrameImpl::parseObjKindImpl() const
+ParseObject::ParseObjKind ParseFrameImpl::parseObjKindImpl() const
 {
-    return ObjKind::Frame;
+    return ParseObjKind::Frame;
 }
 
-LogWrapper ParseFrameImpl::parseLogError() const
+ParseLogWrapper ParseFrameImpl::parseLogError() const
 {
     return commsdsl::parse::parseLogError(m_protocol.parseLogger());
 }
 
-LogWrapper ParseFrameImpl::parseLogWarning() const
+ParseLogWrapper ParseFrameImpl::parseLogWarning() const
 {
     return commsdsl::parse::parseLogWarning(m_protocol.parseLogger());
 }
 
-LogWrapper ParseFrameImpl::parseLogInfo() const
+ParseLogWrapper ParseFrameImpl::parseLogInfo() const
 {
     return commsdsl::parse::parseLogInfo(m_protocol.parseLogger());
 }
@@ -155,9 +155,9 @@ void ParseFrameImpl::parseReportUnexpectedPropertyValue(const std::string& propN
     ParseXmlWrap::parseReportUnexpectedPropertyValue(m_node, parseName(), propName, propValue, m_protocol.parseLogger());
 }
 
-const ParseXmlWrap::NamesList& ParseFrameImpl::parseCommonProps()
+const ParseXmlWrap::ParseNamesList& ParseFrameImpl::parseCommonProps()
 {
-    static const ParseXmlWrap::NamesList CommonNames = {
+    static const ParseXmlWrap::ParseNamesList CommonNames = {
         common::parseNameStr(),
         common::parseDescriptionStr(),
     };
@@ -165,7 +165,7 @@ const ParseXmlWrap::NamesList& ParseFrameImpl::parseCommonProps()
     return CommonNames;
 }
 
-ParseXmlWrap::NamesList ParseFrameImpl::parseAllNames()
+ParseXmlWrap::ParseNamesList ParseFrameImpl::parseAllNames()
 {
     auto names = parseCommonProps();
     auto& layerTypes = parseFrameSupportedTypes();
@@ -280,7 +280,7 @@ bool ParseFrameImpl::parseUpdateLayers()
                 "defined within the same frame.";
         }
 
-        if (layer->parseKind() == ParseLayerImpl::Kind::Payload) {
+        if (layer->parseKind() == ParseLayerImpl::ParseKind::Payload) {
             hasPayloadLayer = true;
         }
 
@@ -314,7 +314,7 @@ bool ParseFrameImpl::parseUpdateExtraAttrs()
 
 bool ParseFrameImpl::parseUpdateExtraChildren()
 {
-    static const ParseXmlWrap::NamesList ChildrenNames = parseAllNames();
+    static const ParseXmlWrap::ParseNamesList ChildrenNames = parseAllNames();
     m_extraChildren = ParseXmlWrap::parseGetExtraChildren(m_node, ChildrenNames, m_protocol);
     return true;
 }

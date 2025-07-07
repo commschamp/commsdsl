@@ -285,7 +285,7 @@ std::string CommsLayer::commsDefFieldType() const
             "    #^#EXTRA_OPTS#$#\n"
             ">";
 
-        util::StringsList opts;
+        util::GenStringsList opts;
         if (m_forcedPseudoField) {
             opts.push_back("comms::option::def::EmptySerialization");
         }
@@ -394,7 +394,7 @@ std::string CommsLayer::commsCustomizationOptionsInternal(
     bool hasBase,
     const std::string& customFieldOpts) const
 {
-    util::StringsList elems;
+    util::GenStringsList elems;
 
     // Field portion
     do {
@@ -442,7 +442,7 @@ std::string CommsLayer::commsCustomizationOptionsInternal(
             break;
         }
 
-        util::StringsList extraOpts;
+        util::GenStringsList extraOpts;
         if (extraLayerOptsFunc != nullptr) {
             extraOpts = (this->*extraLayerOptsFunc)();
         }

@@ -33,15 +33,15 @@ class ParseSetFieldImpl final : public ParseFieldImpl
 {
     using Base = ParseFieldImpl;
 public:
-    using Type = ParseSetField::Type;
-    using BitInfo = ParseSetField::BitInfo;
-    using Bits = ParseSetField::Bits;
-    using RevBits = ParseSetField::RevBits;
+    using ParseType = ParseSetField::ParseType;
+    using ParseBitInfo = ParseSetField::ParseBitInfo;
+    using ParseBits = ParseSetField::ParseBits;
+    using ParseRevBits = ParseSetField::ParseRevBits;
 
     ParseSetFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseSetFieldImpl(const ParseSetFieldImpl&);
 
-    Type parseType() const
+    ParseType parseType() const
     {
         return m_state.m_type;
     }
@@ -61,12 +61,12 @@ public:
         return m_state.m_reservedBitValue;
     }
 
-    const Bits& parseBits() const
+    const ParseBits& parseBits() const
     {
         return m_state.m_bits;
     }
 
-    const RevBits& parseRevBits() const
+    const ParseRevBits& parseRevBits() const
     {
         return m_state.m_revBits;
     }
@@ -89,10 +89,10 @@ public:
     }
 
 protected:
-    virtual Kind parseKindImpl() const override;
-    virtual Ptr parseCloneImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraChildrenNamesImpl() const override;
+    virtual ParseKind parseKindImpl() const override;
+    virtual ParsePtr parseCloneImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraChildrenNamesImpl() const override;
     virtual bool parseReuseImpl(const ParseFieldImpl& other) override;
     virtual bool parseImpl() override;
     virtual std::size_t parseMinLengthImpl() const override;
@@ -102,8 +102,8 @@ protected:
     virtual bool parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
     virtual bool parseStrToBoolImpl(const std::string& ref, bool& val) const override;
     virtual bool parseValidateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override;
-    virtual FieldRefInfo parseProcessInnerRefImpl(const std::string& refStr) const override;
-    virtual bool parseIsValidRefTypeImpl(FieldRefType type) const override;
+    virtual ParseFieldRefInfo parseProcessInnerRefImpl(const std::string& refStr) const override;
+    virtual bool parseIsValidRefTypeImpl(ParseFieldRefType type) const override;
 
 private:
     bool parseUpdateEndian();
@@ -117,21 +117,21 @@ private:
     bool parseUpdateBits();
     bool parseStrToValue(const std::string& str, bool& val) const;
 
-    struct State
+    struct ParseState
     {
-        Type m_type = Type::NumOfValues;
+        ParseType m_type = ParseType::NumOfValues;
         ParseEndian m_endian = ParseEndian_NumOfValues;
         std::size_t m_length = 0U;
         std::size_t m_bitLength = 0U;
-        Bits m_bits;
-        RevBits m_revBits;
+        ParseBits m_bits;
+        ParseRevBits m_revBits;
         bool m_nonUniqueAllowed = false;
         bool m_defaultBitValue = false;
         bool m_reservedBitValue = false;
         bool m_validCheckVersion = false;
         bool m_availableLengthLimit = false;
     };
-    State m_state;
+    ParseState m_state;
 };
 
 } // namespace parse

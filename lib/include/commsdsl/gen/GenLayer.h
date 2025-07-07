@@ -34,14 +34,16 @@ class GenLayerImpl;
 class COMMSDSL_API GenLayer : public GenElem
 {
     using Base = GenElem;
+    
 public:
-    using Ptr = std::unique_ptr<GenLayer>;
-    using LayersAccessList = std::vector<const GenLayer*>;
     using ParseLayer = commsdsl::parse::ParseLayer;
+
+    using GenPtr = std::unique_ptr<GenLayer>;
+    using GenLayersAccessList = std::vector<const GenLayer*>;
 
     virtual ~GenLayer();
 
-    static Ptr genCreate(GenGenerator& generator, ParseLayer parseObj, GenElem* parent = nullptr);    
+    static GenPtr genCreate(GenGenerator& generator, ParseLayer parseObj, GenElem* parent = nullptr);    
 
     bool genPrepare();
     bool genWrite() const;
@@ -57,7 +59,7 @@ public:
     const GenGenerator& genGenerator() const;    
 
     // return true if re-order happened, false otherwise
-    bool genForceCommsOrder(LayersAccessList& layers, bool& success) const;
+    bool genForceCommsOrder(GenLayersAccessList& layers, bool& success) const;
 
     std::string genTemplateScopeOfComms(const std::string& iFaceStr, const std::string& allMessagesStr, const std::string& protOptionsStr) const;
 
@@ -67,14 +69,14 @@ protected:
     virtual Type genElemTypeImpl() const override final;
     virtual bool genPrepareImpl();
     virtual bool genWriteImpl() const;
-    virtual bool genForceCommsOrderImpl(LayersAccessList& layers, bool& success) const;
+    virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const;
 
 
 private:
     std::unique_ptr<GenLayerImpl> m_impl;
 };
 
-using GenLayerPtr = GenLayer::Ptr;
+using GenLayerPtr = GenLayer::GenPtr;
 
 } // namespace gen
 

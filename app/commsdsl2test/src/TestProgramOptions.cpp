@@ -88,7 +88,7 @@ const std::string& TestProgramOptions::getFilesListPrefix() const
     return genValue(InputFilesPrefixStr);
 }
 
-const TestProgramOptions::ArgsList& TestProgramOptions::getFiles() const
+const TestProgramOptions::GenArgsList& TestProgramOptions::getFiles() const
 {
     return genArgs();
 }

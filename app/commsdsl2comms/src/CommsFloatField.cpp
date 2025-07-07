@@ -56,25 +56,25 @@ std::string limitToString(double val)
     return Prefix + Inf;
 }
 
-double getLowest(commsdsl::parse::ParseFloatField::Type type)
+double getLowest(commsdsl::parse::ParseFloatField::ParseType type)
 {
-    if (type == commsdsl::parse::ParseFloatField::Type::Float) {
+    if (type == commsdsl::parse::ParseFloatField::ParseType::Float) {
         return double(std::numeric_limits<float>::lowest());
     }
 
     return std::numeric_limits<double>::lowest();
 }
 
-double getMax(commsdsl::parse::ParseFloatField::Type type)
+double getMax(commsdsl::parse::ParseFloatField::ParseType type)
 {
-    if (type == commsdsl::parse::ParseFloatField::Type::Float) {
+    if (type == commsdsl::parse::ParseFloatField::ParseType::Float) {
         return double(std::numeric_limits<float>::max());
     }
 
     return std::numeric_limits<double>::max();
 }
 
-std::string genValueToString(double val, commsdsl::parse::ParseFloatField::Type type)
+std::string genValueToString(double val, commsdsl::parse::ParseFloatField::ParseType type)
 {
     if (isLimit(val)) {
         return limitToString(val);
@@ -93,7 +93,7 @@ std::string genValueToString(double val, commsdsl::parse::ParseFloatField::Type 
     return "static_cast<ValueType>(" + std::to_string(val) + ")";
 }
 
-std::string cmpToString(double val, commsdsl::parse::ParseFloatField::Type type)
+std::string cmpToString(double val, commsdsl::parse::ParseFloatField::ParseType type)
 {
     if (std::isnan(val)) {
         return "std::isnan(Base::getValue())";
@@ -145,7 +145,7 @@ const std::string& hasSpecialsFuncTempl()
     return Templ;
 }
 
-void addCondition(util::StringsList& condList, std::string&& str)
+void addCondition(util::GenStringsList& condList, std::string&& str)
 {
     static const std::string Templ = 
         "if (#^#COND#$#) {\n"
@@ -160,10 +160,10 @@ void addCondition(util::StringsList& condList, std::string&& str)
 }
 
 void addRangeComparison(
-    util::StringsList& condList,
+    util::GenStringsList& condList,
     double min,
     double max,
-    commsdsl::parse::ParseFloatField::Type type)
+    commsdsl::parse::ParseFloatField::ParseType type)
 {
     static const std::string RangeComparisonTemplate =
         "(#^#MIN#$# <= Base::getValue()) &&\n"
@@ -481,7 +481,7 @@ std::string CommsFloatField::commsCommonSpecialsCodeInternal() const
         return strings::genEmptyString();
     }
 
-    util::StringsList specialsList;
+    util::GenStringsList specialsList;
     for (auto& s : specials) {
         if (!genGenerator().genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
@@ -535,7 +535,7 @@ std::string CommsFloatField::commsCommonSpecialNamesMapCodeInternal() const
         "    return std::make_pair(&Map[0], MapSize);\n"
         "}\n";    
 
-    util::StringsList specialInfos;
+    util::GenStringsList specialInfos;
     for (auto& s : specials) {
         static const std::string SpecTempl = 
             "std::make_pair(value#^#SPEC_ACC#$#(), \"#^#SPEC_NAME#$#\")";
@@ -564,7 +564,7 @@ std::string CommsFloatField::commsDefSpecialsCodeInternal() const
     auto obj = genFloatFieldParseObj();
     auto type = obj.parseType();
 
-    util::StringsList specialsList;
+    util::GenStringsList specialsList;
     
     for (auto& s : specials) {
         if (!genGenerator().genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
@@ -643,7 +643,7 @@ std::string CommsFloatField::commsDefDisplayDecimalsCodeInternal() const
 
 std::string CommsFloatField::commsDefFieldOptsInternal() const
 {
-    util::StringsList opts;
+    util::GenStringsList opts;
 
     commsAddFieldDefOptions(opts);
     commsAddUnitsOptInternal(opts);
@@ -731,7 +731,7 @@ void CommsFloatField::commsAddInvalidOptInternal(StringsList& opts) const
 
 CommsFloatField::StringsList CommsFloatField::commsValidNormalConditionsInternal() const
 {
-    util::StringsList conditions;
+    util::GenStringsList conditions;
     auto obj = genFloatFieldParseObj();
     auto type = obj.parseType();
 

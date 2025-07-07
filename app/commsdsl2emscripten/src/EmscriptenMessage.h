@@ -30,7 +30,7 @@ class EmscriptenMessage final: public commsdsl::gen::GenMessage
     using Base = commsdsl::gen::GenMessage;
 
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
     
     explicit EmscriptenMessage(EmscriptenGenerator& generator, commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent);
     virtual ~EmscriptenMessage();

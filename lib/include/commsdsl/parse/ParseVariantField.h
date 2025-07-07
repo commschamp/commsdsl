@@ -29,14 +29,14 @@ class ParseVariantFieldImpl;
 class COMMSDSL_API ParseVariantField : public ParseField
 {
     using Base = ParseField;
-public:
 
-    using Members = std::vector<ParseField>;
+public:
+    using ParseMembers = std::vector<ParseField>;
 
     explicit ParseVariantField(const ParseVariantFieldImpl* impl);
     explicit ParseVariantField(ParseField field);
 
-    Members parseMembers() const;
+    ParseMembers parseMembers() const;
     std::size_t parseDefaultMemberIdx() const;
 
 };

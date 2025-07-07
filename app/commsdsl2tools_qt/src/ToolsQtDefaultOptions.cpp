@@ -164,7 +164,7 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
 
     auto codePrefix = m_generator.genGetCodeDir() + '/' + toolsRelHeaderPath(m_generator);
 
-    util::StringsList includes {
+    util::GenStringsList includes {
         ToolsQtVersion::toolsRelHeaderPath(m_generator)
     };
 

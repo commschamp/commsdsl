@@ -31,8 +31,8 @@ namespace gen
 class GenFloatFieldImpl
 {
 public:
-    using SpecialsList = GenFloatField::SpecialsList;
     using ParseFloatField = GenFloatField::ParseFloatField;
+    using GenSpecialsList = GenFloatField::GenSpecialsList;
 
     bool genPrepare(ParseFloatField parseObj)
     {
@@ -102,25 +102,25 @@ public:
         return true;
     }
 
-    const SpecialsList& genSpecialsSortedByValue() const
+    const GenSpecialsList& genSpecialsSortedByValue() const
     {
         return m_specialsSorted;
     }
 
 private:
-    SpecialsList m_specialsSorted;
+    GenSpecialsList m_specialsSorted;
 };       
 
 GenFloatField::GenFloatField(GenGenerator& generator, ParseField parseObj, GenElem* parent) :
     Base(generator, parseObj, parent),
     m_impl(std::make_unique<GenFloatFieldImpl>())
 {
-    assert(parseObj.parseKind() == ParseField::Kind::Float);
+    assert(parseObj.parseKind() == ParseField::ParseKind::Float);
 }
 
 GenFloatField::~GenFloatField() = default;
 
-const GenFloatField::SpecialsList& GenFloatField::genSpecialsSortedByValue() const
+const GenFloatField::GenSpecialsList& GenFloatField::genSpecialsSortedByValue() const
 {
     return m_impl->genSpecialsSortedByValue();
 }
@@ -130,13 +130,13 @@ bool GenFloatField::genPrepareImpl()
     return m_impl->genPrepare(genFloatFieldParseObj());
 }
 
-GenFloatField::FieldRefInfo GenFloatField::genProcessInnerRefImpl(const std::string& refStr) const
+GenFloatField::GenFieldRefInfo GenFloatField::genProcessInnerRefImpl(const std::string& refStr) const
 {
     assert(!refStr.empty());
     auto obj = genFloatFieldParseObj();
     auto& specials = obj.parseSpecialValues();
 
-    FieldRefInfo info;
+    GenFieldRefInfo info;
     auto iter = specials.find(refStr);
     if (iter != specials.end()) {
         info.m_field = this;

@@ -29,8 +29,8 @@ namespace gen
 class GenBundleFieldImpl
 {
 public:
-    using FieldsList = GenBundleField::FieldsList;
     using ParseBundleField = GenBundleField::ParseBundleField;
+    using GenFieldsList = GenBundleField::GenFieldsList;
 
     GenBundleFieldImpl(GenGenerator& generator, ParseBundleField parseBundleObj, GenElem* parent) :
         m_generator(generator),
@@ -60,7 +60,7 @@ public:
         return true;
     }
 
-    const FieldsList& genMembers() const
+    const GenFieldsList& genMembers() const
     {
         return m_members;
     }
@@ -76,19 +76,19 @@ private:
     GenGenerator& m_generator;
     ParseBundleField m_bundleParseObj;
     GenElem* m_parent = nullptr;
-    FieldsList m_members;
+    GenFieldsList m_members;
 };
 
 GenBundleField::GenBundleField(GenGenerator& generator, commsdsl::parse::ParseField parseObj, GenElem* parent) :
     Base(generator, parseObj, parent),
     m_impl(std::make_unique<GenBundleFieldImpl>(generator, genBundleFieldParseObj(), this))
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Bundle);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Bundle);
 }
 
 GenBundleField::~GenBundleField() = default;
 
-const GenBundleField::FieldsList& GenBundleField::genMembers() const
+const GenBundleField::GenFieldsList& GenBundleField::genMembers() const
 {
     return m_impl->genMembers();
 }
@@ -103,7 +103,7 @@ void GenBundleField::genSetReferencedImpl()
     m_impl->genSetReferenced();
 }
 
-GenBundleField::FieldRefInfo GenBundleField::genProcessInnerRefImpl(const std::string& refStr) const
+GenBundleField::GenFieldRefInfo GenBundleField::genProcessInnerRefImpl(const std::string& refStr) const
 {
     auto& memFields = genMembers();
     if (!memFields.empty()) {

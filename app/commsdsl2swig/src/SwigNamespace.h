@@ -31,7 +31,7 @@ class SwigNamespace final: public commsdsl::gen::GenNamespace
     using Base = commsdsl::gen::GenNamespace;
 
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
 
     explicit SwigNamespace(SwigGenerator& generator, commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent);
     virtual ~SwigNamespace();

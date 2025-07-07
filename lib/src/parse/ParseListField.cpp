@@ -44,7 +44,7 @@ ParseListField::ParseListField(const ParseListFieldImpl* impl)
 ParseListField::ParseListField(ParseField field)
   : Base(field)
 {
-    assert(parseKind() == Kind::List);
+    assert(parseKind() == ParseKind::List);
 }
 
 ParseField ParseListField::parseElementField() const

@@ -32,7 +32,6 @@ namespace strings = commsdsl::gen::strings;
 
 namespace commsdsl2comms
 {
-    
 
 CommsBitfieldField::CommsBitfieldField(
     CommsGenerator& generator, 
@@ -75,7 +74,7 @@ std::string CommsBitfieldField::commsCommonCodeBodyImpl() const
 
 std::string CommsBitfieldField::commsCommonMembersCodeImpl() const
 {
-    util::StringsList membersCode;
+    util::GenStringsList membersCode;
     for (auto* m : m_members) {
         auto code = m->commsCommonCode();
         if (!code.empty()) {
@@ -112,7 +111,7 @@ std::string CommsBitfieldField::commsDefMembersCodeImpl() const
         "       #^#MEMBERS#$#\n"
         "    >;";
 
-    util::StringsList membersCode;
+    util::GenStringsList membersCode;
     for (auto* m : m_members) {
         auto code = m->commsDefCode();
         if (!code.empty()) {
@@ -120,7 +119,7 @@ std::string CommsBitfieldField::commsDefMembersCodeImpl() const
         }
     }
     
-    util::StringsList names;
+    util::GenStringsList names;
     for (auto& fPtr : genMembers()) {
         assert(fPtr);
         names.push_back(comms::genClassName(fPtr->genParseObj().parseName()));
@@ -211,7 +210,7 @@ bool CommsBitfieldField::commsIsVersionDependentImpl() const
 std::string CommsBitfieldField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
 {
     assert(fieldOptsFunc != nullptr);
-    util::StringsList elems;
+    util::GenStringsList elems;
     for (auto* m : m_members) {
         auto str = (m->*fieldOptsFunc)();
         if (!str.empty()) {
@@ -333,7 +332,7 @@ bool CommsBitfieldField::commsPrepareInternal()
 {
     m_members = commsTransformFieldsList(genMembers());
 
-    if ((genBitfieldFieldParseObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Length) && 
+    if ((genBitfieldFieldParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Length) && 
         (!commsHasCustomValue())) {
         genGenerator().genLogger().genWarning(
             "Field \"" + comms::genScopeFor(*this, genGenerator()) + "\" is used as \"length\" field (semanticType=\"length\"), but custom value "
@@ -347,7 +346,7 @@ bool CommsBitfieldField::commsPrepareInternal()
 
 std::string CommsBitfieldField::commsDefFieldOptsInternal() const
 {
-    commsdsl::gen::util::StringsList opts;
+    commsdsl::gen::util::GenStringsList opts;
     commsAddFieldDefOptions(opts);
     util::genAddToStrList("comms::option::def::HasVersionDependentMembers<" + util::genBoolToString(commsIsVersionDependentImpl()) + ">", opts);        
     return util::genStrListToString(opts, ",\n", "");
@@ -367,8 +366,8 @@ std::string CommsBitfieldField::commsAccessCodeInternal() const
         "    #^#NAMES#$#\n"
         ");\n";
 
-    util::StringsList accessDocList;
-    util::StringsList namesList;
+    util::GenStringsList accessDocList;
+    util::GenStringsList namesList;
     accessDocList.reserve(m_members.size());
     namesList.reserve(m_members.size());
 

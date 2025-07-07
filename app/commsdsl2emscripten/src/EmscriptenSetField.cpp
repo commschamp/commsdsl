@@ -49,7 +49,7 @@ std::string EmscriptenSetField::emscriptenHeaderExtraPublicFuncsImpl() const
 {
     auto obj = genSetFieldParseObj();
 
-    util::StringsList accesses;
+    util::GenStringsList accesses;
 
     for (auto& bitInfo : obj.parseRevBits()) {
 
@@ -97,7 +97,7 @@ std::string EmscriptenSetField::emscriptenSourceBindFuncsImpl() const
         {"CLASS_NAME", emscriptenBindClassName()},
     };    
 
-    util::StringsList accesses;
+    util::GenStringsList accesses;
     for (auto& bitInfo : obj.parseRevBits()) {
 
         static const std::string Templ = 
@@ -126,7 +126,7 @@ std::string EmscriptenSetField::emscriptenSourceBindExtraImpl() const
         {"CLASS_NAME", emscriptenBindClassName()},
     };    
 
-    util::StringsList values;
+    util::GenStringsList values;
     for (auto& bitInfo : obj.parseRevBits()) {
 
         static const std::string Templ = 

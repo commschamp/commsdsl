@@ -37,10 +37,11 @@ class COMMSDSL_API GenFrame : public GenElem
 {
     using Base = GenElem;
 public:
-    using Ptr = std::unique_ptr<GenFrame>;
-    using LayersList = std::vector<GenLayerPtr>;
-    using LayersAccessList = GenLayer::LayersAccessList;
     using ParseFrame = commsdsl::parse::ParseFrame;
+
+    using GenPtr = std::unique_ptr<GenFrame>;
+    using GenLayersList = std::vector<GenLayerPtr>;
+    using GenLayersAccessList = GenLayer::GenLayersAccessList;
 
     explicit GenFrame(GenGenerator& generator, ParseFrame parseObj, GenElem* parent = nullptr);
     virtual ~GenFrame();
@@ -49,12 +50,12 @@ public:
     bool genWrite() const;
 
     commsdsl::parse::ParseFrame genParseObj() const;
-    const LayersList& genLayers() const;
+    const GenLayersList& genLayers() const;
 
     GenGenerator& genGenerator();
     const GenGenerator& genGenerator() const;
 
-    LayersAccessList getCommsOrderOfLayers(bool& success) const;
+    GenLayersAccessList getCommsOrderOfLayers(bool& success) const;
 
     const GenNamespace* genParentNamespace() const;
 
@@ -67,7 +68,7 @@ private:
     std::unique_ptr<GenFrameImpl> m_impl;
 };
 
-using FramePtr = GenFrame::Ptr;
+using GenFramePtr = GenFrame::GenPtr;
 
 } // namespace gen
 

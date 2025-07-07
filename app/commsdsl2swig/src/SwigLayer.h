@@ -27,7 +27,7 @@ namespace commsdsl2swig
 class SwigLayer
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
     using SwigLayersList = std::vector<SwigLayer*>;
     
     explicit SwigLayer(commsdsl::gen::GenLayer& layer);

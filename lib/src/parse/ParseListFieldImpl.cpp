@@ -35,13 +35,13 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::NamesList& parseListSupportedTypes()
+const ParseXmlWrap::ParseNamesList& parseListSupportedTypes()
 {
-    static const ParseXmlWrap::NamesList Names = ParseFieldImpl::parseSupportedTypes();
+    static const ParseXmlWrap::ParseNamesList Names = ParseFieldImpl::parseSupportedTypes();
     return Names;
 }
 
-ParseXmlWrap::NamesList parseGetExtraNames()
+ParseXmlWrap::ParseNamesList parseGetExtraNames()
 {
     auto names = parseListSupportedTypes();
     names.push_back(common::parseElementStr());
@@ -60,9 +60,9 @@ ParseListFieldImpl::ParseListFieldImpl(::xmlNodePtr node, ParseProtocolImpl& pro
 }
 
 
-ParseFieldImpl::Kind ParseListFieldImpl::parseKindImpl() const
+ParseFieldImpl::ParseKind ParseListFieldImpl::parseKindImpl() const
 {
-    return Kind::List;
+    return ParseKind::List;
 }
 
 ParseListFieldImpl::ParseListFieldImpl(const ParseListFieldImpl& other)
@@ -72,14 +72,14 @@ ParseListFieldImpl::ParseListFieldImpl(const ParseListFieldImpl& other)
     parseCloneFields(other);
 }
 
-ParseFieldImpl::Ptr ParseListFieldImpl::parseCloneImpl() const
+ParseFieldImpl::ParsePtr ParseListFieldImpl::parseCloneImpl() const
 {
-    return Ptr(new ParseListFieldImpl(*this));
+    return ParsePtr(new ParseListFieldImpl(*this));
 }
 
-const ParseXmlWrap::NamesList& ParseListFieldImpl::parseExtraPropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseListFieldImpl::parseExtraPropsNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = {
+    static const ParseXmlWrap::ParseNamesList List = {
         common::parseCountStr(),
         common::parseElemFixedLengthStr()
     };
@@ -87,9 +87,9 @@ const ParseXmlWrap::NamesList& ParseListFieldImpl::parseExtraPropsNamesImpl() co
     return List;
 }
 
-const ParseXmlWrap::NamesList& ParseListFieldImpl::parseExtraPossiblePropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseListFieldImpl::parseExtraPossiblePropsNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = {
+    static const ParseXmlWrap::ParseNamesList List = {
         common::parseElementStr(),
         common::parseCountPrefixStr(),
         common::parseLengthPrefixStr(),
@@ -99,9 +99,9 @@ const ParseXmlWrap::NamesList& ParseListFieldImpl::parseExtraPossiblePropsNamesI
     return List;
 }
 
-const ParseXmlWrap::NamesList& ParseListFieldImpl::parseExtraChildrenNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseListFieldImpl::parseExtraChildrenNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = parseGetExtraNames();
+    static const ParseXmlWrap::ParseNamesList List = parseGetExtraNames();
     return List;
 }
 
@@ -114,7 +114,7 @@ bool ParseListFieldImpl::parseReuseImpl(const ParseFieldImpl& other)
     return true;
 }
 
-bool ParseListFieldImpl::parseVerifySiblingsImpl(const FieldsList& fields) const
+bool ParseListFieldImpl::parseVerifySiblingsImpl(const ParseFieldsList& fields) const
 {
     return 
         parseVerifySiblingsForPrefix(fields, m_state.m_detachedCountPrefixField) &&
@@ -189,7 +189,7 @@ std::size_t ParseListFieldImpl::parseMaxLengthImpl() const
 
     if (parseHasCountPrefixField()) {
         auto* prefixField = parseGetCountPrefixField();
-        assert(prefixField->parseKind() == ParseField::Kind::Int);
+        assert(prefixField->parseKind() == ParseField::ParseKind::Int);
         auto& castedPrefix = static_cast<const ParseIntFieldImpl&>(*prefixField);
         std::size_t count = static_cast<std::size_t>(castedPrefix.parseMaxValue());
         auto result = common::parseMulLength(elemMaxLength, count);
@@ -206,7 +206,7 @@ std::size_t ParseListFieldImpl::parseMaxLengthImpl() const
 
     if (parseHasLengthPrefixField()) {
         auto* prefixField = parseGetLengthPrefixField();
-        assert(prefixField->parseKind() == ParseField::Kind::Int);
+        assert(prefixField->parseKind() == ParseField::ParseKind::Int);
         auto& castedPrefix = static_cast<const ParseIntFieldImpl&>(*prefixField);
         std::size_t result = static_cast<std::size_t>(castedPrefix.parseMaxValue());
         common::parseAddToLength(castedPrefix.parseMaxLength(), result);
@@ -216,7 +216,7 @@ std::size_t ParseListFieldImpl::parseMaxLengthImpl() const
     return common::parseMaxPossibleLength();
 }
 
-bool ParseListFieldImpl::parseIsValidRefTypeImpl(FieldRefType type) const
+bool ParseListFieldImpl::parseIsValidRefTypeImpl(ParseFieldRefType type) const
 {
     return (type == FieldRefType_Size);
 }
@@ -644,7 +644,7 @@ bool ParseListFieldImpl::parseCheckPrefixFromRef(
         return false;
     }
 
-    if ((field->parseKind() != Kind::Int) && (field->parseSemanticType() != SemanticType::Length)) {
+    if ((field->parseKind() != ParseKind::Int) && (field->parseSemanticType() != ParseSemanticType::Length)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "The field referenced by \"" << type <<
             "\" property (" << iter->second << ") must be of type \"" << common::parseIntStr() << 
@@ -719,7 +719,7 @@ bool ParseListFieldImpl::parseCheckPrefixAsChild(
         return false;
     }
 
-    if ((field->parseKind() != Kind::Int) && (field->parseSemanticType() != SemanticType::Length)) {
+    if ((field->parseKind() != ParseKind::Int) && (field->parseSemanticType() != ParseSemanticType::Length)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "The \"" << type << "\" element  must be of type \"" << common::parseIntStr() << 
             "\" or have semanticType=\"length\" property set.";
@@ -755,7 +755,7 @@ const ParseFieldImpl* ParseListFieldImpl::parseGetLengthPrefixField() const
 }
 
 bool ParseListFieldImpl::parseVerifySiblingsForPrefix(
-    const FieldsList& fields, 
+    const ParseFieldsList& fields, 
     const std::string& detachedName) const
 {
     if (detachedName.empty()) {
@@ -768,7 +768,7 @@ bool ParseListFieldImpl::parseVerifySiblingsForPrefix(
     }
 
     auto fieldKind = parseGetNonRefFieldKind(*sibling);
-    if ((fieldKind != Kind::Int) && (sibling->parseSemanticType() != SemanticType::Length)) {
+    if ((fieldKind != ParseKind::Int) && (sibling->parseSemanticType() != ParseSemanticType::Length)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Detached prefix \"" << detachedName << "\" is expected to be of \"" << common::parseIntStr() << "\" type "
             "or have semanticType=\"length\" property set.";

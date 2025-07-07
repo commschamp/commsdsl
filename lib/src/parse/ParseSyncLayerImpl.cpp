@@ -29,9 +29,9 @@ ParseSyncLayerImpl::ParseSyncLayerImpl(::xmlNodePtr node, ParseProtocolImpl& pro
 {
 }
 
-ParseLayerImpl::Kind ParseSyncLayerImpl::parseKindImpl() const
+ParseLayerImpl::ParseKind ParseSyncLayerImpl::parseKindImpl() const
 {
-    return Kind::Sync;
+    return ParseKind::Sync;
 }
 
 } // namespace parse

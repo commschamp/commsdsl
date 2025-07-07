@@ -36,12 +36,13 @@ class GenNamespace;
 class COMMSDSL_API GenField : public GenElem
 {
     using Base = GenElem;
+
 public:
-    using Ptr = std::unique_ptr<GenField>;
-    using FieldsList = std::vector<Ptr>;
+    using GenPtr = std::unique_ptr<GenField>;
+    using GenFieldsList = std::vector<GenPtr>;
     using ParseField = commsdsl::parse::ParseField;
 
-    enum FieldRefType
+    enum GenFieldRefType
     {
         FieldRefType_Invalid,
         FieldRefType_Field,
@@ -49,16 +50,16 @@ public:
         FieldRefType_ValuesLimit
     };
 
-    struct FieldRefInfo
+    struct GenFieldRefInfo
     {
         const GenField* m_field = nullptr;
         std::string m_valueName;
-        FieldRefType m_refType = FieldRefType_Invalid;
+        GenFieldRefType m_refType = FieldRefType_Invalid;
     };    
 
     virtual ~GenField();
 
-    static Ptr genCreate(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);    
+    static GenPtr genCreate(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);    
 
     bool genIsPrepared() const;
     bool genPrepare();
@@ -76,8 +77,8 @@ public:
 
     std::string genTemplateScopeOfComms(const std::string& protOptionsStr) const;
 
-    FieldRefInfo genProcessInnerRef(const std::string& refStr) const;
-    static FieldRefInfo genProcessMemberRef(const FieldsList& fields, const std::string& refStr);
+    GenFieldRefInfo genProcessInnerRef(const std::string& refStr) const;
+    static GenFieldRefInfo genProcessMemberRef(const GenFieldsList& fields, const std::string& refStr);
 
     const GenNamespace* genParentNamespace() const;
 
@@ -88,14 +89,14 @@ protected:
     virtual bool genPrepareImpl();
     virtual bool genWriteImpl() const;
     virtual void genSetReferencedImpl();
-    virtual FieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const;
+    virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const;
 
 
 private:
     std::unique_ptr<GenFieldImpl> m_impl;
 };
 
-using GenFieldPtr = GenField::Ptr;
+using GenFieldPtr = GenField::GenPtr;
 
 } // namespace gen
 

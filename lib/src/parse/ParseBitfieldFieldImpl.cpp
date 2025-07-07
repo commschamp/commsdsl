@@ -33,7 +33,7 @@ namespace parse
 namespace
 {
 
-ParseXmlWrap::NamesList parseGetExtraNames()
+ParseXmlWrap::ParseNamesList parseGetExtraNames()
 {
     auto names = ParseBitfieldFieldImpl::parseSupportedTypes();
     names.push_back(common::parseMembersStr());
@@ -58,9 +58,9 @@ ParseBitfieldFieldImpl::ParseBitfieldFieldImpl(const ParseBitfieldFieldImpl& oth
     }
 }
 
-ParseBitfieldFieldImpl::Members ParseBitfieldFieldImpl::parseMembersList() const
+ParseBitfieldFieldImpl::ParseMembers ParseBitfieldFieldImpl::parseMembersList() const
 {
-    Members result;
+    ParseMembers result;
     result.reserve(m_members.size());
     std::transform(
         m_members.begin(), m_members.end(), std::back_inserter(result),
@@ -71,9 +71,9 @@ ParseBitfieldFieldImpl::Members ParseBitfieldFieldImpl::parseMembersList() const
     return result;
 }
 
-const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::parseSupportedTypes()
+const ParseXmlWrap::ParseNamesList& ParseBitfieldFieldImpl::parseSupportedTypes()
 {
-    static const ParseXmlWrap::NamesList Names = {
+    static const ParseXmlWrap::ParseNamesList Names = {
         common::parseIntStr(),
         common::parseEnumStr(),
         common::parseSetStr(),
@@ -83,19 +83,19 @@ const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::parseSupportedTypes()
     return Names;    
 }
 
-ParseFieldImpl::Kind ParseBitfieldFieldImpl::parseKindImpl() const
+ParseFieldImpl::ParseKind ParseBitfieldFieldImpl::parseKindImpl() const
 {
-    return Kind::Bitfield;
+    return ParseKind::Bitfield;
 }
 
-ParseFieldImpl::Ptr ParseBitfieldFieldImpl::parseCloneImpl() const
+ParseFieldImpl::ParsePtr ParseBitfieldFieldImpl::parseCloneImpl() const
 {
-    return Ptr(new ParseBitfieldFieldImpl(*this));
+    return ParsePtr(new ParseBitfieldFieldImpl(*this));
 }
 
-const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::parseExtraPropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseBitfieldFieldImpl::parseExtraPropsNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = {
+    static const ParseXmlWrap::ParseNamesList List = {
         common::parseEndianStr(),
         common::parseCopyValidCondFromStr(),
     };
@@ -103,18 +103,18 @@ const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::parseExtraPropsNamesImpl(
     return List;
 }
 
-const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::parseExtraPossiblePropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseBitfieldFieldImpl::parseExtraPossiblePropsNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = {
+    static const ParseXmlWrap::ParseNamesList List = {
         common::parseValidCondStr(),
     };
 
     return List;
 }
 
-const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::parseExtraChildrenNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseBitfieldFieldImpl::parseExtraChildrenNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList Names = parseGetExtraNames();
+    static const ParseXmlWrap::ParseNamesList Names = parseGetExtraNames();
     return Names;
 }
 
@@ -149,7 +149,7 @@ bool ParseBitfieldFieldImpl::parseImpl()
         parseUpdateMultiValidCond();
 }
 
-bool ParseBitfieldFieldImpl::parseReplaceMembersImpl(FieldsList& members)
+bool ParseBitfieldFieldImpl::parseReplaceMembersImpl(ParseFieldsList& members)
 {
     for (auto& mem : members) {
         assert(mem);
@@ -208,9 +208,9 @@ bool ParseBitfieldFieldImpl::parseStrToBoolImpl(const std::string& ref, bool& va
     return parseStrToBoolOnFields(ref, m_members, val);
 }
 
-bool ParseBitfieldFieldImpl::parseVerifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, SemanticType type) const
+bool ParseBitfieldFieldImpl::parseVerifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, ParseSemanticType type) const
 {
-    if ((type == SemanticType::Length) &&
+    if ((type == ParseSemanticType::Length) &&
         (parseProtocol().parseIsSemanticTypeLengthSupported()) && 
         (parseProtocol().parseIsNonIntSemanticTypeLengthSupported())) {
         return true;
@@ -243,12 +243,12 @@ bool ParseBitfieldFieldImpl::parseVerifyAliasedMemberImpl(const std::string& fie
     return (*iter)->parseVerifyAliasedMember(restFieldName);
 }
 
-const ParseXmlWrap::NamesList& ParseBitfieldFieldImpl::parseSupportedMemberTypesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseBitfieldFieldImpl::parseSupportedMemberTypesImpl() const
 {
     return ParseBitfieldFieldImpl::parseSupportedTypes();
 }
 
-const ParseBitfieldFieldImpl::FieldsList& ParseBitfieldFieldImpl::parseMembersImpl() const
+const ParseBitfieldFieldImpl::ParseFieldsList& ParseBitfieldFieldImpl::parseMembersImpl() const
 {
     return m_members;
 }
@@ -522,7 +522,7 @@ bool ParseBitfieldFieldImpl::parseUpdateMultiCondInternal(const std::string& pro
         return false;
     }
 
-    static const ParseXmlWrap::NamesList ElemNames = {
+    static const ParseXmlWrap::ParseNamesList ElemNames = {
         common::parseAndStr(),
         common::parseOrStr()
     };

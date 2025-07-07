@@ -38,15 +38,15 @@ class ParseLayerImpl : public ParseObject
 {
     using Base = ParseObject;
 public:
-    using Ptr = std::unique_ptr<ParseLayerImpl>;
-    using PropsMap = ParseXmlWrap::PropsMap;
-    using ContentsList = ParseXmlWrap::ContentsList;
-    using LayersList = std::vector<Ptr>;
-    using Kind = ParseLayer::Kind;
+    using ParsePtr = std::unique_ptr<ParseLayerImpl>;
+    using ParsePropsMap = ParseXmlWrap::ParsePropsMap;
+    using ParseContentsList = ParseXmlWrap::ParseContentsList;
+    using ParseLayersList = std::vector<ParsePtr>;
+    using ParseKind = ParseLayer::ParseKind;
 
     virtual ~ParseLayerImpl() = default;
 
-    static Ptr parseCreate(const std::string& kind, ::xmlNodePtr node, ParseProtocolImpl& protocol);
+    static ParsePtr parseCreate(const std::string& kind, ::xmlNodePtr node, ParseProtocolImpl& protocol);
 
     ::xmlNodePtr parseGetNode() const
     {
@@ -54,12 +54,12 @@ public:
     }
 
     bool parse();
-    bool parseVerify(const LayersList& layers)
+    bool parseVerify(const ParseLayersList& layers)
     {
         return parseVerifyImpl(layers);
     }
 
-    const PropsMap& parseProps() const
+    const ParsePropsMap& parseProps() const
     {
         return m_props;
     }
@@ -67,7 +67,7 @@ public:
     const std::string& parseName() const;
     const std::string& parseDescription() const;
 
-    Kind parseKind() const
+    ParseKind parseKind() const
     {
         return parseKindImpl();
     }
@@ -87,29 +87,29 @@ public:
         return ParseField(m_field.get());
     }
 
-    static ParseXmlWrap::NamesList parseSupportedTypes();
+    static ParseXmlWrap::ParseNamesList parseSupportedTypes();
 
-    const ParseXmlWrap::NamesList& parseExtraPropsNames() const
+    const ParseXmlWrap::ParseNamesList& parseExtraPropsNames() const
     {
         return parseExtraPropsNamesImpl();
     }
 
-    const PropsMap& parseExtraAttributes() const
+    const ParsePropsMap& parseExtraAttributes() const
     {
         return m_extraAttrs;
     }
 
-    PropsMap& parseExtraAttributes()
+    ParsePropsMap& parseExtraAttributes()
     {
         return m_extraAttrs;
     }
 
-    const ContentsList& parseExtraChildren() const
+    const ParseContentsList& parseExtraChildren() const
     {
         return m_extraChildren;
     }
 
-    ContentsList& parseExtraChildren()
+    ParseContentsList& parseExtraChildren()
     {
         return m_extraChildren;
     }
@@ -129,56 +129,56 @@ protected:
         return m_protocol;
     }
 
-    LogWrapper parseLogError() const;
-    LogWrapper parseLogWarning() const;
-    LogWrapper parseLogInfo() const;
+    ParseLogWrapper parseLogError() const;
+    ParseLogWrapper parseLogWarning() const;
+    ParseLogWrapper parseLogInfo() const;
 
-    virtual ObjKind parseObjKindImpl() const override final;
-    virtual Kind parseKindImpl() const = 0;
-    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const;
+    virtual ParseObjKind parseObjKindImpl() const override final;
+    virtual ParseKind parseKindImpl() const = 0;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const;
     virtual bool parseImpl();
-    virtual bool parseVerifyImpl(const LayersList& layers);
+    virtual bool parseVerifyImpl(const ParseLayersList& layers);
     virtual bool parseMustHaveFieldImpl() const;
 
     bool parseValidateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool parseValidateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
     void parseReportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
-    bool parseVerifySingleLayer(const LayersList& layers, const std::string& kindStr);
-    bool parseVerifyBeforePayload(const LayersList& layers);
-    std::size_t parseFindThisLayerIndex(const LayersList& layers) const;
-    std::size_t parseFindLayerIndex(const LayersList& layers, Kind lKind);
-    std::size_t parseFindLayerIndex(const LayersList& layers, const std::string& name);
+    bool parseVerifySingleLayer(const ParseLayersList& layers, const std::string& kindStr);
+    bool parseVerifyBeforePayload(const ParseLayersList& layers);
+    std::size_t parseFindThisLayerIndex(const ParseLayersList& layers) const;
+    std::size_t parseFindLayerIndex(const ParseLayersList& layers, ParseKind lKind);
+    std::size_t parseFindLayerIndex(const ParseLayersList& layers, const std::string& name);
 
-    static const ParseXmlWrap::NamesList& parseCommonProps();
-    static const ParseXmlWrap::NamesList& parseCommonPossibleProps();
+    static const ParseXmlWrap::ParseNamesList& parseCommonProps();
+    static const ParseXmlWrap::ParseNamesList& parseCommonPossibleProps();
 
 private:
 
-    using CreateFunc = std::function<Ptr (::xmlNodePtr n, ParseProtocolImpl& p)>;
-    using CreateMap = std::map<std::string, CreateFunc>;
+    using ParseCreateFunc = std::function<ParsePtr (::xmlNodePtr n, ParseProtocolImpl& p)>;
+    using ParseCreateMap = std::map<std::string, ParseCreateFunc>;
 
     bool parseUpdateName();
     bool parseUpdateDescription();
     bool parseUpdateField();
-    bool parseUpdateExtraAttrs(const ParseXmlWrap::NamesList& names);
-    bool parseUpdateExtraChildren(const ParseXmlWrap::NamesList& names);
+    bool parseUpdateExtraAttrs(const ParseXmlWrap::ParseNamesList& names);
+    bool parseUpdateExtraChildren(const ParseXmlWrap::ParseNamesList& names);
     bool parseCheckFieldFromRef();
     bool parseCheckFieldAsChild();
 
-    static const CreateMap& parseCreateMap();
+    static const ParseCreateMap& parseCreateMap();
 
     ::xmlNodePtr m_node = nullptr;
     ParseProtocolImpl& m_protocol;
-    PropsMap m_props;
+    ParsePropsMap m_props;
     const std::string* m_name = nullptr;
     const std::string* m_description = nullptr;
     const ParseFieldImpl* m_extField = nullptr;
     ParseFieldImplPtr m_field;
-    PropsMap m_extraAttrs;
-    ContentsList m_extraChildren;
+    ParsePropsMap m_extraAttrs;
+    ParseContentsList m_extraChildren;
 };
 
-using ParseLayerImplPtr = ParseLayerImpl::Ptr;
+using ParseLayerImplPtr = ParseLayerImpl::ParsePtr;
 
 } // namespace parse
 

@@ -109,7 +109,7 @@ const std::string& ToolsQtProgramOptions::getFilesListPrefix() const
     return genValue(InputFilesPrefixStr);
 }
 
-const ToolsQtProgramOptions::ArgsList& ToolsQtProgramOptions::getFiles() const
+const ToolsQtProgramOptions::GenArgsList& ToolsQtProgramOptions::getFiles() const
 {
     return genArgs();
 }

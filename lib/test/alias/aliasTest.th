@@ -232,7 +232,7 @@ void AliasTestSuite::test10()
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& f1 = fields[0];
-    TS_ASSERT_EQUALS(f1.parseKind(), commsdsl::parse::ParseField::Kind::Bundle);
+    TS_ASSERT_EQUALS(f1.parseKind(), commsdsl::parse::ParseField::ParseKind::Bundle);
 
     commsdsl::parse::ParseBundleField bundle1(f1);
     auto aliases = bundle1.parseAliases();

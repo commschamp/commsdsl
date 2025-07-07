@@ -335,7 +335,7 @@ EmscriptenGenerator::GenMessagePtr EmscriptenGenerator::genCreateMessageImpl(com
     return std::make_unique<EmscriptenMessage>(*this, dslObj, parent);
 }
 
-EmscriptenGenerator::FramePtr EmscriptenGenerator::genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent)
+EmscriptenGenerator::GenFramePtr EmscriptenGenerator::genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenFrame>(*this, dslObj, parent);
 }

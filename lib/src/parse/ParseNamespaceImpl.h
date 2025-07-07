@@ -39,8 +39,7 @@ class ParseProtocolImpl;
 class ParseNamespaceImpl final : public ParseObject
 {
 public:
-
-    struct KeyComp
+    struct ParseKeyComp
     {
         bool operator()(const std::string& str1, const std::string& str2) const
         {
@@ -62,27 +61,27 @@ public:
         }
     };
 
-    using Ptr = std::unique_ptr<ParseNamespaceImpl>;
-    using PropsMap = ParseXmlWrap::PropsMap;
-    using ContentsList = ParseXmlWrap::ContentsList;
-    using NamespacesList = ParseNamespace::NamespacesList;
-    using FieldsList = ParseNamespace::FieldsList;
-    using MessagesList = ParseNamespace::MessagesList;
-    using InterfacesList = ParseNamespace::InterfacesList;
-    using ImplInterfacesList = std::vector<ParseInterfaceImpl*>;
-    using FramesList = ParseNamespace::FramesList;
-    using NamespacesMap = std::map<std::string, Ptr>;
-    using FieldsMap = std::map<std::string, ParseFieldImplPtr, KeyComp>;
-    using MessagesMap = std::map<std::string, ParseMessageImplPtr, KeyComp>;
-    using InterfacesMap = std::map<std::string, ParseInterfaceImplPtr, KeyComp>;
-    using FramesMap = std::map<std::string, ParseFrameImplPtr, KeyComp>;
-    using FieldRefInfo = ParseFieldImpl::FieldRefInfo;
-    using FieldRefInfosList = ParseFieldImpl::FieldRefInfosList;
+    using ParsePtr = std::unique_ptr<ParseNamespaceImpl>;
+    using ParsePropsMap = ParseXmlWrap::ParsePropsMap;
+    using ParseContentsList = ParseXmlWrap::ParseContentsList;
+    using ParseNamespacesList = ParseNamespace::ParseNamespacesList;
+    using ParseFieldsList = ParseNamespace::ParseFieldsList;
+    using ParseMessagesList = ParseNamespace::ParseMessagesList;
+    using ParseInterfacesList = ParseNamespace::ParseInterfacesList;
+    using ParseImplInterfacesList = std::vector<ParseInterfaceImpl*>;
+    using ParseFramesList = ParseNamespace::ParseFramesList;
+    using ParseNamespacesMap = std::map<std::string, ParsePtr>;
+    using ParseFieldsMap = std::map<std::string, ParseFieldImplPtr, ParseKeyComp>;
+    using ParseMessagesMap = std::map<std::string, ParseMessageImplPtr, ParseKeyComp>;
+    using ParseInterfacesMap = std::map<std::string, ParseInterfaceImplPtr, ParseKeyComp>;
+    using ParseFramesMap = std::map<std::string, ParseFrameImplPtr, ParseKeyComp>;
+    using ParseFieldRefInfo = ParseFieldImpl::ParseFieldRefInfo;
+    using ParseFieldRefInfosList = ParseFieldImpl::ParseFieldRefInfosList;
 
     ParseNamespaceImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     virtual ~ParseNamespaceImpl() = default;
 
-    static const ParseXmlWrap::NamesList& expectedChildrenNames();
+    static const ParseXmlWrap::ParseNamesList& expectedChildrenNames();
 
     ::xmlNodePtr parseGetNode() const
     {
@@ -97,9 +96,9 @@ public:
 
     bool processChild(::xmlNodePtr node, ParseNamespaceImpl* realNs = nullptr);
 
-    static const ParseXmlWrap::NamesList& parseSupportedChildren();
+    static const ParseXmlWrap::ParseNamesList& parseSupportedChildren();
 
-    const PropsMap& parseProps() const
+    const ParsePropsMap& parseProps() const
     {
         return m_props;
     }
@@ -119,43 +118,43 @@ public:
         m_description = value;
     }
 
-    const InterfacesMap& parseInterfaces() const
+    const ParseInterfacesMap& parseInterfaces() const
     {
         return m_interfaces;
     }
 
-    NamespacesList parseNamespacesList() const;
-    FieldsList parseFieldsList() const;
-    MessagesList parseMessagesList() const;
-    InterfacesList parseInterfacesList() const;
-    FramesList parseFramesList() const;
+    ParseNamespacesList parseNamespacesList() const;
+    ParseFieldsList parseFieldsList() const;
+    ParseMessagesList parseMessagesList() const;
+    ParseInterfacesList parseInterfacesList() const;
+    ParseFramesList parseFramesList() const;
 
-    const MessagesMap& parseMessages() const
+    const ParseMessagesMap& parseMessages() const
     {
         return m_messages;
     }
 
-    const PropsMap& parseExtraAttributes() const
+    const ParsePropsMap& parseExtraAttributes() const
     {
         return m_extraAttrs;
     }
 
-    PropsMap& parseExtraAttributes()
+    ParsePropsMap& parseExtraAttributes()
     {
         return m_extraAttrs;
     }
 
-    const ContentsList& parseExtraChildren() const
+    const ParseContentsList& parseExtraChildren() const
     {
         return m_extraChildren;
     }
 
-    ContentsList& parseExtraChildren()
+    ParseContentsList& parseExtraChildren()
     {
         return m_extraChildren;
     }
 
-    const NamespacesMap& parseNamespacesMap() const
+    const ParseNamespacesMap& parseNamespacesMap() const
     {
         return m_namespaces;
     }
@@ -175,19 +174,18 @@ public:
     bool parseStrToString(const std::string& ref, std::string& val) const;
     bool parseStrToData(const std::string& ref, std::vector<std::uint8_t>& val) const;
 
-    ImplInterfacesList parseAllImplInterfaces() const;
+    ParseImplInterfacesList parseAllImplInterfaces() const;
 
-    FieldRefInfosList parseProcessInterfaceFieldRef(const std::string& refStr) const;
+    ParseFieldRefInfosList parseProcessInterfaceFieldRef(const std::string& refStr) const;
 
     bool parseValidateAllMessages(bool allowNonUniquIds);
 
 protected:
-    virtual ObjKind parseObjKindImpl() const override;
+    virtual ParseObjKind parseObjKindImpl() const override;
 
 private:
-
-    using StrToValueNsConvertFunc = std::function<bool (const ParseNamespaceImpl& ns, const std::string& ref)>;
-    using StrToValueFieldConvertFunc = std::function<bool (const ParseFieldImpl& f, const std::string& ref)>;
+    using ParseStrToValueNsConvertFunc = std::function<bool (const ParseNamespaceImpl& ns, const std::string& ref)>;
+    using ParseStrToValueFieldConvertFunc = std::function<bool (const ParseFieldImpl& f, const std::string& ref)>;
 
     bool processNamespace(::xmlNodePtr node);
     bool processMultipleFields(::xmlNodePtr node);
@@ -199,30 +197,30 @@ private:
     bool processMultipleFrames(::xmlNodePtr node);
     bool parseUpdateExtraAttrs();
     bool parseUpdateExtraChildren();
-    bool parseStrToValue(const std::string& ref, StrToValueNsConvertFunc&& nsFunc, StrToValueFieldConvertFunc&& fFunc) const;
+    bool parseStrToValue(const std::string& ref, ParseStrToValueNsConvertFunc&& nsFunc, ParseStrToValueFieldConvertFunc&& fFunc) const;
 
-    LogWrapper parseLogError() const;
-    LogWrapper parseLogWarning() const;
-    LogWrapper parseLogInfo() const;
+    ParseLogWrapper parseLogError() const;
+    ParseLogWrapper parseLogWarning() const;
+    ParseLogWrapper parseLogInfo() const;
 
     ::xmlNodePtr m_node = nullptr;
     ParseProtocolImpl& m_protocol;
 
-    PropsMap m_props;
-    PropsMap m_extraAttrs;
-    ContentsList m_extraChildren;
+    ParsePropsMap m_props;
+    ParsePropsMap m_extraAttrs;
+    ParseContentsList m_extraChildren;
 
     std::string m_name;
     std::string m_description;
 
-    NamespacesMap m_namespaces;
-    FieldsMap m_fields;
-    MessagesMap m_messages;
-    InterfacesMap m_interfaces;
-    FramesMap m_frames;
+    ParseNamespacesMap m_namespaces;
+    ParseFieldsMap m_fields;
+    ParseMessagesMap m_messages;
+    ParseInterfacesMap m_interfaces;
+    ParseFramesMap m_frames;
 };
 
-using ParseNamespaceImplPtr = ParseNamespaceImpl::Ptr;
+using ParseNamespaceImplPtr = ParseNamespaceImpl::ParsePtr;
 
 } // namespace parse
 

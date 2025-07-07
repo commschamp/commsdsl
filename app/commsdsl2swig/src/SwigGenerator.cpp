@@ -143,7 +143,7 @@ const std::string& SwigGenerator::swigConvertCppType(const std::string& str) con
     return iter->second;
 }
 
-const std::string& SwigGenerator::swigConvertIntType(commsdsl::parse::ParseIntField::Type value, std::size_t len) const
+const std::string& SwigGenerator::swigConvertIntType(commsdsl::parse::ParseIntField::ParseType value, std::size_t len) const
 {
     return swigConvertCppType(comms::genCppIntTypeFor(value, len));
 }
@@ -283,7 +283,7 @@ SwigGenerator::GenMessagePtr SwigGenerator::genCreateMessageImpl(commsdsl::parse
     return std::make_unique<SwigMessage>(*this, dslObj, parent);
 }
 
-SwigGenerator::FramePtr SwigGenerator::genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent)
+SwigGenerator::GenFramePtr SwigGenerator::genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigFrame>(*this, dslObj, parent);
 }

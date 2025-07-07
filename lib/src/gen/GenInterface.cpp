@@ -33,8 +33,8 @@ namespace gen
 class GenInterfaceImpl
 {
 public:
-    using FieldsList = GenInterface::FieldsList;
     using ParseInterface = GenInterface::ParseInterface;
+    using GenFieldsList = GenInterface::GenFieldsList;
 
     GenInterfaceImpl(GenGenerator& generator, ParseInterface parseObj, GenElem* parent) :
         m_generator(generator),
@@ -99,7 +99,7 @@ public:
         return result;
     }
 
-    const FieldsList& genFields() const
+    const GenFieldsList& genFields() const
     {
         return m_fields;
     }
@@ -133,7 +133,7 @@ private:
     GenGenerator& m_generator;
     ParseInterface m_parseObj;
     GenElem* m_parent = nullptr;
-    FieldsList m_fields;
+    GenFieldsList m_fields;
     bool m_referenced = false;
 }; 
 
@@ -176,7 +176,7 @@ bool GenInterface::genWrite() const
     return genWriteImpl();
 }
 
-const GenInterface::FieldsList& GenInterface::genFields() const
+const GenInterface::GenFieldsList& GenInterface::genFields() const
 {
     return m_impl->genFields();
 }
@@ -226,7 +226,7 @@ bool GenInterface::genHasVersionField() const
             fList.begin(), fList.end(),
             [](auto& f)
             {
-                return f->genParseObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Version;
+                return f->genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Version;
             });    
 }
 

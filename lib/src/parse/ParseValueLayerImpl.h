@@ -28,11 +28,11 @@ class ParseValueLayerImpl final : public ParseLayerImpl
 {
     using Base = ParseLayerImpl;
 public:
-    using Interfaces = std::vector<const ParseInterfaceImpl*>;
-    using InterfacesList = ParseValueLayer::Interfaces;
+    using ParseInterfaces = std::vector<const ParseInterfaceImpl*>;
+    using ParseInterfacesList = ParseValueLayer::ParseInterfaces;
     ParseValueLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
 
-    InterfacesList parseInterfacesList() const;
+    ParseInterfacesList parseInterfacesList() const;
 
     const std::string& parseFieldName() const
     {
@@ -48,17 +48,17 @@ public:
 
 
 protected:
-    virtual Kind parseKindImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
+    virtual ParseKind parseKindImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const override;
     virtual bool parseImpl() override;
-    virtual bool parseVerifyImpl(const LayersList& layers) override;
+    virtual bool parseVerifyImpl(const ParseLayersList& layers) override;
 
 private:
     bool parseUpdateInterfaces();
     bool parseUpdateFieldName();
     bool parseUpdatePseudo();
 
-    Interfaces m_interfaces;
+    ParseInterfaces m_interfaces;
     const std::string* m_fieldName = nullptr;
     bool m_pseudo = false;
 };

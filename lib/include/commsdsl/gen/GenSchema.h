@@ -38,16 +38,16 @@ class GenSchema : public GenElem
 {
     using Base = GenElem;
 public:
-    using Ptr = std::unique_ptr<GenSchema>;
-    using NamespacesList = GenNamespace::NamespacesList;
-    using PlatformNamesList = std::vector<std::string>;
-
-    using NamespacesAccessList = GenNamespace::NamespacesAccessList;
-    using InterfacesAccessList = GenNamespace::InterfacesAccessList;
-    using MessagesAccessList = GenNamespace::MessagesAccessList;
-    using FramesAccessList = GenNamespace::FramesAccessList;
-    using FieldsAccessList = GenNamespace::FieldsAccessList;
     using ParseSchema = commsdsl::parse::ParseSchema;
+
+    using GenPtr = std::unique_ptr<GenSchema>;
+    using GenNamespacesList = GenNamespace::GenNamespacesList;
+    using GenPlatformNamesList = std::vector<std::string>;
+    using GenNamespacesAccessList = GenNamespace::GenNamespacesAccessList;
+    using GenInterfacesAccessList = GenNamespace::GenInterfacesAccessList;
+    using GenMessagesAccessList = GenNamespace::GenMessagesAccessList;
+    using GenFramesAccessList = GenNamespace::GenFramesAccessList;
+    using GenFieldsAccessList = GenNamespace::GenFieldsAccessList;
 
     GenSchema(GenGenerator& generator, ParseSchema parseObj, GenElem* parent = nullptr);
     virtual ~GenSchema();
@@ -58,7 +58,7 @@ public:
     parse::ParseEndian genSchemaEndian() const;
     unsigned genSchemaVersion() const;
 
-    FieldsAccessList genGetAllMessageIdFields() const;
+    GenFieldsAccessList genGetAllMessageIdFields() const;
     const GenField* genFindField(const std::string& externalRef) const;
     GenField* genFindField(const std::string& externalRef);
     const GenMessage* genGindMessage(const std::string& externalRef) const;
@@ -67,20 +67,20 @@ public:
     const GenInterface* genFindInterface(const std::string& externalRef) const;
 
     bool genAnyInterfaceHasVersion() const;
-    NamespacesAccessList genGetAllNamespaces() const;
-    InterfacesAccessList genGetAllInterfaces() const;
-    MessagesAccessList genGetAllMessages() const;
-    MessagesAccessList genGetAllMessagesIdSorted() const;
-    FramesAccessList genGetAllFrames() const;
-    FieldsAccessList genGetAllFields() const;
+    GenNamespacesAccessList genGetAllNamespaces() const;
+    GenInterfacesAccessList genGetAllInterfaces() const;
+    GenMessagesAccessList genGetAllMessages() const;
+    GenMessagesAccessList genGetAllMessagesIdSorted() const;
+    GenFramesAccessList genGetAllFrames() const;
+    GenFieldsAccessList genGetAllFields() const;
 
     bool genCreateAll();
     bool genPrepare();
     bool genWrite();
 
-    NamespacesList& genNamespaces();
-    const NamespacesList& genNamespaces() const;
-    const PlatformNamesList& platformNames() const;
+    GenNamespacesList& genNamespaces();
+    const GenNamespacesList& genNamespaces() const;
+    const GenPlatformNamesList& platformNames() const;
 
     bool genVersionDependentCode() const;
     const std::string& genMainNamespace() const;
@@ -122,7 +122,7 @@ private:
     std::unique_ptr<GenSchemaImpl> m_impl;    
 };
 
-using GenSchemaPtr = GenSchema::Ptr;
+using GenSchemaPtr = GenSchema::GenPtr;
 
 } // namespace gen
 

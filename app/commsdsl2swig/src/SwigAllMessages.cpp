@@ -34,7 +34,7 @@ namespace commsdsl2swig
 void SwigAllMessages::swigAddCode(const SwigGenerator& generator, StringsList& list)
 {
     auto allMessages = generator.genGetAllMessagesIdSorted();
-    util::StringsList msgList;
+    util::GenStringsList msgList;
     msgList.reserve(allMessages.size());
 
     auto* iFace = generator.swigMainInterface();

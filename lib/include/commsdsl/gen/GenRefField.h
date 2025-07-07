@@ -32,6 +32,7 @@ class GenRefFieldImpl;
 class COMMSDSL_API GenRefField : public GenField
 {
     using Base = GenField;
+    
 public:
     using ParseField = commsdsl::parse::ParseField;
     using ParseRefField = commsdsl::parse::ParseRefField;
@@ -45,7 +46,7 @@ public:
 protected:    
     virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl() override;
-    virtual FieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
+    virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
 
     ParseRefField genRefFieldParseObj() const;
 

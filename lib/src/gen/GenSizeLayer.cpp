@@ -29,7 +29,7 @@ namespace gen
 GenSizeLayer::GenSizeLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent) :
     Base(generator, parseObj, parent)
 {
-    assert(parseObj.parseKind() == ParseLayer::Kind::Size);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Size);
 }
 
 GenSizeLayer::~GenSizeLayer() = default;

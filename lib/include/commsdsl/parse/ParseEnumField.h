@@ -29,9 +29,10 @@ class ParseEnumFieldImpl;
 class COMMSDSL_API ParseEnumField : public ParseField
 {
     using Base = ParseField;
+
 public:
 
-    struct ValueInfo
+    struct ParseValueInfo
     {
         std::intmax_t m_value = 0;
         unsigned m_sinceVersion = 0;
@@ -40,18 +41,18 @@ public:
         std::string m_displayName;
     };
 
-    using Type = ParseIntField::Type;
-    using Values = std::map<std::string, ValueInfo>;
-    using RevValues = std::multimap<std::intmax_t, std::string>;
+    using ParseType = ParseIntField::ParseType;
+    using ParseValues = std::map<std::string, ParseValueInfo>;
+    using ParseRevValues = std::multimap<std::intmax_t, std::string>;
 
     explicit ParseEnumField(const ParseEnumFieldImpl* impl);
     explicit ParseEnumField(ParseField field);
 
-    Type parseType() const;
+    ParseType parseType() const;
     ParseEndian parseEndian() const;
     std::intmax_t parseDefaultValue() const;
-    const Values& parseValues() const;
-    const RevValues& parseRevValues() const;
+    const ParseValues& parseValues() const;
+    const ParseRevValues& parseRevValues() const;
     bool parseIsNonUniqueAllowed() const;
     bool parseIsUnique() const;
     bool parseValidCheckVersion() const;
@@ -60,7 +61,7 @@ public:
 };
 
 inline
-bool operator==(const ParseEnumField::ValueInfo& i1, const ParseEnumField::ValueInfo& i2)
+bool operator==(const ParseEnumField::ParseValueInfo& i1, const ParseEnumField::ParseValueInfo& i2)
 {
     return (i1.m_value == i2.m_value) &&
            (i1.m_sinceVersion == i2.m_sinceVersion) &&

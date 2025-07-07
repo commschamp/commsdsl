@@ -37,19 +37,21 @@ class GenNamespaceImpl;
 class COMMSDSL_API GenNamespace : public GenElem
 {
     using Base = GenElem;
+
 public:
-    using Ptr = std::unique_ptr<GenNamespace>;
-    using NamespacesList = std::vector<Ptr>;
-    using FieldsList = GenField::FieldsList;
-    using InterfacesList = std::vector<GenInterfacePtr>;
-    using MessagesList = std::vector<GenMessagePtr>;
-    using FramesList = std::vector<FramePtr>;
-    using NamespacesAccessList = std::vector<const GenNamespace*>;
-    using InterfacesAccessList = std::vector<const GenInterface*>;
-    using MessagesAccessList = std::vector<const GenMessage*>;
-    using FramesAccessList = std::vector<const GenFrame*>;
-    using FieldsAccessList = std::vector<const GenField*>;
     using ParseNamespace = commsdsl::parse::ParseNamespace;
+
+    using GenPtr = std::unique_ptr<GenNamespace>;
+    using GenNamespacesList = std::vector<GenPtr>;
+    using GenFieldsList = GenField::GenFieldsList;
+    using GenInterfacesList = std::vector<GenInterfacePtr>;
+    using GenMessagesList = std::vector<GenMessagePtr>;
+    using GenFramesList = std::vector<GenFramePtr>;
+    using GenNamespacesAccessList = std::vector<const GenNamespace*>;
+    using GenInterfacesAccessList = std::vector<const GenInterface*>;
+    using GenMessagesAccessList = std::vector<const GenMessage*>;
+    using GenFramesAccessList = std::vector<const GenFrame*>;
+    using GenFieldsAccessList = std::vector<const GenField*>;
 
     explicit GenNamespace(GenGenerator& generator, ParseNamespace parseObj, GenElem* parent = nullptr);
     virtual ~GenNamespace();
@@ -61,26 +63,26 @@ public:
     ParseNamespace genParseObj() const;
     std::string genAdjustedExternalRef() const;
 
-    const NamespacesList& genNamespaces() const;
-    const FieldsList& genFields() const;
-    const InterfacesList& genInterfaces() const;
-    const MessagesList& genMessages() const;
-    const FramesList& genFrames() const;
+    const GenNamespacesList& genNamespaces() const;
+    const GenFieldsList& genFields() const;
+    const GenInterfacesList& genInterfaces() const;
+    const GenMessagesList& genMessages() const;
+    const GenFramesList& genFrames() const;
     bool genHasFramesRecursive() const;
     bool genHasMessagesRecursive() const;
 
-    FieldsAccessList genFindMessageIdFields() const;
+    GenFieldsAccessList genFindMessageIdFields() const;
     const GenField* genFindField(const std::string& externalRef) const;
     const GenMessage* genGindMessage(const std::string& externalRef) const;
     const GenFrame* genFindFrame(const std::string& externalRef) const;
     const GenInterface* genFindInterface(const std::string& externalRef) const;
 
-    NamespacesAccessList genGetAllNamespaces() const;
-    InterfacesAccessList genGetAllInterfaces() const;
-    MessagesAccessList genGetAllMessages() const;
-    MessagesAccessList genGetAllMessagesIdSorted() const;
-    FramesAccessList genGetAllFrames() const;
-    FieldsAccessList genGetAllFields() const;
+    GenNamespacesAccessList genGetAllNamespaces() const;
+    GenInterfacesAccessList genGetAllInterfaces() const;
+    GenMessagesAccessList genGetAllMessages() const;
+    GenMessagesAccessList genGetAllMessagesIdSorted() const;
+    GenFramesAccessList genGetAllFrames() const;
+    GenFieldsAccessList genGetAllFields() const;
 
     GenGenerator& genGenerator();
     const GenGenerator& genGenerator() const;
@@ -103,7 +105,7 @@ private:
     std::unique_ptr<GenNamespaceImpl> m_impl;
 };
 
-using GenNamespacePtr = GenNamespace::Ptr;
+using GenNamespacePtr = GenNamespace::GenPtr;
 
 } // namespace gen
 

@@ -83,10 +83,10 @@ bool EmscriptenInputMessages::emscriptenWriteHeaderInternal() const
         return false;
     }     
 
-    util::StringsList includes = {
+    util::GenStringsList includes = {
         "<tuple>"
     };
-    util::StringsList msgs;
+    util::GenStringsList msgs;
 
     auto allMessages = m_generator.genGetAllMessagesIdSorted();
     includes.reserve(includes.size() + allMessages.size());
@@ -147,7 +147,7 @@ bool EmscriptenInputMessages::emscriptenWriteHeaderFwdInternal() const
         return false;
     }     
 
-    util::StringsList msgs;
+    util::GenStringsList msgs;
 
     auto allMessages = m_generator.genGetAllMessagesIdSorted();
     msgs.reserve(allMessages.size());

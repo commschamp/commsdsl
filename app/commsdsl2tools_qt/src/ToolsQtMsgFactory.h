@@ -29,7 +29,7 @@ class ToolsQtNamespace;
 class ToolsQtMsgFactory
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
 
     ToolsQtMsgFactory(const ToolsQtGenerator& generator, const ToolsQtNamespace& parent);
     bool toolsWrite() const;

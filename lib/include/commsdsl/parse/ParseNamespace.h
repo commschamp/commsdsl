@@ -34,13 +34,13 @@ class ParseNamespaceImpl;
 class COMMSDSL_API ParseNamespace
 {
 public:
-    using NamespacesList = std::vector<ParseNamespace>;
-    using FieldsList = std::vector<ParseField>;
-    using MessagesList = std::vector<ParseMessage>;
-    using InterfacesList = std::vector<ParseInterface>;
-    using FramesList = std::vector<ParseFrame>;
-    using AttributesMap = ParseField::AttributesMap;
-    using ElementsList = ParseField::ElementsList;
+    using ParseNamespacesList = std::vector<ParseNamespace>;
+    using ParseFieldsList = std::vector<ParseField>;
+    using ParseMessagesList = std::vector<ParseMessage>;
+    using ParseInterfacesList = std::vector<ParseInterface>;
+    using ParseFramesList = std::vector<ParseFrame>;
+    using ParseAttributesMap = ParseField::ParseAttributesMap;
+    using ParseElementsList = ParseField::ParseElementsList;
 
     explicit ParseNamespace(const ParseNamespaceImpl* impl);
     ParseNamespace(const ParseNamespace& other);
@@ -49,16 +49,16 @@ public:
     bool parseValid() const;
     const std::string& parseName() const;
     const std::string& parseDescription() const;
-    NamespacesList parseNamespaces() const;
-    FieldsList parseFields() const;
-    MessagesList parseMessages() const;
+    ParseNamespacesList parseNamespaces() const;
+    ParseFieldsList parseFields() const;
+    ParseMessagesList parseMessages() const;
     bool parseHasMessages() const;
-    InterfacesList parseInterfaces() const;
-    FramesList parseFrames() const;
+    ParseInterfacesList parseInterfaces() const;
+    ParseFramesList parseFrames() const;
     std::string parseExternalRef(bool schemaRef = true) const;
 
-    const AttributesMap& parseExtraAttributes() const;
-    const ElementsList& parseExtraElements() const;
+    const ParseAttributesMap& parseExtraAttributes() const;
+    const ParseElementsList& parseExtraElements() const;
 
 private:
     const ParseNamespaceImpl* m_pImpl;

@@ -27,7 +27,7 @@ namespace commsdsl2emscripten
 class EmscriptenLayer
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
     
     explicit EmscriptenLayer(commsdsl::gen::GenLayer& layer);
     virtual ~EmscriptenLayer();

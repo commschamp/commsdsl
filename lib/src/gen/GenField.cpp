@@ -90,7 +90,7 @@ GenField::GenField(GenGenerator& generator, const ParseField& parseObj, GenElem*
 
 GenField::~GenField() = default;
 
-GenField::Ptr GenField::genCreate(GenGenerator& generator, ParseField dslobj, GenElem* parent)
+GenField::GenPtr GenField::genCreate(GenGenerator& generator, ParseField dslobj, GenElem* parent)
 {
     using CreateFunc = GenFieldPtr (GenGenerator::*)(ParseField dslobj, GenElem* parent);
     static const CreateFunc Map[] = {
@@ -109,13 +109,13 @@ GenField::Ptr GenField::genCreate(GenGenerator& generator, ParseField dslobj, Ge
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<unsigned>(ParseField::Kind::NumOfValues), "Invalid map");
+    static_assert(MapSize == static_cast<unsigned>(ParseField::ParseKind::NumOfValues), "Invalid map");
 
     auto idx = static_cast<std::size_t>(dslobj.parseKind());
     if (MapSize <= idx) {
         [[maybe_unused]] static constexpr bool Unexpected_kind = false;
         assert(Unexpected_kind);          
-        return Ptr();
+        return GenPtr();
     }
 
     auto func = Map[idx];
@@ -231,10 +231,10 @@ std::string GenField::genTemplateScopeOfComms(const std::string& protOptionsStr)
     return commsScope;
 }
 
-GenField::FieldRefInfo GenField::genProcessInnerRef(const std::string& refStr) const
+GenField::GenFieldRefInfo GenField::genProcessInnerRef(const std::string& refStr) const
 {
     if (refStr.empty()) {
-        FieldRefInfo info;
+        GenFieldRefInfo info;
         info.m_field = this;
         info.m_refType = FieldRefType_Field;
         return info;
@@ -243,9 +243,9 @@ GenField::FieldRefInfo GenField::genProcessInnerRef(const std::string& refStr) c
     return genProcessInnerRefImpl(refStr);
 }
 
-GenField::FieldRefInfo GenField::genProcessMemberRef(const FieldsList& fields, const std::string& refStr)
+GenField::GenFieldRefInfo GenField::genProcessMemberRef(const GenFieldsList& fields, const std::string& refStr)
 {
-    FieldRefInfo info;
+    GenFieldRefInfo info;
     auto dotPos = refStr.find_first_of('.');
     std::string fieldName(refStr, 0, dotPos);
     if (fieldName.empty()) {
@@ -305,10 +305,10 @@ void GenField::genSetReferencedImpl()
 {
 }
 
-GenField::FieldRefInfo GenField::genProcessInnerRefImpl([[maybe_unused]] const std::string& refStr) const
+GenField::GenFieldRefInfo GenField::genProcessInnerRefImpl([[maybe_unused]] const std::string& refStr) const
 {
     assert(!refStr.empty());
-    FieldRefInfo info;
+    GenFieldRefInfo info;
     return info;
 }
 

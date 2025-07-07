@@ -35,8 +35,8 @@ namespace parse
 class ParseProtocolImpl;
 struct ParseXmlWrap
 {
-    using PropsMap = std::multimap<std::string, std::string>;
-    struct CharFree
+    using ParsePropsMap = std::multimap<std::string, std::string>;
+    struct ParseCharFree
     {
         void operator()(::xmlChar* p) const
         {
@@ -44,7 +44,7 @@ struct ParseXmlWrap
         }
     };
 
-    struct BufferFree
+    struct ParseBufferFree
     {
         void operator()(::xmlBuffer* p) const
         {
@@ -52,16 +52,16 @@ struct ParseXmlWrap
         }
     };
 
-    using StringPtr = std::unique_ptr<::xmlChar, CharFree>;
-    using BufferPtr = std::unique_ptr<::xmlBuffer, BufferFree>;
-    using NamesList = std::vector<std::string>;
-    using NodesList = std::vector<::xmlNodePtr>;
-    using ContentsList = std::vector<std::string>;
+    using ParseStringPtr = std::unique_ptr<::xmlChar, ParseCharFree>;
+    using ParseBufferPtr = std::unique_ptr<::xmlBuffer, ParseBufferFree>;
+    using ParseNamesList = std::vector<std::string>;
+    using ParseNodesList = std::vector<::xmlNodePtr>;
+    using ParseContentsList = std::vector<std::string>;
 
-    static const NamesList& parseEmptyNamesList();
-    static PropsMap parseNodeProps(::xmlNodePtr node);
-    static NodesList parseGetChildren(::xmlNodePtr node, const std::string& name = common::parseEmptyString(), bool skipValueAttr = false);
-    static NodesList parseGetChildren(::xmlNodePtr node, const NamesList& names, bool skipValueAttr = false);
+    static const ParseNamesList& parseEmptyNamesList();
+    static ParsePropsMap parseNodeProps(::xmlNodePtr node);
+    static ParseNodesList parseGetChildren(::xmlNodePtr node, const std::string& name = common::parseEmptyString(), bool skipValueAttr = false);
+    static ParseNodesList parseGetChildren(::xmlNodePtr node, const ParseNamesList& names, bool skipValueAttr = false);
     static std::string parseGetText(::xmlNodePtr node);
     static bool parseNodeValue(
         ::xmlNodePtr node,
@@ -71,30 +71,30 @@ struct ParseXmlWrap
 
     static bool parseChildrenAsProps(
         ::xmlNodePtr node,
-        const NamesList& names,
+        const ParseNamesList& names,
         ParseLogger& logger,
-        PropsMap& props,
+        ParsePropsMap& props,
         bool mustHaveValues = true);
 
-    static PropsMap parseGetUnknownProps(::xmlNodePtr node, const NamesList& names);
-    static NodesList parseGetUnknownChildren(::xmlNodePtr node, const NamesList& names);
+    static ParsePropsMap parseGetUnknownProps(::xmlNodePtr node, const ParseNamesList& names);
+    static ParseNodesList parseGetUnknownChildren(::xmlNodePtr node, const ParseNamesList& names);
     static std::string parseGetElementContent(::xmlNodePtr node);
-    static ContentsList parseGetUnknownChildrenContents(::xmlNodePtr node, const NamesList& names);
+    static ParseContentsList parseGetUnknownChildrenContents(::xmlNodePtr node, const ParseNamesList& names);
     static std::string parseLogPrefix(::xmlNodePtr node);
     static bool parseValidateSinglePropInstance(
         ::xmlNodePtr node,
-        const PropsMap& props,
+        const ParsePropsMap& props,
         const std::string& str,
         ParseLogger& logger,
         bool mustHave = false);
 
     static bool parseValidateNoPropInstance(
         ::xmlNodePtr node,
-        const PropsMap& props,
+        const ParsePropsMap& props,
         const std::string& str,
         ParseLogger& logger);
 
-    static bool parseHasAnyChild(::xmlNodePtr node, const NamesList& names);
+    static bool parseHasAnyChild(::xmlNodePtr node, const ParseNamesList& names);
 
     static void parseReportUnexpectedPropertyValue(
         ::xmlNodePtr node,
@@ -114,7 +114,7 @@ struct ParseXmlWrap
     static bool parseGetAndCheckVersions(
         ::xmlNodePtr node,
         const std::string& name,
-        const PropsMap& props,
+        const ParsePropsMap& props,
         unsigned& sinceVersion,
         unsigned& deprecatedSince,
         ParseProtocolImpl& protocol);
@@ -126,14 +126,14 @@ struct ParseXmlWrap
         unsigned& deprecatedSince,
         ParseProtocolImpl& protocol);
 
-    static PropsMap parseGetExtraAttributes(
+    static ParsePropsMap parseGetExtraAttributes(
         ::xmlNodePtr node,
-        const ParseXmlWrap::NamesList& names,
+        const ParseXmlWrap::ParseNamesList& names,
         ParseProtocolImpl& protocol);
 
-    static ContentsList parseGetExtraChildren(
+    static ParseContentsList parseGetExtraChildren(
         ::xmlNodePtr node,
-        const ParseXmlWrap::NamesList& names,
+        const ParseXmlWrap::ParseNamesList& names,
         ParseProtocolImpl& protocol);
 };
 

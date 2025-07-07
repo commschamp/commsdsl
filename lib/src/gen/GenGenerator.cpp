@@ -60,12 +60,12 @@ namespace gen
 class GenGeneratorImpl
 {
 public:
-    using LoggerPtr = GenGenerator::LoggerPtr;
-    using FilesList = GenGenerator::FilesList;
-    using NamespacesList = GenGenerator::NamespacesList;
-    using PlatformNamesList = GenGenerator::PlatformNamesList;
-    using SchemasList = GenGenerator::SchemasList;
-    using InterfacesAccessList = GenGenerator::InterfacesAccessList;
+    using GenLoggerPtr = GenGenerator::GenLoggerPtr;
+    using GenFilesList = GenGenerator::GenFilesList;
+    using GenNamespacesList = GenGenerator::GenNamespacesList;
+    using GenPlatformNamesList = GenGenerator::GenPlatformNamesList;
+    using GenSchemasList = GenGenerator::GenSchemasList;
+    using GenInterfacesAccessList = GenGenerator::GenInterfacesAccessList;
 
     explicit GenGeneratorImpl(GenGenerator& generator) :
         m_generator(generator),
@@ -73,22 +73,22 @@ public:
     {
     }
 
-    LoggerPtr& genGetLogger()
+    GenLoggerPtr& genGetLogger()
     {
         return m_logger;
     }
 
-    const LoggerPtr& genGetLogger() const
+    const GenLoggerPtr& genGetLogger() const
     {
         return m_logger;
     }    
 
-    void genSetLogger(LoggerPtr logger)
+    void genSetLogger(GenLoggerPtr logger)
     {
         m_logger = std::move(logger);
     }
 
-    const SchemasList& genSchemas() const
+    const GenSchemasList& genSchemas() const
     {
         return m_schemas;
     }
@@ -152,7 +152,7 @@ public:
         return m_minRemoteVersion;
     }
 
-    InterfacesAccessList genGetAllInterfaces() const
+    GenInterfacesAccessList genGetAllInterfaces() const
     {
         return genCurrentSchema().genGetAllInterfaces();
     }    
@@ -315,7 +315,7 @@ public:
     }                
 
     using CreateCompleteFunc = std::function<bool ()>;
-    bool genPrepare(const FilesList& files, CreateCompleteFunc createCompleteCb = CreateCompleteFunc())
+    bool genPrepare(const GenFilesList& files, CreateCompleteFunc createCompleteCb = CreateCompleteFunc())
     {
         m_protocol.parseSetErrorReportCallback(
             [this](commsdsl::parse::ParseErrorLevel level, const std::string& msg)
@@ -534,8 +534,8 @@ private:
 
     GenGenerator& m_generator;
     commsdsl::parse::ParseProtocol m_protocol;
-    LoggerPtr m_logger;
-    SchemasList m_schemas;
+    GenLoggerPtr m_logger;
+    GenSchemasList m_schemas;
     GenSchema* m_currentSchema = nullptr;
     std::map<std::string, std::string> m_namespaceOverrides;
     std::string m_topNamespace;
@@ -695,22 +695,22 @@ const GenSchema& GenGenerator::genSchemaOf(const GenElem& elem)
     return genSchemaOf(*parent);
 }
 
-GenGenerator::NamespacesAccessList GenGenerator::genGetAllNamespaces() const
+GenGenerator::GenNamespacesAccessList GenGenerator::genGetAllNamespaces() const
 {
     return genCurrentSchema().genGetAllNamespaces();
 }
 
-GenGenerator::InterfacesAccessList GenGenerator::genGetAllInterfaces() const
+GenGenerator::GenInterfacesAccessList GenGenerator::genGetAllInterfaces() const
 {
     return genCurrentSchema().genGetAllInterfaces();
 }
 
-GenGenerator::MessagesAccessList GenGenerator::genGetAllMessages() const
+GenGenerator::GenMessagesAccessList GenGenerator::genGetAllMessages() const
 {
     return genCurrentSchema().genGetAllMessages();
 }
 
-void GenGenerator::genSortMessages(MessagesAccessList& list)
+void GenGenerator::genSortMessages(GenMessagesAccessList& list)
 {
     std::sort(
         list.begin(), list.end(),
@@ -727,26 +727,26 @@ void GenGenerator::genSortMessages(MessagesAccessList& list)
         });
 }
 
-GenGenerator::MessagesAccessList GenGenerator::genGetAllMessagesIdSorted() const
+GenGenerator::GenMessagesAccessList GenGenerator::genGetAllMessagesIdSorted() const
 {
     auto result = genGetAllMessages();
     genSortMessages(result);
     return result;
 }
 
-GenGenerator::FramesAccessList GenGenerator::genGetAllFrames() const
+GenGenerator::GenFramesAccessList GenGenerator::genGetAllFrames() const
 {
     return genCurrentSchema().genGetAllFrames();
 }
 
-GenGenerator::FieldsAccessList GenGenerator::genGetAllFields() const
+GenGenerator::GenFieldsAccessList GenGenerator::genGetAllFields() const
 {
     return genCurrentSchema().genGetAllFields();
 }
 
-GenGenerator::NamespacesAccessList GenGenerator::genGetAllNamespacesFromAllSchemas() const
+GenGenerator::GenNamespacesAccessList GenGenerator::genGetAllNamespacesFromAllSchemas() const
 {
-    NamespacesAccessList result;
+    GenNamespacesAccessList result;
     for (auto& sPtr : genSchemas()) {
         auto list = sPtr->genGetAllNamespaces();
         result.insert(result.end(), list.begin(), list.end());
@@ -755,9 +755,9 @@ GenGenerator::NamespacesAccessList GenGenerator::genGetAllNamespacesFromAllSchem
     return result;
 }
 
-GenGenerator::InterfacesAccessList GenGenerator::genGetAllInterfacesFromAllSchemas() const
+GenGenerator::GenInterfacesAccessList GenGenerator::genGetAllInterfacesFromAllSchemas() const
 {
-    InterfacesAccessList result;
+    GenInterfacesAccessList result;
     for (auto& sPtr : genSchemas()) {
         auto list = sPtr->genGetAllInterfaces();
         result.insert(result.end(), list.begin(), list.end());
@@ -766,9 +766,9 @@ GenGenerator::InterfacesAccessList GenGenerator::genGetAllInterfacesFromAllSchem
     return result;
 }
 
-GenGenerator::MessagesAccessList GenGenerator::genGetAllMessagesFromAllSchemas() const
+GenGenerator::GenMessagesAccessList GenGenerator::genGetAllMessagesFromAllSchemas() const
 {
-    MessagesAccessList result;
+    GenMessagesAccessList result;
     for (auto& sPtr : genSchemas()) {
         auto list = sPtr->genGetAllMessages();
         result.insert(result.end(), list.begin(), list.end());
@@ -777,16 +777,16 @@ GenGenerator::MessagesAccessList GenGenerator::genGetAllMessagesFromAllSchemas()
     return result;
 }
 
-GenGenerator::MessagesAccessList GenGenerator::genGetAllMessagesIdSortedFromAllSchemas() const
+GenGenerator::GenMessagesAccessList GenGenerator::genGetAllMessagesIdSortedFromAllSchemas() const
 {
     auto result = genGetAllMessagesFromAllSchemas();
     genSortMessages(result);
     return result;    
 }
 
-GenGenerator::FramesAccessList GenGenerator::genGetAllFramesFromAllSchemas() const
+GenGenerator::GenFramesAccessList GenGenerator::genGetAllFramesFromAllSchemas() const
 {
-    FramesAccessList result;
+    GenFramesAccessList result;
     for (auto& sPtr : genSchemas()) {
         auto list = sPtr->genGetAllFrames();
         result.insert(result.end(), list.begin(), list.end());
@@ -795,9 +795,9 @@ GenGenerator::FramesAccessList GenGenerator::genGetAllFramesFromAllSchemas() con
     return result;
 }
 
-GenGenerator::FieldsAccessList GenGenerator::genGetAllFieldsFromAllSchemas() const
+GenGenerator::GenFieldsAccessList GenGenerator::genGetAllFieldsFromAllSchemas() const
 {
-    FieldsAccessList result;
+    GenFieldsAccessList result;
     for (auto& sPtr : genSchemas()) {
         auto list = sPtr->genGetAllFields();
         result.insert(result.end(), list.begin(), list.end());
@@ -806,7 +806,7 @@ GenGenerator::FieldsAccessList GenGenerator::genGetAllFieldsFromAllSchemas() con
     return result;
 }
 
-bool GenGenerator::genPrepare(const FilesList& files)
+bool GenGenerator::genPrepare(const GenFilesList& files)
 {
     // Make sure the logger is created
     [[maybe_unused]] auto& l = genLogger();
@@ -884,7 +884,7 @@ const GenLogger& GenGenerator::genLogger() const
     return *loggerPtr;
 }
 
-const GenGenerator::SchemasList& GenGenerator::genSchemas() const
+const GenGenerator::GenSchemasList& GenGenerator::genSchemas() const
 {
     return m_impl->genSchemas();
 }
@@ -934,122 +934,122 @@ GenMessagePtr GenGenerator::genCreateMessage(commsdsl::parse::ParseMessage parse
     return genCreateMessageImpl(parseObj, parent);
 }
 
-FramePtr GenGenerator::genCreateFrame(commsdsl::parse::ParseFrame parseObj, GenElem* parent)
+GenFramePtr GenGenerator::genCreateFrame(commsdsl::parse::ParseFrame parseObj, GenElem* parent)
 {
     return genCreateFrameImpl(parseObj, parent);
 }
 
 GenFieldPtr GenGenerator::genCreateIntField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Int);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
     return genCreateIntFieldImpl(parseObj, parent);
 }
 
 GenFieldPtr GenGenerator::genCreateEnumField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Enum);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Enum);
     return genCreateEnumFieldImpl(parseObj, parent);
 }
 
 GenFieldPtr GenGenerator::genCreateSetField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Set);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Set);
     return genCreateSetFieldImpl(parseObj, parent);
 }
 
 GenFieldPtr GenGenerator::genCreateFloatField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Float);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Float);
     return genCreateFloatFieldImpl(parseObj, parent);
 }
 
 GenFieldPtr GenGenerator::genCreateBitfieldField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Bitfield);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Bitfield);
     return genCreateBitfieldFieldImpl(parseObj, parent);
 }
 
 GenFieldPtr GenGenerator::genCreateBundleField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Bundle);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Bundle);
     return genCreateBundleFieldImpl(parseObj, parent);
 }
 
 GenFieldPtr GenGenerator::genCreateStringField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::String);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::String);
     return genCreateStringFieldImpl(parseObj, parent);
 }
 
 GenFieldPtr GenGenerator::genCreateDataField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Data);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Data);
     return genCreateDataFieldImpl(parseObj, parent);
 }
 
 GenFieldPtr GenGenerator::genCreateListField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::List);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::List);
     return genCreateListFieldImpl(parseObj, parent);
 }
 
 GenFieldPtr GenGenerator::genCreateRefField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Ref);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Ref);
     return genCreateRefFieldImpl(parseObj, parent);
 }
 
 GenFieldPtr GenGenerator::genCreateOptionalField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Optional);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Optional);
     return genCreateOptionalFieldImpl(parseObj, parent);
 }
 
 GenFieldPtr GenGenerator::genCreateVariantField(commsdsl::parse::ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Variant);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Variant);
     return genCreateVariantFieldImpl(parseObj, parent);
 }
 
 GenLayerPtr GenGenerator::genCreateCustomLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Custom);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Custom);
     return genCreateCustomLayerImpl(parseObj, parent);
 }
 
 GenLayerPtr GenGenerator::genCreateSyncLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Sync);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Sync);
     return genCreateSyncLayerImpl(parseObj, parent);
 }
 
 GenLayerPtr GenGenerator::genCreateSizeLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Size);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Size);
     return genCreateSizeLayerImpl(parseObj, parent);
 }
 
 GenLayerPtr GenGenerator::genCreateIdLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Id);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Id);
     return genCreateIdLayerImpl(parseObj, parent);
 }
 
 GenLayerPtr GenGenerator::genCreateValueLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Value);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Value);
     return genCreateValueLayerImpl(parseObj, parent);
 }
 
 GenLayerPtr GenGenerator::genCreatePayloadLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Payload);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Payload);
     return genCreatePayloadLayerImpl(parseObj, parent);
 }
 
 GenLayerPtr GenGenerator::genCreateChecksumLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::Kind::Checksum);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Checksum);
     return genCreateChecksumLayerImpl(parseObj, parent);
 }
 
@@ -1161,7 +1161,7 @@ GenMessagePtr GenGenerator::genCreateMessageImpl(commsdsl::parse::ParseMessage p
     return std::make_unique<GenMessage>(*this, parseObj, parent);
 }
 
-FramePtr GenGenerator::genCreateFrameImpl(commsdsl::parse::ParseFrame parseObj, GenElem* parent)
+GenFramePtr GenGenerator::genCreateFrameImpl(commsdsl::parse::ParseFrame parseObj, GenElem* parent)
 {
     return std::make_unique<GenFrame>(*this, parseObj, parent);
 }
@@ -1266,7 +1266,7 @@ bool GenGenerator::genWriteImpl()
     return true;
 }
 
-GenGenerator::LoggerPtr GenGenerator::genCreateLoggerImpl()
+GenGenerator::GenLoggerPtr GenGenerator::genCreateLoggerImpl()
 {
     return std::make_unique<GenLogger>();
 }

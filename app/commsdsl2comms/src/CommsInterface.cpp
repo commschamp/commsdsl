@@ -346,7 +346,7 @@ bool CommsInterface::commsWriteDefInternal() const
 
 std::string CommsInterface::commsCommonIncludesInternal() const
 {
-    util::StringsList includes;
+    util::GenStringsList includes;
 
     for (auto* commsField : m_commsFields) {
         assert(commsField != nullptr);
@@ -362,7 +362,7 @@ std::string CommsInterface::commsCommonIncludesInternal() const
 
 std::string CommsInterface::commsCommonFieldsCodeInternal() const
 {
-    util::StringsList fields;
+    util::GenStringsList fields;
     for (auto* cField : m_commsFields) {
         assert(cField != nullptr);
         auto def = cField->commsCommonCode();
@@ -379,7 +379,7 @@ std::string CommsInterface::commsCommonFieldsCodeInternal() const
 std::string CommsInterface::commsDefIncludesInternal() const
 {
     auto& gen = genGenerator();
-    util::StringsList includes = {
+    util::GenStringsList includes = {
         "comms/Message.h",
         "comms/options.h",
         comms::genRelHeaderForMsgId(strings::genMsgIdEnumNameStr(), gen, *static_cast<const commsdsl::gen::GenNamespace*>(genGetParent())),
@@ -422,8 +422,8 @@ std::string CommsInterface::commsDefFieldsCodeInternal() const
         "    >;\n"
         "};\n";
 
-    util::StringsList defs;
-    util::StringsList names;
+    util::GenStringsList defs;
+    util::GenStringsList names;
     for (auto* commsField : m_commsFields) {
         assert(commsField != nullptr);
         defs.push_back(commsField->commsDefCode());
@@ -487,7 +487,7 @@ std::string CommsInterface::commsDefBaseClassInternal() const
 
 std::string CommsInterface::commsDefExtraOptionsInternal() const
 {
-    util::StringsList opts;
+    util::GenStringsList opts;
 
     if (!m_commsFields.empty()) {
         opts.push_back(
@@ -503,7 +503,7 @@ std::string CommsInterface::commsDefExtraOptionsInternal() const
             m_commsFields.begin(), m_commsFields.end(),
             [](auto& f)
             {
-                return f->field().genParseObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Version;
+                return f->field().genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Version;
             });
 
     if (iter != m_commsFields.end()) {
@@ -591,8 +591,8 @@ std::string CommsInterface::commsDefFieldsAccessInternal() const
         ");\n"
         ;
 
-    util::StringsList docs;
-    util::StringsList names;
+    util::GenStringsList docs;
+    util::GenStringsList names;
 
     auto interfaceClassName = comms::genClassName(genParseObj().parseName());
     for (auto& fPtr : genFields()) {
@@ -633,7 +633,7 @@ std::string CommsInterface::commsDefFieldsAliasesInternal() const
         return strings::genEmptyString();    
     }
 
-    util::StringsList result;
+    util::GenStringsList result;
     for (auto& a : aliases) {
         static const std::string Templ =
             "/// @brief Alias to an extra transport member field.\n"

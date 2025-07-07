@@ -30,7 +30,7 @@ class EmscriptenSchema final: public commsdsl::gen::GenSchema
     using Base = commsdsl::gen::GenSchema;
 
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
 
     explicit EmscriptenSchema(EmscriptenGenerator& generator, commsdsl::parse::ParseSchema dslObj, commsdsl::gen::GenElem* parent);
     virtual ~EmscriptenSchema();

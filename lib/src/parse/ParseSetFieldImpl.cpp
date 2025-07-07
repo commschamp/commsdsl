@@ -69,19 +69,19 @@ bool ParseSetFieldImpl::parseIsUnique() const
     return true;
 }
 
-ParseFieldImpl::Kind ParseSetFieldImpl::parseKindImpl() const
+ParseFieldImpl::ParseKind ParseSetFieldImpl::parseKindImpl() const
 {
-    return Kind::Set;
+    return ParseKind::Set;
 }
 
-ParseFieldImpl::Ptr ParseSetFieldImpl::parseCloneImpl() const
+ParseFieldImpl::ParsePtr ParseSetFieldImpl::parseCloneImpl() const
 {
-    return Ptr(new ParseSetFieldImpl(*this));
+    return ParsePtr(new ParseSetFieldImpl(*this));
 }
 
-const ParseXmlWrap::NamesList& ParseSetFieldImpl::parseExtraPropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseSetFieldImpl::parseExtraPropsNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = {
+    static const ParseXmlWrap::ParseNamesList List = {
         common::parseDefaultValueStr(),
         common::parseEndianStr(),
         common::parseLengthStr(),
@@ -96,9 +96,9 @@ const ParseXmlWrap::NamesList& ParseSetFieldImpl::parseExtraPropsNamesImpl() con
     return List;
 }
 
-const ParseXmlWrap::NamesList& ParseSetFieldImpl::parseExtraChildrenNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseSetFieldImpl::parseExtraChildrenNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = {
+    static const ParseXmlWrap::ParseNamesList List = {
         common::parseBitStr()
     };
 
@@ -174,7 +174,7 @@ bool ParseSetFieldImpl::parseIsComparableToValueImpl(const std::string& val) con
 bool ParseSetFieldImpl::parseIsComparableToFieldImpl(const ParseFieldImpl& field) const
 {
     auto fieldKind = field.parseKind();
-    return (fieldKind == Kind::Set);    
+    return (fieldKind == ParseKind::Set);    
 }
 
 bool ParseSetFieldImpl::parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
@@ -232,11 +232,11 @@ bool ParseSetFieldImpl::parseValidateBitLengthValueImpl(::xmlNodePtr node, std::
     return true;
 }
 
-ParseSetFieldImpl::FieldRefInfo ParseSetFieldImpl::parseProcessInnerRefImpl(const std::string& refStr) const
+ParseSetFieldImpl::ParseFieldRefInfo ParseSetFieldImpl::parseProcessInnerRefImpl(const std::string& refStr) const
 {
     assert(!refStr.empty());
 
-    FieldRefInfo info;
+    ParseFieldRefInfo info;
     auto iter = m_state.m_bits.find(refStr);
     if (iter != m_state.m_bits.end()) {
         info.m_field = this;
@@ -247,7 +247,7 @@ ParseSetFieldImpl::FieldRefInfo ParseSetFieldImpl::parseProcessInnerRefImpl(cons
     return info;    
 }
 
-bool ParseSetFieldImpl::parseIsValidRefTypeImpl(FieldRefType type) const
+bool ParseSetFieldImpl::parseIsValidRefTypeImpl(ParseFieldRefType type) const
 {
     return (type == FieldRefType_InnerValue);
 }
@@ -283,7 +283,7 @@ bool ParseSetFieldImpl::parseUpdateType()
     }
 
     auto typeVal = ParseIntFieldImpl::parseTypeValue(typeIter->second);
-    if ((Type::NumOfValues <= typeVal) ||
+    if ((ParseType::NumOfValues <= typeVal) ||
         (!ParseIntFieldImpl::parseIsTypeUnsigned(typeVal))) {
         parseReportUnexpectedPropertyValue(common::parseTypeStr(), typeIter->second);
         return false;
@@ -293,9 +293,9 @@ bool ParseSetFieldImpl::parseUpdateType()
         return true;
     }
 
-    if (m_state.m_type != Type::NumOfValues) {
+    if (m_state.m_type != ParseType::NumOfValues) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                      "Type cannot be changed after reuse";
+                      "ParseType cannot be changed after reuse";
         return false;
     }
 
@@ -306,7 +306,7 @@ bool ParseSetFieldImpl::parseUpdateType()
 bool ParseSetFieldImpl::parseUpdateLength()
 {
     bool mustHaveLength =
-            (m_state.m_type == Type::NumOfValues) &&
+            (m_state.m_type == ParseType::NumOfValues) &&
             (m_state.m_length == 0U) &&
             (!parseIsBitfieldMember());
     if (!parseValidateSinglePropInstance(common::parseLengthStr(), mustHaveLength)) {
@@ -314,14 +314,14 @@ bool ParseSetFieldImpl::parseUpdateLength()
     }
 
     std::size_t maxLength = sizeof(std::uint64_t);
-    if (m_state.m_type != Type::NumOfValues) {
+    if (m_state.m_type != ParseType::NumOfValues) {
         maxLength = ParseIntFieldImpl::parseMaxTypeLength(m_state.m_type);
     }
 
     auto& lengthStr = common::parseGetStringProp(parseProps(), common::parseLengthStr());
     do {
         if (lengthStr.empty()) {
-            if ((m_state.m_length == 0U) && (m_state.m_type != Type::NumOfValues)) {
+            if ((m_state.m_length == 0U) && (m_state.m_type != ParseType::NumOfValues)) {
                 m_state.m_length = maxLength;
             }
             break;
@@ -390,18 +390,18 @@ bool ParseSetFieldImpl::parseUpdateLength()
         m_state.m_length = ((m_state.m_bitLength - 1U) / 8U) + 1U;
     }
 
-    if (m_state.m_type == Type::NumOfValues) {
+    if (m_state.m_type == ParseType::NumOfValues) {
         assert(m_state.m_length != 0U);
 
-        static const Type Map[] {
-            Type::Uint8,
-            Type::Uint16,
-            Type::Uint32,
-            Type::Uint32,
-            Type::Uint64,
-            Type::Uint64,
-            Type::Uint64,
-            Type::Uint64,
+        static const ParseType Map[] {
+            ParseType::Uint8,
+            ParseType::Uint16,
+            ParseType::Uint32,
+            ParseType::Uint32,
+            ParseType::Uint64,
+            ParseType::Uint64,
+            ParseType::Uint64,
+            ParseType::Uint64,
         };
 
         static const std::size_t MapSize = std::extent<decltype(Map)>::value;
@@ -411,7 +411,7 @@ bool ParseSetFieldImpl::parseUpdateLength()
         m_state.m_type = Map[m_state.m_length - 1];
     }
 
-    assert(m_state.m_type != Type::NumOfValues);
+    assert(m_state.m_type != ParseType::NumOfValues);
     assert(m_state.m_length != 0U);
     assert(m_state.m_bitLength != 0U);
     return true;
@@ -487,7 +487,7 @@ bool ParseSetFieldImpl::parseUpdateBits()
     auto bits = ParseXmlWrap::parseGetChildren(parseGetNode(), common::parseBitStr());
 
     for (auto* b : bits) {
-        static const ParseXmlWrap::NamesList PropNames = {
+        static const ParseXmlWrap::ParseNamesList PropNames = {
             common::parseNameStr(),
             common::parseIdxStr(),
             common::parseDefaultValueStr(),
@@ -586,7 +586,7 @@ bool ParseSetFieldImpl::parseUpdateBits()
             }
         }
 
-        BitInfo info;
+        ParseBitInfo info;
         info.m_idx = idx;
         info.m_defaultValue = m_state.m_defaultBitValue;
         info.m_reservedValue = m_state.m_reservedBitValue;

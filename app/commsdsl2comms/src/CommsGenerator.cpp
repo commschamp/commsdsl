@@ -179,7 +179,7 @@ CommsGenerator::GenMessagePtr CommsGenerator::genCreateMessageImpl(commsdsl::par
     return std::make_unique<commsdsl2comms::CommsMessage>(*this, dslObj, parent);
 }
 
-CommsGenerator::FramePtr CommsGenerator::genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent)
+CommsGenerator::GenFramePtr CommsGenerator::genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<commsdsl2comms::CommsFrame>(*this, dslObj, parent);
 }
@@ -331,7 +331,7 @@ bool CommsGenerator::commsPrepareExtraMessageBundlesInternal()
 
         std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
         auto lines = util::genStrSplitByAnyChar(contents, "\n\r");
-        MessagesAccessList messages;
+        GenMessagesAccessList messages;
         messages.reserve(lines.size());
 
         for (auto& l : lines) {

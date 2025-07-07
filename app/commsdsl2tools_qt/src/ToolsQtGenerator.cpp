@@ -91,11 +91,11 @@ ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFilesForInterface(con
     return result;
 }
 
-const ToolsQtGenerator::FramesAccessList& ToolsQtGenerator::toolsGetSelectedFramesForInterface(const commsdsl::gen::GenInterface& interface)
+const ToolsQtGenerator::GenFramesAccessList& ToolsQtGenerator::toolsGetSelectedFramesForInterface(const commsdsl::gen::GenInterface& interface)
 {
     auto iter = m_selectedFramesPerInterface.find(&interface);
     if (iter == m_selectedFramesPerInterface.end()) {
-        static const FramesAccessList EmptyList;
+        static const GenFramesAccessList EmptyList;
         return EmptyList;
     }
 
@@ -277,7 +277,7 @@ ToolsQtGenerator::GenMessagePtr ToolsQtGenerator::genCreateMessageImpl(commsdsl:
     return std::make_unique<commsdsl2tools_qt::ToolsQtMessage>(*this, dslObj, parent);
 }
 
-ToolsQtGenerator::FramePtr ToolsQtGenerator::genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent)
+ToolsQtGenerator::GenFramePtr ToolsQtGenerator::genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtFrame>(*this, dslObj, parent);
 }

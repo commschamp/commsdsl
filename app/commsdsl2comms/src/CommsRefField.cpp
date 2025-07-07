@@ -50,8 +50,8 @@ bool CommsRefField::genPrepareImpl()
     m_commsReferencedField = dynamic_cast<CommsField*>(refField);
     assert(m_commsReferencedField != nullptr);
 
-    if ((genRefFieldParseObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Length) && 
-        (refField->genParseObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::Length) &&
+    if ((genRefFieldParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Length) && 
+        (refField->genParseObj().parseSemanticType() != commsdsl::parse::ParseField::ParseSemanticType::Length) &&
         (!commsHasCustomValue()) && 
         (!m_commsReferencedField->commsHasCustomValue())) {
         genGenerator().genLogger().genWarning(
@@ -204,7 +204,7 @@ bool CommsRefField::commsVerifyInnerRefImpl(const std::string& refStr) const
 
 std::string CommsRefField::commsDefFieldOptsInternal() const
 {
-    util::StringsList opts;
+    util::GenStringsList opts;
 
     commsAddProtocolOptInternal(opts);
     commsAddFieldDefOptions(opts);

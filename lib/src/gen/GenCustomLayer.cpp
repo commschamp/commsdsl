@@ -30,7 +30,7 @@ namespace gen
 GenCustomLayer::GenCustomLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent) :
     Base(generator, parseObj, parent)
 {
-    assert(parseObj.parseKind() == ParseLayer::Kind::Custom);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Custom);
 }
 
 GenCustomLayer::~GenCustomLayer() = default;
@@ -40,10 +40,10 @@ GenCustomLayer::ParseCustomLayer GenCustomLayer::genCustomLayerParseObj() const
     return ParseCustomLayer(genParseObj());
 }
 
-bool GenCustomLayer::genForceCommsOrderImpl(LayersAccessList& layers, bool& success) const
+bool GenCustomLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const
 {
     auto obj = genCustomLayerParseObj();
-    if (obj.parseSemanticLayerType() != ParseLayer::Kind::Checksum) {
+    if (obj.parseSemanticLayerType() != ParseLayer::ParseKind::Checksum) {
         success = true;
         return false;
     }
@@ -81,7 +81,7 @@ bool GenCustomLayer::genForceCommsOrderImpl(LayersAccessList& layers, bool& succ
             return false;
         }
 
-        if ((*untilIter)->genParseObj().parseKind() != ParseLayer::Kind::Payload) {
+        if ((*untilIter)->genParseObj().parseKind() != ParseLayer::ParseKind::Payload) {
             genGenerator().genLogger().genError("Custom checksum prefix must be until payload layer");
             success = false;
             return false;

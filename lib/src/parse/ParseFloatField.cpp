@@ -44,10 +44,10 @@ ParseFloatField::ParseFloatField(const ParseFloatFieldImpl* impl)
 ParseFloatField::ParseFloatField(ParseField field)
   : Base(field)
 {
-    assert(parseKind() == Kind::Float);
+    assert(parseKind() == ParseKind::Float);
 }
 
-ParseFloatField::Type ParseFloatField::parseType() const
+ParseFloatField::ParseType ParseFloatField::parseType() const
 {
     return cast(m_pImpl)->parseType();
 }
@@ -62,12 +62,12 @@ double ParseFloatField::parseDefaultValue() const
     return cast(m_pImpl)->parseDefaultValue();
 }
 
-const ParseFloatField::ValidRangesList& ParseFloatField::parseValidRanges() const
+const ParseFloatField::ParseValidRangesList& ParseFloatField::parseValidRanges() const
 {
     return cast(m_pImpl)->parseValidRanges();
 }
 
-const ParseFloatField::SpecialValues& ParseFloatField::parseSpecialValues() const
+const ParseFloatField::ParseSpecialValues& ParseFloatField::parseSpecialValues() const
 {
     return cast(m_pImpl)->parseSpecialValues();
 }

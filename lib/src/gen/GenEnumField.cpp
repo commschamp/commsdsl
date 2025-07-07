@@ -35,7 +35,7 @@ namespace gen
 namespace 
 {
 
-std::uintmax_t genMaxTypeValueInternal(commsdsl::parse::ParseEnumField::Type val)
+std::uintmax_t genMaxTypeValueInternal(commsdsl::parse::ParseEnumField::ParseType val)
 {
     static const std::uintmax_t Map[] = {
         /* Int8 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int8_t>::max()),
@@ -51,13 +51,13 @@ std::uintmax_t genMaxTypeValueInternal(commsdsl::parse::ParseEnumField::Type val
     };
     static const std::size_t MapSize =
             std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::ParseEnumField::Type::NumOfValues),
+    static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::ParseEnumField::ParseType::NumOfValues),
             "Invalid map");
 
-    if (commsdsl::parse::ParseEnumField::Type::NumOfValues <= val) {
+    if (commsdsl::parse::ParseEnumField::ParseType::NumOfValues <= val) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
-        val = commsdsl::parse::ParseEnumField::Type::Uint64;
+        val = commsdsl::parse::ParseEnumField::ParseType::Uint64;
     }
     return Map[static_cast<unsigned>(val)];
 }
@@ -69,8 +69,9 @@ class GenEnumFieldImpl
 {
 public:
     using ParseEnumField = GenEnumField::ParseEnumField;
-    using RevValueInfo = GenEnumField::RevValueInfo;
-    using SortedRevValues = GenEnumField::SortedRevValues;
+
+    using GenRevValueInfo = GenEnumField::GenRevValueInfo;
+    using GenSortedRevValues = GenEnumField::GenSortedRevValues;
 
     explicit GenEnumFieldImpl(ParseEnumField dslObj) : m_dslObj(dslObj) {}
 
@@ -78,8 +79,8 @@ public:
     {
         auto type = m_dslObj.parseType();
         m_bigUnsigned =
-            (type == ParseEnumField::Type::Uint64) ||
-            (type == ParseEnumField::Type::Uintvar);
+            (type == ParseEnumField::ParseType::Uint64) ||
+            (type == ParseEnumField::ParseType::Uintvar);
 
         for (auto& v : m_dslObj.parseRevValues()) {
             m_sortedRevValues.push_back(std::make_pair(v.first, &v.second));
@@ -144,7 +145,7 @@ public:
         return m_sortedRevValues.back().first < static_cast<std::intmax_t>(maxTypeValue);        
     }
 
-    const SortedRevValues& genSortedRevValues() const
+    const GenSortedRevValues& genSortedRevValues() const
     {
         return m_sortedRevValues;
     }
@@ -168,15 +169,15 @@ private:
     }
 
     ParseEnumField m_dslObj;
-    SortedRevValues m_sortedRevValues;       
+    GenSortedRevValues m_sortedRevValues;       
     bool m_bigUnsigned = false;
 };    
 
-GenEnumField::GenEnumField(GenGenerator& generator, commsdsl::parse::ParseField dslObj, GenElem* parent) :
+GenEnumField::GenEnumField(GenGenerator& generator, ParseField dslObj, GenElem* parent) :
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<GenEnumFieldImpl>(genEnumFieldParseObj()))
 {
-    assert(dslObj.parseKind() == commsdsl::parse::ParseField::Kind::Enum);
+    assert(dslObj.parseKind() == ParseField::ParseKind::Enum);
 }
 
 GenEnumField::~GenEnumField() = default;
@@ -213,7 +214,7 @@ GenEnumField::ParseEnumField GenEnumField::genEnumFieldParseObj() const
     return ParseEnumField(genParseObj());
 }
 
-const GenEnumField::SortedRevValues& GenEnumField::genSortedRevValues() const
+const GenEnumField::GenSortedRevValues& GenEnumField::genSortedRevValues() const
 {
     return m_impl->genSortedRevValues();
 }
@@ -248,14 +249,14 @@ bool GenEnumField::genPrepareImpl()
     return m_impl->genPrepare();
 }
 
-GenEnumField::FieldRefInfo GenEnumField::genProcessInnerRefImpl(const std::string& refStr) const
+GenEnumField::GenFieldRefInfo GenEnumField::genProcessInnerRefImpl(const std::string& refStr) const
 {
     assert(!refStr.empty());
 
     auto obj = genEnumFieldParseObj();
     auto& values = obj.parseValues();
 
-    FieldRefInfo info;
+    GenFieldRefInfo info;
     auto iter = values.find(refStr);
     if (iter != values.end()) {
         info.m_field = this;

@@ -97,7 +97,7 @@ GenDataField::GenDataField(GenGenerator& generator, ParseField parseObj, GenElem
     Base(generator, parseObj, parent),
     m_impl(std::make_unique<GenDataFieldImpl>(generator, genDataFieldParseObj(), this))
 {
-    assert(parseObj.parseKind() == ParseField::Kind::Data);
+    assert(parseObj.parseKind() == ParseField::ParseKind::Data);
 }
 
 GenDataField::~GenDataField() = default;

@@ -310,7 +310,7 @@ GenListField::GenListField(GenGenerator& generator, ParseField parseObj, GenElem
     Base(generator, parseObj, parent),
     m_impl(std::make_unique<GenListFieldImpl>(generator, genListFieldParseObj(), this))
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::List);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::List);
 }
 
 GenListField::~GenListField() = default;

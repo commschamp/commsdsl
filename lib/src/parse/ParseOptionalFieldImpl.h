@@ -34,12 +34,12 @@ class ParseOptionalFieldImpl final : public ParseFieldImpl
 {
     using Base = ParseFieldImpl;
 public:
-    using Mode = ParseOptionalField::Mode;
+    using ParseMode = ParseOptionalField::ParseMode;
 
     ParseOptionalFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseOptionalFieldImpl(const ParseOptionalFieldImpl& other);
 
-    Mode parseDefaultMode() const
+    ParseMode parseDefaultMode() const
     {
         return m_state.m_mode;
     }
@@ -84,14 +84,14 @@ public:
     }
 
 protected:
-    virtual Kind parseKindImpl() const override;
-    virtual Ptr parseCloneImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraPossiblePropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraChildrenNamesImpl() const override;
+    virtual ParseKind parseKindImpl() const override;
+    virtual ParsePtr parseCloneImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPossiblePropsNamesImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraChildrenNamesImpl() const override;
     virtual bool parseReuseImpl(const ParseFieldImpl& other) override;
     virtual bool parseImpl() override;
-    virtual bool parseVerifySiblingsImpl(const FieldsList& fields) const override;
+    virtual bool parseVerifySiblingsImpl(const ParseFieldsList& fields) const override;
     virtual std::size_t parseMinLengthImpl() const override;
     virtual std::size_t parseMaxLengthImpl() const override;
     virtual bool parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
@@ -99,11 +99,11 @@ protected:
     virtual bool parseStrToBoolImpl(const std::string& ref, bool& val) const override;
     virtual bool parseStrToStringImpl(const std::string& ref, std::string& val) const override;
     virtual bool parseStrToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
-    virtual FieldRefInfo parseProcessInnerRefImpl(const std::string& refStr) const override;
-    virtual bool parseIsValidRefTypeImpl(FieldRefType type) const override;
+    virtual ParseFieldRefInfo parseProcessInnerRefImpl(const std::string& refStr) const override;
+    virtual bool parseIsValidRefTypeImpl(ParseFieldRefType type) const override;
 
 private:
-    using StrToValueFieldConvertFunc = std::function<bool (const ParseFieldImpl& f, const std::string& ref)>;
+    using ParseStrToValueFieldConvertFunc = std::function<bool (const ParseFieldImpl& f, const std::string& ref)>;
 
     bool parseUpdateMode();
     bool parseUpdateExternalModeCtrl();
@@ -118,18 +118,18 @@ private:
 
     bool parseStrToValue(
         const std::string& ref,
-        StrToValueFieldConvertFunc&& forwardFunc) const;
+        ParseStrToValueFieldConvertFunc&& forwardFunc) const;
 
 
-    struct State
+    struct ParseState
     {
-        Mode m_mode = Mode::Tentative;
+        ParseMode m_mode = ParseMode::Tentative;
         const ParseFieldImpl* m_extField = nullptr;
         bool m_missingOnReadFail = false;
         bool m_missingOnInvalid = false;
     };
 
-    State m_state;
+    ParseState m_state;
     ParseFieldImplPtr m_field;
     ParseOptCondImplPtr m_cond;
 };

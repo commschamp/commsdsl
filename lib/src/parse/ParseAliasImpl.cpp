@@ -31,9 +31,9 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::NamesList& parseCommonProps()
+const ParseXmlWrap::ParseNamesList& parseCommonProps()
 {
-    static const ParseXmlWrap::NamesList CommonNames = {
+    static const ParseXmlWrap::ParseNamesList CommonNames = {
         common::parseNameStr(),
         common::parseDescriptionStr(),
         common::parseFieldStr(),
@@ -44,16 +44,16 @@ const ParseXmlWrap::NamesList& parseCommonProps()
 
 } // namespace
 
-ParseAliasImpl::Ptr ParseAliasImpl::parseClone() const
+ParseAliasImpl::ParsePtr ParseAliasImpl::parseClone() const
 {
-    Ptr ptr(new ParseAliasImpl(m_node, m_protocol));
+    ParsePtr ptr(new ParseAliasImpl(m_node, m_protocol));
     ptr->m_state = m_state;
     return ptr;
 }
 
-ParseAliasImpl::Ptr ParseAliasImpl::parseCreate(::xmlNodePtr node, ParseProtocolImpl& protocol)
+ParseAliasImpl::ParsePtr ParseAliasImpl::parseCreate(::xmlNodePtr node, ParseProtocolImpl& protocol)
 {
-    return Ptr(new ParseAliasImpl(node, protocol));
+    return ParsePtr(new ParseAliasImpl(node, protocol));
 }
 
 bool ParseAliasImpl::parse()
@@ -73,12 +73,12 @@ bool ParseAliasImpl::parse()
         return false;
     }
 
-    ParseXmlWrap::NamesList expectedProps = parseCommonProps();
+    ParseXmlWrap::ParseNamesList expectedProps = parseCommonProps();
     if (!parseUpdateExtraAttrs(expectedProps)) {
         return false;
     }
 
-    ParseXmlWrap::NamesList expectedChildren = parseCommonProps();
+    ParseXmlWrap::ParseNamesList expectedChildren = parseCommonProps();
     if (!parseUpdateExtraChildren(expectedChildren)) {
         return false;
     }
@@ -87,7 +87,7 @@ bool ParseAliasImpl::parse()
 }
 
 bool ParseAliasImpl::parseVerifyAlias(
-    const std::vector<Ptr>& aliases,
+    const std::vector<ParsePtr>& aliases,
     const std::vector<ParseFieldImplPtr>& fields) const
 {
     auto& aliasName = parseName();
@@ -171,7 +171,7 @@ bool ParseAliasImpl::parseVerifyAlias(
     return true;
 }
 
-bool ParseAliasImpl::parseUpdateName(const PropsMap& props)
+bool ParseAliasImpl::parseUpdateName(const ParsePropsMap& props)
 {
     bool mustHave = m_state.m_name.empty();
     if (!parseValidateAndUpdateStringPropValue(props, common::parseNameStr(), m_state.m_name, mustHave)) {
@@ -186,12 +186,12 @@ bool ParseAliasImpl::parseUpdateName(const PropsMap& props)
     return true;
 }
 
-bool ParseAliasImpl::parseUpdateDescription(const PropsMap& props)
+bool ParseAliasImpl::parseUpdateDescription(const ParsePropsMap& props)
 {
     return parseValidateAndUpdateStringPropValue(props, common::parseDescriptionStr(), m_state.m_description, false, true);
 }
 
-bool ParseAliasImpl::parseUpdateFieldName(const PropsMap& props)
+bool ParseAliasImpl::parseUpdateFieldName(const ParsePropsMap& props)
 {
     if (!parseValidateAndUpdateStringPropValue(props, common::parseFieldStr(), m_state.m_fieldName, true)) {
         return false;
@@ -213,7 +213,7 @@ bool ParseAliasImpl::parseUpdateFieldName(const PropsMap& props)
 }
 
 bool ParseAliasImpl::parseValidateAndUpdateStringPropValue(
-    const PropsMap& props,
+    const ParsePropsMap& props,
     const std::string& str,
     std::string& value,
     bool mustHave,
@@ -242,7 +242,7 @@ bool ParseAliasImpl::parseValidateAndUpdateStringPropValue(
     return true;
 }
 
-bool ParseAliasImpl::parseValidateSinglePropInstance(const PropsMap& props, const std::string& str, bool mustHave)
+bool ParseAliasImpl::parseValidateSinglePropInstance(const ParsePropsMap& props, const std::string& str, bool mustHave)
 {
     return ParseXmlWrap::parseValidateSinglePropInstance(m_node, props, str, m_protocol.parseLogger(), mustHave);
 }
@@ -252,7 +252,7 @@ void ParseAliasImpl::parseReportUnexpectedPropertyValue(const std::string& propN
     ParseXmlWrap::parseReportUnexpectedPropertyValue(m_node, common::parseAliasStr(), propName, propValue, m_protocol.parseLogger());
 }
 
-bool ParseAliasImpl::parseUpdateExtraAttrs(const ParseXmlWrap::NamesList& names)
+bool ParseAliasImpl::parseUpdateExtraAttrs(const ParseXmlWrap::ParseNamesList& names)
 {
     auto extraAttrs = ParseXmlWrap::parseGetExtraAttributes(m_node, names, m_protocol);
     if (extraAttrs.empty()) {
@@ -268,7 +268,7 @@ bool ParseAliasImpl::parseUpdateExtraAttrs(const ParseXmlWrap::NamesList& names)
     return true;
 }
 
-bool ParseAliasImpl::parseUpdateExtraChildren(const ParseXmlWrap::NamesList& names)
+bool ParseAliasImpl::parseUpdateExtraChildren(const ParseXmlWrap::ParseNamesList& names)
 {
     auto extraChildren = ParseXmlWrap::parseGetExtraChildren(m_node, names, m_protocol);
     if (extraChildren.empty()) {

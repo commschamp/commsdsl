@@ -68,12 +68,12 @@ void SetTestSuite::test1()
     TS_ASSERT_EQUALS(field.parseName(), "Set1");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
     auto& bits = setField.parseBits();
     auto& revBits = setField.parseRevBits();
-    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::Type::Uint8);
+    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint8);
     TS_ASSERT_EQUALS(setField.parseEndian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT_EQUALS(setField.parseMinLength(), 1U);
     TS_ASSERT_EQUALS(setField.parseBitLength(), 0U);
@@ -130,12 +130,12 @@ void SetTestSuite::test2()
     TS_ASSERT_EQUALS(field.parseName(), "Set1");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
     auto& bits = setField.parseBits();
     auto& revBits = setField.parseRevBits();
-    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::Type::Uint16);
+    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint16);
     TS_ASSERT_EQUALS(setField.parseEndian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT_EQUALS(setField.parseMinLength(), 2U);
     TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), true);
@@ -214,12 +214,12 @@ void SetTestSuite::test5()
     TS_ASSERT_EQUALS(field.parseName(), "Set1");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
     auto& bits = setField.parseBits();
     auto& revBits = setField.parseRevBits();
-    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::Type::Uint32);
+    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint32);
     TS_ASSERT_EQUALS(setField.parseEndian(), commsdsl::parse::ParseEndian_Little);
     TS_ASSERT_EQUALS(setField.parseMinLength(), 3U);
     TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), false);
@@ -276,12 +276,12 @@ void SetTestSuite::test7()
     TS_ASSERT_EQUALS(field.parseName(), "Set1");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
     auto& bits = setField.parseBits();
     auto& revBits = setField.parseRevBits();
-    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::Type::Uint32);
+    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint32);
     TS_ASSERT_EQUALS(setField.parseEndian(), commsdsl::parse::ParseEndian_Little);
     TS_ASSERT_EQUALS(setField.parseMinLength(), 3U);
     TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), false);
@@ -335,12 +335,12 @@ void SetTestSuite::test8()
     TS_ASSERT_EQUALS(field.parseName(), "Set1");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
     auto& bits = setField.parseBits();
     auto& revBits = setField.parseRevBits();
-    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::Type::Uint16);
+    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint16);
     TS_ASSERT_EQUALS(setField.parseEndian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT_EQUALS(setField.parseMinLength(), 2U);
     TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), false);
@@ -385,10 +385,10 @@ void SetTestSuite::test9()
     TS_ASSERT_EQUALS(field.parseName(), "Set1");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
-    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::Type::Uint32);
+    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint32);
     TS_ASSERT_EQUALS(setField.parseEndian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT_EQUALS(setField.parseMinLength(), 3U);
     // Other checks are irrelevant
@@ -435,12 +435,12 @@ void SetTestSuite::test13()
     TS_ASSERT_EQUALS(field.parseName(), "Set2");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
     auto& bits = setField.parseBits();
     auto& revBits = setField.parseRevBits();
-    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::Type::Uint8);
+    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint8);
     TS_ASSERT_EQUALS(setField.parseEndian(), commsdsl::parse::ParseEndian_Little);
     TS_ASSERT_EQUALS(setField.parseMinLength(), 1U);
     TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), true);
@@ -500,12 +500,12 @@ void SetTestSuite::test15()
     TS_ASSERT_EQUALS(field.parseName(), "Set2");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
     auto& bits = setField.parseBits();
     auto& revBits = setField.parseRevBits();
-    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::Type::Uint8);
+    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint8);
     TS_ASSERT_EQUALS(setField.parseEndian(), commsdsl::parse::ParseEndian_Little);
     TS_ASSERT_EQUALS(setField.parseMinLength(), 1U);
     TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), false);
@@ -559,7 +559,7 @@ void SetTestSuite::test18()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "S2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
     auto& bits = setField.parseBits();
@@ -595,7 +595,7 @@ void SetTestSuite::test20()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
     auto& bits = setField.parseBits();
@@ -623,7 +623,7 @@ void SetTestSuite::test21()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
     auto& bits = setField.parseBits();
@@ -651,7 +651,7 @@ void SetTestSuite::test22()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F3");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
     auto& bits = setField.parseBits();
@@ -679,7 +679,7 @@ void SetTestSuite::test23()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
     auto& bits = setField.parseBits();
@@ -724,7 +724,7 @@ void SetTestSuite::test26()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
     auto& bits = setField.parseBits();
@@ -751,7 +751,7 @@ void SetTestSuite::test27()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F4");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
     auto& bits = setField.parseBits();
@@ -778,7 +778,7 @@ void SetTestSuite::test28()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F4");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
     auto& bits = setField.parseBits();
@@ -813,7 +813,7 @@ void SetTestSuite::test30()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "S2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
     commsdsl::parse::ParseSetField setField(field);
     auto& bits = setField.parseBits();

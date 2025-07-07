@@ -30,8 +30,8 @@ namespace gen
 class GenIntFieldImpl
 {
 public:
-    using SpecialsList = GenIntField::SpecialsList;
     using ParseIntField = GenIntField::ParseIntField;
+    using GenSpecialsList = GenIntField::GenSpecialsList;
 
     bool genPrepare(ParseIntField parseObj)
     {
@@ -60,32 +60,32 @@ public:
         return true;
     }
 
-    const SpecialsList& genSpecialsSortedByValue() const
+    const GenSpecialsList& genSpecialsSortedByValue() const
     {
         return m_specialsSorted;
     }
 
 private:
-    SpecialsList m_specialsSorted;
+    GenSpecialsList m_specialsSorted;
 };   
 
 GenIntField::GenIntField(GenGenerator& generator, commsdsl::parse::ParseField parseObj, GenElem* parent) :
     Base(generator, parseObj, parent),
     m_impl(std::make_unique<GenIntFieldImpl>())
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::Kind::Int);
+    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
 }
 
 GenIntField::~GenIntField() = default;
 
-bool GenIntField::genIsUnsignedType(ParseIntField::Type value)
+bool GenIntField::genIsUnsignedType(ParseIntField::ParseType value)
 {
-    static const ParseIntField::Type Map[] = {
-        ParseIntField::Type::Uint8,
-        ParseIntField::Type::Uint16,
-        ParseIntField::Type::Uint32,
-        ParseIntField::Type::Uint64,
-        ParseIntField::Type::Uintvar,
+    static const ParseIntField::ParseType Map[] = {
+        ParseIntField::ParseType::Uint8,
+        ParseIntField::ParseType::Uint16,
+        ParseIntField::ParseType::Uint32,
+        ParseIntField::ParseType::Uint64,
+        ParseIntField::ParseType::Uintvar,
     };
 
     auto iter = std::find(std::begin(Map), std::end(Map), value);
@@ -97,7 +97,7 @@ bool GenIntField::genIsUnsignedType() const
     return genIsUnsignedType(genIntFieldParseObj().parseType());
 }
 
-const GenIntField::SpecialsList& GenIntField::genSpecialsSortedByValue() const
+const GenIntField::GenSpecialsList& GenIntField::genSpecialsSortedByValue() const
 {
     return m_impl->genSpecialsSortedByValue();
 }
@@ -107,13 +107,13 @@ bool GenIntField::genPrepareImpl()
     return m_impl->genPrepare(genIntFieldParseObj());
 }
 
-GenIntField::FieldRefInfo GenIntField::genProcessInnerRefImpl(const std::string& refStr) const
+GenIntField::GenFieldRefInfo GenIntField::genProcessInnerRefImpl(const std::string& refStr) const
 {
     assert(!refStr.empty());
     auto obj = genIntFieldParseObj();
     auto& specials = obj.parseSpecialValues();
 
-    FieldRefInfo info;
+    GenFieldRefInfo info;
     auto iter = specials.find(refStr);
     if (iter != specials.end()) {
         info.m_field = this;

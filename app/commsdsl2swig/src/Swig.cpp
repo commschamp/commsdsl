@@ -98,7 +98,7 @@ bool Swig::swigWriteInternal()
 
 std::string Swig::swigCodeBlockInternal()
 {
-    util::StringsList includes = {
+    util::GenStringsList includes = {
         "<iterator>",
         "comms/comms.h"
     };
@@ -106,7 +106,7 @@ std::string Swig::swigCodeBlockInternal()
     SwigProtocolOptions::swigAddCodeIncludes(m_generator, includes);
     SwigVersion::swigAddCodeIncludes(m_generator, includes);
 
-    util::StringsList codeElems;
+    util::GenStringsList codeElems;
 
     SwigComms::swigAddCode(m_generator, codeElems);
     SwigDataBuf::swigAddCode(m_generator, codeElems);
@@ -158,14 +158,14 @@ std::string Swig::swigDefInternal()
             return "%include \"" + str + '\"';
         };
 
-    util::StringsList stdIncludes = {
+    util::GenStringsList stdIncludes = {
         includeWrap("std_array.i"),
         includeWrap("std_pair.i"),
         includeWrap("std_string.i"),
         includeWrap("std_vector.i")
     };
 
-    util::StringsList defs;
+    util::GenStringsList defs;
 
     SwigComms::swigAddDef(defs);
     SwigDataBuf::swigAddDef(m_generator, defs);
@@ -216,7 +216,7 @@ std::string Swig::swigLangDefsInternal() const
         "#endif // #ifdef SWIGCSHARP\n";
 
 
-    util::StringsList defs = {
+    util::GenStringsList defs = {
         std::move(pythonDefs),
         std::move(javaDefs),
         std::move(csharpDefs)

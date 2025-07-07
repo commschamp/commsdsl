@@ -254,7 +254,7 @@ bool CommsNamespace::commsHasReferencedMsgId() const
             {
                 return 
                     (f->field().genIsReferenced()) && 
-                    (f->field().genParseObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::MessageId);
+                    (f->field().genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::MessageId);
             });
 }
 
@@ -444,7 +444,7 @@ std::string CommsNamespace::commsOptionsInternal(
     FrameOptsFunc frameOptsFunc,
     bool hasBase) const
 {
-    util::StringsList elems;
+    util::GenStringsList elems;
     auto addStrFunc = 
         [&elems](std::string&& str)
         {
@@ -466,7 +466,7 @@ std::string CommsNamespace::commsOptionsInternal(
         "}; // struct #^#NAME#$#\n";
 
     auto addSubElemFunc = 
-        [](std::string&& str, util::StringsList& list)
+        [](std::string&& str, util::GenStringsList& list)
         {
             if (!str.empty()) {
                 list.push_back(std::move(str));
@@ -481,7 +481,7 @@ std::string CommsNamespace::commsOptionsInternal(
     }
 
     if (fieldOptsFunc != nullptr) {
-        util::StringsList fieldElems;
+        util::GenStringsList fieldElems;
         for (auto* commsField : m_commsFields) {
             addSubElemFunc((commsField->*fieldOptsFunc)(), fieldElems);
         }
@@ -502,7 +502,7 @@ std::string CommsNamespace::commsOptionsInternal(
     }
 
     if (messageOptsFunc != nullptr) {
-        util::StringsList messageElems;
+        util::GenStringsList messageElems;
         for (auto& msgPtr : genMessages()) {
             assert(msgPtr);
             addSubElemFunc((static_cast<const CommsMessage*>(msgPtr.get())->*messageOptsFunc)(), messageElems);
@@ -524,7 +524,7 @@ std::string CommsNamespace::commsOptionsInternal(
     }
 
     if (frameOptsFunc != nullptr) {
-        util::StringsList frameElems;
+        util::GenStringsList frameElems;
         for (auto& framePtr : genFrames()) {
             assert(framePtr);
             addSubElemFunc((static_cast<const CommsFrame*>(framePtr.get())->*frameOptsFunc)(), frameElems);

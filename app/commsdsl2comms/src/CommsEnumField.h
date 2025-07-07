@@ -35,7 +35,7 @@ class CommsEnumField final : public commsdsl::gen::GenEnumField, public CommsFie
 public:
     CommsEnumField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
-    commsdsl::gen::util::StringsList commsEnumValues() const;
+    commsdsl::gen::util::GenStringsList commsEnumValues() const;
 
 protected:
     // Base overrides

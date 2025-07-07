@@ -26,7 +26,7 @@ class SwigGenerator;
 class SwigMsgHandler
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
 
     static bool swigWrite(SwigGenerator& generator);
 

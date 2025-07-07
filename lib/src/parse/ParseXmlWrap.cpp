@@ -26,19 +26,19 @@ namespace commsdsl
 namespace parse
 {
 
-const ParseXmlWrap::NamesList& ParseXmlWrap::parseEmptyNamesList()
+const ParseXmlWrap::ParseNamesList& ParseXmlWrap::parseEmptyNamesList()
 {
-    static const NamesList List;
+    static const ParseNamesList List;
     return List;
 }
 
-ParseXmlWrap::PropsMap ParseXmlWrap::parseNodeProps(::xmlNodePtr node)
+ParseXmlWrap::ParsePropsMap ParseXmlWrap::parseNodeProps(::xmlNodePtr node)
 {
     assert(node != nullptr);
-    PropsMap map;
+    ParsePropsMap map;
     auto* prop = node->properties;
     while (prop != nullptr) {
-        StringPtr valuePtr(::xmlNodeListGetString(node->doc, prop->children, 1));
+        ParseStringPtr valuePtr(::xmlNodeListGetString(node->doc, prop->children, 1));
         auto iter = map.insert(
             std::make_pair(
                 reinterpret_cast<const char*>(prop->name),
@@ -50,18 +50,18 @@ ParseXmlWrap::PropsMap ParseXmlWrap::parseNodeProps(::xmlNodePtr node)
     return map;
 }
 
-ParseXmlWrap::NodesList ParseXmlWrap::parseGetChildren(::xmlNodePtr node, const std::string& name, bool skipValueAttr)
+ParseXmlWrap::ParseNodesList ParseXmlWrap::parseGetChildren(::xmlNodePtr node, const std::string& name, bool skipValueAttr)
 {
-    NamesList names;
+    ParseNamesList names;
     if (!name.empty()) {
         names.push_back(name);
     }
     return parseGetChildren(node, names, skipValueAttr);
 }
 
-ParseXmlWrap::NodesList ParseXmlWrap::parseGetChildren(::xmlNodePtr node, const NamesList& names, bool skipValueAttr)
+ParseXmlWrap::ParseNodesList ParseXmlWrap::parseGetChildren(::xmlNodePtr node, const ParseNamesList& names, bool skipValueAttr)
 {
-    NodesList result;
+    ParseNodesList result;
     auto* cur = node->children;
     while (cur != nullptr) {
         do {
@@ -112,7 +112,7 @@ std::string ParseXmlWrap::parseGetText(::xmlNodePtr node)
     child = node->children;
     while (child != nullptr) {
         if (child->type == XML_TEXT_NODE) {
-            StringPtr valuePtr(::xmlNodeGetContent(child));
+            ParseStringPtr valuePtr(::xmlNodeGetContent(child));
             return std::string(reinterpret_cast<const char*>(valuePtr.get()));
         }
         child = child->next;
@@ -167,9 +167,9 @@ bool ParseXmlWrap::parseNodeValue(
 
 bool ParseXmlWrap::parseChildrenAsProps(
     ::xmlNodePtr node,
-    const NamesList& names,
+    const ParseNamesList& names,
     ParseLogger& logger,
-    PropsMap& result,
+    ParsePropsMap& result,
     bool mustHaveValue)
 {
     auto children = parseGetChildren(node);
@@ -195,7 +195,7 @@ bool ParseXmlWrap::parseChildrenAsProps(
     return true;
 }
 
-ParseXmlWrap::PropsMap ParseXmlWrap::parseGetUnknownProps(::xmlNodePtr node, const ParseXmlWrap::NamesList& names)
+ParseXmlWrap::ParsePropsMap ParseXmlWrap::parseGetUnknownProps(::xmlNodePtr node, const ParseXmlWrap::ParseNamesList& names)
 {
     auto props = parseNodeProps(node);
     for (auto& n : names) {
@@ -209,9 +209,9 @@ ParseXmlWrap::PropsMap ParseXmlWrap::parseGetUnknownProps(::xmlNodePtr node, con
     return props;
 }
 
-ParseXmlWrap::NodesList ParseXmlWrap::parseGetUnknownChildren(::xmlNodePtr node, const ParseXmlWrap::NamesList& names)
+ParseXmlWrap::ParseNodesList ParseXmlWrap::parseGetUnknownChildren(::xmlNodePtr node, const ParseXmlWrap::ParseNamesList& names)
 {
-    NodesList result;
+    ParseNodesList result;
     auto children = parseGetChildren(node);
     for (auto* c : children) {
         std::string cName(reinterpret_cast<const char*>(c->name));
@@ -226,7 +226,7 @@ ParseXmlWrap::NodesList ParseXmlWrap::parseGetUnknownChildren(::xmlNodePtr node,
 std::string ParseXmlWrap::parseGetElementContent(::xmlNodePtr node)
 {
     std::string result;
-    BufferPtr buf(::xmlBufferCreate());
+    ParseBufferPtr buf(::xmlBufferCreate());
     auto bufLen = ::xmlNodeDump(buf.get(), node->doc, node, 0, 0);
     if (0 < bufLen) {
         result = reinterpret_cast<const char*>(::xmlBufferContent(buf.get()));
@@ -234,12 +234,12 @@ std::string ParseXmlWrap::parseGetElementContent(::xmlNodePtr node)
     return result;
 }
 
-ParseXmlWrap::ContentsList ParseXmlWrap::parseGetUnknownChildrenContents(::xmlNodePtr node, const ParseXmlWrap::NamesList& names)
+ParseXmlWrap::ParseContentsList ParseXmlWrap::parseGetUnknownChildrenContents(::xmlNodePtr node, const ParseXmlWrap::ParseNamesList& names)
 {
-    ContentsList result;
+    ParseContentsList result;
     auto children = parseGetUnknownChildren(node, names);
     for (auto* c : children) {
-        BufferPtr buf(::xmlBufferCreate());
+        ParseBufferPtr buf(::xmlBufferCreate());
         auto bufLen = ::xmlNodeDump(buf.get(), c->doc, c, 0, 0);
         if (bufLen == 0U) {
             continue;
@@ -260,7 +260,7 @@ std::string ParseXmlWrap::parseLogPrefix(::xmlNodePtr node)
 
 bool ParseXmlWrap::parseValidateSinglePropInstance(
     ::xmlNodePtr node,
-    const PropsMap& props,
+    const ParsePropsMap& props,
     const std::string& str,
     ParseLogger& logger,
     bool mustHave)
@@ -281,7 +281,7 @@ bool ParseXmlWrap::parseValidateSinglePropInstance(
     return true;
 }
 
-bool ParseXmlWrap::parseValidateNoPropInstance(::xmlNodePtr node, const ParseXmlWrap::PropsMap& props, const std::string& str, ParseLogger& logger)
+bool ParseXmlWrap::parseValidateNoPropInstance(::xmlNodePtr node, const ParseXmlWrap::ParsePropsMap& props, const std::string& str, ParseLogger& logger)
 {
     auto iter = props.find(str);
     if (iter != props.end()) {
@@ -293,9 +293,9 @@ bool ParseXmlWrap::parseValidateNoPropInstance(::xmlNodePtr node, const ParseXml
     return true;
 }
 
-bool ParseXmlWrap::parseHasAnyChild(::xmlNodePtr node, const ParseXmlWrap::NamesList& names)
+bool ParseXmlWrap::parseHasAnyChild(::xmlNodePtr node, const ParseXmlWrap::ParseNamesList& names)
 {
-    ContentsList result;
+    ParseContentsList result;
     auto children = parseGetChildren(node);
     for (auto* c : children) {
         std::string cName(reinterpret_cast<const char*>(c->name));
@@ -378,7 +378,7 @@ bool ParseXmlWrap::parseCheckVersions(
 bool ParseXmlWrap::parseGetAndCheckVersions(
     ::xmlNodePtr node,
     const std::string& name,
-    const PropsMap& props,
+    const ParsePropsMap& props,
     unsigned& sinceVersion,
     unsigned& deprecatedSince,
     ParseProtocolImpl& protocol)
@@ -433,7 +433,7 @@ bool ParseXmlWrap::parseGetAndCheckVersions(
     ParseProtocolImpl& protocol)
 {
     auto props = parseNodeProps(node);
-    static const NamesList Names = {
+    static const ParseNamesList Names = {
         common::parseSinceVersionStr(),
         common::parseDeprecatedStr()
     };
@@ -445,9 +445,9 @@ bool ParseXmlWrap::parseGetAndCheckVersions(
     return parseGetAndCheckVersions(node, name, props, sinceVersion, deprecatedSince, protocol);
 }
 
-ParseXmlWrap::PropsMap ParseXmlWrap::parseGetExtraAttributes(::xmlNodePtr node, const ParseXmlWrap::NamesList& names, ParseProtocolImpl& protocol)
+ParseXmlWrap::ParsePropsMap ParseXmlWrap::parseGetExtraAttributes(::xmlNodePtr node, const ParseXmlWrap::ParseNamesList& names, ParseProtocolImpl& protocol)
 {
-    PropsMap attrs = ParseXmlWrap::parseGetUnknownProps(node, names);
+    ParsePropsMap attrs = ParseXmlWrap::parseGetUnknownProps(node, names);
     auto& expectedPrefixes = protocol.parseExtraElementPrefixes();
     for (auto& a : attrs) {
         bool expected =
@@ -471,9 +471,9 @@ ParseXmlWrap::PropsMap ParseXmlWrap::parseGetExtraAttributes(::xmlNodePtr node, 
     return attrs;
 }
 
-ParseXmlWrap::ContentsList ParseXmlWrap::parseGetExtraChildren(::xmlNodePtr node, const ParseXmlWrap::NamesList& names, ParseProtocolImpl& protocol)
+ParseXmlWrap::ParseContentsList ParseXmlWrap::parseGetExtraChildren(::xmlNodePtr node, const ParseXmlWrap::ParseNamesList& names, ParseProtocolImpl& protocol)
 {
-    ContentsList result;
+    ParseContentsList result;
     auto extraChildren = ParseXmlWrap::parseGetUnknownChildren(node, names);
     auto& expectedPrefixes = protocol.parseExtraElementPrefixes();
     for (auto c : extraChildren) {

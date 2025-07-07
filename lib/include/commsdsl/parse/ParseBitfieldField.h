@@ -29,15 +29,15 @@ class ParseBitfieldFieldImpl;
 class COMMSDSL_API ParseBitfieldField : public ParseField
 {
     using Base = ParseField;
-public:
 
-    using Members = std::vector<ParseField>;
+public:
+    using ParseMembers = std::vector<ParseField>;
 
     explicit ParseBitfieldField(const ParseBitfieldFieldImpl* impl);
     explicit ParseBitfieldField(ParseField field);
 
     ParseEndian parseEndian() const;
-    Members parseMembers() const;
+    ParseMembers parseMembers() const;
     ParseOptCond parseValidCond() const;    
 };
 

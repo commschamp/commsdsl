@@ -345,7 +345,7 @@ bool CommsDispatch::commsWriteClientDispatchInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::GenMessage& msg) noexcept
         {
-            return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client;
+            return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Client;
         };
 
     util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -364,7 +364,7 @@ bool CommsDispatch::commsWriteServerDispatchInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::GenMessage& msg) noexcept
         {
-            return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server;
+            return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Server;
         };
 
     util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -427,7 +427,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 {
                     return 
                         platformCheckFunc(msg) &&
-                        (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
+                        (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Client);
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -456,7 +456,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 {
                     return 
                         platformCheckFunc(msg) &&
-                        (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
+                        (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Server);
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -528,7 +528,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 {
                     return 
                         bundleCheckFunc(msg) &&
-                        (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
+                        (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Client);
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -557,7 +557,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 {
                     return 
                         bundleCheckFunc(msg) &&
-                        (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
+                        (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Server);
                 };
 
             util::ReplacementMap repl = initialRepl(m_generator, m_parent);
@@ -587,7 +587,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
 
 std::string CommsDispatch::commsIncludesInternal(const std::string& inputPrefix) const
 {
-    util::StringsList incs = {
+    util::GenStringsList incs = {
         "<cstdint>",
         comms::genRelHeaderForInput(inputPrefix + "Messages", m_generator, m_parent),
         comms::genRelHeaderForOptions(strings::genDefaultOptionsClassStr(), m_generator),
@@ -646,7 +646,7 @@ std::string CommsDispatch::commsDispatchCodeInternal(const std::string& name, Ch
 
 std::string CommsDispatch::commsCasesCodeInternal(const MessagesMap& map) const
 {
-    util::StringsList cases;
+    util::GenStringsList cases;
     for (auto& elem : map) {
         auto& msgList = elem.second;
         assert(!msgList.empty());
@@ -668,7 +668,7 @@ std::string CommsDispatch::commsCasesCodeInternal(const MessagesMap& map) const
             continue;
         }
 
-        util::StringsList offsetCases;
+        util::GenStringsList offsetCases;
         for (auto idx = 0U; idx < msgList.size(); ++idx) {
             util::ReplacementMap repl = {
                 {"MSG_ID", util::genNumToString(idx)},

@@ -91,7 +91,7 @@ GenRefField::GenRefField(GenGenerator& generator, ParseField parseObj, GenElem* 
     Base(generator, parseObj, parent),
     m_impl(std::make_unique<GenRefFieldImpl>(generator, genRefFieldParseObj()))
 {
-    assert(parseObj.parseKind() == ParseField::Kind::Ref);
+    assert(parseObj.parseKind() == ParseField::ParseKind::Ref);
 }
 
 GenRefField::~GenRefField() = default;
@@ -116,7 +116,7 @@ void GenRefField::genSetReferencedImpl()
     m_impl->genSetReferenced();
 }
 
-GenRefField::FieldRefInfo GenRefField::genProcessInnerRefImpl(const std::string& refStr) const
+GenRefField::GenFieldRefInfo GenRefField::genProcessInnerRefImpl(const std::string& refStr) const
 {
     auto* field = genReferencedField();
     assert(field != nullptr);

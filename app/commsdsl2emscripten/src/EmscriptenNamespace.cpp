@@ -39,7 +39,7 @@ namespace
 {
 
 template <typename TElem, typename TList>
-void emscriptenAddSourceFilesInternal(const TList& list, util::StringsList& sources)
+void emscriptenAddSourceFilesInternal(const TList& list, util::GenStringsList& sources)
 {
     for (auto& elemPtr : list) {
         auto* elem = TElem::cast(elemPtr.get());

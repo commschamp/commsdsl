@@ -33,7 +33,7 @@ class CommsMessage final: public commsdsl::gen::GenMessage
     using Base = commsdsl::gen::GenMessage;
 public:
     using CommsFieldsList = CommsField::CommsFieldsList;
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
 
     explicit CommsMessage(CommsGenerator& generator, commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent);
     virtual ~CommsMessage();
@@ -128,8 +128,8 @@ private:
     void commsPrepareConstructCodeInternal();
 
     CommsFieldsList m_commsFields;  
-    commsdsl::gen::util::StringsList m_bundledReadPrepareCodes;
-    commsdsl::gen::util::StringsList m_bundledRefreshCodes;
+    commsdsl::gen::util::GenStringsList m_bundledReadPrepareCodes;
+    commsdsl::gen::util::GenStringsList m_bundledRefreshCodes;
     std::string m_internalConstruct;
     std::string m_customConstruct;
     CustomCode m_customCode;

@@ -28,7 +28,7 @@ class SwigNamespace;
 class SwigMsgId
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
 
     SwigMsgId(SwigGenerator& generator, const SwigNamespace& parent);
 

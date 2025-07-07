@@ -26,7 +26,7 @@ class SwigGenerator;
 class SwigAllMessages
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
 
     static void swigAddCode(const SwigGenerator& generator, StringsList& list);
 };

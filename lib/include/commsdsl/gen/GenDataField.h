@@ -32,6 +32,7 @@ class GenDataFieldImpl;
 class COMMSDSL_API GenDataField : public GenField
 {
     using Base = GenField;
+    
 public:
     using ParseField = commsdsl::parse::ParseField;
     using ParseDataField = commsdsl::parse::ParseDataField;

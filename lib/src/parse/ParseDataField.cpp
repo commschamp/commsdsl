@@ -44,10 +44,10 @@ ParseDataField::ParseDataField(const ParseDataFieldImpl* impl)
 ParseDataField::ParseDataField(ParseField field)
   : Base(field)
 {
-    assert(parseKind() == Kind::Data);
+    assert(parseKind() == ParseKind::Data);
 }
 
-const ParseDataField::ValueType& ParseDataField::parseDefaultValue() const
+const ParseDataField::ParseValueType& ParseDataField::parseDefaultValue() const
 {
     return cast(m_pImpl)->parseDefaultValue();
 }
@@ -72,7 +72,7 @@ const std::string& ParseDataField::parseDetachedPrefixFieldName() const
     return cast(m_pImpl)->parseDetachedPrefixFieldName();
 }
 
-const ParseDataField::ValidValuesList& ParseDataField::parseValidValues() const
+const ParseDataField::ParseValidValuesList& ParseDataField::parseValidValues() const
 {
     return cast(m_pImpl)->parseValidValues();
 }

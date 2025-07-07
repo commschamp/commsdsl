@@ -79,7 +79,7 @@ const CommsField* bundleGetValidPropKeyInternal(const CommsBundleField& bundle)
     }
 
     auto& first = members.front();
-    if (first->field().genParseObj().parseKind() != commsdsl::parse::ParseField::Kind::Int) {
+    if (first->field().genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Int) {
         return nullptr;
     }
 
@@ -98,7 +98,7 @@ const CommsField* bundleGetValidPropKeyInternal(const CommsBundleField& bundle)
 
 std::string propKeyTypeInternal(const CommsField& field)
 {
-    assert(field.field().genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Int);
+    assert(field.field().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
 
     auto& keyField = static_cast<const CommsIntField&>(field);
     return keyField.commsVariantPropKeyType();
@@ -106,7 +106,7 @@ std::string propKeyTypeInternal(const CommsField& field)
 
 std::string propKeyValueStrInternal(const CommsField& field)
 {
-    assert(field.field().genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Int);
+    assert(field.field().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
 
     auto& keyField = static_cast<const CommsIntField&>(field);
     return keyField.commsVariantPropKeyValueStr();
@@ -114,15 +114,15 @@ std::string propKeyValueStrInternal(const CommsField& field)
 
 bool propKeysEquivalent(const CommsField& first, const CommsField& second)
 {
-    assert(first.field().genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Int);
-    assert(second.field().genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Int);
+    assert(first.field().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
+    assert(second.field().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
 
     return static_cast<const CommsIntField&>(first).commsVariantIsPropKeyEquivalent(static_cast<const CommsIntField&>(second));
 }
 
 const CommsField* getReferenceFieldInternal(const CommsField* field)
 {
-    while (field->field().genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Ref) {
+    while (field->field().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Ref) {
         auto& refField = static_cast<const CommsRefField&>(*field);
         field = dynamic_cast<decltype(field)>(refField.genReferencedField());
         assert(field != nullptr);
@@ -191,7 +191,7 @@ std::string CommsVariantField::commsCommonCodeBodyImpl() const
 
 std::string CommsVariantField::commsCommonMembersCodeImpl() const
 {
-    util::StringsList membersCode;
+    util::GenStringsList membersCode;
     for (auto* m : m_commsMembers) {
         auto code = m->commsCommonCode();
         if (!code.empty()) {
@@ -230,7 +230,7 @@ std::string CommsVariantField::commsDefMembersCodeImpl() const
         "       #^#MEMBERS#$#\n"
         "    >;";
 
-    util::StringsList membersCode;
+    util::GenStringsList membersCode;
     for (auto* m : m_commsMembers) {
         auto code = m->commsDefCode();
         if (!code.empty()) {
@@ -238,7 +238,7 @@ std::string CommsVariantField::commsDefMembersCodeImpl() const
         }
     }
     
-    util::StringsList names;
+    util::GenStringsList names;
     for (auto& fPtr : genMembers()) {
         assert(fPtr);
         names.push_back(comms::genClassName(fPtr->genParseObj().parseName()));
@@ -346,12 +346,12 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
     bool hasDefault = false;
     for (auto* memPtr : m_commsMembers) {
         auto* m = getReferenceFieldInternal(memPtr);
-        assert(m->field().genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Bundle);
+        assert(m->field().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Bundle);
         auto& bundle = static_cast<const CommsBundleField&>(*m);
         auto& bundleMembers = bundle.commsMembers();
         assert(!bundleMembers.empty());
         auto* first = bundleMembers.front();
-        assert(first->field().genParseObj().parseKind() == commsdsl::parse::ParseField::Kind::Int);
+        assert(first->field().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
         auto& keyField = static_cast<const CommsIntField&>(*first);
         auto bundleAccName = comms::genAccessName(memPtr->field().genParseObj().parseName());
         auto keyAccName = comms::genAccessName(keyField.field().genParseObj().parseName());
@@ -577,7 +577,7 @@ bool CommsVariantField::commsIsVersionDependentImpl() const
 std::string CommsVariantField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
 {
     assert(fieldOptsFunc != nullptr);
-    util::StringsList elems;
+    util::GenStringsList elems;
     for (auto* m : m_commsMembers) {
         auto str = (m->*fieldOptsFunc)();
         if (!str.empty()) {
@@ -634,7 +634,7 @@ bool CommsVariantField::commsPrepareInternal()
 
 std::string CommsVariantField::commsDefFieldOptsInternal() const
 {
-    commsdsl::gen::util::StringsList opts;
+    commsdsl::gen::util::GenStringsList opts;
     commsAddFieldDefOptions(opts);
     commsAddCustomReadOptInternal(opts);
     util::genAddToStrList("comms::option::def::HasCustomWrite", opts);
@@ -817,8 +817,8 @@ std::string CommsVariantField::commsDefAccessCodeByCommsInternal() const
         "    #^#NAMES#$#\n"
         ");\n";
 
-    util::StringsList accessDocList;
-    util::StringsList namesList;
+    util::GenStringsList accessDocList;
+    util::GenStringsList namesList;
     accessDocList.reserve(m_commsMembers.size());
     namesList.reserve(m_commsMembers.size());
 
@@ -1087,7 +1087,7 @@ std::string CommsVariantField::commsOptimizedReadKeyInternal() const
 
     for (auto* m : m_commsMembers) {
         const auto* memPtr = getReferenceFieldInternal(m);
-        if (memPtr->field().genParseObj().parseKind() != commsdsl::parse::ParseField::Kind::Bundle) {
+        if (memPtr->field().genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Bundle) {
             return result;
         }
 
@@ -1160,7 +1160,7 @@ std::string CommsVariantField::commsCommonMemberNameFuncsCodeInternal() const
         "}\n";
 
     auto membersPrefix = comms::genClassName(genParseObj().parseName()) + strings::genMembersSuffixStr() + strings::genCommonSuffixStr();
-    util::StringsList names;
+    util::GenStringsList names;
     for (auto& fPtr : genMembers()) {
         assert(fPtr);
         names.push_back(membersPrefix + "::" + comms::genClassName(fPtr->genParseObj().parseName()) + strings::genCommonSuffixStr() + "::name()");

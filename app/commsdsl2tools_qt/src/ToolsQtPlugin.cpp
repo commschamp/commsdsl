@@ -190,7 +190,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
     auto incPath = util::genPathAddElem(m_generator.genGetCodeDir(), relPath + strings::genIncFileSuffixStr());
     auto incCode = util::genReadFileContents(incPath);
 
-    util::StringsList includes = {
+    util::GenStringsList includes = {
         m_framePtr->toolsHeaderFilePath(*m_interfacePtr)
     };
     comms::genPrepareIncludeStatement(includes);

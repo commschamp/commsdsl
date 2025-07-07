@@ -26,7 +26,7 @@ class SwigGenerator;
 class SwigDataBuf
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
 
     static bool swigWrite(SwigGenerator& generator);
     static void swigAddDef(const SwigGenerator& generator, StringsList& list);

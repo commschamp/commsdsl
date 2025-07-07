@@ -298,8 +298,8 @@ std::string CommsIntField::commsDefValidFuncBodyImpl() const
 
     auto type = obj.parseType();
     bool bigUnsigned =
-        (type == commsdsl::parse::ParseIntField::Type::Uint64) ||
-        (type == commsdsl::parse::ParseIntField::Type::Uintvar);
+        (type == commsdsl::parse::ParseIntField::ParseType::Uint64) ||
+        (type == commsdsl::parse::ParseIntField::ParseType::Uintvar);
 
     std::string rangesChecks;
     for (auto& r : validRanges) {
@@ -324,7 +324,7 @@ std::string CommsIntField::commsDefValidFuncBodyImpl() const
             maxVal = util::genNumToString(r.m_max);
         }
 
-        util::StringsList conds;
+        util::GenStringsList conds;
         if (0U < r.m_sinceVersion) {
             conds.push_back('(' + util::genNumToString(r.m_sinceVersion) + " <= Base::getVersion())");
         }
@@ -501,7 +501,7 @@ std::string CommsIntField::commsCommonSpecialsCodeInternal() const
         return strings::genEmptyString();
     }
 
-    util::StringsList specialsList;
+    util::GenStringsList specialsList;
     for (auto& s : specials) {
         if (!genGenerator().genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
@@ -519,8 +519,8 @@ std::string CommsIntField::commsCommonSpecialsCodeInternal() const
         std::string specVal;
         auto obj = genIntFieldParseObj();
         auto type = obj.parseType();
-        if ((type == commsdsl::parse::ParseIntField::Type::Uint64) ||
-            (type == commsdsl::parse::ParseIntField::Type::Uintvar)) {
+        if ((type == commsdsl::parse::ParseIntField::ParseType::Uint64) ||
+            (type == commsdsl::parse::ParseIntField::ParseType::Uintvar)) {
             specVal = util::genNumToString(static_cast<std::uintmax_t>(s.second.m_value));
         }
         else {
@@ -566,7 +566,7 @@ std::string CommsIntField::commsCommonSpecialNamesMapCodeInternal() const
         "    return std::make_pair(&Map[0], MapSize);\n"
         "}\n";    
 
-    util::StringsList specialInfos;
+    util::GenStringsList specialInfos;
     for (auto& s : specials) {
         static const std::string SpecTempl = 
             "std::make_pair(value#^#SPEC_ACC#$#(), \"#^#SPEC_NAME#$#\")";
@@ -587,7 +587,7 @@ std::string CommsIntField::commsCommonSpecialNamesMapCodeInternal() const
 
 std::string CommsIntField::commsDefFieldOptsInternal(bool variantPropKey) const
 {
-    util::StringsList opts;
+    util::GenStringsList opts;
 
     commsAddFieldDefOptions(opts, variantPropKey);
     commsAddLengthOptInternal(opts);
@@ -638,7 +638,7 @@ std::string CommsIntField::commsDefSpecialsCodeInternal() const
         return strings::genEmptyString();
     }
 
-    util::StringsList specialsList;
+    util::GenStringsList specialsList;
     for (auto& s : specials) {
         if (!genGenerator().genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
@@ -748,8 +748,8 @@ void CommsIntField::commsAddLengthOptInternal(StringsList& opts) const
 {
     auto obj = genIntFieldParseObj();
     auto type = obj.parseType();
-    if ((type == commsdsl::parse::ParseIntField::Type::Intvar) ||
-        (type == commsdsl::parse::ParseIntField::Type::Uintvar)) {
+    if ((type == commsdsl::parse::ParseIntField::ParseType::Intvar) ||
+        (type == commsdsl::parse::ParseIntField::ParseType::Uintvar)) {
         auto str =
             "comms::option::def::VarLength<" +
             util::genNumToString(obj.parseMinLength()) +
@@ -788,7 +788,7 @@ void CommsIntField::commsAddLengthOptInternal(StringsList& opts) const
     };
 
     static const std::size_t LengthMapSize = std::extent<decltype(LengthMap)>::value;
-    static_assert(LengthMapSize == static_cast<std::size_t>(commsdsl::parse::ParseIntField::Type::NumOfValues),
+    static_assert(LengthMapSize == static_cast<std::size_t>(commsdsl::parse::ParseIntField::ParseType::NumOfValues),
             "Incorrect map");
 
     std::size_t idx = static_cast<std::size_t>(type);
@@ -881,7 +881,7 @@ void CommsIntField::commsAddDefaultValueOptInternal(StringsList& opts) const
     auto obj = genIntFieldParseObj();
     auto defaultValue = obj.parseDefaultValue();
     if ((defaultValue == 0) &&
-        (obj.parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Version)) {
+        (obj.parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Version)) {
         std::string str = "comms::option::def::DefaultNumValue<";
         str += util::genNumToString(genGenerator().genSchemaOf(*this).genSchemaVersion());
         str += '>';
@@ -895,7 +895,7 @@ void CommsIntField::commsAddDefaultValueOptInternal(StringsList& opts) const
 
     auto type = obj.parseType();
     if ((defaultValue < 0) &&
-        ((type == commsdsl::parse::ParseIntField::Type::Uint64) || (type == commsdsl::parse::ParseIntField::Type::Uintvar))) {
+        ((type == commsdsl::parse::ParseIntField::ParseType::Uint64) || (type == commsdsl::parse::ParseIntField::ParseType::Uintvar))) {
         auto str =
             "comms::option::def::DefaultBigUnsignedNumValue<" +
             util::genNumToString(static_cast<std::uintmax_t>(defaultValue)) +
@@ -921,8 +921,8 @@ void CommsIntField::commsAddValidRangesOptInternal(StringsList& opts) const
 
     auto type = obj.parseType();
     bool bigUnsigned =
-        (type == commsdsl::parse::ParseIntField::Type::Uint64) ||
-        ((type != commsdsl::parse::ParseIntField::Type::Uintvar) && (obj.parseMaxLength() >= sizeof(std::int64_t)));
+        (type == commsdsl::parse::ParseIntField::ParseType::Uint64) ||
+        ((type != commsdsl::parse::ParseIntField::ParseType::Uintvar) && (obj.parseMaxLength() >= sizeof(std::int64_t)));
 
     bool validCheckVersion =
         genGenerator().genSchemaOf(*this).genVersionDependentCode() &&

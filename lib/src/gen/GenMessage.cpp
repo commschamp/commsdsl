@@ -31,8 +31,8 @@ namespace gen
 class GenMessageImpl
 {
 public:
-    using FieldsList = GenMessage::FieldsList;
     using ParseMessage = GenMessage::ParseMessage;
+    using GenFieldsList = GenMessage::GenFieldsList;
 
     GenMessageImpl(GenGenerator& generator, ParseMessage parseObj, GenElem* parent) :
         m_generator(generator),
@@ -112,7 +112,7 @@ public:
         return m_parseObj;
     }
 
-    const FieldsList& genFields() const
+    const GenFieldsList& genFields() const
     {
         return m_fields;
     }
@@ -141,7 +141,7 @@ private:
     GenGenerator& m_generator;
     ParseMessage m_parseObj;
     GenElem* m_parent = nullptr;
-    FieldsList m_fields;
+    GenFieldsList m_fields;
     bool m_prepared = false;
     bool m_referenced = false;
 }; 
@@ -213,7 +213,7 @@ GenMessage::ParseMessage GenMessage::genParseObj() const
     return m_impl->genParseObj();
 }
 
-const GenMessage::FieldsList& GenMessage::genFields() const
+const GenMessage::GenFieldsList& GenMessage::genFields() const
 {
     return m_impl->genFields();
 }

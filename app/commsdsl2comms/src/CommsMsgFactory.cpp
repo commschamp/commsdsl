@@ -48,8 +48,8 @@ const std::string AllMessagesDesc("all the");
 const std::string ClientDesc("the client input");
 const std::string ServerDesc("the server input");
 
-using MessagesAccessList = std::vector<const commsdsl::gen::GenMessage*>;
-using MessagesMap = std::map<std::uintmax_t, MessagesAccessList>;
+using GenMessagesAccessList = std::vector<const commsdsl::gen::GenMessage*>;
+using MessagesMap = std::map<std::uintmax_t, GenMessagesAccessList>;
 
 using CheckFunction = std::function<bool (const commsdsl::gen::GenMessage&)>;
 using CodeFunction = std::function<std::string (const commsdsl::gen::GenMessage&, const CommsGenerator&, int)>;
@@ -112,7 +112,7 @@ std::string commsGetMsgAllocCodeInternal(
         "updateReasonFunc(CreateFailureReason::InvalidId);\n"
         "return MsgPtr();\n";
 
-    util::StringsList cases;
+    util::GenStringsList cases;
     for (auto& elem : map) {
         assert(!elem.second.empty());
 
@@ -130,7 +130,7 @@ std::string commsGetMsgAllocCodeInternal(
             continue;
         }
 
-        util::StringsList allocs;
+        util::GenStringsList allocs;
         for (auto idx = 0U; idx < elem.second.size(); ++idx) {
             allocs.push_back(func(*elem.second[idx], generator, static_cast<int>(idx)));
         }
@@ -174,7 +174,7 @@ std::string commsGetMsgCountCodeInternal(const MessagesMap& map)
         "}\n\n"
         "return 0U;\n";
 
-    util::StringsList cases;
+    util::GenStringsList cases;
     for (auto& elem : map) {
         assert(!elem.second.empty());
 
@@ -331,7 +331,7 @@ bool commsWriteFileInternal(
         "} // namespace #^#FACTORY_NAMESPACE#$#\n\n"
         "#^#NS_END#$#\n";
 
-    util::StringsList includes = {
+    util::GenStringsList includes = {
         "<cstdint>",
         "<memory>",
         "comms/MsgFactoryCreateFailureReason.h",
@@ -448,7 +448,7 @@ bool CommsMsgFactory::commsWriteClientMsgFactoryInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::GenMessage& msg)
         {
-            return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client;
+            return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Client;
         };
 
     auto dynMemWrite = 
@@ -468,7 +468,7 @@ bool CommsMsgFactory::commsWriteServerMsgFactoryInternal() const
     auto checkFunc = 
         [](const commsdsl::gen::GenMessage& msg)
         {
-            return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server;
+            return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Server;
         };
 
     auto dynMemWrite = 
@@ -523,7 +523,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
             {
                 return 
                     platformCheckFunc(msg) &&
-                    (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
+                    (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Client);
             };
 
         auto clientDynMemWrite = 
@@ -544,7 +544,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
             {
                 return 
                     platformCheckFunc(msg) &&
-                    (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
+                    (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Server);
             };
 
         auto serverDynMemWrite = 
@@ -599,7 +599,7 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
             {
                 return 
                     bundleCheckFunc(msg) &&
-                    (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Client);
+                    (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Client);
             };
 
         auto clientDynMemWrite = 
@@ -620,7 +620,7 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
             {
                 return 
                     bundleCheckFunc(msg) &&
-                    (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Server);
+                    (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Server);
             };
 
         auto serverDynMemWrite = 

@@ -36,18 +36,18 @@ class ParseProtocolImpl;
 class COMMSDSL_API ParseProtocol
 {
 public:
-    using ErrorReportFunction = std::function<void (ParseErrorLevel, const std::string&)>;
-    using SchemasList = std::vector<ParseSchema>;
+    using ParseErrorReportFunction = std::function<void (ParseErrorLevel, const std::string&)>;
+    using ParseSchemasList = std::vector<ParseSchema>;
 
     ParseProtocol();
     ~ParseProtocol();
 
-    void parseSetErrorReportCallback(ErrorReportFunction&& cb);
+    void parseSetErrorReportCallback(ParseErrorReportFunction&& cb);
 
     bool parse(const std::string& input);
     bool parseValidate();
 
-    SchemasList parseSchemas() const;
+    ParseSchemasList parseSchemas() const;
 
     ParseSchema parseLastParsedSchema() const;
 

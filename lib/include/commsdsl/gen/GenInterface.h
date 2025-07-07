@@ -36,10 +36,12 @@ class GenNamespace;
 class COMMSDSL_API GenInterface : public GenElem
 {
     using Base = GenElem;
+    
 public:
-    using Ptr = std::unique_ptr<GenInterface>;
-    using FieldsList = GenField::FieldsList;
     using ParseInterface = commsdsl::parse::ParseInterface;
+
+    using GenPtr = std::unique_ptr<GenInterface>;
+    using GenFieldsList = GenField::GenFieldsList;
 
     explicit GenInterface(GenGenerator& generator, ParseInterface parseObj, GenElem* parent = nullptr);
     virtual ~GenInterface();
@@ -48,7 +50,7 @@ public:
     bool genPrepare();
     bool genWrite() const;
 
-    const FieldsList& genFields() const;
+    const GenFieldsList& genFields() const;
     ParseInterface genParseObj() const;
     std::string genAdjustedExternalRef() const;
     const std::string& genAdjustedName() const;
@@ -72,7 +74,7 @@ private:
     std::unique_ptr<GenInterfaceImpl> m_impl;
 };
 
-using GenInterfacePtr = GenInterface::Ptr;
+using GenInterfacePtr = GenInterface::GenPtr;
 
 } // namespace gen
 

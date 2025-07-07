@@ -39,20 +39,20 @@ namespace util
 namespace 
 {
 
-static const char PathSep = '/';
+static const char GenPathSep = '/';
 
 #ifdef WIN32
-static const char WinPathSep = '\\';
+static const char GenWinPathSep = '\\';
 #endif 
 
-bool isPathSep(char ch)
+bool genIsPathSep(char ch)
 {
-    if (ch == PathSep) {
+    if (ch == GenPathSep) {
         return true;
     }
 
 #ifdef WIN32
-    if (ch == WinPathSep) {
+    if (ch == GenWinPathSep) {
         return true;
     }
 #endif    
@@ -60,7 +60,7 @@ bool isPathSep(char ch)
     return false;
 }
 
-void cleanSpaces(std::string& code)
+void genCleanSpaces(std::string& code)
 {
     bool removeChar = false;
     std::size_t processedCount = 0U;
@@ -96,7 +96,7 @@ void cleanSpaces(std::string& code)
         code.end());
 }
 
-void cleanExtraNewLines(std::string& code)
+void genCleanExtraNewLines(std::string& code)
 {
     code.erase(
         std::remove_if(
@@ -119,7 +119,7 @@ void cleanExtraNewLines(std::string& code)
         code.end());
 }
 
-void cleanNewLinesBeforeCloseBracket(std::string& code)
+void genCleanNewLinesBeforeCloseBracket(std::string& code)
 {
     std::size_t processedCount = 0U;
 
@@ -179,17 +179,14 @@ void cleanNewLinesBeforeCloseBracket(std::string& code)
         code.end());    
 }
 
-void doTidyCode(std::string& code)
+void genDoTidyCode(std::string& code)
 {
-    cleanSpaces(code);
-    cleanExtraNewLines(code);
-    cleanNewLinesBeforeCloseBracket(code);
+    genCleanSpaces(code);
+    genCleanExtraNewLines(code);
+    genCleanNewLinesBeforeCloseBracket(code);
 }
 
-
 } // namespace 
-
-
 
 std::string genStrReplace(const std::string& str, const std::string& what, const std::string& with)
 {
@@ -410,8 +407,8 @@ const std::string& genBoolToString(bool value)
 std::string genPathAddElem(const std::string& path, const std::string& elem)
 {
     std::string result = path;
-    if ((!result.empty()) && (!isPathSep(result.back()))) {
-        result.push_back(PathSep);
+    if ((!result.empty()) && (!genIsPathSep(result.back()))) {
+        result.push_back(GenPathSep);
     }
 
     result.append(elem);
@@ -420,14 +417,14 @@ std::string genPathAddElem(const std::string& path, const std::string& elem)
 
 std::string genPathUp(const std::string& path)
 {
-    auto sepPos = path.rfind(PathSep);
+    auto sepPos = path.rfind(GenPathSep);
     do {
         if (sepPos != std::string::npos) {
             break;
         }
 
 #ifdef WIN32
-        sepPos = path.rfind(WinPathSep);
+        sepPos = path.rfind(GenWinPathSep);
         if (sepPos != std::string::npos) {
             break;
         }        
@@ -553,13 +550,13 @@ std::string genProcessTemplate(const std::string& templ, const ReplacementMap& r
     }
 
     if (tidyCode) {
-        doTidyCode(result);
+        genDoTidyCode(result);
     }
     return result;
 }
 
 std::string genStrListToString(
-    const StringsList& list,
+    const GenStringsList& list,
     const std::string& join,
     const std::string& last)
 {
@@ -576,7 +573,7 @@ std::string genStrListToString(
     return result;
 }
 
-void genAddToStrList(std::string&& value, StringsList& list)
+void genAddToStrList(std::string&& value, GenStringsList& list)
 {
     auto iter = std::find(list.begin(), list.end(), value);
     if (iter == list.end()) {
@@ -584,7 +581,7 @@ void genAddToStrList(std::string&& value, StringsList& list)
     }
 }
 
-void genAddToStrList(const std::string& value, StringsList& list)
+void genAddToStrList(const std::string& value, GenStringsList& list)
 {
     auto iter = std::find(list.begin(), list.end(), value);
     if (iter == list.end()) {

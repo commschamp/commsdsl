@@ -90,7 +90,7 @@ std::string interfaceFieldAccStrInternal(const CommsField& field)
     return strings::genTransportFieldAccessPrefixStr() + comms::genAccessName(field.field().genParseObj().parseName()) + "()";
 }
 
-void updateConstructBoolInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCondExpr& cond, util::StringsList& code)
+void updateConstructBoolInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCondExpr& cond, util::GenStringsList& code)
 {
     assert(cond.parseOp().empty() || (cond.parseOp() == "!"));
     auto& right = cond.parseRight();
@@ -131,7 +131,7 @@ void updateConstructBoolInternal(const CommsGenerator& generator, const commsdsl
     code.push_back(util::genProcessTemplate(Templ, repl));
 }
 
-void updateConstructExprInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCondExpr& cond, util::StringsList& code)
+void updateConstructExprInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCondExpr& cond, util::GenStringsList& code)
 {
     auto& left = cond.parseLeft();
     if (left.empty()) {
@@ -180,18 +180,18 @@ void updateConstructExprInternal(const CommsGenerator& generator, const commsdsl
     code.push_back(util::genProcessTemplate(Templ, repl));
 }
 
-void updateConstructCodeInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCond& cond, util::StringsList& code)
+void updateConstructCodeInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCond& cond, util::GenStringsList& code)
 {
     assert(cond.parseValid());
-    if (cond.parseKind() == commsdsl::parse::ParseOptCond::Kind::Expr) {
+    if (cond.parseKind() == commsdsl::parse::ParseOptCond::ParseKind::Expr) {
         commsdsl::parse::ParseOptCondExpr exprCond(cond);
         updateConstructExprInternal(generator, exprCond, code);
         return;
     }
 
-    assert(cond.parseKind() == commsdsl::parse::ParseOptCond::Kind::List);
+    assert(cond.parseKind() == commsdsl::parse::ParseOptCond::ParseKind::List);
     commsdsl::parse::ParseOptCondList listCond(cond);
-    assert(listCond.parseType() == commsdsl::parse::ParseOptCondList::Type::And);
+    assert(listCond.parseType() == commsdsl::parse::ParseOptCondList::ParseType::And);
     auto conditions = listCond.parseConditions();
     for (auto& c : conditions) {
         updateConstructCodeInternal(generator, c, code);
@@ -637,7 +637,7 @@ bool CommsMessage::commsWriteDefInternal() const
 
 std::string CommsMessage::commsCommonIncludesInternal() const
 {
-    util::StringsList includes;
+    util::GenStringsList includes;
     for (auto* commsField : m_commsFields) {
         assert(commsField != nullptr);
 
@@ -683,7 +683,7 @@ std::string CommsMessage::commsCommonFieldsCodeInternal() const
         "    #^#FIELDS_BODY#$#\n"
         "};\n";  
 
-    util::StringsList fields;
+    util::GenStringsList fields;
     for (auto* cField : m_commsFields) {
         assert(cField != nullptr);
         auto def = cField->commsCommonCode();
@@ -710,7 +710,7 @@ std::string CommsMessage::commsCommonFieldsCodeInternal() const
 std::string CommsMessage::commsDefIncludesInternal() const
 {
     auto& gen = genGenerator();
-    util::StringsList includes = {
+    util::GenStringsList includes = {
         "<tuple>",
         "comms/MessageBase.h",
         comms::genRelHeaderForOptions(strings::genDefaultOptionsStr(), gen),
@@ -758,7 +758,7 @@ std::string CommsMessage::commsDefConstructInternal() const
 
 std::string CommsMessage::commsDefFieldsCodeInternal() const
 {
-    util::StringsList fields;
+    util::GenStringsList fields;
     for (auto* commsField : m_commsFields) {
         assert(commsField != nullptr);
         fields.push_back(commsField->commsDefCode());
@@ -768,7 +768,7 @@ std::string CommsMessage::commsDefFieldsCodeInternal() const
 
 std::string CommsMessage::commsDefFieldClassNamesListInternal() const
 {
-    util::StringsList names;
+    util::GenStringsList names;
     for (auto& fPtr : genFields()) {
         assert(fPtr);
         names.push_back(comms::genClassName(fPtr->genParseObj().parseName()));
@@ -842,7 +842,7 @@ std::string CommsMessage::commsDefCustomizationOptInternal() const
 
 std::string CommsMessage::commsDefExtraOptionsInternal() const
 {
-    util::StringsList opts;
+    util::GenStringsList opts;
 
     // Messages don't need / support comms::option::def::HasCustomRead option
 
@@ -923,8 +923,8 @@ std::string CommsMessage::commsDefPrivateInternal() const
 {
     assert(m_bundledReadPrepareCodes.size() == m_commsFields.size());
     assert(m_bundledRefreshCodes.size() == m_commsFields.size());
-    util::StringsList reads;
-    util::StringsList refreshes;
+    util::GenStringsList reads;
+    util::GenStringsList refreshes;
     for (auto idx = 0U; idx < m_commsFields.size(); ++idx) {
         auto& readCode = m_bundledReadPrepareCodes[idx];
         auto& refreshCode = m_bundledRefreshCodes[idx];
@@ -1010,8 +1010,8 @@ std::string CommsMessage::commsDefFieldsAccessInternal() const
         ");\n"
         ;
 
-    util::StringsList docs;
-    util::StringsList names;
+    util::GenStringsList docs;
+    util::GenStringsList names;
 
     auto msgClassName = comms::genClassName(genParseObj().parseName());
     for (auto& fPtr : genFields()) {
@@ -1046,7 +1046,7 @@ std::string CommsMessage::commsDefFieldsAliasesInternal() const
         return strings::genEmptyString();    
     }
 
-    util::StringsList result;
+    util::GenStringsList result;
     for (auto& a : aliases) {
         static const std::string Templ =
             "/// @brief Alias to a member field.\n"
@@ -1181,7 +1181,7 @@ std::string CommsMessage::commsDefReadFuncInternal() const
 
         auto readCond = commsDefReadConditionsCodeInternal();
 
-        util::StringsList reads;
+        util::GenStringsList reads;
         assert(m_bundledReadPrepareCodes.size() == m_commsFields.size());
         int prevIdx = -1;
 
@@ -1325,7 +1325,7 @@ std::string CommsMessage::commsDefRefreshFuncInternal() const
         }
 
         assert(m_commsFields.size() == m_bundledRefreshCodes.size());
-        util::StringsList fields;
+        util::GenStringsList fields;
         for (auto idx = 0U; idx < m_commsFields.size(); ++idx) {
             auto& code = m_bundledRefreshCodes[idx];
             if (code.empty()) {
@@ -1417,7 +1417,7 @@ bool CommsMessage::commsIsCustomizableInternal() const
         return false;
     }
 
-    return genParseObj().parseSender() != commsdsl::parse::ParseMessage::Sender::Both;
+    return genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Both;
 }
 
 std::string CommsMessage::commsCustomizationOptionsInternal(
@@ -1425,7 +1425,7 @@ std::string CommsMessage::commsCustomizationOptionsInternal(
     ExtraMessageOptsFunc extraMessageOptsFunc,
     bool hasBase) const
 {
-    util::StringsList fieldOpts;
+    util::GenStringsList fieldOpts;
     if (fieldOptsFunc != nullptr) {
         for (auto* f : m_commsFields) {
             auto str = (f->*fieldOptsFunc)();
@@ -1435,7 +1435,7 @@ std::string CommsMessage::commsCustomizationOptionsInternal(
         }
     }
 
-    util::StringsList elems;
+    util::GenStringsList elems;
     if (!fieldOpts.empty()) {
         static const std::string Templ = 
             "/// @brief Extra options for fields of\n"
@@ -1619,18 +1619,18 @@ std::string CommsMessage::commsDefValidFuncInternal() const
 CommsMessage::StringsList CommsMessage::commsClientExtraCustomizationOptionsInternal() const
 {
     auto sender = genParseObj().parseSender();
-    if (sender == commsdsl::parse::ParseMessage::Sender::Both) {
+    if (sender == commsdsl::parse::ParseMessage::ParseSender::Both) {
         return StringsList();
     }
 
-    if (sender == commsdsl::parse::ParseMessage::Sender::Client) {
+    if (sender == commsdsl::parse::ParseMessage::ParseSender::Client) {
         return StringsList{
             "comms::option::app::NoReadImpl",
             "comms::option::app::NoDispatchImpl"
         };
     }
 
-    assert (sender == commsdsl::parse::ParseMessage::Sender::Server);
+    assert (sender == commsdsl::parse::ParseMessage::ParseSender::Server);
     return StringsList{
         "comms::option::app::NoWriteImpl",
         "comms::option::app::NoRefreshImpl"
@@ -1640,18 +1640,18 @@ CommsMessage::StringsList CommsMessage::commsClientExtraCustomizationOptionsInte
 CommsMessage::StringsList CommsMessage::commsServerExtraCustomizationOptionsInternal() const
 {
     auto sender = genParseObj().parseSender();
-    if (sender == commsdsl::parse::ParseMessage::Sender::Both) {
+    if (sender == commsdsl::parse::ParseMessage::ParseSender::Both) {
         return StringsList();
     }
 
-    if (sender == commsdsl::parse::ParseMessage::Sender::Client) {
+    if (sender == commsdsl::parse::ParseMessage::ParseSender::Client) {
         return StringsList{
             "comms::option::app::NoWriteImpl",
             "comms::option::app::NoRefreshImpl"
         };
     }
 
-    assert (sender == commsdsl::parse::ParseMessage::Sender::Server);
+    assert (sender == commsdsl::parse::ParseMessage::ParseSender::Server);
     return StringsList{
         "comms::option::app::NoReadImpl",
         "comms::option::app::NoDispatchImpl"

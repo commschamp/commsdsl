@@ -36,10 +36,12 @@ class Namespace;
 class COMMSDSL_API GenMessage : public GenElem
 {
     using Base = GenElem;
+
 public:
-    using Ptr = std::unique_ptr<GenMessage>;
-    using FieldsList = GenField::FieldsList;
     using ParseMessage = commsdsl::parse::ParseMessage;
+    
+    using GenPtr = std::unique_ptr<GenMessage>;
+    using GenFieldsList = GenField::GenFieldsList;
 
     explicit GenMessage(GenGenerator& generator, ParseMessage dslObj, GenElem* parent = nullptr);
     virtual ~GenMessage();
@@ -53,7 +55,7 @@ public:
 
     ParseMessage genParseObj() const;
 
-    const FieldsList& genFields() const;
+    const GenFieldsList& genFields() const;
 
     GenGenerator& genGenerator();
     const GenGenerator& genGenerator() const;
@@ -67,7 +69,7 @@ private:
     std::unique_ptr<GenMessageImpl> m_impl;
 };
 
-using GenMessagePtr = GenMessage::Ptr;
+using GenMessagePtr = GenMessage::GenPtr;
 
 } // namespace gen
 

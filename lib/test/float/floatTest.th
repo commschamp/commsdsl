@@ -69,12 +69,12 @@ void FloatTestSuite::test1()
         TS_ASSERT_EQUALS(field.parseName(), "Float1");
         TS_ASSERT_EQUALS(field.parseDisplayName(), "Float 1");
         TS_ASSERT(field.parseDescription().empty());
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         auto& validRanges = floatField.parseValidRanges();
         auto& specialValues = floatField.parseSpecialValues();
-        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::ParseType::Double);
         TS_ASSERT_EQUALS(floatField.parseEndian(), commsdsl::parse::ParseEndian_Big);
         TS_ASSERT_EQUALS(floatField.parseMinLength(), 8U);
         TS_ASSERT_EQUALS(floatField.parseDefaultValue(), 0.0);
@@ -88,12 +88,12 @@ void FloatTestSuite::test1()
         TS_ASSERT_EQUALS(field.parseName(), "Float2");
         TS_ASSERT(field.parseDisplayName().empty());
         TS_ASSERT_EQUALS(field.parseDescription(), "Float 2");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         auto& validRanges = floatField.parseValidRanges();
         auto& specialValues = floatField.parseSpecialValues();
-        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::ParseType::Float);
         TS_ASSERT_EQUALS(floatField.parseEndian(), commsdsl::parse::ParseEndian_Little);
         TS_ASSERT_EQUALS(floatField.parseMinLength(), 4U);
         TS_ASSERT_EQUALS(floatField.parseDefaultValue(), 0.0);
@@ -120,12 +120,12 @@ void FloatTestSuite::test2()
         TS_ASSERT_EQUALS(field.parseName(), "Float1");
         TS_ASSERT(field.parseDisplayName().empty());
         TS_ASSERT(field.parseDescription().empty());
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         auto& validRanges = floatField.parseValidRanges();
         auto& specialValues = floatField.parseSpecialValues();
-        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::ParseType::Double);
         TS_ASSERT_EQUALS(floatField.parseEndian(), commsdsl::parse::ParseEndian_Little);
         TS_ASSERT_EQUALS(floatField.parseMinLength(), 8U);
         TS_ASSERT(std::isnan(floatField.parseDefaultValue()));
@@ -145,12 +145,12 @@ void FloatTestSuite::test2()
         TS_ASSERT_EQUALS(field.parseName(), "Float2");
         TS_ASSERT(field.parseDisplayName().empty());
         TS_ASSERT(field.parseDescription().empty());
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         auto& validRanges = floatField.parseValidRanges();
         auto& specialValues = floatField.parseSpecialValues();
-        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::ParseType::Float);
         TS_ASSERT_EQUALS(floatField.parseEndian(), commsdsl::parse::ParseEndian_Big);
         TS_ASSERT_EQUALS(floatField.parseMinLength(), 4U);
         TS_ASSERT(std::isinf(floatField.parseDefaultValue()));
@@ -186,12 +186,12 @@ void FloatTestSuite::test3()
 
         auto& field = fields[0];
         TS_ASSERT_EQUALS(field.parseName(), "Float1");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         auto& validRanges = floatField.parseValidRanges();
         auto& specialValues = floatField.parseSpecialValues();
-        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::ParseType::Double);
         TS_ASSERT_EQUALS(floatField.parseEndian(), commsdsl::parse::ParseEndian_Big);
         TS_ASSERT_EQUALS(floatField.parseMinLength(), 8U);
         TS_ASSERT(std::isnan(floatField.parseDefaultValue()));
@@ -214,12 +214,12 @@ void FloatTestSuite::test3()
 
         auto& field = fields[0];
         TS_ASSERT_EQUALS(field.parseName(), "Float1");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         auto& validRanges = floatField.parseValidRanges();
         auto& specialValues = floatField.parseSpecialValues();
-        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::ParseType::Float);
         TS_ASSERT_EQUALS(floatField.parseEndian(), commsdsl::parse::ParseEndian_Little);
         TS_ASSERT_EQUALS(floatField.parseMinLength(), 4U);
         TS_ASSERT(std::isinf(floatField.parseDefaultValue()));
@@ -255,12 +255,12 @@ void FloatTestSuite::test4()
 
         auto& field = fields[0];
         TS_ASSERT_EQUALS(field.parseName(), "Float1");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         auto& validRanges = floatField.parseValidRanges();
         auto& specialValues = floatField.parseSpecialValues();
-        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::ParseType::Double);
         TS_ASSERT_EQUALS(floatField.parseEndian(), commsdsl::parse::ParseEndian_Little);
         TS_ASSERT_EQUALS(floatField.parseMinLength(), 8U);
         TS_ASSERT(std::isnan(floatField.parseDefaultValue()));
@@ -304,12 +304,12 @@ void FloatTestSuite::test5()
 
         auto& field = fields[0];
         TS_ASSERT_EQUALS(field.parseName(), "Float1");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         auto& validRanges = floatField.parseValidRanges();
         auto& specialValues = floatField.parseSpecialValues();
-        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::ParseType::Double);
         TS_ASSERT_EQUALS(floatField.parseEndian(), commsdsl::parse::ParseEndian_Little);
         TS_ASSERT_EQUALS(floatField.parseMinLength(), 8U);
         TS_ASSERT(std::isnan(floatField.parseDefaultValue()));
@@ -350,12 +350,12 @@ void FloatTestSuite::test6()
 
         auto& field = fields[0];
         TS_ASSERT_EQUALS(field.parseName(), "Float1");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         auto& validRanges = floatField.parseValidRanges();
         auto& specialValues = floatField.parseSpecialValues();
-        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::ParseType::Double);
         TS_ASSERT_EQUALS(floatField.parseEndian(), commsdsl::parse::ParseEndian_Little);
         TS_ASSERT_EQUALS(floatField.parseMinLength(), 8U);
         TS_ASSERT_EQUALS(floatField.parseDefaultValue(), 0.0);
@@ -407,12 +407,12 @@ void FloatTestSuite::test9()
     do {
         auto& field = fields[0];
         TS_ASSERT_EQUALS(field.parseName(), "Float1");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         auto& validRanges = floatField.parseValidRanges();
         auto& specialValues = floatField.parseSpecialValues();
-        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::ParseType::Float);
         TS_ASSERT_EQUALS(floatField.parseEndian(), commsdsl::parse::ParseEndian_Big);
         TS_ASSERT_EQUALS(floatField.parseMinLength(), 4U);
         TS_ASSERT_EQUALS(floatField.parseDefaultValue(), 0.0);
@@ -430,12 +430,12 @@ void FloatTestSuite::test9()
     do {
         auto& field = fields[1];
         TS_ASSERT_EQUALS(field.parseName(), "Float2");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         auto& validRanges = floatField.parseValidRanges();
         auto& specialValues = floatField.parseSpecialValues();
-        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::ParseType::Float);
         TS_ASSERT_EQUALS(floatField.parseEndian(), commsdsl::parse::ParseEndian_Little);
         TS_ASSERT_EQUALS(floatField.parseMinLength(), 4U);
         TS_ASSERT_EQUALS(floatField.parseDefaultValue(), -100.123);
@@ -469,12 +469,12 @@ void FloatTestSuite::test10()
     do {
         auto& field = fields[1];
         TS_ASSERT_EQUALS(field.parseName(), "Float2");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         auto& validRanges = floatField.parseValidRanges();
         auto& specialValues = floatField.parseSpecialValues();
-        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.parseType(), commsdsl::parse::ParseFloatField::ParseType::Float);
         TS_ASSERT_EQUALS(floatField.parseEndian(), commsdsl::parse::ParseEndian_Little);
         TS_ASSERT_EQUALS(floatField.parseMinLength(), 4U);
         TS_ASSERT_EQUALS(floatField.parseDefaultValue(), -100.123);
@@ -524,7 +524,7 @@ void FloatTestSuite::test11()
     do {
         auto& field = fields[0];
         TS_ASSERT_EQUALS(field.parseName(), "Float1");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         TS_ASSERT_EQUALS(floatField.parseUnits(), commsdsl::parse::ParseUnits::Seconds);
@@ -547,7 +547,7 @@ void FloatTestSuite::test12()
     do {
         auto& field = fields.back();
         TS_ASSERT_EQUALS(field.parseName(), "F2");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         TS_ASSERT(std::isinf(floatField.parseDefaultValue()));
@@ -573,7 +573,7 @@ void FloatTestSuite::test13()
     do {
         auto& field = fields.back();
         TS_ASSERT_EQUALS(field.parseName(), "F2");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         TS_ASSERT_EQUALS(floatField.parseDefaultValue(), static_cast<double>(0xffff));
@@ -612,7 +612,7 @@ void FloatTestSuite::test16()
     do {
         auto& field = fields.back();
         TS_ASSERT_EQUALS(field.parseName(), "F2");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         TS_ASSERT_EQUALS(floatField.parseDefaultValue(), static_cast<double>(3));
@@ -650,7 +650,7 @@ void FloatTestSuite::test18()
     do {
         auto& field = fields.back();
         TS_ASSERT_EQUALS(field.parseName(), "F2");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         TS_ASSERT_EQUALS(floatField.parseDefaultValue(), static_cast<double>(0));
@@ -678,7 +678,7 @@ void FloatTestSuite::test19()
     do {
         auto& field = fields.back();
         TS_ASSERT_EQUALS(field.parseName(), "F2");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         TS_ASSERT_EQUALS(floatField.parseDefaultValue(), static_cast<double>(1));
@@ -710,7 +710,7 @@ void FloatTestSuite::test20()
     do {
         auto& field = fields.back();
         TS_ASSERT_EQUALS(field.parseName(), "F2");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         TS_ASSERT_EQUALS(floatField.parseDefaultValue(), static_cast<double>(1));
@@ -742,7 +742,7 @@ void FloatTestSuite::test21()
     do {
         auto& field = fields.back();
         TS_ASSERT_EQUALS(field.parseName(), "F2");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         TS_ASSERT(std::isnan(floatField.parseDefaultValue()));
@@ -788,7 +788,7 @@ void FloatTestSuite::test24()
 
         auto& field = fields[0];
         TS_ASSERT_EQUALS(field.parseName(), "F1");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Float);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Float);
 
         commsdsl::parse::ParseFloatField floatField(field);
         auto& specialValues = floatField.parseSpecialValues();

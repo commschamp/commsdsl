@@ -31,6 +31,7 @@ class GenLogger
 {
 public:
     using ParseErrorLevel = commsdsl::parse::ParseErrorLevel;
+    
     GenLogger();
     GenLogger(const GenLogger&) = delete;
     virtual ~GenLogger();

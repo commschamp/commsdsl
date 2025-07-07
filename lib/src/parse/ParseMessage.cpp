@@ -99,13 +99,13 @@ bool ParseMessage::parseIsDeprecatedRemoved() const
     return m_pImpl->parseIsDeprecatedRemoved();
 }
 
-ParseMessage::FieldsList ParseMessage::parseFields() const
+ParseMessage::ParseFieldsList ParseMessage::parseFields() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseFieldsList();
 }
 
-ParseMessage::AliasesList ParseMessage::parseAliases() const
+ParseMessage::ParseAliasesList ParseMessage::parseAliases() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseAliasesList();
@@ -129,7 +129,7 @@ bool ParseMessage::parseIsFailOnInvalid() const
     return m_pImpl->parseIsFailOnInvalid();
 }
 
-ParseMessage::Sender ParseMessage::parseSender() const
+ParseMessage::ParseSender ParseMessage::parseSender() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseSender();
@@ -195,19 +195,19 @@ ParseOptCond ParseMessage::parseValidCond() const
     return m_pImpl->parseValidCond();
 }
 
-const ParseMessage::AttributesMap& ParseMessage::parseExtraAttributes() const
+const ParseMessage::ParseAttributesMap& ParseMessage::parseExtraAttributes() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseExtraAttributes();
 }
 
-const ParseMessage::ElementsList& ParseMessage::parseExtraElements() const
+const ParseMessage::ParseElementsList& ParseMessage::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseExtraChildren();
 }
 
-const ParseMessage::PlatformsList& ParseMessage::parsePlatforms() const
+const ParseMessage::ParsePlatformsList& ParseMessage::parsePlatforms() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parsePlatforms();

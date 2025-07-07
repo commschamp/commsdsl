@@ -27,7 +27,7 @@ namespace commsdsl2emscripten
 class EmscriptenField
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
     using IncludesList = StringsList;
     using EmscriptenFieldsList = std::vector<EmscriptenField*>;
 
@@ -36,7 +36,7 @@ public:
 
     static const EmscriptenField* cast(const commsdsl::gen::GenField* field);
     static EmscriptenField* cast(commsdsl::gen::GenField* field);
-    static EmscriptenFieldsList emscriptenTransformFieldsList(const commsdsl::gen::GenField::FieldsList& fields);
+    static EmscriptenFieldsList emscriptenTransformFieldsList(const commsdsl::gen::GenField::GenFieldsList& fields);
 
     commsdsl::gen::GenField& field()
     {
@@ -75,7 +75,7 @@ protected:
     virtual std::string emscriptenSourceBindFuncsImpl() const;
     virtual std::string emscriptenSourceBindExtraImpl() const;
 
-    void emscriptenAssignMembers(const commsdsl::gen::GenField::FieldsList& fields);
+    void emscriptenAssignMembers(const commsdsl::gen::GenField::GenFieldsList& fields);
     void emscriptenAddMember(commsdsl::gen::GenField* field);
     std::string emscriptenHeaderValueAccByRef() const;
     std::string emscriptenHeaderValueAccByValue() const;

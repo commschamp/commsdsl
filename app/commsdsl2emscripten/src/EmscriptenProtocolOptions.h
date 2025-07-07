@@ -26,7 +26,7 @@ class EmscriptenGenerator;
 class EmscriptenProtocolOptions
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
 
     static std::string emscriptenClassName(const EmscriptenGenerator& generator);
     static bool emscriptenIsDefined(const EmscriptenGenerator& generator);

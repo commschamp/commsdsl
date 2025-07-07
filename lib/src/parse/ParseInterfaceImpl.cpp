@@ -36,9 +36,9 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::NamesList& parseInterfaceSupportedTypes()
+const ParseXmlWrap::ParseNamesList& parseInterfaceSupportedTypes()
 {
-    static const ParseXmlWrap::NamesList Names = ParseFieldImpl::parseSupportedTypes();
+    static const ParseXmlWrap::ParseNamesList Names = ParseFieldImpl::parseSupportedTypes();
     return Names;
 }
 
@@ -85,9 +85,9 @@ const std::string& ParseInterfaceImpl::parseCopyCodeFrom() const
     return m_state.m_copyCodeFrom;
 }
 
-ParseInterfaceImpl::FieldsList ParseInterfaceImpl::parseFieldsList() const
+ParseInterfaceImpl::ParseFieldsList ParseInterfaceImpl::parseFieldsList() const
 {
-    FieldsList result;
+    ParseFieldsList result;
     result.reserve(m_state.m_fields.size());
     std::transform(
         m_state.m_fields.begin(), m_state.m_fields.end(), std::back_inserter(result),
@@ -98,9 +98,9 @@ ParseInterfaceImpl::FieldsList ParseInterfaceImpl::parseFieldsList() const
     return result;
 }
 
-ParseInterfaceImpl::AliasesList ParseInterfaceImpl::parseAliasesList() const
+ParseInterfaceImpl::ParseAliasesList ParseInterfaceImpl::parseAliasesList() const
 {
-    AliasesList result;
+    ParseAliasesList result;
     result.reserve(m_state.m_aliases.size());
     std::transform(
         m_state.m_aliases.begin(), m_state.m_aliases.end(), std::back_inserter(result),
@@ -114,7 +114,7 @@ ParseInterfaceImpl::AliasesList ParseInterfaceImpl::parseAliasesList() const
 std::string ParseInterfaceImpl::parseExternalRef(bool schemaRef) const
 {
     assert(parseGetParent() != nullptr);
-    assert(parseGetParent()->parseObjKind() == ObjKind::Namespace);
+    assert(parseGetParent()->parseObjKind() == ParseObjKind::Namespace);
 
     auto& ns = static_cast<const ParseNamespaceImpl&>(*parseGetParent());
     auto nsRef = ns.parseExternalRef(schemaRef);
@@ -142,9 +142,9 @@ std::size_t ParseInterfaceImpl::parseFindFieldIdx(const std::string& name) const
     return static_cast<std::size_t>(std::distance(m_state.m_fields.begin(), iter));
 }
 
-ParseInterfaceImpl::ImplFieldsList ParseInterfaceImpl::parseAllImplFields() const
+ParseInterfaceImpl::ParseImplFieldsList ParseInterfaceImpl::parseAllImplFields() const
 {
-    ImplFieldsList result;
+    ParseImplFieldsList result;
     result.reserve(m_state.m_fields.size());
     for (auto& fPtr : m_state.m_fields) {
         result.push_back(fPtr.get());
@@ -153,29 +153,29 @@ ParseInterfaceImpl::ImplFieldsList ParseInterfaceImpl::parseAllImplFields() cons
     return result;
 }
 
-ParseInterfaceImpl::FieldRefInfo ParseInterfaceImpl::processInnerFieldRef(const std::string refStr) const
+ParseInterfaceImpl::ParseFieldRefInfo ParseInterfaceImpl::processInnerFieldRef(const std::string refStr) const
 {
     if ((!refStr.empty()) && ((refStr[0] == '#') || (refStr[0] == '?'))) {
         auto info = processInnerFieldRef(refStr.substr(1));
         do {
             if ((info.m_field == nullptr) || 
-                (info.m_refType != FieldRefType::FieldRefType_Field)) {
-                info = FieldRefInfo();
+                (info.m_refType != ParseFieldRefType::FieldRefType_Field)) {
+                info = ParseFieldRefInfo();
                 break;
             }
 
             if (refStr[0] == '#') {
-                info.m_refType = FieldRefType::FieldRefType_Size;
+                info.m_refType = ParseFieldRefType::FieldRefType_Size;
                 break;
             }
 
             assert(refStr[0] == '?');
-            info.m_refType = FieldRefType::FieldRefType_Exists;
+            info.m_refType = ParseFieldRefType::FieldRefType_Exists;
             break;
         } while (false);
 
         if ((info.m_field != nullptr) && (!info.m_field->parseIsValidRefType(info.m_refType))) {
-            info = FieldRefInfo();
+            info = ParseFieldRefInfo();
         }
 
         return info;
@@ -192,7 +192,7 @@ ParseInterfaceImpl::FieldRefInfo ParseInterfaceImpl::processInnerFieldRef(const 
             });
 
     if (iter == m_state.m_fields.end()) {
-        return FieldRefInfo();
+        return ParseFieldRefInfo();
     }
 
     std::string nextRef;
@@ -204,22 +204,22 @@ ParseInterfaceImpl::FieldRefInfo ParseInterfaceImpl::processInnerFieldRef(const 
 
 }
 
-ParseObject::ObjKind ParseInterfaceImpl::parseObjKindImpl() const
+ParseObject::ParseObjKind ParseInterfaceImpl::parseObjKindImpl() const
 {
-    return ObjKind::Interface;
+    return ParseObjKind::Interface;
 }
 
-LogWrapper ParseInterfaceImpl::parseLogError() const
+ParseLogWrapper ParseInterfaceImpl::parseLogError() const
 {
     return commsdsl::parse::parseLogError(m_protocol.parseLogger());
 }
 
-LogWrapper ParseInterfaceImpl::parseLogWarning() const
+ParseLogWrapper ParseInterfaceImpl::parseLogWarning() const
 {
     return commsdsl::parse::parseLogWarning(m_protocol.parseLogger());
 }
 
-LogWrapper ParseInterfaceImpl::parseLogInfo() const
+ParseLogWrapper ParseInterfaceImpl::parseLogInfo() const
 {
     return commsdsl::parse::parseLogInfo(m_protocol.parseLogger());
 }
@@ -279,9 +279,9 @@ void ParseInterfaceImpl::parseReportUnexpectedPropertyValue(const std::string& p
     ParseXmlWrap::parseReportUnexpectedPropertyValue(m_node, parseName(), propName, propValue, m_protocol.parseLogger());
 }
 
-const ParseXmlWrap::NamesList& ParseInterfaceImpl::parseCommonProps()
+const ParseXmlWrap::ParseNamesList& ParseInterfaceImpl::parseCommonProps()
 {
-    static const ParseXmlWrap::NamesList CommonNames = {
+    static const ParseXmlWrap::ParseNamesList CommonNames = {
         common::parseNameStr(),
         common::parseDescriptionStr(),
         common::parseCopyFieldsFromStr(),
@@ -294,7 +294,7 @@ const ParseXmlWrap::NamesList& ParseInterfaceImpl::parseCommonProps()
     return CommonNames;
 }
 
-ParseXmlWrap::NamesList ParseInterfaceImpl::parseAllNames()
+ParseXmlWrap::ParseNamesList ParseInterfaceImpl::parseAllNames()
 {
     auto names = parseCommonProps();
     auto& fieldTypes = parseInterfaceSupportedTypes();
@@ -425,7 +425,7 @@ bool ParseInterfaceImpl::parseCopyFields()
         }
 
         auto* copyFromField = m_protocol.parseFindField(iter->second);
-        if ((copyFromField == nullptr) || (copyFromField->parseKind() != ParseField::Kind::Bundle)) {
+        if ((copyFromField == nullptr) || (copyFromField->parseKind() != ParseField::ParseKind::Bundle)) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                 "Invalid reference to other interface or bundle \"" << iter->second << "\".";
             return false;
@@ -672,7 +672,7 @@ bool ParseInterfaceImpl::parseUpdateExtraAttrs()
 
 bool ParseInterfaceImpl::parseUpdateExtraChildren()
 {
-    static const ParseXmlWrap::NamesList ChildrenNames = parseAllNames();
+    static const ParseXmlWrap::ParseNamesList ChildrenNames = parseAllNames();
     m_extraChildren = ParseXmlWrap::parseGetExtraChildren(m_node, ChildrenNames, m_protocol);
     return true;
 }

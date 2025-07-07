@@ -51,13 +51,13 @@ const std::string& ParseInterface::parseDescription() const
     return m_pImpl->parseDescription();
 }
 
-ParseInterface::FieldsList ParseInterface::parseFields() const
+ParseInterface::ParseFieldsList ParseInterface::parseFields() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseFieldsList();
 }
 
-ParseInterface::AliasesList ParseInterface::parseAliases() const
+ParseInterface::ParseAliasesList ParseInterface::parseAliases() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseAliasesList();
@@ -75,13 +75,13 @@ const std::string& ParseInterface::parseCopyCodeFrom() const
     return m_pImpl->parseCopyCodeFrom();
 }
 
-const ParseInterface::AttributesMap& ParseInterface::parseExtraAttributes() const
+const ParseInterface::ParseAttributesMap& ParseInterface::parseExtraAttributes() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseExtraAttributes();
 }
 
-const ParseInterface::ElementsList& ParseInterface::parseExtraElements() const
+const ParseInterface::ParseElementsList& ParseInterface::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseExtraChildren();

@@ -71,12 +71,12 @@ void EnumTestSuite::test1()
     TS_ASSERT_EQUALS(field.parseName(), "Enum1");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
     auto& values = enumField.parseValues();
     auto& revValues = enumField.parseRevValues();
-    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::Type::Uint8);
+    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint8);
     TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT_EQUALS(enumField.parseMinLength(), 1U);
     TS_ASSERT_EQUALS(enumField.parseBitLength(), 0U);
@@ -126,12 +126,12 @@ void EnumTestSuite::test3()
     TS_ASSERT_EQUALS(field.parseName(), "Enum1");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
     auto& values = enumField.parseValues();
     auto& revValues = enumField.parseRevValues();
-    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::Type::Uint16);
+    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint16);
     TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT_EQUALS(enumField.parseMinLength(), 2U);
     TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 2);
@@ -171,12 +171,12 @@ void EnumTestSuite::test4()
     TS_ASSERT_EQUALS(field.parseName(), "Enum1");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
     auto& values = enumField.parseValues();
     auto& revValues = enumField.parseRevValues();
-    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::Type::Uint64);
+    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint64);
     TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT_EQUALS(enumField.parseMinLength(), 8U);
     TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 0xffffffffffffffff);
@@ -209,12 +209,12 @@ void EnumTestSuite::test5()
     TS_ASSERT_EQUALS(field.parseName(), "Enum1");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
     auto& values = enumField.parseValues();
     auto& revValues = enumField.parseRevValues();
-    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::Type::Uintvar);
+    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uintvar);
     TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Little);
     TS_ASSERT_EQUALS(enumField.parseMinLength(), 1U);
     TS_ASSERT_EQUALS(enumField.parseMaxLength(), 10U);
@@ -248,12 +248,12 @@ void EnumTestSuite::test6()
     TS_ASSERT_EQUALS(field.parseName(), "Enum1");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
     auto& values = enumField.parseValues();
     auto& revValues = enumField.parseRevValues();
-    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::Type::Uintvar);
+    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uintvar);
     TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Little);
     TS_ASSERT_EQUALS(enumField.parseMinLength(), 1U);
     TS_ASSERT_EQUALS(enumField.parseMaxLength(), 6U);
@@ -290,12 +290,12 @@ void EnumTestSuite::test7()
     TS_ASSERT_EQUALS(field.parseName(), "Enum1");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
     auto& values = enumField.parseValues();
     auto& revValues = enumField.parseRevValues();
-    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::Type::Intvar);
+    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::ParseType::Intvar);
     TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Little);
     TS_ASSERT_EQUALS(enumField.parseMinLength(), 1U);
     TS_ASSERT_EQUALS(enumField.parseMaxLength(), 6U);
@@ -331,7 +331,7 @@ void EnumTestSuite::test8()
 
     TS_ASSERT_EQUALS(field1.parseName(), "Enum1");
     TS_ASSERT_EQUALS(field2.parseName(), "Enum2");
-    TS_ASSERT_EQUALS(field1.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field1.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
     TS_ASSERT_EQUALS(field1.parseKind(), field2.parseKind());
 
     commsdsl::parse::ParseEnumField enumField1(field1);
@@ -342,7 +342,7 @@ void EnumTestSuite::test8()
     auto& values2 = enumField2.parseValues();
     auto& revValues2 = enumField2.parseRevValues();
 
-    TS_ASSERT_EQUALS(enumField1.parseType(), commsdsl::parse::ParseIntField::Type::Uint8);
+    TS_ASSERT_EQUALS(enumField1.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint8);
     TS_ASSERT_EQUALS(enumField1.parseType(), enumField2.parseType());
     TS_ASSERT_EQUALS(enumField1.parseEndian(), commsdsl::parse::ParseEndian_Little);
     TS_ASSERT_EQUALS(enumField1.parseEndian(), enumField2.parseEndian());
@@ -390,13 +390,13 @@ void EnumTestSuite::test9()
     auto& field2 = fields.back();
 
     TS_ASSERT_EQUALS(field2.parseName(), "Enum2");
-    TS_ASSERT_EQUALS(field2.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field2.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField2(field2);
     auto& values2 = enumField2.parseValues();
     auto& revValues2 = enumField2.parseRevValues();
 
-    TS_ASSERT_EQUALS(enumField2.parseType(), commsdsl::parse::ParseIntField::Type::Uint8);
+    TS_ASSERT_EQUALS(enumField2.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint8);
     TS_ASSERT_EQUALS(enumField2.parseEndian(), commsdsl::parse::ParseEndian_Big);
     TS_ASSERT_EQUALS(enumField2.parseMinLength(), 1U);
     TS_ASSERT_EQUALS(enumField2.parseDefaultValue(), 1);
@@ -495,12 +495,12 @@ void EnumTestSuite::test16()
     TS_ASSERT_EQUALS(field.parseName(), "Enum1");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
     auto& values = enumField.parseValues();
     auto& revValues = enumField.parseRevValues();
-    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::Type::Uint32);
+    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint32);
     TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Little);
     TS_ASSERT_EQUALS(enumField.parseMinLength(), 3U);
     TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 2);
@@ -554,10 +554,10 @@ void EnumTestSuite::test19()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.parseName(), "Enum1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
-    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::Type::Uintvar);
+    TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uintvar);
     TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Little);
     TS_ASSERT_EQUALS(enumField.parseMinLength(), 1U);
     TS_ASSERT_EQUALS(enumField.parseMaxLength(), 2U);
@@ -604,7 +604,7 @@ void EnumTestSuite::test23()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "E1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
     auto& values = enumField.parseValues();
@@ -629,7 +629,7 @@ void EnumTestSuite::test24()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
     auto& values = enumField.parseValues();
@@ -658,7 +658,7 @@ void EnumTestSuite::test25()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
     auto& values = enumField.parseValues();
@@ -687,7 +687,7 @@ void EnumTestSuite::test26()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F3");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
     auto& values = enumField.parseValues();
@@ -714,7 +714,7 @@ void EnumTestSuite::test27()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
     auto& values = enumField.parseValues();
@@ -749,7 +749,7 @@ void EnumTestSuite::test29()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
     auto& values = enumField.parseValues();
@@ -776,7 +776,7 @@ void EnumTestSuite::test30()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F4");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
     auto& values = enumField.parseValues();
@@ -806,7 +806,7 @@ void EnumTestSuite::test31()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F4");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
     auto& values = enumField.parseValues();
@@ -849,7 +849,7 @@ void EnumTestSuite::test33()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F5");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Enum);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 
     commsdsl::parse::ParseEnumField enumField(field);
     auto& values = enumField.parseValues();

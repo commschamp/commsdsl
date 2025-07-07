@@ -47,9 +47,9 @@ public:
     }
 
 protected:
-    virtual Kind parseKindImpl() const override;
-    virtual Ptr parseCloneImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
+    virtual ParseKind parseKindImpl() const override;
+    virtual ParsePtr parseCloneImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const override;
     virtual bool parseReuseImpl(const ParseFieldImpl& other) override;
     virtual bool parseImpl() override;
     virtual std::size_t parseMinLengthImpl() const override;
@@ -63,25 +63,25 @@ protected:
     virtual bool parseStrToStringImpl(const std::string& ref, std::string& val) const override;
     virtual bool parseStrToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
     virtual bool parseValidateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override;
-    virtual bool parseVerifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const override;
-    virtual FieldRefInfo parseProcessInnerRefImpl(const std::string& refStr) const override;
-    virtual bool parseIsValidRefTypeImpl(FieldRefType type) const override;
+    virtual bool parseVerifySemanticTypeImpl(::xmlNodePtr node, ParseSemanticType type) const override;
+    virtual ParseFieldRefInfo parseProcessInnerRefImpl(const std::string& refStr) const override;
+    virtual bool parseIsValidRefTypeImpl(ParseFieldRefType type) const override;
 
 private:
-    using StrToValueFieldConvertFunc = std::function<bool (const ParseFieldImpl& f, const std::string& ref)>;
+    using ParseStrToValueFieldConvertFunc = std::function<bool (const ParseFieldImpl& f, const std::string& ref)>;
 
     bool parseUpdateBitLength();
 
     bool parseStrToValue(
         const std::string& ref,
-        StrToValueFieldConvertFunc&& forwardFunc) const;
+        ParseStrToValueFieldConvertFunc&& forwardFunc) const;
 
-    struct State
+    struct ParseState
     {
         std::size_t m_bitLength = 0U;
     };    
 
-    State m_state;
+    ParseState m_state;
     const ParseFieldImpl* m_field = nullptr;
 };
 

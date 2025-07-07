@@ -1268,7 +1268,7 @@ ParseUnits parseStrToUnits(const std::string& str, bool* ok)
 }
 
 const std::string& parseGetStringProp(
-    const PropsMap& map,
+    const ParsePropsMap& map,
     const std::string& prop,
     const std::string& defaultValue)
 {

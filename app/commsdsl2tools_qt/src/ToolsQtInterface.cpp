@@ -48,7 +48,7 @@ unsigned getHexMsgIdWidthInternal(const commsdsl::gen::GenInterface& interface)
     }
 
     auto* msgIdField = allMsgIdFields.front();
-    if (msgIdField->genParseObj().parseKind() != commsdsl::parse::ParseField::Kind::Enum) {
+    if (msgIdField->genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Enum) {
         return 0U;
     }
 
@@ -125,7 +125,7 @@ bool ToolsQtInterface::toolsWriteHeaderInternal() const
         "#^#TOP_NS_END#$#\n"
     ;
 
-    util::StringsList includes {
+    util::GenStringsList includes {
         "cc_tools_qt/ToolsMessage.h",
         "cc_tools_qt/ToolsProtMsgInterface.h",
         comms::genRelHeaderPathFor(*this, gen),

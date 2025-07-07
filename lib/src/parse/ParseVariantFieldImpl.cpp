@@ -34,13 +34,13 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::NamesList& parseVariantSupportedTypes()
+const ParseXmlWrap::ParseNamesList& parseVariantSupportedTypes()
 {
-    static const ParseXmlWrap::NamesList Names = ParseFieldImpl::parseSupportedTypes();
+    static const ParseXmlWrap::ParseNamesList Names = ParseFieldImpl::parseSupportedTypes();
     return Names;
 }
 
-ParseXmlWrap::NamesList parseGetExtraNames()
+ParseXmlWrap::ParseNamesList parseGetExtraNames()
 {
     auto names = parseVariantSupportedTypes();
     names.push_back(common::parseMembersStr());
@@ -64,9 +64,9 @@ ParseVariantFieldImpl::ParseVariantFieldImpl(const ParseVariantFieldImpl& other)
     }
 }
 
-ParseVariantFieldImpl::Members ParseVariantFieldImpl::parseMembersList() const
+ParseVariantFieldImpl::ParseMembers ParseVariantFieldImpl::parseMembersList() const
 {
-    Members result;
+    ParseMembers result;
     result.reserve(m_members.size());
     std::transform(
         m_members.begin(), m_members.end(), std::back_inserter(result),
@@ -77,19 +77,19 @@ ParseVariantFieldImpl::Members ParseVariantFieldImpl::parseMembersList() const
     return result;
 }
 
-ParseFieldImpl::Kind ParseVariantFieldImpl::parseKindImpl() const
+ParseFieldImpl::ParseKind ParseVariantFieldImpl::parseKindImpl() const
 {
-    return Kind::Variant;
+    return ParseKind::Variant;
 }
 
-ParseFieldImpl::Ptr ParseVariantFieldImpl::parseCloneImpl() const
+ParseFieldImpl::ParsePtr ParseVariantFieldImpl::parseCloneImpl() const
 {
-    return Ptr(new ParseVariantFieldImpl(*this));
+    return ParsePtr(new ParseVariantFieldImpl(*this));
 }
 
-const ParseXmlWrap::NamesList& ParseVariantFieldImpl::parseExtraPropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseVariantFieldImpl::parseExtraPropsNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = {
+    static const ParseXmlWrap::ParseNamesList List = {
         common::parseDefaultMemberStr(),
         common::parseDisplayIdxReadOnlyHiddenStr()
     };
@@ -97,9 +97,9 @@ const ParseXmlWrap::NamesList& ParseVariantFieldImpl::parseExtraPropsNamesImpl()
     return List;
 }
 
-const ParseXmlWrap::NamesList& ParseVariantFieldImpl::parseExtraChildrenNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseVariantFieldImpl::parseExtraChildrenNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList Names = parseGetExtraNames();
+    static const ParseXmlWrap::ParseNamesList Names = parseGetExtraNames();
     return Names;
 }
 
@@ -120,7 +120,7 @@ bool ParseVariantFieldImpl::parseReuseImpl(const ParseFieldImpl& other)
     return true;
 }
 
-bool ParseVariantFieldImpl::parseReplaceMembersImpl(FieldsList& members)
+bool ParseVariantFieldImpl::parseReplaceMembersImpl(ParseFieldsList& members)
 {
     for (auto& mem : members) {
         assert(mem);
@@ -199,7 +199,7 @@ bool ParseVariantFieldImpl::parseStrToDataImpl(const std::string& ref, std::vect
     return parseStrToDataOnFields(ref, m_members, val);
 }
 
-const ParseVariantFieldImpl::FieldsList& ParseVariantFieldImpl::parseMembersImpl() const
+const ParseVariantFieldImpl::ParseFieldsList& ParseVariantFieldImpl::parseMembersImpl() const
 {
     return m_members;
 }

@@ -53,12 +53,13 @@ bool genWriteElements(TList& list)
 class GenNamespaceImpl
 {
 public:
-    using NamespacesList = GenNamespace::NamespacesList;
-    using FieldsList = GenNamespace::FieldsList;
-    using InterfacesList = GenNamespace::InterfacesList;
-    using MessagesList = GenNamespace::MessagesList;
-    using FramesList = GenNamespace::FramesList;
     using ParseNamespace = GenNamespace::ParseNamespace;
+    
+    using GenNamespacesList = GenNamespace::GenNamespacesList;
+    using GenFieldsList = GenNamespace::GenFieldsList;
+    using GenInterfacesList = GenNamespace::GenInterfacesList;
+    using GenMessagesList = GenNamespace::GenMessagesList;
+    using GenFramesList = GenNamespace::GenFramesList;
 
     GenNamespaceImpl(GenGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
         m_generator(generator),
@@ -110,32 +111,32 @@ public:
         return m_parseObj;
     }
 
-    const NamespacesList& genNamespaces() const
+    const GenNamespacesList& genNamespaces() const
     {
         return m_namespaces;
     }
 
-    const FieldsList& genFields() const
+    const GenFieldsList& genFields() const
     {
         return m_fields;
     }
 
-    const InterfacesList& genInterfaces() const
+    const GenInterfacesList& genInterfaces() const
     {
         return m_interfaces;
     }
 
-    InterfacesList& genInterfaces()
+    GenInterfacesList& genInterfaces()
     {
         return m_interfaces;
     }    
 
-    const MessagesList& genMessages() const
+    const GenMessagesList& genMessages() const
     {
         return m_messages;
     }
 
-    const FramesList& genFrames() const
+    const GenFramesList& genFrames() const
     {
         return m_frames;
     }
@@ -203,7 +204,7 @@ public:
                 {
                     return 
                         (f->genIsReferenced()) && 
-                        (f->genParseObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::MessageId);
+                        (f->genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::MessageId);
                 });   
 
         if (hasInFields) {
@@ -437,11 +438,11 @@ private:
     GenGenerator& m_generator;
     ParseNamespace m_parseObj;
     GenElem* m_parent = nullptr;
-    NamespacesList m_namespaces;
-    FieldsList m_fields;
-    InterfacesList m_interfaces;
-    MessagesList m_messages;
-    FramesList m_frames;
+    GenNamespacesList m_namespaces;
+    GenFieldsList m_fields;
+    GenInterfacesList m_interfaces;
+    GenMessagesList m_messages;
+    GenFramesList m_frames;
 }; 
 
 GenNamespace::GenNamespace(GenGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
@@ -491,27 +492,27 @@ std::string GenNamespace::genAdjustedExternalRef() const
     return schema->genParseObj().parseExternalRef();
 }
 
-const GenNamespace::NamespacesList& GenNamespace::genNamespaces() const
+const GenNamespace::GenNamespacesList& GenNamespace::genNamespaces() const
 {
     return m_impl->genNamespaces();
 }
 
-const GenNamespace::FieldsList& GenNamespace::genFields() const
+const GenNamespace::GenFieldsList& GenNamespace::genFields() const
 {
     return m_impl->genFields();
 }
 
-const GenNamespace::InterfacesList& GenNamespace::genInterfaces() const
+const GenNamespace::GenInterfacesList& GenNamespace::genInterfaces() const
 {
     return m_impl->genInterfaces();
 }
 
-const GenNamespace::MessagesList& GenNamespace::genMessages() const
+const GenNamespace::GenMessagesList& GenNamespace::genMessages() const
 {
     return m_impl->genMessages();
 }
 
-const GenNamespace::FramesList& GenNamespace::genFrames() const
+const GenNamespace::GenFramesList& GenNamespace::genFrames() const
 {
     return m_impl->genFrames();
 }
@@ -526,16 +527,16 @@ bool GenNamespace::genHasMessagesRecursive() const
     return m_impl->genHasMessagesRecursive();
 }
 
-GenNamespace::FieldsAccessList GenNamespace::genFindMessageIdFields() const
+GenNamespace::GenFieldsAccessList GenNamespace::genFindMessageIdFields() const
 {
-    FieldsAccessList result;
+    GenFieldsAccessList result;
     for (auto& f : genFields()) {
-        if (f->genParseObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::MessageId) {
+        if (f->genParseObj().parseSemanticType() != commsdsl::parse::ParseField::ParseSemanticType::MessageId) {
             continue;
         }
 
-        if ((f->genParseObj().parseKind() != commsdsl::parse::ParseField::Kind::Enum) &&
-            (f->genParseObj().parseKind() != commsdsl::parse::ParseField::Kind::Int)) {
+        if ((f->genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Enum) &&
+            (f->genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Int)) {
             [[maybe_unused]] static constexpr bool Unexpected_kind = false;
             assert(Unexpected_kind);  
             continue;
@@ -740,9 +741,9 @@ const GenInterface* GenNamespace::genFindInterface(const std::string& externalRe
     return (*nsIter)->genFindInterface(remStr);
 }
 
-GenNamespace::NamespacesAccessList GenNamespace::genGetAllNamespaces() const
+GenNamespace::GenNamespacesAccessList GenNamespace::genGetAllNamespaces() const
 {
-    NamespacesAccessList result;
+    GenNamespacesAccessList result;
     auto& subNs = m_impl->genNamespaces();
     for (auto& n : subNs) {
         auto list = n->genGetAllNamespaces();
@@ -753,9 +754,9 @@ GenNamespace::NamespacesAccessList GenNamespace::genGetAllNamespaces() const
     return result;
 }
 
-GenNamespace::InterfacesAccessList GenNamespace::genGetAllInterfaces() const
+GenNamespace::GenInterfacesAccessList GenNamespace::genGetAllInterfaces() const
 {
-    InterfacesAccessList result;
+    GenInterfacesAccessList result;
     auto& subNs = m_impl->genNamespaces();
     for (auto& n : subNs) {
         auto list = n->genGetAllInterfaces();
@@ -770,9 +771,9 @@ GenNamespace::InterfacesAccessList GenNamespace::genGetAllInterfaces() const
     return result;
 }
 
-GenNamespace::MessagesAccessList GenNamespace::genGetAllMessages() const
+GenNamespace::GenMessagesAccessList GenNamespace::genGetAllMessages() const
 {
-    MessagesAccessList result;
+    GenMessagesAccessList result;
     auto& subNs = m_impl->genNamespaces();
     for (auto& n : subNs) {
         auto list = n->genGetAllMessages();
@@ -787,16 +788,16 @@ GenNamespace::MessagesAccessList GenNamespace::genGetAllMessages() const
     return result;
 }
 
-GenNamespace::MessagesAccessList GenNamespace::genGetAllMessagesIdSorted() const
+GenNamespace::GenMessagesAccessList GenNamespace::genGetAllMessagesIdSorted() const
 {
     auto result = genGetAllMessages();
     GenGenerator::genSortMessages(result);
     return result;
 }
 
-GenNamespace::FramesAccessList GenNamespace::genGetAllFrames() const
+GenNamespace::GenFramesAccessList GenNamespace::genGetAllFrames() const
 {
-    FramesAccessList result;
+    GenFramesAccessList result;
     auto& subNs = m_impl->genNamespaces();
     for (auto& n : subNs) {
         auto list = n->genGetAllFrames();
@@ -811,9 +812,9 @@ GenNamespace::FramesAccessList GenNamespace::genGetAllFrames() const
     return result;
 }
 
-GenNamespace::FieldsAccessList GenNamespace::genGetAllFields() const
+GenNamespace::GenFieldsAccessList GenNamespace::genGetAllFields() const
 {
-    FieldsAccessList result;
+    GenFieldsAccessList result;
     auto& subNs = m_impl->genNamespaces();
     for (auto& n : subNs) {
         auto list = n->genGetAllFields();

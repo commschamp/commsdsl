@@ -81,7 +81,7 @@ const std::string& ParseLayer::parseDescription() const
     return m_pImpl->parseDescription();
 }
 
-ParseLayer::Kind ParseLayer::parseKind() const
+ParseLayer::ParseKind ParseLayer::parseKind() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseKind();
@@ -99,13 +99,13 @@ ParseField ParseLayer::parseField() const
     return m_pImpl->parseField();
 }
 
-const ParseLayer::AttributesMap& ParseLayer::parseExtraAttributes() const
+const ParseLayer::ParseAttributesMap& ParseLayer::parseExtraAttributes() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseExtraAttributes();
 }
 
-const ParseLayer::ElementsList& ParseLayer::parseExtraElements() const
+const ParseLayer::ParseElementsList& ParseLayer::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseExtraChildren();
@@ -119,10 +119,10 @@ ParseCustomLayer::ParseCustomLayer(const ParseCustomLayerImpl* impl) :
 ParseCustomLayer::ParseCustomLayer(ParseLayer layer) :
     Base(layer)
 {
-    assert(parseKind() == Kind::Custom);
+    assert(parseKind() == ParseKind::Custom);
 }
 
-ParseLayer::Kind ParseCustomLayer::parseSemanticLayerType() const
+ParseLayer::ParseKind ParseCustomLayer::parseSemanticLayerType() const
 {
     assert(parseValid());
     return asCustom(m_pImpl)->parseSemanticLayerType();
@@ -148,7 +148,7 @@ ParsePayloadLayer::ParsePayloadLayer(const ParsePayloadLayerImpl* impl) :
 ParsePayloadLayer::ParsePayloadLayer(ParseLayer layer) :
     Base(layer)
 {
-    assert(parseKind() == Kind::Payload);
+    assert(parseKind() == ParseKind::Payload);
 }
 
 ParseIdLayer::ParseIdLayer(const ParseIdLayerImpl* impl) :
@@ -159,7 +159,7 @@ ParseIdLayer::ParseIdLayer(const ParseIdLayerImpl* impl) :
 ParseIdLayer::ParseIdLayer(ParseLayer layer) :
     Base(layer)
 {
-    assert(parseKind() == Kind::Id);
+    assert(parseKind() == ParseKind::Id);
 }
 
 ParseSizeLayer::ParseSizeLayer(const ParseSizeLayerImpl* impl) :
@@ -170,7 +170,7 @@ ParseSizeLayer::ParseSizeLayer(const ParseSizeLayerImpl* impl) :
 ParseSizeLayer::ParseSizeLayer(ParseLayer layer) :
     Base(layer)
 {
-    assert(parseKind() == Kind::Size);
+    assert(parseKind() == ParseKind::Size);
 }
 
 ParseSyncLayer::ParseSyncLayer(const ParseSyncLayerImpl* impl) :
@@ -181,7 +181,7 @@ ParseSyncLayer::ParseSyncLayer(const ParseSyncLayerImpl* impl) :
 ParseSyncLayer::ParseSyncLayer(ParseLayer layer) :
     Base(layer)
 {
-    assert(parseKind() == Kind::Sync);
+    assert(parseKind() == ParseKind::Sync);
 }
 
 ParseChecksumLayer::ParseChecksumLayer(const ParseChecksumLayerImpl* impl) :
@@ -192,10 +192,10 @@ ParseChecksumLayer::ParseChecksumLayer(const ParseChecksumLayerImpl* impl) :
 ParseChecksumLayer::ParseChecksumLayer(ParseLayer layer) :
     Base(layer)
 {
-    assert(parseKind() == Kind::Checksum);
+    assert(parseKind() == ParseKind::Checksum);
 }
 
-ParseChecksumLayer::Alg ParseChecksumLayer::parseAlg() const
+ParseChecksumLayer::ParseAlg ParseChecksumLayer::parseAlg() const
 {
     assert(parseValid());
     return asChecksum(m_pImpl)->parseAlg();
@@ -233,10 +233,10 @@ ParseValueLayer::ParseValueLayer(const ParseValueLayerImpl* impl) :
 ParseValueLayer::ParseValueLayer(ParseLayer layer) :
     Base(layer)
 {
-    assert(parseKind() == Kind::Value);
+    assert(parseKind() == ParseKind::Value);
 }
 
-ParseValueLayer::Interfaces ParseValueLayer::parseInterfaces() const
+ParseValueLayer::ParseInterfaces ParseValueLayer::parseInterfaces() const
 {
     assert(parseValid());
     return asValue(m_pImpl)->parseInterfacesList();

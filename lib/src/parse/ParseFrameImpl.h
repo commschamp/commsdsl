@@ -39,10 +39,10 @@ class ParseFrameImpl final : public ParseObject
 {
     using Base = ParseObject;
 public:
-    using Ptr = std::unique_ptr<ParseFrameImpl>;
-    using PropsMap = ParseXmlWrap::PropsMap;
-    using LayersList = ParseFrame::LayersList;
-    using ContentsList = ParseXmlWrap::ContentsList;
+    using ParsePtr = std::unique_ptr<ParseFrameImpl>;
+    using ParsePropsMap = ParseXmlWrap::ParsePropsMap;
+    using ParseLayersList = ParseFrame::ParseLayersList;
+    using ParseContentsList = ParseXmlWrap::ParseContentsList;
 
     ParseFrameImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseFrameImpl(const ParseFrameImpl&) = delete;
@@ -56,7 +56,7 @@ public:
 
     bool parse();
 
-    const PropsMap& parseProps() const
+    const ParsePropsMap& parseProps() const
     {
         return m_props;
     }
@@ -64,31 +64,31 @@ public:
     const std::string& parseName() const;
     const std::string& parseDescription() const;
 
-    LayersList parseLayersList() const;
+    ParseLayersList parseLayersList() const;
 
     std::string parseExternalRef(bool schemaRef) const;
 
-    const PropsMap& parseExtraAttributes() const
+    const ParsePropsMap& parseExtraAttributes() const
     {
         return m_extraAttrs;
     }
 
-    const ContentsList& parseExtraChildren() const
+    const ParseContentsList& parseExtraChildren() const
     {
         return m_extraChildren;
     }
 
 protected:
 
-    virtual ObjKind parseObjKindImpl() const override;
+    virtual ParseObjKind parseObjKindImpl() const override;
 
 private:
-    LogWrapper parseLogError() const;
-    LogWrapper parseLogWarning() const;
-    LogWrapper parseLogInfo() const;
+    ParseLogWrapper parseLogError() const;
+    ParseLogWrapper parseLogWarning() const;
+    ParseLogWrapper parseLogInfo() const;
 
-    static const ParseXmlWrap::NamesList& parseCommonProps();
-    static ParseXmlWrap::NamesList parseAllNames();
+    static const ParseXmlWrap::ParseNamesList& parseCommonProps();
+    static ParseXmlWrap::ParseNamesList parseAllNames();
 
     bool parseValidateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool parseValidateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
@@ -101,16 +101,16 @@ private:
 
     ::xmlNodePtr m_node = nullptr;
     ParseProtocolImpl& m_protocol;
-    PropsMap m_props;
-    PropsMap m_extraAttrs;
-    ContentsList m_extraChildren;
+    ParsePropsMap m_props;
+    ParsePropsMap m_extraAttrs;
+    ParseContentsList m_extraChildren;
 
     const std::string* m_name = nullptr;
     const std::string* m_description = nullptr;
     std::vector<ParseLayerImplPtr> m_layers;
 };
 
-using ParseFrameImplPtr = ParseFrameImpl::Ptr;
+using ParseFrameImplPtr = ParseFrameImpl::ParsePtr;
 
 } // namespace parse
 

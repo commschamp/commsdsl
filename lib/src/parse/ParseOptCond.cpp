@@ -31,14 +31,14 @@ namespace
 const ParseOptCondExprImpl* castExpr(const ParseOptCondImpl* ptr)
 {
     assert(ptr != nullptr);
-    assert(ptr->parseKind() == ParseOptCond::Kind::Expr);
+    assert(ptr->parseKind() == ParseOptCond::ParseKind::Expr);
     return static_cast<const ParseOptCondExprImpl*>(ptr);
 }
 
 const ParseOptCondListImpl* castList(const ParseOptCondImpl* ptr)
 {
     assert(ptr != nullptr);
-    assert(ptr->parseKind() == ParseOptCond::Kind::List);
+    assert(ptr->parseKind() == ParseOptCond::ParseKind::List);
     return static_cast<const ParseOptCondListImpl*>(ptr);
 }
 
@@ -58,7 +58,7 @@ bool ParseOptCond::parseValid() const
     return m_pImpl != nullptr;
 }
 
-ParseOptCond::Kind ParseOptCond::parseKind() const
+ParseOptCond::ParseKind ParseOptCond::parseKind() const
 {
     assert(parseValid());
     return m_pImpl->parseKind();
@@ -72,7 +72,7 @@ ParseOptCondExpr::ParseOptCondExpr(const ParseOptCondExprImpl* impl)
 ParseOptCondExpr::ParseOptCondExpr(ParseOptCond cond)
   : Base(cond)
 {
-    assert(parseKind() == Kind::Expr);
+    assert(parseKind() == ParseKind::Expr);
 }
 
 const std::string& ParseOptCondExpr::parseLeft() const
@@ -90,12 +90,12 @@ const std::string& ParseOptCondExpr::parseRight() const
     return castExpr(m_pImpl)->parseRight();
 }
 
-ParseOptCondExpr::OperandInfo ParseOptCondExpr::parseLeftInfo() const
+ParseOptCondExpr::ParseOperandInfo ParseOptCondExpr::parseLeftInfo() const
 {
     return castExpr(m_pImpl)->parseLeftInfo();
 }
 
-ParseOptCondExpr::OperandInfo ParseOptCondExpr::parseRightInfo() const
+ParseOptCondExpr::ParseOperandInfo ParseOptCondExpr::parseRightInfo() const
 {
     return castExpr(m_pImpl)->parseRightInfo();
 }
@@ -108,15 +108,15 @@ ParseOptCondList::ParseOptCondList(const ParseOptCondListImpl* impl)
 ParseOptCondList::ParseOptCondList(ParseOptCond cond)
   : Base(cond)
 {
-    assert(parseKind() == Kind::List);
+    assert(parseKind() == ParseKind::List);
 }
 
-ParseOptCondList::Type ParseOptCondList::parseType() const
+ParseOptCondList::ParseType ParseOptCondList::parseType() const
 {
     return castList(m_pImpl)->parseType();
 }
 
-ParseOptCondList::CondList ParseOptCondList::parseConditions() const
+ParseOptCondList::ParseCondList ParseOptCondList::parseConditions() const
 {
     return castList(m_pImpl)->parseCondList();
 }

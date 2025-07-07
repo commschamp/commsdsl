@@ -37,15 +37,15 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::NamesList& parseMessageSupportedTypes()
+const ParseXmlWrap::ParseNamesList& parseMessageSupportedTypes()
 {
-    static const ParseXmlWrap::NamesList Names = ParseFieldImpl::parseSupportedTypes();
+    static const ParseXmlWrap::ParseNamesList Names = ParseFieldImpl::parseSupportedTypes();
     return Names;
 }
 
 bool parseVerifyConstructInternal(const ParseOptCond& cond)
 {
-    if (cond.parseKind() == ParseOptCond::Kind::Expr) {
+    if (cond.parseKind() == ParseOptCond::ParseKind::Expr) {
         ParseOptCondExpr exprCond(cond);
 
         if (exprCond.parseLeft().empty()) {
@@ -56,9 +56,9 @@ bool parseVerifyConstructInternal(const ParseOptCond& cond)
         return exprCond.parseOp() == "=";
     }
 
-    assert (cond.parseKind() == ParseOptCond::Kind::List);
+    assert (cond.parseKind() == ParseOptCond::ParseKind::List);
     ParseOptCondList listCond(cond);
-    if (listCond.parseType() != ParseOptCondList::Type::And) {
+    if (listCond.parseType() != ParseOptCondList::ParseType::And) {
         return false;
     }
 
@@ -175,9 +175,9 @@ std::size_t ParseMessageImpl::parseMaxLength() const
     return soFar;
 }
 
-ParseMessageImpl::FieldsList ParseMessageImpl::parseFieldsList() const
+ParseMessageImpl::ParseFieldsList ParseMessageImpl::parseFieldsList() const
 {
-    FieldsList result;
+    ParseFieldsList result;
     result.reserve(m_state.m_fields.size());
     std::transform(
         m_state.m_fields.begin(), m_state.m_fields.end(), std::back_inserter(result),
@@ -188,9 +188,9 @@ ParseMessageImpl::FieldsList ParseMessageImpl::parseFieldsList() const
     return result;
 }
 
-ParseMessageImpl::AliasesList ParseMessageImpl::parseAliasesList() const
+ParseMessageImpl::ParseAliasesList ParseMessageImpl::parseAliasesList() const
 {
-    AliasesList result;
+    ParseAliasesList result;
     result.reserve(m_state.m_aliases.size());
     std::transform(
         m_state.m_aliases.begin(), m_state.m_aliases.end(), std::back_inserter(result),
@@ -204,7 +204,7 @@ ParseMessageImpl::AliasesList ParseMessageImpl::parseAliasesList() const
 std::string ParseMessageImpl::parseExternalRef(bool schemaRef) const
 {
     assert(parseGetParent() != nullptr);
-    assert(parseGetParent()->parseObjKind() == ObjKind::Namespace);
+    assert(parseGetParent()->parseObjKind() == ParseObjKind::Namespace);
 
     auto& ns = static_cast<const ParseNamespaceImpl&>(*parseGetParent());
     auto nsRef = ns.parseExternalRef(schemaRef);
@@ -215,22 +215,22 @@ std::string ParseMessageImpl::parseExternalRef(bool schemaRef) const
     return nsRef + '.' + parseName();
 }
 
-ParseObject::ObjKind ParseMessageImpl::parseObjKindImpl() const
+ParseObject::ParseObjKind ParseMessageImpl::parseObjKindImpl() const
 {
-    return ObjKind::Message;
+    return ParseObjKind::Message;
 }
 
-LogWrapper ParseMessageImpl::parseLogError() const
+ParseLogWrapper ParseMessageImpl::parseLogError() const
 {
     return commsdsl::parse::parseLogError(m_protocol.parseLogger());
 }
 
-LogWrapper ParseMessageImpl::parseLogWarning() const
+ParseLogWrapper ParseMessageImpl::parseLogWarning() const
 {
     return commsdsl::parse::parseLogWarning(m_protocol.parseLogger());
 }
 
-LogWrapper ParseMessageImpl::parseLogInfo() const
+ParseLogWrapper ParseMessageImpl::parseLogInfo() const
 {
     return commsdsl::parse::parseLogInfo(m_protocol.parseLogger());
 }
@@ -338,9 +338,9 @@ void ParseMessageImpl::parseReportUnexpectedPropertyValue(const std::string& pro
     ParseXmlWrap::parseReportUnexpectedPropertyValue(m_node, common::parseMessageStr(), propName, propValue, m_protocol.parseLogger());
 }
 
-const ParseXmlWrap::NamesList& ParseMessageImpl::parseCommonProps()
+const ParseXmlWrap::ParseNamesList& ParseMessageImpl::parseCommonProps()
 {
-    static const ParseXmlWrap::NamesList CommonNames = {
+    static const ParseXmlWrap::ParseNamesList CommonNames = {
         common::parseNameStr(),
         common::parseIdStr(),
         common::parseDisplayNameStr(),
@@ -376,9 +376,9 @@ const ParseXmlWrap::NamesList& ParseMessageImpl::parseCommonProps()
     return CommonNames;
 }
 
-const ParseXmlWrap::NamesList& ParseMessageImpl::parseExtraProps()
+const ParseXmlWrap::ParseNamesList& ParseMessageImpl::parseExtraProps()
 {
-    static const ParseXmlWrap::NamesList Names = {
+    static const ParseXmlWrap::ParseNamesList Names = {
         common::parseConstructStr(),
         common::parseReadCondStr(),
         common::parseValidCondStr(),
@@ -387,9 +387,9 @@ const ParseXmlWrap::NamesList& ParseMessageImpl::parseExtraProps()
     return Names;
 }
 
-const ParseXmlWrap::NamesList& ParseMessageImpl::parseAllProps()
+const ParseXmlWrap::ParseNamesList& ParseMessageImpl::parseAllProps()
 {
-    static ParseXmlWrap::NamesList Names;
+    static ParseXmlWrap::ParseNamesList Names;
     if (Names.empty()) {
         Names = parseCommonProps();
         auto& extras = parseExtraProps();
@@ -399,7 +399,7 @@ const ParseXmlWrap::NamesList& ParseMessageImpl::parseAllProps()
     return Names;
 }
 
-ParseXmlWrap::NamesList ParseMessageImpl::parseAllNames()
+ParseXmlWrap::ParseNamesList ParseMessageImpl::parseAllNames()
 {
     auto names = parseAllProps();
     auto& fieldTypes = parseMessageSupportedTypes();
@@ -567,7 +567,7 @@ bool ParseMessageImpl::parseUpdateVersions()
     }
 
     assert(parseGetParent() != nullptr);
-    assert(parseGetParent()->parseObjKind() == ObjKind::Namespace);
+    assert(parseGetParent()->parseObjKind() == ParseObjKind::Namespace);
 
     unsigned sinceVersion = 0U;
     unsigned deprecated = ParseProtocol::parseNotYetDeprecated();
@@ -632,7 +632,7 @@ bool ParseMessageImpl::parseUpdatePlatforms()
     }
 
     static const char Sep = ',';
-    PlatformsList platList;
+    ParsePlatformsList platList;
     std::size_t pos = 1U;
     while (true) {
         if (iter->second.size() <= pos) {
@@ -719,7 +719,7 @@ bool ParseMessageImpl::parseUpdateSender()
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<unsigned>(Sender::NumOfValues), "Invalid map");
+    static_assert(MapSize == static_cast<unsigned>(ParseSender::NumOfValues), "Invalid map");
 
     auto senderIter = std::find(std::begin(Map), std::end(Map), common::parseToLowerCopy(iter->second));
     if (senderIter == std::end(Map)) {
@@ -806,7 +806,7 @@ bool ParseMessageImpl::parseCopyFields()
         }
 
         auto* copyFromField = m_protocol.parseFindField(iter->second);
-        if ((copyFromField == nullptr) || (copyFromField->parseKind() != ParseField::Kind::Bundle)) {
+        if ((copyFromField == nullptr) || (copyFromField->parseKind() != ParseField::ParseKind::Bundle)) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                 "Invalid reference to other message or bundle \"" << iter->second << "\".";
             return false;
@@ -864,7 +864,7 @@ bool ParseMessageImpl::parseReplaceFields()
         return false;
     }    
 
-    ParseFieldImpl::FieldsList replMembers;
+    ParseFieldImpl::ParseFieldsList replMembers;
     replMembers.reserve(fieldsTypes.size());
     for (auto* fieldNode : fieldsTypes) {
         std::string memKind(reinterpret_cast<const char*>(fieldNode->name));
@@ -1238,7 +1238,7 @@ bool ParseMessageImpl::parseCopyConstruct()
     }
 
     auto newConstruct = msg->m_state.m_construct->parseClone();
-    if (!newConstruct->parseVerify(ParseOptCondImpl::FieldsList(), m_node, m_protocol)) {
+    if (!newConstruct->parseVerify(ParseOptCondImpl::ParseFieldsList(), m_node, m_protocol)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Copied construct conditions cannot be applied to this message.";
         return false;
@@ -1281,7 +1281,7 @@ bool ParseMessageImpl::parseCopyReadCond()
     }
 
     auto newReadCond = msg->m_state.m_readCond->parseClone();
-    if (!newReadCond->parseVerify(ParseOptCondImpl::FieldsList(), m_node, m_protocol)) {
+    if (!newReadCond->parseVerify(ParseOptCondImpl::ParseFieldsList(), m_node, m_protocol)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Copied read conditions cannot be applied to this message.";
         return false;
@@ -1325,7 +1325,7 @@ bool ParseMessageImpl::parseCopyValidCond()
             return false;
         }
 
-        if (otherField->parseKind() != ParseFieldImpl::Kind::Bundle) {
+        if (otherField->parseKind() != ParseFieldImpl::ParseKind::Bundle) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
                 "The \"" << prop << "\" property (" + iter->second + ") can reference only other message or a bundle field.";
             return false;
@@ -1452,7 +1452,7 @@ bool ParseMessageImpl::parseUpdateExtraAttrs()
 
 bool ParseMessageImpl::parseUpdateExtraChildren()
 {
-    static const ParseXmlWrap::NamesList ChildrenNames = parseAllNames();
+    static const ParseXmlWrap::ParseNamesList ChildrenNames = parseAllNames();
     m_extraChildren = ParseXmlWrap::parseGetExtraChildren(m_node, ChildrenNames, m_protocol);
     return true;
 }
@@ -1480,7 +1480,7 @@ bool ParseMessageImpl::parseUpdateSingleCondInternal(const std::string& prop, Pa
         return false;
     }
 
-    static const ParseOptCondImpl::FieldsList NoFields;
+    static const ParseOptCondImpl::ParseFieldsList NoFields;
     auto* fieldsPtr = &NoFields;
     if (allowFieldsAccess) {
         fieldsPtr = &m_state.m_fields;
@@ -1514,7 +1514,7 @@ bool ParseMessageImpl::parseUpdateMultiCondInternal(const std::string& prop, Par
         return false;
     }
 
-    static const ParseXmlWrap::NamesList ElemNames = {
+    static const ParseXmlWrap::ParseNamesList ElemNames = {
         common::parseAndStr(),
         common::parseOrStr()
     };
@@ -1539,7 +1539,7 @@ bool ParseMessageImpl::parseUpdateMultiCondInternal(const std::string& prop, Par
         return false;
     }
 
-    static const ParseOptCondImpl::FieldsList NoFields;
+    static const ParseOptCondImpl::ParseFieldsList NoFields;
     auto* fieldsPtr = &NoFields;
     if (allowFieldsAccess) {
         fieldsPtr = &m_state.m_fields;

@@ -32,8 +32,8 @@ class COMMSDSL_API ParseSetField : public ParseField
     using Base = ParseField;
 public:
 
-    using Type = ParseIntField::Type;
-    struct BitInfo
+    using ParseType = ParseIntField::ParseType;
+    struct ParseBitInfo
     {
         unsigned m_idx = 0U;
         unsigned m_sinceVersion = 0U;
@@ -45,18 +45,18 @@ public:
         bool m_reservedValue = false;
     };
 
-    using Bits = std::map<std::string, BitInfo>;
-    using RevBits = std::multimap<unsigned, std::string>;
+    using ParseBits = std::map<std::string, ParseBitInfo>;
+    using ParseRevBits = std::multimap<unsigned, std::string>;
 
     explicit ParseSetField(const ParseSetFieldImpl* impl);
     explicit ParseSetField(ParseField field);
 
-    Type parseType() const;
+    ParseType parseType() const;
     ParseEndian parseEndian() const;
     bool parseDefaultBitValue() const;
     bool parseReservedBitValue() const;
-    const Bits& parseBits() const;
-    const RevBits& parseRevBits() const;
+    const ParseBits& parseBits() const;
+    const ParseRevBits& parseRevBits() const;
     bool parseIsNonUniqueAllowed() const;
     bool parseIsUnique() const;
     bool parseValidCheckVersion() const;
@@ -64,7 +64,7 @@ public:
 };
 
 inline
-bool operator==(const ParseSetField::BitInfo& i1, const ParseSetField::BitInfo& i2)
+bool operator==(const ParseSetField::ParseBitInfo& i1, const ParseSetField::ParseBitInfo& i2)
 {
     return (i1.m_idx == i2.m_idx) &&
            (i1.m_sinceVersion == i2.m_sinceVersion) &&
@@ -72,7 +72,7 @@ bool operator==(const ParseSetField::BitInfo& i1, const ParseSetField::BitInfo& 
 }
 
 inline
-bool operator!=(const ParseSetField::BitInfo& i1, const ParseSetField::BitInfo& i2)
+bool operator!=(const ParseSetField::ParseBitInfo& i1, const ParseSetField::ParseBitInfo& i2)
 {
     return !(i1 == i2);
 }

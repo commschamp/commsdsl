@@ -30,7 +30,7 @@ class SwigFrame final: public commsdsl::gen::GenFrame
     using Base = commsdsl::gen::GenFrame;
 
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
     using SwigLayersList = SwigLayer::SwigLayersList;
 
     explicit SwigFrame(SwigGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent);

@@ -44,7 +44,7 @@ ParseStringField::ParseStringField(const ParseStringFieldImpl* impl)
 ParseStringField::ParseStringField(ParseField field)
   : Base(field)
 {
-    assert(parseKind() == Kind::String);
+    assert(parseKind() == ParseKind::String);
 }
 
 const std::string& ParseStringField::parseDefaultValue() const
@@ -82,7 +82,7 @@ const std::string& ParseStringField::parseDetachedPrefixFieldName() const
     return cast(m_pImpl)->parseDetachedPrefixFieldName();
 }
 
-const ParseStringField::ValidValuesList& ParseStringField::parseValidValues() const
+const ParseStringField::ParseValidValuesList& ParseStringField::parseValidValues() const
 {
     return cast(m_pImpl)->parseValidValues();
 }

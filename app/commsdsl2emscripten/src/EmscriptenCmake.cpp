@@ -124,7 +124,7 @@ bool EmscriptenCmake::emscriptenWriteInternal() const
         "#^#APPEND#$#\n"
         ;   
 
-    util::StringsList sources;
+    util::GenStringsList sources;
     EmscriptenComms::emscriptenAddSourceFiles(m_generator, sources);
     EmscriptenDataBuf::emscriptenAddSourceFiles(m_generator, sources);
     EmscriptenVersion::emscriptenAddSourceFiles(m_generator, sources);

@@ -37,14 +37,14 @@ class ParseFieldImpl : public ParseObject
 {
     using Base = ParseObject;
 public:
-    using Ptr = std::unique_ptr<ParseFieldImpl>;
-    using PropsMap = ParseXmlWrap::PropsMap;
-    using ContentsList = ParseXmlWrap::ContentsList;
-    using FieldsList = std::vector<Ptr>;
-    using Kind = ParseField::Kind;
-    using SemanticType = ParseField::SemanticType;
+    using ParsePtr = std::unique_ptr<ParseFieldImpl>;
+    using ParsePropsMap = ParseXmlWrap::ParsePropsMap;
+    using ParseContentsList = ParseXmlWrap::ParseContentsList;
+    using ParseFieldsList = std::vector<ParsePtr>;
+    using ParseKind = ParseField::ParseKind;
+    using ParseSemanticType = ParseField::ParseSemanticType;
 
-    enum FieldRefType
+    enum ParseFieldRefType
     {
         FieldRefType_Invalid,
         FieldRefType_Field,
@@ -54,19 +54,19 @@ public:
         FieldRefType_ValuesLimit
     };
 
-    struct FieldRefInfo
+    struct ParseFieldRefInfo
     {
         const ParseFieldImpl* m_field = nullptr;
         std::string m_valueName;
-        FieldRefType m_refType = FieldRefType_Invalid;
+        ParseFieldRefType m_refType = FieldRefType_Invalid;
     };
 
-    using FieldRefInfosList = std::vector<FieldRefInfo>;
+    using ParseFieldRefInfosList = std::vector<ParseFieldRefInfo>;
 
     virtual ~ParseFieldImpl() = default;
 
-    static Ptr parseCreate(const std::string& kind, ::xmlNodePtr node, ParseProtocolImpl& protocol);
-    Ptr parseClone() const
+    static ParsePtr parseCreate(const std::string& kind, ::xmlNodePtr node, ParseProtocolImpl& protocol);
+    ParsePtr parseClone() const
     {
         return parseCloneImpl();
     }
@@ -77,12 +77,12 @@ public:
     }
 
     bool parse();
-    bool parseVerifySiblings(const FieldsList& fields) const
+    bool parseVerifySiblings(const ParseFieldsList& fields) const
     {
         return parseVerifySiblingsImpl(fields);
     }
 
-    const PropsMap& parseProps() const
+    const ParsePropsMap& parseProps() const
     {
         return m_props;
     }
@@ -91,14 +91,14 @@ public:
     const std::string& parseDisplayName() const;
     const std::string& parseDescription() const;
 
-    Kind parseKind() const
+    ParseKind parseKind() const
     {
         return parseKindImpl();
     }
 
     const std::string& parseKindStr() const;
 
-    SemanticType parseSemanticType() const
+    ParseSemanticType parseSemanticType() const
     {
         return m_state.m_semanticType;
     }
@@ -183,25 +183,25 @@ public:
         return parseBitLengthImpl();
     }
 
-    static ParseXmlWrap::NamesList parseSupportedTypes();
+    static ParseXmlWrap::ParseNamesList parseSupportedTypes();
 
     static bool parseValidateMembersNames(
-            const FieldsList& fields,
+            const ParseFieldsList& fields,
             ParseLogger& logger);
 
-    bool parseValidateMembersNames(const FieldsList& fields);
+    bool parseValidateMembersNames(const ParseFieldsList& fields);
 
-    const ParseXmlWrap::NamesList& parseExtraPropsNames() const
+    const ParseXmlWrap::ParseNamesList& parseExtraPropsNames() const
     {
         return parseExtraPropsNamesImpl();
     }
 
-    const ParseXmlWrap::NamesList& parseExtraPossiblePropsNames() const
+    const ParseXmlWrap::ParseNamesList& parseExtraPossiblePropsNames() const
     {
         return parseExtraPossiblePropsNamesImpl();
     }
 
-    const ParseXmlWrap::NamesList& parseExtraChildrenNames() const
+    const ParseXmlWrap::ParseNamesList& parseExtraChildrenNames() const
     {
         return parseExtraChildrenNamesImpl();
     }
@@ -215,22 +215,22 @@ public:
     bool parseIsComparableToValue(const std::string& val) const;
     bool parseIsComparableToField(const ParseFieldImpl& field) const;
 
-    const PropsMap& parseExtraAttributes() const
+    const ParsePropsMap& parseExtraAttributes() const
     {
         return m_state.m_extraAttrs;
     }
 
-    PropsMap& parseExtraAttributes()
+    ParsePropsMap& parseExtraAttributes()
     {
         return m_state.m_extraAttrs;
     }
 
-    const ContentsList& parseExtraChildren() const
+    const ParseContentsList& parseExtraChildren() const
     {
         return m_state.m_extraChildren;
     }
 
-    ContentsList& parseExtraChildren()
+    ParseContentsList& parseExtraChildren()
     {
         return m_state.m_extraChildren;
     }
@@ -271,23 +271,23 @@ public:
     }
 
     bool parseVerifySemanticType() const;
-    bool parseVerifySemanticType(::xmlNodePtr node, SemanticType type) const;
+    bool parseVerifySemanticType(::xmlNodePtr node, ParseSemanticType type) const;
     bool parseVerifyAliasedMember(const std::string& fieldName);
     bool parseVerifyMinLength() const;
 
     std::string parseSchemaPos() const;
 
-    const FieldsList& parseMembers() const
+    const ParseFieldsList& parseMembers() const
     {
         return parseMembersImpl();
     }
 
-    static FieldRefInfo parseProcessSiblingRef(const FieldsList& siblings, const std::string& refStr);
+    static ParseFieldRefInfo parseProcessSiblingRef(const ParseFieldsList& siblings, const std::string& refStr);
 
-    FieldRefInfo parseProcessInnerRef(const std::string& refStr) const;
+    ParseFieldRefInfo parseProcessInnerRef(const std::string& refStr) const;
 
     bool parseIsValidInnerRef(const std::string& refStr) const;
-    bool parseIsValidRefType(FieldRefType type) const;
+    bool parseIsValidRefType(ParseFieldRefType type) const;
 
 protected:
     ParseFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
@@ -313,25 +313,25 @@ protected:
         m_state.m_displayName = val;
     }
 
-    void parseSetSemanticType(SemanticType val)
+    void parseSetSemanticType(ParseSemanticType val)
     {
         m_state.m_semanticType = val;
     }
 
-    LogWrapper parseLogError() const;
-    LogWrapper parseLogWarning() const;
-    LogWrapper parseLogInfo() const;
+    ParseLogWrapper parseLogError() const;
+    ParseLogWrapper parseLogWarning() const;
+    ParseLogWrapper parseLogInfo() const;
 
-    virtual ObjKind parseObjKindImpl() const override final;
-    virtual Kind parseKindImpl() const = 0;
-    virtual Ptr parseCloneImpl() const = 0;
-    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const;
-    virtual const ParseXmlWrap::NamesList& parseExtraPossiblePropsNamesImpl() const;
-    virtual const ParseXmlWrap::NamesList& parseExtraChildrenNamesImpl() const;
+    virtual ParseObjKind parseObjKindImpl() const override final;
+    virtual ParseKind parseKindImpl() const = 0;
+    virtual ParsePtr parseCloneImpl() const = 0;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPossiblePropsNamesImpl() const;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraChildrenNamesImpl() const;
     virtual bool parseReuseImpl(const ParseFieldImpl& other);
     virtual bool parseImpl();
-    virtual bool parseReplaceMembersImpl(FieldsList& members);
-    virtual bool parseVerifySiblingsImpl(const FieldsList& fields) const;
+    virtual bool parseReplaceMembersImpl(ParseFieldsList& members);
+    virtual bool parseVerifySiblingsImpl(const ParseFieldsList& fields) const;
     virtual std::size_t parseMinLengthImpl() const = 0;
     virtual std::size_t parseMaxLengthImpl() const;
     virtual std::size_t parseBitLengthImpl() const;
@@ -343,12 +343,12 @@ protected:
     virtual bool parseStrToStringImpl(const std::string& ref, std::string& val) const;
     virtual bool parseStrToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const;
     virtual bool parseValidateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const;
-    virtual bool parseVerifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const;
+    virtual bool parseVerifySemanticTypeImpl(::xmlNodePtr node, ParseSemanticType type) const;
     virtual bool parseVerifyAliasedMemberImpl(const std::string& fieldName) const;
-    virtual const ParseXmlWrap::NamesList& parseSupportedMemberTypesImpl() const;
-    virtual const FieldsList& parseMembersImpl() const;
-    virtual FieldRefInfo parseProcessInnerRefImpl(const std::string& refStr) const;
-    virtual bool parseIsValidRefTypeImpl(FieldRefType type) const;
+    virtual const ParseXmlWrap::ParseNamesList& parseSupportedMemberTypesImpl() const;
+    virtual const ParseFieldsList& parseMembersImpl() const;
+    virtual ParseFieldRefInfo parseProcessInnerRefImpl(const std::string& refStr) const;
+    virtual bool parseIsValidRefTypeImpl(ParseFieldRefType type) const;
 
     bool parseValidateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool parseValidateNoPropInstance(const std::string& str);
@@ -362,56 +362,56 @@ protected:
     bool parseValidateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
     bool parseValidateAndUpdateOverrideTypePropValue(const std::string& propName, ParseOverrideType& value);
 
-    static const ParseXmlWrap::NamesList& parseCommonProps();
-    static const ParseXmlWrap::NamesList& parseCommonChildren();
-    const ParseFieldImpl* parseFindSibling(const FieldsList& fields, const std::string& sibName) const;
-    static Kind parseGetNonRefFieldKind(const ParseFieldImpl& field);
+    static const ParseXmlWrap::ParseNamesList& parseCommonProps();
+    static const ParseXmlWrap::ParseNamesList& parseCommonChildren();
+    const ParseFieldImpl* parseFindSibling(const ParseFieldsList& fields, const std::string& sibName) const;
+    static ParseKind parseGetNonRefFieldKind(const ParseFieldImpl& field);
     bool parseCheckDetachedPrefixAllowed() const;
 
-    using StrToValueFieldConvertFunc = std::function<bool (const ParseFieldImpl& f, const std::string& ref)>;
+    using ParseStrToValueFieldConvertFunc = std::function<bool (const ParseFieldImpl& f, const std::string& ref)>;
     bool parseStrToValueOnFields(
         const std::string& ref,
-        const FieldsList& fields,
-        StrToValueFieldConvertFunc&& func) const;
+        const ParseFieldsList& fields,
+        ParseStrToValueFieldConvertFunc&& func) const;
 
     bool parseStrToNumericOnFields(
         const std::string& ref,
-        const FieldsList& fields,
+        const ParseFieldsList& fields,
         std::intmax_t& val,
         bool& isBigUnsigned) const;
 
     bool parseStrToFpOnFields(
         const std::string& ref,
-        const FieldsList& fields,
+        const ParseFieldsList& fields,
         double& val) const;
 
     bool parseStrToBoolOnFields(
         const std::string& ref,
-        const FieldsList& fields,
+        const ParseFieldsList& fields,
         bool& val) const;
 
     bool parseStrToStringOnFields(
         const std::string& ref,
-        const FieldsList& fields,
+        const ParseFieldsList& fields,
         std::string& val) const;
 
     bool parseStrToDataOnFields(
         const std::string& ref,
-        const FieldsList& fields,
+        const ParseFieldsList& fields,
         std::vector<std::uint8_t>& val) const;
 
 private:
-    using CreateFunc = std::function<Ptr (::xmlNodePtr n, ParseProtocolImpl& p)>;
-    using CreateMap = std::map<std::string, CreateFunc>;
+    using ParseCreateFunc = std::function<ParsePtr (::xmlNodePtr n, ParseProtocolImpl& p)>;
+    using ParseCreateMap = std::map<std::string, ParseCreateFunc>;
 
-    struct ReusableState
+    struct ParseReusableState
     {
         std::string m_name;
         std::string m_displayName;
         std::string m_description;
-        PropsMap m_extraAttrs;
-        ContentsList m_extraChildren;
-        SemanticType m_semanticType = SemanticType::None;
+        ParsePropsMap m_extraAttrs;
+        ParseContentsList m_extraChildren;
+        ParseSemanticType m_semanticType = ParseSemanticType::None;
         ParseOverrideType m_valueOverride = ParseOverrideType_Any;
         ParseOverrideType m_readOverride = ParseOverrideType_Any;
         ParseOverrideType m_writeOverride = ParseOverrideType_Any;
@@ -451,20 +451,20 @@ private:
     bool parseUpdateNameOverride();
     bool parseUpdateCopyOverrideCodeFrom();
     bool parseUpdateValidateMinLength();
-    bool parseUpdateExtraAttrs(const ParseXmlWrap::NamesList& names);
-    bool parseUpdateExtraChildren(const ParseXmlWrap::NamesList& names);
+    bool parseUpdateExtraAttrs(const ParseXmlWrap::ParseNamesList& names);
+    bool parseUpdateExtraChildren(const ParseXmlWrap::ParseNamesList& names);
 
     bool parseVerifyName() const;
 
-    static const CreateMap& parseCreateMap();
+    static const ParseCreateMap& parseCreateMap();
 
     ::xmlNodePtr m_node = nullptr;
     ParseProtocolImpl& m_protocol;
-    PropsMap m_props;
-    ReusableState m_state;
+    ParsePropsMap m_props;
+    ParseReusableState m_state;
 };
 
-using ParseFieldImplPtr = ParseFieldImpl::Ptr;
+using ParseFieldImplPtr = ParseFieldImpl::ParsePtr;
 
 } // namespace parse
 

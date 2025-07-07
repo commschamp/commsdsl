@@ -44,10 +44,10 @@ ParseVariantField::ParseVariantField(const ParseVariantFieldImpl* impl)
 ParseVariantField::ParseVariantField(ParseField field)
   : Base(field)
 {
-    assert(parseKind() == Kind::Variant);
+    assert(parseKind() == ParseKind::Variant);
 }
 
-ParseVariantField::Members ParseVariantField::parseMembers() const
+ParseVariantField::ParseMembers ParseVariantField::parseMembers() const
 {
     return cast(m_pImpl)->parseMembersList();
 }

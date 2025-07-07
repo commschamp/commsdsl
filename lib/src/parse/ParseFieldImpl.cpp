@@ -46,11 +46,11 @@ namespace parse
 
 namespace {
 
-const unsigned MinDslVersionForLengthSemanticType  = 2U;
+const unsigned ParseMinDslVersionForLengthSemanticType  = 2U;
 
 } // namespace
 
-ParseFieldImpl::Ptr ParseFieldImpl::parseCreate(
+ParseFieldImpl::ParsePtr ParseFieldImpl::parseCreate(
     const std::string& kind,
     ::xmlNodePtr node,
     ParseProtocolImpl& protocol)
@@ -59,7 +59,7 @@ ParseFieldImpl::Ptr ParseFieldImpl::parseCreate(
 
     auto iter = map.find(kind);
     if (iter == map.end()) {
-        return Ptr();
+        return ParsePtr();
     }
 
     return iter->second(node, protocol);
@@ -136,7 +136,7 @@ bool ParseFieldImpl::parse()
         return false;
     }
 
-    ParseXmlWrap::NamesList expectedProps = parseCommonProps();
+    ParseXmlWrap::ParseNamesList expectedProps = parseCommonProps();
     expectedProps.insert(expectedProps.end(), extraPropsNames.begin(), extraPropsNames.end());
     expectedProps.insert(expectedProps.end(), extraPossiblePropsNames.begin(), extraPossiblePropsNames.end());
     if (!parseUpdateExtraAttrs(expectedProps)) {
@@ -145,7 +145,7 @@ bool ParseFieldImpl::parse()
 
     auto& commonCh = parseCommonChildren();
     auto& extraChildren = parseExtraChildrenNamesImpl();
-    ParseXmlWrap::NamesList expectedChildren = parseCommonProps();
+    ParseXmlWrap::ParseNamesList expectedChildren = parseCommonProps();
     expectedChildren.insert(expectedChildren.end(), commonCh.begin(), commonCh.end());
     expectedChildren.insert(expectedChildren.end(), extraPropsNames.begin(), extraPropsNames.end());
     expectedChildren.insert(expectedChildren.end(), extraPossiblePropsNames.begin(), extraPossiblePropsNames.end());
@@ -189,16 +189,16 @@ const std::string& ParseFieldImpl::parseKindStr() const
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<unsigned>(Kind::NumOfValues), "Invalid map");
+    static_assert(MapSize == static_cast<unsigned>(ParseKind::NumOfValues), "Invalid map");
 
     auto idx = static_cast<unsigned>(parseKind());
     assert(idx < MapSize);
     return *Map[idx];
 }
 
-ParseXmlWrap::NamesList ParseFieldImpl::parseSupportedTypes()
+ParseXmlWrap::ParseNamesList ParseFieldImpl::parseSupportedTypes()
 {
-    ParseXmlWrap::NamesList result;
+    ParseXmlWrap::ParseNamesList result;
     auto& map = parseCreateMap();
     result.reserve(map.size());
     std::transform(
@@ -211,7 +211,7 @@ ParseXmlWrap::NamesList ParseFieldImpl::parseSupportedTypes()
 }
 
 bool ParseFieldImpl::parseValidateMembersNames(
-    const ParseFieldImpl::FieldsList& fields,
+    const ParseFieldImpl::ParseFieldsList& fields,
     ParseLogger& logger)
 {
     std::set<std::string> usedNames;
@@ -226,7 +226,7 @@ bool ParseFieldImpl::parseValidateMembersNames(
     return true;
 }
 
-bool ParseFieldImpl::parseValidateMembersNames(const ParseFieldImpl::FieldsList& fields)
+bool ParseFieldImpl::parseValidateMembersNames(const ParseFieldImpl::ParseFieldsList& fields)
 {
     return parseValidateMembersNames(fields, parseProtocol().parseLogger());
 }
@@ -234,26 +234,26 @@ bool ParseFieldImpl::parseValidateMembersNames(const ParseFieldImpl::FieldsList&
 bool ParseFieldImpl::parseIsBitfieldMember() const
 {
     return (parseGetParent() != nullptr) &&
-           (parseGetParent()->parseObjKind() == ObjKind::Field) &&
-            (static_cast<const ParseFieldImpl*>(parseGetParent())->parseKind() == Kind::Bitfield);
+           (parseGetParent()->parseObjKind() == ParseObjKind::Field) &&
+            (static_cast<const ParseFieldImpl*>(parseGetParent())->parseKind() == ParseKind::Bitfield);
 }
 
 bool ParseFieldImpl::parseIsBundleMember() const
 {
     return (parseGetParent() != nullptr) &&
-           (parseGetParent()->parseObjKind() == ObjKind::Field) &&
-            (static_cast<const ParseFieldImpl*>(parseGetParent())->parseKind() == Kind::Bundle);
+           (parseGetParent()->parseObjKind() == ParseObjKind::Field) &&
+            (static_cast<const ParseFieldImpl*>(parseGetParent())->parseKind() == ParseKind::Bundle);
 }
 
 bool ParseFieldImpl::parseIsMessageMember() const
 {
     return (parseGetParent() != nullptr) &&
-           (parseGetParent()->parseObjKind() == ObjKind::Message);
+           (parseGetParent()->parseObjKind() == ParseObjKind::Message);
 }
 
 std::string ParseFieldImpl::parseExternalRef(bool schemaRef) const
 {
-    if ((parseGetParent() == nullptr) || (parseGetParent()->parseObjKind() != ObjKind::Namespace)) {
+    if ((parseGetParent() == nullptr) || (parseGetParent()->parseObjKind() != ParseObjKind::Namespace)) {
         return common::parseEmptyString();
     }
 
@@ -268,9 +268,9 @@ std::string ParseFieldImpl::parseExternalRef(bool schemaRef) const
 
 bool ParseFieldImpl::parseIsComparableToValue(const std::string& val) const
 {
-    static const SemanticType NumericSemanticTypes[] = {
-        SemanticType::Version,
-        SemanticType::Length,
+    static const ParseSemanticType NumericSemanticTypes[] = {
+        ParseSemanticType::Version,
+        ParseSemanticType::Length,
     };
 
     auto iter = std::find(std::begin(NumericSemanticTypes), std::end(NumericSemanticTypes), parseSemanticType());
@@ -286,7 +286,7 @@ bool ParseFieldImpl::parseIsComparableToValue(const std::string& val) const
 
 bool ParseFieldImpl::parseIsComparableToField(const ParseFieldImpl& field) const
 {
-    if (field.parseKind() == Kind::Ref) {
+    if (field.parseKind() == ParseKind::Ref) {
         auto& refField = static_cast<const ParseRefFieldImpl&>(field);
         auto* referee = refField.parseFieldImpl();
         if (referee == nullptr) {
@@ -310,9 +310,9 @@ bool ParseFieldImpl::parseVerifySemanticType() const
     return parseVerifySemanticType(parseGetNode(), parseSemanticType());
 }
 
-bool ParseFieldImpl::parseVerifySemanticType(::xmlNodePtr node, SemanticType type) const
+bool ParseFieldImpl::parseVerifySemanticType(::xmlNodePtr node, ParseSemanticType type) const
 {
-    if (type == SemanticType::None) {
+    if (type == ParseSemanticType::None) {
         return true;
     }
 
@@ -320,25 +320,25 @@ bool ParseFieldImpl::parseVerifySemanticType(::xmlNodePtr node, SemanticType typ
         return true;
     }
 
-    if (type == SemanticType::Version) {
+    if (type == ParseSemanticType::Version) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(node) <<
             "Semantic type \"" << common::parseVersionStr() << "\" is applicable only to \"" <<
             common::parseIntStr() << "\" fields or \"" << common::parseRefStr() << "\" to them.";
         return false;
     }
 
-    if (type == SemanticType::MessageId) {
+    if (type == ParseSemanticType::MessageId) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(node) <<
             "Semantic type \"" << common::parseMessageIdStr() << "\" is applicable only to \"" <<
             common::parseEnumStr() << "\" fields.";
         return false;
     }
 
-    if (type == SemanticType::Length) {
+    if (type == ParseSemanticType::Length) {
         if (!m_protocol.parseIsSemanticTypeLengthSupported()) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(node) <<
                 "Semantic type \"" << common::parseLengthStr() << "\" supported only since "
-                "DSL v" << MinDslVersionForLengthSemanticType << ", please update \"" <<
+                "DSL v" << ParseMinDslVersionForLengthSemanticType << ", please update \"" <<
                 common::parseDslVersionStr() << "\" property of your schema.";
             return false;
         }
@@ -384,31 +384,31 @@ std::string ParseFieldImpl::parseSchemaPos() const
     return ParseXmlWrap::parseLogPrefix(m_node);
 }
 
-ParseFieldImpl::FieldRefInfo ParseFieldImpl::parseProcessSiblingRef(const FieldsList& siblings, const std::string& refStr)
+ParseFieldImpl::ParseFieldRefInfo ParseFieldImpl::parseProcessSiblingRef(const ParseFieldsList& siblings, const std::string& refStr)
 {
-    FieldRefInfo info;
+    ParseFieldRefInfo info;
 
     if ((!refStr.empty()) && ((refStr[0] == '#') || (refStr[0] == '?'))) {
         info = parseProcessSiblingRef(siblings, refStr.substr(1));
         do {
             if ((info.m_field == nullptr) || 
-                (info.m_refType != FieldRefType::FieldRefType_Field)) {
-                info = FieldRefInfo();
+                (info.m_refType != ParseFieldRefType::FieldRefType_Field)) {
+                info = ParseFieldRefInfo();
                 break;
             }
 
             if (refStr[0] == '#') {
-                info.m_refType = FieldRefType::FieldRefType_Size;
+                info.m_refType = ParseFieldRefType::FieldRefType_Size;
                 break;
             }
 
             assert(refStr[0] == '?');
-            info.m_refType = FieldRefType::FieldRefType_Exists;
+            info.m_refType = ParseFieldRefType::FieldRefType_Exists;
             break;
         } while (false);
 
         if ((info.m_field != nullptr) && (!info.m_field->parseIsValidRefType(info.m_refType))) {
-            info = FieldRefInfo();
+            info = ParseFieldRefInfo();
         }
 
         return info;
@@ -440,10 +440,10 @@ ParseFieldImpl::FieldRefInfo ParseFieldImpl::parseProcessSiblingRef(const Fields
     return (*iter)->parseProcessInnerRef(refStr.substr(nextPos));
 }
 
-ParseFieldImpl::FieldRefInfo ParseFieldImpl::parseProcessInnerRef(const std::string& refStr) const
+ParseFieldImpl::ParseFieldRefInfo ParseFieldImpl::parseProcessInnerRef(const std::string& refStr) const
 {
     if (refStr.empty()) {
-        FieldRefInfo info;
+        ParseFieldRefInfo info;
         info.m_field = this;
         info.m_refType = FieldRefType_Field;
         return info;
@@ -463,7 +463,7 @@ bool ParseFieldImpl::parseIsValidInnerRef(const std::string& refStr) const
     return info.m_field != nullptr;
 }
 
-bool ParseFieldImpl::parseIsValidRefType(FieldRefType type) const
+bool ParseFieldImpl::parseIsValidRefType(ParseFieldRefType type) const
 {
     if (type == FieldRefType_Invalid) {
         return false;
@@ -489,39 +489,39 @@ ParseFieldImpl::ParseFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol)
 
 ParseFieldImpl::ParseFieldImpl(const ParseFieldImpl&) = default;
 
-LogWrapper ParseFieldImpl::parseLogError() const
+ParseLogWrapper ParseFieldImpl::parseLogError() const
 {
     return commsdsl::parse::parseLogError(m_protocol.parseLogger());
 }
 
-LogWrapper ParseFieldImpl::parseLogWarning() const
+ParseLogWrapper ParseFieldImpl::parseLogWarning() const
 {
     return commsdsl::parse::parseLogWarning(m_protocol.parseLogger());
 }
 
-LogWrapper ParseFieldImpl::parseLogInfo() const
+ParseLogWrapper ParseFieldImpl::parseLogInfo() const
 {
     return commsdsl::parse::parseLogInfo(m_protocol.parseLogger());
 }
 
-ParseObject::ObjKind ParseFieldImpl::parseObjKindImpl() const
+ParseObject::ParseObjKind ParseFieldImpl::parseObjKindImpl() const
 {
-    return ObjKind::Field;
+    return ParseObjKind::Field;
 }
 
-const ParseXmlWrap::NamesList& ParseFieldImpl::parseExtraPropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseFieldImpl::parseExtraPropsNamesImpl() const
 {
     return ParseXmlWrap::parseEmptyNamesList();
 }
 
-const ParseXmlWrap::NamesList&ParseFieldImpl::parseExtraPossiblePropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList&ParseFieldImpl::parseExtraPossiblePropsNamesImpl() const
 {
     return ParseXmlWrap::parseEmptyNamesList();
 }
 
-const ParseXmlWrap::NamesList& ParseFieldImpl::parseExtraChildrenNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseFieldImpl::parseExtraChildrenNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList Names;
+    static const ParseXmlWrap::ParseNamesList Names;
     return Names;
 }
 
@@ -537,14 +537,14 @@ bool ParseFieldImpl::parseImpl()
     return true;
 }
 
-bool ParseFieldImpl::parseReplaceMembersImpl([[maybe_unused]] FieldsList& members)
+bool ParseFieldImpl::parseReplaceMembersImpl([[maybe_unused]] ParseFieldsList& members)
 {
     parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
         "The field of kind \"" << parseKindStr() << "\" does not support replacing its members.";
     return false;
 }
 
-bool ParseFieldImpl::parseVerifySiblingsImpl([[maybe_unused]] const ParseFieldImpl::FieldsList& fields) const
+bool ParseFieldImpl::parseVerifySiblingsImpl([[maybe_unused]] const ParseFieldImpl::ParseFieldsList& fields) const
 {
     return true;
 }
@@ -641,7 +641,7 @@ bool ParseFieldImpl::parseValidateBitLengthValueImpl(::xmlNodePtr node, [[maybe_
     return false;
 }
 
-bool ParseFieldImpl::parseVerifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, [[maybe_unused]] SemanticType type) const
+bool ParseFieldImpl::parseVerifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, [[maybe_unused]] ParseSemanticType type) const
 {
     return false;
 }
@@ -651,26 +651,26 @@ bool ParseFieldImpl::parseVerifyAliasedMemberImpl([[maybe_unused]] const std::st
     return false;
 }
 
-const ParseXmlWrap::NamesList& ParseFieldImpl::parseSupportedMemberTypesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseFieldImpl::parseSupportedMemberTypesImpl() const
 {
-    static const ParseXmlWrap::NamesList List;
+    static const ParseXmlWrap::ParseNamesList List;
     return List;
 }
 
-const ParseFieldImpl::FieldsList& ParseFieldImpl::parseMembersImpl() const
+const ParseFieldImpl::ParseFieldsList& ParseFieldImpl::parseMembersImpl() const
 {
-    static const FieldsList List;
+    static const ParseFieldsList List;
     return List;
 }
 
-ParseFieldImpl::FieldRefInfo ParseFieldImpl::parseProcessInnerRefImpl([[maybe_unused]] const std::string& refStr) const
+ParseFieldImpl::ParseFieldRefInfo ParseFieldImpl::parseProcessInnerRefImpl([[maybe_unused]] const std::string& refStr) const
 {
     assert(!refStr.empty());
-    FieldRefInfo info;
+    ParseFieldRefInfo info;
     return info;
 }
 
-bool ParseFieldImpl::parseIsValidRefTypeImpl([[maybe_unused]] FieldRefType type) const
+bool ParseFieldImpl::parseIsValidRefTypeImpl([[maybe_unused]] ParseFieldRefType type) const
 {
     return false;
 }
@@ -796,9 +796,9 @@ bool ParseFieldImpl::parseValidateAndUpdateOverrideTypePropValue(const std::stri
     return true;
 }
 
-const ParseXmlWrap::NamesList& ParseFieldImpl::parseCommonProps()
+const ParseXmlWrap::ParseNamesList& ParseFieldImpl::parseCommonProps()
 {
-    static const ParseXmlWrap::NamesList CommonNames = {
+    static const ParseXmlWrap::ParseNamesList CommonNames = {
         common::parseNameStr(),
         common::parseDisplayNameStr(),
         common::parseDescriptionStr(),
@@ -829,9 +829,9 @@ const ParseXmlWrap::NamesList& ParseFieldImpl::parseCommonProps()
     return CommonNames;
 }
 
-const ParseXmlWrap::NamesList& ParseFieldImpl::parseCommonChildren()
+const ParseXmlWrap::ParseNamesList& ParseFieldImpl::parseCommonChildren()
 {
-    static const ParseXmlWrap::NamesList CommonChildren = {
+    static const ParseXmlWrap::ParseNamesList CommonChildren = {
         common::parseMetaStr(),
         common::parseReplaceStr()
     };
@@ -839,7 +839,7 @@ const ParseXmlWrap::NamesList& ParseFieldImpl::parseCommonChildren()
     return CommonChildren;
 }
 
-const ParseFieldImpl* ParseFieldImpl::parseFindSibling(const FieldsList& fields, const std::string& sibName) const
+const ParseFieldImpl* ParseFieldImpl::parseFindSibling(const ParseFieldsList& fields, const std::string& sibName) const
 {
     auto pos = sibName.find_first_of(".");
     auto actSibName = sibName.substr(0, pos);
@@ -869,10 +869,10 @@ const ParseFieldImpl* ParseFieldImpl::parseFindSibling(const FieldsList& fields,
     return parseFindSibling(firstLevelSibling->parseMembers(), rest);
 }
 
-ParseFieldImpl::Kind ParseFieldImpl::parseGetNonRefFieldKind(const ParseFieldImpl& field)
+ParseFieldImpl::ParseKind ParseFieldImpl::parseGetNonRefFieldKind(const ParseFieldImpl& field)
 {
     const ParseFieldImpl* referee = &field;
-    while (referee->parseKind() == Kind::Ref) {
+    while (referee->parseKind() == ParseKind::Ref) {
         auto* castedField = static_cast<const ParseRefFieldImpl*>(referee);
         referee = castedField->parseFieldImpl();
         assert(referee != nullptr);
@@ -891,17 +891,17 @@ bool ParseFieldImpl::parseCheckDetachedPrefixAllowed() const
         }
 
         auto objK = parent->parseObjKind();
-        if (objK == ObjKind::Message) {
+        if (objK == ParseObjKind::Message) {
             result = true;
             break;
         }
 
-        if (objK != ObjKind::Field) {
+        if (objK != ParseObjKind::Field) {
             break;
         }
 
         auto* parentField = static_cast<const ParseFieldImpl*>(parent);
-        result = (parentField->parseKind() == Kind::Bundle);
+        result = (parentField->parseKind() == ParseKind::Bundle);
     } while (false);
 
     if (!result) {
@@ -914,8 +914,8 @@ bool ParseFieldImpl::parseCheckDetachedPrefixAllowed() const
 
 bool ParseFieldImpl::parseStrToValueOnFields(
     const std::string &ref,
-    const FieldsList &fields,
-    ParseFieldImpl::StrToValueFieldConvertFunc &&func) const
+    const ParseFieldsList &fields,
+    ParseFieldImpl::ParseStrToValueFieldConvertFunc &&func) const
 {
     if (!parseProtocol().parseIsFieldValueReferenceSupported()) {
         return false;
@@ -946,7 +946,7 @@ bool ParseFieldImpl::parseStrToValueOnFields(
 
 bool ParseFieldImpl::parseStrToNumericOnFields(
     const std::string &ref,
-    const FieldsList &fields,
+    const ParseFieldsList &fields,
     std::intmax_t &val,
     bool &isBigUnsigned) const
 {
@@ -966,7 +966,7 @@ bool ParseFieldImpl::parseStrToNumericOnFields(
 
 bool ParseFieldImpl::parseStrToFpOnFields(
     const std::string &ref,
-    const FieldsList &fields,
+    const ParseFieldsList &fields,
     double &val) const
 {
     if (ref.empty()) {
@@ -984,7 +984,7 @@ bool ParseFieldImpl::parseStrToFpOnFields(
 
 bool ParseFieldImpl::parseStrToBoolOnFields(
     const std::string &ref,
-    const FieldsList &fields,
+    const ParseFieldsList &fields,
     bool &val) const
 {
     if (ref.empty()) {
@@ -1002,7 +1002,7 @@ bool ParseFieldImpl::parseStrToBoolOnFields(
 
 bool ParseFieldImpl::parseStrToStringOnFields(
     const std::string &ref,
-    const FieldsList &fields,
+    const ParseFieldsList &fields,
     std::string &val) const
 {
     if (ref.empty()) {
@@ -1021,7 +1021,7 @@ bool ParseFieldImpl::parseStrToStringOnFields(
 
 bool ParseFieldImpl::parseStrToDataOnFields(
     const std::string &ref,
-    const FieldsList &fields,
+    const ParseFieldsList &fields,
     std::vector<std::uint8_t> &val) const
 {
     if (ref.empty()) {
@@ -1125,7 +1125,7 @@ bool ParseFieldImpl::parseCheckReplace()
         return false;
     }
 
-    FieldsList replMembers;
+    ParseFieldsList replMembers;
     replMembers.reserve(memberFieldsTypes.size());
     for (auto* fieldNode : memberFieldsTypes) {
         std::string fieldKind(reinterpret_cast<const char*>(fieldNode->name));
@@ -1180,12 +1180,12 @@ bool ParseFieldImpl::parseUpdateVersions()
     }
 
     unsigned sinceVersion = 0U;
-    if ((parseGetParent() != nullptr) && (parseGetParent()->parseObjKind() != ObjKind::Namespace)) {
+    if ((parseGetParent() != nullptr) && (parseGetParent()->parseObjKind() != ParseObjKind::Namespace)) {
         sinceVersion = parseGetParent()->parseGetSinceVersion();
     }
 
     unsigned deprecated = ParseProtocol::parseNotYetDeprecated();
-    if ((parseGetParent() != nullptr) && (parseGetParent()->parseObjKind() != ObjKind::Namespace)) {
+    if ((parseGetParent() != nullptr) && (parseGetParent()->parseObjKind() != ParseObjKind::Namespace)) {
         deprecated = parseGetParent()->parseGetDeprecated();
     }
 
@@ -1195,7 +1195,7 @@ bool ParseFieldImpl::parseUpdateVersions()
 
     do {
         if ((parseGetParent() != nullptr) &&
-            ((parseGetParent()->parseObjKind() == ObjKind::Field) || (parseGetParent()->parseObjKind() == ObjKind::Message))) {
+            ((parseGetParent()->parseObjKind() == ParseObjKind::Field) || (parseGetParent()->parseObjKind() == ParseObjKind::Message))) {
             break;
         }
 
@@ -1265,11 +1265,11 @@ bool ParseFieldImpl::parseUpdateSemanticType()
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<std::size_t>(SemanticType::NumOfValues),
+    static_assert(MapSize == static_cast<std::size_t>(ParseSemanticType::NumOfValues),
         "Invalid map");
 
     if (iter->second.empty()) {
-        m_state.m_semanticType = SemanticType::None;
+        m_state.m_semanticType = ParseSemanticType::None;
         return true;
     }
 
@@ -1281,7 +1281,7 @@ bool ParseFieldImpl::parseUpdateSemanticType()
     }
 
     m_state.m_semanticType =
-        static_cast<SemanticType>(std::distance(std::begin(Map), valIter));
+        static_cast<ParseSemanticType>(std::distance(std::begin(Map), valIter));
 
     return true;
 }
@@ -1415,7 +1415,7 @@ bool ParseFieldImpl::parseUpdateValidateMinLength()
     return true;
 }
 
-bool ParseFieldImpl::parseUpdateExtraAttrs(const ParseXmlWrap::NamesList& names)
+bool ParseFieldImpl::parseUpdateExtraAttrs(const ParseXmlWrap::ParseNamesList& names)
 {
     auto extraAttrs = ParseXmlWrap::parseGetExtraAttributes(m_node, names, m_protocol);
     if (extraAttrs.empty()) {
@@ -1431,7 +1431,7 @@ bool ParseFieldImpl::parseUpdateExtraAttrs(const ParseXmlWrap::NamesList& names)
     return true;
 }
 
-bool ParseFieldImpl::parseUpdateExtraChildren(const ParseXmlWrap::NamesList& names)
+bool ParseFieldImpl::parseUpdateExtraChildren(const ParseXmlWrap::ParseNamesList& names)
 {
     auto extraChildren = ParseXmlWrap::parseGetExtraChildren(m_node, names, m_protocol);
     if (extraChildren.empty()) {
@@ -1449,80 +1449,80 @@ bool ParseFieldImpl::parseUpdateExtraChildren(const ParseXmlWrap::NamesList& nam
 }
 
 
-const ParseFieldImpl::CreateMap& ParseFieldImpl::parseCreateMap()
+const ParseFieldImpl::ParseCreateMap& ParseFieldImpl::parseCreateMap()
 {
-    static const CreateMap Map = {
+    static const ParseCreateMap Map = {
         std::make_pair(
             common::parseIntStr(),
             [](::xmlNodePtr n, ParseProtocolImpl& p)
             {
-                return Ptr(new ParseIntFieldImpl(n, p));
+                return ParsePtr(new ParseIntFieldImpl(n, p));
             }),
         std::make_pair(
             common::parseFloatStr(),
             [](::xmlNodePtr n, ParseProtocolImpl& p)
             {
-                return Ptr(new ParseFloatFieldImpl(n, p));
+                return ParsePtr(new ParseFloatFieldImpl(n, p));
             }),
         std::make_pair(
             common::parseEnumStr(),
             [](::xmlNodePtr n, ParseProtocolImpl& p)
             {
-                return Ptr(new ParseEnumFieldImpl(n, p));
+                return ParsePtr(new ParseEnumFieldImpl(n, p));
             }),
         std::make_pair(
             common::parseSetStr(),
             [](::xmlNodePtr n, ParseProtocolImpl& p)
             {
-                return Ptr(new ParseSetFieldImpl(n, p));
+                return ParsePtr(new ParseSetFieldImpl(n, p));
             }),
         std::make_pair(
             common::parseBitparseFieldStr(),
             [](::xmlNodePtr n, ParseProtocolImpl& p)
             {
-                return Ptr(new ParseBitfieldFieldImpl(n, p));
+                return ParsePtr(new ParseBitfieldFieldImpl(n, p));
             }),
         std::make_pair(
             common::parseBundleStr(),
             [](::xmlNodePtr n, ParseProtocolImpl& p)
             {
-                return Ptr(new ParseBundleFieldImpl(n, p));
+                return ParsePtr(new ParseBundleFieldImpl(n, p));
             }),
         std::make_pair(
             common::parseStringStr(),
             [](::xmlNodePtr n, ParseProtocolImpl& p)
             {
-                return Ptr(new ParseStringFieldImpl(n, p));
+                return ParsePtr(new ParseStringFieldImpl(n, p));
             }),
         std::make_pair(
             common::parseDataStr(),
             [](::xmlNodePtr n, ParseProtocolImpl& p)
             {
-                return Ptr(new ParseDataFieldImpl(n, p));
+                return ParsePtr(new ParseDataFieldImpl(n, p));
             }),
         std::make_pair(
             common::parseListStr(),
             [](::xmlNodePtr n, ParseProtocolImpl& p)
             {
-                return Ptr(new ParseListFieldImpl(n, p));
+                return ParsePtr(new ParseListFieldImpl(n, p));
             }),
         std::make_pair(
             common::parseRefStr(),
             [](::xmlNodePtr n, ParseProtocolImpl& p)
             {
-                return Ptr(new ParseRefFieldImpl(n, p));
+                return ParsePtr(new ParseRefFieldImpl(n, p));
             }),
         std::make_pair(
             common::parseOptionalStr(),
             [](::xmlNodePtr n, ParseProtocolImpl& p)
             {
-                return Ptr(new ParseOptionalFieldImpl(n, p));
+                return ParsePtr(new ParseOptionalFieldImpl(n, p));
             }),
         std::make_pair(
             common::parseVariantStr(),
             [](::xmlNodePtr n, ParseProtocolImpl& p)
             {
-                return Ptr(new ParseVariantFieldImpl(n, p));
+                return ParsePtr(new ParseVariantFieldImpl(n, p));
             })
     };
 

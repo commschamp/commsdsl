@@ -26,7 +26,7 @@ class EmscriptenGenerator;
 class EmscriptenVersion
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
 
     static bool emscriptenWrite(EmscriptenGenerator& generator);
     static void emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources);

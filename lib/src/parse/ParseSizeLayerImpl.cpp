@@ -29,12 +29,12 @@ ParseSizeLayerImpl::ParseSizeLayerImpl(::xmlNodePtr node, ParseProtocolImpl& pro
 {
 }
 
-ParseLayerImpl::Kind ParseSizeLayerImpl::parseKindImpl() const
+ParseLayerImpl::ParseKind ParseSizeLayerImpl::parseKindImpl() const
 {
-    return Kind::Size;
+    return ParseKind::Size;
 }
 
-bool ParseSizeLayerImpl::parseVerifyImpl(const ParseLayerImpl::LayersList& layers)
+bool ParseSizeLayerImpl::parseVerifyImpl(const ParseLayerImpl::ParseLayersList& layers)
 {
     return parseVerifySingleLayer(layers, common::parseSizeStr()) &&
            parseVerifyBeforePayload(layers);

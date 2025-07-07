@@ -31,10 +31,10 @@ class ParseLayerImpl;
 class COMMSDSL_API ParseLayer
 {
 public:
-    using AttributesMap = ParseField::AttributesMap;
-    using ElementsList = ParseField::ElementsList;
+    using ParseAttributesMap = ParseField::ParseAttributesMap;
+    using ParseElementsList = ParseField::ParseElementsList;
 
-    enum class Kind
+    enum class ParseKind
     {
         Custom,
         Sync,
@@ -53,12 +53,12 @@ public:
     bool parseValid() const;
     const std::string& parseName() const;
     const std::string& parseDescription() const;
-    Kind parseKind() const;
+    ParseKind parseKind() const;
     bool parseHasField() const;
     ParseField parseField() const;
 
-    const AttributesMap& parseExtraAttributes() const;
-    const ElementsList& parseExtraElements() const;
+    const ParseAttributesMap& parseExtraAttributes() const;
+    const ParseElementsList& parseExtraElements() const;
 
 protected:
     const ParseLayerImpl* m_pImpl;
@@ -72,7 +72,7 @@ public:
     explicit ParseCustomLayer(const ParseCustomLayerImpl* impl);
     explicit ParseCustomLayer(ParseLayer layer);
 
-    Kind parseSemanticLayerType() const;
+    ParseKind parseSemanticLayerType() const;
     const std::string& parseChecksumFromLayer() const;
     const std::string& parseChecksumUntilLayer() const;
 };
@@ -118,7 +118,7 @@ class COMMSDSL_API ParseChecksumLayer : public ParseLayer
 {
     using Base = ParseLayer;
 public:
-    enum class Alg
+    enum class ParseAlg
     {
         Custom,
         Sum,
@@ -132,7 +132,7 @@ public:
     explicit ParseChecksumLayer(const ParseChecksumLayerImpl* impl);
     explicit ParseChecksumLayer(ParseLayer layer);
 
-    Alg parseAlg() const;
+    ParseAlg parseAlg() const;
     const std::string& parseCustomAlgName() const;
     const std::string& parseFromLayer() const;
     const std::string& parseUntilLayer() const;
@@ -144,12 +144,12 @@ class COMMSDSL_API ParseValueLayer : public ParseLayer
 {
     using Base = ParseLayer;
 public:
-    using Interfaces = std::vector<ParseInterface>;
+    using ParseInterfaces = std::vector<ParseInterface>;
 
     explicit ParseValueLayer(const ParseValueLayerImpl* impl);
     explicit ParseValueLayer(ParseLayer layer);
 
-    Interfaces parseInterfaces() const;
+    ParseInterfaces parseInterfaces() const;
     const std::string& parseFieldName() const;
     std::size_t parseFieldIdx() const;
     bool parsePseudo() const;

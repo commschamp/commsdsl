@@ -84,7 +84,7 @@ bool CommsFieldBase::commsWriteInternal() const
         "} // namespace field\n\n"
         "} // namespace #^#PROT_NAMESPACE#$#\n\n";    
 
-    util::StringsList options;
+    util::GenStringsList options;
     options.push_back(comms::genParseEndianToOpt(m_generator.genCurrentSchema().genSchemaEndian()));
     // TODO: version type
 

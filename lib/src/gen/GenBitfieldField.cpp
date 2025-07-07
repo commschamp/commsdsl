@@ -29,8 +29,9 @@ namespace gen
 class GenBitfieldFieldImpl
 {
 public:
-    using FieldsList = GenBitfieldField::FieldsList;
     using ParseBitfieldField = GenBitfieldField::ParseBitfieldField;
+    
+    using GenFieldsList = GenBitfieldField::GenFieldsList;
 
     GenBitfieldFieldImpl(GenGenerator& generator, ParseBitfieldField dslObj, GenElem* parent) :
         m_generator(generator),
@@ -60,7 +61,7 @@ public:
         return true;
     }
 
-    const FieldsList& genMembers() const
+    const GenFieldsList& genMembers() const
     {
         return m_members;
     }
@@ -76,19 +77,19 @@ private:
     GenGenerator& m_generator;
     ParseBitfieldField m_dslObj;
     GenElem* m_parent = nullptr;
-    FieldsList m_members;
+    GenFieldsList m_members;
 };
 
 GenBitfieldField::GenBitfieldField(GenGenerator& generator, ParseField dslObj, GenElem* parent) :
     Base(generator, dslObj, parent),
     m_impl(std::make_unique<GenBitfieldFieldImpl>(generator, genBitfieldFieldParseObj(), this))
 {
-    assert(dslObj.parseKind() == ParseField::Kind::Bitfield);
+    assert(dslObj.parseKind() == ParseField::ParseKind::Bitfield);
 }
 
 GenBitfieldField::~GenBitfieldField() = default;
 
-const GenBitfieldField::FieldsList& GenBitfieldField::genMembers() const
+const GenBitfieldField::GenFieldsList& GenBitfieldField::genMembers() const
 {
     return m_impl->genMembers();
 }
@@ -103,7 +104,7 @@ void GenBitfieldField::genSetReferencedImpl()
     m_impl->genSetReferenced();
 }
 
-GenBitfieldField::FieldRefInfo GenBitfieldField::genProcessInnerRefImpl(const std::string& refStr) const
+GenBitfieldField::GenFieldRefInfo GenBitfieldField::genProcessInnerRefImpl(const std::string& refStr) const
 {
     auto& memFields = genMembers();
     if (!memFields.empty()) {

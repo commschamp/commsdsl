@@ -116,22 +116,22 @@ bool ParseSchema::parseNonUniqueMsgIdAllowed() const
     return m_pImpl->parseNonUniqueMsgIdAllowed();
 }
 
-const ParseSchema::AttributesMap& ParseSchema::parseExtraAttributes() const
+const ParseSchema::ParseAttributesMap& ParseSchema::parseExtraAttributes() const
 {
     if (!parseValid()) {
         assert(Unexpected_call_on_invalid_schema_object);
-        static const AttributesMap Map;
+        static const ParseAttributesMap Map;
         return Map;
     }
 
     return m_pImpl->parseExtraAttributes();
 }
 
-const ParseSchema::ElementsList& ParseSchema::parseExtraElements() const
+const ParseSchema::ParseElementsList& ParseSchema::parseExtraElements() const
 {
     if (!parseValid()) {
         assert(Unexpected_call_on_invalid_schema_object);
-        static const ElementsList List;
+        static const ParseElementsList List;
         return List;
     }
 
@@ -139,23 +139,23 @@ const ParseSchema::ElementsList& ParseSchema::parseExtraElements() const
 
 }
 
-ParseSchema::NamespacesList ParseSchema::parseNamespaces() const
+ParseSchema::ParseNamespacesList ParseSchema::parseNamespaces() const
 {
     if (!parseValid()) {
         assert(Unexpected_call_on_invalid_schema_object);
-        static const NamespacesList List;
+        static const ParseNamespacesList List;
         return List;
     }
 
     return m_pImpl->parseNamespacesList();
 }
 
-const ParseSchema::PlatformsList& ParseSchema::parsePlatforms() const
+const ParseSchema::ParsePlatformsList& ParseSchema::parsePlatforms() const
 {
     return m_pImpl->parsePlatforms();
 }
 
-ParseSchema::MessagesList ParseSchema::parseAllMessages() const
+ParseSchema::ParseMessagesList ParseSchema::parseAllMessages() const
 {
     return m_pImpl->parseAllMessages();
 }

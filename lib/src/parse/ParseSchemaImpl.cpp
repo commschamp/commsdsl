@@ -34,7 +34,7 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::NamesList PropNames = {
+const ParseXmlWrap::ParseNamesList PropNames = {
     common::parseNameStr(),
     common::parseIdStr(),
     common::parseVersionStr(),
@@ -44,9 +44,9 @@ const ParseXmlWrap::NamesList PropNames = {
     common::parseNonUniqueMsgIdAllowedStr()
 };
 
-ParseXmlWrap::NamesList parseGetChildrenList()
+ParseXmlWrap::ParseNamesList parseGetChildrenList()
 {
-    ParseXmlWrap::NamesList result = PropNames;
+    ParseXmlWrap::ParseNamesList result = PropNames;
     auto& nsNames = ParseNamespaceImpl::expectedChildrenNames();
     result.insert(result.end(), nsNames.begin(), nsNames.end());
     result.push_back(common::parsePlatformsStr());
@@ -91,9 +91,9 @@ bool ParseSchemaImpl::parseProcessNode()
     return true;
 }
 
-ParseSchemaImpl::NamespacesList ParseSchemaImpl::parseNamespacesList() const
+ParseSchemaImpl::ParseNamespacesList ParseSchemaImpl::parseNamespacesList() const
 {
-    NamespacesList result;
+    ParseNamespacesList result;
     result.reserve(m_namespaces.size());
     for (auto& n : m_namespaces) {
         result.emplace_back(n.second.get());
@@ -132,7 +132,7 @@ const ParseInterfaceImpl* ParseSchemaImpl::parseFindInterface(const std::string&
     return ns->parseFindInterface(name);
 }
 
-ParseSchemaImpl::MessagesList ParseSchemaImpl::parseAllMessages() const
+ParseSchemaImpl::ParseMessagesList ParseSchemaImpl::parseAllMessages() const
 {
     auto total =
         std::accumulate(
@@ -142,7 +142,7 @@ ParseSchemaImpl::MessagesList ParseSchemaImpl::parseAllMessages() const
                 return soFar + ns.second->parseMessages().size();
             });
 
-    ParseNamespaceImpl::MessagesList messages;
+    ParseNamespaceImpl::ParseMessagesList messages;
     messages.reserve(total);
     for (auto& ns : m_namespaces) {
         auto nsMsgs = ns.second->parseMessagesList();
@@ -167,7 +167,7 @@ ParseSchemaImpl::MessagesList ParseSchemaImpl::parseAllMessages() const
     return messages;
 }
 
-ParseSchemaImpl::InterfacesList ParseSchemaImpl::parseAllInterfaces() const
+ParseSchemaImpl::ParseInterfacesList ParseSchemaImpl::parseAllInterfaces() const
 {
     auto total =
         std::accumulate(
@@ -177,7 +177,7 @@ ParseSchemaImpl::InterfacesList ParseSchemaImpl::parseAllInterfaces() const
                 return soFar + ns.second->parseInterfaces().size();
             });
 
-    ParseNamespaceImpl::InterfacesList interfaces;
+    ParseNamespaceImpl::ParseInterfacesList interfaces;
     interfaces.reserve(total);
     for (auto& ns : m_namespaces) {
         auto nsMsgs = ns.second->parseInterfacesList();
@@ -187,9 +187,9 @@ ParseSchemaImpl::InterfacesList ParseSchemaImpl::parseAllInterfaces() const
     return interfaces;
 }
 
-ParseSchemaImpl::ImplInterfacesList ParseSchemaImpl::parseAllImplInterfaces() const
+ParseSchemaImpl::ParseImplInterfacesList ParseSchemaImpl::parseAllImplInterfaces() const
 {
-    ImplInterfacesList interfaces;
+    ParseImplInterfacesList interfaces;
     for (auto& ns : m_namespaces) {
         auto nsMsgs = ns.second->parseAllImplInterfaces();
         interfaces.insert(interfaces.end(), nsMsgs.begin(), nsMsgs.end());
@@ -255,9 +255,9 @@ std::string ParseSchemaImpl::parseExternalRef() const
     return common::parseSchemaRefPrefix() + parseName();
 }
 
-ParseSchemaImpl::FieldRefInfosList ParseSchemaImpl::parseProcessInterfaceFieldRef(const std::string& refStr) const
+ParseSchemaImpl::ParseFieldRefInfosList ParseSchemaImpl::parseProcessInterfaceFieldRef(const std::string& refStr) const
 {
-    FieldRefInfosList result;
+    ParseFieldRefInfosList result;
     for (auto& nsInfo : m_namespaces) {
         auto nsResult = nsInfo.second->parseProcessInterfaceFieldRef(refStr);
         if (nsResult.empty()) {
@@ -271,12 +271,12 @@ ParseSchemaImpl::FieldRefInfosList ParseSchemaImpl::parseProcessInterfaceFieldRe
     return result;
 }
 
-ParseSchemaImpl::ObjKind ParseSchemaImpl::parseObjKindImpl() const
+ParseSchemaImpl::ParseObjKind ParseSchemaImpl::parseObjKindImpl() const
 {
-    return ObjKind::Schema;
+    return ParseObjKind::Schema;
 }
 
-bool ParseSchemaImpl::parseUpdateStringProperty(const PropsMap& map, const std::string& name, std::string& prop)
+bool ParseSchemaImpl::parseUpdateStringProperty(const ParsePropsMap& map, const std::string& name, std::string& prop)
 {
     auto iter = map.find(name);
     if (iter == map.end()) {
@@ -288,7 +288,7 @@ bool ParseSchemaImpl::parseUpdateStringProperty(const PropsMap& map, const std::
     return true;
 }
 
-bool ParseSchemaImpl::parseUpdateUnsignedProperty(const PropsMap& map, const std::string& name, unsigned& prop)
+bool ParseSchemaImpl::parseUpdateUnsignedProperty(const ParsePropsMap& map, const std::string& name, unsigned& prop)
 {
     auto iter = map.find(name);
     if (iter == map.end()) {
@@ -308,7 +308,7 @@ bool ParseSchemaImpl::parseUpdateUnsignedProperty(const PropsMap& map, const std
     return true;
 }
 
-bool ParseSchemaImpl::parseUpdateEndianProperty(const PropsMap& map, const std::string& name, ParseEndian& prop)
+bool ParseSchemaImpl::parseUpdateEndianProperty(const ParsePropsMap& map, const std::string& name, ParseEndian& prop)
 {
     auto& endianStr = common::parseGetStringProp(map, name);
     prop = common::parseEndian(endianStr, ParseEndian_Little);
@@ -321,7 +321,7 @@ bool ParseSchemaImpl::parseUpdateEndianProperty(const PropsMap& map, const std::
     return true;
 }
 
-bool ParseSchemaImpl::parseUpdateBooleanProperty(const ParseSchemaImpl::PropsMap& map, const std::string& name, bool& prop)
+bool ParseSchemaImpl::parseUpdateBooleanProperty(const ParseSchemaImpl::ParsePropsMap& map, const std::string& name, bool& prop)
 {
     auto iter = map.find(name);
     if (iter == map.end()) {
@@ -349,7 +349,7 @@ bool ParseSchemaImpl::parseUpdateExtraAttrs()
 
 bool ParseSchemaImpl::parseUpdateExtraChildren()
 {
-    static const ParseXmlWrap::NamesList ChildrenNames = parseGetChildrenList();
+    static const ParseXmlWrap::ParseNamesList ChildrenNames = parseGetChildrenList();
     m_extraChildren = ParseXmlWrap::parseGetExtraChildren(m_node, ChildrenNames, m_protocol);
     return true;
 }

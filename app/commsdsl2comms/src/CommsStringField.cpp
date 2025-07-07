@@ -303,7 +303,7 @@ std::string CommsStringField::commsDefValidFuncBodyImpl() const
         return std::string();
     }
 
-    util::StringsList values;
+    util::GenStringsList values;
     for (auto& info : validValues) {
         if (!genGenerator().genDoesElementExist(info.m_sinceVersion, info.m_deprecatedSince, true)) {
             continue;
@@ -411,7 +411,7 @@ std::string CommsStringField::commsCompPrepValueStrImpl(const std::string& accSt
                 break;
             }
 
-            if (refField->genParseObj().parseKind() != commsdsl::parse::ParseField::Kind::String) {
+            if (refField->genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::String) {
                 genGenerator().genLogger().genWarning("Not referencing <string> field: " + value);
                 break;                
             }
@@ -448,7 +448,7 @@ std::string CommsStringField::commsCompPrepValueStrImpl(const std::string& accSt
 
 std::string CommsStringField::commsDefFieldOptsInternal() const
 {
-    util::StringsList opts;
+    util::GenStringsList opts;
 
     commsAddFieldDefOptions(opts);
     commsAddFixedLengthOptInternal(opts);

@@ -30,7 +30,7 @@ class COMMSDSL_API ParseOptionalField : public ParseField
     using Base = ParseField;
 public:
 
-    enum class Mode
+    enum class ParseMode
     {
         Tentative,
         Exists,
@@ -41,7 +41,7 @@ public:
     explicit ParseOptionalField(const ParseOptionalFieldImpl* impl);
     explicit ParseOptionalField(ParseField field);
 
-    Mode parseDefaultMode() const;
+    ParseMode parseDefaultMode() const;
     ParseField parseField() const;
     ParseOptCond parseCond() const;
     bool parseMissingOnReadFail() const;

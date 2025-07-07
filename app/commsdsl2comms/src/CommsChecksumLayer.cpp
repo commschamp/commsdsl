@@ -66,7 +66,7 @@ CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() cons
     };
 
     const std::size_t ChecksumMapSize = std::extent<decltype(ChecksumMap)>::value;
-    static_assert(ChecksumMapSize == static_cast<std::size_t>(commsdsl::parse::ParseChecksumLayer::Alg::NumOfValues),
+    static_assert(ChecksumMapSize == static_cast<std::size_t>(commsdsl::parse::ParseChecksumLayer::ParseAlg::NumOfValues),
             "Invalid map");
 
     auto idx = static_cast<std::size_t>(obj.parseAlg());
@@ -126,7 +126,7 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
     };
 
     const std::size_t ClassMapSize = std::extent<decltype(ClassMap)>::value;
-    static_assert(ClassMapSize == static_cast<std::size_t>(commsdsl::parse::ParseChecksumLayer::Alg::NumOfValues),
+    static_assert(ClassMapSize == static_cast<std::size_t>(commsdsl::parse::ParseChecksumLayer::ParseAlg::NumOfValues),
             "Invalid map");
 
 
@@ -146,8 +146,8 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
     }
 
     auto str = "comms::frame::checksum::" + ClassMap[idx];
-    if ((alg != commsdsl::parse::ParseChecksumLayer::Alg::Sum) &&
-        (alg != commsdsl::parse::ParseChecksumLayer::Alg::Xor)) {
+    if ((alg != commsdsl::parse::ParseChecksumLayer::ParseAlg::Sum) &&
+        (alg != commsdsl::parse::ParseChecksumLayer::ParseAlg::Xor)) {
         return str;
     }
 

@@ -26,7 +26,7 @@ class ToolsQtInterface final : public commsdsl::gen::GenInterface
 {
     using Base = commsdsl::gen::GenInterface;
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
     using IncludesList = StringsList;
 
     explicit ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent);

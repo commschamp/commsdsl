@@ -35,9 +35,9 @@ namespace parse
 namespace
 {
 
-const std::size_t BitsInByte =
+const std::size_t ParseBitsInByte =
         std::numeric_limits<std::uint8_t>::digits;
-static_assert(BitsInByte == 8U, "Invalid assumption");    
+static_assert(ParseBitsInByte == 8U, "Invalid assumption");    
 
 } // namespace
 
@@ -68,21 +68,21 @@ bool ParseEnumFieldImpl::parseIsUnique() const
     return true;
 }
 
-ParseFieldImpl::Kind ParseEnumFieldImpl::parseKindImpl() const
+ParseFieldImpl::ParseKind ParseEnumFieldImpl::parseKindImpl() const
 {
-    return Kind::Enum;
+    return ParseKind::Enum;
 }
 
 ParseEnumFieldImpl::ParseEnumFieldImpl(const ParseEnumFieldImpl&) = default;
 
-ParseFieldImpl::Ptr ParseEnumFieldImpl::parseCloneImpl() const
+ParseFieldImpl::ParsePtr ParseEnumFieldImpl::parseCloneImpl() const
 {
-    return Ptr(new ParseEnumFieldImpl(*this));
+    return ParsePtr(new ParseEnumFieldImpl(*this));
 }
 
-const ParseXmlWrap::NamesList& ParseEnumFieldImpl::parseExtraPropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseEnumFieldImpl::parseExtraPropsNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = {
+    static const ParseXmlWrap::ParseNamesList List = {
         common::parseTypeStr(),
         common::parseDefaultValueStr(),
         common::parseEndianStr(),
@@ -97,9 +97,9 @@ const ParseXmlWrap::NamesList& ParseEnumFieldImpl::parseExtraPropsNamesImpl() co
     return List;
 }
 
-const ParseXmlWrap::NamesList& ParseEnumFieldImpl::parseExtraChildrenNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseEnumFieldImpl::parseExtraChildrenNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = {
+    static const ParseXmlWrap::ParseNamesList List = {
         common::parseValidValueStr()
     };
 
@@ -132,7 +132,7 @@ bool ParseEnumFieldImpl::parseImpl()
 
 std::size_t ParseEnumFieldImpl::parseMinLengthImpl() const
 {
-    if ((m_state.m_type == Type::Intvar) || (m_state.m_type == Type::Uintvar)) {
+    if ((m_state.m_type == ParseType::Intvar) || (m_state.m_type == ParseType::Uintvar)) {
         return 1U;
     }
 
@@ -161,7 +161,7 @@ bool ParseEnumFieldImpl::parseIsComparableToValueImpl(const std::string& val) co
 bool ParseEnumFieldImpl::parseIsComparableToFieldImpl(const ParseFieldImpl& field) const
 {
     auto fieldKind = field.parseKind();
-    return ((fieldKind == Kind::Int) || (fieldKind == Kind::Enum));
+    return ((fieldKind == ParseKind::Int) || (fieldKind == ParseKind::Enum));
 }
 
 bool ParseEnumFieldImpl::parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
@@ -199,14 +199,14 @@ bool ParseEnumFieldImpl::parseStrToNumericImpl(const std::string& ref, std::intm
 
 bool ParseEnumFieldImpl::parseValidateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const
 {
-    if ((m_state.m_type == Type::Intvar) || (m_state.m_type == Type::Uintvar)) {
+    if ((m_state.m_type == ParseType::Intvar) || (m_state.m_type == ParseType::Uintvar)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(node) <<
                       "Bitfield member cannot have variable length type.";
         return false;
     }
 
     assert(0U < m_state.m_length);
-    auto maxBitLength = m_state.m_length * BitsInByte;
+    auto maxBitLength = m_state.m_length * ParseBitsInByte;
     if (maxBitLength < bitLength) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(node) <<
                       "Value of property \"" << common::parseBitLengthStr() << "\" exceeds "
@@ -217,16 +217,16 @@ bool ParseEnumFieldImpl::parseValidateBitLengthValueImpl(::xmlNodePtr node, std:
     return true;
 }
 
-bool ParseEnumFieldImpl::parseVerifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, SemanticType type) const
+bool ParseEnumFieldImpl::parseVerifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, ParseSemanticType type) const
 {
-    return type == SemanticType::MessageId;
+    return type == ParseSemanticType::MessageId;
 }
 
-ParseEnumFieldImpl::FieldRefInfo ParseEnumFieldImpl::parseProcessInnerRefImpl(const std::string& refStr) const
+ParseEnumFieldImpl::ParseFieldRefInfo ParseEnumFieldImpl::parseProcessInnerRefImpl(const std::string& refStr) const
 {
     assert(!refStr.empty());
 
-    FieldRefInfo info;
+    ParseFieldRefInfo info;
     auto iter = m_state.m_values.find(refStr);
     if (iter != m_state.m_values.end()) {
         info.m_field = this;
@@ -237,26 +237,26 @@ ParseEnumFieldImpl::FieldRefInfo ParseEnumFieldImpl::parseProcessInnerRefImpl(co
     return info;
 }
 
-bool ParseEnumFieldImpl::parseIsValidRefTypeImpl(FieldRefType type) const
+bool ParseEnumFieldImpl::parseIsValidRefTypeImpl(ParseFieldRefType type) const
 {
     return (type == FieldRefType_InnerValue);
 }
 
 bool ParseEnumFieldImpl::parseUpdateType()
 {
-    bool mustHave = (m_state.m_type == Type::NumOfValues);
+    bool mustHave = (m_state.m_type == ParseType::NumOfValues);
     if (!parseValidateSinglePropInstance(common::parseTypeStr(), mustHave)) {
         return false;
     }
 
     auto propsIter = parseProps().find(common::parseTypeStr());
     if (propsIter == parseProps().end()) {
-        assert(m_state.m_type != Type::NumOfValues);
+        assert(m_state.m_type != ParseType::NumOfValues);
         return true;
     }
 
     auto newType = ParseIntFieldImpl::parseTypeValue(propsIter->second);
-    if (newType == Type::NumOfValues) {
+    if (newType == ParseType::NumOfValues) {
         parseReportUnexpectedPropertyValue(common::parseTypeStr(), propsIter->second);
         return false;
     }
@@ -271,7 +271,7 @@ bool ParseEnumFieldImpl::parseUpdateType()
     }
 
     parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-                  "Type cannot be changed after reuse";
+                  "ParseType cannot be changed after reuse";
     return false;
 }
 
@@ -349,7 +349,7 @@ bool ParseEnumFieldImpl::parseUpdateBitLength()
         return false;
     }
 
-    auto maxBitLength = m_state.m_length * BitsInByte;
+    auto maxBitLength = m_state.m_length * ParseBitsInByte;
     assert((m_state.m_bitLength == 0) || (m_state.m_bitLength == maxBitLength));
     auto& valStr = common::parseGetStringProp(parseProps(), common::parseBitLengthStr());
     if (valStr.empty()) {
@@ -421,7 +421,7 @@ bool ParseEnumFieldImpl::parseUpdateValues()
     }
 
     for (auto* vNode : validValues) {
-        static const ParseXmlWrap::NamesList PropNames = {
+        static const ParseXmlWrap::ParseNamesList PropNames = {
             common::parseNameStr(),
             common::parseValStr(),
             common::parseSinceVersionStr(),
@@ -530,7 +530,7 @@ bool ParseEnumFieldImpl::parseUpdateValues()
             }
         }
 
-        ValueInfo info;
+        ParseValueInfo info;
         info.m_value = val;
         info.m_sinceVersion = parseGetSinceVersion();
         info.m_deprecatedSince = parseGetDeprecated();

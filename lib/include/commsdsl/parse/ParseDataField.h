@@ -32,26 +32,26 @@ class COMMSDSL_API ParseDataField : public ParseField
 {
     using Base = ParseField;
 public:
-    using ValueType = std::vector<std::uint8_t>;
+    using ParseValueType = std::vector<std::uint8_t>;
 
-    struct ValidValueInfo
+    struct ParseValidValueInfo
     {
-        ValueType m_value;
+        ParseValueType m_value;
         unsigned m_sinceVersion = 0;
         unsigned m_deprecatedSince = ParseProtocol::parseNotYetDeprecated();
     };
 
-    using ValidValuesList = std::vector<ValidValueInfo>;    
+    using ParseValidValuesList = std::vector<ParseValidValueInfo>;    
 
     explicit ParseDataField(const ParseDataFieldImpl* impl);
     explicit ParseDataField(ParseField field);
 
-    const ValueType& parseDefaultValue() const;
+    const ParseValueType& parseDefaultValue() const;
     std::size_t parseFixedLength() const;
     bool parseHasLengthPrefixField() const;
     ParseField parseLengthPrefixField() const;
     const std::string& parseDetachedPrefixFieldName() const;
-    const ValidValuesList& parseValidValues() const;
+    const ParseValidValuesList& parseValidValues() const;
 };
 
 } // namespace parse

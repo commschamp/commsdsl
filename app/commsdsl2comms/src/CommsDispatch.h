@@ -35,8 +35,8 @@ public:
 
 private:
     using CheckMsgFunc = std::function<bool (const commsdsl::gen::GenMessage& msg)>;
-    using MessagesList = std::vector<const commsdsl::gen::GenMessage*>;
-    using MessagesMap = std::map<std::uintmax_t, MessagesList>;
+    using GenMessagesList = std::vector<const commsdsl::gen::GenMessage*>;
+    using MessagesMap = std::map<std::uintmax_t, GenMessagesList>;
 
     bool commsWriteDispatchInternal() const;
     bool commsWriteClientDispatchInternal() const;

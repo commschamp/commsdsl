@@ -153,7 +153,7 @@ bool EmscriptenMsgHandler::emscriptenWriteSrcInternal() const
         "#^#BIND#$#\n"
         ;
 
-    util::StringsList includes;
+    util::GenStringsList includes;
     m_parent.emscriptenAddInputMessageIncludes(includes);
     if (!m_parent.emscriptenHasInput()) {
         auto allNs = m_generator.genGetAllNamespaces();
@@ -192,7 +192,7 @@ std::string EmscriptenMsgHandler::emscriptenHeaderIncludesInternal() const
     auto* parentNs = iFace->genParentNamespace();
     assert(parentNs != nullptr);
 
-    util::StringsList includes = {
+    util::GenStringsList includes = {
         iFace->emscriptenRelHeader()
     };
 
@@ -226,7 +226,7 @@ std::string EmscriptenMsgHandler::emscriptenHeaderHandleFuncsInternal() const
         repl["PROT_OPTS"] = ", " + EmscriptenProtocolOptions::emscriptenClassName(m_generator);
     }
     
-    util::StringsList funcs;
+    util::GenStringsList funcs;
 
     auto allMessages = m_generator.genGetAllMessagesIdSorted();
     funcs.reserve(allMessages.size());
@@ -262,7 +262,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceHandleFuncsInternal() const
         repl["PROT_OPTS"] = ", " + EmscriptenProtocolOptions::emscriptenClassName(m_generator);
     }    
 
-    util::StringsList funcs;
+    util::GenStringsList funcs;
 
     auto allMessages = m_generator.genGetAllMessagesIdSorted();
     funcs.reserve(allMessages.size() + 1U);
@@ -315,7 +315,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceWrapperFuncsInternal() const
         "}\n";
 
 
-    util::StringsList funcs;
+    util::GenStringsList funcs;
 
     auto allMessages = m_generator.genGetAllMessagesIdSorted();
     funcs.reserve(allMessages.size() + 1U);
@@ -372,7 +372,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceBindFuncsInternal() const
         {"HANDLER", emscriptenClassName()},
     };
 
-    util::StringsList funcs;
+    util::GenStringsList funcs;
 
     auto allMessages = m_generator.genGetAllMessagesIdSorted();
     funcs.reserve(allMessages.size() + 1U);

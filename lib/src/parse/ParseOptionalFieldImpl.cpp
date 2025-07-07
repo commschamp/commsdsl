@@ -34,13 +34,13 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::NamesList& parseOptionalSupportedTypes()
+const ParseXmlWrap::ParseNamesList& parseOptionalSupportedTypes()
 {
-    static const ParseXmlWrap::NamesList Names = ParseFieldImpl::parseSupportedTypes();
+    static const ParseXmlWrap::ParseNamesList Names = ParseFieldImpl::parseSupportedTypes();
     return Names;
 }
 
-ParseXmlWrap::NamesList parseGetExtraNames()
+ParseXmlWrap::ParseNamesList parseGetExtraNames()
 {
     auto names = parseOptionalSupportedTypes();
     names.push_back(common::parseFieldStr());
@@ -57,9 +57,9 @@ ParseOptionalFieldImpl::ParseOptionalFieldImpl(::xmlNodePtr node, ParseProtocolI
 }
 
 
-ParseFieldImpl::Kind ParseOptionalFieldImpl::parseKindImpl() const
+ParseFieldImpl::ParseKind ParseOptionalFieldImpl::parseKindImpl() const
 {
-    return Kind::Optional;
+    return ParseKind::Optional;
 }
 
 ParseOptionalFieldImpl::ParseOptionalFieldImpl(const ParseOptionalFieldImpl& other)
@@ -76,14 +76,14 @@ ParseOptionalFieldImpl::ParseOptionalFieldImpl(const ParseOptionalFieldImpl& oth
     }
 }
 
-ParseFieldImpl::Ptr ParseOptionalFieldImpl::parseCloneImpl() const
+ParseFieldImpl::ParsePtr ParseOptionalFieldImpl::parseCloneImpl() const
 {
-    return Ptr(new ParseOptionalFieldImpl(*this));
+    return ParsePtr(new ParseOptionalFieldImpl(*this));
 }
 
-const ParseXmlWrap::NamesList& ParseOptionalFieldImpl::parseExtraPropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseOptionalFieldImpl::parseExtraPropsNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = {
+    static const ParseXmlWrap::ParseNamesList List = {
         common::parseDefaultModeStr(),
         common::parseCondStr(),
         common::parseDisplayExtModeCtrlStr(),
@@ -94,18 +94,18 @@ const ParseXmlWrap::NamesList& ParseOptionalFieldImpl::parseExtraPropsNamesImpl(
     return List;
 }
 
-const ParseXmlWrap::NamesList&ParseOptionalFieldImpl::parseExtraPossiblePropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList&ParseOptionalFieldImpl::parseExtraPossiblePropsNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = {
+    static const ParseXmlWrap::ParseNamesList List = {
         common::parseFieldStr(),
     };
 
     return List;
 }
 
-const ParseXmlWrap::NamesList& ParseOptionalFieldImpl::parseExtraChildrenNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseOptionalFieldImpl::parseExtraChildrenNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = parseGetExtraNames();
+    static const ParseXmlWrap::ParseNamesList List = parseGetExtraNames();
     return List;
 }
 
@@ -141,7 +141,7 @@ bool ParseOptionalFieldImpl::parseImpl()
         parseUpdateMultiCondition();
 }
 
-bool ParseOptionalFieldImpl::parseVerifySiblingsImpl(const FieldsList& fields) const
+bool ParseOptionalFieldImpl::parseVerifySiblingsImpl(const ParseFieldsList& fields) const
 {
     auto& c = parseCond();
     if (!c) {
@@ -237,7 +237,7 @@ bool ParseOptionalFieldImpl::parseStrToDataImpl(const std::string& ref, std::vec
             });
 }
 
-ParseOptionalFieldImpl::FieldRefInfo ParseOptionalFieldImpl::parseProcessInnerRefImpl(const std::string& refStr) const
+ParseOptionalFieldImpl::ParseFieldRefInfo ParseOptionalFieldImpl::parseProcessInnerRefImpl(const std::string& refStr) const
 {
     assert(!refStr.empty());
 
@@ -250,13 +250,13 @@ ParseOptionalFieldImpl::FieldRefInfo ParseOptionalFieldImpl::parseProcessInnerRe
     }
 
     if (fieldName != m_field->parseName()) {
-        return FieldRefInfo();
+        return ParseFieldRefInfo();
     }
 
     return m_field->parseProcessInnerRef(restStr);
 }
 
-bool ParseOptionalFieldImpl::parseIsValidRefTypeImpl(FieldRefType type) const
+bool ParseOptionalFieldImpl::parseIsValidRefTypeImpl(ParseFieldRefType type) const
 {
     return (type == FieldRefType_Exists);
 }
@@ -272,16 +272,16 @@ bool ParseOptionalFieldImpl::parseUpdateMode()
         return true;
     }
 
-    static const std::map<std::string, Mode> Map = {
-        std::make_pair("tent", Mode::Tentative),
-        std::make_pair("tentative", Mode::Tentative),
-        std::make_pair("t", Mode::Tentative),
-        std::make_pair("miss", Mode::Missing),
-        std::make_pair("missing", Mode::Missing),
-        std::make_pair("m", Mode::Missing),
-        std::make_pair("exists", Mode::Exists),
-        std::make_pair("exist", Mode::Exists),
-        std::make_pair("e", Mode::Exists),
+    static const std::map<std::string, ParseMode> Map = {
+        std::make_pair("tent", ParseMode::Tentative),
+        std::make_pair("tentative", ParseMode::Tentative),
+        std::make_pair("t", ParseMode::Tentative),
+        std::make_pair("miss", ParseMode::Missing),
+        std::make_pair("missing", ParseMode::Missing),
+        std::make_pair("m", ParseMode::Missing),
+        std::make_pair("exists", ParseMode::Exists),
+        std::make_pair("exist", ParseMode::Exists),
+        std::make_pair("e", ParseMode::Exists),
     };
 
     auto modeStr = common::parseToLowerCopy(iter->second);
@@ -355,7 +355,7 @@ bool ParseOptionalFieldImpl::parseUpdateSingleCondition()
 
 bool ParseOptionalFieldImpl::parseUpdateMultiCondition()
 {
-    static const ParseXmlWrap::NamesList ElemNames = {
+    static const ParseXmlWrap::ParseNamesList ElemNames = {
         common::parseAndStr(),
         common::parseOrStr()
     };
@@ -391,7 +391,7 @@ bool ParseOptionalFieldImpl::parseUpdateMultiCondition()
         return false;
     }
 
-    assert(newCond->parseKind() == ParseOptCondImpl::Kind::List);
+    assert(newCond->parseKind() == ParseOptCondImpl::ParseKind::List);
     m_cond = std::move(newCond);
     return true;
 }
@@ -539,7 +539,7 @@ const ParseFieldImpl* ParseOptionalFieldImpl::parseGetField() const
 
 bool ParseOptionalFieldImpl::parseStrToValue(
     const std::string& ref,
-    StrToValueFieldConvertFunc&& forwardFunc) const
+    ParseStrToValueFieldConvertFunc&& forwardFunc) const
 {
     assert(!ref.empty());
     if ((!parseProtocol().parseIsFieldValueReferenceSupported()) ||

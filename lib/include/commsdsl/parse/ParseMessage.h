@@ -36,7 +36,7 @@ class ParseMessageImpl;
 class COMMSDSL_API ParseMessage
 {
 public:
-    enum class Sender
+    enum class ParseSender
     {
         Both,
         Client,
@@ -44,11 +44,11 @@ public:
         NumOfValues
     };
 
-    using FieldsList = std::vector<ParseField>;
-    using AttributesMap = ParseField::AttributesMap;
-    using ElementsList = ParseField::ElementsList;
-    using PlatformsList = std::vector<std::string>;
-    using AliasesList = std::vector<ParseAlias>;
+    using ParseFieldsList = std::vector<ParseField>;
+    using ParseAttributesMap = ParseField::ParseAttributesMap;
+    using ParseElementsList = ParseField::ParseElementsList;
+    using ParsePlatformsList = std::vector<std::string>;
+    using ParseAliasesList = std::vector<ParseAlias>;
 
     explicit ParseMessage(const ParseMessageImpl* impl);
     ParseMessage(const ParseMessage& other);
@@ -65,12 +65,12 @@ public:
     unsigned parseSinceVersion() const;
     unsigned parseDeprecatedSince() const;
     bool parseIsDeprecatedRemoved() const;
-    FieldsList parseFields() const;
-    AliasesList parseAliases() const;
+    ParseFieldsList parseFields() const;
+    ParseAliasesList parseAliases() const;
     std::string parseExternalRef(bool schemaRef = true) const;
     bool parseIsCustomizable() const;
     bool parseIsFailOnInvalid() const;
-    Sender parseSender() const;
+    ParseSender parseSender() const;
     ParseOverrideType parseReadOverride() const;
     ParseOverrideType parseWriteOverride() const;
     ParseOverrideType parseRefreshOverride() const;
@@ -82,9 +82,9 @@ public:
     ParseOptCond parseReadCond() const;
     ParseOptCond parseValidCond() const;
 
-    const AttributesMap& parseExtraAttributes() const;
-    const ElementsList& parseExtraElements() const;
-    const PlatformsList& parsePlatforms() const;
+    const ParseAttributesMap& parseExtraAttributes() const;
+    const ParseElementsList& parseExtraElements() const;
+    const ParsePlatformsList& parsePlatforms() const;
 
 protected:
     const ParseMessageImpl* m_pImpl;

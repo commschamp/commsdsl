@@ -35,7 +35,7 @@ namespace
 {
 
 using ReplacementMap = commsdsl::gen::util::ReplacementMap;
-using StringsList = commsdsl::gen::util::StringsList;
+using StringsList = commsdsl::gen::util::GenStringsList;
 
 } // namespace 
     
@@ -163,7 +163,7 @@ bool ToolsQtCmake::toolsWriteInternal() const
     ;
 
     auto& plugins = m_generator.toolsPlugins();
-    util::StringsList pluginInvokes;
+    util::GenStringsList pluginInvokes;
     for (auto& p : plugins) {
         assert(p);
         pluginInvokes.push_back("cc_plugin (\"" + p->toolsProtocolName() + "\" \"" + p->toolsInterfaceName() + "\")");

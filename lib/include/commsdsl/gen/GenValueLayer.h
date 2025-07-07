@@ -33,6 +33,7 @@ class GenInterface;
 class COMMSDSL_API GenValueLayer : public GenLayer
 {
     using Base = GenLayer;
+
 public:
     using ParseLayer = commsdsl::parse::ParseLayer;
     using ParseValueLayer = commsdsl::parse::ParseValueLayer;
@@ -43,7 +44,7 @@ public:
     bool genIsInterfaceSupported(const GenInterface* iFace) const;
 
 protected:    
-    ParseValueLayer valueDslObj() const;
+    ParseValueLayer genValueLayerParseObj() const;
 };
 
 } // namespace gen

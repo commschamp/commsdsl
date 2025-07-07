@@ -65,8 +65,8 @@ void InterfaceTestSuite::test2()
     TS_ASSERT_EQUALS(int1.parseName(), "Generic");
     auto fields = int1.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
-    TS_ASSERT_EQUALS(fields.front().parseKind(), commsdsl::parse::ParseField::Kind::Int);
-    TS_ASSERT_EQUALS(fields.front().parseSemanticType(), commsdsl::parse::ParseField::SemanticType::Version);
+    TS_ASSERT_EQUALS(fields.front().parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
+    TS_ASSERT_EQUALS(fields.front().parseSemanticType(), commsdsl::parse::ParseField::ParseSemanticType::Version);
 }
 
 void InterfaceTestSuite::test3()

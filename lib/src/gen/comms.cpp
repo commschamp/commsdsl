@@ -41,9 +41,9 @@ namespace comms
 namespace 
 {
 
-const std::string ScopeSep("::");
-const std::string PathSep("/");
-const std::size_t MaxPossibleLength = std::numeric_limits<std::size_t>::max();
+const std::string GenScopeSep("::");
+const std::string GenPathSep("/");
+const std::size_t GenMaxPossibleLength = std::numeric_limits<std::size_t>::max();
 
 std::string genScopeForElement(
     const std::string& name, 
@@ -51,7 +51,7 @@ std::string genScopeForElement(
     const std::vector<std::string>& subElems,
     bool addMainNamespace, 
     bool addElement,
-    const std::string& sep = ScopeSep)
+    const std::string& sep = GenScopeSep)
 {
     std::string result;
     if (addMainNamespace) {
@@ -165,7 +165,7 @@ std::string genScopeForInternal(
         leaf = &elem;
     }
 
-    auto fieldTypeScope = (leaf->genElemType() == GenElem::Type_Field) && (sep == ScopeSep);
+    auto fieldTypeScope = (leaf->genElemType() == GenElem::Type_Field) && (sep == GenScopeSep);
 
     auto* parent = elem.genGetParent();
     assert(parent != nullptr);
@@ -239,7 +239,7 @@ std::string genCommonScopeForInternal(
         leaf = &elem;
     }
 
-    auto fieldTypeScope = (leaf->genElemType() == GenElem::Type_Field) && (sep == ScopeSep);
+    auto fieldTypeScope = (leaf->genElemType() == GenElem::Type_Field) && (sep == GenScopeSep);
 
     auto* parent = elem.genGetParent();
     assert(parent != nullptr);
@@ -341,7 +341,7 @@ std::string genScopeFor(
     bool addMainNamespace, 
     bool addElement)
 {
-    return genScopeForInternal(elem, generator, addMainNamespace, addElement, ScopeSep);
+    return genScopeForInternal(elem, generator, addMainNamespace, addElement, GenScopeSep);
 }
 
 std::string genCommonScopeFor(
@@ -350,7 +350,7 @@ std::string genCommonScopeFor(
     bool addMainNamespace, 
     bool addElement)
 {
-    return genCommonScopeForInternal(elem, generator, addMainNamespace, addElement, ScopeSep);
+    return genCommonScopeForInternal(elem, generator, addMainNamespace, addElement, GenScopeSep);
 }
 
 std::string genScopeForOptions(
@@ -474,22 +474,22 @@ std::string genScopeForCustomLayer(
         strings::genLayerNamespaceStr()
     };
 
-    return genScopeForElement(elem.genName(), generator, SubElems, addMainNamespace, addElement, ScopeSep); 
+    return genScopeForElement(elem.genName(), generator, SubElems, addMainNamespace, addElement, GenScopeSep); 
 }
 
 std::string genRelHeaderPathFor(const GenElem& elem, const GenGenerator& generator, bool addMainNamespace)
 {
-    return genScopeForInternal(elem, generator, addMainNamespace, true, PathSep) + strings::genCppHeaderSuffixStr();    
+    return genScopeForInternal(elem, generator, addMainNamespace, true, GenPathSep) + strings::genCppHeaderSuffixStr();    
 }
 
 std::string genRelSourcePathFor(const GenElem& elem, const GenGenerator& generator, bool addMainNamespace)
 {
-    return genScopeForInternal(elem, generator, addMainNamespace, true, PathSep) + strings::genCppSourceSuffixStr();    
+    return genScopeForInternal(elem, generator, addMainNamespace, true, GenPathSep) + strings::genCppSourceSuffixStr();    
 }
 
 std::string genRelCommonHeaderPathFor(const GenElem& elem, const GenGenerator& generator)
 {
-    return genCommonScopeForInternal(elem, generator, true, true, PathSep) + strings::genCppHeaderSuffixStr();    
+    return genCommonScopeForInternal(elem, generator, true, true, GenPathSep) + strings::genCppHeaderSuffixStr();    
 }
 
 std::string genRelHeaderPathForField(const std::string& name, const GenGenerator& generator)
@@ -498,7 +498,7 @@ std::string genRelHeaderPathForField(const std::string& name, const GenGenerator
         strings::genFieldNamespaceStr()
     };
 
-    return genScopeForElement(name, generator, SubElems, true, true, PathSep) + strings::genCppHeaderSuffixStr();
+    return genScopeForElement(name, generator, SubElems, true, true, GenPathSep) + strings::genCppHeaderSuffixStr();
 }
 
 std::string genRelHeaderForOptions(const std::string& name, const GenGenerator& generator, bool addMainNamespace)
@@ -507,7 +507,7 @@ std::string genRelHeaderForOptions(const std::string& name, const GenGenerator& 
         strings::genOptionsNamespaceStr()
     };
 
-    return genScopeForElement(name, generator, SubElems, addMainNamespace, true, PathSep) + strings::genCppHeaderSuffixStr();
+    return genScopeForElement(name, generator, SubElems, addMainNamespace, true, GenPathSep) + strings::genCppHeaderSuffixStr();
 }
 
 std::string genRelHeaderForDispatch(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
@@ -518,7 +518,7 @@ std::string genRelHeaderForDispatch(const std::string& name, const GenGenerator&
     }
 
     subElems.push_back(strings::genCispatchNamespaceStr());
-    return genScopeForElement(name, generator, subElems, true, true, PathSep) + strings::genCppHeaderSuffixStr();
+    return genScopeForElement(name, generator, subElems, true, true, GenPathSep) + strings::genCppHeaderSuffixStr();
 }
 
 std::string genRelHeaderForFactory(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
@@ -529,7 +529,7 @@ std::string genRelHeaderForFactory(const std::string& name, const GenGenerator& 
     }
 
     subElems.push_back(strings::genFactoryNamespaceStr());
-    return genScopeForElement(name, generator, subElems, true, true, PathSep) + strings::genCppHeaderSuffixStr();
+    return genScopeForElement(name, generator, subElems, true, true, GenPathSep) + strings::genCppHeaderSuffixStr();
 }
 
 // TODO: remove
@@ -545,7 +545,7 @@ std::string genRelHeaderForNamespaceMember(const std::string& name, const GenGen
         subElems.push_back(ns.genName());
     }
 
-    return genScopeForElement(name, generator, subElems, true, true, PathSep) + strings::genCppHeaderSuffixStr();    
+    return genScopeForElement(name, generator, subElems, true, true, GenPathSep) + strings::genCppHeaderSuffixStr();    
 }
 
 std::string genRelSourceForNamespaceMember(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
@@ -555,7 +555,7 @@ std::string genRelSourceForNamespaceMember(const std::string& name, const GenGen
         subElems.push_back(ns.genName());
     }
 
-    return genScopeForElement(name, generator, subElems, true, true, PathSep) + strings::genCppSourceSuffixStr();    
+    return genScopeForElement(name, generator, subElems, true, true, GenPathSep) + strings::genCppSourceSuffixStr();    
 }
 
 std::string genRelHeaderForLayer(const std::string& name, const GenGenerator& generator)
@@ -565,7 +565,7 @@ std::string genRelHeaderForLayer(const std::string& name, const GenGenerator& ge
         strings::genLayerNamespaceStr()
     };
 
-    return genScopeForElement(name, generator, SubElems, true, true, PathSep) + strings::genCppHeaderSuffixStr();
+    return genScopeForElement(name, generator, SubElems, true, true, GenPathSep) + strings::genCppHeaderSuffixStr();
 }
 
 std::string genRelHeaderForChecksum(const std::string& name, const GenGenerator& generator)
@@ -575,7 +575,7 @@ std::string genRelHeaderForChecksum(const std::string& name, const GenGenerator&
         strings::genChecksumNamespaceStr()
     };
 
-    return genScopeForElement(name, generator, SubElems, true, true, PathSep) + strings::genCppHeaderSuffixStr();
+    return genScopeForElement(name, generator, SubElems, true, true, GenPathSep) + strings::genCppHeaderSuffixStr();
 }
 
 std::string genRelHeaderForInput(const std::string& name, const GenGenerator& generator, const GenNamespace& ns, bool addMainNamespace)
@@ -587,19 +587,19 @@ std::string genRelHeaderForInput(const std::string& name, const GenGenerator& ge
 
     subElems.push_back(strings::genInputNamespaceStr());
 
-    return genScopeForElement(name, generator, subElems, addMainNamespace, true, PathSep) + strings::genCppHeaderSuffixStr();
+    return genScopeForElement(name, generator, subElems, addMainNamespace, true, GenPathSep) + strings::genCppHeaderSuffixStr();
 }
 
 std::string genRelHeaderForRoot(const std::string& name, const GenGenerator& generator, bool addMainNamespace)
 {
     static const std::vector<std::string> SubElems;
-    return genScopeForElement(name, generator, SubElems, addMainNamespace, true, PathSep) + strings::genCppHeaderSuffixStr();
+    return genScopeForElement(name, generator, SubElems, addMainNamespace, true, GenPathSep) + strings::genCppHeaderSuffixStr();
 }
 
 std::string genRelSourceForRoot(const std::string& name, const GenGenerator& generator, bool addMainNamespace)
 {
     static const std::vector<std::string> SubElems;
-    return genScopeForElement(name, generator, SubElems, addMainNamespace, true, PathSep) + strings::genCppSourceSuffixStr();
+    return genScopeForElement(name, generator, SubElems, addMainNamespace, true, GenPathSep) + strings::genCppSourceSuffixStr();
 }
 
 std::string genHeaderPathFor(const GenElem& elem, const GenGenerator& generator)
@@ -860,7 +860,7 @@ void genPrepareIncludeStatement(std::vector<std::string>& includes)
     }
 }
 
-const std::string& genCppIntTypeFor(commsdsl::parse::ParseIntField::Type value, std::size_t len)
+const std::string& genCppIntTypeFor(commsdsl::parse::ParseIntField::ParseType value, std::size_t len)
 {
     static const std::string TypeMap[] = {
         /* Int8 */ "std::int8_t",
@@ -876,7 +876,7 @@ const std::string& genCppIntTypeFor(commsdsl::parse::ParseIntField::Type value, 
     };
 
     static const std::size_t TypeMapSize = std::extent<decltype(TypeMap)>::value;
-    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::parse::ParseIntField::Type::NumOfValues),
+    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::parse::ParseIntField::ParseType::NumOfValues),
             "Incorrect map");
 
     std::size_t idx = static_cast<std::size_t>(value);
@@ -891,24 +891,24 @@ const std::string& genCppIntTypeFor(commsdsl::parse::ParseIntField::Type value, 
     }
 
     // Variable length
-    auto offset = idx - static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::Type::Intvar);
+    auto offset = idx - static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::ParseType::Intvar);
     assert(offset < 2U);
 
     if (len <= 2U) {
-        auto base = static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::Type::Int16);
+        auto base = static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::ParseType::Int16);
         return TypeMap[base + offset];
     }
 
     if (len <= 4U) {
-        auto base = static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::Type::Int32);
+        auto base = static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::ParseType::Int32);
         return TypeMap[base + offset];
     }
 
-    auto base = static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::Type::Int64);
+    auto base = static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::ParseType::Int64);
     return TypeMap[base + offset];    
 }
 
-std::string genCppIntChangedSignTypeFor(commsdsl::parse::ParseIntField::Type value, std::size_t len)
+std::string genCppIntChangedSignTypeFor(commsdsl::parse::ParseIntField::ParseType value, std::size_t len)
 {
     auto str = genCppIntTypeFor(value, len);
     assert(str.find("std::") == 0U);
@@ -928,7 +928,7 @@ std::string genCppIntChangedSignTypeFor(commsdsl::parse::ParseIntField::Type val
     return str;    
 }
 
-const std::string& genCppFloatTypeFor(commsdsl::parse::ParseFloatField::Type value)
+const std::string& genCppFloatTypeFor(commsdsl::parse::ParseFloatField::ParseType value)
 {
     static const std::string TypeMap[] = {
         /* Float */ "float",
@@ -936,7 +936,7 @@ const std::string& genCppFloatTypeFor(commsdsl::parse::ParseFloatField::Type val
     };
 
     static const std::size_t TypeMapSize = std::extent<decltype(TypeMap)>::value;
-    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::parse::ParseFloatField::Type::NumOfValues),
+    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::parse::ParseFloatField::ParseType::NumOfValues),
             "Incorrect map");
 
     std::size_t idx = static_cast<std::size_t>(value);
@@ -1133,13 +1133,13 @@ const std::string& genParseUnitsToOpt(commsdsl::parse::ParseUnits value)
 
 std::size_t genMaxPossibleLength()
 {
-    return MaxPossibleLength;
+    return GenMaxPossibleLength;
 }
 
 std::size_t genAddLength(std::size_t len1, std::size_t len2)
 {
-    if ((MaxPossibleLength - len1) <= len2) {
-        return MaxPossibleLength;
+    if ((GenMaxPossibleLength - len1) <= len2) {
+        return GenMaxPossibleLength;
     }
 
     return len1 + len2;

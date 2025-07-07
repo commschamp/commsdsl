@@ -34,13 +34,13 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::NamesList& parseBundleSupportedTypes()
+const ParseXmlWrap::ParseNamesList& parseBundleSupportedTypes()
 {
-    static const ParseXmlWrap::NamesList Names = ParseFieldImpl::parseSupportedTypes();
+    static const ParseXmlWrap::ParseNamesList Names = ParseFieldImpl::parseSupportedTypes();
     return Names;
 }
 
-ParseXmlWrap::NamesList parseGetExtraNames()
+ParseXmlWrap::ParseNamesList parseGetExtraNames()
 {
     auto names = parseBundleSupportedTypes();
     names.push_back(common::parseMembersStr());
@@ -65,9 +65,9 @@ ParseBundleFieldImpl::ParseBundleFieldImpl(const ParseBundleFieldImpl& other)
     }
 }
 
-ParseBundleFieldImpl::Members ParseBundleFieldImpl::parseMembersList() const
+ParseBundleFieldImpl::ParseMembers ParseBundleFieldImpl::parseMembersList() const
 {
-    Members result;
+    ParseMembers result;
     result.reserve(m_members.size());
     std::transform(
         m_members.begin(), m_members.end(), std::back_inserter(result),
@@ -78,9 +78,9 @@ ParseBundleFieldImpl::Members ParseBundleFieldImpl::parseMembersList() const
     return result;
 }
 
-ParseBundleFieldImpl::AliasesList ParseBundleFieldImpl::parseAliasesList() const
+ParseBundleFieldImpl::ParseAliasesList ParseBundleFieldImpl::parseAliasesList() const
 {
-    AliasesList result;
+    ParseAliasesList result;
     result.reserve(m_aliases.size());
     std::transform(
         m_aliases.begin(), m_aliases.end(), std::back_inserter(result),
@@ -91,19 +91,19 @@ ParseBundleFieldImpl::AliasesList ParseBundleFieldImpl::parseAliasesList() const
     return result;
 }
 
-ParseFieldImpl::Kind ParseBundleFieldImpl::parseKindImpl() const
+ParseFieldImpl::ParseKind ParseBundleFieldImpl::parseKindImpl() const
 {
-    return Kind::Bundle;
+    return ParseKind::Bundle;
 }
 
-ParseFieldImpl::Ptr ParseBundleFieldImpl::parseCloneImpl() const
+ParseFieldImpl::ParsePtr ParseBundleFieldImpl::parseCloneImpl() const
 {
-    return Ptr(new ParseBundleFieldImpl(*this));
+    return ParsePtr(new ParseBundleFieldImpl(*this));
 }
 
-const ParseXmlWrap::NamesList& ParseBundleFieldImpl::parseExtraPropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseBundleFieldImpl::parseExtraPropsNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = {
+    static const ParseXmlWrap::ParseNamesList List = {
         common::parseReuseAliasesStr(),
         common::parseCopyValidCondFromStr(),
     };
@@ -111,18 +111,18 @@ const ParseXmlWrap::NamesList& ParseBundleFieldImpl::parseExtraPropsNamesImpl() 
     return List;
 }
 
-const ParseXmlWrap::NamesList& ParseBundleFieldImpl::parseExtraPossiblePropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseBundleFieldImpl::parseExtraPossiblePropsNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = {
+    static const ParseXmlWrap::ParseNamesList List = {
         common::parseValidCondStr(),
     };
 
     return List;
 }
 
-const ParseXmlWrap::NamesList& ParseBundleFieldImpl::parseExtraChildrenNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseBundleFieldImpl::parseExtraChildrenNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList Names = parseGetExtraNames();
+    static const ParseXmlWrap::ParseNamesList Names = parseGetExtraNames();
     return Names;
 }
 
@@ -181,7 +181,7 @@ bool ParseBundleFieldImpl::parseImpl()
         parseUpdateMultiValidCond();
 }
 
-bool ParseBundleFieldImpl::parseReplaceMembersImpl(FieldsList& members)
+bool ParseBundleFieldImpl::parseReplaceMembersImpl(ParseFieldsList& members)
 {
     for (auto& mem : members) {
         assert(mem);
@@ -221,7 +221,7 @@ std::size_t ParseBundleFieldImpl::parseMaxLengthImpl() const
 {
     std::size_t sum = 0U;
     for (auto& m : m_members) {
-        if (m->parseSemanticType() == SemanticType::Length) {
+        if (m->parseSemanticType() == ParseSemanticType::Length) {
             return common::parseMaxPossibleLength();
         }
 
@@ -256,9 +256,9 @@ bool ParseBundleFieldImpl::parseStrToDataImpl(const std::string& ref, std::vecto
     return parseStrToDataOnFields(ref, m_members, val);
 }
 
-bool ParseBundleFieldImpl::parseVerifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, SemanticType type) const
+bool ParseBundleFieldImpl::parseVerifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, ParseSemanticType type) const
 {
-    if ((type == SemanticType::Length) &&
+    if ((type == ParseSemanticType::Length) &&
         (parseProtocol().parseIsSemanticTypeLengthSupported()) && 
         (parseProtocol().parseIsNonIntSemanticTypeLengthSupported())) {
         return true;
@@ -291,12 +291,12 @@ bool ParseBundleFieldImpl::parseVerifyAliasedMemberImpl(const std::string& field
     return (*iter)->parseVerifyAliasedMember(restFieldName);
 }
 
-const ParseXmlWrap::NamesList& ParseBundleFieldImpl::parseSupportedMemberTypesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseBundleFieldImpl::parseSupportedMemberTypesImpl() const
 {
     return parseBundleSupportedTypes();
 }
 
-const ParseBundleFieldImpl::FieldsList& ParseBundleFieldImpl::parseMembersImpl() const
+const ParseBundleFieldImpl::ParseFieldsList& ParseBundleFieldImpl::parseMembersImpl() const
 {
     return m_members;
 }
@@ -423,7 +423,7 @@ bool ParseBundleFieldImpl::parseUpdateMembers()
             m_members.begin(), m_members.end(),
             [](auto& m)
             {
-                return m->parseSemanticType() == SemanticType::Length;
+                return m->parseSemanticType() == ParseSemanticType::Length;
             });
 
     if (1 < lengthFieldsCount) {
@@ -618,7 +618,7 @@ bool ParseBundleFieldImpl::parseUpdateMultiCondInternal(const std::string& prop,
         return false;
     }
 
-    static const ParseXmlWrap::NamesList ElemNames = {
+    static const ParseXmlWrap::ParseNamesList ElemNames = {
         common::parseAndStr(),
         common::parseOrStr()
     };

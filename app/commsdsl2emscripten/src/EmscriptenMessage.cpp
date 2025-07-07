@@ -164,7 +164,7 @@ std::string EmscriptenMessage::emscriptenHeaderIncludesInternal() const
     assert(iFace != nullptr);
     auto* parentNs = iFace->genParentNamespace();
     
-    util::StringsList includes = {
+    util::GenStringsList includes = {
         comms::genRelHeaderPathFor(*this, gen),
         iFace->emscriptenRelHeader(),
         EmscriptenNamespace::cast(parentNs)->emscriptenHandlerRelHeader(),
@@ -187,7 +187,7 @@ std::string EmscriptenMessage::emscriptenHeaderIncludesInternal() const
 
 std::string EmscriptenMessage::emscriptenHeaderFieldsInternal() const
 {
-    util::StringsList fields;
+    util::GenStringsList fields;
     for (auto* f : m_emscriptenFields) {
         fields.push_back(f->emscriptenHeaderClass());
     }
@@ -198,7 +198,7 @@ std::string EmscriptenMessage::emscriptenHeaderFieldsInternal() const
 std::string EmscriptenMessage::emscriptenHeaderClassInternal() const
 {
     auto& gen = EmscriptenGenerator::cast(genGenerator());
-    util::StringsList fields;
+    util::GenStringsList fields;
     for (auto* f : m_emscriptenFields) {
         static const std::string Templ = 
             "using Base::field_#^#NAME#$#;\n"
@@ -250,7 +250,7 @@ std::string EmscriptenMessage::emscriptenHeaderClassInternal() const
 
 std::string EmscriptenMessage::emscriptenSourceFieldsInternal() const
 {
-    util::StringsList fields;
+    util::GenStringsList fields;
     for (auto* f : m_emscriptenFields) {
         fields.push_back(f->emscriptenSourceCode());
     }
@@ -266,7 +266,7 @@ std::string EmscriptenMessage::emscriptenSourceCodeInternal() const
         {"CLASS_NAME", gen.emscriptenClassName(*this)},
     };
 
-    util::StringsList fields;
+    util::GenStringsList fields;
     for (auto* f : m_emscriptenFields) {
         static const std::string Templ = 
             ".function(\"field_#^#NAME#$#\", &#^#CLASS_NAME#$#::field_#^#NAME#$#_, emscripten::allow_raw_pointers())";

@@ -44,7 +44,7 @@ ParseBitfieldField::ParseBitfieldField(const ParseBitfieldFieldImpl* impl) :
 ParseBitfieldField::ParseBitfieldField(ParseField field)
   : Base(field)
 {
-    assert(parseKind() == Kind::Bitfield);
+    assert(parseKind() == ParseKind::Bitfield);
 }
 
 ParseEndian ParseBitfieldField::parseEndian() const
@@ -52,7 +52,7 @@ ParseEndian ParseBitfieldField::parseEndian() const
     return cast(m_pImpl)->parseEndian();
 }
 
-ParseBitfieldField::Members ParseBitfieldField::parseMembers() const
+ParseBitfieldField::ParseMembers ParseBitfieldField::parseMembers() const
 {
     return cast(m_pImpl)->parseMembersList();
 }

@@ -40,12 +40,12 @@ public:
     GenBitfieldField(GenGenerator& generator, ParseField dslObj, GenElem* parent = nullptr);
     virtual ~GenBitfieldField();
 
-    const FieldsList& genMembers() const;
+    const GenFieldsList& genMembers() const;
 
 protected:    
     virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl() override;
-    virtual FieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
+    virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
 
     ParseBitfieldField genBitfieldFieldParseObj() const;
 

@@ -44,12 +44,13 @@ const unsigned MaxDslVersion = COMMSDSL_MAJOR_VERSION;
 class GenSchemaImpl
 {
 public:
-    using NamespacesList = GenSchema::NamespacesList;
-    using PlatformNamesList = GenSchema::PlatformNamesList;
-    using FieldsAccessList = GenSchema::FieldsAccessList;
     using ParseSchema = GenSchema::ParseSchema;
     using ParseField = commsdsl::parse::ParseField;
     using ParseProtocol = commsdsl::parse::ParseProtocol;
+
+    using GenNamespacesList = GenSchema::GenNamespacesList;
+    using GenPlatformNamesList = GenSchema::GenPlatformNamesList;
+    using GenFieldsAccessList = GenSchema::GenFieldsAccessList;
 
     explicit GenSchemaImpl(GenGenerator& generator, ParseSchema parseObj, GenElem* parent) :
         m_generator(generator),
@@ -63,12 +64,12 @@ public:
         return m_parseObj;
     }
 
-    NamespacesList& genNamespaces()
+    GenNamespacesList& genNamespaces()
     {
         return m_namespaces;
     }
 
-    const NamespacesList& genNamespaces() const
+    const GenNamespacesList& genNamespaces() const
     {
         return m_namespaces;
     }    
@@ -326,9 +327,9 @@ public:
         return m_generator;
     }
 
-    FieldsAccessList genFindMessageIdFields() const
+    GenFieldsAccessList genFindMessageIdFields() const
     {
-        FieldsAccessList result;
+        GenFieldsAccessList result;
         for (auto& n : m_namespaces) {
             auto nsResult = n->genFindMessageIdFields();
             std::move(nsResult.begin(), nsResult.end(), std::back_inserter(result));
@@ -357,7 +358,7 @@ public:
                                         fields.begin(), fields.end(),
                                         [](auto& f)
                                         {
-                                            return f->genParseObj().parseSemanticType() == ParseField::SemanticType::Version;
+                                            return f->genParseObj().parseSemanticType() == ParseField::ParseSemanticType::Version;
                                         });
 
                             });
@@ -369,7 +370,7 @@ public:
         m_forcedSchemaVersion = static_cast<decltype(m_forcedSchemaVersion)>(value);
     }    
 
-    const PlatformNamesList& platformNames()
+    const GenPlatformNamesList& platformNames()
     {
         return m_parseObj.parsePlatforms();
     }
@@ -394,7 +395,7 @@ public:
         return m_origNamespace;
     }    
 
-    FieldsAccessList genGetAllMessageIdFields() const
+    GenFieldsAccessList genGetAllMessageIdFields() const
     {
         return m_messageIdFields;
     }    
@@ -492,9 +493,9 @@ private:
     GenGenerator& m_generator;
     ParseSchema m_parseObj;
     GenElem* m_parent = nullptr;
-    NamespacesList m_namespaces;
+    GenNamespacesList m_namespaces;
     int m_forcedSchemaVersion = -1;
-    FieldsAccessList m_messageIdFields;
+    GenFieldsAccessList m_messageIdFields;
     std::string m_mainNamespace;
     std::string m_origNamespace;
     unsigned m_minRemoteVersion = 0U;
@@ -530,7 +531,7 @@ unsigned GenSchema::genSchemaVersion() const
     return m_impl->genSchemaVersion();
 }
 
-GenSchema::FieldsAccessList GenSchema::genGetAllMessageIdFields() const
+GenSchema::GenFieldsAccessList GenSchema::genGetAllMessageIdFields() const
 {
     return m_impl->genGetAllMessageIdFields();
 }
@@ -598,9 +599,9 @@ bool GenSchema::genAnyInterfaceHasVersion() const
     return m_impl->genAnyInterfaceHasVersion();
 }
 
-GenSchema::NamespacesAccessList GenSchema::genGetAllNamespaces() const
+GenSchema::GenNamespacesAccessList GenSchema::genGetAllNamespaces() const
 {
-    NamespacesAccessList result;
+    GenNamespacesAccessList result;
     for (auto& n : m_impl->genNamespaces()) {
         auto subResult = n->genGetAllNamespaces();
         result.insert(result.end(), subResult.begin(), subResult.end());
@@ -609,9 +610,9 @@ GenSchema::NamespacesAccessList GenSchema::genGetAllNamespaces() const
     return result;
 }
 
-GenSchema::InterfacesAccessList GenSchema::genGetAllInterfaces() const
+GenSchema::GenInterfacesAccessList GenSchema::genGetAllInterfaces() const
 {
-    InterfacesAccessList result;
+    GenInterfacesAccessList result;
     for (auto& n : m_impl->genNamespaces()) {
         auto subResult = n->genGetAllInterfaces();
         result.insert(result.end(), subResult.begin(), subResult.end());
@@ -619,9 +620,9 @@ GenSchema::InterfacesAccessList GenSchema::genGetAllInterfaces() const
     return result;
 }
 
-GenSchema::MessagesAccessList GenSchema::genGetAllMessages() const
+GenSchema::GenMessagesAccessList GenSchema::genGetAllMessages() const
 {
-    MessagesAccessList result;
+    GenMessagesAccessList result;
     for (auto& n : m_impl->genNamespaces()) {
         auto subResult = n->genGetAllMessages();
         result.insert(result.end(), subResult.begin(), subResult.end());
@@ -629,16 +630,16 @@ GenSchema::MessagesAccessList GenSchema::genGetAllMessages() const
     return result;
 }
 
-GenSchema::MessagesAccessList GenSchema::genGetAllMessagesIdSorted() const
+GenSchema::GenMessagesAccessList GenSchema::genGetAllMessagesIdSorted() const
 {
     auto result = genGetAllMessages();
     GenGenerator::genSortMessages(result);
     return result;
 }
 
-GenSchema::FramesAccessList GenSchema::genGetAllFrames() const
+GenSchema::GenFramesAccessList GenSchema::genGetAllFrames() const
 {
-    FramesAccessList result;
+    GenFramesAccessList result;
     for (auto& n : m_impl->genNamespaces()) {
         auto nList = n->genGetAllFrames();
         result.insert(result.end(), nList.begin(), nList.end());
@@ -646,9 +647,9 @@ GenSchema::FramesAccessList GenSchema::genGetAllFrames() const
     return result;
 }
 
-GenSchema::FieldsAccessList GenSchema::genGetAllFields() const
+GenSchema::GenFieldsAccessList GenSchema::genGetAllFields() const
 {
-    FieldsAccessList result;
+    GenFieldsAccessList result;
     for (auto& n : m_impl->genNamespaces()) {
         auto nList = n->genGetAllFields();
         result.insert(result.end(), nList.begin(), nList.end());
@@ -681,17 +682,17 @@ bool GenSchema::genWrite()
     return genWriteImpl();
 }
 
-GenSchema::NamespacesList& GenSchema::genNamespaces()
+GenSchema::GenNamespacesList& GenSchema::genNamespaces()
 {
     return m_impl->genNamespaces();
 }
 
-const GenSchema::NamespacesList& GenSchema::genNamespaces() const
+const GenSchema::GenNamespacesList& GenSchema::genNamespaces() const
 {
     return m_impl->genNamespaces();
 }
 
-const GenSchema::PlatformNamesList& GenSchema::platformNames() const
+const GenSchema::GenPlatformNamesList& GenSchema::platformNames() const
 {
     return m_impl->platformNames();
 }

@@ -34,9 +34,9 @@ class ParseVariantFieldImpl final : public ParseFieldImpl
 public:
     ParseVariantFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseVariantFieldImpl(const ParseVariantFieldImpl& other);
-    using Members = ParseVariantField::Members;
+    using ParseMembers = ParseVariantField::ParseMembers;
 
-    Members parseMembersList() const;
+    ParseMembers parseMembersList() const;
 
     std::size_t parseDefaultMemberIdx() const
     {
@@ -45,13 +45,13 @@ public:
 
 protected:
 
-    virtual Kind parseKindImpl() const override;
-    virtual Ptr parseCloneImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraChildrenNamesImpl() const override;
+    virtual ParseKind parseKindImpl() const override;
+    virtual ParsePtr parseCloneImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraChildrenNamesImpl() const override;
     virtual bool parseReuseImpl(const ParseFieldImpl &other) override;
     virtual bool parseImpl() override;
-    virtual bool parseReplaceMembersImpl(FieldsList& members) override;
+    virtual bool parseReplaceMembersImpl(ParseFieldsList& members) override;
     virtual std::size_t parseMinLengthImpl() const override;
     virtual std::size_t parseMaxLengthImpl() const override;
     virtual bool parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
@@ -59,7 +59,7 @@ protected:
     virtual bool parseStrToBoolImpl(const std::string& ref, bool& val) const override;
     virtual bool parseStrToStringImpl(const std::string& ref, std::string& val) const override;
     virtual bool parseStrToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
-    virtual const FieldsList& parseMembersImpl() const override;
+    virtual const ParseFieldsList& parseMembersImpl() const override;
 
 private:
 
@@ -67,13 +67,13 @@ private:
     bool parseUpdateDefaultMember();
     bool parseUpdateIdxHidden();
 
-    struct ReusableState
+    struct ParseReusableState
     {
         std::size_t m_defaultIdx = std::numeric_limits<std::size_t>::max();
     };
 
-    ReusableState m_state;
-    FieldsList m_members;
+    ParseReusableState m_state;
+    ParseFieldsList m_members;
 };
 
 } // namespace parse

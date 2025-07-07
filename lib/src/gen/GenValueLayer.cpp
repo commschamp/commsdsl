@@ -30,14 +30,14 @@ namespace gen
 GenValueLayer::GenValueLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent) :
     Base(generator, parseObj, parent)
 {
-    assert(parseObj.parseKind() == ParseLayer::Kind::Value);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Value);
 }
 
 GenValueLayer::~GenValueLayer() = default;
 
 bool GenValueLayer::genIsInterfaceSupported(const GenInterface* iFace) const
 {
-    auto obj = valueDslObj();
+    auto obj = genValueLayerParseObj();
     auto supportedInterfaces = obj.parseInterfaces();
 
     if (supportedInterfaces.empty()) {
@@ -53,7 +53,7 @@ bool GenValueLayer::genIsInterfaceSupported(const GenInterface* iFace) const
             });  
 }
 
-GenValueLayer::ParseValueLayer GenValueLayer::valueDslObj() const
+GenValueLayer::ParseValueLayer GenValueLayer::genValueLayerParseObj() const
 {
     return ParseValueLayer(genParseObj());
 }

@@ -29,7 +29,7 @@ namespace gen
 GenPayloadLayer::GenPayloadLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent) :
     Base(generator, parseObj, parent)
 {
-    assert(parseObj.parseKind() == ParseLayer::Kind::Payload);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Payload);
 }
 
 GenPayloadLayer::~GenPayloadLayer() = default;

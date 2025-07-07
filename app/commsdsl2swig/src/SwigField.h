@@ -27,7 +27,7 @@ namespace commsdsl2swig
 class SwigField
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
     using IncludesList = StringsList;
     using SwigFieldsList = std::vector<SwigField*>;
 
@@ -37,7 +37,7 @@ public:
     static const SwigField* cast(const commsdsl::gen::GenField* field);
     static SwigField* cast(commsdsl::gen::GenField* field);
 
-    static SwigFieldsList swigTransformFieldsList(const commsdsl::gen::GenField::FieldsList& fields);
+    static SwigFieldsList swigTransformFieldsList(const commsdsl::gen::GenField::GenFieldsList& fields);
 
     commsdsl::gen::GenField& field()
     {

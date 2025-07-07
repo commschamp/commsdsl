@@ -38,7 +38,7 @@ class COMMSDSL_API ParseIntField : public ParseField
     using Base = ParseField;
 public:
 
-    enum class Type
+    enum class ParseType
     {
         Int8,
         Uint8,
@@ -52,9 +52,9 @@ public:
         Uintvar,
         NumOfValues
     };
-    using ScalingRatio = std::pair<std::intmax_t, std::intmax_t>;
+    using ParseScalingRatio = std::pair<std::intmax_t, std::intmax_t>;
 
-    struct ValidRangeInfo
+    struct ParseValidRangeInfo
     {
         std::intmax_t m_min = 0;
         std::intmax_t m_max = 0;
@@ -62,9 +62,9 @@ public:
         unsigned m_deprecatedSince = ParseProtocol::parseNotYetDeprecated();
     };
 
-    using ValidRangesList = std::vector<ValidRangeInfo>;
+    using ParseValidRangesList = std::vector<ParseValidRangeInfo>;
 
-    struct SpecialValueInfo
+    struct ParseSpecialValueInfo
     {
         std::intmax_t m_value = 0;
         unsigned m_sinceVersion = 0;
@@ -73,20 +73,20 @@ public:
         std::string m_displayName;
     };
 
-    using SpecialValues = std::map<std::string, SpecialValueInfo>;
+    using ParseSpecialValues = std::map<std::string, ParseSpecialValueInfo>;
 
     explicit ParseIntField(const ParseIntFieldImpl* impl);
     explicit ParseIntField(ParseField field);
 
-    Type parseType() const;
+    ParseType parseType() const;
     ParseEndian parseEndian() const;
     std::intmax_t parseSerOffset() const;
     std::intmax_t parseMinValue() const;
     std::intmax_t parseMaxValue() const;
     std::intmax_t parseDefaultValue() const;
-    ScalingRatio parseScaling() const;
-    const ValidRangesList& parseValidRanges() const;
-    const SpecialValues& parseSpecialValues() const;
+    ParseScalingRatio parseScaling() const;
+    const ParseValidRangesList& parseValidRanges() const;
+    const ParseSpecialValues& parseSpecialValues() const;
     ParseUnits parseUnits() const;
     bool parseValidCheckVersion() const;
     unsigned parseDisplayDecimals() const;
@@ -96,7 +96,7 @@ public:
 };
 
 inline
-bool operator==(const ParseIntField::SpecialValueInfo& i1, const ParseIntField::SpecialValueInfo& i2)
+bool operator==(const ParseIntField::ParseSpecialValueInfo& i1, const ParseIntField::ParseSpecialValueInfo& i2)
 {
     return (i1.m_value == i2.m_value) &&
            (i1.m_sinceVersion == i2.m_sinceVersion) &&
@@ -104,13 +104,13 @@ bool operator==(const ParseIntField::SpecialValueInfo& i1, const ParseIntField::
 }
 
 inline
-bool operator!=(const ParseIntField::SpecialValueInfo& i1, const ParseIntField::SpecialValueInfo& i2)
+bool operator!=(const ParseIntField::ParseSpecialValueInfo& i1, const ParseIntField::ParseSpecialValueInfo& i2)
 {
     return !(i1 == i2);
 }
 
 inline
-bool operator==(const ParseIntField::ValidRangeInfo& i1, const ParseIntField::ValidRangeInfo& i2)
+bool operator==(const ParseIntField::ParseValidRangeInfo& i1, const ParseIntField::ParseValidRangeInfo& i2)
 {
     return (i1.m_min == i2.m_min) &&
            (i1.m_max == i2.m_max) &&
@@ -119,7 +119,7 @@ bool operator==(const ParseIntField::ValidRangeInfo& i1, const ParseIntField::Va
 }
 
 inline
-bool operator!=(const ParseIntField::ValidRangeInfo& i1, const ParseIntField::ValidRangeInfo& i2)
+bool operator!=(const ParseIntField::ParseValidRangeInfo& i1, const ParseIntField::ParseValidRangeInfo& i2)
 {
     return !(i1 == i2);
 }

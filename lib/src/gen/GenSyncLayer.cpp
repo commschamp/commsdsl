@@ -29,7 +29,7 @@ namespace gen
 GenSyncLayer::GenSyncLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent) :
     Base(generator, parseObj, parent)
 {
-    assert(parseObj.parseKind() == ParseLayer::Kind::Sync);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Sync);
 }
 
 GenSyncLayer::~GenSyncLayer() = default;

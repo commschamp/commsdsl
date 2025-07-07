@@ -44,10 +44,10 @@ ParseEnumField::ParseEnumField(const ParseEnumFieldImpl* impl)
 ParseEnumField::ParseEnumField(ParseField field)
   : Base(field)
 {
-    assert(parseKind() == Kind::Enum);
+    assert(parseKind() == ParseKind::Enum);
 }
 
-ParseEnumField::Type ParseEnumField::parseType() const
+ParseEnumField::ParseType ParseEnumField::parseType() const
 {
     return cast(m_pImpl)->parseType();
 }
@@ -62,12 +62,12 @@ std::intmax_t ParseEnumField::parseDefaultValue() const
     return cast(m_pImpl)->parseDefaultValue();
 }
 
-const ParseEnumField::Values& ParseEnumField::parseValues() const
+const ParseEnumField::ParseValues& ParseEnumField::parseValues() const
 {
     return cast(m_pImpl)->parseValues();
 }
 
-const ParseEnumField::RevValues& ParseEnumField::parseRevValues() const
+const ParseEnumField::ParseRevValues& ParseEnumField::parseRevValues() const
 {
     return cast(m_pImpl)->parseRevValues();
 }

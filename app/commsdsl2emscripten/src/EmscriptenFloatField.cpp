@@ -88,7 +88,7 @@ std::string EmscriptenFloatField::emscriptenHeaderSpecialsInternal() const
         return strings::genEmptyString();
     }
 
-    util::StringsList specialsList;
+    util::GenStringsList specialsList;
     auto& gen = EmscriptenGenerator::cast(genGenerator());
     for (auto& s : specials) {
         if (!gen.genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
@@ -131,7 +131,7 @@ std::string EmscriptenFloatField::emscriptenSourceSpecialsBindInternal() const
         {"CLASS_NAME", emscriptenBindClassName()},
     };
 
-    util::StringsList specialsList;
+    util::GenStringsList specialsList;
     auto& gen = EmscriptenGenerator::cast(genGenerator());
     for (auto& s : specials) {
         if (!gen.genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {

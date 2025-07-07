@@ -326,7 +326,7 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
 {
     const std::string FileName = "namespaces.dox";
 
-    util::StringsList elems;
+    util::GenStringsList elems;
     for (auto& s : m_generator.genSchemas()) {
         auto* commsSchema = static_cast<const CommsSchema*>(s.get());
         if ((s.get() != &m_generator.genProtocolSchema()) && (!commsSchema->commsHasAnyGeneratedCode())) {
@@ -335,7 +335,7 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
 
         auto nsList = s->genGetAllNamespaces();
 
-        util::StringsList nsElems;
+        util::GenStringsList nsElems;
         for (auto* ns : nsList) {
             static const std::string Templ =
                 "/// @namespace #^#NS#$#\n"
@@ -451,7 +451,7 @@ bool CommsDoxygen::commsWriteMainpageInternal() const
 std::string CommsDoxygen::commsMessagesDocInternal() const
 {
     auto nsList = m_generator.genGetAllNamespaces();
-    util::StringsList elems;
+    util::GenStringsList elems;
     for (auto* n : nsList) {
         static const std::string Templ = 
             "/// @li @ref #^#SCOPE#$#::#^#SUFFIX#$# (defined in @b #^#PATH#$#/#^#SUFFIX#$#  directory)";
@@ -481,7 +481,7 @@ std::string CommsDoxygen::commsMessagesDocInternal() const
 std::string CommsDoxygen::commsFieldsDocInternal() const
 {
     auto nsList = m_generator.genGetAllNamespaces();
-    util::StringsList elems;
+    util::GenStringsList elems;
     for (auto* n : nsList) {
         static const std::string Templ = 
             "/// @li @ref #^#SCOPE#$#::#^#SUFFIX#$# (defined in @b #^#PATH#$#/#^#SUFFIX#$#  directory)";
@@ -514,7 +514,7 @@ std::string CommsDoxygen::commsInterfaceDocInternal() const
     auto interfaces = m_generator.genGetAllInterfaces();
     assert(!interfaces.empty());
 
-    util::StringsList list;
+    util::GenStringsList list;
     for (auto* i : interfaces) {
         list.push_back(
             "/// @li @ref " + comms::genScopeFor(*i, m_generator) +
@@ -559,14 +559,14 @@ std::string CommsDoxygen::commsFrameDocInternal() const
     auto frames = m_generator.genGetAllFrames();
     assert(!frames.empty());
 
-    util::StringsList list;
+    util::GenStringsList list;
     for (auto* f : frames) {
         list.push_back(
             "/// @li @ref " + comms::genScopeFor(*f, m_generator) +
             " (from @b " + comms::genRelHeaderPathFor(*f, m_generator) + " header file).");
     }
 
-    util::StringsList messagesList;
+    util::GenStringsList messagesList;
     auto addToMessagesListFunc =
         [this, &messagesList](const std::string& name, const commsdsl::gen::GenNamespace& ns)
         {
@@ -641,8 +641,8 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
         "#^#DISPATCHERS_LIST#$#\n"
         "///";
 
-    util::StringsList list;
-    util::StringsList dispatcherList;
+    util::GenStringsList list;
+    util::GenStringsList dispatcherList;
     auto addToListFunc =
         [this, &list, &dispatcherList](const std::string& name, const commsdsl::gen::GenNamespace& ns)
         {
@@ -873,7 +873,7 @@ std::string CommsDoxygen::commsPlatformsDocInternal() const
         "#^#LIST#$#\n"
         "///";
 
-    util::StringsList list;
+    util::GenStringsList list;
     auto allNamespaces = m_generator.genGetAllNamespaces();
     for (auto* ns : allNamespaces) {
         if ((!ns->genHasFramesRecursive()) || 

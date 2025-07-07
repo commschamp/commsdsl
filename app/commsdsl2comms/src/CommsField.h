@@ -29,15 +29,16 @@ namespace commsdsl2comms
 class CommsField
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
     using IncludesList = StringsList;
     using CommsFieldsList = std::vector<CommsField*>;
     using FieldOptsFunc = std::string (CommsField::*)() const;
+    using GenFieldsList = commsdsl::gen::GenField::GenFieldsList;
 
     explicit CommsField(commsdsl::gen::GenField& field);
     virtual ~CommsField();
 
-    static CommsFieldsList commsTransformFieldsList(const commsdsl::gen::GenField::FieldsList& fields);
+    static CommsFieldsList commsTransformFieldsList(const GenFieldsList& fields);
 
     bool commsPrepare();
     bool commsWrite() const;
@@ -138,8 +139,8 @@ protected:
 
     std::string commsCommonNameFuncCode() const;
     std::string commsFieldBaseParams(commsdsl::parse::ParseEndian endian) const;
-    void commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts, bool tempFieldObj = false) const;
-    void commsAddFieldTypeOption(commsdsl::gen::util::StringsList& opts) const;
+    void commsAddFieldDefOptions(commsdsl::gen::util::GenStringsList& opts, bool tempFieldObj = false) const;
+    void commsAddFieldTypeOption(commsdsl::gen::util::GenStringsList& opts) const;
     bool commsIsExtended() const;
 
 private:

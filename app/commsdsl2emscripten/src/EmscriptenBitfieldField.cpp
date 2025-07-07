@@ -53,7 +53,7 @@ bool EmscriptenBitfieldField::genWriteImpl() const
 
 std::string EmscriptenBitfieldField::emscriptenHeaderValueAccImpl() const
 {
-    if (genParseObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::Length) {
+    if (genParseObj().parseSemanticType() != commsdsl::parse::ParseField::ParseSemanticType::Length) {
         return strings::genEmptyString();
     }
     
@@ -67,7 +67,7 @@ std::string EmscriptenBitfieldField::emscriptenHeaderExtraPublicFuncsImpl() cons
 
 std::string EmscriptenBitfieldField::emscriptenSourceBindValueAccImpl() const
 {
-    if (genParseObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::Length) {
+    if (genParseObj().parseSemanticType() != commsdsl::parse::ParseField::ParseSemanticType::Length) {
         return strings::genEmptyString();
     }
 

@@ -30,7 +30,7 @@ ParseProtocol::ParseProtocol()
 {
 }
 
-void ParseProtocol::parseSetErrorReportCallback(ParseProtocol::ErrorReportFunction&& cb)
+void ParseProtocol::parseSetErrorReportCallback(ParseProtocol::ParseErrorReportFunction&& cb)
 {
     m_pImpl->parseSetErrorReportCallback(std::move(cb));
 }
@@ -47,7 +47,7 @@ bool ParseProtocol::parseValidate()
     return m_pImpl->parseValidate();
 }
 
-ParseProtocol::SchemasList ParseProtocol::parseSchemas() const
+ParseProtocol::ParseSchemasList ParseProtocol::parseSchemas() const
 {
     return m_pImpl->parseSchemas();
 }

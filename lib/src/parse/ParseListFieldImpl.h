@@ -144,17 +144,17 @@ public:
 
 
 protected:
-    virtual Kind parseKindImpl() const override;
-    virtual Ptr parseCloneImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraPossiblePropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraChildrenNamesImpl() const override;
+    virtual ParseKind parseKindImpl() const override;
+    virtual ParsePtr parseCloneImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPossiblePropsNamesImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraChildrenNamesImpl() const override;
     virtual bool parseReuseImpl(const ParseFieldImpl& other) override;
     virtual bool parseImpl() override;
-    virtual bool parseVerifySiblingsImpl(const FieldsList& fields) const override;
+    virtual bool parseVerifySiblingsImpl(const ParseFieldsList& fields) const override;
     virtual std::size_t parseMinLengthImpl() const override;
     virtual std::size_t parseMaxLengthImpl() const override;
-    virtual bool parseIsValidRefTypeImpl(FieldRefType type) const override;
+    virtual bool parseIsValidRefTypeImpl(ParseFieldRefType type) const override;
 
 private:
     void parseCloneFields(const ParseListFieldImpl& other);
@@ -179,9 +179,9 @@ private:
         std::string& detachedPrefix);
     const ParseFieldImpl* parseGetCountPrefixField() const;
     const ParseFieldImpl* parseGetLengthPrefixField() const;
-    bool parseVerifySiblingsForPrefix(const FieldsList& fields, const std::string& detachedName) const;
+    bool parseVerifySiblingsForPrefix(const ParseFieldsList& fields, const std::string& detachedName) const;
 
-    struct State
+    struct ParseState
     {
         std::size_t m_count = 0U;
         const ParseFieldImpl* m_extElementField = nullptr;
@@ -196,7 +196,7 @@ private:
         bool m_elemFixedLength = false;
     };
 
-    State m_state;
+    ParseState m_state;
     ParseFieldImplPtr m_elementField;
     ParseFieldImplPtr m_countPrefixField;
     ParseFieldImplPtr m_lengthPrefixField;

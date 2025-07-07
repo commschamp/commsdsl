@@ -39,17 +39,17 @@ class GenGeneratorImpl;
 class GenGenerator
 {
 public:
-    using FilesList = std::vector<std::string>;
-    using LoggerPtr = std::unique_ptr<GenLogger>;
-    using NamespacesList = GenNamespace::NamespacesList;
-    using PlatformNamesList = std::vector<std::string>;
-    using SchemasList = std::vector<GenSchemaPtr>;
+    using GenFilesList = std::vector<std::string>;
+    using GenLoggerPtr = std::unique_ptr<GenLogger>;
+    using GenNamespacesList = GenNamespace::GenNamespacesList;
+    using GenPlatformNamesList = std::vector<std::string>;
+    using GenSchemasList = std::vector<GenSchemaPtr>;
 
-    using NamespacesAccessList = GenNamespace::NamespacesAccessList;
-    using InterfacesAccessList = GenNamespace::InterfacesAccessList;
-    using MessagesAccessList = GenNamespace::MessagesAccessList;
-    using FramesAccessList = GenNamespace::FramesAccessList;
-    using FieldsAccessList = GenNamespace::FieldsAccessList;
+    using GenNamespacesAccessList = GenNamespace::GenNamespacesAccessList;
+    using GenInterfacesAccessList = GenNamespace::GenInterfacesAccessList;
+    using GenMessagesAccessList = GenNamespace::GenMessagesAccessList;
+    using GenFramesAccessList = GenNamespace::GenFramesAccessList;
+    using GenFieldsAccessList = GenNamespace::GenFieldsAccessList;
 
     GenGenerator();
     virtual ~GenGenerator();
@@ -82,22 +82,22 @@ public:
     const GenInterface* genFindInterface(const std::string& externalRef) const;
     static const GenSchema& genSchemaOf(const GenElem& elem);
 
-    NamespacesAccessList genGetAllNamespaces() const;
-    InterfacesAccessList genGetAllInterfaces() const;
-    MessagesAccessList genGetAllMessages() const;
-    static void genSortMessages(MessagesAccessList& list);
-    MessagesAccessList genGetAllMessagesIdSorted() const;
-    FramesAccessList genGetAllFrames() const;
-    FieldsAccessList genGetAllFields() const;
+    GenNamespacesAccessList genGetAllNamespaces() const;
+    GenInterfacesAccessList genGetAllInterfaces() const;
+    GenMessagesAccessList genGetAllMessages() const;
+    static void genSortMessages(GenMessagesAccessList& list);
+    GenMessagesAccessList genGetAllMessagesIdSorted() const;
+    GenFramesAccessList genGetAllFrames() const;
+    GenFieldsAccessList genGetAllFields() const;
 
-    NamespacesAccessList genGetAllNamespacesFromAllSchemas() const;
-    InterfacesAccessList genGetAllInterfacesFromAllSchemas() const;
-    MessagesAccessList genGetAllMessagesFromAllSchemas() const;
-    MessagesAccessList genGetAllMessagesIdSortedFromAllSchemas() const;
-    FramesAccessList genGetAllFramesFromAllSchemas() const;
-    FieldsAccessList genGetAllFieldsFromAllSchemas() const;    
+    GenNamespacesAccessList genGetAllNamespacesFromAllSchemas() const;
+    GenInterfacesAccessList genGetAllInterfacesFromAllSchemas() const;
+    GenMessagesAccessList genGetAllMessagesFromAllSchemas() const;
+    GenMessagesAccessList genGetAllMessagesIdSortedFromAllSchemas() const;
+    GenFramesAccessList genGetAllFramesFromAllSchemas() const;
+    GenFieldsAccessList genGetAllFieldsFromAllSchemas() const;    
 
-    bool genPrepare(const FilesList& files);
+    bool genPrepare(const GenFilesList& files);
     bool genWrite();
 
     bool genDoesElementExist(
@@ -115,7 +115,7 @@ public:
     GenLogger& genLogger();
     const GenLogger& genLogger() const;
 
-    const SchemasList& genSchemas() const;
+    const GenSchemasList& genSchemas() const;
 
     GenSchema& genCurrentSchema();
     const GenSchema& genCurrentSchema() const;
@@ -127,7 +127,7 @@ public:
     GenNamespacePtr genCreateNamespace(commsdsl::parse::ParseNamespace parseObj, GenElem* parent = nullptr);
     GenInterfacePtr genCreateInterface(commsdsl::parse::ParseInterface parseObj, GenElem* parent);
     GenMessagePtr genCreateMessage(commsdsl::parse::ParseMessage parseObj, GenElem* parent);
-    FramePtr genCreateFrame(commsdsl::parse::ParseFrame parseObj, GenElem* parent);
+    GenFramePtr genCreateFrame(commsdsl::parse::ParseFrame parseObj, GenElem* parent);
 
     GenFieldPtr genCreateIntField(commsdsl::parse::ParseField parseObj, GenElem* parent);
     GenFieldPtr genCreateEnumField(commsdsl::parse::ParseField parseObj, GenElem* parent);
@@ -174,7 +174,7 @@ protected:
     virtual GenNamespacePtr genCreateNamespaceImpl(commsdsl::parse::ParseNamespace parseObj, GenElem* parent);
     virtual GenInterfacePtr genCreateInterfaceImpl(commsdsl::parse::ParseInterface parseObj, GenElem* parent);
     virtual GenMessagePtr genCreateMessageImpl(commsdsl::parse::ParseMessage parseObj, GenElem* parent);
-    virtual FramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame parseObj, GenElem* parent);
+    virtual GenFramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame parseObj, GenElem* parent);
 
     virtual GenFieldPtr genCreateIntFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
     virtual GenFieldPtr genCreateEnumFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
@@ -198,7 +198,7 @@ protected:
     virtual GenLayerPtr genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
 
     virtual bool genWriteImpl();
-    virtual LoggerPtr genCreateLoggerImpl();
+    virtual GenLoggerPtr genCreateLoggerImpl();
 
     GenNamespace* genAddDefaultNamespace();
 

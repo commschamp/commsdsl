@@ -52,14 +52,14 @@ std::string genNameToNs(const std::string& value);
 using ReplacementMap = std::map<std::string, std::string>;
 std::string genProcessTemplate(const std::string& templ, const ReplacementMap& repl, bool tidyCode = false);
 
-using StringsList = std::vector<std::string>;
+using GenStringsList = std::vector<std::string>;
 std::string genStrListToString(
-    const StringsList& list,
+    const GenStringsList& list,
     const std::string& join = ",\n",
     const std::string& last = "\n");
 
-void genAddToStrList(std::string&& value, StringsList& list);
-void genAddToStrList(const std::string& value, StringsList& list);
+void genAddToStrList(std::string&& value, GenStringsList& list);
+void genAddToStrList(const std::string& value, GenStringsList& list);
 
 std::string genStrMakeMultiline(const std::string& value, unsigned len = 60, bool dropReplacedWhiteChar = true);
 

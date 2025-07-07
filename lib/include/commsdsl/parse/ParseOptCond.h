@@ -31,7 +31,7 @@ class COMMSDSL_API ParseOptCond
 {
 public:
 
-    enum class Kind
+    enum class ParseKind
     {
         Expr,
         List,
@@ -44,7 +44,7 @@ public:
 
     bool parseValid() const;
 
-    Kind parseKind() const;
+    ParseKind parseKind() const;
 
 protected:
     const ParseOptCondImpl* m_pImpl;
@@ -55,7 +55,7 @@ class COMMSDSL_API ParseOptCondExpr : public ParseOptCond
 {
     using Base = ParseOptCond;
 public:
-    enum class OperandType
+    enum class ParseOperandType
     {
         Invalid,
         Value,
@@ -64,7 +64,7 @@ public:
         NumOfValues
     };
 
-    enum class AccMode
+    enum class ParseAccMode
     {
         Itself,
         Size,
@@ -72,10 +72,10 @@ public:
         NumOfValues
     };
 
-    struct OperandInfo
+    struct ParseOperandInfo
     {
-        OperandType m_type = OperandType::Invalid;
-        AccMode m_mode = AccMode::Itself;
+        ParseOperandType m_type = ParseOperandType::Invalid;
+        ParseAccMode m_mode = ParseAccMode::Itself;
         std::string m_access;
     };
 
@@ -85,8 +85,8 @@ public:
     const std::string& parseLeft() const;
     const std::string& parseOp() const;
     const std::string& parseRight() const;
-    OperandInfo parseLeftInfo() const;
-    OperandInfo parseRightInfo() const;
+    ParseOperandInfo parseLeftInfo() const;
+    ParseOperandInfo parseRightInfo() const;
 };
 
 class ParseOptCondListImpl;
@@ -94,21 +94,20 @@ class COMMSDSL_API ParseOptCondList : public ParseOptCond
 {
     using Base = ParseOptCond;
 public:
-    enum class Type
+    enum class ParseType
     {
         And,
         Or,
         NumOfValues
     };
 
-    using CondList = std::vector<ParseOptCond>;
+    using ParseCondList = std::vector<ParseOptCond>;
 
     ParseOptCondList(const ParseOptCondListImpl* impl);
     ParseOptCondList(ParseOptCond cond);
 
-
-    Type parseType() const;
-    CondList parseConditions() const;
+    ParseType parseType() const;
+    ParseCondList parseConditions() const;
 };
 
 } // namespace parse

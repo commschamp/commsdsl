@@ -29,12 +29,12 @@ ParseIdLayerImpl::ParseIdLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protoco
 {
 }
 
-ParseLayerImpl::Kind ParseIdLayerImpl::parseKindImpl() const
+ParseLayerImpl::ParseKind ParseIdLayerImpl::parseKindImpl() const
 {
-    return Kind::Id;
+    return ParseKind::Id;
 }
 
-bool ParseIdLayerImpl::parseVerifyImpl(const ParseLayerImpl::LayersList& layers)
+bool ParseIdLayerImpl::parseVerifyImpl(const ParseLayerImpl::ParseLayersList& layers)
 {
     return parseVerifySingleLayer(layers, common::parseIdStr()) &&
            parseVerifyBeforePayload(layers);

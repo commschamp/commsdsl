@@ -57,8 +57,8 @@ std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
 {
     auto obj = genSetFieldParseObj();
 
-    util::StringsList indices;
-    util::StringsList accesses;
+    util::GenStringsList indices;
+    util::GenStringsList accesses;
 
     for (auto& bitInfo : obj.parseRevBits()) {
         indices.push_back("BitIdx_" + bitInfo.second + " = " + std::to_string(bitInfo.first));

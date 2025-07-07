@@ -36,16 +36,16 @@ class ToolsQtGenerator final : public commsdsl::gen::GenGenerator
 public:
     using GenElem = commsdsl::gen::GenElem;
     using GenFieldPtr = commsdsl::gen::GenFieldPtr;
-    using FramePtr = commsdsl::gen::FramePtr;
+    using GenFramePtr = commsdsl::gen::GenFramePtr;
     using GenInterfacePtr = commsdsl::gen::GenInterfacePtr;
     using GenLayerPtr = commsdsl::gen::GenLayerPtr;
     using GenMessagePtr = commsdsl::gen::GenMessagePtr;
     using GenNamespacePtr = commsdsl::gen::GenNamespacePtr;
     using PluginInfo = ToolsQtProgramOptions::PluginInfo;
     using PluginInfosList = ToolsQtProgramOptions::PluginInfosList;
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
     using PluginsList = std::vector<ToolsQtPluginPtr>;
-    using FramesPerInterfaceMap = std::map<const commsdsl::gen::GenInterface*, FramesAccessList>;
+    using FramesPerInterfaceMap = std::map<const commsdsl::gen::GenInterface*, GenFramesAccessList>;
 
     static const std::string& toolsFileGeneratedComment();
     void toolsSetPluginInfosList(PluginInfosList&& value)
@@ -65,12 +65,12 @@ public:
         return m_plugins;
     }
 
-    const InterfacesAccessList& toolsGetSelectedInterfaces() const
+    const GenInterfacesAccessList& toolsGetSelectedInterfaces() const
     {
         return m_selectedInterfaces;
     }
 
-    const FramesAccessList& toolsGetSelectedFrames() const
+    const GenFramesAccessList& toolsGetSelectedFrames() const
     {
         return m_selectedFrames;
     }    
@@ -80,7 +80,7 @@ public:
         return m_selectedFramesPerInterface;
     }
 
-    const FramesAccessList& toolsGetSelectedFramesForInterface(const commsdsl::gen::GenInterface& interface);
+    const GenFramesAccessList& toolsGetSelectedFramesForInterface(const commsdsl::gen::GenInterface& interface);
 
     static ToolsQtGenerator& cast(commsdsl::gen::GenGenerator& generator)
     {
@@ -113,7 +113,7 @@ protected:
     virtual GenNamespacePtr genCreateNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent) override;
     virtual GenInterfacePtr genCreateInterfaceImpl(commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent) override;
     virtual GenMessagePtr genCreateMessageImpl(commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent) override;
-    virtual FramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenFramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent) override;
 
     virtual GenLayerPtr genCreateCustomLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
     virtual GenLayerPtr genCreateSyncLayerImpl(commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) override;
@@ -132,8 +132,8 @@ private:
 
     PluginInfosList m_pluginInfos;
     PluginsList m_plugins;
-    InterfacesAccessList m_selectedInterfaces;
-    FramesAccessList m_selectedFrames;
+    GenInterfacesAccessList m_selectedInterfaces;
+    GenFramesAccessList m_selectedFrames;
     FramesPerInterfaceMap m_selectedFramesPerInterface;
     bool m_mainNamespaceInOptionsForced = false;
 };

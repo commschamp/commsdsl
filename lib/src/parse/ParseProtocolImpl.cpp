@@ -65,7 +65,7 @@ bool ParseProtocolImpl::parse(const std::string& input)
         return false;
     }
 
-    XmlDocPtr doc(xmlParseFile(input.c_str()));
+    ParseXmlDocPtr doc(xmlParseFile(input.c_str()));
     if (!doc) {
         std::cerr << "ERROR: Failed to parse" << input << std::endl;
         return false;
@@ -100,9 +100,9 @@ bool ParseProtocolImpl::parseValidate()
     return true;
 }
 
-ParseProtocolImpl::SchemasAccessList ParseProtocolImpl::parseSchemas() const
+ParseProtocolImpl::ParseSchemasAccessList ParseProtocolImpl::parseSchemas() const
 {
-    SchemasAccessList list;
+    ParseSchemasAccessList list;
     for (auto& s : m_schemas) {
         list.push_back(ParseSchema(s.get()));
     }
@@ -181,7 +181,7 @@ bool ParseProtocolImpl::parseStrToEnumValue(
     std::string elemName(ref.begin() + signedNameSepPos + 1, ref.end());
     std::string fieldRefPath(ref.begin(), ref.begin() + signedNameSepPos);
     auto* field = parseFindField(fieldRefPath, false);
-    if ((field == nullptr) || (field->parseKind() != ParseField::Kind::Enum)) {
+    if ((field == nullptr) || (field->parseKind() != ParseField::ParseKind::Enum)) {
         return false;
     }
 
@@ -619,7 +619,7 @@ bool ParseProtocolImpl::parseValidatePlatforms(::xmlNodePtr root)
 
 bool ParseProtocolImpl::parseValidateSinglePlatform(::xmlNodePtr node)
 {
-    static const ParseXmlWrap::NamesList Names = {
+    static const ParseXmlWrap::ParseNamesList Names = {
         common::parseNameStr()
     };
 
@@ -747,7 +747,7 @@ bool ParseProtocolImpl::parseValidateAllMessages()
             });
 }
 
-bool ParseProtocolImpl::parseStrToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const
+bool ParseProtocolImpl::parseStrToValue(const std::string& ref, bool checkRef, ParseStrToValueConvertFunc&& func) const
 {
     do {
         if (!checkRef) {
@@ -826,12 +826,12 @@ std::pair<const ParseSchemaImpl*, std::string> ParseProtocolImpl::parseExternalR
     return std::make_pair(iter->get(), std::move(restRef));
 }
 
-LogWrapper ParseProtocolImpl::parseLogError() const
+ParseLogWrapper ParseProtocolImpl::parseLogError() const
 {
     return commsdsl::parse::parseLogError(m_logger);
 }
 
-LogWrapper ParseProtocolImpl::parseLogWarning() const
+ParseLogWrapper ParseProtocolImpl::parseLogWarning() const
 {
     return commsdsl::parse::parseLogWarning(m_logger);
 }

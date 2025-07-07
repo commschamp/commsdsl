@@ -33,7 +33,7 @@ class EmscriptenNamespace final: public commsdsl::gen::GenNamespace
     using Base = commsdsl::gen::GenNamespace;
 
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
 
     explicit EmscriptenNamespace(EmscriptenGenerator& generator, commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent);
     virtual ~EmscriptenNamespace();

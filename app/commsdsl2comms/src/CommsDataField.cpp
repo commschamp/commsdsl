@@ -39,7 +39,7 @@ namespace
 
 std::string bytesToString(const std::vector<std::uint8_t> value)
 {
-    util::StringsList bytes;
+    util::GenStringsList bytes;
     bytes.reserve(value.size());
     for (auto& b : value) {
         std::stringstream stream;
@@ -329,8 +329,8 @@ std::string CommsDataField::commsDefValidFuncBodyImpl() const
         return std::string();
     }
 
-    util::StringsList defs;
-    util::StringsList values;
+    util::GenStringsList defs;
+    util::GenStringsList values;
     for (auto idx = 0U; idx < validValues.size(); ++idx) {
         auto& info = validValues[idx];
         if (!genGenerator().genDoesElementExist(info.m_sinceVersion, info.m_deprecatedSince, true)) {
@@ -444,7 +444,7 @@ std::string CommsDataField::commsSizeAccessStrImpl([[maybe_unused]] const std::s
 
 std::string CommsDataField::commsDefFieldOptsInternal() const
 {
-    util::StringsList opts;
+    util::GenStringsList opts;
 
     commsAddFieldDefOptions(opts);
     commsAddFixedLengthOptInternal(opts);

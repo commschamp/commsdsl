@@ -135,7 +135,7 @@ const std::string& CommsProgramOptions::getFilesListPrefix() const
     return genValue(InputFilesPrefixStr);
 }
 
-const CommsProgramOptions::ArgsList& CommsProgramOptions::getFiles() const
+const CommsProgramOptions::GenArgsList& CommsProgramOptions::getFiles() const
 {
     return genArgs();
 }

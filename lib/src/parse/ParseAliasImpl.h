@@ -32,9 +32,9 @@ class ParseProtocolImpl;
 class ParseAliasImpl
 {
 public:
-    using PropsMap = ParseXmlWrap::PropsMap;
-    using ContentsList = ParseXmlWrap::ContentsList;
-    using Ptr = std::unique_ptr<ParseAliasImpl>;
+    using ParsePropsMap = ParseXmlWrap::ParsePropsMap;
+    using ParseContentsList = ParseXmlWrap::ParseContentsList;
+    using ParsePtr = std::unique_ptr<ParseAliasImpl>;
 
     const std::string& parseName() const
     {
@@ -51,29 +51,29 @@ public:
         return m_state.m_fieldName;
     }
 
-    const PropsMap& parseExtraAttributes() const
+    const ParsePropsMap& parseExtraAttributes() const
     {
         return m_state.m_extraAttrs;
     }
 
-    PropsMap& parseExtraAttributes()
+    ParsePropsMap& parseExtraAttributes()
     {
         return m_state.m_extraAttrs;
     }
 
-    const ContentsList& parseExtraChildren() const
+    const ParseContentsList& parseExtraChildren() const
     {
         return m_state.m_extraChildren;
     }
 
-    ContentsList& parseExtraChildren()
+    ParseContentsList& parseExtraChildren()
     {
         return m_state.m_extraChildren;
     }
 
-    Ptr parseClone() const;
+    ParsePtr parseClone() const;
 
-    static Ptr parseCreate(::xmlNodePtr node, ParseProtocolImpl& protocol);
+    static ParsePtr parseCreate(::xmlNodePtr node, ParseProtocolImpl& protocol);
 
     bool parse();
 
@@ -82,43 +82,43 @@ public:
         return m_node;
     }
 
-    bool parseVerifyAlias(const std::vector<Ptr>& aliases, const std::vector<ParseFieldImplPtr>& fields) const;
+    bool parseVerifyAlias(const std::vector<ParsePtr>& aliases, const std::vector<ParseFieldImplPtr>& fields) const;
 
 protected:
     ParseAliasImpl(::xmlNodePtr node, ParseProtocolImpl& protocol) : m_node(node), m_protocol(protocol) {}
 
 private:
 
-    bool parseUpdateName(const PropsMap& props);
-    bool parseUpdateDescription(const PropsMap& props);
-    bool parseUpdateFieldName(const PropsMap& props);
+    bool parseUpdateName(const ParsePropsMap& props);
+    bool parseUpdateDescription(const ParsePropsMap& props);
+    bool parseUpdateFieldName(const ParsePropsMap& props);
     bool parseValidateAndUpdateStringPropValue(
-        const PropsMap& props,
+        const ParsePropsMap& props,
         const std::string& str,
         std::string& value,
         bool mustHave = false,
         bool allowDeref = false);
-    bool parseValidateSinglePropInstance(const PropsMap& props, const std::string& str, bool mustHave);
+    bool parseValidateSinglePropInstance(const ParsePropsMap& props, const std::string& str, bool mustHave);
     void parseReportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
-    bool parseUpdateExtraAttrs(const ParseXmlWrap::NamesList& names);
-    bool parseUpdateExtraChildren(const ParseXmlWrap::NamesList& names);
+    bool parseUpdateExtraAttrs(const ParseXmlWrap::ParseNamesList& names);
+    bool parseUpdateExtraChildren(const ParseXmlWrap::ParseNamesList& names);
 
     ::xmlNodePtr m_node = nullptr;
     ParseProtocolImpl& m_protocol;
 
-    struct State
+    struct ParseState
     {
         std::string m_name;
         std::string m_description;
         std::string m_fieldName;
-        PropsMap m_extraAttrs;
-        ContentsList m_extraChildren;
+        ParsePropsMap m_extraAttrs;
+        ParseContentsList m_extraChildren;
     };
 
-    State m_state;
+    ParseState m_state;
 };
 
-using ParseAliasImplPtr = ParseAliasImpl::Ptr;
+using ParseAliasImplPtr = ParseAliasImpl::ParsePtr;
 
 } // namespace parse
 

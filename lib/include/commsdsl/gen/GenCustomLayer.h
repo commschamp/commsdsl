@@ -32,6 +32,7 @@ namespace gen
 class COMMSDSL_API GenCustomLayer : public GenLayer
 {
     using Base = GenLayer;
+    
 public:
     using ParseLayer = commsdsl::parse::ParseLayer;
     using ParseCustomLayer = commsdsl::parse::ParseCustomLayer;
@@ -42,7 +43,7 @@ public:
     ParseCustomLayer genCustomLayerParseObj() const;
 
 protected:
-    virtual bool genForceCommsOrderImpl(LayersAccessList& layers, bool& success) const override final;    
+    virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const override final;    
 
 };
 

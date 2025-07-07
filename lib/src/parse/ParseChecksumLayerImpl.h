@@ -27,10 +27,11 @@ class ParseChecksumLayerImpl final : public ParseLayerImpl
 {
     using Base = ParseLayerImpl;
 public:
-    using Alg = ParseChecksumLayer::Alg;
+    using ParseAlg = ParseChecksumLayer::ParseAlg;
+    
     ParseChecksumLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
 
-    Alg parseAlg() const
+    ParseAlg parseAlg() const
     {
         return m_alg;
     }
@@ -56,10 +57,10 @@ public:
     }
 
 protected:
-    virtual Kind parseKindImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
+    virtual ParseKind parseKindImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const override;
     virtual bool parseImpl() override;
-    virtual bool parseVerifyImpl(const LayersList& layers) override;
+    virtual bool parseVerifyImpl(const ParseLayersList& layers) override;
 
 private:
     bool parseUpdateAlg();
@@ -67,7 +68,7 @@ private:
     bool parseUpdateUntil();
     bool parseUpdateVerifyBeforeRead();
 
-    Alg m_alg = Alg::NumOfValues;
+    ParseAlg m_alg = ParseAlg::NumOfValues;
     const std::string* m_algName = nullptr;
     const std::string* m_from = nullptr;
     const std::string* m_until = nullptr;

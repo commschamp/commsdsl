@@ -40,12 +40,12 @@ public:
     GenVariantField(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
     virtual ~GenVariantField();
 
-    const FieldsList& genMembers() const;
+    const GenFieldsList& genMembers() const;
 
 protected:    
     virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl() override;
-    virtual FieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
+    virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
 
     ParseVariantField genVariantFieldParseObj() const;
 

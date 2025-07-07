@@ -37,7 +37,7 @@ public:
     using GenNamespacePtr = commsdsl::gen::GenNamespacePtr;
     using GenInterfacePtr = commsdsl::gen::GenInterfacePtr;
     using GenMessagePtr = commsdsl::gen::GenMessagePtr;
-    using FramePtr = commsdsl::gen::FramePtr;
+    using GenFramePtr = commsdsl::gen::GenFramePtr;
     using GenLayerPtr = commsdsl::gen::GenLayerPtr;
     using GenSchemaPtr = commsdsl::gen::GenSchemaPtr;
 
@@ -62,7 +62,7 @@ public:
     std::string swigScopeNameForMsgId(const std::string& name, const SwigNamespace& parent) const;
     std::string swigProtocolClassNameForRoot(const std::string& name) const;
     const std::string& swigConvertCppType(const std::string& str) const;
-    const std::string& swigConvertIntType(commsdsl::parse::ParseIntField::Type value, std::size_t len) const;
+    const std::string& swigConvertIntType(commsdsl::parse::ParseIntField::ParseType value, std::size_t len) const;
 
     static std::string swigScopeToName(const std::string& scope);
     static std::string swigDefInclude(const std::string& path);
@@ -87,7 +87,7 @@ protected:
     virtual GenNamespacePtr genCreateNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent) override;
     virtual GenInterfacePtr genCreateInterfaceImpl(commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent) override;
     virtual GenMessagePtr genCreateMessageImpl(commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent) override;
-    virtual FramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenFramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent) override;
 
     virtual GenFieldPtr genCreateIntFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent) override;
     virtual GenFieldPtr genCreateEnumFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent) override;

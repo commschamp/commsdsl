@@ -53,7 +53,7 @@ bool EmscriptenBundleField::genWriteImpl() const
 
 std::string EmscriptenBundleField::emscriptenHeaderValueAccImpl() const
 {
-    if (genParseObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::Length) {
+    if (genParseObj().parseSemanticType() != commsdsl::parse::ParseField::ParseSemanticType::Length) {
         return strings::genEmptyString();
     }
     
@@ -67,7 +67,7 @@ std::string EmscriptenBundleField::emscriptenHeaderExtraPublicFuncsImpl() const
 
 std::string EmscriptenBundleField::emscriptenSourceBindValueAccImpl() const
 {
-    if (genParseObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::Length) {
+    if (genParseObj().parseSemanticType() != commsdsl::parse::ParseField::ParseSemanticType::Length) {
         return strings::genEmptyString();
     }
 

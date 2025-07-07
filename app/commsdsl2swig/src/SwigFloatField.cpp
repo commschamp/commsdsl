@@ -75,7 +75,7 @@ std::string SwigFloatField::swigSpecialsDeclInternal() const
         return strings::genEmptyString();
     }
 
-    util::StringsList specialsList;
+    util::GenStringsList specialsList;
     auto& gen = SwigGenerator::cast(genGenerator());
     for (auto& s : specials) {
         if (!gen.genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {

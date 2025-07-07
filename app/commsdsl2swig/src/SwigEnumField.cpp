@@ -45,7 +45,7 @@ SwigEnumField::StringsList SwigEnumField::swigEnumValues() const
     
     auto obj = genEnumFieldParseObj();
     auto& revValues = genSortedRevValues();
-    util::StringsList valuesStrings;
+    util::GenStringsList valuesStrings;
     valuesStrings.reserve(revValues.size() + 3);
     auto& values = obj.parseValues();
 
@@ -158,7 +158,7 @@ std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
         {"TYPE", type}
     };
 
-    if (genParseObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::MessageId) {
+    if (genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::MessageId) {
         std::string valTempl = 
             "#^#TYPE#$#\n"
             "const ValueType& getValue() const\n"

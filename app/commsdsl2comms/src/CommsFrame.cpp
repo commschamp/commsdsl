@@ -46,15 +46,15 @@ bool hasIdLayerInternal(const CommsFrame::CommsLayersList& commsLayers)
             commsLayers.begin(), commsLayers.end(),
             [](auto* l)
             {
-                if (l->layer().genParseObj().parseKind() == commsdsl::parse::ParseLayer::Kind::Id) {
+                if (l->layer().genParseObj().parseKind() == commsdsl::parse::ParseLayer::ParseKind::Id) {
                     return true;
                 }
 
-                if (l->layer().genParseObj().parseKind() != commsdsl::parse::ParseLayer::Kind::Custom) {
+                if (l->layer().genParseObj().parseKind() != commsdsl::parse::ParseLayer::ParseKind::Custom) {
                     return false;
                 }
 
-                using LayerKind = commsdsl::parse::ParseLayer::Kind;
+                using LayerKind = commsdsl::parse::ParseLayer::ParseKind;
                 return (static_cast<const CommsCustomLayer&>(l->layer()).genCustomLayerParseObj().parseSemanticLayerType() == LayerKind::Id);
     });
 }
@@ -309,7 +309,7 @@ bool CommsFrame::commsWriteDefInternal() const
 
 std::string CommsFrame::commsCommonIncludesInternal() const
 {
-    util::StringsList includes;
+    util::GenStringsList includes;
 
     for (auto* commsLayer : m_commsLayers) {
         assert(commsLayer != nullptr);
@@ -325,7 +325,7 @@ std::string CommsFrame::commsCommonIncludesInternal() const
 
 std::string CommsFrame::commsCommonBodyInternal() const
 {
-    util::StringsList fragments;
+    util::GenStringsList fragments;
     for (auto* l : m_commsLayers) {
         auto code = l->commsCommonCode();
         if (!code.empty()) {
@@ -340,7 +340,7 @@ std::string CommsFrame::commsDefIncludesInternal() const
 {
     assert(genGetParent()->genElemType() == commsdsl::gen::GenElem::Type_Namespace);
     auto& gen = genGenerator();
-    util::StringsList includes = {
+    util::GenStringsList includes = {
         comms::genRelHeaderForOptions(strings::genDefaultOptionsClassStr(), gen),
         comms::genRelHeaderForInput(strings::genAllMessagesStr(), gen, *(static_cast<const commsdsl::gen::GenNamespace*>(genGetParent())))
     };
@@ -363,7 +363,7 @@ std::string CommsFrame::commsDefIncludesInternal() const
 
 std::string CommsFrame::commsDefLayersDefInternal() const
 {
-    util::StringsList defs;
+    util::GenStringsList defs;
     defs.reserve(m_commsLayers.size() + 1);
 
     CommsLayer* prevLayer = nullptr;
@@ -433,7 +433,7 @@ std::string CommsFrame::commsDefInputMessagesParamInternal() const
 
 std::string CommsFrame::commsDefAccessDocInternal() const
 {
-    util::StringsList lines;
+    util::GenStringsList lines;
     auto className = comms::genClassName(genParseObj().parseName());
     lines.reserve(m_commsLayers.size());
     std::transform(
@@ -451,7 +451,7 @@ std::string CommsFrame::commsDefAccessDocInternal() const
 
 std::string CommsFrame::commsDefAccessListInternal() const
 {
-    util::StringsList names;
+    util::GenStringsList names;
     names.reserve(m_commsLayers.size());
     std::transform(
         m_commsLayers.rbegin(), m_commsLayers.rend(), std::back_inserter(names),
@@ -500,7 +500,7 @@ std::string CommsFrame::commsCustomizationOptionsInternal(
     LayerOptsFunc layerOptsFunc,
     bool hasBase) const
 {
-    util::StringsList elems;
+    util::GenStringsList elems;
     for (auto iter = m_commsLayers.rbegin(); iter != m_commsLayers.rend(); ++iter) {
         auto* l = *iter;
         auto str = (l->*layerOptsFunc)();

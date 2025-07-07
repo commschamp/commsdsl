@@ -44,10 +44,10 @@ ParseOptionalField::ParseOptionalField(const ParseOptionalFieldImpl* impl)
 ParseOptionalField::ParseOptionalField(ParseField field)
   : Base(field)
 {
-    assert(parseKind() == Kind::Optional);
+    assert(parseKind() == ParseKind::Optional);
 }
 
-ParseOptionalField::Mode ParseOptionalField::parseDefaultMode() const
+ParseOptionalField::ParseMode ParseOptionalField::parseDefaultMode() const
 {
     return cast(m_pImpl)->parseDefaultMode();
 }

@@ -60,7 +60,7 @@ SwigField* SwigField::cast(commsdsl::gen::GenField* field)
     return const_cast<SwigField*>(cast(static_cast<const commsdsl::gen::GenField*>(field)));
 }
 
-SwigField::SwigFieldsList SwigField::swigTransformFieldsList(const commsdsl::gen::GenField::FieldsList& fields)
+SwigField::SwigFieldsList SwigField::swigTransformFieldsList(const commsdsl::gen::GenField::GenFieldsList& fields)
 {
     SwigFieldsList result;
     result.reserve(fields.size());

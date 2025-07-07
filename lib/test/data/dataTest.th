@@ -62,7 +62,7 @@ void DataTestSuite::test1()
     TS_ASSERT_EQUALS(field.parseName(), "Data1");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Data);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Data);
     TS_ASSERT_EQUALS(field.parseMinLength(), 0U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), std::numeric_limits<std::size_t>::max());
 
@@ -89,12 +89,12 @@ void DataTestSuite::test2()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.parseName(), "Data1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Data);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Data);
     TS_ASSERT_EQUALS(field.parseMinLength(), 4U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), 4U);
 
     commsdsl::parse::ParseDataField dataField(field);
-    commsdsl::parse::ParseDataField::ValueType expDefaultValue = {0xaa, 0xbb, 0xcc, 0xdd, 0xee};
+    commsdsl::parse::ParseDataField::ParseValueType expDefaultValue = {0xaa, 0xbb, 0xcc, 0xdd, 0xee};
     TS_ASSERT_EQUALS(dataField.parseDefaultValue(), expDefaultValue);
     TS_ASSERT_EQUALS(dataField.parseFixedLength(), 4U);
     TS_ASSERT_EQUALS(dataField.parseHasLengthPrefixField(), false);
@@ -124,7 +124,7 @@ void DataTestSuite::test4()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.parseName(), "Data1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Data);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Data);
     TS_ASSERT_EQUALS(field.parseMinLength(), 1U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), 256U);
 
@@ -134,7 +134,7 @@ void DataTestSuite::test4()
     TS_ASSERT_EQUALS(dataField.parseHasLengthPrefixField(), true);
     auto lenPrefix = dataField.parseLengthPrefixField();
     TS_ASSERT(lenPrefix.parseValid());
-    TS_ASSERT_EQUALS(lenPrefix.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(lenPrefix.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     TS_ASSERT_EQUALS(lenPrefix.parseExternalRef(), "@Schema4.DataLen");
 }
 
@@ -153,7 +153,7 @@ void DataTestSuite::test5()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.parseName(), "Data1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Data);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Data);
     TS_ASSERT_EQUALS(field.parseMinLength(), 1U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), 256U);
 
@@ -163,7 +163,7 @@ void DataTestSuite::test5()
     TS_ASSERT_EQUALS(dataField.parseHasLengthPrefixField(), true);
     auto lenPrefix = dataField.parseLengthPrefixField();
     TS_ASSERT(lenPrefix.parseValid());
-    TS_ASSERT_EQUALS(lenPrefix.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(lenPrefix.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     TS_ASSERT(lenPrefix.parseExternalRef().empty());
 }
 
@@ -190,12 +190,12 @@ void DataTestSuite::test7()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "Data2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Data);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Data);
     TS_ASSERT_EQUALS(field.parseMinLength(), 10U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), 10U);
 
     commsdsl::parse::ParseDataField dataField(field);
-    commsdsl::parse::ParseDataField::ValueType expDefaultValue{0xab, 0xcd};
+    commsdsl::parse::ParseDataField::ParseValueType expDefaultValue{0xab, 0xcd};
     TS_ASSERT_EQUALS(dataField.parseDefaultValue(), expDefaultValue);
     TS_ASSERT_EQUALS(dataField.parseFixedLength(), 10U);
     TS_ASSERT_EQUALS(dataField.parseHasLengthPrefixField(), false);
@@ -219,12 +219,12 @@ void DataTestSuite::test8()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "Data2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Data);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Data);
     TS_ASSERT_EQUALS(field.parseMinLength(), 4U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), 4U);
 
     commsdsl::parse::ParseDataField dataField(field);
-    commsdsl::parse::ParseDataField::ValueType expDefaultValue{0xab, 0xcd, 0xef, 0x01, 0x23};
+    commsdsl::parse::ParseDataField::ParseValueType expDefaultValue{0xab, 0xcd, 0xef, 0x01, 0x23};
     TS_ASSERT(!dataField.parseDefaultValue().empty());
     TS_ASSERT_EQUALS(dataField.parseDefaultValue(), expDefaultValue);
     TS_ASSERT_EQUALS(dataField.parseFixedLength(), 4U);
@@ -256,20 +256,20 @@ void DataTestSuite::test10()
 
     auto& field = fields[1];
     TS_ASSERT_EQUALS(field.parseName(), "Data2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Data);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Data);
     TS_ASSERT_EQUALS(field.parseMinLength(), 2U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), std::numeric_limits<std::uint16_t>::max() + field.parseMinLength());
 
     commsdsl::parse::ParseDataField dataField(field);
-    commsdsl::parse::ParseDataField::ValueType expDefaultValue{0xab, 0xcd, 0xef, 0x01, 0x23};
+    commsdsl::parse::ParseDataField::ParseValueType expDefaultValue{0xab, 0xcd, 0xef, 0x01, 0x23};
     TS_ASSERT_EQUALS(dataField.parseDefaultValue(), expDefaultValue);
     TS_ASSERT_EQUALS(dataField.parseFixedLength(), 0U);
     TS_ASSERT_EQUALS(dataField.parseHasLengthPrefixField(), true);
     auto lenPrefix = dataField.parseLengthPrefixField();
     TS_ASSERT(lenPrefix.parseValid());
-    TS_ASSERT_EQUALS(lenPrefix.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(lenPrefix.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     commsdsl::parse::ParseIntField intLenPrefix(lenPrefix);
-    TS_ASSERT_EQUALS(intLenPrefix.parseType(), commsdsl::parse::ParseIntField::Type::Uint16);
+    TS_ASSERT_EQUALS(intLenPrefix.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint16);
     TS_ASSERT_EQUALS(intLenPrefix.parseEndian(), commsdsl::parse::ParseEndian_Little);
     TS_ASSERT(dataField.parseDetachedPrefixFieldName().empty());
 }
@@ -301,7 +301,7 @@ void DataTestSuite::test12()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F3");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Data);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Data);
     TS_ASSERT_EQUALS(field.parseMinLength(), 0U);
 
     commsdsl::parse::ParseDataField dataField(field);
@@ -347,10 +347,10 @@ void DataTestSuite::test16()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "D2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Data);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Data);
 
     commsdsl::parse::ParseDataField dataField(field);
-    commsdsl::parse::ParseDataField::ValueType expDefaultValue{0x01, 0x02, 0x03, 0x04, 0x05};
+    commsdsl::parse::ParseDataField::ParseValueType expDefaultValue{0x01, 0x02, 0x03, 0x04, 0x05};
     TS_ASSERT_EQUALS(dataField.parseDefaultValue(), expDefaultValue);
     TS_ASSERT_EQUALS(dataField.parseFixedLength(), 5U);
 }
@@ -378,10 +378,10 @@ void DataTestSuite::test18()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "D2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Data);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Data);
 
     commsdsl::parse::ParseDataField dataField(field);
-    commsdsl::parse::ParseDataField::ValueType expDefaultValue{0x01, 0x02, 0x03, 0x04, 0x05};
+    commsdsl::parse::ParseDataField::ParseValueType expDefaultValue{0x01, 0x02, 0x03, 0x04, 0x05};
     TS_ASSERT_EQUALS(dataField.parseDefaultValue(), expDefaultValue);
     TS_ASSERT_EQUALS(dataField.parseFixedLength(), 5U);
 }
@@ -409,10 +409,10 @@ void DataTestSuite::test20()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F4");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Data);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Data);
 
     commsdsl::parse::ParseDataField dataField(field);
-    commsdsl::parse::ParseDataField::ValueType expDefaultValue{0x01, 0x02, 0x03, 0x04, 0x05};
+    commsdsl::parse::ParseDataField::ParseValueType expDefaultValue{0x01, 0x02, 0x03, 0x04, 0x05};
     TS_ASSERT_EQUALS(dataField.parseDefaultValue(), expDefaultValue);
 }
 
@@ -431,10 +431,10 @@ void DataTestSuite::test21()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F4");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Data);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Data);
 
     commsdsl::parse::ParseDataField dataField(field);
-    commsdsl::parse::ParseDataField::ValueType expDefaultValue{0x01, 0x02, 0x03, 0x04, 0x05};
+    commsdsl::parse::ParseDataField::ParseValueType expDefaultValue{0x01, 0x02, 0x03, 0x04, 0x05};
     TS_ASSERT_EQUALS(dataField.parseDefaultValue(), expDefaultValue);
 }
 
@@ -453,10 +453,10 @@ void DataTestSuite::test22()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "F3");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Data);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Data);
 
     commsdsl::parse::ParseDataField dataField(field);
-    commsdsl::parse::ParseDataField::ValueType expDefaultValue{0xab, 0xcd};
+    commsdsl::parse::ParseDataField::ParseValueType expDefaultValue{0xab, 0xcd};
     TS_ASSERT_EQUALS(dataField.parseDefaultValue(), expDefaultValue);
 }
 
@@ -478,9 +478,9 @@ void DataTestSuite::test23()
 
         auto& field = fields.front();
         TS_ASSERT_EQUALS(field.parseName(), "Data1");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Data);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Data);
 
-        using ValueType = commsdsl::parse::ParseDataField::ValueType;
+        using ValueType = commsdsl::parse::ParseDataField::ParseValueType;
         commsdsl::parse::ParseDataField dataField(field);
         auto& validValues = dataField.parseValidValues();
         TS_ASSERT_EQUALS(validValues.size(), 3U);
@@ -500,9 +500,9 @@ void DataTestSuite::test23()
 
         auto& field = fields[1];
         TS_ASSERT_EQUALS(field.parseName(), "Data2");
-        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Data);
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Data);
 
-        using ValueType = commsdsl::parse::ParseDataField::ValueType;
+        using ValueType = commsdsl::parse::ParseDataField::ParseValueType;
         commsdsl::parse::ParseDataField dataField(field);
         auto& validValues = dataField.parseValidValues();
         TS_ASSERT_EQUALS(validValues.size(), 4U);

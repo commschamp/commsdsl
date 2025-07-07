@@ -28,8 +28,8 @@ namespace gen
 class GenVariantFieldImpl
 {
 public:
-    using FieldsList = GenVariantField::FieldsList;
     using ParseVariantField = GenVariantField::ParseVariantField;
+    using GenFieldsList = GenVariantField::GenFieldsList;
 
     GenVariantFieldImpl(GenGenerator& generator, ParseVariantField parseObj, GenElem* parent) :
         m_generator(generator),
@@ -59,7 +59,7 @@ public:
         return true;
     }
 
-    const FieldsList& genMembers() const
+    const GenFieldsList& genMembers() const
     {
         return m_members;
     }
@@ -75,19 +75,19 @@ private:
     GenGenerator& m_generator;
     ParseVariantField m_parseObj;
     GenElem* m_parent = nullptr;
-    FieldsList m_members;
+    GenFieldsList m_members;
 };
 
 GenVariantField::GenVariantField(GenGenerator& generator, ParseField parseObj, GenElem* parent) :
     Base(generator, parseObj, parent),
     m_impl(std::make_unique<GenVariantFieldImpl>(generator, genVariantFieldParseObj(), this))
 {
-    assert(parseObj.parseKind() == ParseField::Kind::Variant);
+    assert(parseObj.parseKind() == ParseField::ParseKind::Variant);
 }
 
 GenVariantField::~GenVariantField() = default;
 
-const GenVariantField::FieldsList& GenVariantField::genMembers() const
+const GenVariantField::GenFieldsList& GenVariantField::genMembers() const
 {
     return m_impl->genMembers();
 }
@@ -102,7 +102,7 @@ void GenVariantField::genSetReferencedImpl()
     m_impl->genSetReferenced();
 }
 
-GenVariantField::FieldRefInfo GenVariantField::genProcessInnerRefImpl(const std::string& refStr) const
+GenVariantField::GenFieldRefInfo GenVariantField::genProcessInnerRefImpl(const std::string& refStr) const
 {
     auto& memFields = genMembers();
     if (!memFields.empty()) {

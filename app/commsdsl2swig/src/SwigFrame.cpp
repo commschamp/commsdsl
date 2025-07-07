@@ -158,7 +158,7 @@ bool SwigFrame::genWriteImpl() const
 
 std::string SwigFrame::swigLayerDeclsInternal() const
 {
-    util::StringsList elems;
+    util::GenStringsList elems;
     for (auto* l : m_swigLayers) {
 
         auto code = l->swigDeclCode();
@@ -203,7 +203,7 @@ std::string SwigFrame::swigClassDeclInternal() const
 std::string SwigFrame::swigLayersAccDeclInternal() const
 {
     auto& gen = SwigGenerator::cast(genGenerator());
-    util::StringsList elems;
+    util::GenStringsList elems;
     for (auto& l : genLayers()) {
         static const std::string Templ = 
             "#^#CLASS_NAME#$#& layer_#^#ACC_NAME#$#();\n";
@@ -221,7 +221,7 @@ std::string SwigFrame::swigLayersAccDeclInternal() const
 std::string SwigFrame::swigLayersAccCodeInternal() const
 {
     auto& gen = SwigGenerator::cast(genGenerator());
-    util::StringsList elems;
+    util::GenStringsList elems;
     for (auto& l : genLayers()) {
         static const std::string Templ = 
             "#^#CLASS_NAME#$#& layer_#^#ACC_NAME#$#() { return static_cast<#^#CLASS_NAME#$#&>(m_frame.layer_#^#ACC_NAME#$#()); }\n";
@@ -312,12 +312,12 @@ std::string SwigFrame::swigFrameCodeInternal() const
         "    Frame m_frame;\n"
         "};\n";    
 
-    util::StringsList allFieldsAcc;
+    util::GenStringsList allFieldsAcc;
     for (auto* l : m_swigLayers) {
         allFieldsAcc.push_back("allFields->" + l->swigFieldAccName() + ".value()");
     }
 
-    util::StringsList frameFieldsAcc;
+    util::GenStringsList frameFieldsAcc;
     for (auto idx = 0U; idx < m_swigLayers.size(); ++idx) {
         frameFieldsAcc.push_back("std::move(std::get<" + std::to_string(idx) + ">(frameFields).value())");
     }    

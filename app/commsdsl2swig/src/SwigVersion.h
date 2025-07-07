@@ -26,7 +26,7 @@ class SwigGenerator;
 class SwigVersion
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
 
     static bool swigWrite(SwigGenerator& generator);
     static void swigAddCodeIncludes(SwigGenerator& generator, StringsList& list);

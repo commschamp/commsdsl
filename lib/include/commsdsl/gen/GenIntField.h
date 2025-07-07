@@ -34,23 +34,25 @@ class GenIntFieldImpl;
 class COMMSDSL_API GenIntField : public GenField
 {
     using Base = GenField;
+
 public:
     using ParseField = commsdsl::parse::ParseField;
     using ParseIntField = commsdsl::parse::ParseIntField;
-    using SpecialsListElem = std::pair<std::string, ParseIntField::SpecialValueInfo>;
-    using SpecialsList = std::vector<SpecialsListElem>;
+
+    using GenSpecialsListElem = std::pair<std::string, ParseIntField::ParseSpecialValueInfo>;
+    using GenSpecialsList = std::vector<GenSpecialsListElem>;
 
     GenIntField(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
     virtual ~GenIntField();
 
-    static bool genIsUnsignedType(ParseIntField::Type value);
+    static bool genIsUnsignedType(ParseIntField::ParseType value);
     bool genIsUnsignedType() const;
 
-    const SpecialsList& genSpecialsSortedByValue() const;
+    const GenSpecialsList& genSpecialsSortedByValue() const;
 
 protected:    
     virtual bool genPrepareImpl() override;
-    virtual FieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
+    virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
 
     ParseIntField genIntFieldParseObj() const;
 

@@ -29,7 +29,7 @@ class ToolsQtFrame final : public commsdsl::gen::GenFrame
 {
     using Base = commsdsl::gen::GenFrame;
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
     using ToolsQtLayersList = std::vector<ToolsQtLayer*>;
 
     explicit ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent);

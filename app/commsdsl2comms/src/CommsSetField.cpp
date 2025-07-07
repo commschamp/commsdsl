@@ -193,7 +193,7 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
         }
     }
 
-    util::StringsList conditions;
+    util::GenStringsList conditions;
     for (auto& info : bitsToCheck) {
         if (info.second.m_reservedMask == 0U) {
             continue;
@@ -299,7 +299,7 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
             }
         }
 
-        util::StringsList extraConds;
+        util::GenStringsList extraConds;
         for (auto& r : versionRanges) {
             if ((r.second == 0U) || (r.first == r.second)) {
                 continue; // ignore invalid ranges
@@ -529,7 +529,7 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
 
 std::string CommsSetField::commsDefFieldOptsInternal() const
 {
-    util::StringsList opts;
+    util::GenStringsList opts;
 
     commsAddFieldDefOptions(opts);
     commsAddLengthOptInternal(opts);
@@ -546,7 +546,7 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
     auto& bits = obj.parseBits();
 
     std::uintmax_t usedBits = 0U;
-    util::StringsList names;
+    util::GenStringsList names;
 
     std::map<std::string, unsigned> deprecatedBits;
     for (auto& bitInfo : obj.parseRevBits()) {
@@ -595,7 +595,7 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
             "    #^#NAMES#$#\n"
             ");\n";
 
-        util::StringsList accessDoc;
+        util::GenStringsList accessDoc;
         accessDoc.reserve(names.size());
         std::transform(
             names.begin(), names.end(), std::back_inserter(accessDoc),
@@ -636,7 +636,7 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
         "    #^#NAMES#$#\n"
         ");\n";
 
-    util::StringsList bitsDoc;
+    util::GenStringsList bitsDoc;
     bitsDoc.reserve(names.size());
     std::transform(
         names.begin(), names.end(), std::back_inserter(bitsDoc),
@@ -645,7 +645,7 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
             return "///      @li @b BitIdx_" + n + "." + getDeprecatedStr(n);
         });
 
-    util::StringsList accessDoc;
+    util::GenStringsList accessDoc;
     accessDoc.reserve(names.size());
     std::transform(
         names.begin(), names.end(), std::back_inserter(accessDoc),
@@ -656,7 +656,7 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
                 n + "()." + getDeprecatedStr(n);
         });
 
-    util::StringsList bitsList;
+    util::GenStringsList bitsList;
     bitsList.reserve(bits.size());
     std::transform(
         names.begin(), names.end(), std::back_inserter(bitsList),
@@ -703,7 +703,7 @@ std::string CommsSetField::commsDefBitNameFuncCodeInternal() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-void CommsSetField::commsAddLengthOptInternal(commsdsl::gen::util::StringsList& opts) const
+void CommsSetField::commsAddLengthOptInternal(commsdsl::gen::util::GenStringsList& opts) const
 {
     auto bitLength = genParseObj().parseBitLength();
     if (bitLength != 0U) {
@@ -714,7 +714,7 @@ void CommsSetField::commsAddLengthOptInternal(commsdsl::gen::util::StringsList& 
     opts.push_back("comms::option::def::FixedLength<" + util::genNumToString(genSetFieldParseObj().parseMinLength()) + '>');
 }
 
-void CommsSetField::commsAddDefaultValueOptInternal(commsdsl::gen::util::StringsList& opts) const
+void CommsSetField::commsAddDefaultValueOptInternal(commsdsl::gen::util::GenStringsList& opts) const
 {
     auto obj = genSetFieldParseObj();
     std::uintmax_t defaultValue = 0U;
@@ -755,7 +755,7 @@ void CommsSetField::commsAddDefaultValueOptInternal(commsdsl::gen::util::Strings
     }
 
     auto type = obj.parseType();
-    if ((type == commsdsl::parse::ParseSetField::Type::Uint64) || (type == commsdsl::parse::ParseSetField::Type::Uintvar)) {
+    if ((type == commsdsl::parse::ParseSetField::ParseType::Uint64) || (type == commsdsl::parse::ParseSetField::ParseType::Uintvar)) {
         auto str =
             "comms::option::def::DefaultBigUnsignedNumValue<" +
             util::genNumToString(static_cast<std::uintmax_t>(defaultValue), true) +
@@ -771,7 +771,7 @@ void CommsSetField::commsAddDefaultValueOptInternal(commsdsl::gen::util::Strings
     opts.push_back(std::move(str));
 }
 
-void CommsSetField::commsAddReservedBitsOptInternal(commsdsl::gen::util::StringsList& opts) const
+void CommsSetField::commsAddReservedBitsOptInternal(commsdsl::gen::util::GenStringsList& opts) const
 {
     auto obj = genSetFieldParseObj();
     auto& gen = genGenerator();

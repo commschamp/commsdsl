@@ -30,12 +30,12 @@ namespace gen
 GenChecksumLayer::GenChecksumLayer(GenGenerator& generator, ParseLayer dslObj, GenElem* parent) :
     Base(generator, dslObj, parent)
 {
-    assert(dslObj.parseKind() == ParseLayer::Kind::Checksum);
+    assert(dslObj.parseKind() == ParseLayer::ParseKind::Checksum);
 }
 
 GenChecksumLayer::~GenChecksumLayer() = default;
 
-bool GenChecksumLayer::genForceCommsOrderImpl(LayersAccessList& layers, bool& success) const
+bool GenChecksumLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const
 {
     auto iter =
         std::find_if(
@@ -71,7 +71,7 @@ bool GenChecksumLayer::genForceCommsOrderImpl(LayersAccessList& layers, bool& su
             return false;
         }
 
-        if ((*untilIter)->genParseObj().parseKind() != ParseLayer::Kind::Payload) {
+        if ((*untilIter)->genParseObj().parseKind() != ParseLayer::ParseKind::Payload) {
             genGenerator().genLogger().genError("Checksum prefix must be until payload layer");
             success = false;
             return false;

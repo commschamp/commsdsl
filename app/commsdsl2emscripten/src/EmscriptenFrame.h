@@ -32,7 +32,7 @@ class EmscriptenFrame final: public commsdsl::gen::GenFrame
     using Base = commsdsl::gen::GenFrame;
 
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
 
     explicit EmscriptenFrame(EmscriptenGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent);
     virtual ~EmscriptenFrame();

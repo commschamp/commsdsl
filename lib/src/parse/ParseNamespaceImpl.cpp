@@ -33,12 +33,12 @@ namespace parse
 namespace
 {
 
-static const ParseXmlWrap::NamesList PropNames = {
+static const ParseXmlWrap::ParseNamesList PropNames = {
     common::parseNameStr(),
     common::parseDescriptionStr()
 };
 
-static const ParseXmlWrap::NamesList ChildrenNames = {
+static const ParseXmlWrap::ParseNamesList ChildrenNames = {
     common::parseFieldsStr(),
     common::parseMessagesStr(),
     common::parseMessageStr(),
@@ -49,14 +49,14 @@ static const ParseXmlWrap::NamesList ChildrenNames = {
     common::parseInterfaceStr()
 };
 
-ParseXmlWrap::NamesList parseAllNames()
+ParseXmlWrap::ParseNamesList parseAllNames()
 {
-    ParseXmlWrap::NamesList names = PropNames;
+    ParseXmlWrap::ParseNamesList names = PropNames;
     names.insert(names.end(), ChildrenNames.begin(), ChildrenNames.end());
     return names;
 }
 
-bool parseUpdateStringProperty(const ParseXmlWrap::PropsMap& map, const std::string& name, std::string& prop)
+bool parseUpdateStringProperty(const ParseXmlWrap::ParsePropsMap& map, const std::string& name, std::string& prop)
 {
     auto iter = map.find(name);
     if (iter == map.end()) {
@@ -76,7 +76,7 @@ ParseNamespaceImpl::ParseNamespaceImpl(::xmlNodePtr node, ParseProtocolImpl& pro
 {
 }
 
-const ParseXmlWrap::NamesList& ParseNamespaceImpl::expectedChildrenNames()
+const ParseXmlWrap::ParseNamesList& ParseNamespaceImpl::expectedChildrenNames()
 {
     return ChildrenNames;
 }
@@ -158,14 +158,14 @@ bool ParseNamespaceImpl::processChild(::xmlNodePtr node, ParseNamespaceImpl* rea
     return (realNs->*func)(node);
 }
 
-const ParseXmlWrap::NamesList& ParseNamespaceImpl::parseSupportedChildren()
+const ParseXmlWrap::ParseNamesList& ParseNamespaceImpl::parseSupportedChildren()
 {
     return ChildrenNames;
 }
 
-ParseNamespaceImpl::NamespacesList ParseNamespaceImpl::parseNamespacesList() const
+ParseNamespaceImpl::ParseNamespacesList ParseNamespaceImpl::parseNamespacesList() const
 {
-    NamespacesList result;
+    ParseNamespacesList result;
     result.reserve(m_namespaces.size());
     for (auto& n : m_namespaces) {
         assert(n.second);
@@ -181,9 +181,9 @@ ParseNamespaceImpl::NamespacesList ParseNamespaceImpl::parseNamespacesList() con
     return result;
 }
 
-ParseNamespaceImpl::FieldsList ParseNamespaceImpl::parseFieldsList() const
+ParseNamespaceImpl::ParseFieldsList ParseNamespaceImpl::parseFieldsList() const
 {
-    FieldsList result;
+    ParseFieldsList result;
     result.reserve(m_fields.size());
     for (auto& f : m_fields) {
         assert(f.second);
@@ -199,9 +199,9 @@ ParseNamespaceImpl::FieldsList ParseNamespaceImpl::parseFieldsList() const
     return result;
 }
 
-ParseNamespaceImpl::MessagesList ParseNamespaceImpl::parseMessagesList() const
+ParseNamespaceImpl::ParseMessagesList ParseNamespaceImpl::parseMessagesList() const
 {
-    MessagesList result;
+    ParseMessagesList result;
     result.reserve(m_messages.size());
     for (auto& m : m_messages) {
         assert(m.second);
@@ -216,9 +216,9 @@ ParseNamespaceImpl::MessagesList ParseNamespaceImpl::parseMessagesList() const
     return result;
 }
 
-ParseNamespaceImpl::InterfacesList ParseNamespaceImpl::parseInterfacesList() const
+ParseNamespaceImpl::ParseInterfacesList ParseNamespaceImpl::parseInterfacesList() const
 {
-    InterfacesList result;
+    ParseInterfacesList result;
     result.reserve(m_interfaces.size());
     for (auto& m : m_interfaces) {
         assert(m.second);
@@ -233,9 +233,9 @@ ParseNamespaceImpl::InterfacesList ParseNamespaceImpl::parseInterfacesList() con
     return result;
 }
 
-ParseNamespaceImpl::FramesList ParseNamespaceImpl::parseFramesList() const
+ParseNamespaceImpl::ParseFramesList ParseNamespaceImpl::parseFramesList() const
 {
-    FramesList result;
+    ParseFramesList result;
     result.reserve(m_frames.size());
     for (auto& m : m_frames) {
         assert(m.second);
@@ -297,8 +297,8 @@ const ParseFrameImpl* ParseNamespaceImpl::parseFindFrame(const std::string& intN
 std::string ParseNamespaceImpl::parseExternalRef(bool schemaRef) const
 {
     assert(parseGetParent() != nullptr);
-    assert((parseGetParent()->parseObjKind() == ObjKind::Schema) || (parseGetParent()->parseObjKind() == ObjKind::Namespace));
-    if (parseGetParent()->parseObjKind() != ObjKind::Namespace) {
+    assert((parseGetParent()->parseObjKind() == ParseObjKind::Schema) || (parseGetParent()->parseObjKind() == ParseObjKind::Namespace));
+    if (parseGetParent()->parseObjKind() != ParseObjKind::Namespace) {
         if (!schemaRef) {
             return parseName();
         }
@@ -333,7 +333,7 @@ unsigned ParseNamespaceImpl::parseCountMessageIds() const
             m_fields.begin(), m_fields.end(), result,
             [](unsigned soFar, auto& f)
             {
-                if (f.second->parseSemanticType() != ParseField::SemanticType::MessageId) {
+                if (f.second->parseSemanticType() != ParseField::ParseSemanticType::MessageId) {
                     return soFar;
                 }
 
@@ -416,9 +416,9 @@ bool ParseNamespaceImpl::parseStrToData(const std::string& ref, std::vector<std:
             });
 }
 
-ParseNamespaceImpl::ImplInterfacesList ParseNamespaceImpl::parseAllImplInterfaces() const
+ParseNamespaceImpl::ParseImplInterfacesList ParseNamespaceImpl::parseAllImplInterfaces() const
 {
-    ImplInterfacesList result;
+    ParseImplInterfacesList result;
     for (auto& n : m_namespaces) {
         auto ifaces = n.second->parseAllImplInterfaces();
         result.insert(result.end(), ifaces.begin(), ifaces.end());
@@ -432,9 +432,9 @@ ParseNamespaceImpl::ImplInterfacesList ParseNamespaceImpl::parseAllImplInterface
     return result;
 }
 
-ParseNamespaceImpl::FieldRefInfosList ParseNamespaceImpl::parseProcessInterfaceFieldRef(const std::string& refStr) const
+ParseNamespaceImpl::ParseFieldRefInfosList ParseNamespaceImpl::parseProcessInterfaceFieldRef(const std::string& refStr) const
 {
-    FieldRefInfosList result;
+    ParseFieldRefInfosList result;
     auto parseAllInterfaces = parseAllImplInterfaces();
     result.reserve(parseAllInterfaces.size());
     for (auto* iface : parseAllInterfaces) {
@@ -448,7 +448,7 @@ ParseNamespaceImpl::FieldRefInfosList ParseNamespaceImpl::parseProcessInterfaceF
 
 bool ParseNamespaceImpl::parseValidateAllMessages(bool allowNonUniquIds)
 {
-    MessagesList allMsgs = parseMessagesList();
+    ParseMessagesList allMsgs = parseMessagesList();
     for (auto& ns : m_namespaces) {
         auto nsMsgs = ns.second->parseMessagesList();
         allMsgs.insert(allMsgs.end(), nsMsgs.begin(), nsMsgs.end());
@@ -502,14 +502,14 @@ bool ParseNamespaceImpl::parseValidateAllMessages(bool allowNonUniquIds)
     return true;
 }
 
-ParseObject::ObjKind ParseNamespaceImpl::parseObjKindImpl() const
+ParseObject::ParseObjKind ParseNamespaceImpl::parseObjKindImpl() const
 {
-    return ObjKind::Namespace;
+    return ParseObjKind::Namespace;
 }
 
 bool ParseNamespaceImpl::processNamespace(::xmlNodePtr node)
 {
-    Ptr ns(new ParseNamespaceImpl(node, m_protocol));
+    ParsePtr ns(new ParseNamespaceImpl(node, m_protocol));
     ns->parseSetParent(this);
 
     if (!ns->parseProps()) {
@@ -731,12 +731,12 @@ bool ParseNamespaceImpl::parseUpdateExtraAttrs()
 
 bool ParseNamespaceImpl::parseUpdateExtraChildren()
 {
-    static const ParseXmlWrap::NamesList Names = parseAllNames();
+    static const ParseXmlWrap::ParseNamesList Names = parseAllNames();
     m_extraChildren = ParseXmlWrap::parseGetExtraChildren(m_node, Names, m_protocol);
     return true;
 }
 
-bool ParseNamespaceImpl::parseStrToValue(const std::string& ref, StrToValueNsConvertFunc&& nsFunc, StrToValueFieldConvertFunc&& fFunc) const
+bool ParseNamespaceImpl::parseStrToValue(const std::string& ref, ParseStrToValueNsConvertFunc&& nsFunc, ParseStrToValueFieldConvertFunc&& fFunc) const
 {
     auto firstDotPos = ref.find_first_of('.');
     if (firstDotPos == std::string::npos) {
@@ -767,17 +767,17 @@ bool ParseNamespaceImpl::parseStrToValue(const std::string& ref, StrToValueNsCon
     return fFunc(*fieldIter->second, restName);
 }
 
-LogWrapper ParseNamespaceImpl::parseLogError() const
+ParseLogWrapper ParseNamespaceImpl::parseLogError() const
 {
     return commsdsl::parse::parseLogError(m_protocol.parseLogger());
 }
 
-LogWrapper ParseNamespaceImpl::parseLogWarning() const
+ParseLogWrapper ParseNamespaceImpl::parseLogWarning() const
 {
     return commsdsl::parse::parseLogWarning(m_protocol.parseLogger());
 }
 
-LogWrapper ParseNamespaceImpl::parseLogInfo() const
+ParseLogWrapper ParseNamespaceImpl::parseLogInfo() const
 {
     return commsdsl::parse::parseLogInfo(m_protocol.parseLogger());
 }

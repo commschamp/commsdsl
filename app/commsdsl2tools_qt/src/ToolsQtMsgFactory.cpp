@@ -96,7 +96,7 @@ bool ToolsQtMsgFactory::toolsWriteHeaderInternal() const
             return false;
         }        
 
-        util::StringsList includes = {
+        util::GenStringsList includes = {
             "cc_tools_qt/ToolsMsgFactory.h",
         };
 
@@ -239,7 +239,7 @@ std::string ToolsQtMsgFactory::toolsSourceCodeInternal(const commsdsl::gen::GenI
         "}\n";
 
 
-    util::StringsList scopes;
+    util::GenStringsList scopes;
     auto allMessages = m_generator.genGetAllMessagesIdSorted();
     for (auto* m : allMessages) {
         assert(m != nullptr);
@@ -257,7 +257,7 @@ std::string ToolsQtMsgFactory::toolsSourceCodeInternal(const commsdsl::gen::GenI
 
 std::string ToolsQtMsgFactory::toolsSourceIncludesInternal(const commsdsl::gen::GenInterface& iFace) const
 {
-    util::StringsList includes;
+    util::GenStringsList includes;
     auto allMessages = m_generator.genGetAllMessagesIdSorted();
     for (auto* m : allMessages) {
         assert(m != nullptr);

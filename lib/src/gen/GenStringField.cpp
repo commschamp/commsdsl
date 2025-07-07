@@ -29,6 +29,7 @@ namespace gen
 class GenStringFieldImpl
 {
     using Base = GenField;
+    
 public:
     using ParseStringField = GenStringField::ParseStringField;
 
@@ -99,7 +100,7 @@ GenStringField::GenStringField(GenGenerator& generator, ParseField parseObj, Gen
     Base(generator, parseObj, parent),
     m_impl(std::make_unique<GenStringFieldImpl>(generator, genStringFieldParseObj(), this))
 {
-    assert(parseObj.parseKind() == ParseField::Kind::String);
+    assert(parseObj.parseKind() == ParseField::ParseKind::String);
 }
 
 GenStringField::~GenStringField() = default;

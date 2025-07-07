@@ -89,7 +89,7 @@ std::string EmscriptenIntField::emscriptenHeaderSpecialsInternal() const
         return strings::genEmptyString();
     }
 
-    util::StringsList specialsList;
+    util::GenStringsList specialsList;
     auto& gen = EmscriptenGenerator::cast(genGenerator());
     for (auto& s : specials) {
         if (!gen.genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
@@ -169,7 +169,7 @@ std::string EmscriptenIntField::emscriptenSourceSpecialsBindInternal() const
         return strings::genEmptyString();
     }
 
-    util::StringsList specialsList;
+    util::GenStringsList specialsList;
     auto& gen = EmscriptenGenerator::cast(genGenerator());
     util::ReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}

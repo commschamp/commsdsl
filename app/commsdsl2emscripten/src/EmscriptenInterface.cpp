@@ -164,7 +164,7 @@ bool EmscriptenInterface::emscriptenWriteSourceInternal() const
 std::string EmscriptenInterface::emscriptenHeaderIncludesInternal() const
 {
     auto& gen = EmscriptenGenerator::cast(genGenerator());
-    util::StringsList includes = {
+    util::GenStringsList includes = {
         "<iterator>",
         "<emscripten/val.h>",
         comms::genRelHeaderPathFor(*this, gen),
@@ -181,7 +181,7 @@ std::string EmscriptenInterface::emscriptenHeaderIncludesInternal() const
 
 std::string EmscriptenInterface::emscriptenHeaderFieldsInternal() const
 {
-    util::StringsList fields;
+    util::GenStringsList fields;
     for (auto* f : m_emscriptenFields) {
         fields.push_back(f->emscriptenHeaderClass());
     }
@@ -192,7 +192,7 @@ std::string EmscriptenInterface::emscriptenHeaderFieldsInternal() const
 std::string EmscriptenInterface::emscriptenHeaderClassInternal() const
 {
         auto& gen = EmscriptenGenerator::cast(genGenerator());
-        util::StringsList fields;
+        util::GenStringsList fields;
         for (auto* f : m_emscriptenFields) {
             static const std::string Templ = 
                 "using Base::transportField_#^#NAME#$#;\n"
@@ -300,7 +300,7 @@ std::string EmscriptenInterface::emscriptenHeaderBaseInternal() const
 
 std::string EmscriptenInterface::emscriptenSourceFieldsInternal() const
 {
-    util::StringsList fields;
+    util::GenStringsList fields;
     for (auto* f : m_emscriptenFields) {
         fields.push_back(f->emscriptenSourceCode());
     }
@@ -316,7 +316,7 @@ std::string EmscriptenInterface::emscriptenSourceCodeInternal() const
         {"CLASS_NAME", gen.emscriptenClassName(*this)},
     };
 
-    util::StringsList fields;
+    util::GenStringsList fields;
     for (auto* f : m_emscriptenFields) {
         static const std::string Templ = 
             ".function(\"transportField_#^#NAME#$#\", &#^#CLASS_NAME#$#::transportField_#^#NAME#$#_, emscripten::allow_raw_pointers())";

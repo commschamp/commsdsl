@@ -33,18 +33,18 @@ class ParseFloatFieldImpl final : public ParseFieldImpl
 {
     using Base = ParseFieldImpl;
 public:
-    using Type = ParseFloatField::Type;
+    using ParseType = ParseFloatField::ParseType;
 
-    using ValidRangeInfo = ParseFloatField::ValidRangeInfo;
-    using ValidRangesList = ParseFloatField::ValidRangesList;
-    using SpecialValueInfo = ParseFloatField::SpecialValueInfo;
-    using SpecialValues = ParseFloatField::SpecialValues;
+    using ParseValidRangeInfo = ParseFloatField::ParseValidRangeInfo;
+    using ParseValidRangesList = ParseFloatField::ParseValidRangesList;
+    using ParseSpecialValueInfo = ParseFloatField::ParseSpecialValueInfo;
+    using ParseSpecialValues = ParseFloatField::ParseSpecialValues;
 
 
     ParseFloatFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseFloatFieldImpl(const ParseFloatFieldImpl&);
 
-    Type parseType() const
+    ParseType parseType() const
     {
         return m_state.m_type;
     }
@@ -59,12 +59,12 @@ public:
         return m_state.m_defaultValue;
     }
 
-    const ValidRangesList& parseValidRanges() const
+    const ParseValidRangesList& parseValidRanges() const
     {
         return m_state.m_validRanges;
     }
 
-    const SpecialValues& parseSpecialValues() const
+    const ParseSpecialValues& parseSpecialValues() const
     {
         return m_state.m_specials;
     }
@@ -87,17 +87,17 @@ public:
     bool parseHasNonUniqueSpecials() const;
 
 protected:
-    virtual Kind parseKindImpl() const override;
-    virtual Ptr parseCloneImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraChildrenNamesImpl() const override;
+    virtual ParseKind parseKindImpl() const override;
+    virtual ParsePtr parseCloneImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraChildrenNamesImpl() const override;
     virtual bool parseReuseImpl(const ParseFieldImpl& other) override;
     virtual bool parseImpl() override;
     virtual std::size_t parseMinLengthImpl() const override;
     virtual bool parseIsComparableToValueImpl(const std::string& val) const override;
     virtual bool parseStrToFpImpl(const std::string& ref, double& val) const override;
-    virtual FieldRefInfo parseProcessInnerRefImpl(const std::string& refStr) const override;
-    virtual bool parseIsValidRefTypeImpl(FieldRefType type) const override;
+    virtual ParseFieldRefInfo parseProcessInnerRefImpl(const std::string& refStr) const override;
+    virtual bool parseIsValidRefTypeImpl(ParseFieldRefType type) const override;
 
 private:
     bool parseUpdateType();
@@ -112,21 +112,21 @@ private:
     bool parseUpdateUnits();
     bool parseUpdateDisplayDecimals();
     bool parseUpdateDisplaySpecials();
-    bool parseCheckFullRangeAsAttr(const PropsMap& xmlAttrs);
+    bool parseCheckFullRangeAsAttr(const ParsePropsMap& xmlAttrs);
     bool parseCheckFullRangeAsChild(::xmlNodePtr child);
-    bool parseCheckFullRangeProps(const PropsMap& xmlAttrs);
-    bool parseCheckValidRangeAsAttr(const PropsMap& xmlAttrs);
+    bool parseCheckFullRangeProps(const ParsePropsMap& xmlAttrs);
+    bool parseCheckValidRangeAsAttr(const ParsePropsMap& xmlAttrs);
     bool parseCheckValidRangeAsChild(::xmlNodePtr child);
-    bool parseCheckValidRangeProps(const PropsMap& xmlAttrs);
-    bool parseCheckValidValueAsAttr(const PropsMap& xmlAttrs);
+    bool parseCheckValidRangeProps(const ParsePropsMap& xmlAttrs);
+    bool parseCheckValidValueAsAttr(const ParsePropsMap& xmlAttrs);
     bool parseCheckValidValueAsChild(::xmlNodePtr child);
-    bool parseCheckValidValueProps(const PropsMap& xmlAttrs);
-    bool parseCheckValidMinAsAttr(const PropsMap& xmlAttrs);
+    bool parseCheckValidValueProps(const ParsePropsMap& xmlAttrs);
+    bool parseCheckValidMinAsAttr(const ParsePropsMap& xmlAttrs);
     bool parseCheckValidMinAsChild(::xmlNodePtr child);
-    bool parseCheckValidMinProps(const PropsMap& xmlAttrs);
-    bool parseCheckValidMaxAsAttr(const PropsMap& xmlAttrs);
+    bool parseCheckValidMinProps(const ParsePropsMap& xmlAttrs);
+    bool parseCheckValidMaxAsAttr(const ParsePropsMap& xmlAttrs);
     bool parseCheckValidMaxAsChild(::xmlNodePtr child);
-    bool parseCheckValidMaxProps(const PropsMap& xmlAttrs);
+    bool parseCheckValidMaxProps(const ParsePropsMap& xmlAttrs);
     bool parseValidateValidRangeStr(const std::string& str, double& min, double& max);
     bool parseValidateValidValueStr(
             const std::string& str,
@@ -135,23 +135,23 @@ private:
             bool allowSpecials = true);
     bool parseStrToValue(const std::string& str, double& val, bool allowSpecials = true) const;
 
-    struct State
+    struct ParseState
     {
-        Type m_type = Type::NumOfValues;
+        ParseType m_type = ParseType::NumOfValues;
         ParseEndian m_endian = ParseEndian_NumOfValues;
         std::size_t m_length = 0U;
         double m_typeAllowedMinValue = 0.0;
         double m_typeAllowedMaxValue = 0.0;
         double m_defaultValue = 0.0;
-        ValidRangesList m_validRanges;
-        SpecialValues m_specials;
+        ParseValidRangesList m_validRanges;
+        ParseSpecialValues m_specials;
         ParseUnits m_units = ParseUnits::Unknown;
         unsigned m_displayDecimals = 0U;
         bool m_validCheckVersion = false;
         bool m_nonUniqueSpecialsAllowed = false;
     };
 
-    State m_state;
+    ParseState m_state;
 };
 
 } // namespace parse

@@ -32,8 +32,8 @@ namespace gen
 class COMMSDSL_API GenChecksumLayer : public GenLayer
 {
     using Base = GenLayer;
-public:
 
+public:
     using ParseLayer = commsdsl::parse::ParseLayer;
     using ParseChecksumLayer = commsdsl::parse::ParseChecksumLayer;
 
@@ -41,7 +41,7 @@ public:
     virtual ~GenChecksumLayer();
 
 protected:    
-    virtual bool genForceCommsOrderImpl(LayersAccessList& layers, bool& success) const override final;
+    virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const override final;
     
     ParseChecksumLayer checksumDslObj() const;
 };

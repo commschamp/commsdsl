@@ -180,7 +180,7 @@ std::string EmscriptenProtocolOptions::emscriptenIncludesInternal()
 {
     assert(m_generator.genIsCurrentProtocolSchema());
 
-    util::StringsList list;
+    util::GenStringsList list;
     list.push_back(comms::genRelHeaderForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_generator));
     auto& schemas = m_generator.genSchemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {

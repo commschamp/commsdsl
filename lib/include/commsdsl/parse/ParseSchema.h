@@ -33,11 +33,11 @@ class ParseSchemaImpl;
 class COMMSDSL_API ParseSchema
 {
 public:
-    using AttributesMap = std::multimap<std::string, std::string>;
-    using ElementsList = std::vector<std::string>;
-    using NamespacesList = std::vector<ParseNamespace>;
-    using MessagesList = ParseNamespace::MessagesList;
-    using PlatformsList = ParseMessage::PlatformsList;
+    using ParseAttributesMap = std::multimap<std::string, std::string>;
+    using ParseElementsList = std::vector<std::string>;
+    using ParseNamespacesList = std::vector<ParseNamespace>;
+    using ParseMessagesList = ParseNamespace::ParseMessagesList;
+    using ParsePlatformsList = ParseMessage::ParsePlatformsList;
 
     explicit ParseSchema(const ParseSchemaImpl* impl);
 
@@ -57,15 +57,15 @@ public:
 
     bool parseNonUniqueMsgIdAllowed() const;
 
-    const AttributesMap& parseExtraAttributes() const;
+    const ParseAttributesMap& parseExtraAttributes() const;
 
-    const ElementsList& parseExtraElements() const;
+    const ParseElementsList& parseExtraElements() const;
 
-    NamespacesList parseNamespaces() const;
+    ParseNamespacesList parseNamespaces() const;
 
-    const PlatformsList& parsePlatforms() const;
+    const ParsePlatformsList& parsePlatforms() const;
 
-    MessagesList parseAllMessages() const;
+    ParseMessagesList parseAllMessages() const;
 
     std::string parseExternalRef() const;
 

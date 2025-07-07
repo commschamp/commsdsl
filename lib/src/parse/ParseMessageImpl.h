@@ -43,13 +43,13 @@ class ParseMessageImpl final : public ParseObject
 {
     using Base = ParseObject;
 public:
-    using Ptr = std::unique_ptr<ParseMessageImpl>;
-    using PropsMap = ParseXmlWrap::PropsMap;
-    using FieldsList = ParseMessage::FieldsList;
-    using AliasesList = ParseMessage::AliasesList;
-    using ContentsList = ParseXmlWrap::ContentsList;
-    using PlatformsList = ParseMessage::PlatformsList;
-    using Sender = ParseMessage::Sender;
+    using ParsePtr = std::unique_ptr<ParseMessageImpl>;
+    using ParsePropsMap = ParseXmlWrap::ParsePropsMap;
+    using ParseFieldsList = ParseMessage::ParseFieldsList;
+    using ParseAliasesList = ParseMessage::ParseAliasesList;
+    using ParseContentsList = ParseXmlWrap::ParseContentsList;
+    using ParsePlatformsList = ParseMessage::ParsePlatformsList;
+    using ParseSender = ParseMessage::ParseSender;
 
     ParseMessageImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseMessageImpl(const ParseMessageImpl&) = delete;
@@ -63,7 +63,7 @@ public:
 
     bool parse();
 
-    const PropsMap& parseProps() const
+    const ParsePropsMap& parseProps() const
     {
         return m_props;
     }
@@ -86,22 +86,22 @@ public:
 
     std::size_t parseMaxLength() const;
 
-    FieldsList parseFieldsList() const;
-    AliasesList parseAliasesList() const;
+    ParseFieldsList parseFieldsList() const;
+    ParseAliasesList parseAliasesList() const;
 
     std::string parseExternalRef(bool schemaRef) const;
 
-    const PropsMap& parseExtraAttributes() const
+    const ParsePropsMap& parseExtraAttributes() const
     {
         return m_extraAttrs;
     }
 
-    const ContentsList& parseExtraChildren() const
+    const ParseContentsList& parseExtraChildren() const
     {
         return m_extraChildren;
     }
 
-    const PlatformsList& parsePlatforms() const
+    const ParsePlatformsList& parsePlatforms() const
     {
         return m_state.m_platforms;
     }
@@ -116,7 +116,7 @@ public:
         return m_state.m_failOnInvalid;
     }       
 
-    Sender parseSender() const
+    ParseSender parseSender() const
     {
         return m_state.m_sender;
     }
@@ -172,10 +172,10 @@ public:
     }          
 
 protected:
-    virtual ObjKind parseObjKindImpl() const override;
+    virtual ParseObjKind parseObjKindImpl() const override;
 
 private:
-    struct ReusableState
+    struct ParseReusableState
     {
         std::string m_name;
         std::string m_displayName;
@@ -185,8 +185,8 @@ private:
         int m_validateMinLength = -1;
         std::vector<ParseFieldImplPtr> m_fields;
         std::vector<ParseAliasImplPtr> m_aliases;
-        PlatformsList m_platforms;
-        Sender m_sender = Sender::Both;
+        ParsePlatformsList m_platforms;
+        ParseSender m_sender = ParseSender::Both;
         ParseOverrideType m_readOverride = ParseOverrideType_Any;
         ParseOverrideType m_writeOverride = ParseOverrideType_Any;
         ParseOverrideType m_refreshOverride = ParseOverrideType_Any;
@@ -200,8 +200,8 @@ private:
         bool m_customizable = false;
         bool m_failOnInvalid = false;
 
-        ReusableState() = default;
-        ReusableState(ReusableState&&) = default;
+        ParseReusableState() = default;
+        ParseReusableState(ParseReusableState&&) = default;
 
         auto basicForwardAsTuple()
         {
@@ -234,10 +234,10 @@ private:
 
         auto basicForwardAsTuple() const
         {
-            return const_cast<ReusableState*>(this)->basicForwardAsTuple();
+            return const_cast<ParseReusableState*>(this)->basicForwardAsTuple();
         }
 
-        ReusableState& operator=(const ReusableState& other)
+        ParseReusableState& operator=(const ParseReusableState& other)
         {
             basicForwardAsTuple() = other.basicForwardAsTuple();
 
@@ -269,15 +269,15 @@ private:
         }
     };
 
-    LogWrapper parseLogError() const;
-    LogWrapper parseLogWarning() const;
-    LogWrapper parseLogInfo() const;
+    ParseLogWrapper parseLogError() const;
+    ParseLogWrapper parseLogWarning() const;
+    ParseLogWrapper parseLogInfo() const;
 
-    static const ParseXmlWrap::NamesList& parseCommonProps();
-    static const ParseXmlWrap::NamesList& parseExtraProps();
-    static const ParseXmlWrap::NamesList& parseAllProps();
+    static const ParseXmlWrap::ParseNamesList& parseCommonProps();
+    static const ParseXmlWrap::ParseNamesList& parseExtraProps();
+    static const ParseXmlWrap::ParseNamesList& parseAllProps();
     
-    static ParseXmlWrap::NamesList parseAllNames();
+    static ParseXmlWrap::ParseNamesList parseAllNames();
 
     bool parseValidateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool parseValidateAndUpdateStringPropValue(const std::string& str, std::string& value, bool mustHave = false, bool allowDeref = false);
@@ -338,15 +338,15 @@ private:
 
     ::xmlNodePtr m_node = nullptr;
     ParseProtocolImpl& m_protocol;
-    PropsMap m_props;
-    PropsMap m_extraAttrs;
-    ContentsList m_extraChildren;
+    ParsePropsMap m_props;
+    ParsePropsMap m_extraAttrs;
+    ParseContentsList m_extraChildren;
     const ParseMessageImpl* m_copyFieldsFromMsg = nullptr;
     const ParseBundleFieldImpl* m_copyFieldsFromBundle = nullptr;    
-    ReusableState m_state;
+    ParseReusableState m_state;
 };
 
-using ParseMessageImplPtr = ParseMessageImpl::Ptr;
+using ParseMessageImplPtr = ParseMessageImpl::ParsePtr;
 
 } // namespace parse
 

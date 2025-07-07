@@ -110,7 +110,7 @@ const std::string& EmscriptenProgramOptions::getFilesListPrefix() const
     return genValue(InputFilesPrefixStr);
 }
 
-const EmscriptenProgramOptions::ArgsList& EmscriptenProgramOptions::getFiles() const
+const EmscriptenProgramOptions::GenArgsList& EmscriptenProgramOptions::getFiles() const
 {
     return genArgs();
 }

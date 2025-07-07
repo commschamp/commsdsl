@@ -84,13 +84,13 @@ void ListTestSuite::test1()
     TS_ASSERT_EQUALS(field.parseName(), "List1");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
     TS_ASSERT_EQUALS(field.parseMinLength(), 0U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), std::numeric_limits<std::size_t>::max());
 
     commsdsl::parse::ParseListField listField(field);
     auto elem = listField.parseElementField();
-    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     TS_ASSERT_EQUALS(listField.parseFixedCount(), 0U);
     TS_ASSERT_EQUALS(listField.parseHasCountPrefixField(), false);
     TS_ASSERT(!listField.parseCountPrefixField().parseValid());
@@ -116,13 +116,13 @@ void ListTestSuite::test2()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "List1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
     TS_ASSERT_EQUALS(field.parseMinLength(), 30U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), 30U);
 
     commsdsl::parse::ParseListField listField(field);
     auto elem = listField.parseElementField();
-    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Bundle);
+    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Bundle);
     TS_ASSERT_EQUALS(listField.parseFixedCount(), 10U);
     TS_ASSERT_EQUALS(listField.parseHasCountPrefixField(), false);
     TS_ASSERT(!listField.parseCountPrefixField().parseValid());
@@ -148,13 +148,13 @@ void ListTestSuite::test3()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "List1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
     TS_ASSERT_EQUALS(field.parseMinLength(), 2U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), std::numeric_limits<std::uint16_t>::max() * 2U + 2U);
 
     commsdsl::parse::ParseListField listField(field);
     auto elem = listField.parseElementField();
-    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     TS_ASSERT_EQUALS(listField.parseFixedCount(), 0U);
     TS_ASSERT_EQUALS(listField.parseHasCountPrefixField(), true);
     auto countPrefixField = listField.parseCountPrefixField();
@@ -182,13 +182,13 @@ void ListTestSuite::test4()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "List1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
     TS_ASSERT_EQUALS(field.parseMinLength(), 2U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), std::numeric_limits<std::uint16_t>::max() + 2U);
 
     commsdsl::parse::ParseListField listField(field);
     auto elem = listField.parseElementField();
-    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     TS_ASSERT_EQUALS(listField.parseFixedCount(), 0U);
     TS_ASSERT_EQUALS(listField.parseHasCountPrefixField(), false);
     TS_ASSERT(!listField.parseCountPrefixField().parseValid());
@@ -215,13 +215,13 @@ void ListTestSuite::test5()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "List1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
     TS_ASSERT_EQUALS(field.parseMinLength(), 15U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), 15U);
 
     commsdsl::parse::ParseListField listField(field);
     auto elem = listField.parseElementField();
-    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     TS_ASSERT_EQUALS(listField.parseFixedCount(), 5U);
     TS_ASSERT(!listField.parseHasCountPrefixField());
     TS_ASSERT(!listField.parseCountPrefixField().parseValid());
@@ -247,13 +247,13 @@ void ListTestSuite::test6()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "List1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
     TS_ASSERT_EQUALS(field.parseMinLength(), 11U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), 11U);
 
     commsdsl::parse::ParseListField listField(field);
     auto elem = listField.parseElementField();
-    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     TS_ASSERT_EQUALS(listField.parseFixedCount(), 5U);
     TS_ASSERT(!listField.parseHasCountPrefixField());
     TS_ASSERT(!listField.parseCountPrefixField().parseValid());
@@ -279,13 +279,13 @@ void ListTestSuite::test7()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "List1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
     TS_ASSERT_EQUALS(field.parseMinLength(), 1U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), std::numeric_limits<std::uint8_t>::max() * 3U + 1U);
 
     commsdsl::parse::ParseListField listField(field);
     auto elem = listField.parseElementField();
-    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     TS_ASSERT_EQUALS(listField.parseFixedCount(), 0U);
     TS_ASSERT(listField.parseHasCountPrefixField());
     TS_ASSERT(listField.parseCountPrefixField().parseValid());
@@ -311,13 +311,13 @@ void ListTestSuite::test8()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "List1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
     TS_ASSERT_EQUALS(field.parseMinLength(), 1U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), std::numeric_limits<std::uint8_t>::max() * 2U + 2U);
 
     commsdsl::parse::ParseListField listField(field);
     auto elem = listField.parseElementField();
-    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     TS_ASSERT_EQUALS(listField.parseFixedCount(), 0U);
     TS_ASSERT(listField.parseHasCountPrefixField());
     TS_ASSERT(listField.parseCountPrefixField().parseValid());
@@ -343,13 +343,13 @@ void ListTestSuite::test9()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "List1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
     TS_ASSERT_EQUALS(field.parseMinLength(), 1U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), std::numeric_limits<std::uint8_t>::max() + 1U);
 
     commsdsl::parse::ParseListField listField(field);
     auto elem = listField.parseElementField();
-    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     TS_ASSERT_EQUALS(listField.parseFixedCount(), 0U);
     TS_ASSERT(!listField.parseHasCountPrefixField());
     TS_ASSERT(!listField.parseCountPrefixField().parseValid());
@@ -377,13 +377,13 @@ void ListTestSuite::test10()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "List1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
     TS_ASSERT_EQUALS(field.parseMinLength(), 1U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), std::numeric_limits<std::uint8_t>::max());
 
     commsdsl::parse::ParseListField listField(field);
     auto elem = listField.parseElementField();
-    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     TS_ASSERT_EQUALS(listField.parseFixedCount(), 0U);
     TS_ASSERT(!listField.parseHasCountPrefixField());
     TS_ASSERT(!listField.parseCountPrefixField().parseValid());
@@ -410,13 +410,13 @@ void ListTestSuite::test11()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "List1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
     TS_ASSERT_EQUALS(field.parseMinLength(), 5U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), 20U);
 
     commsdsl::parse::ParseListField listField(field);
     auto elem = listField.parseElementField();
-    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     TS_ASSERT(!elem.parseExternalRef().empty());
     TS_ASSERT_EQUALS(listField.parseFixedCount(), 5U);
     TS_ASSERT(!listField.parseHasCountPrefixField());
@@ -451,13 +451,13 @@ void ListTestSuite::test13()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "List1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
     TS_ASSERT_EQUALS(field.parseMinLength(), 1U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), (0x3fff * 4U) + 2U);
 
     commsdsl::parse::ParseListField listField(field);
     auto elem = listField.parseElementField();
-    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     TS_ASSERT(!elem.parseExternalRef().empty());
     TS_ASSERT_EQUALS(listField.parseFixedCount(), 0U);
     TS_ASSERT(listField.parseHasCountPrefixField());
@@ -532,7 +532,7 @@ void ListTestSuite::test20()
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bundle);
     TS_ASSERT_EQUALS(field.parseName(), "B1");
 
     commsdsl::parse::ParseBundleField bundleField(field);
@@ -543,9 +543,9 @@ void ListTestSuite::test20()
     auto& l2 = members[4];
     auto& l3 = members[5];
 
-    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseField::Kind::List);
-    TS_ASSERT_EQUALS(l2.parseKind(), commsdsl::parse::ParseField::Kind::List);
-    TS_ASSERT_EQUALS(l3.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
+    TS_ASSERT_EQUALS(l2.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
+    TS_ASSERT_EQUALS(l3.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
 
     commsdsl::parse::ParseListField list1(l1);
     commsdsl::parse::ParseListField list2(l2);
@@ -606,7 +606,7 @@ void ListTestSuite::test24()
     TS_ASSERT_EQUALS(fields.size(), 3U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bundle);
     TS_ASSERT_EQUALS(field.parseName(), "B1");
 
     commsdsl::parse::ParseBundleField bundleField(field);
@@ -614,7 +614,7 @@ void ListTestSuite::test24()
     TS_ASSERT_EQUALS(members.size(), 2U);
 
     auto& l1 = members[1];
-    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
 
     commsdsl::parse::ParseListField list1(l1);
 
@@ -639,7 +639,7 @@ void ListTestSuite::test25()
     TS_ASSERT_EQUALS(fields.size(), 3U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bundle);
     TS_ASSERT_EQUALS(field.parseName(), "B1");
 
     commsdsl::parse::ParseBundleField bundleField(field);
@@ -647,7 +647,7 @@ void ListTestSuite::test25()
     TS_ASSERT_EQUALS(members.size(), 2U);
 
     auto& l1 = members[1];
-    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
 
     commsdsl::parse::ParseListField list1(l1);
 
@@ -672,7 +672,7 @@ void ListTestSuite::test26()
     TS_ASSERT_EQUALS(fields.size(), 3U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bundle);
     TS_ASSERT_EQUALS(field.parseName(), "B1");
 
     commsdsl::parse::ParseBundleField bundleField(field);
@@ -680,7 +680,7 @@ void ListTestSuite::test26()
     TS_ASSERT_EQUALS(members.size(), 2U);
 
     auto& l1 = members[1];
-    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
 
     commsdsl::parse::ParseListField list1(l1);
 
@@ -739,13 +739,13 @@ void ListTestSuite::test31()
     TS_ASSERT_EQUALS(field.parseName(), "List1");
     TS_ASSERT(field.parseDisplayName().empty());
     TS_ASSERT(field.parseDescription().empty());
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
     TS_ASSERT_EQUALS(field.parseMinLength(), 0U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), std::numeric_limits<std::size_t>::max());
 
     commsdsl::parse::ParseListField listField(field);
     auto elem = listField.parseElementField();
-    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     TS_ASSERT_EQUALS(listField.parseFixedCount(), 0U);
     TS_ASSERT_EQUALS(listField.parseHasCountPrefixField(), false);
     TS_ASSERT(!listField.parseCountPrefixField().parseValid());
@@ -827,11 +827,11 @@ void ListTestSuite::test39()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "List50");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::List);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
 
     commsdsl::parse::ParseListField listField(field);
     auto elem = listField.parseElementField();
-    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     TS_ASSERT(!listField.parseElemFixedLength());
 }
 
@@ -853,7 +853,7 @@ void ListTestSuite::test40()
             fields.begin(), fields.end(),
             [](auto& f)
             {
-                return f.parseKind() == commsdsl::parse::ParseField::Kind::List;
+                return f.parseKind() == commsdsl::parse::ParseField::ParseKind::List;
             });
     TS_ASSERT_DIFFERS(iter, fields.end());
 
@@ -894,12 +894,12 @@ void ListTestSuite::test41()
     do {
         auto* field = parseFindField("L1");
         TS_ASSERT(field != nullptr);
-        TS_ASSERT_EQUALS(field->parseKind(), commsdsl::parse::ParseField::Kind::List);
+        TS_ASSERT_EQUALS(field->parseKind(), commsdsl::parse::ParseField::ParseKind::List);
         TS_ASSERT_EQUALS(field->parseMinLength(), 1U);
 
         commsdsl::parse::ParseListField listField(*field);
         auto elem = listField.parseElementField();
-        TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+        TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
         TS_ASSERT(elem.parseExternalRef().empty());
         TS_ASSERT_EQUALS(listField.parseFixedCount(), 0U);
         TS_ASSERT(!listField.parseHasCountPrefixField());
@@ -911,18 +911,18 @@ void ListTestSuite::test41()
         TS_ASSERT(!listField.parseElemFixedLength());
         TS_ASSERT(listField.parseHasTermSuffixField());
         TS_ASSERT(listField.parseTermSuffixField().parseValid());
-        TS_ASSERT_EQUALS(listField.parseTermSuffixField().parseKind(), commsdsl::parse::ParseField::Kind::Int);
+        TS_ASSERT_EQUALS(listField.parseTermSuffixField().parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     } while (false);
 
     do {
         auto* field = parseFindField("L2");
         TS_ASSERT(field != nullptr);
-        TS_ASSERT_EQUALS(field->parseKind(), commsdsl::parse::ParseField::Kind::List);
+        TS_ASSERT_EQUALS(field->parseKind(), commsdsl::parse::ParseField::ParseKind::List);
         TS_ASSERT_EQUALS(field->parseMinLength(), 2U);
 
         commsdsl::parse::ParseListField listField(*field);
         auto elem = listField.parseElementField();
-        TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+        TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
         TS_ASSERT(elem.parseExternalRef().empty());
         TS_ASSERT_EQUALS(listField.parseFixedCount(), 0U);
         TS_ASSERT(!listField.parseHasCountPrefixField());
@@ -934,18 +934,18 @@ void ListTestSuite::test41()
         TS_ASSERT(!listField.parseElemFixedLength());
         TS_ASSERT(listField.parseHasTermSuffixField());
         TS_ASSERT(listField.parseTermSuffixField().parseValid());
-        TS_ASSERT_EQUALS(listField.parseTermSuffixField().parseKind(), commsdsl::parse::ParseField::Kind::Int);
+        TS_ASSERT_EQUALS(listField.parseTermSuffixField().parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     } while (false);    
 
     do {
         auto* field = parseFindField("L3");
         TS_ASSERT(field != nullptr);
-        TS_ASSERT_EQUALS(field->parseKind(), commsdsl::parse::ParseField::Kind::List);
+        TS_ASSERT_EQUALS(field->parseKind(), commsdsl::parse::ParseField::ParseKind::List);
         TS_ASSERT_EQUALS(field->parseMinLength(), 2U);
 
         commsdsl::parse::ParseListField listField(*field);
         auto elem = listField.parseElementField();
-        TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+        TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
         TS_ASSERT(elem.parseExternalRef().empty());
         TS_ASSERT_EQUALS(listField.parseFixedCount(), 0U);
         TS_ASSERT(!listField.parseHasCountPrefixField());
@@ -957,18 +957,18 @@ void ListTestSuite::test41()
         TS_ASSERT(!listField.parseElemFixedLength());
         TS_ASSERT(listField.parseHasTermSuffixField());
         TS_ASSERT(listField.parseTermSuffixField().parseValid());
-        TS_ASSERT_EQUALS(listField.parseTermSuffixField().parseKind(), commsdsl::parse::ParseField::Kind::Int);
+        TS_ASSERT_EQUALS(listField.parseTermSuffixField().parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     } while (false);      
 
     do {
         auto* field = parseFindField("L4");
         TS_ASSERT(field != nullptr);
-        TS_ASSERT_EQUALS(field->parseKind(), commsdsl::parse::ParseField::Kind::List);
+        TS_ASSERT_EQUALS(field->parseKind(), commsdsl::parse::ParseField::ParseKind::List);
         TS_ASSERT_EQUALS(field->parseMinLength(), 1U);
 
         commsdsl::parse::ParseListField listField(*field);
         auto elem = listField.parseElementField();
-        TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+        TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
         TS_ASSERT(elem.parseExternalRef().empty());
         TS_ASSERT_EQUALS(listField.parseFixedCount(), 0U);
         TS_ASSERT(!listField.parseHasCountPrefixField());
@@ -980,25 +980,25 @@ void ListTestSuite::test41()
         TS_ASSERT(!listField.parseElemFixedLength());
         TS_ASSERT(listField.parseHasTermSuffixField());
         TS_ASSERT(listField.parseTermSuffixField().parseValid());
-        TS_ASSERT_EQUALS(listField.parseTermSuffixField().parseKind(), commsdsl::parse::ParseField::Kind::Int);
+        TS_ASSERT_EQUALS(listField.parseTermSuffixField().parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
 
         commsdsl::parse::ParseIntField termField(listField.parseTermSuffixField());
-        TS_ASSERT_EQUALS(termField.parseType(), commsdsl::parse::ParseIntField::Type::Uint8);
+        TS_ASSERT_EQUALS(termField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint8);
     } while (false);        
 
     do {
         auto* field = parseFindField("B1");
         TS_ASSERT(field != nullptr);
-        TS_ASSERT_EQUALS(field->parseKind(), commsdsl::parse::ParseField::Kind::Bundle);
+        TS_ASSERT_EQUALS(field->parseKind(), commsdsl::parse::ParseField::ParseKind::Bundle);
 
         commsdsl::parse::ParseBundleField bundleField(*field);
         auto members = bundleField.parseMembers();
         TS_ASSERT_EQUALS(members.size(), 3U);
         auto& lastField = members.back();
-        TS_ASSERT_EQUALS(lastField.parseKind(), commsdsl::parse::ParseField::Kind::List);
+        TS_ASSERT_EQUALS(lastField.parseKind(), commsdsl::parse::ParseField::ParseKind::List);
         commsdsl::parse::ParseListField listField(lastField);
         auto elem = listField.parseElementField();
-        TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+        TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
         TS_ASSERT(elem.parseExternalRef().empty());
         TS_ASSERT_EQUALS(listField.parseFixedCount(), 0U);
         TS_ASSERT(!listField.parseHasCountPrefixField());
@@ -1059,12 +1059,12 @@ void ListTestSuite::test43()
     do {
         auto* field = parseFindField("L1");
         TS_ASSERT(field != nullptr);
-        TS_ASSERT_EQUALS(field->parseKind(), commsdsl::parse::ParseField::Kind::List);
+        TS_ASSERT_EQUALS(field->parseKind(), commsdsl::parse::ParseField::ParseKind::List);
         TS_ASSERT_EQUALS(field->parseMinLength(), 1U);
 
         commsdsl::parse::ParseListField listField(*field);
         auto elem = listField.parseElementField();
-        TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+        TS_ASSERT_EQUALS(elem.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
         TS_ASSERT(elem.parseExternalRef().empty());
         TS_ASSERT_EQUALS(listField.parseFixedCount(), 0U);
         TS_ASSERT(listField.parseHasCountPrefixField());

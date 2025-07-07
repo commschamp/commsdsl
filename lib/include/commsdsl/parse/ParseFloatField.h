@@ -36,23 +36,23 @@ class COMMSDSL_API ParseFloatField : public ParseField
     using Base = ParseField;
 public:
 
-    enum class Type
+    enum class ParseType
     {
         Float,
         Double,
         NumOfValues
     };
 
-    struct ValidRangeInfo
+    struct ParseValidRangeInfo
     {
         double m_min = 0.0;
         double m_max = 0.0;
         unsigned m_sinceVersion = 0;
         unsigned m_deprecatedSince = ParseProtocol::parseNotYetDeprecated();
     };
-    using ValidRangesList = std::vector<ValidRangeInfo>;
+    using ParseValidRangesList = std::vector<ParseValidRangeInfo>;
 
-    struct SpecialValueInfo
+    struct ParseSpecialValueInfo
     {
         double m_value = 0;
         unsigned m_sinceVersion = 0;
@@ -60,16 +60,16 @@ public:
         std::string m_description;
         std::string m_displayName;
     };
-    using SpecialValues = std::map<std::string, SpecialValueInfo>;
+    using ParseSpecialValues = std::map<std::string, ParseSpecialValueInfo>;
 
     explicit ParseFloatField(const ParseFloatFieldImpl* impl);
     explicit ParseFloatField(ParseField field);
 
-    Type parseType() const;
+    ParseType parseType() const;
     ParseEndian parseEndian() const;
     double parseDefaultValue() const;
-    const ValidRangesList& parseValidRanges() const;
-    const SpecialValues& parseSpecialValues() const;
+    const ParseValidRangesList& parseValidRanges() const;
+    const ParseSpecialValues& parseSpecialValues() const;
     bool parseValidCheckVersion() const;
     ParseUnits parseUnits() const;
     unsigned parseDisplayDecimals() const;
@@ -77,7 +77,7 @@ public:
 };
 
 inline
-bool operator==(const ParseFloatField::SpecialValueInfo& i1, const ParseFloatField::SpecialValueInfo& i2)
+bool operator==(const ParseFloatField::ParseSpecialValueInfo& i1, const ParseFloatField::ParseSpecialValueInfo& i2)
 {
     return (i1.m_value == i2.m_value) &&
            (i1.m_sinceVersion == i2.m_sinceVersion) &&
@@ -85,13 +85,13 @@ bool operator==(const ParseFloatField::SpecialValueInfo& i1, const ParseFloatFie
 }
 
 inline
-bool operator!=(const ParseFloatField::SpecialValueInfo& i1, const ParseFloatField::SpecialValueInfo& i2)
+bool operator!=(const ParseFloatField::ParseSpecialValueInfo& i1, const ParseFloatField::ParseSpecialValueInfo& i2)
 {
     return !(i1 == i2);
 }
 
 inline
-bool operator==(const ParseFloatField::ValidRangeInfo& i1, const ParseFloatField::ValidRangeInfo& i2)
+bool operator==(const ParseFloatField::ParseValidRangeInfo& i1, const ParseFloatField::ParseValidRangeInfo& i2)
 {
     return (i1.m_min == i2.m_min) &&
            (i1.m_max == i2.m_max) &&
@@ -100,7 +100,7 @@ bool operator==(const ParseFloatField::ValidRangeInfo& i1, const ParseFloatField
 }
 
 inline
-bool operator!=(const ParseFloatField::ValidRangeInfo& i1, const ParseFloatField::ValidRangeInfo& i2)
+bool operator!=(const ParseFloatField::ParseValidRangeInfo& i1, const ParseFloatField::ParseValidRangeInfo& i2)
 {
     return !(i1 == i2);
 }

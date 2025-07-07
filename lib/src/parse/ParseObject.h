@@ -26,7 +26,7 @@ namespace parse
 class ParseObject
 {
 public:
-    enum class ObjKind
+    enum class ParseObjKind
     {
         Namespace,
         Field,
@@ -53,7 +53,7 @@ public:
         m_parent = obj;
     }
 
-    ObjKind parseObjKind() const
+    ParseObjKind parseObjKind() const
     {
         return parseObjKindImpl();
     }
@@ -82,7 +82,7 @@ protected:
     ParseObject() = default;
     ~ParseObject() = default;
     
-    virtual ObjKind parseObjKindImpl() const = 0;
+    virtual ParseObjKind parseObjKindImpl() const = 0;
 
     void parseSetDeprecated(unsigned val)
     {
@@ -101,7 +101,7 @@ protected:
 
 
 private:
-    struct ReusableState
+    struct ParseReusableState
     {
         unsigned m_sinceVersion = 0U;
         unsigned m_deprecated = ParseProtocol::parseNotYetDeprecated();
@@ -109,7 +109,7 @@ private:
     };
 
     ParseObject* m_parent = nullptr;
-    ReusableState m_rState;
+    ParseReusableState m_rState;
 };
 
 } // namespace parse

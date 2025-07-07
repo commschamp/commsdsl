@@ -37,14 +37,14 @@ ParseChecksumLayerImpl::ParseChecksumLayerImpl(::xmlNodePtr node, ParseProtocolI
     assert(parseUntil().empty());
 }
 
-ParseLayerImpl::Kind ParseChecksumLayerImpl::parseKindImpl() const
+ParseLayerImpl::ParseKind ParseChecksumLayerImpl::parseKindImpl() const
 {
-    return Kind::Checksum;
+    return ParseKind::Checksum;
 }
 
-const ParseXmlWrap::NamesList& ParseChecksumLayerImpl::parseExtraPropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseChecksumLayerImpl::parseExtraPropsNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList Names = {
+    static const ParseXmlWrap::ParseNamesList Names = {
         common::parseAlgStr(),
         common::parseAlgNameStr(),
         common::parseFromStr(),
@@ -63,7 +63,7 @@ bool ParseChecksumLayerImpl::parseImpl()
         parseUpdateVerifyBeforeRead();
 }
 
-bool ParseChecksumLayerImpl::parseVerifyImpl(const ParseLayerImpl::LayersList& layers)
+bool ParseChecksumLayerImpl::parseVerifyImpl(const ParseLayerImpl::ParseLayersList& layers)
 {
     auto thisIdx = parseFindThisLayerIndex(layers);
     assert(thisIdx < layers.size());
@@ -116,16 +116,16 @@ bool ParseChecksumLayerImpl::parseUpdateAlg()
     assert(iter != parseProps().end());
     auto algStr = common::parseToLowerCopy(iter->second);
 
-    static const std::map<std::string, Alg> Map = {
-        std::make_pair("custom", Alg::Custom),
-        std::make_pair("sum", Alg::Sum),
-        std::make_pair("crc-ccitt", Alg::Crc_CCITT),
-        std::make_pair("crc_ccitt", Alg::Crc_CCITT),
-        std::make_pair("crc-16", Alg::Crc_16),
-        std::make_pair("crc_16", Alg::Crc_16),
-        std::make_pair("crc-32", Alg::Crc_32),
-        std::make_pair("crc_32", Alg::Crc_32),
-        std::make_pair("xor", Alg::Xor),
+    static const std::map<std::string, ParseAlg> Map = {
+        std::make_pair("custom", ParseAlg::Custom),
+        std::make_pair("sum", ParseAlg::Sum),
+        std::make_pair("crc-ccitt", ParseAlg::Crc_CCITT),
+        std::make_pair("crc_ccitt", ParseAlg::Crc_CCITT),
+        std::make_pair("crc-16", ParseAlg::Crc_16),
+        std::make_pair("crc_16", ParseAlg::Crc_16),
+        std::make_pair("crc-32", ParseAlg::Crc_32),
+        std::make_pair("crc_32", ParseAlg::Crc_32),
+        std::make_pair("xor", ParseAlg::Xor),
     };
 
     auto algIter = Map.find(algStr);
@@ -135,7 +135,7 @@ bool ParseChecksumLayerImpl::parseUpdateAlg()
     }
 
     m_alg = algIter->second;
-    if (m_alg != Alg::Custom) {
+    if (m_alg != ParseAlg::Custom) {
         return true;
     }
 

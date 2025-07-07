@@ -32,7 +32,7 @@ class GenProgramOptionsImpl;
 class COMMSDSL_API GenProgramOptions
 {
 public:
-    using ArgsList = std::vector<std::string>;
+    using GenArgsList = std::vector<std::string>;
     
     GenProgramOptions();
     ~GenProgramOptions();
@@ -45,7 +45,7 @@ public:
     bool genIsOptUsed(const std::string& optStr) const;
     bool genHelpRequested() const;
     const std::string& genValue(const std::string& optStr) const;
-    const ArgsList& genArgs() const;
+    const GenArgsList& genArgs() const;
     std::string genHelpStr() const;
 
 private:

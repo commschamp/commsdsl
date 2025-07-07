@@ -33,10 +33,10 @@ class ParseInterfaceImpl;
 class COMMSDSL_API ParseInterface
 {
 public:
-    using FieldsList = std::vector<ParseField>;
-    using AttributesMap = ParseField::AttributesMap;
-    using ElementsList = ParseField::ElementsList;
-    using AliasesList = std::vector<ParseAlias>;
+    using ParseFieldsList = std::vector<ParseField>;
+    using ParseAttributesMap = ParseField::ParseAttributesMap;
+    using ParseElementsList = ParseField::ParseElementsList;
+    using ParseAliasesList = std::vector<ParseAlias>;
 
     explicit ParseInterface(const ParseInterfaceImpl* impl);
     ParseInterface(const ParseInterface& other);
@@ -45,13 +45,13 @@ public:
     bool parseValid() const;
     const std::string& parseName() const;
     const std::string& parseDescription() const;
-    FieldsList parseFields() const;
-    AliasesList parseAliases() const;
+    ParseFieldsList parseFields() const;
+    ParseAliasesList parseAliases() const;
     std::string parseExternalRef(bool schemaRef = true) const;
     const std::string& parseCopyCodeFrom() const;
 
-    const AttributesMap& parseExtraAttributes() const;
-    const ElementsList& parseExtraElements() const;
+    const ParseAttributesMap& parseExtraAttributes() const;
+    const ParseElementsList& parseExtraElements() const;
 
 protected:
     const ParseInterfaceImpl* m_pImpl;

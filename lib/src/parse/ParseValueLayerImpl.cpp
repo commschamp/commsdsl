@@ -33,9 +33,9 @@ ParseValueLayerImpl::ParseValueLayerImpl(::xmlNodePtr node, ParseProtocolImpl& p
 {
 }
 
-ParseValueLayerImpl::InterfacesList ParseValueLayerImpl::parseInterfacesList() const
+ParseValueLayerImpl::ParseInterfacesList ParseValueLayerImpl::parseInterfacesList() const
 {
-    InterfacesList result;
+    ParseInterfacesList result;
     result.reserve(m_interfaces.size());
     for (auto* i : m_interfaces) {
         result.push_back(ParseInterface(i));
@@ -54,14 +54,14 @@ std::size_t ParseValueLayerImpl::parseFieldIdx() const
     return interface->parseFindFieldIdx(parseFieldName());
 }
 
-ParseLayerImpl::Kind ParseValueLayerImpl::parseKindImpl() const
+ParseLayerImpl::ParseKind ParseValueLayerImpl::parseKindImpl() const
 {
-    return Kind::Value;
+    return ParseKind::Value;
 }
 
-const ParseXmlWrap::NamesList& ParseValueLayerImpl::parseExtraPropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseValueLayerImpl::parseExtraPropsNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList Names = {
+    static const ParseXmlWrap::ParseNamesList Names = {
         common::parseInterfacesStr(),
         common::parseInterfaceFieldNameStr(),
         common::pseudoStr()
@@ -77,7 +77,7 @@ bool ParseValueLayerImpl::parseImpl()
         parseUpdatePseudo();
 }
 
-bool ParseValueLayerImpl::parseVerifyImpl(const ParseLayerImpl::LayersList& layers)
+bool ParseValueLayerImpl::parseVerifyImpl(const ParseLayerImpl::ParseLayersList& layers)
 {
     return parseVerifyBeforePayload(layers);
 }

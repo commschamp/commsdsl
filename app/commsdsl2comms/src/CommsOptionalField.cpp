@@ -98,7 +98,7 @@ const CommsField* genFindInterfaceFieldInternal(const commsdsl::gen::GenGenerato
 
 bool hasInterfaceReferenceInternal(const commsdsl::parse::ParseOptCond& cond)
 {
-    if (cond.parseKind() == commsdsl::parse::ParseOptCond::Kind::Expr) {
+    if (cond.parseKind() == commsdsl::parse::ParseOptCond::ParseKind::Expr) {
         commsdsl::parse::ParseOptCondExpr exprCond(cond);
         auto& left = exprCond.parseLeft();
         auto& right = exprCond.parseRight();
@@ -108,7 +108,7 @@ bool hasInterfaceReferenceInternal(const commsdsl::parse::ParseOptCond& cond)
             ((!right.empty()) && (right[0] == strings::genInterfaceFieldRefPrefix()));
     }
 
-    if ((cond.parseKind() != commsdsl::parse::ParseOptCond::Kind::List)) {
+    if ((cond.parseKind() != commsdsl::parse::ParseOptCond::ParseKind::List)) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return false;
@@ -144,7 +144,7 @@ std::string CommsOptionalField::commsDslCondToString(
     const commsdsl::parse::ParseOptCond& cond,
     bool bracketsWrap) 
 {
-    if (cond.parseKind() == commsdsl::parse::ParseOptCond::Kind::Expr) {
+    if (cond.parseKind() == commsdsl::parse::ParseOptCond::ParseKind::Expr) {
         auto findSiblingFieldFunc =
             [&siblings](const std::string& name) -> const CommsField*
             {
@@ -177,20 +177,20 @@ std::string CommsOptionalField::commsDslCondToString(
         auto& op = opFunc(exprCond.parseOp());
         auto rightInfo = exprCond.parseRightInfo();
 
-        using OperandType = commsdsl::parse::ParseOptCondExpr::OperandType;
-        using AccMode = commsdsl::parse::ParseOptCondExpr::AccMode;
-        if (leftInfo.m_type != OperandType::Invalid) {
+        using ParseOperandType = commsdsl::parse::ParseOptCondExpr::ParseOperandType;
+        using ParseAccMode = commsdsl::parse::ParseOptCondExpr::ParseAccMode;
+        if (leftInfo.m_type != ParseOperandType::Invalid) {
             assert(!op.empty());
-            assert(rightInfo.m_type != OperandType::Invalid);
+            assert(rightInfo.m_type != ParseOperandType::Invalid);
 
             auto leftSepPos = leftInfo.m_access.find(".");
             std::string leftFieldName(leftInfo.m_access, 0, leftSepPos);
 
             const CommsField* leftField = nullptr;
-            if (leftInfo.m_type == OperandType::InterfaceRef) {
+            if (leftInfo.m_type == ParseOperandType::InterfaceRef) {
                 leftField = genFindInterfaceFieldInternal(generator, leftInfo.m_access);
             }
-            else if (leftInfo.m_type == OperandType::SiblingRef) {
+            else if (leftInfo.m_type == ParseOperandType::SiblingRef) {
                 leftField = findSiblingFieldFunc(leftFieldName);
             }
             
@@ -205,15 +205,15 @@ std::string CommsOptionalField::commsDslCondToString(
                 remLeft = leftInfo.m_access.substr(leftSepPos + 1);
             }
 
-            assert(leftInfo.m_mode != AccMode::Exists);
-            assert(rightInfo.m_mode != AccMode::Size);
-            assert(rightInfo.m_mode != AccMode::Exists);            
+            assert(leftInfo.m_mode != ParseAccMode::Exists);
+            assert(rightInfo.m_mode != ParseAccMode::Size);
+            assert(rightInfo.m_mode != ParseAccMode::Exists);            
 
-            if (leftInfo.m_mode == AccMode::Size) {
+            if (leftInfo.m_mode == ParseAccMode::Size) {
                 return commsDslCondToStringFieldSizeCompInternal(leftField, remLeft, op, rightInfo.m_access);
             }    
 
-            if (rightInfo.m_type == OperandType::Value) {
+            if (rightInfo.m_type == ParseOperandType::Value) {
                 return commsDslCondToStringFieldValueCompInternal(leftField, remLeft, op, rightInfo.m_access);
             }
 
@@ -221,10 +221,10 @@ std::string CommsOptionalField::commsDslCondToString(
             std::string rightFieldName(rightInfo.m_access, 0, rigthSepPos);
 
             const CommsField* rightField = nullptr;
-            if (rightInfo.m_type == OperandType::InterfaceRef) {
+            if (rightInfo.m_type == ParseOperandType::InterfaceRef) {
                 rightField = genFindInterfaceFieldInternal(generator, rightInfo.m_access);
             }
-            else if (rightInfo.m_type == OperandType::SiblingRef) {
+            else if (rightInfo.m_type == ParseOperandType::SiblingRef) {
                 rightField = findSiblingFieldFunc(rightFieldName);
             }
             
@@ -243,8 +243,8 @@ std::string CommsOptionalField::commsDslCondToString(
         }
 
         // Reference to bit in "set".
-        if ((rightInfo.m_type != OperandType::InterfaceRef) &&
-            (rightInfo.m_type != OperandType::SiblingRef)) {
+        if ((rightInfo.m_type != ParseOperandType::InterfaceRef) &&
+            (rightInfo.m_type != ParseOperandType::SiblingRef)) {
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             return strings::genEmptyString();
@@ -254,10 +254,10 @@ std::string CommsOptionalField::commsDslCondToString(
         std::string rightFieldName(rightInfo.m_access, 0, rightSepPos);
 
         const CommsField* rightField = nullptr;
-        if (rightInfo.m_type == OperandType::InterfaceRef) {
+        if (rightInfo.m_type == ParseOperandType::InterfaceRef) {
             rightField = genFindInterfaceFieldInternal(generator, rightInfo.m_access);
         }
-        else if (rightInfo.m_type == OperandType::SiblingRef) {
+        else if (rightInfo.m_type == ParseOperandType::SiblingRef) {
             rightField = findSiblingFieldFunc(rightFieldName);
         }        
 
@@ -267,14 +267,14 @@ std::string CommsOptionalField::commsDslCondToString(
             return strings::genEmptyString();
         }
 
-        assert(rightInfo.m_mode != AccMode::Size);
+        assert(rightInfo.m_mode != ParseAccMode::Size);
 
         std::string remRight;
         if (rightSepPos < rightInfo.m_access.size()) {
             remRight = rightInfo.m_access.substr(rightSepPos + 1);
         }        
 
-        if (rightInfo.m_mode == AccMode::Exists) {
+        if (rightInfo.m_mode == ParseAccMode::Exists) {
             return commsDslCondToStringFieldExistsCompInternal(rightField, remRight, op);
         }          
 
@@ -285,7 +285,7 @@ std::string CommsOptionalField::commsDslCondToString(
         return util::genStrListToString(checks, " &&\n", "");
     }
 
-    if ((cond.parseKind() != commsdsl::parse::ParseOptCond::Kind::List)) {
+    if ((cond.parseKind() != commsdsl::parse::ParseOptCond::ParseKind::List)) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return strings::genEmptyString();
@@ -298,11 +298,11 @@ std::string CommsOptionalField::commsDslCondToString(
     static const std::string OrOp = " ||\n";
 
     auto* op = &AndOp;
-    if (type == commsdsl::parse::ParseOptCondList::Type::Or) {
+    if (type == commsdsl::parse::ParseOptCondList::ParseType::Or) {
         op = &OrOp;
     }
     else {
-        assert(type == commsdsl::parse::ParseOptCondList::Type::And);
+        assert(type == commsdsl::parse::ParseOptCondList::ParseType::And);
     }
 
     auto conditions = listCond.parseConditions();
@@ -628,7 +628,7 @@ std::string CommsOptionalField::commsDefFieldRefInternal() const
 
 std::string CommsOptionalField::commsDefFieldOptsInternal() const
 {
-    util::StringsList opts;
+    util::GenStringsList opts;
 
     commsAddFieldDefOptions(opts);
     commsAddModeOptInternal(opts);
@@ -649,7 +649,7 @@ void CommsOptionalField::commsAddModeOptInternal(StringsList& opts) const
     static const std::size_t MapSize =
             std::extent<decltype(Map)>::value;
 
-    static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::ParseOptionalField::Mode::NumOfValues), "Invalid map");
+    static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::ParseOptionalField::ParseMode::NumOfValues), "Invalid map");
 
     auto obj = genOptionalFieldParseObj();
     auto mode = obj.parseDefaultMode();

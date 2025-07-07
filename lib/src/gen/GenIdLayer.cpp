@@ -29,7 +29,7 @@ namespace gen
 GenIdLayer::GenIdLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent) :
     Base(generator, parseObj, parent)
 {
-    assert(parseObj.parseKind() == ParseLayer::Kind::Id);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Id);
 }
 
 GenIdLayer::~GenIdLayer() = default;

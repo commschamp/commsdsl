@@ -33,10 +33,10 @@ class COMMSDSL_API ParseField
 {
 public:
 
-    using AttributesMap = std::multimap<std::string, std::string>;
-    using ElementsList = std::vector<std::string>;
+    using ParseAttributesMap = std::multimap<std::string, std::string>;
+    using ParseElementsList = std::vector<std::string>;
 
-    enum class Kind
+    enum class ParseKind
     {
         Int,
         Enum,
@@ -53,7 +53,7 @@ public:
         NumOfValues
     };
 
-    enum class SemanticType
+    enum class ParseSemanticType
     {
         None,
         Version,
@@ -70,8 +70,8 @@ public:
     const std::string& parseName() const;
     const std::string& parseDisplayName() const;
     const std::string& parseDescription() const;
-    Kind parseKind() const;
-    SemanticType parseSemanticType() const;
+    ParseKind parseKind() const;
+    ParseSemanticType parseSemanticType() const;
     std::size_t parseMinLength() const;
     std::size_t parseMaxLength() const;
     std::size_t parseBitLength() const;
@@ -95,8 +95,8 @@ public:
     const std::string& parseCopyCodeFrom() const;
     bool parseIsValidInnerRef(const std::string& refStr) const;
 
-    const AttributesMap& parseExtraAttributes() const;
-    const ElementsList& parseExtraElements() const;
+    const ParseAttributesMap& parseExtraAttributes() const;
+    const ParseElementsList& parseExtraElements() const;
 
 protected:
     const ParseFieldImpl* m_pImpl;

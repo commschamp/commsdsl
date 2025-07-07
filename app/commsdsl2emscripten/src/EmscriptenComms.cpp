@@ -84,7 +84,7 @@ bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
         "NumOfErrorStatuses"
     };
 
-    util::StringsList binds;
+    util::GenStringsList binds;
     for (auto& v : Values) {
         static const std::string Templ = 
             ".value(\"#^#VAL#$#\", #^#SCOPE#$#::#^#VAL#$#)";
@@ -150,7 +150,7 @@ bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
         "NumOfModes"
     };
 
-    util::StringsList binds;
+    util::GenStringsList binds;
     for (auto& v : Values) {
         static const std::string Templ = 
             ".value(\"#^#VAL#$#\", #^#SCOPE#$#::#^#VAL#$#)";

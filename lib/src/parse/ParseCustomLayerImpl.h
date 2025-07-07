@@ -26,12 +26,13 @@ namespace parse
 class ParseCustomLayerImpl final : public ParseLayerImpl
 {
     using Base = ParseLayerImpl;
+    
 public:
-    using Kind = ParseLayer::Kind;
+    using ParseKind = ParseLayer::ParseKind;
 
     ParseCustomLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
 
-    Kind parseSemanticLayerType() const
+    ParseKind parseSemanticLayerType() const
     {
         return m_sematicLayerType;
     }
@@ -47,19 +48,19 @@ public:
     }
 
 protected:
-    virtual Kind parseKindImpl() const override;
+    virtual ParseKind parseKindImpl() const override;
     virtual bool parseImpl() override;
-    virtual bool parseVerifyImpl(const LayersList& layers) override;
-    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
+    virtual bool parseVerifyImpl(const ParseLayersList& layers) override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const override;
 
 private:
     bool parseUpdateIdReplacement();
     bool parseUpdateSemanticLayerType();
     bool parseUpdateChecksumFrom();
     bool parseUpdateChecksumUntil();
-    bool parseVerifyChecksumInternal(const LayersList& layers);
+    bool parseVerifyChecksumInternal(const ParseLayersList& layers);
 
-    Kind m_sematicLayerType = Kind::Custom;
+    ParseKind m_sematicLayerType = ParseKind::Custom;
     std::string m_checksumFromLayer;
     std::string m_checksumUntilLayer;
 };

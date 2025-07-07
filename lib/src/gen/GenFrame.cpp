@@ -32,8 +32,8 @@ namespace gen
 class GenFrameImpl
 {
 public:
-    using LayersList = GenFrame::LayersList;
     using ParseFrame = GenFrame::ParseFrame;
+    using GenLayersList = GenFrame::GenLayersList;
 
     GenFrameImpl(GenGenerator& generator, ParseFrame parseObj, GenElem* parent) :
         m_generator(generator),
@@ -81,12 +81,12 @@ public:
         return m_dslObj;
     }
 
-    const LayersList& genLayers() const
+    const GenLayersList& genLayers() const
     {
         return m_layers;
     }
 
-    LayersList& genLayers()
+    GenLayersList& genLayers()
     {
         return m_layers;
     }
@@ -105,7 +105,7 @@ private:
     GenGenerator& m_generator;
     ParseFrame m_dslObj;
     GenElem* m_parent = nullptr;
-    LayersList m_layers;
+    GenLayersList m_layers;
 }; 
 
 GenFrame::GenFrame(GenGenerator& generator, ParseFrame parseObj, GenElem* parent) :
@@ -139,7 +139,7 @@ GenFrame::ParseFrame GenFrame::genParseObj() const
     return m_impl->genParseObj();
 }
 
-const GenFrame::LayersList& GenFrame::genLayers() const
+const GenFrame::GenLayersList& GenFrame::genLayers() const
 {
     return m_impl->genLayers();
 }
@@ -154,9 +154,9 @@ const GenGenerator& GenFrame::genGenerator() const
     return m_impl->genGenerator();
 }
 
-GenFrame::LayersAccessList GenFrame::getCommsOrderOfLayers(bool& success) const
+GenFrame::GenLayersAccessList GenFrame::getCommsOrderOfLayers(bool& success) const
 {
-    LayersAccessList result;
+    GenLayersAccessList result;
     for (auto& lPtr : genLayers()) {
         result.push_back(lPtr.get());
     }

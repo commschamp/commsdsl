@@ -43,7 +43,7 @@ const char Esc = '\\';
 const char Deref = common::parseSiblingRefPrefix();
 const char IfaceDeref = common::parseInterfaceRefPrefix();
 
-void parseDiscardNonSizeReferences(ParseFieldImpl::FieldRefInfosList& infos)
+void parseDiscardNonSizeReferences(ParseFieldImpl::ParseFieldRefInfosList& infos)
 {
     infos.erase(
         std::remove_if(
@@ -56,7 +56,7 @@ void parseDiscardNonSizeReferences(ParseFieldImpl::FieldRefInfosList& infos)
 }
 
 
-void parseDiscardNonFieldReferences(ParseFieldImpl::FieldRefInfosList& infos)
+void parseDiscardNonFieldReferences(ParseFieldImpl::ParseFieldRefInfosList& infos)
 {
     infos.erase(
         std::remove_if(
@@ -68,25 +68,25 @@ void parseDiscardNonFieldReferences(ParseFieldImpl::FieldRefInfosList& infos)
         infos.end());
 }
 
-ParseOptCondExprImpl::OperandInfo parseDperandInfoInternal(const std::string& val)
+ParseOptCondExprImpl::ParseOperandInfo parseDperandInfoInternal(const std::string& val)
 {
-    ParseOptCondExprImpl::OperandInfo result;
+    ParseOptCondExprImpl::ParseOperandInfo result;
     if (val.empty()) {
         return result;
     }
 
     if ((val[0] != common::parseSiblingRefPrefix()) && (val[0] != common::parseInterfaceRefPrefix())) {
-        result.m_type = ParseOptCondExprImpl::OperandType::Value;
+        result.m_type = ParseOptCondExprImpl::ParseOperandType::Value;
         result.m_access = val;
         return result;
     }
 
     if (val[0] == common::parseSiblingRefPrefix()) {
-        result.m_type = ParseOptCondExprImpl::OperandType::SiblingRef;
+        result.m_type = ParseOptCondExprImpl::ParseOperandType::SiblingRef;
     }
     else {
         assert(val[0] == common::parseInterfaceRefPrefix());
-        result.m_type = ParseOptCondExprImpl::OperandType::InterfaceRef;
+        result.m_type = ParseOptCondExprImpl::ParseOperandType::InterfaceRef;
     }
 
     auto restPos = 1U;
@@ -96,13 +96,13 @@ ParseOptCondExprImpl::OperandInfo parseDperandInfoInternal(const std::string& va
         }
 
         if (val[restPos] == '#') {
-            result.m_mode = ParseOptCondExprImpl::AccMode::Size;
+            result.m_mode = ParseOptCondExprImpl::ParseAccMode::Size;
             ++restPos;
             break;
         }   
 
         if (val[restPos] == '?') {
-            result.m_mode = ParseOptCondExprImpl::AccMode::Exists;
+            result.m_mode = ParseOptCondExprImpl::ParseAccMode::Exists;
             ++restPos;
             break;
         }             
@@ -141,27 +141,27 @@ bool ParseOptCondExprImpl::parse(const std::string& expr, ::xmlNodePtr node, con
         parseHasUpdatedValue();
 }
 
-ParseOptCondExprImpl::OperandInfo ParseOptCondExprImpl::parseLeftInfo() const
+ParseOptCondExprImpl::ParseOperandInfo ParseOptCondExprImpl::parseLeftInfo() const
 {
     return parseDperandInfoInternal(m_left);
 }
 
-ParseOptCondExprImpl::OperandInfo ParseOptCondExprImpl::parseRightInfo() const
+ParseOptCondExprImpl::ParseOperandInfo ParseOptCondExprImpl::parseRightInfo() const
 {
     return parseDperandInfoInternal(m_right);
 }
 
-ParseOptCondImpl::Kind ParseOptCondExprImpl::parseKindImpl() const
+ParseOptCondImpl::ParseKind ParseOptCondExprImpl::parseKindImpl() const
 {
-    return Kind::Expr;
+    return ParseKind::Expr;
 }
 
-ParseOptCondImpl::Ptr ParseOptCondExprImpl::parseCloneImpl() const
+ParseOptCondImpl::ParsePtr ParseOptCondExprImpl::parseCloneImpl() const
 {
-    return Ptr(new ParseOptCondExprImpl(*this));
+    return ParsePtr(new ParseOptCondExprImpl(*this));
 }
 
-bool ParseOptCondExprImpl::parseVerifyImpl(const ParseOptCondImpl::FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
+bool ParseOptCondExprImpl::parseVerifyImpl(const ParseOptCondImpl::ParseFieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
 {
     if (m_left.empty()) {
         return parseVerifySingleElementCheck(fields, node, protocol);
@@ -324,7 +324,7 @@ bool ParseOptCondExprImpl::parseCheckBool(const std::string& expr, ::xmlNodePtr 
     return true;
 }
 
-bool ParseOptCondExprImpl::parseVerifySingleElementCheck(const ParseOptCondImpl::FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
+bool ParseOptCondExprImpl::parseVerifySingleElementCheck(const ParseOptCondImpl::ParseFieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
 {
     assert(!m_right.empty());
     if (m_right[0] == Deref) {
@@ -335,7 +335,7 @@ bool ParseOptCondExprImpl::parseVerifySingleElementCheck(const ParseOptCondImpl:
     return parseVerifyInterfaceBitCheck(node, protocol);
 }
 
-bool ParseOptCondExprImpl::parseVerifySiblingSingleElementCheck(const ParseOptCondImpl::FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
+bool ParseOptCondExprImpl::parseVerifySiblingSingleElementCheck(const ParseOptCondImpl::ParseFieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
 {
     assert(!m_right.empty());
     assert(m_right[0] == Deref);
@@ -389,7 +389,7 @@ bool ParseOptCondExprImpl::parseVerifyInterfaceBitCheck(::xmlNodePtr node, const
                 assert(info.m_field != nullptr);
                 return 
                     (info.m_refType == ParseFieldImpl::FieldRefType_InnerValue) &&
-                    (info.m_field->parseKind() == ParseFieldImpl::Kind::Set);
+                    (info.m_field->parseKind() == ParseFieldImpl::ParseKind::Set);
             });
 
     if (hasValidRef) {
@@ -403,7 +403,7 @@ bool ParseOptCondExprImpl::parseVerifyInterfaceBitCheck(::xmlNodePtr node, const
     return false;
 }
 
-bool ParseOptCondExprImpl::parseVerifyComparison(const ParseOptCondImpl::FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
+bool ParseOptCondExprImpl::parseVerifyComparison(const ParseOptCondImpl::ParseFieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
 {
     assert(!m_left.empty());
     assert(!m_right.empty());
@@ -415,7 +415,7 @@ bool ParseOptCondExprImpl::parseVerifyComparison(const ParseOptCondImpl::FieldsL
     return parseVerifyInterfaceComparison(fields, node, protocol);
 }
 
-bool ParseOptCondExprImpl::parseVerifySiblingComparison(const ParseOptCondImpl::FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
+bool ParseOptCondExprImpl::parseVerifySiblingComparison(const ParseOptCondImpl::ParseFieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
 {
     assert(!m_left.empty());
     assert(!m_right.empty());
@@ -503,7 +503,7 @@ bool ParseOptCondExprImpl::parseVerifySiblingComparison(const ParseOptCondImpl::
     return true;
 }
 
-bool ParseOptCondExprImpl::parseVerifyInterfaceComparison(const FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
+bool ParseOptCondExprImpl::parseVerifyInterfaceComparison(const ParseFieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
 {
     assert(!m_left.empty());
     assert(!m_right.empty());
@@ -641,9 +641,9 @@ ParseOptCondListImpl::ParseOptCondListImpl(const ParseOptCondListImpl& other)
     }
 }
 
-ParseOptCondListImpl::CondList ParseOptCondListImpl::parseCondList() const
+ParseOptCondListImpl::ParseCondList ParseOptCondListImpl::parseCondList() const
 {
-    CondList result;
+    ParseCondList result;
     result.reserve(m_conds.size());
     for (auto& c : m_conds) {
         assert(c);
@@ -661,9 +661,9 @@ bool ParseOptCondListImpl::parse(xmlNodePtr node, const ParseProtocolImpl& proto
 
     static const std::size_t CondMapSize = std::extent<decltype(CondMap)>::value;
 
-    static_assert(CondMapSize == util::toUnsigned(Type::NumOfValues), "Invalid map");
-    static_assert(0U == util::toUnsigned(Type::And), "Invalid map");
-    static_assert(1U == util::toUnsigned(Type::Or), "Invalid map");
+    static_assert(CondMapSize == util::toUnsigned(ParseType::NumOfValues), "Invalid map");
+    static_assert(0U == util::toUnsigned(ParseType::And), "Invalid map");
+    static_assert(1U == util::toUnsigned(ParseType::Or), "Invalid map");
 
     auto& logger = protocol.parseLogger();
     std::string elemName(reinterpret_cast<const char*>(node->name));
@@ -724,17 +724,17 @@ bool ParseOptCondListImpl::parse(xmlNodePtr node, const ParseProtocolImpl& proto
     return true;
 }
 
-ParseOptCondImpl::Kind ParseOptCondListImpl::parseKindImpl() const
+ParseOptCondImpl::ParseKind ParseOptCondListImpl::parseKindImpl() const
 {
-    return Kind::List;
+    return ParseKind::List;
 }
 
-ParseOptCondImpl::Ptr ParseOptCondListImpl::parseCloneImpl() const
+ParseOptCondImpl::ParsePtr ParseOptCondListImpl::parseCloneImpl() const
 {
-    return Ptr(new ParseOptCondListImpl(*this));
+    return ParsePtr(new ParseOptCondListImpl(*this));
 }
 
-bool ParseOptCondListImpl::parseVerifyImpl(const ParseOptCondImpl::FieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
+bool ParseOptCondListImpl::parseVerifyImpl(const ParseOptCondImpl::ParseFieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
 {
     return std::all_of(
         m_conds.begin(), m_conds.end(),

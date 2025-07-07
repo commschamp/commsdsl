@@ -30,7 +30,7 @@ public:
     ParseSyncLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
 
 protected:
-    virtual Kind parseKindImpl() const override;
+    virtual ParseKind parseKindImpl() const override;
 };
 
 } // namespace parse

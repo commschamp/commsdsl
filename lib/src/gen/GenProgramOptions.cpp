@@ -16,7 +16,7 @@ namespace gen
 class GenProgramOptionsImpl
 {
 public:
-    using ArgsList = GenProgramOptions::ArgsList;
+    using GenArgsList = GenProgramOptions::GenArgsList;
 
     void genAdd(const std::string& optStr, const std::string& desc, bool hasParam)
     {
@@ -104,14 +104,14 @@ public:
         return genValueInternal(optStr, m_longOpts);
     }
 
-    const ArgsList& genArgs() const
+    const GenArgsList& genArgs() const
     {
         return m_args;
     }
 
     std::string genHelpStr() const
     {
-        util::StringsList opts;
+        util::GenStringsList opts;
         for (auto& optPtr : m_opts) {
             assert(optPtr);
 
@@ -265,7 +265,7 @@ private:
     OptInfosList m_opts;
     OptInfosMap m_shortOpts;
     OptInfosMap m_longOpts;
-    ArgsList m_args;
+    GenArgsList m_args;
 };
     
 GenProgramOptions::GenProgramOptions() : 
@@ -312,7 +312,7 @@ const std::string& GenProgramOptions::genValue(const std::string& optStr) const
     return m_impl->genValue(optStr);
 }
 
-const GenProgramOptions::ArgsList& GenProgramOptions::genArgs() const
+const GenProgramOptions::GenArgsList& GenProgramOptions::genArgs() const
 {
     return m_impl->genArgs();
 }

@@ -44,7 +44,7 @@ ParseRefField::ParseRefField(const ParseRefFieldImpl* impl) :
 ParseRefField::ParseRefField(ParseField field) :
     Base(field)
 {
-    assert(parseKind() == Kind::Ref);
+    assert(parseKind() == ParseKind::Ref);
 }
 
 ParseField ParseRefField::parseField() const

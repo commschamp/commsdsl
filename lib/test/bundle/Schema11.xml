@@ -7,13 +7,13 @@
     </description>
     <fields>
         <bundle name="B1">
-            <int name="Type" type="uint8" defaultValidValue="1" failOnInvalid="true" />
+            <int name="ParseType" type="uint8" defaultValidValue="1" failOnInvalid="true" />
             <int name="Length" type="uint8" semanticType="length" />
             <int name="Value" type="uint32" availableLengthLimit="true" />
         </bundle>  
 
         <bundle name="B2">
-            <int name="Type" type="uint8" defaultValidValue="1" failOnInvalid="true" />
+            <int name="ParseType" type="uint8" defaultValidValue="1" failOnInvalid="true" />
             <int name="Length" type="uint8" semanticType="length" />
             <enum name="Value" type="uint32" availableLengthLimit="true">
                 <validValue name="V1" val="1" />
@@ -23,7 +23,7 @@
         </bundle>                 
 
         <bundle name="B3">
-            <int name="Type" type="uint8" defaultValidValue="1" failOnInvalid="true" />
+            <int name="ParseType" type="uint8" defaultValidValue="1" failOnInvalid="true" />
             <int name="Length" type="uint8" semanticType="length" />
             <set name="Value" type="uint32" availableLengthLimit="true">
                 <bit name="B0" idx="0" />

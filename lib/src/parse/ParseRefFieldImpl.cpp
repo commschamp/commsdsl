@@ -41,19 +41,19 @@ ParseRefFieldImpl::ParseRefFieldImpl(::xmlNodePtr node, ParseProtocolImpl& proto
 
 ParseRefFieldImpl::ParseRefFieldImpl(const ParseRefFieldImpl&) = default;
 
-ParseFieldImpl::Kind ParseRefFieldImpl::parseKindImpl() const
+ParseFieldImpl::ParseKind ParseRefFieldImpl::parseKindImpl() const
 {
-    return Kind::Ref;
+    return ParseKind::Ref;
 }
 
-ParseFieldImpl::Ptr ParseRefFieldImpl::parseCloneImpl() const
+ParseFieldImpl::ParsePtr ParseRefFieldImpl::parseCloneImpl() const
 {
-    return Ptr(new ParseRefFieldImpl(*this));
+    return ParsePtr(new ParseRefFieldImpl(*this));
 }
 
-const ParseXmlWrap::NamesList& ParseRefFieldImpl::parseExtraPropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseRefFieldImpl::parseExtraPropsNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = {
+    static const ParseXmlWrap::ParseNamesList List = {
         common::parseFieldStr(),
         common::parseBitLengthStr(),
     };
@@ -105,8 +105,8 @@ bool ParseRefFieldImpl::parseImpl()
     }
 
     if ((parseProtocol().parseIsSemanticTypeRefInheritanceSupported()) &&
-        (parseSemanticType() == SemanticType::None) &&
-        (m_field->parseSemanticType() != SemanticType::MessageId)) {
+        (parseSemanticType() == ParseSemanticType::None) &&
+        (m_field->parseSemanticType() != ParseSemanticType::MessageId)) {
         parseSetSemanticType(m_field->parseSemanticType());
     }
 
@@ -207,19 +207,19 @@ bool ParseRefFieldImpl::parseValidateBitLengthValueImpl(::xmlNodePtr node, std::
     return m_field->parseValidateBitLengthValue(node, bitLength);
 }
 
-bool ParseRefFieldImpl::parseVerifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+bool ParseRefFieldImpl::parseVerifySemanticTypeImpl(::xmlNodePtr node, ParseSemanticType type) const
 {
     assert(m_field != nullptr);
     return m_field->parseVerifySemanticType(node, type);
 }
 
-ParseRefFieldImpl::FieldRefInfo ParseRefFieldImpl::parseProcessInnerRefImpl(const std::string& refStr) const
+ParseRefFieldImpl::ParseFieldRefInfo ParseRefFieldImpl::parseProcessInnerRefImpl(const std::string& refStr) const
 {
     assert(m_field != nullptr);
     return m_field->parseProcessInnerRef(refStr);
 }
 
-bool ParseRefFieldImpl::parseIsValidRefTypeImpl(FieldRefType type) const
+bool ParseRefFieldImpl::parseIsValidRefTypeImpl(ParseFieldRefType type) const
 {
     assert(m_field != nullptr);
     return m_field->parseIsValidRefType(type);
@@ -268,7 +268,7 @@ bool ParseRefFieldImpl::parseUpdateBitLength()
 
 bool ParseRefFieldImpl::parseStrToValue(
     const std::string& ref,
-    StrToValueFieldConvertFunc&& forwardFunc) const
+    ParseStrToValueFieldConvertFunc&& forwardFunc) const
 {
     if (!parseProtocol().parseIsFieldValueReferenceSupported()) {
         return false;

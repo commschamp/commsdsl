@@ -46,7 +46,7 @@ void BundleTestSuite::test1()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.parseName(), "Variant1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Variant);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Variant);
     TS_ASSERT_EQUALS(field.parseMinLength(), 0U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), 5U);
     TS_ASSERT_EQUALS(field.parseBitLength(), 0U);
@@ -56,8 +56,8 @@ void BundleTestSuite::test1()
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
-    TS_ASSERT_EQUALS(mem1.parseKind(), commsdsl::parse::ParseField::Kind::Bundle);
-    TS_ASSERT_EQUALS(mem2.parseKind(), commsdsl::parse::ParseField::Kind::Bundle);
+    TS_ASSERT_EQUALS(mem1.parseKind(), commsdsl::parse::ParseField::ParseKind::Bundle);
+    TS_ASSERT_EQUALS(mem2.parseKind(), commsdsl::parse::ParseField::ParseKind::Bundle);
     TS_ASSERT_LESS_THAN_EQUALS(members.size(), variantField.parseDefaultMemberIdx());
 }
 
@@ -77,7 +77,7 @@ void BundleTestSuite::test2()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.parseName(), "Variant1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Variant);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Variant);
     TS_ASSERT_EQUALS(field.parseMinLength(), 0U);
     TS_ASSERT_EQUALS(field.parseMaxLength(), 5U);
     TS_ASSERT_EQUALS(field.parseBitLength(), 0U);
@@ -87,8 +87,8 @@ void BundleTestSuite::test2()
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
-    TS_ASSERT_EQUALS(mem1.parseKind(), commsdsl::parse::ParseField::Kind::Bundle);
-    TS_ASSERT_EQUALS(mem2.parseKind(), commsdsl::parse::ParseField::Kind::Bundle);
+    TS_ASSERT_EQUALS(mem1.parseKind(), commsdsl::parse::ParseField::ParseKind::Bundle);
+    TS_ASSERT_EQUALS(mem2.parseKind(), commsdsl::parse::ParseField::ParseKind::Bundle);
     TS_ASSERT_EQUALS(variantField.parseDefaultMemberIdx(), 0U);
 }
 
@@ -108,7 +108,7 @@ void BundleTestSuite::test3()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.parseName(), "Variant1");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Variant);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Variant);
 
     commsdsl::parse::ParseVariantField variantField(field);
     auto members = variantField.parseMembers();
@@ -132,7 +132,7 @@ void BundleTestSuite::test4()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "Variant2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Variant);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Variant);
 
     commsdsl::parse::ParseVariantField variantField(field);
     auto members = variantField.parseMembers();
@@ -172,7 +172,7 @@ void BundleTestSuite::test7()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.parseName(), "Variant2");
-    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::Kind::Variant);
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Variant);
 
     commsdsl::parse::ParseVariantField variantField(field);
     auto members = variantField.parseMembers();
@@ -180,19 +180,19 @@ void BundleTestSuite::test7()
     TS_ASSERT_EQUALS(variantField.parseDefaultMemberIdx(), 2);
 
     auto& p2 = members[1];
-    TS_ASSERT_EQUALS(p2.parseKind(), commsdsl::parse::ParseField::Kind::Bundle);
+    TS_ASSERT_EQUALS(p2.parseKind(), commsdsl::parse::ParseField::ParseKind::Bundle);
 
     commsdsl::parse::ParseBundleField bundleP2Field(p2);
     auto p2Members = bundleP2Field.parseMembers();
     TS_ASSERT_EQUALS(p2Members.size(), 2U);
 
     auto& p2Key = p2Members[0];
-    TS_ASSERT_EQUALS(p2Key.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(p2Key.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     TS_ASSERT(p2Key.parseIsFixedValue());    
     
     auto& p2Val = p2Members[1];
-    TS_ASSERT_EQUALS(p2Val.parseKind(), commsdsl::parse::ParseField::Kind::Int);
+    TS_ASSERT_EQUALS(p2Val.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
 
     commsdsl::parse::ParseIntField p2ValField(p2Val);
-    TS_ASSERT_EQUALS(p2ValField.parseType(), commsdsl::parse::ParseIntField::Type::Uint16);
+    TS_ASSERT_EQUALS(p2ValField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint16);
 }

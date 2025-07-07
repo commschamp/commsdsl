@@ -51,7 +51,7 @@ const std::string& ParseFrame::parseDescription() const
     return m_pImpl->parseDescription();
 }
 
-ParseFrame::LayersList ParseFrame::parseLayers() const
+ParseFrame::ParseLayersList ParseFrame::parseLayers() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseLayersList();
@@ -63,13 +63,13 @@ std::string ParseFrame::parseExternalRef(bool schemaRef) const
     return m_pImpl->parseExternalRef(schemaRef);
 }
 
-const ParseFrame::AttributesMap& ParseFrame::parseExtraAttributes() const
+const ParseFrame::ParseAttributesMap& ParseFrame::parseExtraAttributes() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseExtraAttributes();
 }
 
-const ParseFrame::ElementsList& ParseFrame::parseExtraElements() const
+const ParseFrame::ParseElementsList& ParseFrame::parseExtraElements() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseExtraChildren();

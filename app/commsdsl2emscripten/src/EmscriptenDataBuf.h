@@ -26,7 +26,7 @@ class EmscriptenGenerator;
 class EmscriptenDataBuf
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
 
     static bool emscriptenWrite(EmscriptenGenerator& generator);
     static std::string emscriptenClassName(const EmscriptenGenerator& generator);

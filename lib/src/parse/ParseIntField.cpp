@@ -44,10 +44,10 @@ ParseIntField::ParseIntField(const ParseIntFieldImpl* impl)
 ParseIntField::ParseIntField(ParseField field)
   : Base(field)
 {
-    assert(parseKind() == Kind::Int);
+    assert(parseKind() == ParseKind::Int);
 }
 
-ParseIntField::Type ParseIntField::parseType() const
+ParseIntField::ParseType ParseIntField::parseType() const
 {
     return cast(m_pImpl)->parseType();
 }
@@ -77,17 +77,17 @@ std::intmax_t ParseIntField::parseDefaultValue() const
     return cast(m_pImpl)->parseDefaultValue();
 }
 
-ParseIntField::ScalingRatio ParseIntField::parseScaling() const
+ParseIntField::ParseScalingRatio ParseIntField::parseScaling() const
 {
     return cast(m_pImpl)->parseScaling();
 }
 
-const ParseIntField::ValidRangesList& ParseIntField::parseValidRanges() const
+const ParseIntField::ParseValidRangesList& ParseIntField::parseValidRanges() const
 {
     return cast(m_pImpl)->parseValidRanges();
 }
 
-const ParseIntField::SpecialValues& ParseIntField::parseSpecialValues() const
+const ParseIntField::ParseSpecialValues& ParseIntField::parseSpecialValues() const
 {
     return cast(m_pImpl)->parseSpecialValues();
 }

@@ -32,14 +32,14 @@ class COMMSDSL_API ParseStringField : public ParseField
     using Base = ParseField;
 public:
 
-    struct ValidValueInfo
+    struct ParseValidValueInfo
     {
         std::string m_value;
         unsigned m_sinceVersion = 0;
         unsigned m_deprecatedSince = ParseProtocol::parseNotYetDeprecated();
     };
 
-    using ValidValuesList = std::vector<ValidValueInfo>;
+    using ParseValidValuesList = std::vector<ParseValidValueInfo>;
 
     explicit ParseStringField(const ParseStringFieldImpl* impl);
     explicit ParseStringField(ParseField field);
@@ -51,7 +51,7 @@ public:
     ParseField parseLengthPrefixField() const;
     bool parseHasZeroTermSuffix() const;
     const std::string& parseDetachedPrefixFieldName() const;
-    const ValidValuesList& parseValidValues() const;
+    const ParseValidValuesList& parseValidValues() const;
 };
 
 } // namespace parse

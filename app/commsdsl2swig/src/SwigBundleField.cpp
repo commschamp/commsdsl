@@ -68,7 +68,7 @@ std::string SwigBundleField::swigMembersDeclImpl() const
 
 std::string SwigBundleField::swigValueAccDeclImpl() const
 {
-    if (genParseObj().parseSemanticType() != commsdsl::parse::ParseField::SemanticType::Length) {
+    if (genParseObj().parseSemanticType() != commsdsl::parse::ParseField::ParseSemanticType::Length) {
         return strings::genEmptyString();
     }
 
@@ -124,7 +124,7 @@ std::string SwigBundleField::swigExtraPublicFuncsCodeImpl() const
     }
 
     std::string valueAccCode;
-    if (genParseObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::Length) {
+    if (genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Length) {
         valueAccCode = swigSemanticTypeLengthValueAccCode();
     }
 

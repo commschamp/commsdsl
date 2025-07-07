@@ -31,7 +31,7 @@ class ParseProtocolImpl;
 class ParseLogger
 {
 public:
-    using ReportFunc = ParseProtocol::ErrorReportFunction;
+    using ReportFunc = ParseProtocol::ParseErrorReportFunction;
 
     template <typename TFunc>
     ParseLogger(TFunc&& func)
@@ -76,14 +76,14 @@ private:
     std::stringstream m_stream;
 };
 
-class LogWrapper
+class ParseLogWrapper
 {
 public:
-    LogWrapper(ParseLogger& logger) : m_logger(logger) {}
-    ~LogWrapper() { m_logger.parseFlush(); }
+    ParseLogWrapper(ParseLogger& logger) : m_logger(logger) {}
+    ~ParseLogWrapper() { m_logger.parseFlush(); }
 
     template <typename T>
-    LogWrapper& operator<<(T&& val)
+    ParseLogWrapper& operator<<(T&& val)
     {
         m_logger << std::forward<T>(val);
         return *this;
@@ -94,24 +94,24 @@ private:
 };
 
 inline
-LogWrapper parseLogError(ParseLogger& logger)
+ParseLogWrapper parseLogError(ParseLogger& logger)
 {
     logger.parseSetCurrLevel(ParseErrorLevel_Error);
-    return LogWrapper(logger);
+    return ParseLogWrapper(logger);
 }
 
 inline
-LogWrapper parseLogWarning(ParseLogger& logger)
+ParseLogWrapper parseLogWarning(ParseLogger& logger)
 {
     logger.parseSetCurrLevel(ParseErrorLevel_Warning);
-    return LogWrapper(logger);
+    return ParseLogWrapper(logger);
 }
 
 inline
-LogWrapper parseLogInfo(ParseLogger& logger)
+ParseLogWrapper parseLogInfo(ParseLogger& logger)
 {
     logger.parseSetCurrLevel(ParseErrorLevel_Info);
-    return LogWrapper(logger);
+    return ParseLogWrapper(logger);
 }
 
 } // namespace parse

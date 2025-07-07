@@ -33,13 +33,14 @@ class ParseBundleFieldImpl final : public ParseFieldImpl
 {
     using Base = ParseFieldImpl;
 public:
+    using ParseMembers = ParseBundleField::ParseMembers;
+    using ParseAliasesList = ParseBundleField::ParseAliases;
+
     ParseBundleFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseBundleFieldImpl(const ParseBundleFieldImpl& other);
-    using Members = ParseBundleField::Members;
-    using AliasesList = ParseBundleField::Aliases;
 
-    Members parseMembersList() const;
-    AliasesList parseAliasesList() const;
+    ParseMembers parseMembersList() const;
+    ParseAliasesList parseAliasesList() const;
 
     const std::vector<ParseAliasImplPtr>& parseAliases() const
     {
@@ -59,14 +60,14 @@ public:
 
 protected:
 
-    virtual Kind parseKindImpl() const override;
-    virtual Ptr parseCloneImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraPropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraPossiblePropsNamesImpl() const override;
-    virtual const ParseXmlWrap::NamesList& parseExtraChildrenNamesImpl() const override;
+    virtual ParseKind parseKindImpl() const override;
+    virtual ParsePtr parseCloneImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPossiblePropsNamesImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraChildrenNamesImpl() const override;
     virtual bool parseReuseImpl(const ParseFieldImpl& other) override;
     virtual bool parseImpl() override;
-    virtual bool parseReplaceMembersImpl(FieldsList& members) override;
+    virtual bool parseReplaceMembersImpl(ParseFieldsList& members) override;
     virtual std::size_t parseMinLengthImpl() const override;
     virtual std::size_t parseMaxLengthImpl() const override;
     virtual bool parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
@@ -74,10 +75,10 @@ protected:
     virtual bool parseStrToBoolImpl(const std::string& ref, bool& val) const override;
     virtual bool parseStrToStringImpl(const std::string& ref, std::string& val) const override;
     virtual bool parseStrToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
-    virtual bool parseVerifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const override;
+    virtual bool parseVerifySemanticTypeImpl(::xmlNodePtr node, ParseSemanticType type) const override;
     virtual bool parseVerifyAliasedMemberImpl(const std::string& fieldName) const override;
-    virtual const ParseXmlWrap::NamesList& parseSupportedMemberTypesImpl() const override;
-    virtual const FieldsList& parseMembersImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseSupportedMemberTypesImpl() const override;
+    virtual const ParseFieldsList& parseMembersImpl() const override;
 
 private:
     bool parseUpdateMembers();
@@ -89,7 +90,7 @@ private:
     bool parseUpdateSingleCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);
     bool parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);    
 
-    FieldsList m_members;
+    ParseFieldsList m_members;
     std::vector<ParseAliasImplPtr> m_aliases;
     ParseOptCondImplPtr m_validCond;    
 };

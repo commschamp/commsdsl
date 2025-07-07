@@ -110,7 +110,7 @@ const std::string& SwigProgramOptions::getFilesListPrefix() const
     return genValue(InputFilesPrefixStr);
 }
 
-const SwigProgramOptions::ArgsList& SwigProgramOptions::getFiles() const
+const SwigProgramOptions::GenArgsList& SwigProgramOptions::getFiles() const
 {
     return genArgs();
 }

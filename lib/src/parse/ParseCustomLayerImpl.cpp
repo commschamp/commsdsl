@@ -32,9 +32,9 @@ ParseCustomLayerImpl::ParseCustomLayerImpl(::xmlNodePtr node, ParseProtocolImpl&
 {
 }
 
-ParseLayerImpl::Kind ParseCustomLayerImpl::parseKindImpl() const
+ParseLayerImpl::ParseKind ParseCustomLayerImpl::parseKindImpl() const
 {
-    return Kind::Custom;
+    return ParseKind::Custom;
 }
 
 bool ParseCustomLayerImpl::parseImpl()
@@ -47,14 +47,14 @@ bool ParseCustomLayerImpl::parseImpl()
         parseUpdateChecksumUntil();
 }
 
-bool ParseCustomLayerImpl::parseVerifyImpl(const LayersList& layers)
+bool ParseCustomLayerImpl::parseVerifyImpl(const ParseLayersList& layers)
 {
     return parseVerifyChecksumInternal(layers);
 }
 
-const ParseXmlWrap::NamesList& ParseCustomLayerImpl::parseExtraPropsNamesImpl() const
+const ParseXmlWrap::ParseNamesList& ParseCustomLayerImpl::parseExtraPropsNamesImpl() const
 {
-    static const ParseXmlWrap::NamesList List = {
+    static const ParseXmlWrap::ParseNamesList List = {
         common::parseIdReplacementStr(),
         common::parseSemanticLayerTypeStr(),
         common::parseChecksumFromStr(),
@@ -84,7 +84,7 @@ bool ParseCustomLayerImpl::parseUpdateIdReplacement()
     }
 
     if (idReplacement) {
-        m_sematicLayerType = Kind::Id;
+        m_sematicLayerType = ParseKind::Id;
     }
 
     return true;
@@ -112,21 +112,21 @@ bool ParseCustomLayerImpl::parseUpdateSemanticLayerType()
         return true;
     }
 
-    if (m_sematicLayerType != Kind::Custom) {
+    if (m_sematicLayerType != ParseKind::Custom) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Cannot use \"" + prop + "\" property when semantic type was specified by other (deprecated) properties";        
 
         return false;
     }
 
-    static const std::map<std::string, Kind> Map = {
-        {common::parsePayloadStr(), Kind::Payload},
-        {common::parseIdStr(), Kind::Id},
-        {common::parseSizeStr(), Kind::Size},
-        {common::parseSyncStr(), Kind::Sync},
-        {common::parseChecksumStr(), Kind::Checksum},
-        {common::parseValueStr(), Kind::Value},
-        {common::parseCustomStr(), Kind::Custom},
+    static const std::map<std::string, ParseKind> Map = {
+        {common::parsePayloadStr(), ParseKind::Payload},
+        {common::parseIdStr(), ParseKind::Id},
+        {common::parseSizeStr(), ParseKind::Size},
+        {common::parseSyncStr(), ParseKind::Sync},
+        {common::parseChecksumStr(), ParseKind::Checksum},
+        {common::parseValueStr(), ParseKind::Value},
+        {common::parseCustomStr(), ParseKind::Custom},
     };
 
     auto kindIter = Map.find(iter->second);
@@ -157,7 +157,7 @@ bool ParseCustomLayerImpl::parseUpdateChecksumFrom()
         return true;
     }
 
-    if (m_sematicLayerType != Kind::Checksum) {
+    if (m_sematicLayerType != ParseKind::Checksum) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Property \"" << prop << "\" is not applicable to selected \"" << common::parseSemanticLayerTypeStr() << "\", ignoring...";
         return true;        
@@ -185,7 +185,7 @@ bool ParseCustomLayerImpl::parseUpdateChecksumUntil()
         return true;
     }
 
-    if (m_sematicLayerType != Kind::Checksum) {
+    if (m_sematicLayerType != ParseKind::Checksum) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Property \"" << prop << "\" is not applicable to selected \"" << common::parseSemanticLayerTypeStr() << "\", ignoring...";
         return true;        
@@ -195,9 +195,9 @@ bool ParseCustomLayerImpl::parseUpdateChecksumUntil()
     return true;
 }
 
-bool ParseCustomLayerImpl::parseVerifyChecksumInternal(const LayersList& layers) 
+bool ParseCustomLayerImpl::parseVerifyChecksumInternal(const ParseLayersList& layers) 
 {
-    if (m_sematicLayerType != Kind::Checksum) {
+    if (m_sematicLayerType != ParseKind::Checksum) {
         return true;
     }
 

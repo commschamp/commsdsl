@@ -45,7 +45,7 @@ std::string EmscriptenEnumField::emscriptenBindValues(const EmscriptenNamespace*
         [this, &result, forcedParent](const std::string& name)
         {
             if ((forcedParent != nullptr) && 
-                (genParseObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::MessageId)) {
+                (genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::MessageId)) {
                 static const std::string Templ = 
                     ".value(\"#^#NAME#$#\", #^#SCOPE#$#_#^#NAME#$#)";
 
@@ -179,7 +179,7 @@ std::string EmscriptenEnumField::emscriptenSourceBindExtraImpl() const
         return strings::genEmptyString();
     }
 
-    if (genParseObj().parseSemanticType() == commsdsl::parse::ParseField::SemanticType::MessageId) {
+    if (genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::MessageId) {
         auto* parentNs = EmscriptenNamespace::cast(genParentNamespace());
         auto allMsgIdFields = parentNs->genFindMessageIdFields();
         if (allMsgIdFields.size() == 1U) {
@@ -204,24 +204,24 @@ std::string EmscriptenEnumField::emscriptenSourceBindExtraImpl() const
 bool EmscriptenEnumField::emscriptenCanProvideValuesInternal() const
 {
     auto type = genEnumFieldParseObj().parseType();
-    if (type < commsdsl::parse::ParseIntField::Type::Int64) {
+    if (type < commsdsl::parse::ParseIntField::ParseType::Int64) {
         return true;
     }
 
-    if (type == commsdsl::parse::ParseIntField::Type::Int64) {
+    if (type == commsdsl::parse::ParseIntField::ParseType::Int64) {
         return false;
     }
 
-    if (type == commsdsl::parse::ParseIntField::Type::Uint64) {
+    if (type == commsdsl::parse::ParseIntField::ParseType::Uint64) {
         return false;
     }   
 
-    if ((type == commsdsl::parse::ParseIntField::Type::Intvar) &&
+    if ((type == commsdsl::parse::ParseIntField::ParseType::Intvar) &&
         (genParseObj().parseMinLength() > sizeof(std::int32_t))) {
         return false;
     }
 
-    if ((type == commsdsl::parse::ParseIntField::Type::Uintvar) &&
+    if ((type == commsdsl::parse::ParseIntField::ParseType::Uintvar) &&
         (genParseObj().parseMinLength() > sizeof(std::int32_t))) {
         return false;
     }

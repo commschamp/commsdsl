@@ -24,7 +24,7 @@ namespace commsdsl2tools_qt
 class ToolsQtLayer
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
     using IncludesList = StringsList;
 
     explicit ToolsQtLayer(commsdsl::gen::GenLayer& layer);

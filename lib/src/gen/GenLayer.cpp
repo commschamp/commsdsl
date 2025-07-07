@@ -48,7 +48,7 @@ public:
     {
         auto dslField = m_parseObj.parseField();
         if (!dslField.parseValid()) {
-            if (m_parseObj.parseKind() != ParseLayer::Kind::Payload) {
+            if (m_parseObj.parseKind() != ParseLayer::ParseKind::Payload) {
                 m_generator.genLogger().genError("GenLayer field definition is missing.");
                 [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
@@ -136,7 +136,7 @@ GenLayer::GenLayer(GenGenerator& generator, const ParseLayer& parseObj, GenElem*
 
 GenLayer::~GenLayer() = default;
 
-GenLayer::Ptr GenLayer::genCreate(GenGenerator& generator, ParseLayer dslobj, GenElem* parent)
+GenLayer::GenPtr GenLayer::genCreate(GenGenerator& generator, ParseLayer dslobj, GenElem* parent)
 {
     using CreateFunc = GenLayerPtr (GenGenerator::*)(ParseLayer dslobj, GenElem* parent);
     static const CreateFunc Map[] = {
@@ -150,13 +150,13 @@ GenLayer::Ptr GenLayer::genCreate(GenGenerator& generator, ParseLayer dslobj, Ge
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<unsigned>(ParseLayer::Kind::NumOfValues), "Invalid map");
+    static_assert(MapSize == static_cast<unsigned>(ParseLayer::ParseKind::NumOfValues), "Invalid map");
 
     auto idx = static_cast<std::size_t>(dslobj.parseKind());
     if (MapSize <= idx) {
         [[maybe_unused]] static constexpr bool Unexpected_kind = false;
         assert(Unexpected_kind);          
-        return Ptr();
+        return GenPtr();
     }
 
     auto func = Map[idx];
@@ -212,7 +212,7 @@ const GenGenerator& GenLayer::genGenerator() const
     return m_impl->genGenerator();
 }
 
-bool GenLayer::genForceCommsOrder(LayersAccessList& layers, bool& success) const
+bool GenLayer::genForceCommsOrder(GenLayersAccessList& layers, bool& success) const
 {
     return genForceCommsOrderImpl(layers, success);
 }
@@ -266,18 +266,18 @@ std::string GenLayer::genTemplateScopeOfComms(const std::string& iFaceStr, const
 
     for (auto iterTmp = iter; iterTmp != allLayers.end(); ++iterTmp) {
         auto kind = (*iterTmp)->genParseObj().parseKind();
-        if (kind == ParseLayer::Kind::Id) {
+        if (kind == ParseLayer::ParseKind::Id) {
             addIdParams();
             break;
         }
 
-        if (kind != ParseLayer::Kind::Custom) {
+        if (kind != ParseLayer::ParseKind::Custom) {
             continue;
         }
 
         auto& customLayer = static_cast<const GenCustomLayer&>(**iterTmp);
         auto customKind = customLayer.genCustomLayerParseObj().parseSemanticLayerType();
-        if (customKind == ParseLayer::Kind::Id) {
+        if (customKind == ParseLayer::ParseKind::Id) {
             addIdParams();
             break;            
         }
@@ -301,7 +301,7 @@ bool GenLayer::genWriteImpl() const
     return true;
 }
 
-bool GenLayer::genForceCommsOrderImpl([[maybe_unused]] LayersAccessList& layers, bool& success) const
+bool GenLayer::genForceCommsOrderImpl([[maybe_unused]] GenLayersAccessList& layers, bool& success) const
 {
     success = true;
     return false;

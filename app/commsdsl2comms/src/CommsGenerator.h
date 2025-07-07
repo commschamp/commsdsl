@@ -26,13 +26,13 @@ class CommsGenerator final : public commsdsl::gen::GenGenerator
 public:
     using GenElem = commsdsl::gen::GenElem;
     using GenFieldPtr = commsdsl::gen::GenFieldPtr;
-    using FramePtr = commsdsl::gen::FramePtr;
+    using GenFramePtr = commsdsl::gen::GenFramePtr;
     using GenInterfacePtr = commsdsl::gen::GenInterfacePtr;
     using GenLayerPtr = commsdsl::gen::GenLayerPtr;
     using GenMessagePtr = commsdsl::gen::GenMessagePtr;
     using GenSchemaPtr = commsdsl::gen::GenSchemaPtr;
     using GenNamespacePtr = commsdsl::gen::GenNamespacePtr;
-    using ExtraMessageBundle = std::pair<std::string, MessagesAccessList>;
+    using ExtraMessageBundle = std::pair<std::string, GenMessagesAccessList>;
     using ExtraMessageBundlesList = std::vector<ExtraMessageBundle>;
 
     enum class CustomizationLevel
@@ -72,7 +72,7 @@ protected:
     virtual GenNamespacePtr genCreateNamespaceImpl(commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent) override;
     virtual GenInterfacePtr genCreateInterfaceImpl(commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent) override;
     virtual GenMessagePtr genCreateMessageImpl(commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent) override;
-    virtual FramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenFramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent) override;
 
     virtual GenFieldPtr genCreateIntFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent) override;
     virtual GenFieldPtr genCreateEnumFieldImpl(commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent) override;

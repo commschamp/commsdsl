@@ -28,7 +28,7 @@ class EmscriptenNamespace;
 class EmscriptenInputMessages
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using StringsList = commsdsl::gen::util::GenStringsList;
 
     EmscriptenInputMessages(EmscriptenGenerator& generator, const EmscriptenNamespace& parent);
 

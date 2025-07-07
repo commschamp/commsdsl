@@ -43,7 +43,7 @@ namespace
 
 const std::string ProtTransportMsgSuffix("ProtTransportMessage");
 
-ToolsQtFrame::ToolsQtLayersList toolsTransformLayersList(const commsdsl::gen::GenFrame::LayersList& layers)
+ToolsQtFrame::ToolsQtLayersList toolsTransformLayersList(const commsdsl::gen::GenFrame::GenLayersList& layers)
 {
     ToolsQtFrame::ToolsQtLayersList result;
     result.reserve(layers.size());
@@ -160,7 +160,7 @@ bool ToolsQtFrame::toolsWriteProtTransportMsgHeaderInternal() const
             return false;
         }  
 
-        util::StringsList includes = {
+        util::GenStringsList includes = {
             "<tuple>",
             "cc_tools_qt/ToolsTransportProtMessageBase.h",
             comms::genRelHeaderPathFor(*this, gen),
@@ -434,7 +434,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
             "#^#TOP_NS_END#$#\n"
         ;
 
-        util::StringsList includes = {
+        util::GenStringsList includes = {
             "cc_tools_qt/ToolsTransportMessageBase.h",
             toolsRelPathInternal(*info.first) + ProtTransportMsgSuffix + strings::genCppHeaderSuffixStr(),
             ToolsQtInterface::cast(*info.first).toolsHeaderFilePath(),
@@ -473,7 +473,7 @@ unsigned ToolsQtFrame::toolsCalcBackPayloadOffsetInternal() const
             m_toolsLayers.rbegin(), m_toolsLayers.rend(),
             [](auto* l)
             {
-                return l->layer().genParseObj().parseKind() == commsdsl::parse::ParseLayer::Kind::Payload;
+                return l->layer().genParseObj().parseKind() == commsdsl::parse::ParseLayer::ParseKind::Payload;
             });
     assert(payloadIter != m_toolsLayers.rend());
 
@@ -518,8 +518,8 @@ std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::
         ;
 
     auto layersScope = "::" + comms::genScopeFor(*this, genGenerator()) + strings::genLayersSuffixStr();
-    util::StringsList fields;
-    util::StringsList names;
+    util::GenStringsList fields;
+    util::GenStringsList names;
     for (auto* l : m_toolsLayers) {
         assert(l != nullptr);
         names.push_back(comms::genAccessName(l->layer().genParseObj().parseName()));
@@ -581,7 +581,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::
                 m_toolsLayers.begin(), m_toolsLayers.end(),
                 [](auto* l)
                 {
-                    return l->layer().genParseObj().parseKind() == commsdsl::parse::ParseLayer::Kind::Payload;
+                    return l->layer().genParseObj().parseKind() == commsdsl::parse::ParseLayer::ParseKind::Payload;
                 });
 
         assert(payloadIter != m_toolsLayers.end());
@@ -775,7 +775,7 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::G
             m_toolsLayers.begin(), m_toolsLayers.end(),
             [](auto* l)
             {
-                using Kind = commsdsl::parse::ParseLayer::Kind;
+                using Kind = commsdsl::parse::ParseLayer::ParseKind;
                 auto kind = l->layer().genParseObj().parseKind();
                 if (kind == Kind::Id) {
                     return true;

@@ -54,9 +54,9 @@ private:
     std::string commsDefBitsAccessCodeInternal() const;
     std::string commsDefBitNameFuncCodeInternal() const;
 
-    void commsAddLengthOptInternal(commsdsl::gen::util::StringsList& opts) const;
-    void commsAddDefaultValueOptInternal(commsdsl::gen::util::StringsList& opts) const;
-    void commsAddReservedBitsOptInternal(commsdsl::gen::util::StringsList& opts) const;
+    void commsAddLengthOptInternal(commsdsl::gen::util::GenStringsList& opts) const;
+    void commsAddDefaultValueOptInternal(commsdsl::gen::util::GenStringsList& opts) const;
+    void commsAddReservedBitsOptInternal(commsdsl::gen::util::GenStringsList& opts) const;
     void commsAddAvailableLengthLimitOptInternal(StringsList& opts) const;
 };
 

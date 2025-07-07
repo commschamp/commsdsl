@@ -32,7 +32,7 @@ namespace parse
 namespace common
 {
 
-using PropsMap = std::multimap<std::string, std::string>;
+using ParsePropsMap = std::multimap<std::string, std::string>;
 
 const std::string& parseEmptyString();
 const std::string& parseNameStr();
@@ -193,7 +193,7 @@ bool parseIsFpSpecial(const std::string& str);
 ParseUnits parseStrToUnits(const std::string& str, bool* ok = nullptr);
 
 const std::string& parseGetStringProp(
-    const PropsMap& map,
+    const ParsePropsMap& map,
     const std::string& prop,
     const std::string& defaultValue = parseEmptyString());
 

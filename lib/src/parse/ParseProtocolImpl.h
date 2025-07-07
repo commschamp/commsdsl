@@ -41,23 +41,23 @@ namespace parse
 class ParseProtocolImpl
 {
 public:
-    using ErrorReportFunction = ParseProtocol::ErrorReportFunction;
-    using ExtraPrefixes = std::vector<std::string>;
-    using SchemasList = std::vector<ParseSchemaImplPtr>;
-    using SchemasAccessList = ParseProtocol::SchemasList;
+    using ParseErrorReportFunction = ParseProtocol::ParseErrorReportFunction;
+    using ParseExtraPrefixes = std::vector<std::string>;
+    using ParseSchemasList = std::vector<ParseSchemaImplPtr>;
+    using ParseSchemasAccessList = ParseProtocol::ParseSchemasList;
 
     ParseProtocolImpl();
     bool parse(const std::string& input);
     bool parseValidate();
 
-    SchemasAccessList parseSchemas() const;
+    ParseSchemasAccessList parseSchemas() const;
 
-    SchemasList& parseSchemaImpls()
+    ParseSchemasList& parseSchemaImpls()
     {
         return m_schemas;
     }
 
-    const SchemasList& parseSchemaImpls() const
+    const ParseSchemasList& parseSchemaImpls() const
     {
         return m_schemas;
     }
@@ -65,7 +65,7 @@ public:
     ParseSchemaImpl& parseCurrSchema();
     const ParseSchemaImpl& parseCurrSchema() const;
 
-    void parseSetErrorReportCallback(ErrorReportFunction&& cb)
+    void parseSetErrorReportCallback(ParseErrorReportFunction&& cb)
     {
         m_errorReportCb = std::move(cb);
     }
@@ -96,7 +96,7 @@ public:
         m_extraPrefixes.push_back(value);
     }
 
-    const ExtraPrefixes& parseExtraElementPrefixes() const
+    const ParseExtraPrefixes& parseExtraElementPrefixes() const
     {
         return m_extraPrefixes;
     }
@@ -136,7 +136,7 @@ public:
     }
 
 private:
-    struct XmlDocFree
+    struct ParseXmlDocFree
     {
         void operator()(::xmlDocPtr p) const
         {
@@ -144,9 +144,9 @@ private:
         }
     };
 
-    using XmlDocPtr = std::unique_ptr<::xmlDoc, XmlDocFree>;
-    using DocsList = std::vector<XmlDocPtr>;
-    using StrToValueConvertFunc = std::function<bool (const ParseNamespaceImpl& ns, const std::string& ref)>;
+    using ParseXmlDocPtr = std::unique_ptr<::xmlDoc, ParseXmlDocFree>;
+    using ParseDocsList = std::vector<ParseXmlDocPtr>;
+    using ParseStrToValueConvertFunc = std::function<bool (const ParseNamespaceImpl& ns, const std::string& ref)>;
 
     static void parseCbXmlErrorFunc(void* userData, const xmlError* err);
     static void parseCbXmlErrorFunc(void* userData, xmlErrorPtr err);
@@ -157,19 +157,19 @@ private:
     bool parseValidateSinglePlatform(::xmlNodePtr node);
     bool parseValidateNamespaces(::xmlNodePtr root);
     bool parseValidateAllMessages();
-    bool parseStrToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const;
+    bool parseStrToValue(const std::string& ref, bool checkRef, ParseStrToValueConvertFunc&& func) const;
     std::pair<const ParseSchemaImpl*, std::string> parseExternalRef(const std::string& externalRef) const;
 
-    LogWrapper parseLogError() const;
-    LogWrapper parseLogWarning() const;
+    ParseLogWrapper parseLogError() const;
+    ParseLogWrapper parseLogWarning() const;
 
-    ErrorReportFunction m_errorReportCb;
-    DocsList m_docs;
+    ParseErrorReportFunction m_errorReportCb;
+    ParseDocsList m_docs;
     ParseErrorLevel m_minLevel = ParseErrorLevel_Info;
     mutable ParseLogger m_logger;
-    SchemasList m_schemas;
+    ParseSchemasList m_schemas;
     ParseSchemaImpl* m_currSchema = nullptr;
-    ExtraPrefixes m_extraPrefixes;
+    ParseExtraPrefixes m_extraPrefixes;
     bool m_validated = false;
     bool m_multipleSchemasEnabled = false;
 };

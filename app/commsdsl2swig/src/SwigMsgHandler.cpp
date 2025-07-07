@@ -67,7 +67,7 @@ void SwigMsgHandler::swigAddClassCode(const SwigGenerator& generator, StringsLis
     auto interfaceClassName = generator.swigClassName(*iFace);
 
     auto allMessages = generator.genGetAllMessagesIdSorted();
-    util::StringsList handleFuncs;
+    util::GenStringsList handleFuncs;
     handleFuncs.reserve(allMessages.size());
 
     for (auto* m : allMessages) {
@@ -187,7 +187,7 @@ std::string SwigMsgHandler::swigClassDeclInternal() const
     assert(iFace != nullptr);
 
     auto allMessages = m_generator.genGetAllMessagesIdSorted();
-    util::StringsList handleFuncs;
+    util::GenStringsList handleFuncs;
     handleFuncs.reserve(allMessages.size());
 
     for (auto* m : allMessages) {
