@@ -29,7 +29,7 @@ class CommsSchema final: public commsdsl::gen::GenSchema
     using Base = commsdsl::gen::GenSchema;
 
 public:
-    explicit CommsSchema(CommsGenerator& generator, commsdsl::parse::ParseSchema dslObj, commsdsl::gen::GenElem* parent);
+    explicit CommsSchema(CommsGenerator& generator, commsdsl::parse::ParseSchema parseObj, commsdsl::gen::GenElem* parent);
     virtual ~CommsSchema();
 
     static const CommsSchema* cast(const commsdsl::gen::GenSchema* ptr)

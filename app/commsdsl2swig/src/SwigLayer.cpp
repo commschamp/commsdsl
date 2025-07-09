@@ -76,7 +76,7 @@ std::string SwigLayer::swigDeclCode() const
         fieldDef = gen.swigClassName(field->field());
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(m_layer)},
         {"FIELD", std::move(fieldDef)},
         {"FUNCS", swigDeclFuncsImpl()},
@@ -131,7 +131,7 @@ void SwigLayer::swigAddCode(StringsList& list) const
         fieldDef = gen.swigClassName(field->field());
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(m_layer)},
         {"COMMS_CLASS", swigTemplateScope()},
         {"FIELD", std::move(fieldDef)},
@@ -147,7 +147,7 @@ void SwigLayer::swigAddToAllFieldsDecl(StringsList& list) const
         "#^#CLASS_NAME#$#::Field #^#ACC_NAME#$#;\n";
 
     auto& gen = SwigGenerator::cast(m_layer.genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(m_layer)},
         {"ACC_NAME", swigFieldAccName()}
     };

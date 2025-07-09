@@ -22,7 +22,7 @@ class CommsGenerator;
 class CommsCmake
 {
 public:
-    static bool write(CommsGenerator& generator);
+    static bool commsWrite(CommsGenerator& generator);
 
 private:
     explicit CommsCmake(CommsGenerator& generator) : m_generator(generator) {}

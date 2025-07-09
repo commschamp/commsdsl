@@ -455,7 +455,7 @@ std::string genNameToNs(const std::string& value)
     return result;
 }
 
-std::string genProcessTemplate(const std::string& templ, const ReplacementMap& repl, bool tidyCode)
+std::string genProcessTemplate(const std::string& templ, const GenReplacementMap& repl, bool tidyCode)
 {
     std::string result;
     result.reserve(templ.size() * 2U);

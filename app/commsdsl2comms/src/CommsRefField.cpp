@@ -32,9 +32,9 @@ namespace commsdsl2comms
 
 CommsRefField::CommsRefField(
     CommsGenerator& generator, 
-    commsdsl::parse::ParseField dslObj, 
+    commsdsl::parse::ParseField parseObj, 
     commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent),
+    Base(generator, parseObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {
 }
@@ -70,11 +70,11 @@ bool CommsRefField::genWriteImpl() const
     return commsWrite();
 }
 
-CommsRefField::IncludesList CommsRefField::commsCommonIncludesImpl() const 
+CommsRefField::CommsIncludesList CommsRefField::commsCommonIncludesImpl() const 
 {
     assert(m_commsReferencedField != nullptr);
-    IncludesList result = {
-        comms::genRelCommonHeaderPathFor(m_commsReferencedField->field(), genGenerator())
+    CommsIncludesList result = {
+        comms::genRelCommonHeaderPathFor(m_commsReferencedField->commsGenField(), genGenerator())
     };
 
     return result;
@@ -83,7 +83,7 @@ CommsRefField::IncludesList CommsRefField::commsCommonIncludesImpl() const
 std::string CommsRefField::commsCommonCodeBaseClassImpl() const
 {
     assert(m_commsReferencedField != nullptr);
-    return comms::genCommonScopeFor(m_commsReferencedField->field(), genGenerator());
+    return comms::genCommonScopeFor(m_commsReferencedField->commsGenField(), genGenerator());
 }
 
 std::string CommsRefField::commsCommonCodeBodyImpl() const
@@ -102,7 +102,7 @@ std::string CommsRefField::commsCommonMembersBaseClassImpl() const
         return strings::genEmptyString();
     }
 
-    auto str = comms::genCommonScopeFor(m_commsReferencedField->field(), genGenerator());
+    auto str = comms::genCommonScopeFor(m_commsReferencedField->commsGenField(), genGenerator());
     auto& commonSuffix = strings::genCommonSuffixStr();
     assert(commonSuffix.size() < str.size());
     auto commonSuffixPos = str.size() - commonSuffix.size();
@@ -111,11 +111,11 @@ std::string CommsRefField::commsCommonMembersBaseClassImpl() const
     return str;
 }
 
-CommsRefField::IncludesList CommsRefField::commsDefIncludesImpl() const
+CommsRefField::CommsIncludesList CommsRefField::commsDefIncludesImpl() const
 {
     assert(m_commsReferencedField != nullptr);
-    IncludesList result = {
-        comms::genRelHeaderPathFor(m_commsReferencedField->field(), genGenerator())
+    CommsIncludesList result = {
+        comms::genRelHeaderPathFor(m_commsReferencedField->commsGenField(), genGenerator())
     };
 
     return result;
@@ -130,8 +130,8 @@ std::string CommsRefField::commsDefBaseClassImpl() const
 
     assert(m_commsReferencedField != nullptr);
 
-    util::ReplacementMap repl = {
-        {"REF_FIELD", comms::genScopeFor(m_commsReferencedField->field(), genGenerator())},
+    util::GenReplacementMap repl = {
+        {"REF_FIELD", comms::genScopeFor(m_commsReferencedField->commsGenField(), genGenerator())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };
 
@@ -146,9 +146,9 @@ bool CommsRefField::commsIsLimitedCustomizableImpl() const
 
 bool CommsRefField::commsDefHasNameFuncImpl() const
 {
-    auto dslObj = genRefFieldParseObj();
-    auto thisDisplayName = util::genDisplayName(dslObj.parseDisplayName(), dslObj.parseName());
-    auto refDslObj = m_commsReferencedField->field().genParseObj();
+    auto parseObj = genRefFieldParseObj();
+    auto thisDisplayName = util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName());
+    auto refDslObj = m_commsReferencedField->commsGenField().genParseObj();
     auto refDisplayName = util::genDisplayName(refDslObj.parseDisplayName(), refDslObj.parseName());
 
     return thisDisplayName != refDisplayName;
@@ -178,7 +178,7 @@ std::string CommsRefField::commsSizeAccessStrImpl(const std::string& accStr, con
     return m_commsReferencedField->commsSizeAccessStr(accStr, prefix);
 }
 
-void CommsRefField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const
+void CommsRefField::commsCompOptChecksImpl(const std::string& accStr, GenStringsList& checks, const std::string& prefix) const
 {
     assert(m_commsReferencedField != nullptr);
     return m_commsReferencedField->commsCompOptChecks(accStr, checks, prefix);
@@ -213,7 +213,7 @@ std::string CommsRefField::commsDefFieldOptsInternal() const
     return util::genStrListToString(opts, ",\n", "");
 }
 
-void CommsRefField::commsAddProtocolOptInternal(StringsList& opts) const
+void CommsRefField::commsAddProtocolOptInternal(GenStringsList& opts) const
 {
     if (comms::genIsInterfaceDeepMemberField(*this)) {
         opts.push_back(comms::genScopeForOptions(strings::genDefaultOptionsClassStr(), genGenerator()));
@@ -223,7 +223,7 @@ void CommsRefField::commsAddProtocolOptInternal(StringsList& opts) const
     }
 }
 
-void CommsRefField::commsAddBitLengthOptInternal(StringsList& opts) const
+void CommsRefField::commsAddBitLengthOptInternal(GenStringsList& opts) const
 {
     auto obj = genRefFieldParseObj();
     auto bitLength = obj.parseBitLength();

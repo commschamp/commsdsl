@@ -68,7 +68,7 @@ bool SwigMsgId::swigWrite() const
         "};\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
         {"CLASS_NAME", swigClassName()},
         {"TYPE", swigTypeInternal()},
@@ -96,7 +96,7 @@ void SwigMsgId::swigAddCode(StringsList& list) const
         "using #^#SWIG_TYPE#$# = #^#COMMS_TYPE#$#;\n";
 
     auto commsType = comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), m_generator, m_parent);
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SWIG_TYPE", swigClassName()},
         {"COMMS_TYPE", commsType}
     };
@@ -228,7 +228,7 @@ std::string SwigMsgId::swigCodeInternal() const
             auto eqPos = v.find(EqStr);
             assert(eqPos < v.size());
 
-            util::ReplacementMap repl = {
+            util::GenReplacementMap repl = {
                 {"CLASS_NAME", swigClassName()},
                 {"SCOPE", scope},
                 {"NAME", v.substr(0, eqPos)}
@@ -252,7 +252,7 @@ std::string SwigMsgId::swigCodeInternal() const
             continue;
         }
                 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"CLASS_NAME", swigClassName()},
             {"SCOPE", scope},
             {"NAME", comms::genFullNameFor(*m)}

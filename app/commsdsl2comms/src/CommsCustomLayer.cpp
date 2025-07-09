@@ -29,20 +29,20 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsCustomLayer::CommsCustomLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsCustomLayer::CommsCustomLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
 bool CommsCustomLayer::genPrepareImpl()
 {
-    return Base::genPrepareImpl() && CommsBase::commsPrepare();
+    return GenBase::genPrepareImpl() && CommsBase::commsPrepare();
 }
 
-CommsCustomLayer::IncludesList CommsCustomLayer::commsDefIncludesImpl() const
+CommsCustomLayer::CommsIncludesList CommsCustomLayer::commsDefIncludesImpl() const
 {
-    IncludesList result = {
+    CommsIncludesList result = {
         comms::genRelHeaderForLayer(comms::genClassName(genParseObj().parseName()), genGenerator())
     };
 
@@ -59,7 +59,7 @@ std::string CommsCustomLayer::commsDefBaseTypeImpl(const std::string& prevName) 
         "    #^#EXTRA_OPT#$#\n"
         ">";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CUSTOM_LAYER_TYPE", comms::genScopeForCustomLayer(*this, genGenerator())},
         {"FIELD_TYPE", commsDefFieldType()},
         {"PREV_LAYER", prevName},
@@ -87,11 +87,11 @@ bool CommsCustomLayer::commsIsCustomizableImpl() const
     return true;
 }
 
-CommsCustomLayer::StringsList CommsCustomLayer::commsExtraBareMetalDefaultOptionsImpl() const
+CommsCustomLayer::GenStringsList CommsCustomLayer::commsExtraBareMetalDefaultOptionsImpl() const
 {
     if (commsDefHasInputMessagesImpl()) {
         return
-            StringsList{
+            GenStringsList{
                 "comms::option::app::InPlaceAllocation"
             };    
     }
@@ -99,11 +99,11 @@ CommsCustomLayer::StringsList CommsCustomLayer::commsExtraBareMetalDefaultOption
     return CommsBase::commsExtraBareMetalDefaultOptionsImpl();
 }
 
-CommsCustomLayer::StringsList CommsCustomLayer::commsExtraMsgFactoryDefaultOptionsImpl() const
+CommsCustomLayer::GenStringsList CommsCustomLayer::commsExtraMsgFactoryDefaultOptionsImpl() const
 {
     if (commsDefHasInputMessagesImpl()) {
         return
-            StringsList{
+            GenStringsList{
                 "comms::option::app::MsgFactoryTempl<" + commsMsgFactoryAliasInOptions(genGetParent()) + ">"
             };    
     }

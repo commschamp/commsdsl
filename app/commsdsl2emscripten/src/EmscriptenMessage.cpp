@@ -106,7 +106,7 @@ bool EmscriptenMessage::emscriptenWriteHeaderInternal() const
         "#^#DEF#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"INCLUDES", emscriptenHeaderIncludesInternal()},
         {"FIELDS", emscriptenHeaderFieldsInternal()},
@@ -145,7 +145,7 @@ bool EmscriptenMessage::emscriptenWriteSourceInternal() const
         "#^#CODE#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"HEADER", gen.emscriptenRelHeaderFor(*this)},
         {"FIELDS", emscriptenSourceFieldsInternal()},
@@ -207,7 +207,7 @@ std::string EmscriptenMessage::emscriptenHeaderClassInternal() const
             "    return static_cast<#^#FIELD_CLASS#$#*>(&field_#^#NAME#$#());\n"
             "}\n";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"FIELD_CLASS", gen.emscriptenClassName(f->field())},
             {"NAME", comms::genAccessName(f->field().genParseObj().parseName())},
         };
@@ -234,7 +234,7 @@ std::string EmscriptenMessage::emscriptenHeaderClassInternal() const
     auto* iFace = gen.emscriptenMainInterface();
     assert(iFace != nullptr);
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(*this)},
         {"COMMS_CLASS", comms::genScopeFor(*this, gen)},
         {"INTERFACE", gen.emscriptenClassName(*iFace)},
@@ -262,7 +262,7 @@ std::string EmscriptenMessage::emscriptenSourceCodeInternal() const
 {
     auto& gen = EmscriptenGenerator::cast(genGenerator());
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(*this)},
     };
 

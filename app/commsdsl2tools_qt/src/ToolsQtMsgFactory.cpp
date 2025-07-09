@@ -122,7 +122,7 @@ bool ToolsQtMsgFactory::toolsWriteHeaderInternal() const
             "#^#TOP_NS_END#$#\n"
         ;
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
             {"TOP_NS_BEGIN", m_generator.toolsNamespaceBeginForInterface(*iFace)},
@@ -183,7 +183,7 @@ bool ToolsQtMsgFactory::toolsWriteSourceInternal() const
             "#^#TOP_NS_END#$#\n"
         ;
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"INCLUDES", toolsSourceIncludesInternal(*iFace)},
             {"CODE", toolsSourceCodeInternal(*iFace)},
@@ -218,7 +218,7 @@ std::string ToolsQtMsgFactory::toolsHeaderCodeInternal() const
         "    virtual MessagesListInternal createAllMessagesImpl() override;\n"
         "};\n";  
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", MsgFactoryName},
     };
 
@@ -247,7 +247,7 @@ std::string ToolsQtMsgFactory::toolsSourceCodeInternal(const commsdsl::gen::GenI
         scopes.push_back("cc_tools_qt::ToolsMessagePtr(new " + ToolsQtMessage::cast(*m).toolsClassScope(iFace) + ")");
     }    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", MsgFactoryName},
         {"MESSAGES", util::genStrListToString(scopes, ",\n", "")},
     };

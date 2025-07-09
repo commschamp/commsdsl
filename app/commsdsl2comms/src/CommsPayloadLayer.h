@@ -28,13 +28,13 @@ class CommsPayloadLayer final : public commsdsl::gen::GenPayloadLayer, public Co
     using Base = commsdsl::gen::GenPayloadLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsPayloadLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
+    CommsPayloadLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent);
 
 protected:
     virtual bool genPrepareImpl() override;
 
     // CommsBase overrides
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
     virtual std::string commsCustomDefMembersCodeImpl() const override;
     virtual std::string commsCustomFieldOptsImpl() const override;

@@ -84,7 +84,7 @@ bool EmscriptenVersion::emscriptenWriteSrcInternal() const
         "}\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"HEADER", comms::genRelHeaderForRoot(strings::genVersionFileNameStr(), m_generator)},
         {"NAME", m_generator.emscriptenScopeNameForRoot(strings::genVersionFileNameStr())},
@@ -107,7 +107,7 @@ std::string EmscriptenVersion::emscriptenSpecConstantsInternal() const
     const std::string Templ = 
         "emscripten::constant(\"#^#NS#$#_SPEC_VERSION\", #^#NS#$#_SPEC_VERSION);";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NS", util::genStrToUpper(m_generator.genCurrentSchema().genMainNamespace())}
     };
 
@@ -126,7 +126,7 @@ std::string EmscriptenVersion::emscriptenProtConstantsInternal() const
         "emscripten::constant(\"#^#NS#$#_PATCH_VERSION\", #^#NS#$#_PATCH_VERSION);"
         ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NS", util::genStrToUpper(m_generator.genCurrentSchema().genMainNamespace())}
     };
 

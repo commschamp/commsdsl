@@ -96,7 +96,7 @@ std::string SwigField::swigClassDecl() const
         "#^#OPTIONAL#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"MEMBERS", swigMembersDeclImpl()},
         {"DEF", swigClassDeclInternal()},
         {"OPTIONAL", swigOptionalDeclInternal()},
@@ -216,7 +216,7 @@ bool SwigField::swigWrite() const
         "#^#DEF#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
         {"DEF", swigClassDecl()},
     };
@@ -267,7 +267,7 @@ std::string SwigField::swigPublicDeclImpl() const
         "#^#EXTRA#$#\n"
         ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"VALUE_TYPE", swigValueTypeDeclImpl()},
         {"VALUE_ACC", swigValueAccDeclImpl()},
         {"COMMON_FUNCS", swigCommonPublicFuncsDecl()},
@@ -297,7 +297,7 @@ std::string SwigField::swigCommonPublicFuncsDecl() const
     ;
 
     auto& gen = SwigGenerator::cast(m_field.genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
         {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)}
@@ -324,7 +324,7 @@ std::string SwigField::swigCommonPublicFuncsCode() const
     ;
 
     auto& gen = SwigGenerator::cast(m_field.genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
         {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)}
     };
@@ -342,7 +342,7 @@ std::string SwigField::swigSemanticTypeLengthValueAccDecl() const
         templ += "void setValue(#^#SIZE_T#$# val);\n";
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SIZE_T", SwigGenerator::cast(m_field.genGenerator()).swigConvertCppType("std::size_t")},
     };
 
@@ -366,7 +366,7 @@ std::string SwigField::swigSemanticTypeLengthValueAccCode() const
             "}\n";        
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SIZE_T", SwigGenerator::cast(m_field.genGenerator()).swigConvertCppType("std::size_t")},
     };
 
@@ -391,7 +391,7 @@ std::string SwigField::swigClassDeclInternal() const
         ;
 
     auto& generator = SwigGenerator::cast(m_field.genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", generator.swigClassName(m_field)},
         {"PUBLIC", swigPublicDeclImpl()},
     };
@@ -430,7 +430,7 @@ std::string SwigField::swigOptionalDeclInternal() const
 
     auto& gen = SwigGenerator::cast(m_field.genGenerator());
     auto className = gen.swigClassName(m_field);
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", className},
         {"COMMON_FUNCS", swigCommonPublicFuncsDecl()},
         {"OPTIONAL_FUNCS", SwigOptionalField::swigDeclFuncs(gen, className + strings::genVersionOptionalFieldSuffixStr())},
@@ -453,7 +453,7 @@ std::string SwigField::swigClassCodeInternal() const
             "protected:\n"
             "    #^#CODE#$#\n";
 
-        util::ReplacementMap replTmp = {
+        util::GenReplacementMap replTmp = {
             {"CODE", std::move(protectedCode)}
         };
 
@@ -465,7 +465,7 @@ std::string SwigField::swigClassCodeInternal() const
             "private:\n"
             "    #^#CODE#$#\n";
 
-        util::ReplacementMap replTmp = {
+        util::GenReplacementMap replTmp = {
             {"CODE", std::move(privateCode)}
         };
 
@@ -493,7 +493,7 @@ std::string SwigField::swigClassCodeInternal() const
         "}\n"        
         ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"COMMS_CLASS", swigTemplateScope()},
         {"CLASS_NAME", gen.swigClassName(m_field)},
         {"COMMON", swigCommonPublicFuncsCode()},
@@ -528,7 +528,7 @@ std::string SwigField::swigComparisonRenameInternal() const
         "%rename(eq_#^#CLASS_NAME#$##^#SUFFIX#$#) operator==(const #^#CLASS_NAME#$##^#SUFFIX#$#&, const #^#CLASS_NAME#$##^#SUFFIX#$#&);\n"
         "%rename(lt_#^#CLASS_NAME#$##^#SUFFIX#$#) operator<(const #^#CLASS_NAME#$##^#SUFFIX#$#&, const #^#CLASS_NAME#$##^#SUFFIX#$#&);";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", SwigGenerator::cast(m_field.genGenerator()).swigClassName(m_field)},
     };
 
@@ -551,7 +551,7 @@ void SwigField::swigAddVectorTemplateInternal(StringsList& list) const
         "%template(#^#CLASS_NAME#$#_Vector) std::vector<#^#CLASS_NAME#$#>;";
 
     auto& gen = SwigGenerator::cast(m_field.genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(m_field)},
     };    
 

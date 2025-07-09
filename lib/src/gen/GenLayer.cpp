@@ -256,7 +256,7 @@ std::string GenLayer::genTemplateScopeOfComms(const std::string& iFaceStr, const
             static const std::string Templ = 
                 "<#^#INTERFACE#$#, #^#ALL_MESSAGES#$#>";
 
-            util::ReplacementMap repl = {
+            util::GenReplacementMap repl = {
                 {"INTERFACE", iFaceStr},
                 {"ALL_MESSAGES", allMessagesStr}
             };

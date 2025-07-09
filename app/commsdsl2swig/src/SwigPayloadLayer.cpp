@@ -48,7 +48,7 @@ std::string SwigPayloadLayer::swigMemberFieldDeclImpl() const
         "};\n";
 
     auto& gen = SwigGenerator::cast(genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FIELD_TYPE", swigFieldTypeImpl()},
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")}
     };
@@ -61,7 +61,7 @@ void SwigPayloadLayer::swigAddCodeImpl(StringsList& list) const
     static const std::string Templ = 
         "class #^#FIELD_TYPE#$# : public #^#COMMS_SCOPE#$#::Field {};\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FIELD_TYPE", swigFieldTypeImpl()},
         {"COMMS_SCOPE", swigTemplateScope()}
     };

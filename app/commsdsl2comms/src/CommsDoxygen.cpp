@@ -36,14 +36,14 @@ namespace commsdsl2comms
 namespace 
 {
 
-const std::string ServerInputPrefixStr = "ServerInput";
-const std::string ClientInputPrefixStr = "ClientInput";
-const std::string ServerInputMessagesStr = ServerInputPrefixStr + "Messages";
-const std::string ClientInputMessagesStr = ClientInputPrefixStr + "Messages";    
+const std::string CommsServerInputPrefixStr = "ServerInput";
+const std::string CommsClientInputPrefixStr = "ClientInput";
+const std::string CommsServerInputMessagesStr = CommsServerInputPrefixStr + "Messages";
+const std::string CommsClientInputMessagesStr = CommsClientInputPrefixStr + "Messages";    
 
-using ReplacementMap = util::ReplacementMap;
+using GenReplacementMap = util::GenReplacementMap;
 
-bool writeFileInternal(const std::string& name, const std::string& str, CommsGenerator& generator)
+bool commsWriteFileInternal(const std::string& name, const std::string& str, CommsGenerator& generator)
 {
     auto filePath = comms::genPathForDoc(name, generator);
     generator.genLogger().genInfo("Generating " + filePath);
@@ -73,7 +73,7 @@ bool writeFileInternal(const std::string& name, const std::string& str, CommsGen
 } // namespace 
     
 
-bool CommsDoxygen::write(CommsGenerator& generator)
+bool CommsDoxygen::commsWrite(CommsGenerator& generator)
 {
     CommsDoxygen obj(generator);
     return obj.commsWriteInternal();
@@ -123,12 +123,12 @@ bool CommsDoxygen::commsWriteConfInternal() const
         "#^#APPEND#$#\n"
         "\n";
 
-    util::ReplacementMap repl = {
-        {"PROJ_NAME", m_generator.genCurrentSchema().genSchemaName()},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForDoc(FileName, m_generator) + strings::genAppendFileSuffixStr())}
+    util::GenReplacementMap repl = {
+        {"PROJ_NAME", m_commsGenerator.genCurrentSchema().genSchemaName()},
+        {"APPEND", util::genReadFileContents(comms::genInputCodePathForDoc(FileName, m_commsGenerator) + strings::genAppendFileSuffixStr())}
     };
 
-    return writeFileInternal(FileName, util::genProcessTemplate(Templ, repl), m_generator);
+    return commsWriteFileInternal(FileName, util::genProcessTemplate(Templ, repl), m_commsGenerator);
 }
 
 bool CommsDoxygen::commsWriteLayoutInternal() const
@@ -319,7 +319,7 @@ bool CommsDoxygen::commsWriteLayoutInternal() const
         "</directory>\n"
         "</doxygenlayout>\n";
 
-    return writeFileInternal(FileName, Templ, m_generator);
+    return commsWriteFileInternal(FileName, Templ, m_commsGenerator);
 }
 
 bool CommsDoxygen::commsWriteNamespacesInternal() const
@@ -327,9 +327,9 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
     const std::string FileName = "namespaces.dox";
 
     util::GenStringsList elems;
-    for (auto& s : m_generator.genSchemas()) {
+    for (auto& s : m_commsGenerator.genSchemas()) {
         auto* commsSchema = static_cast<const CommsSchema*>(s.get());
-        if ((s.get() != &m_generator.genProtocolSchema()) && (!commsSchema->commsHasAnyGeneratedCode())) {
+        if ((s.get() != &m_commsGenerator.genProtocolSchema()) && (!commsSchema->commsHasAnyGeneratedCode())) {
             continue;
         }
 
@@ -351,8 +351,8 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
                 "/// @namespace #^#NS#$#::frame::checksum\n"
                 "/// @brief Namespace for the custom frame layers defined in #^#NS#$# namespace.\n\n";
 
-            util::ReplacementMap repl = {
-                {"NS", comms::genScopeFor(*ns, m_generator)},
+            util::GenReplacementMap repl = {
+                {"NS", comms::genScopeFor(*ns, m_commsGenerator)},
             };
 
             nsElems.push_back(util::genProcessTemplate(Templ, repl));
@@ -369,7 +369,7 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
             "/// @brief Main namespace for the various message dispatch functions.\n\n"        
         ;
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"NS_LIST", util::genStrListToString(nsElems, "", "")},
             {"NS", s->genMainNamespace()},
         };
@@ -396,12 +396,12 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
         "#^#APPEND#$#\n"
     };
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SCHEMAS", util::genStrListToString(elems, "", "")},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForDoc(FileName, m_generator) + strings::genAppendFileSuffixStr())}
+        {"APPEND", util::genReadFileContents(comms::genInputCodePathForDoc(FileName, m_commsGenerator) + strings::genAppendFileSuffixStr())}
     };
 
-    return writeFileInternal(FileName, util::genProcessTemplate(Templ, repl), m_generator);
+    return commsWriteFileInternal(FileName, util::genProcessTemplate(Templ, repl), m_commsGenerator);
 }
 
 bool CommsDoxygen::commsWriteMainpageInternal() const
@@ -433,8 +433,8 @@ bool CommsDoxygen::commsWriteMainpageInternal() const
         "#^#APPEND#$#\n"
         "\n";
 
-    util::ReplacementMap repl = {
-        {"PROJ_NAME", m_generator.genCurrentSchema().genSchemaName()},
+    util::GenReplacementMap repl = {
+        {"PROJ_NAME", m_commsGenerator.genCurrentSchema().genSchemaName()},
         {"MESSAGES_DOC", commsMessagesDocInternal()},
         {"FIELDS_DOC", commsFieldsDocInternal()},
         {"INTERFACE_DOC", commsInterfaceDocInternal()},
@@ -442,23 +442,23 @@ bool CommsDoxygen::commsWriteMainpageInternal() const
         {"DISPATCH_DOC", commsDispatchDocInternal()},
         {"CUSTOMIZE_DOC", commsCustomizeDocInternal()},
         {"VERSION_DOC", commsVersionDocInternal()},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForDoc(FileName, m_generator) + strings::genAppendFileSuffixStr())}
+        {"APPEND", util::genReadFileContents(comms::genInputCodePathForDoc(FileName, m_commsGenerator) + strings::genAppendFileSuffixStr())}
     };
 
-    return writeFileInternal(FileName, util::genProcessTemplate(Templ, repl), m_generator);
+    return commsWriteFileInternal(FileName, util::genProcessTemplate(Templ, repl), m_commsGenerator);
 }
 
 std::string CommsDoxygen::commsMessagesDocInternal() const
 {
-    auto nsList = m_generator.genGetAllNamespaces();
+    auto nsList = m_commsGenerator.genGetAllNamespaces();
     util::GenStringsList elems;
     for (auto* n : nsList) {
         static const std::string Templ = 
             "/// @li @ref #^#SCOPE#$#::#^#SUFFIX#$# (defined in @b #^#PATH#$#/#^#SUFFIX#$#  directory)";
 
-        util::ReplacementMap repl = {
-            {"SCOPE", comms::genScopeFor(*n, m_generator)},
-            {"PATH", util::genStrReplace(comms::genScopeFor(*n, m_generator), "::", "/")},
+        util::GenReplacementMap repl = {
+            {"SCOPE", comms::genScopeFor(*n, m_commsGenerator)},
+            {"PATH", util::genStrReplace(comms::genScopeFor(*n, m_commsGenerator), "::", "/")},
             {"SUFFIX", strings::genMessageNamespaceStr()},
         };
 
@@ -472,7 +472,7 @@ std::string CommsDoxygen::commsMessagesDocInternal() const
         "///"
         ;    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"LIST", util::genStrListToString(elems, "\n", "")}
     };
     return util::genProcessTemplate(Templ, repl);
@@ -480,15 +480,15 @@ std::string CommsDoxygen::commsMessagesDocInternal() const
 
 std::string CommsDoxygen::commsFieldsDocInternal() const
 {
-    auto nsList = m_generator.genGetAllNamespaces();
+    auto nsList = m_commsGenerator.genGetAllNamespaces();
     util::GenStringsList elems;
     for (auto* n : nsList) {
         static const std::string Templ = 
             "/// @li @ref #^#SCOPE#$#::#^#SUFFIX#$# (defined in @b #^#PATH#$#/#^#SUFFIX#$#  directory)";
 
-        util::ReplacementMap repl = {
-            {"SCOPE", comms::genScopeFor(*n, m_generator)},
-            {"PATH", util::genStrReplace(comms::genScopeFor(*n, m_generator), "::", "/")},
+        util::GenReplacementMap repl = {
+            {"SCOPE", comms::genScopeFor(*n, m_commsGenerator)},
+            {"PATH", util::genStrReplace(comms::genScopeFor(*n, m_commsGenerator), "::", "/")},
             {"SUFFIX", strings::genFieldNamespaceStr()},
         };
 
@@ -503,7 +503,7 @@ std::string CommsDoxygen::commsFieldsDocInternal() const
         "///"
         ;    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"LIST", util::genStrListToString(elems, "\n", "")}
     };
     return util::genProcessTemplate(Templ, repl);
@@ -511,14 +511,14 @@ std::string CommsDoxygen::commsFieldsDocInternal() const
 
 std::string CommsDoxygen::commsInterfaceDocInternal() const
 {
-    auto interfaces = m_generator.genGetAllInterfaces();
+    auto interfaces = m_commsGenerator.genGetAllInterfaces();
     assert(!interfaces.empty());
 
     util::GenStringsList list;
     for (auto* i : interfaces) {
         list.push_back(
-            "/// @li @ref " + comms::genScopeFor(*i, m_generator) +
-            " (defined in @b " + comms::genRelHeaderPathFor(*i, m_generator) + " header file).");
+            "/// @li @ref " + comms::genScopeFor(*i, m_commsGenerator) +
+            " (defined in @b " + comms::genRelHeaderPathFor(*i, m_commsGenerator) + " header file).");
     }
 
     static const std::string Templ = 
@@ -527,7 +527,7 @@ std::string CommsDoxygen::commsInterfaceDocInternal() const
         "#^#LIST#$#\n"
         "///";    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"LIST", util::genStrListToString(list, "\n", "")}
     };
     return util::genProcessTemplate(Templ, repl);
@@ -556,27 +556,27 @@ std::string CommsDoxygen::commsFrameDocInternal() const
         "#^#MESSAGES_LIST#$#\n"
         "///";
 
-    auto frames = m_generator.genGetAllFrames();
+    auto frames = m_commsGenerator.genGetAllFrames();
     assert(!frames.empty());
 
     util::GenStringsList list;
     for (auto* f : frames) {
         list.push_back(
-            "/// @li @ref " + comms::genScopeFor(*f, m_generator) +
-            " (from @b " + comms::genRelHeaderPathFor(*f, m_generator) + " header file).");
+            "/// @li @ref " + comms::genScopeFor(*f, m_commsGenerator) +
+            " (from @b " + comms::genRelHeaderPathFor(*f, m_commsGenerator) + " header file).");
     }
 
     util::GenStringsList messagesList;
     auto addToMessagesListFunc =
         [this, &messagesList](const std::string& name, const commsdsl::gen::GenNamespace& ns)
         {
-            auto scope = comms::genScopeForInput(name, m_generator, ns);
-            auto file = comms::genRelHeaderForInput(name, m_generator, ns);
+            auto scope = comms::genScopeForInput(name, m_commsGenerator, ns);
+            auto file = comms::genRelHeaderForInput(name, m_commsGenerator, ns);
             auto str = "/// @li @ref " + scope + " (from @b " + file + " header file).";
             messagesList.push_back(std::move(str));
         };
 
-    auto allNamespaces = m_generator.genGetAllNamespaces();
+    auto allNamespaces = m_commsGenerator.genGetAllNamespaces();
     for (auto* ns : allNamespaces) {
         if ((!ns->genHasFramesRecursive()) || 
             (!ns->genHasMessagesRecursive())) {
@@ -584,14 +584,14 @@ std::string CommsDoxygen::commsFrameDocInternal() const
         }
                 
         addToMessagesListFunc(strings::genAllMessagesStr(), *ns);
-        addToMessagesListFunc(ServerInputMessagesStr, *ns);
-        addToMessagesListFunc(ClientInputMessagesStr, *ns);
+        addToMessagesListFunc(CommsServerInputMessagesStr, *ns);
+        addToMessagesListFunc(CommsClientInputMessagesStr, *ns);
 
-        auto& platforms = m_generator.genCurrentSchema().platformNames();
+        auto& platforms = m_commsGenerator.genCurrentSchema().platformNames();
         for (auto& p : platforms) {
             addToMessagesListFunc(p + "Messages", *ns);
-            addToMessagesListFunc(p + ServerInputMessagesStr, *ns);
-            addToMessagesListFunc(p + ClientInputMessagesStr, *ns);
+            addToMessagesListFunc(p + CommsServerInputMessagesStr, *ns);
+            addToMessagesListFunc(p + CommsClientInputMessagesStr, *ns);
         };        
     }
 
@@ -606,17 +606,17 @@ std::string CommsDoxygen::commsFrameDocInternal() const
     assert (nsIter != allNamespaces.end());
     auto& exampleNs = **nsIter;    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"LIST", util::genStrListToString(list, "\n", "")},
         {"MESSAGES_LIST", util::genStrListToString(messagesList, "\n", "")},
-        {"PROT_NAMESPACE", m_generator.genCurrentSchema().genMainNamespace()},
+        {"PROT_NAMESPACE", m_commsGenerator.genCurrentSchema().genMainNamespace()},
         {"PLATFORMS", commsPlatformsDocInternal()},
-        {"ALL_MESSAGES", comms::genScopeForInput(strings::genAllMessagesStr(), m_generator, exampleNs)},
-        {"ALL_MESSAGES_HEADER", comms::genRelHeaderForInput(strings::genAllMessagesStr(), m_generator, exampleNs)},
-        {"SERVER_MESSAGES", comms::genScopeForInput(ServerInputMessagesStr, m_generator, exampleNs)},
-        {"SERVER_MESSAGES_HEADER", comms::genRelHeaderForInput(ServerInputMessagesStr, m_generator, exampleNs)},
-        {"CLIENT_MESSAGES", comms::genScopeForInput(ClientInputMessagesStr, m_generator, exampleNs)},
-        {"CLIENT_MESSAGES_HEADER", comms::genRelHeaderForInput(ClientInputMessagesStr, m_generator, exampleNs)},
+        {"ALL_MESSAGES", comms::genScopeForInput(strings::genAllMessagesStr(), m_commsGenerator, exampleNs)},
+        {"ALL_MESSAGES_HEADER", comms::genRelHeaderForInput(strings::genAllMessagesStr(), m_commsGenerator, exampleNs)},
+        {"SERVER_MESSAGES", comms::genScopeForInput(CommsServerInputMessagesStr, m_commsGenerator, exampleNs)},
+        {"SERVER_MESSAGES_HEADER", comms::genRelHeaderForInput(CommsServerInputMessagesStr, m_commsGenerator, exampleNs)},
+        {"CLIENT_MESSAGES", comms::genScopeForInput(CommsClientInputMessagesStr, m_commsGenerator, exampleNs)},
+        {"CLIENT_MESSAGES_HEADER", comms::genRelHeaderForInput(CommsClientInputMessagesStr, m_commsGenerator, exampleNs)},
     };
 
     return util::genProcessTemplate(Templ, repl);     
@@ -650,9 +650,9 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
             static const std::string Suffix("Message");
 
             auto accessName = comms::genAccessName(Prefix + name + Suffix);
-            auto accessScope = comms::genScopeForDispatch(accessName, m_generator, ns);
+            auto accessScope = comms::genScopeForDispatch(accessName, m_commsGenerator, ns);
             auto fileName = comms::genClassName(accessName);
-            auto file = comms::genRelHeaderForDispatch(fileName, m_generator, ns);
+            auto file = comms::genRelHeaderForDispatch(fileName, m_commsGenerator, ns);
             auto str = "/// @li @ref " + accessScope + 
                 "()\n/// (defined in @b " + file + " header file).";
             list.push_back(std::move(str));
@@ -662,7 +662,7 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
 
             static const std::string DispatcherSuffix("MsgDispatcher");
             auto dispatcherName = comms::genClassName(name) + DispatcherSuffix;
-            auto dispatcherScope = comms::genScopeForDispatch(dispatcherName, m_generator, ns);
+            auto dispatcherScope = comms::genScopeForDispatch(dispatcherName, m_commsGenerator, ns);
             auto dispatcherDefaultScope = dispatcherScope + strings::genDefaultOptionsStr();
             auto dispatcherStr =
                 "/// @li @ref " + dispatcherScope + "\n/// (defined in @b " + file + " header file).";
@@ -676,23 +676,23 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
         [&addToListFunc](const std::string& platform, const commsdsl::gen::GenNamespace& ns)
         {
             addToListFunc(platform, ns);
-            addToListFunc(platform + ServerInputPrefixStr, ns);
-            addToListFunc(platform + ClientInputPrefixStr, ns);
+            addToListFunc(platform + CommsServerInputPrefixStr, ns);
+            addToListFunc(platform + CommsClientInputPrefixStr, ns);
         };
 
-    auto allNamespaces = m_generator.genGetAllNamespaces();
+    auto allNamespaces = m_commsGenerator.genGetAllNamespaces();
     for (auto& ns : allNamespaces) {
         if (!ns->genHasFramesRecursive()) {
             continue;
         }
         
         addPlatformFunc(strings::genEmptyString(), *ns);
-        for (auto& p : m_generator.genCurrentSchema().platformNames()) {
+        for (auto& p : m_commsGenerator.genCurrentSchema().platformNames()) {
             addPlatformFunc(comms::genClassName(p), *ns);
         }
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"LIST", util::genStrListToString(list, "\n", "")},
         {"DISPATCHERS_LIST", util::genStrListToString(dispatcherList, "\n", "")},
     };
@@ -797,22 +797,22 @@ std::string CommsDoxygen::commsCustomizeDocInternal() const
         "/// @endcode"
         ;
 
-    auto allInterfaces = m_generator.genGetAllInterfaces();
+    auto allInterfaces = m_commsGenerator.genGetAllInterfaces();
     assert(!allInterfaces.empty());
 
-    util::ReplacementMap repl = {
-        {"INTERFACE", comms::genScopeFor(*allInterfaces.front(), m_generator)},
-        {"PROT_NAMESPACE", m_generator.genCurrentSchema().genMainNamespace()},
-        {"OPTIONS", comms::genScopeForOptions(strings::genDefaultOptionsStr(), m_generator)},
-        {"CLIENT_OPTIONS", comms::genScopeForOptions("Client" + strings::genDefaultOptionsStr(), m_generator)},
-        {"SERVER_OPTIONS", comms::genScopeForOptions("Server" + strings::genDefaultOptionsStr(), m_generator)},
-        {"OPTIONS_HDR", comms::genRelHeaderForOptions(strings::genDefaultOptionsStr(), m_generator)},
-        {"CLIENT_OPTIONS_HDR", comms::genRelHeaderForOptions("Client" + strings::genDefaultOptionsStr(), m_generator)},
-        {"SERVER_OPTIONS_HDR", comms::genRelHeaderForOptions("Server" + strings::genDefaultOptionsStr(), m_generator)},
-        {"BARE_METAL_OPTIONS", comms::genScopeForOptions(strings::genBareMetalStr() + strings::genDefaultOptionsStr(), m_generator)},
-        {"BARE_METAL_OPTIONS_HDR", comms::genRelHeaderForOptions(strings::genBareMetalStr() + strings::genDefaultOptionsStr(), m_generator)},
-        {"DATA_VIEW_OPTIONS", comms::genScopeForOptions(strings::genDataViewStr() + strings::genDefaultOptionsStr(), m_generator)},
-        {"DATA_VIEW_OPTIONS_HDR", comms::genRelHeaderForOptions(strings::genDataViewStr() + strings::genDefaultOptionsStr(), m_generator)},
+    util::GenReplacementMap repl = {
+        {"INTERFACE", comms::genScopeFor(*allInterfaces.front(), m_commsGenerator)},
+        {"PROT_NAMESPACE", m_commsGenerator.genCurrentSchema().genMainNamespace()},
+        {"OPTIONS", comms::genScopeForOptions(strings::genDefaultOptionsStr(), m_commsGenerator)},
+        {"CLIENT_OPTIONS", comms::genScopeForOptions("Client" + strings::genDefaultOptionsStr(), m_commsGenerator)},
+        {"SERVER_OPTIONS", comms::genScopeForOptions("Server" + strings::genDefaultOptionsStr(), m_commsGenerator)},
+        {"OPTIONS_HDR", comms::genRelHeaderForOptions(strings::genDefaultOptionsStr(), m_commsGenerator)},
+        {"CLIENT_OPTIONS_HDR", comms::genRelHeaderForOptions("Client" + strings::genDefaultOptionsStr(), m_commsGenerator)},
+        {"SERVER_OPTIONS_HDR", comms::genRelHeaderForOptions("Server" + strings::genDefaultOptionsStr(), m_commsGenerator)},
+        {"BARE_METAL_OPTIONS", comms::genScopeForOptions(strings::genBareMetalStr() + strings::genDefaultOptionsStr(), m_commsGenerator)},
+        {"BARE_METAL_OPTIONS_HDR", comms::genRelHeaderForOptions(strings::genBareMetalStr() + strings::genDefaultOptionsStr(), m_commsGenerator)},
+        {"DATA_VIEW_OPTIONS", comms::genScopeForOptions(strings::genDataViewStr() + strings::genDefaultOptionsStr(), m_commsGenerator)},
+        {"DATA_VIEW_OPTIONS_HDR", comms::genRelHeaderForOptions(strings::genDataViewStr() + strings::genDefaultOptionsStr(), m_commsGenerator)},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -820,7 +820,7 @@ std::string CommsDoxygen::commsCustomizeDocInternal() const
 
 std::string CommsDoxygen::commsVersionDocInternal() const
 {
-    if (!m_generator.genCurrentSchema().genVersionDependentCode()) {
+    if (!m_commsGenerator.genCurrentSchema().genVersionDependentCode()) {
         return strings::genEmptyString();
     }
 
@@ -854,15 +854,15 @@ std::string CommsDoxygen::commsVersionDocInternal() const
         "///     msg.doRefresh(); // will update exists/missing state of every dependent field\n"
         "/// @endcode";
 
-    util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", m_generator.genCurrentSchema().genMainNamespace()},
+    util::GenReplacementMap repl = {
+        {"PROT_NAMESPACE", m_commsGenerator.genCurrentSchema().genMainNamespace()},
     };
     return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsDoxygen::commsPlatformsDocInternal() const
 {
-    auto platforms = m_generator.genCurrentSchema().platformNames();
+    auto platforms = m_commsGenerator.genCurrentSchema().platformNames();
     if (platforms.empty()) {
         return strings::genEmptyString();
     }
@@ -874,7 +874,7 @@ std::string CommsDoxygen::commsPlatformsDocInternal() const
         "///";
 
     util::GenStringsList list;
-    auto allNamespaces = m_generator.genGetAllNamespaces();
+    auto allNamespaces = m_commsGenerator.genGetAllNamespaces();
     for (auto* ns : allNamespaces) {
         if ((!ns->genHasFramesRecursive()) || 
             (!ns->genHasMessagesRecursive())) {
@@ -886,8 +886,8 @@ std::string CommsDoxygen::commsPlatformsDocInternal() const
                 [this, &p, &list, ns](const std::string& type)
                 {
                     auto name = comms::genClassName(p) + type + "InputMessages";
-                    auto scope = comms::genScopeForInput(name, m_generator, *ns);
-                    auto file = comms::genRelHeaderForInput(name, m_generator, *ns);
+                    auto scope = comms::genScopeForInput(name, m_commsGenerator, *ns);
+                    auto file = comms::genRelHeaderForInput(name, m_commsGenerator, *ns);
                     auto str = "/// @li @ref " + scope + " (from @b " + file + ").";
                     list.push_back(std::move(str));
                 };
@@ -901,7 +901,7 @@ std::string CommsDoxygen::commsPlatformsDocInternal() const
         return strings::genEmptyString();
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"LIST", util::genStrListToString(list, "\n", "")}
     };
     return util::genProcessTemplate(Templ, repl);

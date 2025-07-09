@@ -57,7 +57,7 @@ std::string EmscriptenIntField::emscriptenHeaderExtraPublicFuncsImpl() const
         "#^#DISPLAY_DECIMALS#$#\n"
         "#^#SCALED#$#\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SPECIALS", emscriptenHeaderSpecialsInternal()},
         {"DISPLAY_DECIMALS", emscriptenHeaderDisplayDecimalsInternal()},
         {"SCALED", emscriptenHeaderScaledInternal()},
@@ -73,7 +73,7 @@ std::string EmscriptenIntField::emscriptenSourceBindFuncsImpl() const
         "#^#DISPLAY_DECIMALS#$#\n"
         "#^#SCALED#$#\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SPECIALS", emscriptenSourceSpecialsBindInternal()},
         {"DISPLAY_DECIMALS", emscriptenSourceDisplayDecimalsBindInternal()},
         {"SCALED", emscriptenSourceScaledBindInternal()},
@@ -111,7 +111,7 @@ std::string EmscriptenIntField::emscriptenHeaderSpecialsInternal() const
             "}\n"
         ;
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"SPEC_ACC", comms::genClassName(s.first)},
         };
 
@@ -171,7 +171,7 @@ std::string EmscriptenIntField::emscriptenSourceSpecialsBindInternal() const
 
     util::GenStringsList specialsList;
     auto& gen = EmscriptenGenerator::cast(genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}
     };
 
@@ -208,7 +208,7 @@ std::string EmscriptenIntField::emscriptenSourceDisplayDecimalsBindInternal() co
         static const std::string Templ = 
             ".class_function(\"displayDecimals\", &#^#CLASS_NAME#$#::displayDecimals)";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"CLASS_NAME", emscriptenBindClassName()}
         };
 
@@ -233,7 +233,7 @@ std::string EmscriptenIntField::emscriptenSourceScaledBindInternal() const
         ".function(\"getScaled\", &#^#CLASS_NAME#$#::getScaled)\n"
         ".function(\"setScaled\", &#^#CLASS_NAME#$#::setScaled)";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}
     };
 

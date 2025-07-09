@@ -109,8 +109,8 @@ void readCustomCodeInternal(const std::string& codePath, std::string& code)
 } // namespace 
     
 
-CommsInterface::CommsInterface(CommsGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent)
+CommsInterface::CommsInterface(CommsGenerator& generator, commsdsl::parse::ParseInterface parseObj, commsdsl::gen::GenElem* parent) :
+    Base(generator, parseObj, parent)
 {
 }   
 
@@ -126,7 +126,7 @@ const CommsField* CommsInterface::findValidReferencedField(const std::string& re
             m_commsFields.begin(), m_commsFields.end(),
             [&fieldName](auto* f)
             {
-                return fieldName == f->field().genParseObj().parseName();
+                return fieldName == f->commsGenField().genParseObj().parseName();
             });
 
     if (iter == m_commsFields.end()) {
@@ -138,7 +138,7 @@ const CommsField* CommsInterface::findValidReferencedField(const std::string& re
         restAcc = refStr.substr(dotPos + 1);
     }
 
-    auto info = (*iter)->field().genProcessInnerRef(restAcc);
+    auto info = (*iter)->commsGenField().genProcessInnerRef(restAcc);
 
     if ((info.m_field != nullptr) &&
         (info.m_valueName.empty()) &&
@@ -256,7 +256,7 @@ bool CommsInterface::commsWriteCommonInternal() const
         "};\n"
         "#^#NS_END#$#\n";
 
-    util::ReplacementMap repl =  {
+    util::GenReplacementMap repl =  {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"CLASS_NAME", m_name},
         {"SCOPE", comms::genScopeFor(*this, gen)},
@@ -305,7 +305,7 @@ bool CommsInterface::commsWriteDefInternal() const
     }
 
     auto obj = genParseObj();
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"CLASS_NAME", m_name},
         {"INCLUDES", commsDefIncludesInternal()},
@@ -427,10 +427,10 @@ std::string CommsInterface::commsDefFieldsCodeInternal() const
     for (auto* commsField : m_commsFields) {
         assert(commsField != nullptr);
         defs.push_back(commsField->commsDefCode());
-        names.push_back(comms::genClassName(commsField->field().genParseObj().parseName()));
+        names.push_back(comms::genClassName(commsField->commsGenField().genParseObj().parseName()));
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", m_name},
         {"HEADERFILE", comms::genRelHeaderPathFor(*this, genGenerator())},
         {"FIELDS_DEF", util::genStrListToString(defs, "\n", "")},
@@ -472,7 +472,7 @@ std::string CommsInterface::commsDefBaseClassInternal() const
 
     assert(genGetParent() != nullptr);
     assert(genGetParent()->genElemType() == commsdsl::gen::GenElem::Type_Namespace);
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"ENDIAN", comms::genParseEndianToOpt(schema.genSchemaEndian())},
         {"MSG_ID_TYPE", comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), gen, *static_cast<const commsdsl::gen::GenNamespace*>(genGetParent()))},
         {"EXTRA_OPTS", commsDefExtraOptionsInternal()}
@@ -503,7 +503,7 @@ std::string CommsInterface::commsDefExtraOptionsInternal() const
             m_commsFields.begin(), m_commsFields.end(),
             [](auto& f)
             {
-                return f->field().genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Version;
+                return f->commsGenField().genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Version;
             });
 
     if (iter != m_commsFields.end()) {
@@ -526,7 +526,7 @@ std::string CommsInterface::commsDefPublicInternal() const
         "    #^#EXTRA#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CONSTRUCT", m_constructCode},
         {"ACCESS", commsDefFieldsAccessInternal()},
         {"ALIASES", commsDefFieldsAliasesInternal()},
@@ -547,7 +547,7 @@ std::string CommsInterface::commsDefProtectedInternal() const
         "    #^#CUSTOM#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CUSTOM", m_customCode.m_protected}
     };
     
@@ -565,7 +565,7 @@ std::string CommsInterface::commsDefPrivateInternal() const
         "    #^#CUSTOM#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CUSTOM", m_customCode.m_private}
     };
     
@@ -613,7 +613,7 @@ std::string CommsInterface::commsDefFieldsAccessInternal() const
         docs.push_back(std::move(doc));
     }
     
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"DOC", util::genStrListToString(docs, "\n", "")},
         {"NAMES", util::genStrListToString(names, ",\n", "")},
     };
@@ -655,7 +655,7 @@ std::string CommsInterface::commsDefFieldsAliasesInternal() const
             desc = util::genStrReplace(desc, "\n", "\n" + strings::genDoxygenPrefixStr() + strings::genIndentStr());
         }        
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"ALIAS_DESC", std::move(desc)},
             {"ALIAS_NAME", comms::genAccessName(a.parseName())},
             {"ALIASED_FIELD_DOC", util::genStrListToString(fieldSubNames, "().transportField_", "()")},

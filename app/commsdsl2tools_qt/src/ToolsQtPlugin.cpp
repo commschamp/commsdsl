@@ -137,7 +137,7 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         "#^#TOP_NS_END#$#\n\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS_BEGIN", m_generator.toolsNamespaceBegin()},
         {"TOP_NS_END", m_generator.toolsNamespaceEnd()},
@@ -222,7 +222,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         "#^#TOP_NS_END#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS_BEGIN", m_generator.toolsNamespaceBegin()},
         {"TOP_NS_END", m_generator.toolsNamespaceEnd()},
@@ -309,7 +309,7 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
     ;
 
     assert(!m_pluginId.empty());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS_BEGIN", m_generator.toolsNamespaceBegin()},
         {"TOP_NS_END", m_generator.toolsNamespaceEnd()},        
@@ -389,7 +389,7 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
         "#^#TOP_NS_END#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS_BEGIN", m_generator.toolsNamespaceBegin()},
         {"TOP_NS_END", m_generator.toolsNamespaceEnd()},  
@@ -458,7 +458,7 @@ bool ToolsQtPlugin::toolsWritePluginJsonInternal()
         desc = util::genStrReplace(desc, "\n", "\",\n\"");
     }        
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAME", std::move(name)},
         {"DESC", std::move(desc)},
     };        
@@ -503,7 +503,7 @@ bool ToolsQtPlugin::toolsWritePluginConfigInternal()
         "    ]\n"
         "}\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"ID", m_pluginId},
     };        
 

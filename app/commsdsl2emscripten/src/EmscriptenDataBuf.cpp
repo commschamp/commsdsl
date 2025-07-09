@@ -100,7 +100,7 @@ bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
         "#^#CLASS_NAME#$# #^#JS_ARRAY#$#(const emscripten::val& buf);\n"
         ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"CLASS_NAME", emscriptenClassName(m_generator)},
         {"MEM_VIEW", emscriptenMemViewFuncName()},
@@ -154,7 +154,7 @@ bool EmscriptenDataBuf::emscriptenWriteSrcInternal() const
         "}\n"
         ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"HEADER", emscriptenRelHeader(m_generator)},
         {"CLASS_NAME", emscriptenClassName(m_generator)},

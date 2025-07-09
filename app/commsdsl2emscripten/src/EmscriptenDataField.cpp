@@ -55,7 +55,7 @@ std::string EmscriptenDataField::emscriptenHeaderExtraPublicFuncsImpl() const
         "    Base::value() = #^#JS_ARRAY_FUNC#$#(jsArray);"
         "}\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"JS_ARRAY_FUNC", EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()},
     };
 
@@ -73,7 +73,7 @@ std::string EmscriptenDataField::emscriptenSourceBindFuncsImpl() const
         ".function(\"assignJsArray\", &#^#CLASS_NAME#$#::assignJsArray)"
         ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}
     };
 

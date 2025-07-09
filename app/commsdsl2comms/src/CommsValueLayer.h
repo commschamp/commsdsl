@@ -28,12 +28,12 @@ class CommsValueLayer final : public commsdsl::gen::GenValueLayer, public CommsL
     using Base = commsdsl::gen::GenValueLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsValueLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
+    CommsValueLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent);
 
 protected:
     virtual bool genPrepareImpl() override;
     // CommsBase overrides
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
 
 private:

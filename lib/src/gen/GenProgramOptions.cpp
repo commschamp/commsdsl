@@ -160,7 +160,7 @@ public:
             "Options:\n"
             "  #^#OPTS_LIST#$#\n";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             std::make_pair("OPTS_LIST", util::genStrListToString(opts, "\n"))
         };
         

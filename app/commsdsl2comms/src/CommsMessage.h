@@ -33,9 +33,9 @@ class CommsMessage final: public commsdsl::gen::GenMessage
     using Base = commsdsl::gen::GenMessage;
 public:
     using CommsFieldsList = CommsField::CommsFieldsList;
-    using StringsList = commsdsl::gen::util::GenStringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    explicit CommsMessage(CommsGenerator& generator, commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent);
+    explicit CommsMessage(CommsGenerator& generator, commsdsl::parse::ParseMessage parseObj, commsdsl::gen::GenElem* parent);
     virtual ~CommsMessage();
 
     const CommsFieldsList& commsFields() const
@@ -54,8 +54,8 @@ protected:
     virtual bool genWriteImpl() const override;
 
 private:
-    using FieldOptsFunc = std::string (CommsField::*)() const;
-    using ExtraMessageOptsFunc = StringsList (CommsMessage::*)() const;
+    using CommsFieldOptsFunc = std::string (CommsField::*)() const;
+    using ExtraMessageOptsFunc = GenStringsList (CommsMessage::*)() const;
 
     struct CustomCode
     {
@@ -116,15 +116,15 @@ private:
     std::string commsDefPrivateConstructInternal() const;
     bool commsIsCustomizableInternal() const;
     std::string commsCustomizationOptionsInternal(
-        FieldOptsFunc fieldOptsFunc,
+        CommsFieldOptsFunc fieldOptsFunc,
         ExtraMessageOptsFunc extraMessageOptsFunc,
         bool hasBase) const;
     std::string commsDefReadConditionsCodeInternal() const;
     std::string commsDefOrigValidCodeInternal() const;
     std::string commsDefValidFuncInternal() const;
 
-    StringsList commsClientExtraCustomizationOptionsInternal() const;
-    StringsList commsServerExtraCustomizationOptionsInternal() const;
+    GenStringsList commsClientExtraCustomizationOptionsInternal() const;
+    GenStringsList commsServerExtraCustomizationOptionsInternal() const;
     void commsPrepareConstructCodeInternal();
 
     CommsFieldsList m_commsFields;  

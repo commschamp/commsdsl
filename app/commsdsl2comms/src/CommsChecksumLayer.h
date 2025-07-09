@@ -25,16 +25,20 @@ namespace commsdsl2comms
 class CommsGenerator;
 class CommsChecksumLayer final : public commsdsl::gen::GenChecksumLayer, public CommsLayer
 {
-    using Base = commsdsl::gen::GenChecksumLayer;
+    using GenBase = commsdsl::gen::GenChecksumLayer;
     using CommsBase = CommsLayer;
+
 public:
-    CommsChecksumLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    CommsChecksumLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
     virtual bool genPrepareImpl() override;
     
     // CommsBase overrides
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
 
 private:

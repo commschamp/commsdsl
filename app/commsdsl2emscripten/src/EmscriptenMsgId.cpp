@@ -75,7 +75,7 @@ bool EmscriptenMsgId::emscriptenWrite() const
         "}\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"NAME", name},
         {"SCOPE", comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), m_generator, m_parent)},
@@ -123,7 +123,7 @@ std::string EmscriptenMsgId::emscriptenIdsInternal() const
     static const std::string Templ = 
         ".value(\"#^#MSG#$#\", #^#SCOPE#$#_#^#MSG#$#)";
             
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SCOPE", comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), m_generator, m_parent)}   
     };
 

@@ -135,7 +135,7 @@ bool ToolsQtInterface::toolsWriteHeaderInternal() const
 
     comms::genPrepareIncludeStatement(includes);    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
         {"NS_BEGIN", comms::genNamespaceBeginFor(*this, gen)},
@@ -180,7 +180,7 @@ bool ToolsQtInterface::toolsWriteSrcInternal() const
         "#^#TOP_NS_END#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"CLASS_NAME", comms::genClassName(toolsNameInternal())},
         {"NS_BEGIN", comms::genNamespaceBeginFor(*this, gen)},
@@ -210,7 +210,7 @@ std::string ToolsQtInterface::toolsHeaderCodeInternal() const
         "};\n";
 
     auto& gen = ToolsQtGenerator::cast(genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(toolsNameInternal())},
         {"INTERFACE", comms::genScopeFor(*this, gen)},
         {"OPTIONS", ToolsQtDefaultOptions::toolsClassScope(gen)},
@@ -233,7 +233,7 @@ std::string ToolsQtInterface::toolsSrcCodeInternal() const
         "#^#ID_FUNC#$#\n"
         ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(toolsNameInternal())},
     };
 

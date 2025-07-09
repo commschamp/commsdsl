@@ -72,7 +72,7 @@ std::string EmscriptenValueLayer::emscriptenSourceExtraFuncsImpl() const
         ".function(\"pseudoField\", &#^#CLASS_NAME#$#::pseudoField, emscripten::allow_raw_pointers())";
 
     auto& gen = EmscriptenGenerator::cast(genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(*this)}
     };
 

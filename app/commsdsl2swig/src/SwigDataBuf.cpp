@@ -54,7 +54,7 @@ void SwigDataBuf::swigAddDef(const SwigGenerator& generator, StringsList& list)
         "%template(#^#CLASS_NAME#$#) std::vector<#^#UINT8_T#$#>;\n"
         "%feature(\"valuewrapper\") #^#CLASS_NAME#$#;";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", swigClassName(generator)},
         {"UINT8_T", SwigGenerator::cast(generator).swigConvertCppType("std::uint8_t")}
     };
@@ -69,7 +69,7 @@ void SwigDataBuf::swigAddCode(const SwigGenerator& generator, StringsList& list)
     const std::string Templ = 
         "using #^#CLASS_NAME#$# = std::vector<#^#UINT8_T#$#>;\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", swigClassName(generator)},
         {"UINT8_T", SwigGenerator::cast(generator).swigConvertCppType("std::uint8_t")}
     };
@@ -106,7 +106,7 @@ bool SwigDataBuf::swigWriteInternal() const
         "using #^#CLASS_NAME#$# = std::vector<#^#UINT8_T#$#>;\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
         {"CLASS_NAME", swigClassName(m_generator)},
         {"UINT8_T", SwigGenerator::cast(m_generator).swigConvertCppType("std::uint8_t")}

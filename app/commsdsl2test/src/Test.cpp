@@ -35,7 +35,7 @@ namespace commsdsl2test
 namespace 
 {
 
-using ReplacementMap = commsdsl::gen::util::ReplacementMap;
+using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
 
 } // namespace 
     
@@ -60,7 +60,7 @@ bool Test::writeInputTest() const
         return false;
     }
 
-    ReplacementMap repl = {
+    GenReplacementMap repl = {
         std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()),
     };
     

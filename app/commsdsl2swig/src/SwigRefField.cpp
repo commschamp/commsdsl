@@ -58,7 +58,7 @@ std::string SwigRefField::swigExtraPublicFuncsCodeImpl() const
 
     auto& gen = SwigGenerator::cast(genGenerator());
     auto* field = SwigField::cast(genReferencedField());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"REF_TYPE", gen.swigClassName(field->field())},
         {"BASE_TYPE", field->swigTemplateScope()},
     };    
@@ -74,7 +74,7 @@ std::string SwigRefField::swigPublicDeclImpl() const
         "#^#FUNCS#$#\n";   
 
     auto& gen = SwigGenerator::cast(genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"REF_TYPE", gen.swigClassName(*genReferencedField())},
         {"FUNCS", swigCommonPublicFuncsDecl()}
     };

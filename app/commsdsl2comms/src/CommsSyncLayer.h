@@ -28,13 +28,13 @@ class CommsSyncLayer final : public commsdsl::gen::GenSyncLayer, public CommsLay
     using Base = commsdsl::gen::GenSyncLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsSyncLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
+    CommsSyncLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent);
 
 protected:
     virtual bool genPrepareImpl() override;
     
     // CommsBase overrides
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
 };
 

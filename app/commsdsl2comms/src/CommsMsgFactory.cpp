@@ -60,7 +60,7 @@ std::string commsDynMemAllocCodeFuncInternal(const commsdsl::gen::GenMessage& ms
         static const std::string Templ = 
             "return MsgPtr(new #^#MSG_TYPE#$#<TInterface, TProtOptions>);";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"MSG_TYPE", comms::genScopeFor(msg, generator)},
         };            
 
@@ -72,7 +72,7 @@ std::string commsDynMemAllocCodeFuncInternal(const commsdsl::gen::GenMessage& ms
         "    return MsgPtr(new #^#MSG_TYPE#$#<TInterface, TProtOptions>);\n"
         "}";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"MSG_TYPE", comms::genScopeFor(msg, generator)},
         {"IDX", util::genNumToString(static_cast<std::intmax_t>(idx))},
     };            
@@ -121,7 +121,7 @@ std::string commsGetMsgAllocCodeInternal(
             static const std::string CaseTempl = 
                 "case #^#ID#$#: #^#CODE#$#";
 
-            util::ReplacementMap caseRepl = {
+            util::GenReplacementMap caseRepl = {
                 {"ID", util::genNumToStringWithHexComment(elem.first)},
                 {"CODE", func(*elem.second.front(), generator, -1)},
             };
@@ -141,7 +141,7 @@ std::string commsGetMsgAllocCodeInternal(
             "    break;\n"
             ;
 
-        util::ReplacementMap caseRepl = {
+        util::GenReplacementMap caseRepl = {
             {"ID", util::genNumToStringWithHexComment(elem.first)},
             {"CODE", util::genStrListToString(allocs, "\n", "")},
         };
@@ -149,7 +149,7 @@ std::string commsGetMsgAllocCodeInternal(
         cases.push_back(util::genProcessTemplate(CaseTempl, caseRepl));
     }        
 
-    util::ReplacementMap repl {
+    util::GenReplacementMap repl {
         {"CASES", util::genStrListToString(cases, "\n", "")},
     };
 
@@ -181,7 +181,7 @@ std::string commsGetMsgCountCodeInternal(const MessagesMap& map)
         static const std::string CaseTempl = 
             "case #^#ID#$#: return #^#SIZE#$#;";
 
-        util::ReplacementMap caseRepl = {
+        util::GenReplacementMap caseRepl = {
             {"ID", util::genNumToStringWithHexComment(elem.first)},
             {"SIZE", util::genNumToString(elem.second.size())},
         };
@@ -189,7 +189,7 @@ std::string commsGetMsgCountCodeInternal(const MessagesMap& map)
         cases.push_back(util::genProcessTemplate(CaseTempl, caseRepl));
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CASES", util::genStrListToString(cases, "\n", "")}
     };
 
@@ -361,7 +361,7 @@ bool commsWriteFileInternal(
                 return elem.second.size() <= 1U;
             });
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"NS_BEGIN", comms::genNamespaceBeginFor(parent, generator)},
         {"NS_END", comms::genNamespaceEndFor(parent, generator)},         

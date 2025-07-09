@@ -88,7 +88,7 @@ bool CommsFieldBase::commsWriteInternal() const
     options.push_back(comms::genParseEndianToOpt(m_generator.genCurrentSchema().genSchemaEndian()));
     // TODO: version type
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", m_generator.genCurrentSchema().genMainNamespace()},
         {"OPTIONS", util::genStrListToString(options, ",\n", "")},

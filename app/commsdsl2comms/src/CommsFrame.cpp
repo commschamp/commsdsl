@@ -62,8 +62,8 @@ bool hasIdLayerInternal(const CommsFrame::CommsLayersList& commsLayers)
 } // namespace 
    
 
-CommsFrame::CommsFrame(CommsGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent)
+CommsFrame::CommsFrame(CommsGenerator& generator, commsdsl::parse::ParseFrame parseObj, commsdsl::gen::GenElem* parent) :
+    Base(generator, parseObj, parent)
 {
 }   
 
@@ -180,7 +180,7 @@ bool CommsFrame::commsWriteCommonInternal() const
         "};\n\n"
         "#^#NS_END#$#\n";
 
-    util::ReplacementMap repl =  {
+    util::GenReplacementMap repl =  {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"INCLUDES", commsCommonIncludesInternal()},
         {"NS_BEGIN", comms::genNamespaceBeginFor(*this, gen)},
@@ -277,7 +277,7 @@ bool CommsFrame::commsWriteDefInternal() const
         "#^#APPEND#$#\n";
 
     auto extendCode = util::genReadFileContents(inputCodePrefix + strings::genExtendFileSuffixStr());
-    util::ReplacementMap repl =  {
+    util::GenReplacementMap repl =  {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"INCLUDES", commsDefIncludesInternal()},
         {"NS_BEGIN", comms::genNamespaceBeginFor(*this, gen)},
@@ -380,7 +380,7 @@ std::string CommsFrame::commsDefLayersDefInternal() const
         "using Stack = #^#LAST_LAYER#$##^#LAST_LAYER_PARAMS#$#;\n";
 
     assert(prevLayer != nullptr);
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"LAST_LAYER", comms::genClassName(prevLayer->layer().genParseObj().parseName())}
     };
 
@@ -473,7 +473,7 @@ std::string CommsFrame::commsDefProtectedInternal() const
     "protected:\n"
     "    #^#CODE#$#\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CODE", std::move(code)},
     };
     return util::genProcessTemplate(Templ, repl);
@@ -490,7 +490,7 @@ std::string CommsFrame::commsDefPrivateInternal() const
     "private:\n"
     "    #^#CODE#$#\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CODE", std::move(code)},
     };
     return util::genProcessTemplate(Templ, repl);
@@ -521,7 +521,7 @@ std::string CommsFrame::commsCustomizationOptionsInternal(
         "    #^#LAYERS_OPTS#$#\n"
         "}; // struct #^#NAME#$##^#SUFFIX#$#\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SCOPE", comms::genScopeFor(*this, genGenerator())},
         {"NAME", comms::genClassName(genParseObj().parseName())},
         {"SUFFIX", strings::genLayersSuffixStr()},

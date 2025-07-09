@@ -111,7 +111,7 @@ std::string cmpToString(double val, commsdsl::parse::ParseFloatField::ParseType 
         else {
             comp = "0 < Base::getValue()";
         }
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"COMP", std::move(comp)}
         };
         return util::genProcessTemplate(Templ, repl);
@@ -152,7 +152,7 @@ void addCondition(util::GenStringsList& condList, std::string&& str)
         "    return true;\n"
         "}\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"COND", std::move(str)},
     };
 
@@ -177,7 +177,7 @@ void addRangeComparison(
         templ = &ValueComparisonTemplate;
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"MIN", genValueToString(min, type)},
         {"MAX", genValueToString(max, type)},
     };
@@ -190,9 +190,9 @@ void addRangeComparison(
 
 CommsFloatField::CommsFloatField(
     CommsGenerator& generator, 
-    commsdsl::parse::ParseField dslObj, 
+    commsdsl::parse::ParseField parseObj, 
     commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent),
+    Base(generator, parseObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {
 }
@@ -207,9 +207,9 @@ bool CommsFloatField::genWriteImpl() const
     return commsWrite();
 }
 
-CommsFloatField::IncludesList CommsFloatField::commsCommonIncludesImpl() const
+CommsFloatField::CommsIncludesList CommsFloatField::commsCommonIncludesImpl() const
 {
-    IncludesList result;
+    CommsIncludesList result;
 
     auto& specials = genSpecialsSortedByValue();
     bool hasLimits =
@@ -241,10 +241,10 @@ std::string CommsFloatField::commsCommonCodeBodyImpl() const
     ;
 
     auto& gen = genGenerator();
-    auto dslObj = genFloatFieldParseObj();
-    util::ReplacementMap repl = {
+    auto parseObj = genFloatFieldParseObj();
+    util::GenReplacementMap repl = {
         {"SCOPE", comms::genScopeFor(*this, gen)},
-        {"VALUE_TYPE", comms::genCppFloatTypeFor(dslObj.parseType())},
+        {"VALUE_TYPE", comms::genCppFloatTypeFor(parseObj.parseType())},
         {"NAME_FUNC", commsCommonNameFuncCode()},
         {"HAS_SPECIAL_FUNC", commsCommonHasSpecialsFuncCodeInternal()}
     };
@@ -271,16 +271,16 @@ std::string CommsFloatField::commsDefConstructCodeImpl() const
     static const std::string Templ =
         "Base::setValue(#^#VAL#$#);\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"VAL", genValueToString(defaultValue, obj.parseType())}
     };
 
     return util::genProcessTemplate(Templ, repl);
 }
 
-CommsFloatField::IncludesList CommsFloatField::commsDefIncludesImpl() const
+CommsFloatField::CommsIncludesList CommsFloatField::commsDefIncludesImpl() const
 {
-    IncludesList result = {
+    CommsIncludesList result = {
         "comms/field/FloatValue.h"
     };
 
@@ -324,11 +324,11 @@ std::string CommsFloatField::commsDefBaseClassImpl() const
         ">";    
 
     auto& gen = genGenerator();
-    auto dslObj = genFloatFieldParseObj();
-    util::ReplacementMap repl = {
+    auto parseObj = genFloatFieldParseObj();
+    util::GenReplacementMap repl = {
         {"PROT_NAMESPACE", gen.genSchemaOf(*this).genMainNamespace()},
-        {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.parseEndian())},
-        {"FIELD_TYPE", comms::genCppFloatTypeFor(dslObj.parseType())},
+        {"FIELD_BASE_PARAMS", commsFieldBaseParams(parseObj.parseEndian())},
+        {"FIELD_TYPE", comms::genCppFloatTypeFor(parseObj.parseType())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };
 
@@ -351,7 +351,7 @@ std::string CommsFloatField::commsDefPublicCodeImpl() const
         "#^#DISPLAY_DECIMALS#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SPECIAL_VALUE_NAMES_MAP_DEFS", commsDefValueNamesMapCodeInternal()},
         {"HAS_SPECIALS", commsDefHasSpecialsFuncCodeInternal()},
         {"SPECIALS", commsDefSpecialsCodeInternal()},
@@ -375,7 +375,7 @@ std::string CommsFloatField::commsDefValidFuncBodyImpl() const
         genGenerator().genSchemaOf(*this).genVersionDependentCode() &&
         obj.parseValidCheckVersion();
 
-    StringsList conditions;
+    GenStringsList conditions;
     do {
         if (!validCheckVersion) {
             conditions = commsValidNormalConditionsInternal();
@@ -408,7 +408,7 @@ std::string CommsFloatField::commsDefValidFuncBodyImpl() const
         "#^#CONDITIONS#$#\n"
         "return false;";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CONDITIONS", util::genStrListToString(conditions, "\n", "")}
     };
     return util::genProcessTemplate(Templ, repl);
@@ -452,7 +452,7 @@ bool CommsFloatField::commsVerifyInnerRefImpl(const std::string& refStr) const
 std::string CommsFloatField::commsCommonHasSpecialsFuncCodeInternal() const
 {
     auto& specials = genSpecialsSortedByValue();    
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"VALUE", util::genBoolToString(!specials.empty())}
     };
 
@@ -466,7 +466,7 @@ std::string CommsFloatField::commsCommonValueNamesMapCodeInternal() const
         return strings::genEmptyString();
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"INFO_DEF", "std::pair<ValueType, const char*>"},
         {"MAP_DEF", "std::pair<const SpecialNameInfo*, std::size_t>"}
     };
@@ -504,7 +504,7 @@ std::string CommsFloatField::commsCommonSpecialsCodeInternal() const
             desc = util::genStrReplace(desc, "\n", "\n///     ");
         }
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"SPEC_NAME", s.first},
             {"SPEC_ACC", comms::genClassName(s.first)},
             {"SPEC_VAL", genValueToString(s.second.m_value, genFloatFieldParseObj().parseType())},
@@ -540,14 +540,14 @@ std::string CommsFloatField::commsCommonSpecialNamesMapCodeInternal() const
         static const std::string SpecTempl = 
             "std::make_pair(value#^#SPEC_ACC#$#(), \"#^#SPEC_NAME#$#\")";
 
-        util::ReplacementMap specRepl = {
+        util::GenReplacementMap specRepl = {
             {"SPEC_ACC", comms::genClassName(s.first)},
             {"SPEC_NAME", s.first}
         };
         specialInfos.push_back(util::genProcessTemplate(SpecTempl, specRepl));
     }
 
-    util::ReplacementMap repl {
+    util::GenReplacementMap repl {
         {"INFOS", util::genStrListToString(specialInfos, ",\n", "")}
     };
 
@@ -590,7 +590,7 @@ std::string CommsFloatField::commsDefSpecialsCodeInternal() const
             "}\n"            
         );
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"SPEC_NAME", s.first},
             {"SPEC_ACC", comms::genClassName(s.first)},
             {"COMMON", comms::genCommonScopeFor(*this, genGenerator())},
@@ -617,7 +617,7 @@ std::string CommsFloatField::commsDefSpecialNamesMapCodeInternal() const
         "    return #^#COMMON#$#::specialNamesMap();\n"
         "}\n";    
 
-    util::ReplacementMap repl {
+    util::GenReplacementMap repl {
         {"COMMON", comms::genCommonScopeFor(*this, genGenerator())}
     };
 
@@ -634,7 +634,7 @@ std::string CommsFloatField::commsDefDisplayDecimalsCodeInternal() const
         "    return #^#DISPLAY_DECIMALS#$#;\n"
         "}";
         
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"DISPLAY_DECIMALS", util::genNumToString(genFloatFieldParseObj().parseDisplayDecimals())}
     };
 
@@ -662,7 +662,7 @@ std::string CommsFloatField::commsDefValueNamesMapCodeInternal() const
 
     auto scope = comms::genCommonScopeFor(*this, genGenerator());
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"INFO_DEF", scope + "::SpecialNameInfo"},
         {"MAP_DEF", scope + "::SpecialNamesMapInfo"}
     };
@@ -672,14 +672,14 @@ std::string CommsFloatField::commsDefValueNamesMapCodeInternal() const
 
 std::string CommsFloatField::commsDefHasSpecialsFuncCodeInternal() const
 {
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"VALUE", comms::genCommonScopeFor(*this, genGenerator()) + "::hasSpecials()"}
     };
 
     return util::genProcessTemplate(hasSpecialsFuncTempl(), repl);
 }
 
-void CommsFloatField::commsAddUnitsOptInternal(StringsList& opts) const
+void CommsFloatField::commsAddUnitsOptInternal(GenStringsList& opts) const
 {
     auto obj = genFloatFieldParseObj();
     auto units = obj.parseUnits();
@@ -689,7 +689,7 @@ void CommsFloatField::commsAddUnitsOptInternal(StringsList& opts) const
     }
 }
 
-void CommsFloatField::commsAddVersionOptInternal(StringsList& opts) const
+void CommsFloatField::commsAddVersionOptInternal(GenStringsList& opts) const
 {
     auto obj = genFloatFieldParseObj();
     bool validCheckVersion =
@@ -720,7 +720,7 @@ void CommsFloatField::commsAddVersionOptInternal(StringsList& opts) const
     }
 }
 
-void CommsFloatField::commsAddInvalidOptInternal(StringsList& opts) const
+void CommsFloatField::commsAddInvalidOptInternal(GenStringsList& opts) const
 {
     auto obj = genFloatFieldParseObj();
 
@@ -729,7 +729,7 @@ void CommsFloatField::commsAddInvalidOptInternal(StringsList& opts) const
     }
 }
 
-CommsFloatField::StringsList CommsFloatField::commsValidNormalConditionsInternal() const
+CommsFloatField::GenStringsList CommsFloatField::commsValidNormalConditionsInternal() const
 {
     util::GenStringsList conditions;
     auto obj = genFloatFieldParseObj();
@@ -748,7 +748,7 @@ CommsFloatField::StringsList CommsFloatField::commsValidNormalConditionsInternal
     return conditions;
 }
 
-CommsFloatField::StringsList CommsFloatField::commsValidVersionBasedConditionsInternal() const
+CommsFloatField::GenStringsList CommsFloatField::commsValidVersionBasedConditionsInternal() const
 {
     auto obj = genFloatFieldParseObj();
     auto validRanges = obj.parseValidRanges(); // copy
@@ -794,7 +794,7 @@ CommsFloatField::StringsList CommsFloatField::commsValidVersionBasedConditionsIn
 
     auto type = obj.parseType();
 
-    StringsList conditions;
+    GenStringsList conditions;
     for (auto iter = validRanges.begin(); iter != verDepIter; ++iter) {
         if (isLimit(iter->m_min)) {
             addCondition(conditions, cmpToString(iter->m_min, type));
@@ -819,7 +819,7 @@ CommsFloatField::StringsList CommsFloatField::commsValidVersionBasedConditionsIn
                            (elem.m_deprecatedSince != untilVersion);
                 });
 
-        StringsList innerConditions;
+        GenStringsList innerConditions;
         for (auto iter = verDepIter; iter != nextIter; ++iter) {
             if (isLimit(iter->m_min)) {
                 addCondition(innerConditions, cmpToString(iter->m_min, type));
@@ -854,7 +854,7 @@ CommsFloatField::StringsList CommsFloatField::commsValidVersionBasedConditionsIn
             templ = &FromVersionConditionTemplate;
         }
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"MIN_VERSION", util::genNumToString(fromVersion)},
             {"MAX_VERSION", util::genNumToString(untilVersion)},
             {"CONDITIONS", util::genStrListToString(innerConditions, "\n", "")},

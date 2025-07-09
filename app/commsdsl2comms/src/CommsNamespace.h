@@ -35,7 +35,7 @@ class CommsNamespace final: public commsdsl::gen::GenNamespace
     using Base = commsdsl::gen::GenNamespace;
 
 public:
-    explicit CommsNamespace(CommsGenerator& generator, commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent);
+    explicit CommsNamespace(CommsGenerator& generator, commsdsl::parse::ParseNamespace parseObj, commsdsl::gen::GenElem* parent);
     virtual ~CommsNamespace();
 
     static const CommsNamespace* cast(const commsdsl::gen::GenNamespace* ptr)
@@ -68,14 +68,14 @@ protected:
 
 private:
     using NamespaceOptsFunc = std::string (CommsNamespace::*)() const;
-    using FieldOptsFunc = std::string (CommsField::*)() const;
+    using CommsFieldOptsFunc = std::string (CommsField::*)() const;
     using MessageOptsFunc = std::string (CommsMessage::*)() const;
     using FrameOptsFunc = std::string (CommsFrame::*)() const;
     using CommsFieldsList = CommsField::CommsFieldsList;
 
     std::string commsOptionsInternal(
         NamespaceOptsFunc nsOptsFunc,
-        FieldOptsFunc fieldOptsFunc,
+        CommsFieldOptsFunc fieldOptsFunc,
         MessageOptsFunc messageOptsFunc,
         FrameOptsFunc frameOptsFunc,
         bool hasBase) const;

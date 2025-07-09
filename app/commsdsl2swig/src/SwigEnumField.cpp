@@ -74,7 +74,7 @@ SwigEnumField::StringsList SwigEnumField::swigEnumValues() const
         std::string valStr = genValueToString(v.first);
 
         assert(!valStr.empty());
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"NAME", *v.second},
             {"VALUE", std::move(valStr)},
         };
@@ -119,7 +119,7 @@ std::string SwigEnumField::swigValueTypeDeclImpl() const
     ;    
 
     auto values = swigEnumValues();
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"TYPE", gen.swigConvertIntType(genEnumFieldParseObj().parseType(), genEnumFieldParseObj().parseMaxLength())},
         {"VALUES", util::genStrListToString(values, "\n", "")}
     };
@@ -135,7 +135,7 @@ std::string SwigEnumField::swigExtraPublicFuncsDeclImpl() const
 
     auto& gen = SwigGenerator::cast(genGenerator());
     auto type = gen.swigConvertIntType(genEnumFieldParseObj().parseType(), genEnumFieldParseObj().parseMaxLength());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"TYPE", type}
     };
 
@@ -154,7 +154,7 @@ std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
 
     auto& gen = SwigGenerator::cast(genGenerator());
     auto type = gen.swigConvertIntType(genEnumFieldParseObj().parseType(), genEnumFieldParseObj().parseMaxLength());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"TYPE", type}
     };
 
@@ -176,7 +176,7 @@ std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
                 "}\n";            
         }
 
-        util::ReplacementMap valRepl = {
+        util::GenReplacementMap valRepl = {
             {"TYPE", swigValueTypeDeclImpl()},
         };
 

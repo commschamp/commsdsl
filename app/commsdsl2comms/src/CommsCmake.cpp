@@ -32,12 +32,12 @@ namespace commsdsl2comms
 namespace 
 {
 
-using ReplacementMap = util::ReplacementMap;
+using GenReplacementMap = util::GenReplacementMap;
 
 } // namespace 
     
 
-bool CommsCmake::write(CommsGenerator& generator)
+bool CommsCmake::commsWrite(CommsGenerator& generator)
 {
     CommsCmake obj(generator);
     return obj.commsWriteInternal();
@@ -140,7 +140,7 @@ bool CommsCmake::commsWriteInternal() const
         "endif ()\n"
     ;
     
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAME", m_generator.genProtocolSchema().genMainNamespace()},
         {"CAP_NAME", util::genStrToUpper(m_generator.genProtocolSchema().genMainNamespace())},
     };

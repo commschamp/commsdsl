@@ -182,7 +182,7 @@ bool ToolsQtFrame::toolsWriteProtTransportMsgHeaderInternal() const
             "#^#TOP_NS_END#$#\n"
             ;
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"NS_BEGIN", comms::genNamespaceBeginFor(*this, gen)},
             {"NS_END", comms::genNamespaceEndFor(*this, gen)},
@@ -246,7 +246,7 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
             "#^#TOP_NS_END#$#\n"
         ;
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"NS_BEGIN", comms::genNamespaceBeginFor(*this, gen)},
             {"NS_END", comms::genNamespaceEndFor(*this, gen)},
@@ -322,7 +322,7 @@ bool ToolsQtFrame::toolsWriteSrcInternal() const
 
         comms::genPrepareIncludeStatement(includes);
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"NS_BEGIN", comms::genNamespaceBeginFor(*this, gen)},
             {"NS_END", comms::genNamespaceEndFor(*this, gen)},
@@ -379,7 +379,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
             "#^#TOP_NS_END#$#\n"
         ;
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"NS_BEGIN", comms::genNamespaceBeginFor(*this, gen)},
             {"NS_END", comms::genNamespaceEndFor(*this, gen)},
@@ -442,7 +442,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
 
         comms::genPrepareIncludeStatement(includes);
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"NS_BEGIN", comms::genNamespaceBeginFor(*this, gen)},
             {"NS_END", comms::genNamespaceEndFor(*this, gen)},
@@ -540,7 +540,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::
         fields.push_back(lScope + "::Field");  
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
         {"SUFFIX", ProtTransportMsgSuffix},
         {"FIELDS_SUFFIX", strings::genFieldsSuffixStr()},
@@ -609,7 +609,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::
             "    return es;\n"
             "}\n";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"OFFSET", util::genNumToString(payloadOffset)},
             {"IDX", util::genNumToString(readUntilIdx)},
         };
@@ -656,7 +656,7 @@ std::string ToolsQtFrame::toolsTransportMsgHeaderDefInternal() const
         "    ImplPtr m_pImpl;\n"
         "};";    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName()) + strings::genTransportMessageSuffixStr()},
     };
 
@@ -764,7 +764,7 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::G
 
     auto& gen = ToolsQtGenerator::cast(genGenerator());
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName()) + strings::genTransportMessageSuffixStr()},
         {"TRANSPORT_MESSAGE", comms::genScopeFor(*this, gen) + ProtTransportMsgSuffix},
         {"INTERFACE", ToolsQtInterface::cast(iFace).toolsClassScope()},
@@ -826,7 +826,7 @@ std::string ToolsQtFrame::toolsFrameHeaderDefInternal() const
         "};\n"
         ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName())}
     };
 
@@ -899,7 +899,7 @@ std::string ToolsQtFrame::toolsFrameSrcDefInternal(const commsdsl::gen::GenInter
     auto* parent = genGetParent();
     assert((parent != nullptr) && (parent->genElemType() == commsdsl::gen::GenElem::Type_Namespace));
     auto* parentNs = ToolsQtNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
         {"INTERFACE", ToolsQtInterface::cast(iFace).toolsClassScope()},
         {"MSG_FACTORY", parentNs->toolsFactoryClassScope(iFace)},

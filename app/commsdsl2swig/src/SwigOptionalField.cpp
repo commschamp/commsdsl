@@ -52,7 +52,7 @@ std::string SwigOptionalField::swigDeclFuncs(const SwigGenerator& generator, con
     ;
 
     auto& gen = SwigGenerator::cast(generator);
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FIELD_TYPE", fieldType},
         {"OPT_MODE", SwigComms::swigOptionalModeClassName(gen)}
     };

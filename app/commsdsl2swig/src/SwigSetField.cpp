@@ -46,7 +46,7 @@ std::string SwigSetField::swigValueTypeDeclImpl() const
         "using ValueType = #^#TYPE#$#;\n";
 
     auto obj = genSetFieldParseObj();
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"TYPE", SwigGenerator::cast(genGenerator()).swigConvertIntType(obj.parseType(), obj.parseMaxLength())}
     };
 
@@ -67,7 +67,7 @@ std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
             "bool getBitValue_#^#NAME#$#() const;\n"
             "void setBitValue_#^#NAME#$#(bool val);";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"NAME", bitInfo.second}
         };
 
@@ -85,7 +85,7 @@ std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
         "#^#ACCESS_FUNCS#$#\n"
         ;    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"INDICES", util::genStrListToString(indices, ",\n", ",")},
         {"ACCESS_FUNCS", util::genStrListToString(accesses, "\n", "")}
     };

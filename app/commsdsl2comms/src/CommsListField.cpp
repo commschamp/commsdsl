@@ -34,9 +34,9 @@ namespace commsdsl2comms
 
 CommsListField::CommsListField(
     CommsGenerator& generator, 
-    commsdsl::parse::ParseField dslObj, 
+    commsdsl::parse::ParseField parseObj, 
     commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent),
+    Base(generator, parseObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {
 }
@@ -84,9 +84,9 @@ bool CommsListField::genWriteImpl() const
     return commsWrite();
 }
 
-CommsListField::IncludesList CommsListField::commsCommonIncludesImpl() const 
+CommsListField::CommsIncludesList CommsListField::commsCommonIncludesImpl() const 
 {
-    IncludesList result;
+    CommsIncludesList result;
     auto addIncludesFrom = 
         [&result](const CommsField* commsField)
         {
@@ -133,9 +133,9 @@ std::string CommsListField::commsCommonMembersCodeImpl() const
     return util::genStrListToString(memberDefs, "\n", "");
 }
 
-CommsListField::IncludesList CommsListField::commsDefIncludesImpl() const
+CommsListField::CommsIncludesList CommsListField::commsDefIncludesImpl() const
 {
-    IncludesList result = {
+    CommsIncludesList result = {
         "comms/field/ArrayList.h",
     };
 
@@ -147,7 +147,7 @@ CommsListField::IncludesList CommsListField::commsDefIncludesImpl() const
                 return;
             }
 
-            result.push_back(comms::genRelHeaderPathFor(commsField->field(), gen));
+            result.push_back(comms::genRelHeaderPathFor(commsField->commsGenField(), gen));
         };
 
     addExternalFieldInclude(m_commsExternalElementField);        
@@ -220,7 +220,7 @@ std::string CommsListField::commsDefBaseClassImpl() const
     "    #^#FIELD_OPTS#$#\n"
     ">";    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"PROT_NAMESPACE", genGenerator().genSchemaOf(*this).genMainNamespace()},
         {"ELEMENT", commsDefElementInternal()},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
@@ -238,7 +238,7 @@ std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
     auto obj = genListFieldParseObj();
     util::GenStringsList preps;
     auto processPrefixFunc = 
-        [this, &siblings, &preps](const std::string& prefixName, const util::ReplacementMap& replacements)
+        [this, &siblings, &preps](const std::string& prefixName, const util::GenReplacementMap& replacements)
         {
             if (prefixName.empty()) {
                 return;
@@ -256,7 +256,7 @@ std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
                     siblings.begin(), siblings.end(),
                     [&sibName](auto& f)
                     {
-                        return f->field().genParseObj().parseName() == sibName;
+                        return f->commsGenField().genParseObj().parseName() == sibName;
                     });
 
             if (iter == siblings.end()) {
@@ -267,7 +267,7 @@ std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
 
             auto repl = replacements;
             auto fieldPrefix = "field_" + repl["NAME"] + "()";
-            auto sibPrefix = "field_" + comms::genAccessName((*iter)->field().genParseObj().parseName()) + "()";
+            auto sibPrefix = "field_" + comms::genAccessName((*iter)->commsGenField().genParseObj().parseName()) + "()";
             repl["LIST_FIELD"] = commsFieldAccessStr(std::string(), fieldPrefix);
             repl["ACC_VALUE"] = (*iter)->commsValueAccessStr(accRest, sibPrefix);
             auto conditions = commsCompOptChecks(std::string(), fieldPrefix);
@@ -297,7 +297,7 @@ std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
             return;
         };
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAME", comms::genAccessName(genParseObj().parseName())}
     };
     
@@ -332,7 +332,7 @@ std::string CommsListField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
 
     util::GenStringsList refreshes;
     auto processPrefixFunc = 
-        [&siblings, &refreshes](const std::string& prefixName, const util::ReplacementMap& replacements)
+        [&siblings, &refreshes](const std::string& prefixName, const util::GenReplacementMap& replacements)
         {
             if (prefixName.empty()) {
                 return;
@@ -350,7 +350,7 @@ std::string CommsListField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
                     siblings.begin(), siblings.end(),
                     [&sibName](auto& f)
                     {
-                        return f->field().genParseObj().parseName() == sibName;
+                        return f->commsGenField().genParseObj().parseName() == sibName;
                     });
 
             if (iter == siblings.end()) {
@@ -375,7 +375,7 @@ std::string CommsListField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
                 "} while (false);\n";
 
             auto repl = replacements;
-            auto sibPrefix = "field_" + comms::genAccessName((*iter)->field().genParseObj().parseName()) + "()";
+            auto sibPrefix = "field_" + comms::genAccessName((*iter)->commsGenField().genParseObj().parseName()) + "()";
             repl["ACC_VALUE"] = (*iter)->commsValueAccessStr(accRest, sibPrefix);
             repl["ACC_FIELD"] = (*iter)->commsFieldAccessStr(accRest, sibPrefix);
             
@@ -383,7 +383,7 @@ std::string CommsListField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
         };
 
     auto fieldPrefix = "field_" + comms::genAccessName(genParseObj().parseName()) + "()";
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAME", comms::genAccessName(genParseObj().parseName())},
         {"LIST_FIELD", commsFieldAccessStr(std::string(), fieldPrefix)},
     };
@@ -448,7 +448,7 @@ std::string CommsListField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
         "#^#UPDATES#$#\n"
         "return updated;\n";
 
-    util::ReplacementMap finalRepl = {
+    util::GenReplacementMap finalRepl = {
         {"UPDATES", util::genStrListToString(refreshes, "\n", "")}
     };
     return util::genProcessTemplate(Templ, finalRepl);
@@ -484,7 +484,7 @@ bool CommsListField::commsIsVersionDependentImpl() const
     return false;
 }
 
-std::string CommsListField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
+std::string CommsListField::commsMembersCustomizationOptionsBodyImpl(CommsFieldOptsFunc fieldOptsFunc) const
 {
     util::GenStringsList elems;
 
@@ -520,19 +520,19 @@ std::string CommsListField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFu
     return util::genStrListToString(elems, "\n", "");
 }
 
-CommsListField::StringsList CommsListField::commsExtraBareMetalDefaultOptionsImpl() const
+CommsListField::GenStringsList CommsListField::commsExtraBareMetalDefaultOptionsImpl() const
 {
     auto obj = genListFieldParseObj();
     auto fixedCount = obj.parseFixedCount();
     if (fixedCount != 0U) {
         return 
-            StringsList{
+            GenStringsList{
                 "comms::option::app::SequenceFixedSizeUseFixedSizeStorage"
             };         
     }
 
     return 
-        StringsList{
+        GenStringsList{
             "comms::option::app::FixedSizeStorage<DEFAULT_SEQ_FIXED_STORAGE_SIZE>"
         };     
 }
@@ -578,15 +578,15 @@ std::string CommsListField::commsDefElementInternal() const
         }
 
         str += "::";
-        str += comms::genClassName(m_commsMemberElementField->field().genName());
+        str += comms::genClassName(m_commsMemberElementField->commsGenField().genName());
         return str;
     }
 
     assert(m_commsExternalElementField != nullptr);
-    return comms::genScopeFor(m_commsExternalElementField->field(), genGenerator()) + "<TOpt>";
+    return comms::genScopeFor(m_commsExternalElementField->commsGenField(), genGenerator()) + "<TOpt>";
 }
 
-void CommsListField::commsAddFixedLengthOptInternal(StringsList& opts) const
+void CommsListField::commsAddFixedLengthOptInternal(GenStringsList& opts) const
 {
     auto obj = genListFieldParseObj();
     auto fixedCount = obj.parseFixedCount();
@@ -601,7 +601,7 @@ void CommsListField::commsAddFixedLengthOptInternal(StringsList& opts) const
     opts.push_back(std::move(str));
 }
 
-void CommsListField::commsAddCountPrefixOptInternal(StringsList& opts) const
+void CommsListField::commsAddCountPrefixOptInternal(GenStringsList& opts) const
 {
     if ((m_commsExternalCountPrefixField == nullptr) && (m_commsMemberCountPrefixField == nullptr)) {
         return;
@@ -614,18 +614,18 @@ void CommsListField::commsAddCountPrefixOptInternal(StringsList& opts) const
             prefixName += "<TOpt>";
         }
 
-        prefixName += "::" + comms::genClassName(m_commsMemberCountPrefixField->field().genName());
+        prefixName += "::" + comms::genClassName(m_commsMemberCountPrefixField->commsGenField().genName());
     }
     else {
         assert(m_commsExternalCountPrefixField != nullptr);
-        prefixName = comms::genScopeFor(m_commsExternalCountPrefixField->field(), genGenerator(), true, true);
+        prefixName = comms::genScopeFor(m_commsExternalCountPrefixField->commsGenField(), genGenerator(), true, true);
         prefixName += "<TOpt> ";
     }
 
     opts.push_back("comms::option::def::SequenceSizeFieldPrefix<" + prefixName + '>');
 }
 
-void CommsListField::commsAddLengthPrefixOptInternal(StringsList& opts) const
+void CommsListField::commsAddLengthPrefixOptInternal(GenStringsList& opts) const
 {
     if ((m_commsExternalLengthPrefixField == nullptr) && (m_commsMemberLengthPrefixField == nullptr)) {
         return;
@@ -638,18 +638,18 @@ void CommsListField::commsAddLengthPrefixOptInternal(StringsList& opts) const
             prefixName += "<TOpt>";
         }
 
-        prefixName += "::" + comms::genClassName(m_commsMemberLengthPrefixField->field().genName());
+        prefixName += "::" + comms::genClassName(m_commsMemberLengthPrefixField->commsGenField().genName());
     }
     else {
         assert(m_commsExternalLengthPrefixField != nullptr);
-        prefixName = comms::genScopeFor(m_commsExternalLengthPrefixField->field(), genGenerator(), true, true);
+        prefixName = comms::genScopeFor(m_commsExternalLengthPrefixField->commsGenField(), genGenerator(), true, true);
         prefixName += "<TOpt> ";
     }
 
     opts.push_back("comms::option::def::SequenceSerLengthFieldPrefix<" + prefixName + '>');
 }
 
-void CommsListField::commsAddElemLengthPrefixOptInternal(StringsList& opts) const
+void CommsListField::commsAddElemLengthPrefixOptInternal(GenStringsList& opts) const
 {
     if ((m_commsExternalElemLengthPrefixField == nullptr) && (m_commsMemberElemLengthPrefixField == nullptr)) {
         return;
@@ -662,11 +662,11 @@ void CommsListField::commsAddElemLengthPrefixOptInternal(StringsList& opts) cons
             prefixName += "<TOpt>";
         }
 
-        prefixName += "::" + comms::genClassName(m_commsMemberElemLengthPrefixField->field().genName());
+        prefixName += "::" + comms::genClassName(m_commsMemberElemLengthPrefixField->commsGenField().genName());
     }
     else {
         assert(m_commsExternalElemLengthPrefixField != nullptr);
-        prefixName = comms::genScopeFor(m_commsExternalElemLengthPrefixField->field(), genGenerator(), true, true);
+        prefixName = comms::genScopeFor(m_commsExternalElemLengthPrefixField->commsGenField(), genGenerator(), true, true);
         prefixName += "<TOpt> ";
     }
 
@@ -678,7 +678,7 @@ void CommsListField::commsAddElemLengthPrefixOptInternal(StringsList& opts) cons
     opts.push_back("comms::option::def::" + opt + "<" + prefixName + '>');    
 }
 
-void CommsListField::commsAddTermSuffixOptInternal(StringsList& opts) const
+void CommsListField::commsAddTermSuffixOptInternal(GenStringsList& opts) const
 {
     if ((m_commsExternalTermSuffixField == nullptr) && (m_commsMemberTermSuffixField == nullptr)) {
         return;
@@ -691,18 +691,18 @@ void CommsListField::commsAddTermSuffixOptInternal(StringsList& opts) const
             suffixName += "<TOpt>";
         }
 
-        suffixName += "::" + comms::genClassName(m_commsMemberTermSuffixField->field().genName());
+        suffixName += "::" + comms::genClassName(m_commsMemberTermSuffixField->commsGenField().genName());
     }
     else {
         assert(m_commsExternalTermSuffixField != nullptr);
-        suffixName = comms::genScopeFor(m_commsExternalTermSuffixField->field(), genGenerator(), true, true);
+        suffixName = comms::genScopeFor(m_commsExternalTermSuffixField->commsGenField(), genGenerator(), true, true);
         suffixName += "<TOpt> ";
     }
 
     opts.push_back("comms::option::def::SequenceTerminationFieldSuffix<" + suffixName + '>');
 }
 
-void CommsListField::commsAddLengthForcingOptInternal(StringsList& opts) const
+void CommsListField::commsAddLengthForcingOptInternal(GenStringsList& opts) const
 {
     auto obj = genListFieldParseObj();
     if (!obj.parseDetachedCountPrefixFieldName().empty()) {

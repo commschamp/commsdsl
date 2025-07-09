@@ -124,7 +124,7 @@ bool writeFileInternal(
         ;
 
     comms::genPrepareIncludeStatement(includes);
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"NAME", name},
         {"NS_BEGIN", comms::genNamespaceBeginFor(parent, generator)},

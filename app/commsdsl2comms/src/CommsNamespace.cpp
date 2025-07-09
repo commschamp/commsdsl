@@ -55,8 +55,8 @@ const std::string& optsTemplInternal(bool defaultNs)
 } // namespace 
 
 
-CommsNamespace::CommsNamespace(CommsGenerator& generator, commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent),
+CommsNamespace::CommsNamespace(CommsGenerator& generator, commsdsl::parse::ParseNamespace parseObj, commsdsl::gen::GenElem* parent) :
+    Base(generator, parseObj, parent),
     m_dispatch(generator, *this),
     m_factory(generator, *this),
     m_input(generator, *this),
@@ -78,7 +78,7 @@ std::string CommsNamespace::commsDefaultOptions() const
         );
 
     auto nsName = genName();
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
@@ -101,7 +101,7 @@ std::string CommsNamespace::commsClientDefaultOptions() const
     }
 
     auto& nsName = genName();
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
@@ -133,7 +133,7 @@ std::string CommsNamespace::commsServerDefaultOptions() const
     }
 
     auto& nsName = genName();
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)}
     };
@@ -165,7 +165,7 @@ std::string CommsNamespace::commsDataViewDefaultOptions() const
     }
 
     auto& nsName = genName();
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
@@ -197,7 +197,7 @@ std::string CommsNamespace::commsBareMetalDefaultOptions() const
     }
 
     auto& nsName = genName();
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
@@ -229,7 +229,7 @@ std::string CommsNamespace::commsMsgFactoryDefaultOptions() const
     }
 
     auto& nsName = genName();
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
@@ -253,8 +253,8 @@ bool CommsNamespace::commsHasReferencedMsgId() const
             [](auto* f)
             {
                 return 
-                    (f->field().genIsReferenced()) && 
-                    (f->field().genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::MessageId);
+                    (f->commsGenField().genIsReferenced()) && 
+                    (f->commsGenField().genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::MessageId);
             });
 }
 
@@ -271,7 +271,7 @@ bool CommsNamespace::commsHasAnyGeneratedCode() const
             m_commsFields.begin(), m_commsFields.end(),
             [](auto* f)
             {
-                return f->field().genIsReferenced();
+                return f->commsGenField().genIsReferenced();
             });
 
 
@@ -329,7 +329,7 @@ bool CommsNamespace::commsHasAnyField() const
             m_commsFields.begin(), m_commsFields.end(),
             [](auto* f)
             {
-                return f->field().genIsReferenced();
+                return f->commsGenField().genIsReferenced();
             });
 
     if (hasReferencedFields) {
@@ -389,7 +389,7 @@ std::string CommsNamespace::commsMsgFactoryAliasDef(const std::string& namePrefi
         "    #^#SCOPE#$##^#TYPE_SUFFIX#$#;\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"PREFIX", namePrefix},
         {"TYPE_SUFFIX", typeSuffix},
         {"TYPE", commsMsgFactoryAliasType()},
@@ -439,7 +439,7 @@ bool CommsNamespace::genWriteImpl() const
 
 std::string CommsNamespace::commsOptionsInternal(
     NamespaceOptsFunc nsOptsFunc,
-    FieldOptsFunc fieldOptsFunc,
+    CommsFieldOptsFunc fieldOptsFunc,
     MessageOptsFunc messageOptsFunc,
     FrameOptsFunc frameOptsFunc,
     bool hasBase) const
@@ -487,7 +487,7 @@ std::string CommsNamespace::commsOptionsInternal(
         }
 
         if (!fieldElems.empty()) {
-            util::ReplacementMap repl {
+            util::GenReplacementMap repl {
                 {"NAME", strings::genFieldNamespaceStr()},
                 {"BODY", util::genStrListToString(fieldElems, "\n", "")},
                 {"DESC", "fields"}
@@ -509,7 +509,7 @@ std::string CommsNamespace::commsOptionsInternal(
         }
 
         if (!messageElems.empty()) {
-            util::ReplacementMap repl {
+            util::GenReplacementMap repl {
                 {"NAME", strings::genMessageNamespaceStr()},
                 {"BODY", util::genStrListToString(messageElems, "\n", "")},
                 {"DESC", "messages"}
@@ -531,7 +531,7 @@ std::string CommsNamespace::commsOptionsInternal(
         } 
 
         if (!frameElems.empty()) {
-            util::ReplacementMap repl {
+            util::GenReplacementMap repl {
                 {"NAME", strings::genFrameNamespaceStr()},
                 {"BODY", util::genStrListToString(frameElems, "\n", "")},
                 {"DESC", "frames"}

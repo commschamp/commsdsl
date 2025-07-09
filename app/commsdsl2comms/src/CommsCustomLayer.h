@@ -25,21 +25,25 @@ namespace commsdsl2comms
 class CommsGenerator;
 class CommsCustomLayer final : public commsdsl::gen::GenCustomLayer, public CommsLayer
 {
-    using Base = commsdsl::gen::GenCustomLayer;
+    using GenBase = commsdsl::gen::GenCustomLayer;
     using CommsBase = CommsLayer;
+
 public:
-    CommsCustomLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    CommsCustomLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
     virtual bool genPrepareImpl() override;
     
     // CommsBase overrides
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
     virtual bool commsDefHasInputMessagesImpl() const override;
     virtual bool commsIsCustomizableImpl() const override;
-    virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const override;
-    virtual StringsList commsExtraMsgFactoryDefaultOptionsImpl() const override;
+    virtual GenStringsList commsExtraBareMetalDefaultOptionsImpl() const override;
+    virtual GenStringsList commsExtraMsgFactoryDefaultOptionsImpl() const override;
 };
 
 } // namespace commsdsl2comms

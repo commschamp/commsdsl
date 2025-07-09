@@ -113,7 +113,7 @@ bool EmscriptenInputMessages::emscriptenWriteHeaderInternal() const
         "    >;\n"
         ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"CLASS_NAME", emscriptenClassName()},
         {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
@@ -166,7 +166,7 @@ bool EmscriptenInputMessages::emscriptenWriteHeaderFwdInternal() const
         "#^#MSGS#$#\n"
         ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"MSGS", util::genStrListToString(msgs, "\n", "\n")},
     };

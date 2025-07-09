@@ -65,7 +65,7 @@ std::string emscriptenCodeInternal(EmscriptenGenerator& generator, std::size_t i
         "    #^#NEXT#$#\n"
         ">";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SCOPE", std::move(scope)},
         {"NEXT", std::move(nextScope)}
     };
@@ -139,7 +139,7 @@ bool EmscriptenProtocolOptions::emsciptenWriteHeaderInternal()
         "#^#DEF#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"INCLUDES", emscriptenIncludesInternal()},
         {"DEF", emscriptenTypeDefInternal()}
@@ -166,7 +166,7 @@ std::string EmscriptenProtocolOptions::emscriptenTypeDefInternal()
         "    >;\n\n";
 
     auto msgFactOptions = comms::genScopeForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_generator);
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"OPT_TYPE", emscriptenClassName(m_generator)},
         {"CODE", emscriptenCodeInternal(m_generator, m_generator.genSchemas().size() - 1U)},
         {"MSG_FACT_OPTS", std::move(msgFactOptions)}

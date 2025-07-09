@@ -66,7 +66,7 @@ std::string swigCodeInternal(const SwigGenerator& generator, std::size_t idx)
         "    #^#NEXT#$#\n"
         ">";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SCOPE", std::move(scope)},
         {"NEXT", std::move(nextScope)}
     };
@@ -113,7 +113,7 @@ void SwigProtocolOptions::swigAddCode(const SwigGenerator& generator, StringsLis
         "    >;\n\n";
 
     auto msgFactOptions = comms::genScopeForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator);
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"OPT_TYPE", swigClassName(generator)},
         {"CODE", swigCodeInternal(generator, generator.genSchemas().size() - 1U)},
         {"MSG_FACT_OPTS", std::move(msgFactOptions)}

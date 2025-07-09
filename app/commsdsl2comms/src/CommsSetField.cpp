@@ -43,9 +43,9 @@ const auto MaxBits = std::numeric_limits<std::uintmax_t>::digits;
 
 CommsSetField::CommsSetField(
     CommsGenerator& generator, 
-    commsdsl::parse::ParseField dslObj, 
+    commsdsl::parse::ParseField parseObj, 
     commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent),
+    Base(generator, parseObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {
 }
@@ -62,9 +62,9 @@ bool CommsSetField::genWriteImpl() const
     return commsWrite();
 }
 
-CommsSetField::IncludesList CommsSetField::commsCommonIncludesImpl() const
+CommsSetField::CommsIncludesList CommsSetField::commsCommonIncludesImpl() const
 {
-    IncludesList result = {
+    CommsIncludesList result = {
         "<type_traits>"
     };
 
@@ -78,7 +78,7 @@ std::string CommsSetField::commsCommonCodeBodyImpl() const
         "#^#BIT_NAME_FUNC#$#\n"        
     };
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAME_FUNC", commsCommonNameFuncCode()},
         {"BIT_NAME_FUNC", commsCommonBitNameFuncCodeInternal()},
     };
@@ -86,9 +86,9 @@ std::string CommsSetField::commsCommonCodeBodyImpl() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-CommsSetField::IncludesList CommsSetField::commsDefIncludesImpl() const
+CommsSetField::CommsIncludesList CommsSetField::commsDefIncludesImpl() const
 {
-    IncludesList result = {
+    CommsIncludesList result = {
         "comms/field/BitmaskValue.h"
     };
 
@@ -104,10 +104,10 @@ std::string CommsSetField::commsDefBaseClassImpl() const
         ">";
 
     auto& gen = genGenerator();
-    auto dslObj = genSetFieldParseObj();
-    util::ReplacementMap repl = {
+    auto parseObj = genSetFieldParseObj();
+    util::GenReplacementMap repl = {
         {"PROT_NAMESPACE", gen.genSchemaOf(*this).genMainNamespace()},
-        {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.parseEndian())},
+        {"FIELD_BASE_PARAMS", commsFieldBaseParams(parseObj.parseEndian())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()},
     };
 
@@ -120,7 +120,7 @@ std::string CommsSetField::commsDefPublicCodeImpl() const
         "#^#BITS_ACCESS#$#\n"
         "#^#BIT_NAME#$#";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"BITS_ACCESS", commsDefBitsAccessCodeInternal()},
         {"BIT_NAME", commsDefBitNameFuncCodeInternal()},
     };
@@ -227,7 +227,7 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
         }
 
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"BITS_MASK", util::genNumToString(info.second.m_reservedMask, true)},
             {"VALUE_MASK", util::genNumToString(info.second.m_reservedValue, true)},
             {"FROM_VERSION", util::genNumToString(std::get<0>(info.first))},
@@ -311,7 +311,7 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
                 "    return false;\n"
                 "}";
 
-            util::ReplacementMap repl = {
+            util::GenReplacementMap repl = {
                 {"FROM_VERSION", util::genNumToString(r.first)},
                 {"UNTIL_VERSION", util::genNumToString(r.second)},
             };
@@ -335,7 +335,7 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
         }
 
         if (!extraConds.empty()) {
-            util::ReplacementMap repl = {
+            util::GenReplacementMap repl = {
                 {"RESERVED_MASK", util::genNumToString(bitMask, true)},
                 {"RESERVED_VALUE", util::genNumToString(bitValue, true)},
                 {"CONDITIONS", util::genStrListToString(extraConds, "\n\n", "")}
@@ -357,7 +357,7 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
         "return true;\n"
         ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CONDITIONS", util::genStrListToString(conditions, "\n", "")}
     };
     return util::genProcessTemplate(Templ, repl);
@@ -426,7 +426,7 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
     auto& bits = obj.parseBits();
     auto& revBits = obj.parseRevBits();
     std::intmax_t nextBit = 0;
-    StringsList names;
+    GenStringsList names;
     for (auto& b : revBits) {
         if (b.first < nextBit) {
             continue;
@@ -505,7 +505,7 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
             "}\n\n"
             "return Map[idx];";
 
-        util::ReplacementMap bodyRepl = {
+        util::GenReplacementMap bodyRepl = {
             {"NAMES", util::genStrListToString(names, ",\n", "")},
         };
 
@@ -520,7 +520,7 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
         "    #^#BODY#$#\n"
         "}\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"BODY", std::move(body)},
         {"SCOPE", comms::genScopeFor(*this, genGenerator())}
     };
@@ -607,7 +607,7 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
                     getDeprecatedStr(n);
             });
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"ACCESS_DOC", util::genStrListToString(accessDoc, "\n", "")},
             {"NAMES", util::genStrListToString(names, ",\n", "")}
         };
@@ -672,7 +672,7 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
             return n + "=" + std::to_string(iter->second.m_idx);
         });
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"ACCESS_DOC", util::genStrListToString(accessDoc, "\n", "")},
         {"NAMES", util::genStrListToString(names, ",\n", "")},
         {"BITS_DOC", util::genStrListToString(bitsDoc, "\n", "")},
@@ -697,7 +697,7 @@ std::string CommsSetField::commsDefBitNameFuncCodeInternal() const
         "    return bitName(static_cast<std::size_t>(idx));\n"
         "}\n";;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"COMMON", comms::genCommonScopeFor(*this, genGenerator())}
     };
     return util::genProcessTemplate(Templ, repl);
@@ -856,7 +856,7 @@ void CommsSetField::commsAddReservedBitsOptInternal(commsdsl::gen::util::GenStri
     opts.push_back(std::move(str));
 }
 
-void CommsSetField::commsAddAvailableLengthLimitOptInternal(StringsList& opts) const
+void CommsSetField::commsAddAvailableLengthLimitOptInternal(GenStringsList& opts) const
 {
     if (genSetFieldParseObj().parseAvailableLengthLimit()) {
         util::genAddToStrList("comms::option::def::AvailableLengthLimit", opts);

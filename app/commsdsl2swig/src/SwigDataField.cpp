@@ -47,7 +47,7 @@ std::string SwigDataField::swigValueTypeDeclImpl() const
         "using ValueType = std::vector<#^#UINT8_T#$#>;\n";
 
     auto& gen = SwigGenerator::cast(genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")}
     };
 

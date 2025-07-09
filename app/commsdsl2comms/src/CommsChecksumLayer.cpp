@@ -32,20 +32,20 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsChecksumLayer::CommsChecksumLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsChecksumLayer::CommsChecksumLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
 bool CommsChecksumLayer::genPrepareImpl()
 {
-    return Base::genPrepareImpl() && CommsBase::commsPrepare();
+    return GenBase::genPrepareImpl() && CommsBase::commsPrepare();
 }
 
-CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() const
+CommsChecksumLayer::CommsIncludesList CommsChecksumLayer::commsDefIncludesImpl() const
 {
-    IncludesList result;
+    CommsIncludesList result;
     auto obj = checksumDslObj();
     if (!obj.parseFromLayer().empty()) {
         assert(obj.parseUntilLayer().empty());
@@ -96,7 +96,7 @@ std::string CommsChecksumLayer::commsDefBaseTypeImpl(const std::string& prevName
         "    #^#EXTRA_OPT#$#\n"
         ">";    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FIELD_TYPE", commsDefFieldType()},
         {"ALG", commsDefAlgInternal()},
         {"PREV_LAYER", prevName},
@@ -156,7 +156,7 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
         "    #^#FIELD#$#::ValueType\n"
         ">";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"ALG", std::move(str)},
         {"FIELD", commsDefFieldType()},
     };

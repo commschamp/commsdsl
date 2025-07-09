@@ -63,7 +63,7 @@ std::string EmscriptenSetField::emscriptenHeaderExtraPublicFuncsImpl() const
             "    Base::setBitValue_#^#NAME#$#(val);\n"
             "}\n";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"NAME", bitInfo.second}
         };
 
@@ -82,7 +82,7 @@ std::string EmscriptenSetField::emscriptenHeaderExtraPublicFuncsImpl() const
         "#^#ACCESS_FUNCS#$#\n"
         ;    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"ACCESS_FUNCS", util::genStrListToString(accesses, "\n", "")}
     };
 
@@ -93,7 +93,7 @@ std::string EmscriptenSetField::emscriptenSourceBindFuncsImpl() const
 {
     auto obj = genSetFieldParseObj();
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()},
     };    
 
@@ -122,7 +122,7 @@ std::string EmscriptenSetField::emscriptenSourceBindExtraImpl() const
 {
     auto obj = genSetFieldParseObj();
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()},
     };    
 

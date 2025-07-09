@@ -90,7 +90,7 @@ std::string EmscriptenLayer::emscriptenHeaderClass() const
         "#^#FIELD#$#\n"
         "#^#DEF#$#\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FIELD", emscriptenHeaderFieldDefInternal()},
         {"DEF", emscriptenHeaderClassDefInternal()}
     };
@@ -104,7 +104,7 @@ std::string EmscriptenLayer::emscriptenSourceCode() const
         "#^#FIELD#$#\n"
         "#^#CODE#$#\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FIELD", emscriptenSourceFieldBindInternal()},
         {"CODE", emscriptenSourceCodeInternal()}
     };
@@ -188,7 +188,7 @@ std::string EmscriptenLayer::emscriptenHeaderClassDefInternal() const
         "};\n";
 
     auto& gen = EmscriptenGenerator::cast(m_layer.genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(m_layer)},
         {"COMMS_CLASS", emscriptenTemplateScope()},
         {"FIELD", emscriptenFieldClassNameInternal()},
@@ -240,7 +240,7 @@ std::string EmscriptenLayer::emscriptenSourceCodeInternal() const
         "}\n";
 
     auto& gen = EmscriptenGenerator::cast(m_layer.genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(m_layer)},
         {"FUNCS", emscriptenSourceExtraFuncsImpl()}
     };

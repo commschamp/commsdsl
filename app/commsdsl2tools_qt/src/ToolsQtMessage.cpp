@@ -124,7 +124,7 @@ bool ToolsQtMessage::toolsWriteHeaderInternal() const
             "#^#TOP_NS_END#$#\n"
         ;
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
             {"NS_BEGIN", comms::genNamespaceBeginFor(*this, gen)},
@@ -178,7 +178,7 @@ bool ToolsQtMessage::toolsWriteSrcInternal() const
             "#^#TOP_NS_END#$#\n"
         ;
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
             {"NS_BEGIN", comms::genNamespaceBeginFor(*this, gen)},
@@ -248,7 +248,7 @@ std::string ToolsQtMessage::toolsHeaderCodeInternal() const
         "    ImplPtr m_pImpl;\n"
         "};";    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
     };
 
@@ -363,7 +363,7 @@ std::string ToolsQtMessage::toolsSrcCodeInternal(const commsdsl::gen::GenInterfa
 
     auto& gen = ToolsQtGenerator::cast(genGenerator());
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
         {"PROT_MESSAGE", comms::genScopeFor(*this, gen)},
         {"INTERFACE", ToolsQtInterface::cast(iFace).toolsClassScope()},

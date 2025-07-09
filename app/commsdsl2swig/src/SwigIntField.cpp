@@ -47,7 +47,7 @@ std::string SwigIntField::swigValueTypeDeclImpl() const
         "using ValueType = #^#TYPE#$#;\n";
 
     auto obj = genIntFieldParseObj();
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"TYPE", SwigGenerator::cast(genGenerator()).swigConvertIntType(obj.parseType(), obj.parseMaxLength())}
     };
 
@@ -62,7 +62,7 @@ std::string SwigIntField::swigExtraPublicFuncsDeclImpl() const
         "#^#DISPLAY_DECIMALS#$#\n"
         "#^#SCALED#$#\n";
 
-    util::ReplacementMap repl {
+    util::GenReplacementMap repl {
         {"SCPECIALS", swigSpecialsDeclInternal()},
         {"DISPLAY_DECIMALS", swigDisplayDecimalsDeclInternal()},
         {"SCALED", swigScaledFuncsDeclInternal()}
@@ -96,7 +96,7 @@ std::string SwigIntField::swigSpecialsDeclInternal() const
             "void set#^#SPEC_ACC#$#();\n"
         ;
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"SPEC_ACC", comms::genClassName(s.first)},
         };
 

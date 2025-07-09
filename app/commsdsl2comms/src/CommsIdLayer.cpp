@@ -30,8 +30,8 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsIdLayer::CommsIdLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent),
+CommsIdLayer::CommsIdLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) :
+    Base(generator, parseObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {
 }
@@ -41,14 +41,14 @@ bool CommsIdLayer::genPrepareImpl()
     return Base::genPrepareImpl() && CommsBase::commsPrepare();
 }
 
-CommsIdLayer::IncludesList CommsIdLayer::commsDefIncludesImpl() const
+CommsIdLayer::CommsIncludesList CommsIdLayer::commsDefIncludesImpl() const
 {
     assert(genGetParent()->genElemType() == commsdsl::gen::GenElem::Type_Frame);
     auto& frame = *(static_cast<const commsdsl::gen::GenFrame*>(genGetParent()));
     assert(frame.genGetParent()->genElemType() == commsdsl::gen::GenElem::Type_Namespace);
     auto& ns = *(static_cast<const commsdsl::gen::GenNamespace*>(frame.genGetParent()));
 
-    IncludesList result = {
+    CommsIncludesList result = {
         "comms/frame/MsgIdLayer.h",
         comms::genRelHeaderForInput(strings::genAllMessagesStr(), genGenerator(), ns)
     };
@@ -67,7 +67,7 @@ std::string CommsIdLayer::commsDefBaseTypeImpl(const std::string& prevName) cons
         "    #^#EXTRA_OPTS#$#\n"
         ">";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"PREV_LAYER", prevName},
         {"FIELD_TYPE", commsDefFieldType()},
         {"EXTRA_OPTS", commsDefExtraOpts()},
@@ -89,18 +89,18 @@ bool CommsIdLayer::commsIsCustomizableImpl() const
     return true;
 }
 
-CommsIdLayer::StringsList CommsIdLayer::commsExtraBareMetalDefaultOptionsImpl() const
+CommsIdLayer::GenStringsList CommsIdLayer::commsExtraBareMetalDefaultOptionsImpl() const
 {
     return
-        StringsList{
+        GenStringsList{
             "comms::option::app::InPlaceAllocation"
         };    
 }
 
-CommsIdLayer::StringsList CommsIdLayer::commsExtraMsgFactoryDefaultOptionsImpl() const
+CommsIdLayer::GenStringsList CommsIdLayer::commsExtraMsgFactoryDefaultOptionsImpl() const
 {
     return
-        StringsList{
+        GenStringsList{
             "comms::option::app::MsgFactoryTempl<" + commsMsgFactoryAliasInOptions(genGetParent()) + ">"
         };    
 }

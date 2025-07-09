@@ -64,9 +64,9 @@ const std::string& hasSpecialsFuncTempl()
 
 CommsIntField::CommsIntField(
     CommsGenerator& generator, 
-    commsdsl::parse::ParseField dslObj, 
+    commsdsl::parse::ParseField parseObj, 
     commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent),
+    Base(generator, parseObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {
 }
@@ -91,7 +91,7 @@ std::string CommsIntField::commsVariantPropKeyValueStr() const
     static const std::string Templ = 
         "#^#DEC#$# /* #^#HEX#$# */";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"DEC", std::move(decValue)},
         {"HEX", std::move(hexValue)},
     };
@@ -156,9 +156,9 @@ bool CommsIntField::genWriteImpl() const
     return commsWrite();
 }
 
-CommsIntField::IncludesList CommsIntField::commsCommonIncludesImpl() const
+CommsIntField::CommsIncludesList CommsIntField::commsCommonIncludesImpl() const
 {
-    IncludesList list = {
+    CommsIncludesList list = {
         "<cstdint>"
     };
 
@@ -190,10 +190,10 @@ std::string CommsIntField::commsCommonCodeBodyImpl() const
     //auto& specials = genSpecialsSortedByValue();
 
     auto& gen = genGenerator();
-    auto dslObj = genIntFieldParseObj();
-    util::ReplacementMap repl = {
+    auto parseObj = genIntFieldParseObj();
+    util::GenReplacementMap repl = {
         {"SCOPE", comms::genScopeFor(*this, gen, true, true)},
-        {"VALUE_TYPE", comms::genCppIntTypeFor(dslObj.parseType(), dslObj.parseMaxLength())},
+        {"VALUE_TYPE", comms::genCppIntTypeFor(parseObj.parseType(), parseObj.parseMaxLength())},
         {"SPECIAL_VALUE_NAMES_MAP_DEFS", commsCommonValueNamesMapCodeInternal()},
         {"NAME_FUNC", commsCommonNameFuncCode()},
         {"HAS_SPECIAL_FUNC", commsCommonHasSpecialsFuncCodeInternal()},
@@ -203,9 +203,9 @@ std::string CommsIntField::commsCommonCodeBodyImpl() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-CommsIntField::IncludesList CommsIntField::commsDefIncludesImpl() const
+CommsIntField::CommsIncludesList CommsIntField::commsDefIncludesImpl() const
 {
-    IncludesList list = {
+    CommsIncludesList list = {
         "<cstdint>",
         "comms/field/IntValue.h"
     };
@@ -229,7 +229,7 @@ std::string CommsIntField::commsDefPublicCodeImpl() const
         "#^#SPECIAL_NAMES_MAP#$#\n"
         "#^#DISPLAY_DECIMALS#$#\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SPECIAL_VALUE_NAMES_MAP_DEFS", commsDefValueNamesMapCodeInternal()},
         {"HAS_SPECIALS", commsDefHasSpecialsFuncCodeInternal()},
         {"SPECIALS", commsDefSpecialsCodeInternal()},
@@ -256,7 +256,7 @@ std::string CommsIntField::commsDefRefreshFuncBodyImpl() const
 
     auto obj = genIntFieldParseObj();
     auto& validRanges = obj.parseValidRanges();    
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"VALID_VALUE", util::genNumToString(validRanges.front().m_min)},
     };
     return util::genProcessTemplate(Templ, repl);    
@@ -341,13 +341,13 @@ std::string CommsIntField::commsDefValidFuncBodyImpl() const
             conds.push_back("(Base::getValue() <= static_cast<ValueType>(" + maxVal + "))");
         }
 
-        util::ReplacementMap rangeRepl = {
+        util::GenReplacementMap rangeRepl = {
             {"COND", util::genStrListToString(conds, " &&\n", "")}
         };
         rangesChecks += util::genProcessTemplate(RangeTempl, rangeRepl);
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"RANGES_CHECKS", std::move(rangesChecks)},
     };
 
@@ -472,7 +472,7 @@ bool CommsIntField::commsVerifyInnerRefImpl(const std::string& refStr) const
 std::string CommsIntField::commsCommonHasSpecialsFuncCodeInternal() const
 {
     auto& specials = genSpecialsSortedByValue();    
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"VALUE", util::genBoolToString(!specials.empty())}
     };
 
@@ -486,7 +486,7 @@ std::string CommsIntField::commsCommonValueNamesMapCodeInternal() const
         return strings::genEmptyString();
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"INFO_DEF", "std::pair<ValueType, const char*>"},
         {"MAP_DEF", "std::pair<const SpecialNameInfo*, std::size_t>"}
     };
@@ -535,7 +535,7 @@ std::string CommsIntField::commsCommonSpecialsCodeInternal() const
             desc = util::genStrReplace(desc, "\n", "\n///     ");
         }
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"SPEC_NAME", s.first},
             {"SPEC_ACC", comms::genClassName(s.first)},
             {"SPEC_VAL", std::move(specVal)},
@@ -571,14 +571,14 @@ std::string CommsIntField::commsCommonSpecialNamesMapCodeInternal() const
         static const std::string SpecTempl = 
             "std::make_pair(value#^#SPEC_ACC#$#(), \"#^#SPEC_NAME#$#\")";
 
-        util::ReplacementMap specRepl = {
+        util::GenReplacementMap specRepl = {
             {"SPEC_ACC", comms::genClassName(s.first)},
             {"SPEC_NAME", s.first}
         };
         specialInfos.push_back(util::genProcessTemplate(SpecTempl, specRepl));
     }
 
-    util::ReplacementMap repl {
+    util::GenReplacementMap repl {
         {"INFOS", util::genStrListToString(specialInfos, ",\n", "")}
     };
 
@@ -614,7 +614,7 @@ std::string CommsIntField::commsDefValueNamesMapCodeInternal() const
 
     auto scope = comms::genCommonScopeFor(*this, genGenerator());
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"INFO_DEF", scope + "::SpecialNameInfo"},
         {"MAP_DEF", scope + "::SpecialNamesMapInfo"}
     };
@@ -624,7 +624,7 @@ std::string CommsIntField::commsDefValueNamesMapCodeInternal() const
 
 std::string CommsIntField::commsDefHasSpecialsFuncCodeInternal() const
 {
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"VALUE", comms::genCommonScopeFor(*this, genGenerator()) + "::hasSpecials()"}
     };
 
@@ -663,7 +663,7 @@ std::string CommsIntField::commsDefSpecialsCodeInternal() const
             "}\n"            
         );
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"SPEC_NAME", s.first},
             {"SPEC_ACC", comms::genClassName(s.first)},
             {"COMMON", comms::genCommonScopeFor(*this, genGenerator())},
@@ -689,7 +689,7 @@ std::string CommsIntField::commsDefSpecialNamesMapCodeInternal() const
         "    return #^#COMMON#$#::specialNamesMap();\n"
         "}\n";    
 
-    util::ReplacementMap repl {
+    util::GenReplacementMap repl {
         {"COMMON", comms::genCommonScopeFor(*this, genGenerator())}
     };
 
@@ -713,7 +713,7 @@ std::string CommsIntField::commsDefDisplayDecimalsCodeInternal() const
         "    return #^#DISPLAY_DECIMALS#$#;\n"
         "}";
         
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"DISPLAY_DECIMALS", util::genNumToString(obj.parseDisplayDecimals())}
     };
 
@@ -730,11 +730,11 @@ std::string CommsIntField::commsDefBaseClassInternal(bool variantPropKey) const
         ">";  
 
     auto& gen = genGenerator();
-    auto dslObj = genIntFieldParseObj();
-    util::ReplacementMap repl = {
+    auto parseObj = genIntFieldParseObj();
+    util::GenReplacementMap repl = {
         {"PROT_NAMESPACE", gen.genSchemaOf(*this).genMainNamespace()},
-        {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.parseEndian())},
-        {"FIELD_TYPE", comms::genCppIntTypeFor(dslObj.parseType(), dslObj.parseMaxLength())},
+        {"FIELD_BASE_PARAMS", commsFieldBaseParams(parseObj.parseEndian())},
+        {"FIELD_TYPE", comms::genCppIntTypeFor(parseObj.parseType(), parseObj.parseMaxLength())},
         {"FIELD_OPTS", commsDefFieldOptsInternal(variantPropKey)}
     };
 
@@ -744,7 +744,7 @@ std::string CommsIntField::commsDefBaseClassInternal(bool variantPropKey) const
     return util::genProcessTemplate(Templ, repl);      
 }
 
-void CommsIntField::commsAddLengthOptInternal(StringsList& opts) const
+void CommsIntField::commsAddLengthOptInternal(GenStringsList& opts) const
 {
     auto obj = genIntFieldParseObj();
     auto type = obj.parseType();
@@ -810,7 +810,7 @@ void CommsIntField::commsAddLengthOptInternal(StringsList& opts) const
     }
 }
 
-void CommsIntField::commsAddSerOffsetOptInternal(StringsList& opts) const
+void CommsIntField::commsAddSerOffsetOptInternal(GenStringsList& opts) const
 {
     auto obj = genIntFieldParseObj();
     auto serOffset = obj.parseSerOffset();
@@ -825,7 +825,7 @@ void CommsIntField::commsAddSerOffsetOptInternal(StringsList& opts) const
     util::genAddToStrList(std::move(str), opts);
 }
 
-void CommsIntField::commsAddDisplayOffsetOptInternal(StringsList& opts) const
+void CommsIntField::commsAddDisplayOffsetOptInternal(GenStringsList& opts) const
 {
     auto obj = genIntFieldParseObj();
     auto displayOffset = obj.parseDisplayOffset();
@@ -840,7 +840,7 @@ void CommsIntField::commsAddDisplayOffsetOptInternal(StringsList& opts) const
     util::genAddToStrList(std::move(str), opts);
 }
 
-void CommsIntField::commsAddScalingOptInternal(StringsList& opts) const
+void CommsIntField::commsAddScalingOptInternal(GenStringsList& opts) const
 {
     auto obj = genIntFieldParseObj();
     auto scaling = obj.parseScaling();
@@ -866,7 +866,7 @@ void CommsIntField::commsAddScalingOptInternal(StringsList& opts) const
     util::genAddToStrList(std::move(str), opts);
 }
 
-void CommsIntField::commsAddUnitsOptInternal(StringsList& opts) const
+void CommsIntField::commsAddUnitsOptInternal(GenStringsList& opts) const
 {
     auto obj = genIntFieldParseObj();
     auto units = obj.parseUnits();
@@ -876,7 +876,7 @@ void CommsIntField::commsAddUnitsOptInternal(StringsList& opts) const
     }
 }
 
-void CommsIntField::commsAddDefaultValueOptInternal(StringsList& opts) const
+void CommsIntField::commsAddDefaultValueOptInternal(GenStringsList& opts) const
 {
     auto obj = genIntFieldParseObj();
     auto defaultValue = obj.parseDefaultValue();
@@ -911,7 +911,7 @@ void CommsIntField::commsAddDefaultValueOptInternal(StringsList& opts) const
     util::genAddToStrList(std::move(str), opts);
 }
 
-void CommsIntField::commsAddValidRangesOptInternal(StringsList& opts) const
+void CommsIntField::commsAddValidRangesOptInternal(GenStringsList& opts) const
 {
     auto obj = genIntFieldParseObj();
     auto validRanges = obj.parseValidRanges(); // copy
@@ -1069,14 +1069,14 @@ void CommsIntField::commsAddValidRangesOptInternal(StringsList& opts) const
     }
 }
 
-void CommsIntField::commsAddCustomRefreshOptInternal(StringsList& opts) const
+void CommsIntField::commsAddCustomRefreshOptInternal(GenStringsList& opts) const
 {
     if (commsRequiresFailOnInvalidRefreshInternal()) {
         util::genAddToStrList("comms::option::def::HasCustomRefresh", opts);
     }
 }
 
-void CommsIntField::commsAddAvailableLengthLimitOptInternal(StringsList& opts) const
+void CommsIntField::commsAddAvailableLengthLimitOptInternal(GenStringsList& opts) const
 {
     if (genIntFieldParseObj().parseAvailableLengthLimit()) {
         util::genAddToStrList("comms::option::def::AvailableLengthLimit", opts);

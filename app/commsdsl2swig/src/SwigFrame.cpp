@@ -144,7 +144,7 @@ bool SwigFrame::genWriteImpl() const
         "#^#DEF#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
         {"LAYERS", swigLayerDeclsInternal()},
         {"ALL_FIELDS", swigAllFieldsInternal()},
@@ -186,7 +186,7 @@ std::string SwigFrame::swigClassDeclInternal() const
     auto& gen = SwigGenerator::cast(genGenerator());
     auto* iFace = gen.swigMainInterface();
     assert(iFace != nullptr);
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"INTERFACE", gen.swigClassName(*iFace)},
         {"LAYERS", swigLayersAccDeclInternal()},
@@ -208,7 +208,7 @@ std::string SwigFrame::swigLayersAccDeclInternal() const
         static const std::string Templ = 
             "#^#CLASS_NAME#$#& layer_#^#ACC_NAME#$#();\n";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(*l)},
             {"ACC_NAME", comms::genAccessName(l->genParseObj().parseName())}
         };
@@ -226,7 +226,7 @@ std::string SwigFrame::swigLayersAccCodeInternal() const
         static const std::string Templ = 
             "#^#CLASS_NAME#$#& layer_#^#ACC_NAME#$#() { return static_cast<#^#CLASS_NAME#$#&>(m_frame.layer_#^#ACC_NAME#$#()); }\n";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(*l)},
             {"ACC_NAME", comms::genAccessName(l->genParseObj().parseName())}
         };
@@ -325,7 +325,7 @@ std::string SwigFrame::swigFrameCodeInternal() const
     auto& gen = SwigGenerator::cast(genGenerator());
     auto* iFace = gen.swigMainInterface();
     assert(iFace != nullptr);
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"INTERFACE", gen.swigClassName(*iFace)},
         {"LAYERS", swigLayersAccCodeInternal()},
@@ -362,7 +362,7 @@ std::string SwigFrame::swigAllFieldsInternal() const
     }
 
     auto& gen = SwigGenerator::cast(genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"FIELDS", util::genStrListToString(fields, "", "")}
     };

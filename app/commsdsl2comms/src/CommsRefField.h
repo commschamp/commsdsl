@@ -28,7 +28,7 @@ class CommsRefField final : public commsdsl::gen::GenRefField, public CommsField
     using Base = commsdsl::gen::GenRefField;
     using CommsBase = CommsField;
 public:
-    CommsRefField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
+    CommsRefField(CommsGenerator& generator, commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent);
 
 protected:
     // Base overrides
@@ -36,11 +36,11 @@ protected:
     virtual bool genWriteImpl() const override;    
 
     // CommsBase overrides
-    virtual IncludesList commsCommonIncludesImpl() const override;
+    virtual CommsIncludesList commsCommonIncludesImpl() const override;
     virtual std::string commsCommonCodeBaseClassImpl() const override;
     virtual std::string commsCommonCodeBodyImpl() const override;
     virtual std::string commsCommonMembersBaseClassImpl() const override;
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
     virtual bool commsIsLimitedCustomizableImpl() const override;
     virtual bool commsDefHasNameFuncImpl() const override;
@@ -48,7 +48,7 @@ protected:
     virtual std::size_t commsMaxLengthImpl() const override;
     virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const override; 
     virtual std::string commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const override; 
-    virtual void commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const override;
+    virtual void commsCompOptChecksImpl(const std::string& accStr, GenStringsList& checks, const std::string& prefix) const override;
     virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const override;
     virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
     virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
@@ -56,8 +56,8 @@ protected:
 private:
     std::string commsDefFieldOptsInternal() const;
 
-    void commsAddProtocolOptInternal(StringsList& opts) const;
-    void commsAddBitLengthOptInternal(StringsList& opts) const;
+    void commsAddProtocolOptInternal(GenStringsList& opts) const;
+    void commsAddBitLengthOptInternal(GenStringsList& opts) const;
 
     CommsField* m_commsReferencedField = nullptr;
 };

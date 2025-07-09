@@ -69,7 +69,7 @@ std::string EmscriptenPayloadLayer::emscriptenHeaderFieldDefImpl() const
         "    }\n"
         "};\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenFieldClassNameImpl()},
         {"COMMS_SCOPE", emscriptenTemplateScope()},
         {"JS_ARRAY_FUNC", EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()},
@@ -97,7 +97,7 @@ std::string EmscriptenPayloadLayer::emscriptenSourceFieldBindImpl() const
         "        ;\n"
         "}\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenFieldClassNameImpl()},
     };
 

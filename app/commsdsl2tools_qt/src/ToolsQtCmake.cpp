@@ -34,7 +34,7 @@ namespace commsdsl2tools_qt
 namespace 
 {
 
-using ReplacementMap = commsdsl::gen::util::ReplacementMap;
+using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
 using StringsList = commsdsl::gen::util::GenStringsList;
 
 } // namespace 
@@ -169,7 +169,7 @@ bool ToolsQtCmake::toolsWriteInternal() const
         pluginInvokes.push_back("cc_plugin (\"" + p->toolsProtocolName() + "\" \"" + p->toolsInterfaceName() + "\")");
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"PER_INTERFACE_FUNCS", toolsPerInterfaceFuncsInternal()},
         {"PER_INTERFACE_CALLS", toolsPerInterfaceCallsInternal()},
         {"PLUGINS_LIST", util::genStrListToString(pluginInvokes, "\n", "")},
@@ -217,7 +217,7 @@ std::string ToolsQtCmake::toolsPerInterfaceFuncsInternal() const
         auto iFaceName = util::genStrReplace(iFaceScope, "::", "_");
         auto iFacePath = util::genStrReplace(iFaceScope, "::", "/");
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"CORE_FILES", util::genStrListToString(m_generator.toolsSourceFilesForInterface(iFace), "\n", "")},
             {"MAIN_NS", m_generator.genProtocolSchema().genMainNamespace()},
             {"INTERFACE", iFaceName},
@@ -242,7 +242,7 @@ std::string ToolsQtCmake::toolsPerInterfaceCallsInternal() const
         auto iFaceScope = comms::genScopeFor(iFace, m_generator, false, true);
         auto iFaceName = util::genStrReplace(iFaceScope, "::", "_");
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"INTERFACE", iFaceName},
         };        
 

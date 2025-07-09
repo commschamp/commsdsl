@@ -98,7 +98,7 @@ std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
 
     assert(m_element != nullptr);
     auto& gen = EmscriptenGenerator::cast(genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"ELEMENT", gen.emscriptenClassName(m_element->field())},
         {"STORAGE", emscriptenHeaderValueStorageAccByPointer()},
     };
@@ -112,7 +112,7 @@ std::string EmscriptenListField::emscriptenSourceBindValueAccImpl() const
         "#^#STORAGE#$#\n"
         "#^#ACC#$#";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"STORAGE", emscriptenSourceBindValueStorageAccByPointer()},
         {"ACC", emscriptenSourceBindValueAccByPointer()}
     };

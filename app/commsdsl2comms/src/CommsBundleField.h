@@ -28,26 +28,30 @@ namespace commsdsl2comms
 class CommsGenerator;
 class CommsBundleField final : public commsdsl::gen::GenBundleField, public CommsField
 {
-    using Base = commsdsl::gen::GenBundleField;
+    using GenBase = commsdsl::gen::GenBundleField;
     using CommsBase = CommsField;
+
 public:
-    CommsBundleField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    CommsBundleField(CommsGenerator& generator, ParseField parseObj, GenElem* parent);
 
     const CommsFieldsList& commsMembers() const
     {
-        return m_members;
+        return m_commsMembers;
     }
 
 protected:
-    // Base overrides
+    // GenBase overrides
     virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;    
 
     // CommsBase overrides
-    virtual IncludesList commsCommonIncludesImpl() const override;
+    virtual CommsIncludesList commsCommonIncludesImpl() const override;
     virtual std::string commsCommonCodeBodyImpl() const override;
     virtual std::string commsCommonMembersCodeImpl() const override;
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefMembersCodeImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
     virtual std::string commsDefPublicCodeImpl() const override;
@@ -56,12 +60,12 @@ protected:
     virtual std::string commsDefRefreshFuncBodyImpl() const override;    
     virtual std::string commsDefValidFuncBodyImpl() const override;
     virtual bool commsIsVersionDependentImpl() const override;
-    virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
+    virtual std::string commsMembersCustomizationOptionsBodyImpl(CommsFieldOptsFunc fieldOptsFunc) const override;
     virtual std::size_t commsMinLengthImpl() const override;
     virtual std::size_t commsMaxLengthImpl() const override;       
     virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
     virtual std::string commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
-    virtual void commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const override;
+    virtual void commsCompOptChecksImpl(const std::string& accStr, GenStringsList& checks, const std::string& prefix) const override;
     virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const override;
     virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
     virtual bool commsHasCustomLengthDeepImpl() const override;
@@ -73,14 +77,14 @@ private:
     std::string commsDefAccessCodeInternal() const;
     std::string commsDefAliasesCodeInternal() const;
 
-    void commsAddCustomReadRefreshOptInternal(StringsList& opts) const;
-    void commsAddRemLengthMemberOptInternal(StringsList& opts) const;
+    void commsAddCustomReadRefreshOptInternal(GenStringsList& opts) const;
+    void commsAddRemLengthMemberOptInternal(GenStringsList& opts) const;
 
-    std::pair<const CommsField*, std::string> parseMemRefInternal(const std::string accStr) const;
+    std::pair<const CommsField*, std::string> commsParseMemRefInternal(const std::string accStr) const;
 
-    CommsFieldsList m_members;
-    StringsList m_bundledReadPrepareCodes;
-    StringsList m_bundledRefreshCodes;
+    CommsFieldsList m_commsMembers;
+    GenStringsList m_bundledReadPrepareCodes;
+    GenStringsList m_bundledRefreshCodes;
 };
 
 } // namespace commsdsl2comms

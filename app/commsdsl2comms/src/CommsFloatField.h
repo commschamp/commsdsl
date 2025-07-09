@@ -28,7 +28,7 @@ class CommsFloatField final : public commsdsl::gen::GenFloatField, public CommsF
     using Base = commsdsl::gen::GenFloatField;
     using CommsBase = CommsField;
 public:
-    CommsFloatField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
+    CommsFloatField(CommsGenerator& generator, commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent);
 
 protected:
     // Base overrides
@@ -36,9 +36,9 @@ protected:
     virtual bool genWriteImpl() const override;    
 
     // CommsBase overrides
-    virtual IncludesList commsCommonIncludesImpl() const override;
+    virtual CommsIncludesList commsCommonIncludesImpl() const override;
     virtual std::string commsCommonCodeBodyImpl() const override;
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefConstructCodeImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
     virtual std::string commsDefPublicCodeImpl() const override;
@@ -58,12 +58,12 @@ private:
     std::string commsDefSpecialNamesMapCodeInternal() const;
     std::string commsDefDisplayDecimalsCodeInternal() const;
 
-    void commsAddUnitsOptInternal(StringsList& opts) const;
-    void commsAddVersionOptInternal(StringsList& opts) const;
-    void commsAddInvalidOptInternal(StringsList& opts) const;
+    void commsAddUnitsOptInternal(GenStringsList& opts) const;
+    void commsAddVersionOptInternal(GenStringsList& opts) const;
+    void commsAddInvalidOptInternal(GenStringsList& opts) const;
 
-    StringsList commsValidNormalConditionsInternal() const;
-    StringsList commsValidVersionBasedConditionsInternal() const;
+    GenStringsList commsValidNormalConditionsInternal() const;
+    GenStringsList commsValidVersionBasedConditionsInternal() const;
 };
 
 } // namespace commsdsl2comms

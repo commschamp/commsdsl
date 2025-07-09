@@ -34,7 +34,7 @@ namespace commsdsl2test
 namespace 
 {
 
-using ReplacementMap = commsdsl::gen::util::ReplacementMap;
+using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
 
 } // namespace 
     
@@ -89,7 +89,7 @@ bool TestCmake::testWriteInternal() const
         inputNs = interfaceNs;
     }
 
-    ReplacementMap repl = {
+    GenReplacementMap repl = {
         {"PROJ_NAME", m_generator.genCurrentSchema().genSchemaName()},
         {"PROJ_NS", m_generator.genCurrentSchema().genMainNamespace()},
         {"INTERFACE_SCOPE", std::move(interfaceScope)},

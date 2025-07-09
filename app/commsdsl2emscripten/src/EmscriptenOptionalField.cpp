@@ -125,7 +125,7 @@ std::string EmscriptenOptionalField::emscriptenHeaderExtraPublicFuncsImpl() cons
         "#^#COMMON#$#\n";
 
     auto& gen = EmscriptenGenerator::cast(genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FIELD", gen.emscriptenClassName(m_field->field())},
         {"COMMON", emscriptenHeaderCommonModeFuncs()}
     };     
@@ -159,7 +159,7 @@ std::string EmscriptenOptionalField::emscriptenSourceBindFuncsImpl() const
         ".function(\"setMissing\", &#^#CLASS_NAME#$#::setMissing)"
         ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}
     };
 

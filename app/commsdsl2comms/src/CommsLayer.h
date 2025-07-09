@@ -29,8 +29,8 @@ namespace commsdsl2comms
 class CommsLayer
 {
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
-    using IncludesList = StringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+    using CommsIncludesList = GenStringsList;
     using CommsLayersList = std::vector<CommsLayer*>;
 
     explicit CommsLayer(commsdsl::gen::GenLayer& layer);
@@ -48,9 +48,9 @@ public:
 
     bool commsPrepare();
 
-    IncludesList commsCommonIncludes() const;
+    CommsIncludesList commsCommonIncludes() const;
     std::string commsCommonCode() const;
-    IncludesList commsDefIncludes() const;
+    CommsIncludesList commsDefIncludes() const;
     std::string commsDefType(const CommsLayer* prevLayer, bool& hasInputMessages) const;
     bool commsIsCustomizable() const;
     void commsSetForcedPseudoField();
@@ -83,14 +83,14 @@ public:
 
 
 protected:
-    virtual IncludesList commsDefIncludesImpl() const;
+    virtual CommsIncludesList commsDefIncludesImpl() const;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const;
     virtual bool commsDefHasInputMessagesImpl() const;
-    virtual StringsList commsDefExtraOptsImpl() const; 
+    virtual GenStringsList commsDefExtraOptsImpl() const; 
     virtual bool commsIsCustomizableImpl() const;
-    virtual StringsList commsExtraDataViewDefaultOptionsImpl() const;
-    virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const;
-    virtual StringsList commsExtraMsgFactoryDefaultOptionsImpl() const;
+    virtual GenStringsList commsExtraDataViewDefaultOptionsImpl() const;
+    virtual GenStringsList commsExtraBareMetalDefaultOptionsImpl() const;
+    virtual GenStringsList commsExtraMsgFactoryDefaultOptionsImpl() const;
     virtual std::string commsCustomDefMembersCodeImpl() const;
     virtual std::string commsCustomFieldOptsImpl() const;
     virtual std::string commsCustomFieldDataViewOptsImpl() const;
@@ -101,20 +101,20 @@ protected:
     static std::string commsMsgFactoryAliasInOptions(const commsdsl::gen::GenElem* parent);
 
 private:
-    using FieldOptsFunc = std::string (CommsField::*)() const;
-    using ExtraLayerOptsFunc = StringsList (CommsLayer::*)() const;
+    using CommsFieldOptsFunc = std::string (CommsField::*)() const;
+    using ExtraLayerOptsFunc = GenStringsList (CommsLayer::*)() const;
 
     std::string commsDefMembersCodeInternal() const;
     std::string commsDefDocInternal() const;
     std::string commsCustomizationOptionsInternal(
-        FieldOptsFunc fieldOptsFunc, 
+        CommsFieldOptsFunc fieldOptsFunc, 
         ExtraLayerOptsFunc extraLayerOptsFunc,
         bool hasBase,
         const std::string& customFieldOpts) const;  
 
-    StringsList commsExtraDataViewDefaultOptionsInternal() const;
-    StringsList commsExtraBareMetalDefaultOptionsInternal() const;
-    StringsList commsExtraMsgFactoryDefaultOptionsInternal() const;
+    GenStringsList commsExtraDataViewDefaultOptionsInternal() const;
+    GenStringsList commsExtraBareMetalDefaultOptionsInternal() const;
+    GenStringsList commsExtraMsgFactoryDefaultOptionsInternal() const;
     
     commsdsl::gen::GenLayer& m_layer;
     CommsField* m_commsExternalField = nullptr;

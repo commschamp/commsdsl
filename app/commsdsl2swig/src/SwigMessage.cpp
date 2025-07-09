@@ -66,7 +66,7 @@ void SwigMessage::swigAddCode(StringsList& list) const
     auto* mainInterface = gen.swigMainInterface();
     assert(mainInterface != nullptr);
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"COMMS_CLASS", comms::genScopeFor(*this, gen)},
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"INTERFACE", gen.swigClassName(*mainInterface)},
@@ -86,7 +86,7 @@ void SwigMessage::swigAddCode(StringsList& list) const
             "protected:\n"
             "    #^#CODE#$#\n";
 
-        util::ReplacementMap replTmp = {
+        util::GenReplacementMap replTmp = {
             {"CODE", std::move(protectedCode)}
         };
 
@@ -98,7 +98,7 @@ void SwigMessage::swigAddCode(StringsList& list) const
             "private:\n"
             "    #^#CODE#$#\n";
 
-        util::ReplacementMap replTmp = {
+        util::GenReplacementMap replTmp = {
             {"CODE", std::move(privateCode)}
         };
 
@@ -139,7 +139,7 @@ void SwigMessage::swigAddDef(StringsList& list) const
     static const std::string Templ = 
         "%rename(eq_#^#CLASS_NAME#$#) operator==(const #^#CLASS_NAME#$#&, const #^#CLASS_NAME#$#&);";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", SwigGenerator::cast(genGenerator()).swigClassName(*this)},
     };
 
@@ -184,7 +184,7 @@ bool SwigMessage::genWriteImpl() const
         "#^#DEF#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
         {"FIELDS", swigFieldDefsInternal()},
         {"DEF", swigClassDeclInternal()},
@@ -224,7 +224,7 @@ std::string SwigMessage::swigClassDeclInternal() const
     auto& gen = SwigGenerator::cast(genGenerator());
     auto* iFace = gen.swigMainInterface();
     assert(iFace != nullptr);
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"INTERFACE", gen.swigClassName(*iFace)},
         {"FIELDS", swigFieldsAccDeclInternal()},
@@ -245,7 +245,7 @@ std::string SwigMessage::swigFieldsAccDeclInternal() const
             "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#();\n"
         };
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(f->field())},
             {"ACC_NAME", comms::genAccessName(f->field().genParseObj().parseName())}
         };
@@ -274,7 +274,7 @@ std::string SwigMessage::swigFieldsAccCodeInternal() const
             "}\n"            
         };
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(f->field())},
             {"ACC_NAME", comms::genAccessName(f->field().genParseObj().parseName())}
         };

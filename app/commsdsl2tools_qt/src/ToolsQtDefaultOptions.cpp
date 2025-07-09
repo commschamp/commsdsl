@@ -60,7 +60,7 @@ std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t
             "    #^#NEXT#$#\n"
             ">";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"SCOPE", comms::genScopeForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator)},
             {"NEXT", toolsBaseCodeInternal(generator, idx, false)}
         };        
@@ -86,7 +86,7 @@ std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t
         "    #^#NEXT#$#\n"
         ">";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SCOPE", std::move(scope)},
         {"NEXT", std::move(nextScope)}
     };
@@ -185,7 +185,7 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
 
     comms::genPrepareIncludeStatement(includes);
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"INCLUDES", util::genStrListToString(includes, "\n", "")},
         {"EXTRA_INCLUDES", util::genReadFileContents(codePrefix + strings::genIncFileSuffixStr())},

@@ -49,7 +49,7 @@ std::string EmscriptenEnumField::emscriptenBindValues(const EmscriptenNamespace*
                 static const std::string Templ = 
                     ".value(\"#^#NAME#$#\", #^#SCOPE#$#_#^#NAME#$#)";
 
-                util::ReplacementMap repl = {
+                util::GenReplacementMap repl = {
                     {"NAME", name},
                     {"SCOPE", comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), genGenerator(), *forcedParent)}
                 };                    
@@ -61,7 +61,7 @@ std::string EmscriptenEnumField::emscriptenBindValues(const EmscriptenNamespace*
             static const std::string Templ = 
                 ".value(\"#^#NAME#$#\", #^#CLASS_NAME#$#::ValueType::#^#NAME#$#)";
 
-            util::ReplacementMap repl = {
+            util::GenReplacementMap repl = {
                 {"NAME", name},
                 {"CLASS_NAME", emscriptenBindClassName()}
             };
@@ -163,7 +163,7 @@ std::string EmscriptenEnumField::emscriptenSourceBindFuncsImpl() const
             ;
     }        
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}
     };
     
@@ -193,7 +193,7 @@ std::string EmscriptenEnumField::emscriptenSourceBindExtraImpl() const
         "    #^#VALUES#$#\n"
         "   ;\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()},
         {"VALUES", emscriptenBindValues()}
     };

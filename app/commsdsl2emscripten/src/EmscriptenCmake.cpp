@@ -134,7 +134,7 @@ bool EmscriptenCmake::emscriptenWriteInternal() const
         s->emscriptenAddSourceFiles(sources);
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"PROJ_NAME", m_generator.genProtocolSchema().genMainNamespace()},
         {"APPEND", util::genReadFileContents(util::genPathAddElem(m_generator.genGetCodeDir(), strings::genCmakeListsFileStr()) + strings::genAppendFileSuffixStr())},
         {"SOURCES", util::genStrListToString(sources, "\n", "")},

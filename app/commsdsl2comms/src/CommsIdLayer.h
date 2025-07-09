@@ -28,18 +28,18 @@ class CommsIdLayer final : public commsdsl::gen::GenIdLayer, public CommsLayer
     using Base = commsdsl::gen::GenIdLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsIdLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
+    CommsIdLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent);
 
 protected:
     virtual bool genPrepareImpl() override;
     
     // CommsBase overrides
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
     virtual bool commsDefHasInputMessagesImpl() const override;
     virtual bool commsIsCustomizableImpl() const override;    
-    virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const override;
-    virtual StringsList commsExtraMsgFactoryDefaultOptionsImpl() const override;
+    virtual GenStringsList commsExtraBareMetalDefaultOptionsImpl() const override;
+    virtual GenStringsList commsExtraMsgFactoryDefaultOptionsImpl() const override;
 
 private:
 };

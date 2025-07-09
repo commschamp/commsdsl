@@ -80,7 +80,7 @@ std::string SwigVariantField::swigExtraPublicFuncsDeclImpl() const
             "#^#CLASS_NAME#$#& accessField_#^#ACC_NAME#$#();\n"
         };
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(m->field())},
             {"ACC_NAME", comms::genAccessName(m->field().genParseObj().parseName())}
         };
@@ -96,7 +96,7 @@ std::string SwigVariantField::swigExtraPublicFuncsDeclImpl() const
         "void currentFieldExec(#^#CLASS_NAME#$#_Handler& handler);\n\n"
         "#^#MEMBERS#$#\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"MEMBERS", util::genStrListToString(accFuncs, "\n", "")}
@@ -117,7 +117,7 @@ std::string SwigVariantField::swigExtraPublicFuncsCodeImpl() const
             "#^#CLASS_NAME#$#& accessField_#^#ACC_NAME#$#() { return static_cast<#^#CLASS_NAME#$#&>(Base::accessField_#^#ACC_NAME#$#()); }\n"
         };
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(m->field())},
             {"ACC_NAME", comms::genAccessName(m->field().genParseObj().parseName())}
         };
@@ -131,7 +131,7 @@ std::string SwigVariantField::swigExtraPublicFuncsCodeImpl() const
         static const std::string Templ = 
             "case #^#IDX#$#: handler.handle_#^#ACC_NAME#$#(accessField_#^#ACC_NAME#$#()); break;\n";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"ACC_NAME", comms::genAccessName(m_swigMembers[idx]->field().genParseObj().parseName())},
             {"IDX", util::genNumToString(idx)}
         };
@@ -153,7 +153,7 @@ std::string SwigVariantField::swigExtraPublicFuncsCodeImpl() const
         "}\n"
         ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"MEMBERS", util::genStrListToString(accFuncs, "\n", "")},
         {"CASES", util::genStrListToString(cases, "", "")},
@@ -169,7 +169,7 @@ void SwigVariantField::swigAddDefImpl(StringsList& list) const
         "%feature(\"director\") #^#CLASS_NAME#$#_Handler;";
 
     auto& gen = SwigGenerator::cast(genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
     };
 
@@ -203,7 +203,7 @@ std::string SwigVariantField::swigHandlerDeclInternal() const
         static const std::string Templ = 
             "virtual void handle_#^#ACC_NAME#$#(#^#CLASS_NAME#$#& field);\n";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"ACC_NAME", comms::genAccessName(m->field().genParseObj().parseName())},
             {"CLASS_NAME", gen.swigClassName(m->field())}
         };
@@ -219,7 +219,7 @@ std::string SwigVariantField::swigHandlerDeclInternal() const
         "};\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"ACCESS_FUNCS", util::genStrListToString(accessFuncs, "", "")},
     };
@@ -235,7 +235,7 @@ void SwigVariantField::swigAddHandlerCodeInternal(StringsList& list) const
         static const std::string Templ = 
             "virtual void handle_#^#ACC_NAME#$#(#^#CLASS_NAME#$#& field) { static_cast<void>(field); }\n";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"ACC_NAME", comms::genAccessName(m->field().genParseObj().parseName())},
             {"CLASS_NAME", gen.swigClassName(m->field())}
         };
@@ -251,7 +251,7 @@ void SwigVariantField::swigAddHandlerCodeInternal(StringsList& list) const
         "};\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"ACCESS_FUNCS", util::genStrListToString(accessFuncs, "", "")},
     };

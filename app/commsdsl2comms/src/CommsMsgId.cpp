@@ -39,7 +39,7 @@ namespace commsdsl2comms
 namespace 
 {
 
-using ReplacementMap = commsdsl::gen::util::ReplacementMap;
+using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
 
 } // namespace 
     
@@ -83,7 +83,7 @@ bool CommsMsgId::commsWrite() const
         "#^#NS_END#$#\n";
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", m_generator.genCurrentSchema().genMainNamespace()},
         {"TYPE", commsTypeInternal()},
@@ -109,8 +109,8 @@ std::string CommsMsgId::commsTypeInternal() const
         auto* msgIdField = allMsgIdFields.front();
         assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Enum);
         auto* castedMsgIdField = static_cast<const CommsEnumField*>(msgIdField);
-        auto dslObj = castedMsgIdField->genEnumFieldParseObj();
-        return comms::genCppIntTypeFor(dslObj.parseType(), dslObj.parseMaxLength());
+        auto parseObj = castedMsgIdField->genEnumFieldParseObj();
+        return comms::genCppIntTypeFor(parseObj.parseType(), parseObj.parseMaxLength());
     }
 
     auto allMessages = m_parent.genGetAllMessages();

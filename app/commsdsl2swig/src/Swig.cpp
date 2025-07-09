@@ -74,7 +74,7 @@ bool Swig::swigWriteInternal()
             "#^#APPEND#$#\n"
             ;      
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"NS", m_generator.genProtocolSchema().genMainNamespace()},
             {"LANG_DEFS", swigLangDefsInternal()},
             {"CODE", swigCodeBlockInternal()},
@@ -142,7 +142,7 @@ std::string Swig::swigCodeBlockInternal()
         ;
 
     comms::genPrepareIncludeStatement(includes);
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
         {"CODE", util::genStrListToString(codeElems, "\n", "")}
     };
@@ -187,7 +187,7 @@ std::string Swig::swigDefInternal()
         "#^#STD_INCLUDES#$#\n"
         "#^#DEFS#$#\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"STD_INCLUDES", util::genStrListToString(stdIncludes, "\n", "\n")},
         {"DEFS", util::genStrListToString(defs, "\n", "")}
     };
@@ -236,7 +236,7 @@ std::string Swig::swigPrependInternal() const
     const std::string Templ = 
         "// Use #^#NAME#$##^#SUFFIX#$# file to inject code here.\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAME", swigName},
         {"SUFFIX", strings::genPrependFileSuffixStr()}
     };
@@ -255,7 +255,7 @@ std::string Swig::swigAppendInternal() const
     const std::string Templ = 
         "// Use #^#NAME#$##^#SUFFIX#$# file to inject code here.\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAME", swigName},
         {"SUFFIX", strings::genAppendFileSuffixStr()}
     };

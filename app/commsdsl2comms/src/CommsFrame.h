@@ -33,7 +33,7 @@ class CommsFrame final: public commsdsl::gen::GenFrame
 public:
     using CommsLayersList = CommsLayer::CommsLayersList;
 
-    explicit CommsFrame(CommsGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent);
+    explicit CommsFrame(CommsGenerator& generator, commsdsl::parse::ParseFrame parseObj, commsdsl::gen::GenElem* parent);
     virtual ~CommsFrame();
 
     std::string commsDefaultOptions() const;

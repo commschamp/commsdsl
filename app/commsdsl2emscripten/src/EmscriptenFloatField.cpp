@@ -59,7 +59,7 @@ std::string EmscriptenFloatField::emscriptenHeaderExtraPublicFuncsImpl() const
         "    return Base::displayDecimals();\n"
         "}\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SPECIALS", emscriptenHeaderSpecialsInternal()}
     };
 
@@ -73,7 +73,7 @@ std::string EmscriptenFloatField::emscriptenSourceBindFuncsImpl() const
         "#^#SPECIALS#$#\n"
         ".class_function(\"displayDecimals\", &#^#CLASS_NAME#$#::displayDecimals)";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()},
         {"SPECIALS", emscriptenSourceSpecialsBindInternal()}
     };
@@ -110,7 +110,7 @@ std::string EmscriptenFloatField::emscriptenHeaderSpecialsInternal() const
             "}\n"
         ;
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"SPEC_ACC", comms::genClassName(s.first)},
         };
 
@@ -127,7 +127,7 @@ std::string EmscriptenFloatField::emscriptenSourceSpecialsBindInternal() const
         return strings::genEmptyString();
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()},
     };
 

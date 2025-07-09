@@ -81,7 +81,7 @@ std::string SwigListField::swigValueTypeDeclImpl() const
 
     assert(elem != nullptr);
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"ELEM", SwigGenerator::cast(genGenerator()).swigClassName(*elem)}
     };
 
@@ -124,7 +124,7 @@ std::string SwigListField::swigExtraPublicFuncsCodeImpl() const
 
     assert(elem != nullptr);
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"ELEM", SwigGenerator::cast(genGenerator()).swigClassName(*elem)}
     };
 

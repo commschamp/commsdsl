@@ -89,7 +89,7 @@ bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
         static const std::string Templ = 
             ".value(\"#^#VAL#$#\", #^#SCOPE#$#::#^#VAL#$#)";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"VAL", v},
             {"SCOPE", ErrorStatusScopeStr}
         };
@@ -107,7 +107,7 @@ bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
         "        ;\n"
         "}\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"NAME", name},
         {"SCOPE", ErrorStatusScopeStr},
@@ -155,7 +155,7 @@ bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
         static const std::string Templ = 
             ".value(\"#^#VAL#$#\", #^#SCOPE#$#::#^#VAL#$#)";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"VAL", v},
             {"SCOPE", OptionalModeScopeStr}
         };
@@ -173,7 +173,7 @@ bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
         "        ;\n"
         "}\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"NAME", name},
         {"SCOPE", OptionalModeScopeStr},

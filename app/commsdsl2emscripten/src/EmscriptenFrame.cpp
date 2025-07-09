@@ -143,7 +143,7 @@ bool EmscriptenFrame::emscriptenWriteHeaderInternal() const
         "#^#DEF#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"INCLUDES", emscriptenHeaderIncludesInternal()},
         {"LAYERS", emscriptenHeaderLayersInternal()},
@@ -186,7 +186,7 @@ bool EmscriptenFrame::emscriptenWriteSourceInternal() const
         "#^#BIND#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"LAYERS", emscriptenSourceLayersInternal()},
         {"CODE", emscriptenSourceCodeInternal()},
@@ -255,7 +255,7 @@ std::string EmscriptenFrame::emscriptenHeaderAllFieldsInternal() const
             "    return &#^#NAME#$#;\n"
             "}\n";            
 
-        util::ReplacementMap fieldRepl = {
+        util::GenReplacementMap fieldRepl = {
             {"CLASS_NAME", gen.emscriptenClassName(l->layer())},
             {"NAME", l->emscriptenFieldAccName()},
             {"FUNC_NAME", l->emscriptenFieldAccFuncName()},
@@ -275,7 +275,7 @@ std::string EmscriptenFrame::emscriptenHeaderAllFieldsInternal() const
         "};\n";
 
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenHeaderAllFieldsNameInternal()},
         {"FIELDS", util::genStrListToString(fields, "\n", "")},
         {"FUNCS", util::genStrListToString(accFuncs, "\n", "\n")}
@@ -320,7 +320,7 @@ std::string EmscriptenFrame::emscriptenHeaderClassInternal() const
         assert(inputNs->emscriptenHasInput());
     }       
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(*this)},
         {"ACC", emscriptenHeaderLayersAccessInternal()},
         {"DATA_BUF", EmscriptenDataBuf::emscriptenClassName(gen)},
@@ -349,7 +349,7 @@ std::string EmscriptenFrame::emscriptenHeaderLayersAccessInternal() const
             "    return static_cast<#^#CLASS_NAME#$#*>(&m_frame.layer_#^#NAME#$#());\n"
             "}";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"CLASS_NAME", gen.emscriptenClassName(l->layer())},
             {"NAME", comms::genAccessName(l->layer().genParseObj().parseName())},
         };
@@ -377,7 +377,7 @@ std::string EmscriptenFrame::emscriptenSourceAllFieldsInternal() const
         static const std::string FieldTempl = 
             ".function(\"#^#NAME#$#\", &#^#CLASS_NAME#$#::#^#NAME#$#, emscripten::allow_raw_pointers())";
 
-        util::ReplacementMap fieldRepl = {
+        util::GenReplacementMap fieldRepl = {
             {"CLASS_NAME", emscriptenHeaderAllFieldsNameInternal()},
             {"NAME", l->emscriptenFieldAccFuncName()},
         };
@@ -392,7 +392,7 @@ std::string EmscriptenFrame::emscriptenSourceAllFieldsInternal() const
         "    #^#FIELDS#$#\n"
         "    ;\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenHeaderAllFieldsNameInternal()},
         {"FIELDS", util::genStrListToString(fields, "\n", "")}
     };
@@ -481,7 +481,7 @@ std::string EmscriptenFrame::emscriptenSourceCodeInternal() const
     auto* parentNs = iFace->genParentNamespace();
     assert(parentNs != nullptr);    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(*this)},
         {"DATA_BUF", EmscriptenDataBuf::emscriptenClassName(gen)},
         {"HANDLER", EmscriptenNamespace::cast(parentNs)->emscriptenHandlerClassName()},
@@ -512,7 +512,7 @@ std::string EmscriptenFrame::emscriptenSourceBindInternal() const
         "}\n";
 
     auto& gen = EmscriptenGenerator::cast(genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"ALL_FIELDS", emscriptenSourceAllFieldsInternal()},
         {"CLASS_NAME", gen.emscriptenClassName(*this)},
         {"LAYERS_ACC", emscriptenSourceLayersAccBindInternal()}
@@ -526,7 +526,7 @@ std::string EmscriptenFrame::emscriptenSourceLayersAccBindInternal() const
     auto& gen = EmscriptenGenerator::cast(genGenerator());
     util::GenStringsList result;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(*this)},
     };
         

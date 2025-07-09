@@ -119,7 +119,7 @@ bool SwigCmake::swigWriteInternal() const
         "#^#APPEND#$#"
         ;      
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"PROJ_NAME", m_generator.genProtocolSchema().genMainNamespace()},
         {"PREPEND", swigPrependInternal()},
         {"PREPEND_LANG", swigPrependLangInternal()},
@@ -149,7 +149,7 @@ std::string SwigCmake::swigPrependInternal() const
     const std::string Templ = 
         "# Use #^#FILE_NAME#$##^#SUFFIX#$# to add extra code here to find appropriate libraries and/or update swig global behaviour\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FILE_NAME", name},
         {"SUFFIX", strings::genPrependFileSuffixStr()},
     };
@@ -169,7 +169,7 @@ std::string SwigCmake::swigPrependLangInternal() const
     const std::string Templ = 
         "# Use #^#FILE_NAME#$##^#SUFFIX#$# to add extra code here to set swig variables to update language specific behavior\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FILE_NAME", name},
         {"SUFFIX", langSuffix}
     };
@@ -189,7 +189,7 @@ std::string SwigCmake::swigAppendInternal() const
     const std::string Templ = 
         "# Use #^#FILE_NAME#$##^#SUFFIX#$# to add extra code here to link previosly created language specific targets to language binding libraries\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FILE_NAME", name},
         {"SUFFIX", suffix},
     };

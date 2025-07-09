@@ -49,8 +49,8 @@ std::string genPathAddElem(const std::string& path, const std::string& elem);
 std::string genPathUp(const std::string& path);
 std::string genNameToNs(const std::string& value);
 
-using ReplacementMap = std::map<std::string, std::string>;
-std::string genProcessTemplate(const std::string& templ, const ReplacementMap& repl, bool tidyCode = false);
+using GenReplacementMap = std::map<std::string, std::string>;
+std::string genProcessTemplate(const std::string& templ, const GenReplacementMap& repl, bool tidyCode = false);
 
 using GenStringsList = std::vector<std::string>;
 std::string genStrListToString(

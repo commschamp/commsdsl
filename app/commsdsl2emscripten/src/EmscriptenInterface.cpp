@@ -105,7 +105,7 @@ bool EmscriptenInterface::emscriptenWriteHeaderInternal() const
         "#^#DEF#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"INCLUDES", emscriptenHeaderIncludesInternal()},
         {"FIELDS", emscriptenHeaderFieldsInternal()},
@@ -148,7 +148,7 @@ bool EmscriptenInterface::emscriptenWriteSourceInternal() const
     auto* parentNs = genParentNamespace();
     assert(parentNs != nullptr);
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"HEADER", gen.emscriptenRelHeaderFor(*this)},
         {"FIELDS", emscriptenSourceFieldsInternal()},
@@ -201,7 +201,7 @@ std::string EmscriptenInterface::emscriptenHeaderClassInternal() const
                 "    return static_cast<#^#FIELD_CLASS#$#*>(&transportField_#^#NAME#$#());\n"
                 "}\n";
 
-            util::ReplacementMap repl = {
+            util::GenReplacementMap repl = {
                 {"FIELD_CLASS", gen.emscriptenClassName(f->field())},
                 {"NAME", comms::genAccessName(f->field().genParseObj().parseName())},
             };
@@ -262,7 +262,7 @@ std::string EmscriptenInterface::emscriptenHeaderClassInternal() const
         auto* parentNs = genParentNamespace();
         assert(parentNs != nullptr);
         
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"CLASS_NAME", gen.emscriptenClassName(*this)},
             {"BASE", emscriptenHeaderBaseInternal()},
             {"DATA_BUF", EmscriptenDataBuf::emscriptenClassName(gen)},
@@ -290,7 +290,7 @@ std::string EmscriptenInterface::emscriptenHeaderBaseInternal() const
 
     auto* parentNs = genParentNamespace();
     auto& gen = EmscriptenGenerator::cast(genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"COMMS_CLASS", comms::genScopeFor(*this, gen)},
         {"DATA_BUF", EmscriptenDataBuf::emscriptenClassName(gen)},
         {"MSG_HANDLER", EmscriptenNamespace::cast(parentNs)->emscriptenHandlerClassName()},
@@ -312,7 +312,7 @@ std::string EmscriptenInterface::emscriptenSourceCodeInternal() const
 {
     auto& gen = EmscriptenGenerator::cast(genGenerator());
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(*this)},
     };
 

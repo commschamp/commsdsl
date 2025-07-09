@@ -106,7 +106,7 @@ bool EmscriptenMsgHandler::emscriptenWriteHeaderInternal() const
     auto* iFace = m_generator.emscriptenMainInterface();
     assert(iFace != nullptr);
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"CLASS_NAME", emscriptenClassName()},
         {"INCLUDES", emscriptenHeaderIncludesInternal()},
@@ -164,7 +164,7 @@ bool EmscriptenMsgHandler::emscriptenWriteSrcInternal() const
 
     comms::genPrepareIncludeStatement(includes);
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"HEADER", emscriptenRelHeader()},
         {"CLASS_NAME", emscriptenClassName()},
@@ -218,7 +218,7 @@ std::string EmscriptenMsgHandler::emscriptenHeaderHandleFuncsInternal() const
     auto* iFace = m_generator.emscriptenMainInterface();
     assert(iFace != nullptr);
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"INTERFACE", m_generator.emscriptenClassName(*iFace)},
     };
 
@@ -253,7 +253,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceHandleFuncsInternal() const
     auto* iFace = m_generator.emscriptenMainInterface();
     assert(iFace != nullptr);
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenClassName()},
         {"INTERFACE", m_generator.emscriptenClassName(*iFace)},
     };
@@ -297,7 +297,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceWrapperClassInternal() const
         "    #^#FUNCS#$#\n"
         "};\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"WRAPPER", m_generator.emscriptenScopeNameForRoot(WrapperClassName)},
         {"CLASS_NAME", emscriptenClassName()},
         {"FUNCS", emscriptenSourceWrapperFuncsInternal()},
@@ -325,7 +325,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceWrapperFuncsInternal() const
             continue;
         }
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"TYPE", m_generator.emscriptenClassName(*m)}
         };
 
@@ -335,7 +335,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceWrapperFuncsInternal() const
     auto* iFace = m_generator.emscriptenMainInterface();
     assert(iFace != nullptr);
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"TYPE", m_generator.emscriptenClassName(*iFace)}
     };    
 
@@ -354,7 +354,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceBindInternal() const
         "        ;\n"
         "}\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenClassName()},
         {"WRAPPER", m_generator.emscriptenScopeNameForRoot(WrapperClassName)},
         {"FUNCS", emscriptenSourceBindFuncsInternal()}
@@ -368,7 +368,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceBindFuncsInternal() const
     const std::string Templ = 
         ".function(\"handle_#^#TYPE#$#\", emscripten::optional_override([](#^#HANDLER#$#& self, #^#TYPE#$#* msg) { self.#^#HANDLER#$#::handle_#^#TYPE#$#(msg);}), emscripten::allow_raw_pointers())";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"HANDLER", emscriptenClassName()},
     };
 

@@ -67,7 +67,7 @@ std::string EmscriptenRefField::emscriptenHeaderExtraPublicFuncsImpl() const
     auto* refField = EmscriptenField::cast(genReferencedField());
     assert(refField != nullptr);
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"REF_FIELD", gen.emscriptenClassName(refField->field())},
         {"REF_BASE", refField->emscriptenTemplateScope()}
     };
@@ -85,7 +85,7 @@ std::string EmscriptenRefField::emscriptenSourceBindFuncsImpl() const
     static const std::string Templ = 
         ".function(\"ref\", &#^#CLASS_NAME#$#::ref, emscripten::allow_raw_pointers())";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}
     };
 

@@ -28,7 +28,7 @@ class CommsListField final : public commsdsl::gen::GenListField, public CommsFie
     using Base = commsdsl::gen::GenListField;
     using CommsBase = CommsField;
 public:
-    CommsListField(CommsGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
+    CommsListField(CommsGenerator& generator, commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent);
 
 protected:
     // Base overrides
@@ -36,18 +36,18 @@ protected:
     virtual bool genWriteImpl() const override;    
 
     // CommsBase overrides
-    virtual IncludesList commsCommonIncludesImpl() const override;
+    virtual CommsIncludesList commsCommonIncludesImpl() const override;
     virtual std::string commsCommonCodeBodyImpl() const override;
     virtual std::string commsCommonMembersCodeImpl() const override;
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefMembersCodeImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
     virtual std::string commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const override;
     virtual std::string commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const override;
     virtual bool commsIsLimitedCustomizableImpl() const override;
     virtual bool commsIsVersionDependentImpl() const override;
-    virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
-    virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const override;
+    virtual std::string commsMembersCustomizationOptionsBodyImpl(CommsFieldOptsFunc fieldOptsFunc) const override;
+    virtual GenStringsList commsExtraBareMetalDefaultOptionsImpl() const override;
     virtual std::size_t commsMaxLengthImpl() const override;
     virtual std::string commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
 
@@ -55,12 +55,12 @@ private:
     std::string commsDefFieldOptsInternal() const;
     std::string commsDefElementInternal() const;
 
-    void commsAddFixedLengthOptInternal(StringsList& opts) const;
-    void commsAddCountPrefixOptInternal(StringsList& opts) const;
-    void commsAddLengthPrefixOptInternal(StringsList& opts) const;
-    void commsAddElemLengthPrefixOptInternal(StringsList& opts) const;
-    void commsAddTermSuffixOptInternal(StringsList& opts) const;
-    void commsAddLengthForcingOptInternal(StringsList& opts) const;
+    void commsAddFixedLengthOptInternal(GenStringsList& opts) const;
+    void commsAddCountPrefixOptInternal(GenStringsList& opts) const;
+    void commsAddLengthPrefixOptInternal(GenStringsList& opts) const;
+    void commsAddElemLengthPrefixOptInternal(GenStringsList& opts) const;
+    void commsAddTermSuffixOptInternal(GenStringsList& opts) const;
+    void commsAddLengthForcingOptInternal(GenStringsList& opts) const;
 
     CommsField* m_commsExternalElementField = nullptr;
     CommsField* m_commsMemberElementField = nullptr;

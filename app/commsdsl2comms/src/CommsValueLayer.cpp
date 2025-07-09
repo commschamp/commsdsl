@@ -24,8 +24,8 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsValueLayer::CommsValueLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent),
+CommsValueLayer::CommsValueLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) :
+    Base(generator, parseObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {
 }
@@ -45,9 +45,9 @@ bool CommsValueLayer::genPrepareImpl()
     return true;
 }
 
-CommsValueLayer::IncludesList CommsValueLayer::commsDefIncludesImpl() const
+CommsValueLayer::CommsIncludesList CommsValueLayer::commsDefIncludesImpl() const
 {
-    IncludesList result = {
+    CommsIncludesList result = {
         "comms/frame/TransportValueLayer.h"
     };
 
@@ -64,7 +64,7 @@ std::string CommsValueLayer::commsDefBaseTypeImpl(const std::string& prevName) c
         "    #^#EXTRA_OPTS#$#\n"
         ">";    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FIELD_TYPE", commsDefFieldType()},
         {"INTERFACE_FIELD_IDX", util::genNumToString(genValueLayerParseObj().parseFieldIdx())},
         {"PREV_LAYER", prevName},
@@ -80,7 +80,7 @@ std::string CommsValueLayer::commsDefBaseTypeImpl(const std::string& prevName) c
 
 std::string CommsValueLayer::commsDefExtraOptsInternal() const
 {
-    StringsList result;
+    GenStringsList result;
     auto obj = genValueLayerParseObj();
     if (obj.parsePseudo()) {
         result.push_back("comms::option::def::PseudoValue");

@@ -61,7 +61,7 @@ void SwigComms::swigAddCode(const SwigGenerator& generator, StringsList& list)
         "using #^#ERR_STATUS#$# = comms::ErrorStatus;\n"
         "using #^#OPT_MODE#$# = comms::field::OptionalMode;\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"ERR_STATUS", swigErrorStatusClassName(generator)},
         {"OPT_MODE", swigOptionalModeClassName(generator)}
     };
@@ -122,7 +122,7 @@ bool SwigComms::swigWriteInternal() const
         "};\n"
         ;      
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
         {"ERR_STATUS", swigErrorStatusClassName(m_generator)},
         {"OPT_MODE", swigOptionalModeClassName(m_generator)}

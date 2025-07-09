@@ -37,9 +37,9 @@ namespace commsdsl2comms
 namespace 
 {
 
-const std::size_t MaxRangesInOpts = 5U;
+const std::size_t CommsMaxRangesInOpts = 5U;
 
-std::uintmax_t asBigUnsigned(std::intmax_t val)
+std::uintmax_t commsAsBigUnsigned(std::intmax_t val)
 {
     return static_cast<std::uintmax_t>(val);
 }
@@ -47,24 +47,21 @@ std::uintmax_t asBigUnsigned(std::intmax_t val)
 } // namespace 
     
 
-CommsEnumField::CommsEnumField(
-    CommsGenerator& generator, 
-    commsdsl::parse::ParseField dslObj, 
-    commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsEnumField::CommsEnumField(CommsGenerator& generator, ParseField parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
-commsdsl::gen::util::GenStringsList CommsEnumField::commsEnumValues() const
+CommsEnumField::GenStringsList CommsEnumField::commsEnumValues() const
 {
-    commsdsl::gen::util::GenStringsList result;
+    GenStringsList result;
     if (m_validRanges.empty()) {
         return result;
     }
     
     auto& revValues = genSortedRevValues();
-    util::GenStringsList valuesStrings;
+    GenStringsList valuesStrings;
     valuesStrings.reserve(revValues.size() + 3);
     auto obj = genEnumFieldParseObj();
     auto& values = obj.parseValues();
@@ -119,7 +116,7 @@ commsdsl::gen::util::GenStringsList CommsEnumField::commsEnumValues() const
         docStr = util::genStrReplace(docStr, "\n", "\n ///  ");
 
         assert(!valStr.empty());
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"NAME", *v.second},
             {"VALUE", std::move(valStr)},
         };
@@ -128,7 +125,7 @@ commsdsl::gen::util::GenStringsList CommsEnumField::commsEnumValues() const
         static const std::string DocElem("#^#DOC#$#");
         templ.insert((templ.end() - 1U), DocElem.begin(), DocElem.end());
 
-        util::ReplacementMap docRepl = {
+        util::GenReplacementMap docRepl = {
             {"DOC", std::move(docStr)}
         };
         valuesStrings.push_back(util::genProcessTemplate(templ, docRepl));
@@ -158,7 +155,7 @@ commsdsl::gen::util::GenStringsList CommsEnumField::commsEnumValues() const
 bool CommsEnumField::genPrepareImpl()
 {
     return 
-        Base::genPrepareImpl() && 
+        GenBase::genPrepareImpl() && 
         commsPrepare() &&
         commsPrepareValidRangesInternal();
 }
@@ -168,9 +165,9 @@ bool CommsEnumField::genWriteImpl() const
     return commsWrite();
 }
 
-CommsEnumField::IncludesList CommsEnumField::commsCommonIncludesImpl() const
+CommsEnumField::CommsIncludesList CommsEnumField::commsCommonIncludesImpl() const
 {
-    IncludesList result = {
+    CommsIncludesList result = {
         "<cstdint>",
         "<type_traits>",
         "<utility>"
@@ -182,7 +179,7 @@ CommsEnumField::IncludesList CommsEnumField::commsCommonIncludesImpl() const
         result.push_back(std::move(inc));
     }  
 
-    if ((MaxRangesInOpts < m_validRanges.size()) ||
+    if ((CommsMaxRangesInOpts < m_validRanges.size()) ||
         (!commsIsDirectValueNameMappingInternal())) {
         result.insert(result.end(), {
             "<algorithm>",
@@ -203,7 +200,7 @@ std::string CommsEnumField::commsCommonCodeBodyImpl() const
         "#^#VAL_VALUE_NAMES_MAP_FUNC#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"ENUM_DEF", commsCommonEnumInternal()},
         {"VALUE_NAME_MAP_DEF", commsCommonValueNameMapInternal()},
         {"NAME_FUNC", commsCommonNameFuncCode()},
@@ -222,16 +219,16 @@ std::string CommsEnumField::commsCommonCodeExtraImpl() const
         "///     @ref #^#SCOPE#$# field.\n"
         "using #^#NAME#$#Val = #^#NAME#$#Common::ValueType;\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SCOPE", comms::genScopeFor(*this, genGenerator())},
         {"NAME", comms::genClassName(genParseObj().parseName())}
     };
     return util::genProcessTemplate(Templ, repl);
 }
 
-CommsEnumField::IncludesList CommsEnumField::commsDefIncludesImpl() const
+CommsEnumField::CommsIncludesList CommsEnumField::commsDefIncludesImpl() const
 {
-    IncludesList result = {
+    CommsIncludesList result = {
         "comms/field/EnumValue.h"
     };
 
@@ -258,10 +255,10 @@ std::string CommsEnumField::commsDefBaseClassImpl() const
         ">";
 
     auto& gen = genGenerator();
-    auto dslObj = genEnumFieldParseObj();
-    util::ReplacementMap repl = {
+    auto parseObj = genEnumFieldParseObj();
+    util::GenReplacementMap repl = {
         {"PROT_NAMESPACE", gen.genSchemaOf(*this).genMainNamespace()},
-        {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.parseEndian())},
+        {"FIELD_BASE_PARAMS", commsFieldBaseParams(parseObj.parseEndian())},
         {"COMMON_SCOPE", comms::genCommonScopeFor(*this, gen)},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };         
@@ -283,7 +280,7 @@ std::string CommsEnumField::commsDefPublicCodeImpl() const
         "#^#VALUE_NAMES_MAP#$#\n"    
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"VALUE_NAMES_MAP_DEFS", commsDefValueNameMapInternal()},
         {"VALUE_NAME", commsDefValueNameFuncCodeInternal()},
         {"VALUE_NAMES_MAP", commsDefValueNamesMapFuncCodeInternal()},
@@ -301,7 +298,7 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
 
     if (!validCheckVersion) {
 
-        if (m_validRanges.size() <= MaxRangesInOpts) {
+        if (m_validRanges.size() <= CommsMaxRangesInOpts) {
             return strings::genEmptyString(); // Already in options
         }
 
@@ -343,7 +340,7 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
             prevIter = iter;
         }
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"VALUES", util::genStrListToString(valuesStrings, ",\n", "")}
         };
 
@@ -426,7 +423,7 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
                 maxValue = util::genNumToString(r.m_max);
             }
 
-            util::ReplacementMap repl = {
+            util::GenReplacementMap repl = {
                 {"MIN_VALUE", std::move(minValue)},
                 {"MAX_VALUE", std::move(maxValue)},
             };
@@ -438,7 +435,7 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
             comparisons.push_back(util::genProcessTemplate(*templ, repl));
         }
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"COMPARISONS", util::genStrListToString(comparisons, "\n\n", "")},
             {"FROM_VERSION", util::genNumToString(l.front().m_sinceVersion)},
             {"UNTIL_VERSION", util::genNumToString(l.front().m_deprecatedSince)}
@@ -455,7 +452,7 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
         ;
 
     std::string condStr = util::genStrListToString(conditions, "\n", "");
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CONDITIONS", std::move(condStr)}
     };
     return util::genProcessTemplate(Templ, repl);
@@ -634,16 +631,16 @@ bool CommsEnumField::commsPrepareValidRangesInternal()
             }
 
             if (bigUnsigned) {
-                if ((asBigUnsigned(iter->m_max) < std::numeric_limits<std::uintmax_t>::max()) &&
-                    ((asBigUnsigned(iter->m_max) + 1U) < asBigUnsigned(nextIter->m_min))) {
+                if ((commsAsBigUnsigned(iter->m_max) < std::numeric_limits<std::uintmax_t>::max()) &&
+                    ((commsAsBigUnsigned(iter->m_max) + 1U) < commsAsBigUnsigned(nextIter->m_min))) {
                     break;
                 }
 
-                assert(asBigUnsigned(iter->m_min) <= asBigUnsigned(nextIter->m_min));
+                assert(commsAsBigUnsigned(iter->m_min) <= commsAsBigUnsigned(nextIter->m_min));
                 nextIter->m_deprecatedSince = 0U; // invalidate next range
                 iter->m_max = 
                     static_cast<decltype(iter->m_max)>(
-                        std::max(asBigUnsigned(iter->m_max), asBigUnsigned(nextIter->m_max)));
+                        std::max(commsAsBigUnsigned(iter->m_max), commsAsBigUnsigned(nextIter->m_max)));
             }
             else {
                 if ((iter->m_max < std::numeric_limits<decltype(iter->m_max)>::max()) &&
@@ -703,7 +700,7 @@ std::string CommsEnumField::commsCommonEnumInternal() const
             "///     @ref #^#SCOPE#$# field.\n"
             "using ValueType = #^#MSG_ID#$#;\n";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"SCOPE", comms::genScopeFor(*this, gen)},
             {"MSG_ID", comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), gen, *msgIdNs)}
         };
@@ -720,7 +717,7 @@ std::string CommsEnumField::commsCommonEnumInternal() const
     ;    
 
     auto values = commsEnumValues();
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SCOPE", comms::genScopeFor(*this, gen)},
         {"TYPE", comms::genCppIntTypeFor(genEnumFieldParseObj().parseType(), genEnumFieldParseObj().parseMaxLength())},
         {"VALUES", util::genStrListToString(values, "\n", "")}
@@ -738,7 +735,7 @@ std::string CommsEnumField::commsCommonValueNameMapInternal() const
         "///     The @b second value of the pair is the size of the array.\n"
         "using ValueNamesMapInfo = std::pair<const ValueNameInfo*, std::size_t>;\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAME_INFO_TYPE", commsIsDirectValueNameMappingInternal() ? "const char*" : "std::pair<ValueType, const char*>"}
     };
 
@@ -764,7 +761,7 @@ std::string CommsEnumField::commsCommonValueNameFuncCodeInternal() const
         "}\n";
 
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"BODY", std::move(body)}
     };
     return util::genProcessTemplate(Templ, repl);
@@ -823,7 +820,7 @@ std::string CommsEnumField::commsCommonValueNamesMapFuncCodeInternal() const
         "}\n";
 
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"BODY", std::move(body)}
     };
     return util::genProcessTemplate(Templ, repl);
@@ -838,7 +835,7 @@ std::string CommsEnumField::commsCommonValueNamesMapDirectBodyInternal() const
     auto& thisSchema = genGenerator().genSchemaOf(*this);
 
     std::intmax_t nextValue = 0;
-    StringsList names;
+    GenStringsList names;
     for (auto& v : revValues) {
         if (v.first < nextValue) {
             continue;
@@ -906,7 +903,7 @@ std::string CommsEnumField::commsCommonValueNamesMapDirectBodyInternal() const
         "return std::make_pair(&Map[0], MapSize);";
 
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAMES", util::genStrListToString(names, ",\n", "")}
     };
 
@@ -935,7 +932,7 @@ std::string CommsEnumField::commsCommonValueNamesMapBinSearchBodyInternal() cons
         "return std::make_pair(&Map[0], MapSize);";
 
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAMES", std::move(names)}
     };
     return util::genProcessTemplate(Templ, repl);
@@ -958,7 +955,7 @@ std::string CommsEnumField::commsCommonBigUnsignedValueNameBinSearchPairsInterna
     auto& values = obj.parseValues();
     bool firstElem = true;
     std::intmax_t lastValue = std::numeric_limits<std::intmax_t>::min();
-    StringsList names;
+    GenStringsList names;
     for (auto& posV : valuesSeq) {
         auto castedV = static_cast<std::intmax_t>(posV);
         if ((!firstElem) && (lastValue == castedV)) {
@@ -1036,7 +1033,7 @@ std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
 
     bool firstElem = true;
     std::intmax_t lastValue = std::numeric_limits<std::intmax_t>::min();
-    StringsList names;
+    GenStringsList names;
     auto& currSchema = genGenerator().genSchemaOf(*this);
     for (auto& v : revValues) {
         if ((!firstElem) && (lastValue == v.first)) {
@@ -1133,7 +1130,7 @@ std::string CommsEnumField::commsDefValueNameMapInternal() const
         "/// @see @ref #^#COMMON_SCOPE#$#::ValueNamesMapInfo.\n"
         "using ValueNamesMapInfo = #^#COMMON_SCOPE#$#::ValueNamesMapInfo;\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"COMMON_SCOPE", comms::genCommonScopeFor(*this, genGenerator())}
     };
 
@@ -1161,7 +1158,7 @@ std::string CommsEnumField::commsDefValueNameFuncCodeInternal() const
         "    return valueName(Base::getValue());\n"
         "}\n";        
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"COMMON_SCOPE", comms::genCommonScopeFor(*this, genGenerator())}
     };
     return util::genProcessTemplate(Templ, repl);
@@ -1178,13 +1175,13 @@ std::string CommsEnumField::commsDefValueNamesMapFuncCodeInternal() const
         "}\n";
 
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"COMMON_SCOPE", comms::genCommonScopeFor(*this, genGenerator())}
     };
     return util::genProcessTemplate(Templ, repl);
 }
 
-void CommsEnumField::commsAddDefaultValueOptInternal(StringsList& opts) const
+void CommsEnumField::commsAddDefaultValueOptInternal(GenStringsList& opts) const
 {
     auto obj = genEnumFieldParseObj();
     auto defaultValue = obj.parseDefaultValue();
@@ -1211,7 +1208,7 @@ void CommsEnumField::commsAddDefaultValueOptInternal(StringsList& opts) const
     opts.push_back(std::move(str));
 }
 
-void CommsEnumField::commsAddLengthOptInternal(StringsList& opts) const
+void CommsEnumField::commsAddLengthOptInternal(GenStringsList& opts) const
 {
     auto obj = genEnumFieldParseObj();
     auto type = obj.parseType();
@@ -1266,7 +1263,7 @@ void CommsEnumField::commsAddLengthOptInternal(StringsList& opts) const
     }
 }
 
-void CommsEnumField::commsAddValidRangesOptInternal(StringsList& opts) const
+void CommsEnumField::commsAddValidRangesOptInternal(GenStringsList& opts) const
 {
     auto obj = genEnumFieldParseObj();
 
@@ -1332,7 +1329,7 @@ void CommsEnumField::commsAddValidRangesOptInternal(StringsList& opts) const
 
     assert(!m_validRanges.empty());
     if (!validCheckVersion) {
-        if (MaxRangesInOpts < m_validRanges.size()) {
+        if (CommsMaxRangesInOpts < m_validRanges.size()) {
             return; // Will be in validity check
         }
 
@@ -1381,7 +1378,7 @@ void CommsEnumField::commsAddValidRangesOptInternal(StringsList& opts) const
     }
 }
 
-void CommsEnumField::commsAddAvailableLengthLimitOptInternal(StringsList& opts) const
+void CommsEnumField::commsAddAvailableLengthLimitOptInternal(GenStringsList& opts) const
 {
     if (genEnumFieldParseObj().parseAvailableLengthLimit()) {
         util::genAddToStrList("comms::option::def::AvailableLengthLimit", opts);

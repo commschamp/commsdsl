@@ -55,7 +55,7 @@ void SwigAllMessages::swigAddCode(const SwigGenerator& generator, StringsList& l
         "        #^#MESSAGES#$#\n"
         "    >;\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NAME", strings::genAllMessagesStr()},
         {"MESSAGES", util::genStrListToString(msgList, ",\n", "")}
     };

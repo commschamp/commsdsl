@@ -92,7 +92,7 @@ bool CommsVersion::writeInternal() const
         "#^#APPEND#$#\n";
 
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", m_generator.genCurrentSchema().genMainNamespace()},
         {"VERSION", util::genNumToString(m_generator.genCurrentSchema().genSchemaVersion())},
@@ -136,7 +136,7 @@ std::string CommsVersion::commsProtVersionDefineInternal() const
         "/// @brief Full version of the protocol library as single number.\n"
         "#define #^#NS#$#_VERSION (COMMS_MAKE_VERSION(#^#NS#$#_MAJOR_VERSION, #^#NS#$#_MINOR_VERSION, #^#NS#$#_PATCH_VERSION))\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NS", util::genStrToUpper(m_generator.genCurrentSchema().genMainNamespace())},
         {"MAJOR_VERSION", tokens[VersionIdx_major]},
         {"MINOR_VERSION", tokens[VersionIdx_minor]},
@@ -175,7 +175,7 @@ std::string CommsVersion::commsProtVersionFuncsInternal() const
         "    return #^#NS#$#_VERSION;\n"
         "}\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"NS", util::genStrToUpper(m_generator.genCurrentSchema().genMainNamespace())},
     };
 

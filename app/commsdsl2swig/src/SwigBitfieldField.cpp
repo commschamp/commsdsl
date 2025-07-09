@@ -87,7 +87,7 @@ std::string SwigBitfieldField::swigExtraPublicFuncsDeclImpl() const
             "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#();\n"
         ;
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(m->field())},
             {"ACC_NAME", comms::genAccessName(m->field().genParseObj().parseName())}
         };
@@ -116,7 +116,7 @@ std::string SwigBitfieldField::swigExtraPublicFuncsCodeImpl() const
             "}\n"
         ;
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(m->field())},
             {"ACC_NAME", comms::genAccessName(m->field().genParseObj().parseName())}
         };
@@ -133,7 +133,7 @@ std::string SwigBitfieldField::swigExtraPublicFuncsCodeImpl() const
         "#^#VALUE_ACC#$#\n"
         "#^#MEM_ACC#$#\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"VALUE_ACC", std::move(valueAccCode)},
         {"MEM_ACC", util::genStrListToString(accFuncs, "\n", "")}
     };

@@ -47,7 +47,7 @@ std::string SwigFloatField::swigValueTypeDeclImpl() const
         "using ValueType = #^#TYPE#$#;\n";
 
     auto obj = genFloatFieldParseObj();
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"TYPE", comms::genCppFloatTypeFor(obj.parseType())}
     };
 
@@ -61,7 +61,7 @@ std::string SwigFloatField::swigExtraPublicFuncsDeclImpl() const
         "#^#SCPECIALS#$#\n"
         "static unsigned displayDecimals();\n";
 
-    util::ReplacementMap repl {
+    util::GenReplacementMap repl {
         {"SCPECIALS", swigSpecialsDeclInternal()},
     };
 
@@ -88,7 +88,7 @@ std::string SwigFloatField::swigSpecialsDeclInternal() const
             "void set#^#SPEC_ACC#$#();\n"
         ;
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"SPEC_ACC", comms::genClassName(s.first)},
         };
 

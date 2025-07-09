@@ -53,7 +53,7 @@ void SwigMsgHandler::swigAddFwdCode(const SwigGenerator& generator, StringsList&
     const std::string Templ =  
         "class #^#CLASS_NAME#$#;\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", swigClassName(generator)}
     };
 
@@ -86,7 +86,7 @@ void SwigMsgHandler::swigAddClassCode(const SwigGenerator& generator, StringsLis
             "    handle_#^#INTERFACE#$#(static_cast<#^#INTERFACE#$#&>(msg));\n"
             "}\n";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"MESSAGE", generator.swigClassName(*m)},
             {"COMMS_MESSAGE", comms::genScopeFor(*m, generator)},
             {"INTERFACE", interfaceClassName},
@@ -115,7 +115,7 @@ void SwigMsgHandler::swigAddClassCode(const SwigGenerator& generator, StringsLis
         "    }\n"
         "};\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME",swigClassName(generator)},
         {"INTERFACE", interfaceClassName},
         {"HANDLE_FUNCS", util::genStrListToString(handleFuncs, "\n", "")},
@@ -129,7 +129,7 @@ void SwigMsgHandler::swigAddDef(const SwigGenerator& generator, StringsList& lis
     static const std::string Templ = 
         "%feature(\"director\") #^#CLASS_NAME#$#;";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", swigClassName(generator)},
     };    
 
@@ -166,7 +166,7 @@ bool SwigMsgHandler::swigWriteInternal() const
         "#^#CLASS#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
         {"CLASS", swigClassDeclInternal()},
     };
@@ -198,7 +198,7 @@ std::string SwigMsgHandler::swigClassDeclInternal() const
         static const std::string Templ = 
             "virtual void handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg);\n";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"MESSAGE", m_generator.swigClassName(*m)}
         };
 
@@ -214,7 +214,7 @@ std::string SwigMsgHandler::swigClassDeclInternal() const
         "     virtual void handle_#^#INTERFACE#$#(#^#INTERFACE#$#& msg);\n"
         "};\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", swigClassName(m_generator)},
         {"INTERFACE", m_generator.swigClassName(*iFace)},
         {"HANDLE_FUNCS", util::genStrListToString(handleFuncs, "", "")},

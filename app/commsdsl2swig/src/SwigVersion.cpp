@@ -85,7 +85,7 @@ void SwigVersion::swigAddDef(SwigGenerator& generator, StringsList& list)
         const std::string Templ = 
             "%constant unsigned #^#NS#$#_#^#NAME#$# = #^#NS#$#_#^#NAME#$#;";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"NS", util::genStrToUpper(schemas[idx]->genMainNamespace())},
             {"NAME", "SPEC_VERSION"}
         };
@@ -123,7 +123,7 @@ void SwigVersion::swigAddCode(SwigGenerator& generator, StringsList& list)
             continue;
         }      
 
-        util::ReplacementMap specRepl = {
+        util::GenReplacementMap specRepl = {
             {"NAME", generator.swigScopeNameForRoot(SpecVersionFunc)},
             {"COMMS_SCOPE", comms::genScopeForRoot(SpecVersionFunc, generator)}
         };
@@ -134,21 +134,21 @@ void SwigVersion::swigAddCode(SwigGenerator& generator, StringsList& list)
             continue;
         }
 
-        util::ReplacementMap majorRepl = {
+        util::GenReplacementMap majorRepl = {
             {"NAME", generator.swigScopeNameForRoot(MajorVersionFunc)},
             {"COMMS_SCOPE", comms::genScopeForRoot(MajorVersionFunc, generator)}
         };
 
         list.push_back(util::genProcessTemplate(Templ, majorRepl));
 
-        util::ReplacementMap minorRepl = {
+        util::GenReplacementMap minorRepl = {
             {"NAME", generator.swigScopeNameForRoot(MinorVersionFunc)},
             {"COMMS_SCOPE", comms::genScopeForRoot(MinorVersionFunc, generator)}
         }; 
 
         list.push_back(util::genProcessTemplate(Templ, minorRepl));  
 
-        util::ReplacementMap patchRepl = {
+        util::GenReplacementMap patchRepl = {
             {"NAME", generator.swigScopeNameForRoot(PatchVersionFunc)},
             {"COMMS_SCOPE", comms::genScopeForRoot(PatchVersionFunc, generator)}
         }; 
@@ -183,7 +183,7 @@ bool SwigVersion::swigWriteInternal() const
         "#^#PROTOCOL#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
         {"SPEC_VERSION", m_generator.swigScopeNameForRoot(SpecVersionFunc)}
     };
@@ -195,7 +195,7 @@ bool SwigVersion::swigWriteInternal() const
             "unsigned #^#PATCH#$#();\n"
         ;  
 
-        util::ReplacementMap protRepl = {
+        util::GenReplacementMap protRepl = {
             {"MAJOR", m_generator.swigScopeNameForRoot(MajorVersionFunc)},
             {"MINOR", m_generator.swigScopeNameForRoot(MinorVersionFunc)},
             {"PATCH", m_generator.swigScopeNameForRoot(PatchVersionFunc)},

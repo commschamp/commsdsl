@@ -24,8 +24,8 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsSyncLayer::CommsSyncLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent),
+CommsSyncLayer::CommsSyncLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) :
+    Base(generator, parseObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {
 }
@@ -42,9 +42,9 @@ bool CommsSyncLayer::genPrepareImpl()
 
 }
 
-CommsSyncLayer::IncludesList CommsSyncLayer::commsDefIncludesImpl() const
+CommsSyncLayer::CommsIncludesList CommsSyncLayer::commsDefIncludesImpl() const
 {
-    IncludesList result = {
+    CommsIncludesList result = {
         "comms/frame/SyncPrefixLayer.h"
     };
 
@@ -59,7 +59,7 @@ std::string CommsSyncLayer::commsDefBaseTypeImpl(const std::string& prevName) co
         "    #^#PREV_LAYER#$#\n"
         ">";  
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FIELD_TYPE", commsDefFieldType()},
         {"PREV_LAYER", prevName}
     };

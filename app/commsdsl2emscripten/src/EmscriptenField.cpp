@@ -120,7 +120,7 @@ std::string EmscriptenField::emscriptenHeaderClass() const
         "#^#DEF#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"MEMBERS", emscriptenHeaderMembersInternal()},
         {"EXTRA", emscriptenHeaderExtraCodePrefixImpl()},
         {"DEF", emscriptenHeaderClassInternal()},
@@ -142,7 +142,7 @@ std::string EmscriptenField::emscriptenSourceCode() const
         "#^#EXTRA#$#\n"
         "#^#BIND#$#\n";       
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"MEMBERS", emscriptenSourceMembersInternal()},
         {"EXTRA", emscriptenSourceExtraCodeInternal()},
         {"BIND", emscriptenSourceBindInternal()},
@@ -342,7 +342,7 @@ std::string EmscriptenField::emscriptenSourceBindValueAcc() const
             ;        
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}
     };
 
@@ -362,7 +362,7 @@ std::string EmscriptenField::emscriptenSourceBindValueAccByPointer() const
             ;        
     }    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}
     };
 
@@ -375,7 +375,7 @@ std::string EmscriptenField::emscriptenSourceBindValueStorageAccByPointer() cons
         ".function(\"value\", &#^#CLASS_NAME#$#::value, emscripten::allow_raw_pointers())"
         ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}
     };
 
@@ -406,7 +406,7 @@ std::string EmscriptenField::emscriptenMembersAccessFuncs() const
             "    return static_cast<#^#FIELD_CLASS#$#*>(&field_#^#NAME#$#());\n"
             "}\n";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"FIELD_CLASS", gen.emscriptenClassName(f->field())},
             {"NAME", comms::genAccessName(f->field().genParseObj().parseName())},
         };
@@ -421,7 +421,7 @@ std::string EmscriptenField::emscriptenMembersBindFuncs() const
 {
     util::GenStringsList fields;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()},
     };
 
@@ -463,7 +463,7 @@ bool EmscriptenField::emscriptenWriteHeaderInternal() const
         "#^#APPEND#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"INCLUDES", emscriptenHeaderIncludesInternal()},
         {"CLASS", emscriptenHeaderClass()},
@@ -500,7 +500,7 @@ bool EmscriptenField::emscriptenWriteSrcInternal() const
         "#^#CODE#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"INCLUDES", emscriptenSourceIncludesInternal()},
         {"CODE", emscriptenSourceCode()},
@@ -553,7 +553,7 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
             "protected:\n"
             "    #^#CODE#$#\n";
 
-        util::ReplacementMap replTmp = {
+        util::GenReplacementMap replTmp = {
             {"CODE", std::move(protectedCode)}
         };
 
@@ -565,7 +565,7 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
             "private:\n"
             "    #^#CODE#$#\n";
 
-        util::ReplacementMap replTmp = {
+        util::GenReplacementMap replTmp = {
             {"CODE", std::move(privateCode)}
         };
 
@@ -597,7 +597,7 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
         "}\n"        
         ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"COMMS_CLASS", emscriptenTemplateScope()},
         {"CLASS_NAME", generator.emscriptenClassName(m_field)},
         {"COMMON", emscriptenHeaderCommonPublicFuncsInternal()},
@@ -680,7 +680,7 @@ std::string EmscriptenField::emscriptenHeaderCommonPublicFuncsInternal() const
         ;
 
     auto& generator = EmscriptenGenerator::cast(m_field.genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"DATA_BUF", EmscriptenDataBuf::emscriptenClassName(generator)},
         {"JS_ARRAY_FUNC", EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()},
     };
@@ -719,7 +719,7 @@ std::string EmscriptenField::emscriptenSourceBindInternal() const
         ;
 
     auto& generator = EmscriptenGenerator::cast(m_field.genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", generator.emscriptenClassName(m_field)},
         {"VALUE_ACC", emscriptenSourceBindValueAccImpl()},
         {"FUNCS", emscriptenSourceBindFuncsImpl()},
@@ -756,7 +756,7 @@ std::string EmscriptenField::emscriptenSourceBindInternal() const
         "    emscripten::function(\"lt_#^#CLASS_NAME#$#\", &lt_#^#CLASS_NAME#$#);\n"
         "}\n"; 
 
-    util::ReplacementMap optRepl = {
+    util::GenReplacementMap optRepl = {
         {"CLASS_NAME", generator.emscriptenClassName(m_field)},
         {"COMMON", emscriptenSourceBindCommonInternal(true)},
         {"FIELD", util::genProcessTemplate(Templ, repl)}
@@ -777,7 +777,7 @@ std::string EmscriptenField::emscriptenSourceBindCommonInternal(bool skipVersion
         ;
 
     auto& generator = EmscriptenGenerator::cast(m_field.genGenerator());
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", generator.emscriptenClassName(m_field)},
     };
 
@@ -828,7 +828,7 @@ std::string EmscriptenField::emscriptenSourceRegisterVectorInternal() const
         "    .function(\"size\", &#^#CLASS_NAME#$#_Vector_size)\n"
         "    .function(\"at\", &#^#CLASS_NAME#$#_Vector_at, emscripten::allow_raw_pointers());";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()},
     };
 
@@ -856,7 +856,7 @@ std::string EmscriptenField::emscriptenSourceExtraVectorFuncsInternal() const
         "}\n"        
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()},
     };
 
