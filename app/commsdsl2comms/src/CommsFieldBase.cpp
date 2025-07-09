@@ -32,7 +32,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-bool CommsFieldBase::write(CommsGenerator& generator)
+bool CommsFieldBase::commsWrite(CommsGenerator& generator)
 {
     auto& thisSchema = static_cast<CommsSchema&>(generator.genCurrentSchema());
     if ((!generator.genIsCurrentProtocolSchema()) && (!thisSchema.commsHasAnyField())) {
@@ -45,19 +45,19 @@ bool CommsFieldBase::write(CommsGenerator& generator)
 
 bool CommsFieldBase::commsWriteInternal() const
 {
-    auto filePath = comms::genHeaderPathForField(strings::genFieldBaseClassStr(), m_generator);
+    auto filePath = comms::genHeaderPathForField(strings::genFieldBaseClassStr(), m_commsGenerator);
 
-    m_generator.genLogger().genInfo("Generating " + filePath);
+    m_commsGenerator.genLogger().genInfo("Generating " + filePath);
 
     auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.genCreateDirectory(dirPath)) {
+    if (!m_commsGenerator.genCreateDirectory(dirPath)) {
         return false;
     }
 
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
+        m_commsGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -85,12 +85,12 @@ bool CommsFieldBase::commsWriteInternal() const
         "} // namespace #^#PROT_NAMESPACE#$#\n\n";    
 
     util::GenStringsList options;
-    options.push_back(comms::genParseEndianToOpt(m_generator.genCurrentSchema().genSchemaEndian()));
+    options.push_back(comms::genParseEndianToOpt(m_commsGenerator.genCurrentSchema().genSchemaEndian()));
     // TODO: version type
 
     util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
-        {"PROT_NAMESPACE", m_generator.genCurrentSchema().genMainNamespace()},
+        {"PROT_NAMESPACE", m_commsGenerator.genCurrentSchema().genMainNamespace()},
         {"OPTIONS", util::genStrListToString(options, ",\n", "")},
     };        
     
@@ -98,7 +98,7 @@ bool CommsFieldBase::commsWriteInternal() const
     stream.flush();
 
     if (!stream.good()) {
-        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
+        m_commsGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     

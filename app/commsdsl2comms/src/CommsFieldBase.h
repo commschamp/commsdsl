@@ -22,15 +22,15 @@ class CommsGenerator;
 class CommsFieldBase
 {
 public:
-    static bool write(CommsGenerator& generator);
+    static bool commsWrite(CommsGenerator& generator);
 
 private:
-    explicit CommsFieldBase(CommsGenerator& generator) : m_generator(generator) {}
+    explicit CommsFieldBase(CommsGenerator& generator) : m_commsGenerator(generator) {}
 
     bool commsWriteInternal() const;
     
 private:
-    CommsGenerator& m_generator;
+    CommsGenerator& m_commsGenerator;
 };
 
 } // namespace commsdsl2comms

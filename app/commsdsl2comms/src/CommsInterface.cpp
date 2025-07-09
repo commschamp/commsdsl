@@ -97,7 +97,7 @@ const std::string& classTempl()
     return Templ;
 }
 
-void readCustomCodeInternal(const std::string& codePath, std::string& code)
+void commsReadCustomCodeInternal(const std::string& codePath, std::string& code)
 {
     if (!util::genIsFileReadable(codePath)) {
         return;
@@ -109,14 +109,14 @@ void readCustomCodeInternal(const std::string& codePath, std::string& code)
 } // namespace 
     
 
-CommsInterface::CommsInterface(CommsGenerator& generator, commsdsl::parse::ParseInterface parseObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, parseObj, parent)
+CommsInterface::CommsInterface(CommsGenerator& generator, ParseInterface parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent)
 {
 }   
 
 CommsInterface::~CommsInterface() = default;
 
-const CommsField* CommsInterface::findValidReferencedField(const std::string& refStr) const
+const CommsField* CommsInterface::commsFindValidReferencedField(const std::string& refStr) const
 {
     auto dotPos = refStr.find(".");
     std::string fieldName(refStr, 0, dotPos);
@@ -151,11 +151,11 @@ const CommsField* CommsInterface::findValidReferencedField(const std::string& re
 
 bool CommsInterface::genPrepareImpl()
 {
-    if (!Base::genPrepareImpl()) {
+    if (!GenBase::genPrepareImpl()) {
         return false;
     }
 
-    if (!copyCodeFromInternal()) {
+    if (!commsCopyCodeFromInternal()) {
         return false;
     }    
 
@@ -169,13 +169,13 @@ bool CommsInterface::genPrepareImpl()
 
     auto inputCodePrefix = comms::genInputCodePathFor(*this, genGenerator());
 
-    readCustomCodeInternal(inputCodePrefix + strings::genConstructFileSuffixStr(), m_constructCode);
-    readCustomCodeInternal(inputCodePrefix + strings::genIncFileSuffixStr(), m_customCode.m_inc);
-    readCustomCodeInternal(inputCodePrefix + strings::genPublicFileSuffixStr(), m_customCode.m_public);
-    readCustomCodeInternal(inputCodePrefix + strings::genProtectedFileSuffixStr(), m_customCode.m_protected);
-    readCustomCodeInternal(inputCodePrefix + strings::genPrivateFileSuffixStr(), m_customCode.m_private);
-    readCustomCodeInternal(inputCodePrefix + strings::genExtendFileSuffixStr(), m_customCode.m_extend);
-    readCustomCodeInternal(inputCodePrefix + strings::genAppendFileSuffixStr(), m_customCode.m_append);
+    commsReadCustomCodeInternal(inputCodePrefix + strings::genConstructFileSuffixStr(), m_constructCode);
+    commsReadCustomCodeInternal(inputCodePrefix + strings::genIncFileSuffixStr(), m_customCode.m_inc);
+    commsReadCustomCodeInternal(inputCodePrefix + strings::genPublicFileSuffixStr(), m_customCode.m_public);
+    commsReadCustomCodeInternal(inputCodePrefix + strings::genProtectedFileSuffixStr(), m_customCode.m_protected);
+    commsReadCustomCodeInternal(inputCodePrefix + strings::genPrivateFileSuffixStr(), m_customCode.m_private);
+    commsReadCustomCodeInternal(inputCodePrefix + strings::genExtendFileSuffixStr(), m_customCode.m_extend);
+    commsReadCustomCodeInternal(inputCodePrefix + strings::genAppendFileSuffixStr(), m_customCode.m_append);
     m_commsFields = CommsField::commsTransformFieldsList(genFields());
 
     return true;
@@ -188,7 +188,7 @@ bool CommsInterface::genWriteImpl() const
         commsWriteDefInternal();
 }
 
-bool CommsInterface::copyCodeFromInternal()
+bool CommsInterface::commsCopyCodeFromInternal()
 {
     auto obj = genParseObj();
     if (!obj.parseValid()) {

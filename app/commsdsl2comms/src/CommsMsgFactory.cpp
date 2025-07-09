@@ -38,21 +38,21 @@ namespace commsdsl2comms
 namespace 
 {
 
-const std::string ClientPrefixStr = "ClientInputMessages";    
-const std::string ServerPrefixStr = "ServerInputMessages";
-const std::string DynMemStr = "DynMem";
-const std::string InPlaceStr = "InPlace";
-const std::string DynMemAllocPolicyStr("dynamic");
-const std::string InPlacePolicyStr("in place");
-const std::string AllMessagesDesc("all the");
-const std::string ClientDesc("the client input");
-const std::string ServerDesc("the server input");
+const std::string CommsClientPrefixStr = "ClientInputMessages";    
+const std::string CommsServerPrefixStr = "ServerInputMessages";
+const std::string CommsDynMemStr = "DynMem";
+const std::string CommsInPlaceStr = "InPlace";
+const std::string CommsDynMemAllocPolicyStr("dynamic");
+const std::string CommsInPlacePolicyStr("in place");
+const std::string CommsAllMessagesDesc("all the");
+const std::string CommsClientDesc("the client input");
+const std::string CommsServerDesc("the server input");
 
 using GenMessagesAccessList = std::vector<const commsdsl::gen::GenMessage*>;
-using MessagesMap = std::map<std::uintmax_t, GenMessagesAccessList>;
+using CommsMessagesMap = std::map<std::uintmax_t, GenMessagesAccessList>;
 
-using CheckFunction = std::function<bool (const commsdsl::gen::GenMessage&)>;
-using CodeFunction = std::function<std::string (const commsdsl::gen::GenMessage&, const CommsGenerator&, int)>;
+using CommsCheckFunction = std::function<bool (const commsdsl::gen::GenMessage&)>;
+using CommsCodeFunction = std::function<std::string (const commsdsl::gen::GenMessage&, const CommsGenerator&, int)>;
 
 std::string commsDynMemAllocCodeFuncInternal(const commsdsl::gen::GenMessage& msg, const CommsGenerator& generator, int idx)
 {
@@ -90,9 +90,9 @@ std::string commsInPlaceAllocCodeFuncInternal(
 }
 
 std::string commsGetMsgAllocCodeInternal(
-    const MessagesMap& map, 
+    const CommsMessagesMap& map, 
     const CommsGenerator& generator,
-    CodeFunction&& func,
+    CommsCodeFunction&& func,
     bool hasUniqueIds)
 {
     static const std::string Templ = 
@@ -164,7 +164,7 @@ std::string commsGetMsgAllocCodeInternal(
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string commsGetMsgCountCodeInternal(const MessagesMap& map)
+std::string commsGetMsgCountCodeInternal(const CommsMessagesMap& map)
 {
     static const std::string Templ = 
         "switch (static_cast<std::intmax_t>(id))\n"
@@ -201,15 +201,15 @@ bool commsWriteFileInternal(
     const std::string& desc,
     const CommsGenerator& generator,
     const CommsNamespace& parent,
-    CheckFunction&& checkFunc,
+    CommsCheckFunction&& checkFunc,
     bool inPlaceAlloc)
 {
-    auto* typeStr = &DynMemStr;
-    auto* policyStr = &DynMemAllocPolicyStr;
+    auto* typeStr = &CommsDynMemStr;
+    auto* policyStr = &CommsDynMemAllocPolicyStr;
     [[maybe_unused]] auto codeFunc = &commsDynMemAllocCodeFuncInternal;
     if (inPlaceAlloc) {
-        typeStr = &InPlaceStr;
-        policyStr = &InPlacePolicyStr;
+        typeStr = &CommsInPlaceStr;
+        policyStr = &CommsInPlacePolicyStr;
         codeFunc = &commsInPlaceAllocCodeFuncInternal;
     }
 
@@ -343,7 +343,7 @@ bool commsWriteFileInternal(
 
     auto allMessages = parent.genGetAllMessagesIdSorted();
 
-    MessagesMap mappedMessages;
+    CommsMessagesMap mappedMessages;
 
     for (auto* m : allMessages) {
         if (!checkFunc(*m)) {
@@ -397,7 +397,7 @@ bool commsWriteFileInternal(
     
 
 CommsMsgFactory::CommsMsgFactory(CommsGenerator& generator, const CommsNamespace& parent) : 
-    m_generator(generator),
+    m_commsGenerator(generator),
     m_parent(parent)
 {
 }
@@ -414,12 +414,12 @@ bool CommsMsgFactory::commsWrite() const
 
 std::string CommsMsgFactory::commsScope(const std::string& prefix) const
 {
-    return comms::genScopeForFactory(prefix + strings::genMsgFactorySuffixStr(), m_generator, m_parent);
+    return comms::genScopeForFactory(prefix + strings::genMsgFactorySuffixStr(), m_commsGenerator, m_parent);
 }
 
 std::string CommsMsgFactory::commsRelHeaderPath(const std::string& prefix) const
 {
-    return comms::genRelHeaderForFactory(prefix + strings::genMsgFactorySuffixStr(), m_generator, m_parent);
+    return comms::genRelHeaderForFactory(prefix + strings::genMsgFactorySuffixStr(), m_commsGenerator, m_parent);
 }
 
 bool CommsMsgFactory::commsWriteAllMsgFactoryInternal() const
@@ -434,8 +434,8 @@ bool CommsMsgFactory::commsWriteAllMsgFactoryInternal() const
     auto dynMemWrite = 
         commsWriteFileInternal(
             strings::genAllMessagesStr(),
-            AllMessagesDesc,
-            m_generator,
+            CommsAllMessagesDesc,
+            m_commsGenerator,
             m_parent,
             checkFunc,
             false);   
@@ -453,9 +453,9 @@ bool CommsMsgFactory::commsWriteClientMsgFactoryInternal() const
 
     auto dynMemWrite = 
         commsWriteFileInternal(
-            ClientPrefixStr,
-            ClientDesc,
-            m_generator,
+            CommsClientPrefixStr,
+            CommsClientDesc,
+            m_commsGenerator,
             m_parent,
             checkFunc,
             false);   
@@ -473,9 +473,9 @@ bool CommsMsgFactory::commsWriteServerMsgFactoryInternal() const
 
     auto dynMemWrite = 
         commsWriteFileInternal(
-            ServerPrefixStr,
-            ServerDesc,
-            m_generator,
+            CommsServerPrefixStr,
+            CommsServerDesc,
+            m_commsGenerator,
             m_parent,
             checkFunc,
             false);   
@@ -485,7 +485,7 @@ bool CommsMsgFactory::commsWriteServerMsgFactoryInternal() const
 
 bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
 {
-    auto& platforms = m_generator.genCurrentSchema().platformNames();
+    auto& platforms = m_commsGenerator.genCurrentSchema().platformNames();
     for (auto& p : platforms) {
 
         auto platformCheckFunc = 
@@ -508,8 +508,8 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
         auto allDynMemWrite = 
             commsWriteFileInternal(
                 comms::genClassName(p) + "Messages",
-                AllMessagesDesc + " \"" + p + "\" platform specific",
-                m_generator,
+                CommsAllMessagesDesc + " \"" + p + "\" platform specific",
+                m_commsGenerator,
                 m_parent,
                 allCheckFunc,
                 false);  
@@ -528,9 +528,9 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
 
         auto clientDynMemWrite = 
             commsWriteFileInternal(
-                comms::genClassName(p) + ClientPrefixStr,
-                ClientDesc + " \"" + p + "\" platform specific",
-                m_generator,
+                comms::genClassName(p) + CommsClientPrefixStr,
+                CommsClientDesc + " \"" + p + "\" platform specific",
+                m_commsGenerator,
                 m_parent,
                 clientCheckFunc,
                 false);  
@@ -549,9 +549,9 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
 
         auto serverDynMemWrite = 
             commsWriteFileInternal(
-                comms::genClassName(p) + ServerPrefixStr,
-                ServerDesc + " \"" + p + "\" platform specific",
-                m_generator,
+                comms::genClassName(p) + CommsServerPrefixStr,
+                CommsServerDesc + " \"" + p + "\" platform specific",
+                m_commsGenerator,
                 m_parent,
                 serverCheckFunc,
                 false);  
@@ -566,7 +566,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
 
 bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
 {
-    auto& extraBundles = m_generator.commsExtraMessageBundles();
+    auto& extraBundles = m_commsGenerator.commsExtraMessageBundles();
     for (auto& b : extraBundles) {
 
         auto bundleCheckFunc = 
@@ -584,8 +584,8 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
         auto allDynMemWrite = 
             commsWriteFileInternal(
                 comms::genClassName(b.first) + "Messages",
-                AllMessagesDesc + " \"" + b.first+ "\" bundle specific",
-                m_generator,
+                CommsAllMessagesDesc + " \"" + b.first+ "\" bundle specific",
+                m_commsGenerator,
                 m_parent,
                 allCheckFunc,
                 false);  
@@ -604,9 +604,9 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
 
         auto clientDynMemWrite = 
             commsWriteFileInternal(
-                comms::genClassName(b.first) + ClientPrefixStr,
-                ClientDesc + " \"" + b.first+ "\" bundle specific",
-                m_generator,
+                comms::genClassName(b.first) + CommsClientPrefixStr,
+                CommsClientDesc + " \"" + b.first+ "\" bundle specific",
+                m_commsGenerator,
                 m_parent,
                 clientCheckFunc,
                 false);  
@@ -625,9 +625,9 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
 
         auto serverDynMemWrite = 
             commsWriteFileInternal(
-                comms::genClassName(b.first) + ServerPrefixStr,
-                ServerDesc + " \"" + b.first + "\" bundle specific",
-                m_generator,
+                comms::genClassName(b.first) + CommsServerPrefixStr,
+                CommsServerDesc + " \"" + b.first + "\" bundle specific",
+                m_commsGenerator,
                 m_parent,
                 serverCheckFunc,
                 false);  

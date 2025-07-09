@@ -25,13 +25,17 @@ namespace commsdsl2comms
 class CommsGenerator;
 class CommsListField final : public commsdsl::gen::GenListField, public CommsField
 {
-    using Base = commsdsl::gen::GenListField;
+    using GenBase = commsdsl::gen::GenListField;
     using CommsBase = CommsField;
+
 public:
-    CommsListField(CommsGenerator& generator, commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    CommsListField(CommsGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    // Base overrides
+    // GenBase overrides
     virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;    
 

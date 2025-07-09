@@ -35,12 +35,12 @@ namespace commsdsl2comms
 namespace 
 {
 
-bool isLimit(double val)
+bool commsIsLimit(double val)
 {
     return std::isnan(val) || std::isinf(val);
 }
 
-std::string limitToString(double val)
+std::string commsLimitToString(double val)
 {
     static const std::string Prefix("std::numeric_limits<ValueType>::");
     if (std::isnan(val)) {
@@ -56,7 +56,7 @@ std::string limitToString(double val)
     return Prefix + Inf;
 }
 
-double getLowest(commsdsl::parse::ParseFloatField::ParseType type)
+double commsGetLowest(commsdsl::parse::ParseFloatField::ParseType type)
 {
     if (type == commsdsl::parse::ParseFloatField::ParseType::Float) {
         return double(std::numeric_limits<float>::lowest());
@@ -65,7 +65,7 @@ double getLowest(commsdsl::parse::ParseFloatField::ParseType type)
     return std::numeric_limits<double>::lowest();
 }
 
-double getMax(commsdsl::parse::ParseFloatField::ParseType type)
+double commsGetMax(commsdsl::parse::ParseFloatField::ParseType type)
 {
     if (type == commsdsl::parse::ParseFloatField::ParseType::Float) {
         return double(std::numeric_limits<float>::max());
@@ -74,18 +74,18 @@ double getMax(commsdsl::parse::ParseFloatField::ParseType type)
     return std::numeric_limits<double>::max();
 }
 
-std::string genValueToString(double val, commsdsl::parse::ParseFloatField::ParseType type)
+std::string commsValueToString(double val, commsdsl::parse::ParseFloatField::ParseType type)
 {
-    if (isLimit(val)) {
-        return limitToString(val);
+    if (commsIsLimit(val)) {
+        return commsLimitToString(val);
     }
 
-    auto lowest = getLowest(type);
+    auto lowest = commsGetLowest(type);
     if (std::abs(lowest - val) < std::numeric_limits<double>::epsilon()) {
         return "std::numeric_limits<ValueType>::lowest()";
     }
 
-    auto max = getMax(type);
+    auto max = commsGetMax(type);
     if (std::abs(max - val) < std::numeric_limits<double>::epsilon()) {
         return "std::numeric_limits<ValueType>::max()";
     }
@@ -93,7 +93,7 @@ std::string genValueToString(double val, commsdsl::parse::ParseFloatField::Parse
     return "static_cast<ValueType>(" + std::to_string(val) + ")";
 }
 
-std::string cmpToString(double val, commsdsl::parse::ParseFloatField::ParseType type)
+std::string commsCmpToString(double val, commsdsl::parse::ParseFloatField::ParseType type)
 {
     if (std::isnan(val)) {
         return "std::isnan(Base::getValue())";
@@ -117,10 +117,10 @@ std::string cmpToString(double val, commsdsl::parse::ParseFloatField::ParseType 
         return util::genProcessTemplate(Templ, repl);
     }
 
-    return "std::abs(Base::getValue() - " + genValueToString(val, type) + ") < std::numeric_limits<ValueType>::epsilon()";
+    return "std::abs(Base::getValue() - " + commsValueToString(val, type) + ") < std::numeric_limits<ValueType>::epsilon()";
 }
 
-const std::string& specialNamesMapTempl()
+const std::string& commsSpecialNamesMapTempl()
 {
     static const std::string Templ = 
         "/// @brief Single special value name info entry.\n"
@@ -133,7 +133,7 @@ const std::string& specialNamesMapTempl()
     return Templ;
 }
 
-const std::string& hasSpecialsFuncTempl()
+const std::string& commsHasSpecialsFuncTempl()
 {
     static const std::string Templ = 
         "/// @brief Compile time detection of special values presence.\n"
@@ -145,7 +145,7 @@ const std::string& hasSpecialsFuncTempl()
     return Templ;
 }
 
-void addCondition(util::GenStringsList& condList, std::string&& str)
+void commsAddCondition(util::GenStringsList& condList, std::string&& str)
 {
     static const std::string Templ = 
         "if (#^#COND#$#) {\n"
@@ -159,7 +159,7 @@ void addCondition(util::GenStringsList& condList, std::string&& str)
     condList.push_back(util::genProcessTemplate(Templ, repl));
 }
 
-void addRangeComparison(
+void commsAddRangeComparison(
     util::GenStringsList& condList,
     double min,
     double max,
@@ -178,28 +178,25 @@ void addRangeComparison(
     }
 
     util::GenReplacementMap repl = {
-        {"MIN", genValueToString(min, type)},
-        {"MAX", genValueToString(max, type)},
+        {"MIN", commsValueToString(min, type)},
+        {"MAX", commsValueToString(max, type)},
     };
 
-    addCondition(condList, util::genProcessTemplate(*templ, repl));
+    commsAddCondition(condList, util::genProcessTemplate(*templ, repl));
 }
 
 } // namespace 
     
 
-CommsFloatField::CommsFloatField(
-    CommsGenerator& generator, 
-    commsdsl::parse::ParseField parseObj, 
-    commsdsl::gen::GenElem* parent) :
-    Base(generator, parseObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsFloatField::CommsFloatField(CommsGenerator& generator, ParseField parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
 bool CommsFloatField::genPrepareImpl()
 {
-    return Base::genPrepareImpl() && commsPrepare();
+    return GenBase::genPrepareImpl() && commsPrepare();
 }
 
 bool CommsFloatField::genWriteImpl() const
@@ -217,7 +214,7 @@ CommsFloatField::CommsIncludesList CommsFloatField::commsCommonIncludesImpl() co
             specials.begin(), specials.end(),
             [](auto& s)
             {
-                return isLimit(s.second.m_value);
+                return commsIsLimit(s.second.m_value);
             });
 
     if (hasLimits) {
@@ -272,7 +269,7 @@ std::string CommsFloatField::commsDefConstructCodeImpl() const
         "Base::setValue(#^#VAL#$#);\n";
 
     util::GenReplacementMap repl = {
-        {"VAL", genValueToString(defaultValue, obj.parseType())}
+        {"VAL", commsValueToString(defaultValue, obj.parseType())}
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -287,19 +284,19 @@ CommsFloatField::CommsIncludesList CommsFloatField::commsDefIncludesImpl() const
     bool hasLimits = false;
     do {
         auto obj = genFloatFieldParseObj();
-        hasLimits = isLimit(obj.parseDefaultValue());
+        hasLimits = commsIsLimit(obj.parseDefaultValue());
         if (hasLimits) {
             break;
         }
 
         for (auto& r : obj.parseValidRanges()) {
-            hasLimits = isLimit(r.m_min);
+            hasLimits = commsIsLimit(r.m_min);
             if (hasLimits) {
-                assert(isLimit(r.m_max));
+                assert(commsIsLimit(r.m_max));
                 break;
             }
 
-            assert(!isLimit(r.m_max));
+            assert(!commsIsLimit(r.m_max));
         }
 
     } while (false);
@@ -456,7 +453,7 @@ std::string CommsFloatField::commsCommonHasSpecialsFuncCodeInternal() const
         {"VALUE", util::genBoolToString(!specials.empty())}
     };
 
-    return util::genProcessTemplate(hasSpecialsFuncTempl(), repl);
+    return util::genProcessTemplate(commsHasSpecialsFuncTempl(), repl);
 }
 
 std::string CommsFloatField::commsCommonValueNamesMapCodeInternal() const
@@ -471,7 +468,7 @@ std::string CommsFloatField::commsCommonValueNamesMapCodeInternal() const
         {"MAP_DEF", "std::pair<const SpecialNameInfo*, std::size_t>"}
     };
 
-    return util::genProcessTemplate(specialNamesMapTempl(), repl);
+    return util::genProcessTemplate(commsSpecialNamesMapTempl(), repl);
 }
 
 std::string CommsFloatField::commsCommonSpecialsCodeInternal() const
@@ -507,7 +504,7 @@ std::string CommsFloatField::commsCommonSpecialsCodeInternal() const
         util::GenReplacementMap repl = {
             {"SPEC_NAME", s.first},
             {"SPEC_ACC", comms::genClassName(s.first)},
-            {"SPEC_VAL", genValueToString(s.second.m_value, genFloatFieldParseObj().parseType())},
+            {"SPEC_VAL", commsValueToString(s.second.m_value, genFloatFieldParseObj().parseType())},
             {"SPECIAL_DOC", std::move(desc)},
         };
 
@@ -594,7 +591,7 @@ std::string CommsFloatField::commsDefSpecialsCodeInternal() const
             {"SPEC_NAME", s.first},
             {"SPEC_ACC", comms::genClassName(s.first)},
             {"COMMON", comms::genCommonScopeFor(*this, genGenerator())},
-            {"SPEC_CMP", cmpToString(s.second.m_value, type)}
+            {"SPEC_CMP", commsCmpToString(s.second.m_value, type)}
         };
 
         specialsList.push_back(util::genProcessTemplate(Templ, repl));
@@ -667,7 +664,7 @@ std::string CommsFloatField::commsDefValueNamesMapCodeInternal() const
         {"MAP_DEF", scope + "::SpecialNamesMapInfo"}
     };
 
-    return util::genProcessTemplate(specialNamesMapTempl(), repl);    
+    return util::genProcessTemplate(commsSpecialNamesMapTempl(), repl);    
 }
 
 std::string CommsFloatField::commsDefHasSpecialsFuncCodeInternal() const
@@ -676,7 +673,7 @@ std::string CommsFloatField::commsDefHasSpecialsFuncCodeInternal() const
         {"VALUE", comms::genCommonScopeFor(*this, genGenerator()) + "::hasSpecials()"}
     };
 
-    return util::genProcessTemplate(hasSpecialsFuncTempl(), repl);
+    return util::genProcessTemplate(commsHasSpecialsFuncTempl(), repl);
 }
 
 void CommsFloatField::commsAddUnitsOptInternal(GenStringsList& opts) const
@@ -737,12 +734,12 @@ CommsFloatField::GenStringsList CommsFloatField::commsValidNormalConditionsInter
 
     auto& validRanges = obj.parseValidRanges();
     for (auto& r : validRanges) {
-        if (isLimit(r.m_min)) {
-            addCondition(conditions, cmpToString(r.m_min, type));
+        if (commsIsLimit(r.m_min)) {
+            commsAddCondition(conditions, commsCmpToString(r.m_min, type));
             continue;
         }
 
-        addRangeComparison(conditions, r.m_min, r.m_max, type);
+        commsAddRangeComparison(conditions, r.m_min, r.m_max, type);
     }
 
     return conditions;
@@ -796,12 +793,12 @@ CommsFloatField::GenStringsList CommsFloatField::commsValidVersionBasedCondition
 
     GenStringsList conditions;
     for (auto iter = validRanges.begin(); iter != verDepIter; ++iter) {
-        if (isLimit(iter->m_min)) {
-            addCondition(conditions, cmpToString(iter->m_min, type));
+        if (commsIsLimit(iter->m_min)) {
+            commsAddCondition(conditions, commsCmpToString(iter->m_min, type));
             continue;
         }
 
-        addRangeComparison(conditions, iter->m_min, iter->m_max, type);
+        commsAddRangeComparison(conditions, iter->m_min, iter->m_max, type);
     }
 
     while (verDepIter != validRanges.end()) {
@@ -821,12 +818,12 @@ CommsFloatField::GenStringsList CommsFloatField::commsValidVersionBasedCondition
 
         GenStringsList innerConditions;
         for (auto iter = verDepIter; iter != nextIter; ++iter) {
-            if (isLimit(iter->m_min)) {
-                addCondition(innerConditions, cmpToString(iter->m_min, type));
+            if (commsIsLimit(iter->m_min)) {
+                commsAddCondition(innerConditions, commsCmpToString(iter->m_min, type));
                 continue;
             }
 
-            addRangeComparison(innerConditions, iter->m_min, iter->m_max, type);
+            commsAddRangeComparison(innerConditions, iter->m_min, iter->m_max, type);
         }
 
         static const std::string VersionConditionTemplate =

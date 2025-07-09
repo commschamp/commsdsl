@@ -34,7 +34,7 @@ namespace commsdsl2comms
 namespace 
 {
 
-const std::string& specialNamesMapTempl()
+const std::string& commsSpecialNamesMapTempl()
 {
     static const std::string Templ = 
         "/// @brief Single special value name info entry.\n"
@@ -47,7 +47,7 @@ const std::string& specialNamesMapTempl()
     return Templ;
 }
 
-const std::string& hasSpecialsFuncTempl()
+const std::string& commsHasSpecialsFuncTempl()
 {
     static const std::string Templ = 
         "/// @brief Compile time detection of special values presence.\n"
@@ -62,12 +62,9 @@ const std::string& hasSpecialsFuncTempl()
 } // namespace 
     
 
-CommsIntField::CommsIntField(
-    CommsGenerator& generator, 
-    commsdsl::parse::ParseField parseObj, 
-    commsdsl::gen::GenElem* parent) :
-    Base(generator, parseObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsIntField::CommsIntField(CommsGenerator& generator, ParseField parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
@@ -148,7 +145,7 @@ bool CommsIntField::commsVariantIsPropKeyEquivalent(const CommsIntField& other) 
 
 bool CommsIntField::genPrepareImpl()
 {
-    return Base::genPrepareImpl() && commsPrepare();
+    return GenBase::genPrepareImpl() && commsPrepare();
 }
 
 bool CommsIntField::genWriteImpl() const
@@ -476,7 +473,7 @@ std::string CommsIntField::commsCommonHasSpecialsFuncCodeInternal() const
         {"VALUE", util::genBoolToString(!specials.empty())}
     };
 
-    return util::genProcessTemplate(hasSpecialsFuncTempl(), repl);
+    return util::genProcessTemplate(commsHasSpecialsFuncTempl(), repl);
 }
 
 std::string CommsIntField::commsCommonValueNamesMapCodeInternal() const
@@ -491,7 +488,7 @@ std::string CommsIntField::commsCommonValueNamesMapCodeInternal() const
         {"MAP_DEF", "std::pair<const SpecialNameInfo*, std::size_t>"}
     };
 
-    return util::genProcessTemplate(specialNamesMapTempl(), repl);
+    return util::genProcessTemplate(commsSpecialNamesMapTempl(), repl);
 }
 
 std::string CommsIntField::commsCommonSpecialsCodeInternal() const
@@ -619,7 +616,7 @@ std::string CommsIntField::commsDefValueNamesMapCodeInternal() const
         {"MAP_DEF", scope + "::SpecialNamesMapInfo"}
     };
 
-    return util::genProcessTemplate(specialNamesMapTempl(), repl);    
+    return util::genProcessTemplate(commsSpecialNamesMapTempl(), repl);    
 }
 
 std::string CommsIntField::commsDefHasSpecialsFuncCodeInternal() const
@@ -628,7 +625,7 @@ std::string CommsIntField::commsDefHasSpecialsFuncCodeInternal() const
         {"VALUE", comms::genCommonScopeFor(*this, genGenerator()) + "::hasSpecials()"}
     };
 
-    return util::genProcessTemplate(hasSpecialsFuncTempl(), repl);
+    return util::genProcessTemplate(commsHasSpecialsFuncTempl(), repl);
 }
 
 std::string CommsIntField::commsDefSpecialsCodeInternal() const

@@ -40,9 +40,9 @@ namespace commsdsl2comms
 namespace 
 {
 
-constexpr std::size_t MaxMembersSupportedByComms = 120;    
+constexpr std::size_t CommsMaxMembersSupportedByComms = 120;    
 
-bool intIsValidPropKeyInternal(const CommsIntField& intField)
+bool commsintIsValidPropKeyInternal(const CommsIntField& intField)
 {
     auto obj = intField.commsGenField().genParseObj();
     if (!obj.parseIsFailOnInvalid()) {
@@ -71,7 +71,7 @@ bool intIsValidPropKeyInternal(const CommsIntField& intField)
     return true; 
 }    
 
-const CommsField* bundleGetValidPropKeyInternal(const CommsBundleField& bundle)
+const CommsField* commsBundleGetValidPropKeyInternal(const CommsBundleField& bundle)
 {
     auto& members = bundle.commsMembers();
     if (members.empty()) {
@@ -84,7 +84,7 @@ const CommsField* bundleGetValidPropKeyInternal(const CommsBundleField& bundle)
     }
 
     auto& keyField = static_cast<const CommsIntField&>(*first);
-    if (!intIsValidPropKeyInternal(keyField)) {
+    if (!commsintIsValidPropKeyInternal(keyField)) {
         return nullptr;
     }
 
@@ -96,7 +96,7 @@ const CommsField* bundleGetValidPropKeyInternal(const CommsBundleField& bundle)
     return first;
 }
 
-std::string propKeyTypeInternal(const CommsField& field)
+std::string commsPropKeyTypeInternal(const CommsField& field)
 {
     assert(field.commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
 
@@ -104,7 +104,7 @@ std::string propKeyTypeInternal(const CommsField& field)
     return keyField.commsVariantPropKeyType();
 }
 
-std::string propKeyValueStrInternal(const CommsField& field)
+std::string commsPropKeyValueStrInternal(const CommsField& field)
 {
     assert(field.commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
 
@@ -112,7 +112,7 @@ std::string propKeyValueStrInternal(const CommsField& field)
     return keyField.commsVariantPropKeyValueStr();
 }
 
-bool propKeysEquivalent(const CommsField& first, const CommsField& second)
+bool commsPropKeysEquivalent(const CommsField& first, const CommsField& second)
 {
     assert(first.commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
     assert(second.commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
@@ -120,7 +120,7 @@ bool propKeysEquivalent(const CommsField& first, const CommsField& second)
     return static_cast<const CommsIntField&>(first).commsVariantIsPropKeyEquivalent(static_cast<const CommsIntField&>(second));
 }
 
-const CommsField* getReferenceFieldInternal(const CommsField* field)
+const CommsField* commsGetReferenceFieldInternal(const CommsField* field)
 {
     while (field->commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Ref) {
         auto& refField = static_cast<const CommsRefField&>(*field);
@@ -134,19 +134,16 @@ const CommsField* getReferenceFieldInternal(const CommsField* field)
 } // namespace 
     
 
-CommsVariantField::CommsVariantField(
-    CommsGenerator& generator, 
-    commsdsl::parse::ParseField parseObj, 
-    commsdsl::gen::GenElem* parent) :
-    Base(generator, parseObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsVariantField::CommsVariantField(CommsGenerator& generator, ParseField parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
 bool CommsVariantField::genPrepareImpl()
 {
     return 
-        Base::genPrepareImpl() && 
+        GenBase::genPrepareImpl() && 
         commsPrepare() &&
         commsPrepareInternal();
 }
@@ -345,7 +342,7 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
     GenStringsList cases;
     bool hasDefault = false;
     for (auto* memPtr : m_commsMembers) {
-        auto* m = getReferenceFieldInternal(memPtr);
+        auto* m = commsGetReferenceFieldInternal(memPtr);
         assert(m->commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Bundle);
         auto& bundle = static_cast<const CommsBundleField&>(*m);
         auto& bundleMembers = bundle.commsMembers();
@@ -646,7 +643,7 @@ std::string CommsVariantField::commsDefFieldOptsInternal() const
 
 std::string CommsVariantField::commsDefAccessCodeInternal() const
 {
-    if (m_commsMembers.size() <= MaxMembersSupportedByComms) {
+    if (m_commsMembers.size() <= CommsMaxMembersSupportedByComms) {
         return commsDefAccessCodeByCommsInternal();
     }
 
@@ -1086,13 +1083,13 @@ std::string CommsVariantField::commsOptimizedReadKeyInternal() const
     std::set<std::string> keyValues;
 
     for (auto* m : m_commsMembers) {
-        const auto* memPtr = getReferenceFieldInternal(m);
+        const auto* memPtr = commsGetReferenceFieldInternal(m);
         if (memPtr->commsGenField().genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Bundle) {
             return result;
         }
 
         auto& bundle = static_cast<const CommsBundleField&>(*memPtr);
-        auto* propKeyTmp = bundleGetValidPropKeyInternal(bundle);
+        auto* propKeyTmp = commsBundleGetValidPropKeyInternal(bundle);
         bool validPropKey = (propKeyTmp != nullptr);
         if ((!validPropKey) && (m != m_commsMembers.back())) {
             return result;
@@ -1104,7 +1101,7 @@ std::string CommsVariantField::commsOptimizedReadKeyInternal() const
         }
 
         assert(propKeyTmp != nullptr);
-        auto insertResult = keyValues.insert(propKeyValueStrInternal(*propKeyTmp));
+        auto insertResult = keyValues.insert(commsPropKeyValueStrInternal(*propKeyTmp));
         if (!insertResult.second) {
             // The same key value has been inserted
             return result;
@@ -1115,12 +1112,12 @@ std::string CommsVariantField::commsOptimizedReadKeyInternal() const
             continue;
         }
 
-        if (!propKeysEquivalent(*propKey, *propKeyTmp)) {
+        if (!commsPropKeysEquivalent(*propKey, *propKeyTmp)) {
             return result;
         }
     }
 
-    result = propKeyTypeInternal(*propKey);
+    result = commsPropKeyTypeInternal(*propKey);
     return result;
 }
 

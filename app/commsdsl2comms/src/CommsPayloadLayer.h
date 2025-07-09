@@ -25,10 +25,14 @@ namespace commsdsl2comms
 class CommsGenerator;
 class CommsPayloadLayer final : public commsdsl::gen::GenPayloadLayer, public CommsLayer
 {
-    using Base = commsdsl::gen::GenPayloadLayer;
+    using GenBase = commsdsl::gen::GenPayloadLayer;
     using CommsBase = CommsLayer;
+
 public:
-    CommsPayloadLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    CommsPayloadLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
     virtual bool genPrepareImpl() override;

@@ -26,33 +26,33 @@ namespace commsdsl2comms
 namespace
 {
 
-const std::string QuietStr("quiet");
-const std::string FullQuietStr("q," + QuietStr);
-const std::string DebugStr("debug");
-const std::string FullDebugStr("d," + DebugStr);
-const std::string VersionStr("version");
-const std::string OutputDirStr("output-dir");
-const std::string FullOutputDirStr("o," + OutputDirStr);
-const std::string InputFilesListStr("input-files-list");
-const std::string FullInputFilesListStr("i," + InputFilesListStr);
-const std::string InputFilesPrefixStr("input-files-prefix");
-const std::string FullInputFilesPrefixStr("p," + InputFilesPrefixStr);
-const std::string NamespaceStr("namespace");
-const std::string FullNamespaceStr("n," + NamespaceStr);
-const std::string WarnAsErrStr("warn-as-err");
-const std::string CodeInputDirStr("code-input-dir");
-const std::string FullCodeInputDirStr("c," + CodeInputDirStr);
-const std::string ForceVerStr("force-schema-version");
-const std::string ProtocolVerStr("protocol-version");
-const std::string FullProtocolVerStr("V," + ProtocolVerStr);
-const std::string MinRemoteVerStr("min-remote-version");
-const std::string FullMinRemoteVerStr("m," + MinRemoteVerStr);
-const std::string CustomizationStr("customization");
-const std::string VersionIndependentCodeStr("version-independent-code");
-const std::string ExtraMessagesBundleStr("extra-messages-bundle");
-const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
-const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
-const std::string ForceMainNamespaceInOptionsStr("force-main-ns-in-options");
+const std::string CommsQuietStr("quiet");
+const std::string CommsFullQuietStr("q," + CommsQuietStr);
+const std::string CommsDebugStr("debug");
+const std::string CommsFullDebugStr("d," + CommsDebugStr);
+const std::string CommsVersionStr("version");
+const std::string CommsOutputDirStr("output-dir");
+const std::string CommsFullOutputDirStr("o," + CommsOutputDirStr);
+const std::string CommsInputFilesListStr("input-files-list");
+const std::string CommsFullInputFilesListStr("i," + CommsInputFilesListStr);
+const std::string CommsInputFilesPrefixStr("input-files-prefix");
+const std::string CommsFullInputFilesPrefixStr("p," + CommsInputFilesPrefixStr);
+const std::string CommsNamespaceStr("namespace");
+const std::string CommsFullNamespaceStr("n," + CommsNamespaceStr);
+const std::string CommsWarnAsErrStr("warn-as-err");
+const std::string CommsCodeInputDirStr("code-input-dir");
+const std::string CommsFullCodeInputDirStr("c," + CommsCodeInputDirStr);
+const std::string CommsForceVerStr("force-schema-version");
+const std::string CommsProtocolVerStr("protocol-version");
+const std::string CommsFullProtocolVerStr("V," + CommsProtocolVerStr);
+const std::string CommsMinRemoteVerStr("min-remote-version");
+const std::string CommsFullMinRemoteVerStr("m," + CommsMinRemoteVerStr);
+const std::string CommsCustomizationStr("customization");
+const std::string CommsVersionIndependentCodeStr("version-independent-code");
+const std::string CommsExtraMessagesBundleStr("extra-messages-bundle");
+const std::string CommsMultipleSchemasEnabledStr("multiple-schemas-enabled");
+const std::string CommsFullMultipleSchemasEnabledStr("s," + CommsMultipleSchemasEnabledStr);
+const std::string CommsForceMainNamespaceInOptionsStr("force-main-ns-in-options");
 
 
 } // namespace
@@ -60,37 +60,37 @@ const std::string ForceMainNamespaceInOptionsStr("force-main-ns-in-options");
 CommsProgramOptions::CommsProgramOptions()
 {
     genAddHelpOption()
-    (VersionStr, "Print version string and exit.")
-    (FullQuietStr, "Quiet, show only warnings and errors.")
-    (FullDebugStr, "Show debug logging.")
-    (FullOutputDirStr, "Output directory path. When not provided current is used.", true)        
-    (FullInputFilesListStr, "File containing list of input files.", true)        
-    (FullInputFilesPrefixStr, "Prefix for the values from the list file.", true)
-    (FullNamespaceStr, 
+    (CommsVersionStr, "Print version string and exit.")
+    (CommsFullQuietStr, "Quiet, show only warnings and errors.")
+    (CommsFullDebugStr, "Show debug logging.")
+    (CommsFullOutputDirStr, "Output directory path. When not provided current is used.", true)        
+    (CommsFullInputFilesListStr, "File containing list of input files.", true)        
+    (CommsFullInputFilesPrefixStr, "Prefix for the values from the list file.", true)
+    (CommsFullNamespaceStr, 
         "Force main namespace change. Defaults to schema name. "
         "In case of having multiple schemas the renaming happends to the last protocol one. "
         "Renaming of non-protocol or multiple schemas is allowed using <orig_name>:<new_name> comma separated pairs.",
         true) 
-    (WarnAsErrStr, "Treat warning as error.")
-    (FullCodeInputDirStr, 
+    (CommsWarnAsErrStr, "Treat warning as error.")
+    (CommsFullCodeInputDirStr, 
         "Directory with code updates.", true)
-    (ForceVerStr, 
+    (CommsForceVerStr, 
         "Force schema version. Must not be greater than version specified in schema file.", true)
-    (FullProtocolVerStr, 
+    (CommsFullProtocolVerStr, 
         "Specify semantic version of the generated protocol code using <major>.<minor>.<patch> "
         "format to make this information available in the generated code", true)
-    (FullMinRemoteVerStr, "Set minimal supported remote version. Defaults to 0.", true)
-    (CustomizationStr, 
+    (CommsFullMinRemoteVerStr, "Set minimal supported remote version. Defaults to 0.", true)
+    (CommsCustomizationStr, 
         "Allowed customization level of generated code. Supported values are:\n"
         "  * \"full\" - For full customization of all fields and messages.\n"
         "  * \"limited\" - For limited customization of variable length fields and messages.\n"
         "  * \"none\" - No compile time customization is allowed.",
         std::string("limited"))
-    (VersionIndependentCodeStr,
+    (CommsVersionIndependentCodeStr,
         "By default the generated code is version dependent if at least one defined "
         "interface has \"version\" field. Use this switch to forcefully disable generation "
         "of version denendent code.")
-    (ExtraMessagesBundleStr, 
+    (CommsExtraMessagesBundleStr, 
         "Provide extra custom bundle(s) of messages, the relevant code will be added to generated "
         "\"input\" and \"dispatch\" protocol definition folders. The format of the parameter is "
         "\'Name@ListFile\'. The external \'ListFile\' needs to contain a new line separated list of message names "
@@ -99,114 +99,114 @@ CommsProgramOptions::CommsProgramOptions()
         "The Name part (with separating @) can be omitted, in such case file basename is used as bundle name. "
         "Multiple bundles are separated by comma (\'Name1@ListFile1,Name2@ListFile2\').",
         true)
-    (FullMultipleSchemasEnabledStr, 
+    (CommsFullMultipleSchemasEnabledStr, 
         "Allow having multiple schemas with different names.")
-    (ForceMainNamespaceInOptionsStr, "Force having main namespace struct in generated options.")
+    (CommsForceMainNamespaceInOptionsStr, "Force having main namespace struct in generated options.")
     ;
 }
 
-bool CommsProgramOptions::quietRequested() const
+bool CommsProgramOptions::commsQuietRequested() const
 {
-    return genIsOptUsed(QuietStr);
+    return genIsOptUsed(CommsQuietStr);
 }
 
-bool CommsProgramOptions::debugRequested() const
+bool CommsProgramOptions::commsDebugRequested() const
 {
-    return genIsOptUsed(DebugStr);
+    return genIsOptUsed(CommsDebugStr);
 }
 
-bool CommsProgramOptions::versionRequested() const
+bool CommsProgramOptions::commsVersionRequested() const
 {
-    return genIsOptUsed(VersionStr);
+    return genIsOptUsed(CommsVersionStr);
 }
 
-bool CommsProgramOptions::warnAsErrRequested() const
+bool CommsProgramOptions::commsWarnAsErrRequested() const
 {
-    return genIsOptUsed(WarnAsErrStr);
+    return genIsOptUsed(CommsWarnAsErrStr);
 }
 
-const std::string& CommsProgramOptions::getFilesListFile() const
+const std::string& CommsProgramOptions::commsGetFilesListFile() const
 {
-    return genValue(InputFilesListStr);
+    return genValue(CommsInputFilesListStr);
 }
 
-const std::string& CommsProgramOptions::getFilesListPrefix() const
+const std::string& CommsProgramOptions::commsGetFilesListPrefix() const
 {
-    return genValue(InputFilesPrefixStr);
+    return genValue(CommsInputFilesPrefixStr);
 }
 
-const CommsProgramOptions::GenArgsList& CommsProgramOptions::getFiles() const
+const CommsProgramOptions::GenArgsList& CommsProgramOptions::commsGetFiles() const
 {
     return genArgs();
 }
 
-const std::string& CommsProgramOptions::getOutputDirectory() const
+const std::string& CommsProgramOptions::commsGetOutputDirectory() const
 {
-    return genValue(OutputDirStr);
+    return genValue(CommsOutputDirStr);
 }
 
-bool CommsProgramOptions::hasNamespaceOverride() const
+bool CommsProgramOptions::commsHasNamespaceOverride() const
 {
-    return genIsOptUsed(NamespaceStr);
+    return genIsOptUsed(CommsNamespaceStr);
 }
 
-const std::string& CommsProgramOptions::getNamespace() const
+const std::string& CommsProgramOptions::commsGetNamespace() const
 {
-    return genValue(NamespaceStr);
+    return genValue(CommsNamespaceStr);
 }
 
-const std::string& CommsProgramOptions::getCodeInputDirectory() const
+const std::string& CommsProgramOptions::commsGetCodeInputDirectory() const
 {
-    return genValue(CodeInputDirStr);
+    return genValue(CommsCodeInputDirStr);
 }
 
-bool CommsProgramOptions::hasForcedSchemaVersion() const
+bool CommsProgramOptions::commsHasForcedSchemaVersion() const
 {
-    return genIsOptUsed(ForceVerStr);
+    return genIsOptUsed(CommsForceVerStr);
 }
 
-unsigned CommsProgramOptions::getForcedSchemaVersion() const
+unsigned CommsProgramOptions::commsGetForcedSchemaVersion() const
 {
-    return commsdsl::gen::util::genStrToUnsigned(genValue(ForceVerStr));
+    return commsdsl::gen::util::genStrToUnsigned(genValue(CommsForceVerStr));
 }
 
-const std::string& CommsProgramOptions::getProtocolVersion() const
+const std::string& CommsProgramOptions::commsGetProtocolVersion() const
 {
-    return genValue(ProtocolVerStr);
+    return genValue(CommsProtocolVerStr);
 }
 
-unsigned CommsProgramOptions::genGetMinRemoteVersion() const
+unsigned CommsProgramOptions::commsGetMinRemoteVersion() const
 {
-    if (!genIsOptUsed(MinRemoteVerStr)) {
+    if (!genIsOptUsed(CommsMinRemoteVerStr)) {
         return 0U;
     }
 
-    return commsdsl::gen::util::genStrToUnsigned(genValue(MinRemoteVerStr));
+    return commsdsl::gen::util::genStrToUnsigned(genValue(CommsMinRemoteVerStr));
 }
 
-const std::string& CommsProgramOptions::getCustomizationLevel() const
+const std::string& CommsProgramOptions::commsGetCustomizationLevel() const
 {
-    return genValue(CustomizationStr);
+    return genValue(CommsCustomizationStr);
 }
 
-bool CommsProgramOptions::versionIndependentCodeRequested() const
+bool CommsProgramOptions::commsVersionIndependentCodeRequested() const
 {
-    return genIsOptUsed(VersionIndependentCodeStr);
+    return genIsOptUsed(CommsVersionIndependentCodeStr);
 }
 
-std::vector<std::string> CommsProgramOptions::getExtraInputBundles() const
+std::vector<std::string> CommsProgramOptions::commsGetExtraInputBundles() const
 {
-    return commsdsl::gen::util::genStrSplitByAnyChar(genValue(ExtraMessagesBundleStr), ",");    
+    return commsdsl::gen::util::genStrSplitByAnyChar(genValue(CommsExtraMessagesBundleStr), ",");    
 }
 
-bool CommsProgramOptions::multipleSchemasEnabled() const
+bool CommsProgramOptions::commsMultipleSchemasEnabled() const
 {
-    return genIsOptUsed(MultipleSchemasEnabledStr);
+    return genIsOptUsed(CommsMultipleSchemasEnabledStr);
 }
 
-bool CommsProgramOptions::isMainNamespaceInOptionsForced() const
+bool CommsProgramOptions::commsIsMainNamespaceInOptionsForced() const
 {
-    return genIsOptUsed(ForceMainNamespaceInOptionsStr);
+    return genIsOptUsed(CommsForceMainNamespaceInOptionsStr);
 }
 
 } // namespace commsdsl2comms

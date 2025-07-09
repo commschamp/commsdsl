@@ -475,7 +475,7 @@ bool CommsDefaultOptions::commsWriteSingleMsgFactoryDefaultOptionsInternal(
     auto allNamespaces = m_commsGenerator.genGetAllNamespaces();
     for (auto* ns : allNamespaces) {
         auto suffix = "<TInterface, " + name + "T<TBase> >";
-        auto factoryDef = CommsNamespace::cast(ns)->commsMsgFactoryAliasDef(prefix, suffix);
+        auto factoryDef = CommsNamespace::commsCast(ns)->commsMsgFactoryAliasDef(prefix, suffix);
         if (factoryDef.empty()) {
             continue;
         }
@@ -489,11 +489,11 @@ bool CommsDefaultOptions::commsWriteSingleMsgFactoryDefaultOptionsInternal(
 
         util::GenReplacementMap aliasRepl = {
             {"DEF", std::move(factoryDef)},
-            {"REF", CommsNamespace::cast(ns)->commsMsgFactoryAliasType()},
+            {"REF", CommsNamespace::commsCast(ns)->commsMsgFactoryAliasType()},
         };
 
         allFactories.push_back(util::genProcessTemplate(AliasTempl, aliasRepl));
-        includes.push_back(CommsNamespace::cast(ns)->commsRelHeaderPath(prefix));
+        includes.push_back(CommsNamespace::commsCast(ns)->commsRelHeaderPath(prefix));
     }
 
     comms::genPrepareIncludeStatement(includes);

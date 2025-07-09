@@ -171,7 +171,7 @@ std::string CommsBitfieldField::commsDefValidFuncBodyImpl() const
         return strings::genEmptyString();
     }
 
-    auto& gen = CommsGenerator::cast(genGenerator());
+    auto& gen = CommsGenerator::commsCast(genGenerator());
     auto str = CommsOptionalField::commsDslCondToString(gen, m_commsMembers, validCond, true);    
 
     if (str.empty()) {

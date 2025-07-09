@@ -39,24 +39,24 @@ namespace commsdsl2comms
 namespace 
 {
 
-bool hasOrigCode(commsdsl::parse::ParseOverrideType value)
+bool commsHasOrigCode(commsdsl::parse::ParseOverrideType value)
 {
     return (value != commsdsl::parse::ParseOverrideType_Replace);
 }    
 
-bool isOverrideCodeAllowed(commsdsl::parse::ParseOverrideType value)
+bool commsIsOverrideCodeAllowed(commsdsl::parse::ParseOverrideType value)
 {
     return (value != commsdsl::parse::ParseOverrideType_None);
 }
 
-bool isOverrideCodeRequired(commsdsl::parse::ParseOverrideType value)
+bool commsIsOverrideCodeRequired(commsdsl::parse::ParseOverrideType value)
 {
     return 
         (value == commsdsl::parse::ParseOverrideType_Replace) || 
         (value == commsdsl::parse::ParseOverrideType_Extend);
 }
 
-void readCustomCodeInternal(const std::string& codePath, std::string& code)
+void commsReadCustomCodeInternal(const std::string& codePath, std::string& code)
 {
     if (!util::genIsFileReadable(codePath)) {
         return;
@@ -69,7 +69,7 @@ void readCustomCodeInternal(const std::string& codePath, std::string& code)
     
 
 CommsField::CommsField(commsdsl::gen::GenField& field) :
-    m_field(field)
+    m_genField(field)
 {
 }
 
@@ -99,8 +99,8 @@ bool CommsField::commsPrepare()
         return false;
     }
 
-    auto codePathPrefix = comms::genInputCodePathFor(m_field, m_field.genGenerator());
-    auto& obj = m_field.genParseObj();
+    auto codePathPrefix = comms::genInputCodePathFor(m_genField, m_genField.genGenerator());
+    auto& obj = m_genField.genParseObj();
     bool overrides = 
         commsPrepareOverrideInternal(obj.parseValueOverride(), codePathPrefix, strings::genValueFileSuffixStr(), m_customCode.m_value, "value") &&
         commsPrepareOverrideInternal(obj.parseReadOverride(), codePathPrefix, strings::genReadFileSuffixStr(), m_customCode.m_read, "read", &CommsField::commsPrepareCustomReadFromBodyInternal) &&
@@ -114,19 +114,19 @@ bool CommsField::commsPrepare()
         return false;
     }
 
-    readCustomCodeInternal(codePathPrefix + strings::genIncFileSuffixStr(), m_customCode.m_inc);
-    readCustomCodeInternal(codePathPrefix + strings::genPublicFileSuffixStr(), m_customCode.m_public);
-    readCustomCodeInternal(codePathPrefix + strings::genProtectedFileSuffixStr(), m_customCode.m_protected);
-    readCustomCodeInternal(codePathPrefix + strings::genPrivateFileSuffixStr(), m_customCode.m_private);
-    readCustomCodeInternal(codePathPrefix + strings::genExtendFileSuffixStr(), m_customCode.m_extend);
-    readCustomCodeInternal(codePathPrefix + strings::genAppendFileSuffixStr(), m_customCode.m_append);
-    readCustomCodeInternal(codePathPrefix + strings::genConstructFileSuffixStr(), m_customConstruct);
+    commsReadCustomCodeInternal(codePathPrefix + strings::genIncFileSuffixStr(), m_customCode.m_inc);
+    commsReadCustomCodeInternal(codePathPrefix + strings::genPublicFileSuffixStr(), m_customCode.m_public);
+    commsReadCustomCodeInternal(codePathPrefix + strings::genProtectedFileSuffixStr(), m_customCode.m_protected);
+    commsReadCustomCodeInternal(codePathPrefix + strings::genPrivateFileSuffixStr(), m_customCode.m_private);
+    commsReadCustomCodeInternal(codePathPrefix + strings::genExtendFileSuffixStr(), m_customCode.m_extend);
+    commsReadCustomCodeInternal(codePathPrefix + strings::genAppendFileSuffixStr(), m_customCode.m_append);
+    commsReadCustomCodeInternal(codePathPrefix + strings::genConstructFileSuffixStr(), m_customConstruct);
     return true;
 }
 
 bool CommsField::commsWrite() const
 {
-    auto* parent = m_field.genGetParent();
+    auto* parent = m_genField.genGetParent();
     if (parent == nullptr) {
         assert(false); // Should not happen
         return false;
@@ -140,10 +140,10 @@ bool CommsField::commsWrite() const
         return true;
     }
 
-    if (!m_field.genIsReferenced()) {
+    if (!m_genField.genIsReferenced()) {
         // Not referenced fields do not need to be written
-        m_field.genGenerator().genLogger().genDebug(
-            "Skipping file generation for non-referenced field \"" + m_field.genParseObj().parseExternalRef() + "\".");
+        m_genField.genGenerator().genLogger().genDebug(
+            "Skipping file generation for non-referenced field \"" + m_genField.genParseObj().parseExternalRef() + "\".");
         return true;
     }
 
@@ -167,7 +167,7 @@ std::string CommsField::commsCommonCode() const
             "using #^#NAME#$#Common = #^#BASE#$#;";
 
         util::GenReplacementMap repl = {
-            {"NAME", comms::genClassName(m_field.genName())},
+            {"NAME", comms::genClassName(m_genField.genName())},
             {"BASE", std::move(base)},
         };
 
@@ -181,7 +181,7 @@ std::string CommsField::commsCommonCode() const
             "};";
 
         util::GenReplacementMap repl = {
-            {"NAME", comms::genClassName(m_field.genName())},
+            {"NAME", comms::genClassName(m_genField.genName())},
             {"BASE", base.empty() ? strings::genEmptyString() : " : public " + base},
             {"BODY", std::move(body)}
         }; 
@@ -196,10 +196,10 @@ std::string CommsField::commsCommonCode() const
         "#^#EXTRA#$#\n"
     ;
 
-    auto& generator = m_field.genGenerator();
+    auto& generator = m_genField.genGenerator();
     util::GenReplacementMap repl = {
         {"MEMBERS", commsCommonMembersCodeInternal()},
-        {"SCOPE", comms::genScopeFor(m_field, generator)},
+        {"SCOPE", comms::genScopeFor(m_genField, generator)},
         {"DEF", std::move(def)},
         {"EXTRA", commsCommonCodeExtraImpl()},
     };
@@ -228,7 +228,7 @@ std::size_t CommsField::commsMinLength() const
 
 std::size_t CommsField::commsMaxLength() const
 {
-    if (m_field.genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Length) {
+    if (m_genField.genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Length) {
         return comms::genMaxPossibleLength();
     }
     
@@ -237,15 +237,15 @@ std::size_t CommsField::commsMaxLength() const
 
 CommsField::CommsIncludesList CommsField::commsDefIncludes() const
 {
-    auto& generator = m_field.genGenerator();
+    auto& generator = m_genField.genGenerator();
 
     CommsIncludesList list = {
         "comms/options.h",
         comms::genRelHeaderPathForField(strings::genFieldBaseClassStr(), generator),
     };
 
-    if (comms::genIsGlobalField(m_field)) {
-        auto relHeader = comms::genRelCommonHeaderPathFor(m_field, generator);
+    if (comms::genIsGlobalField(m_genField)) {
+        auto relHeader = comms::genRelCommonHeaderPathFor(m_genField, generator);
         list.push_back(relHeader);
         list.push_back(comms::genRelHeaderForOptions(strings::genDefaultOptionsClassStr(), generator));
     }
@@ -269,7 +269,7 @@ std::string CommsField::commsDefCode() const
         "#^#APPEND#$#\n"
     ;
 
-    //auto& generator = m_field.genGenerator();
+    //auto& generator = m_genField.genGenerator();
     util::GenReplacementMap repl = {
         {"MEMBERS", commsDefMembersCodeInternal()},
         {"FIELD", commsFieldDefCodeInternal()},
@@ -361,12 +361,12 @@ bool CommsField::commsVerifyInnerRef(const std::string refStr) const
 
 bool CommsField::commsIsVersionOptional() const
 {
-    return comms::genIsVersionOptionalField(m_field, m_field.genGenerator());
+    return comms::genIsVersionOptionalField(m_genField, m_genField.genGenerator());
 }
 
 bool CommsField::commsIsVersionDependent() const
 {
-    if (!m_field.genGenerator().genSchemaOf(m_field).genVersionDependentCode()) {
+    if (!m_genField.genGenerator().genSchemaOf(m_genField).genVersionDependentCode()) {
         return false;
     }
 
@@ -425,7 +425,7 @@ bool CommsField::commsHasCustomLength(bool deepCheck) const
 
 const CommsField* CommsField::commsFindSibling(const std::string& name) const
 {
-    auto* parent = m_field.genGetParent();
+    auto* parent = m_genField.genGetParent();
     if (parent == nullptr) {
         return nullptr;
     }
@@ -480,17 +480,17 @@ const CommsField* CommsField::commsFindSibling(const std::string& name) const
 
 bool CommsField::commsIsFieldCustomizable() const
 {
-    auto& generator = static_cast<CommsGenerator&>(m_field.genGenerator());
+    auto& generator = static_cast<CommsGenerator&>(m_genField.genGenerator());
     auto level = generator.commsGetCustomizationLevel();
-    if (level == CommsGenerator::CustomizationLevel::Full) {
+    if (level == CommsGenerator::CommsCustomizationLevel::Full) {
         return true;
     }
 
-    if (m_field.genParseObj().parseIsCustomizable()) {
+    if (m_genField.genParseObj().parseIsCustomizable()) {
         return true;
     }
 
-    if (level == CommsGenerator::CustomizationLevel::None) {
+    if (level == CommsGenerator::CommsCustomizationLevel::None) {
         return false;
     }
 
@@ -649,12 +649,12 @@ CommsField::GenStringsList CommsField::commsExtraBareMetalDefaultOptionsImpl() c
 
 std::size_t CommsField::commsMinLengthImpl() const
 {
-    return m_field.genParseObj().parseMinLength();
+    return m_genField.genParseObj().parseMinLength();
 }
 
 std::size_t CommsField::commsMaxLengthImpl() const
 {
-    return m_field.genParseObj().parseMaxLength();
+    return m_genField.genParseObj().parseMaxLength();
 }
 
 std::string CommsField::commsValueAccessStrImpl([[maybe_unused]] const std::string& accStr, const std::string& prefix) const
@@ -707,8 +707,8 @@ bool CommsField::commsMustDefineDefaultConstructorImpl() const
 
 std::string CommsField::commsCommonNameFuncCode() const
 {
-    auto& generator = m_field.genGenerator();
-    auto customNamePath = comms::genInputCodePathFor(m_field, generator) + strings::genNameFileSuffixStr();
+    auto& generator = m_genField.genGenerator();
+    auto customNamePath = comms::genInputCodePathFor(m_genField, generator) + strings::genNameFileSuffixStr();
 
     if (!m_customCode.m_name.empty()) {
         return m_customCode.m_name;
@@ -722,8 +722,8 @@ std::string CommsField::commsCommonNameFuncCode() const
         "}\n";
 
     util::GenReplacementMap repl = {
-        {"SCOPE", comms::genScopeFor(m_field, generator)},
-        {"NAME", util::genDisplayName(m_field.genParseObj().parseDisplayName(), m_field.genParseObj().parseName())},
+        {"SCOPE", comms::genScopeFor(m_genField, generator)},
+        {"NAME", util::genDisplayName(m_genField.genParseObj().parseDisplayName(), m_genField.genParseObj().parseName())},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -731,7 +731,7 @@ std::string CommsField::commsCommonNameFuncCode() const
 
 std::string CommsField::commsFieldBaseParams(commsdsl::parse::ParseEndian endian) const
 {
-    auto& schema = commsdsl::gen::GenGenerator::genSchemaOf(m_field);
+    auto& schema = commsdsl::gen::GenGenerator::genSchemaOf(m_genField);
     auto schemaEndian = schema.genSchemaEndian();
     assert(endian < commsdsl::parse::ParseEndian_NumOfValues);
     assert(schemaEndian < commsdsl::parse::ParseEndian_NumOfValues);
@@ -746,13 +746,13 @@ std::string CommsField::commsFieldBaseParams(commsdsl::parse::ParseEndian endian
 
 void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::GenStringsList& opts, bool tempFieldObj) const
 {
-    if (comms::genIsGlobalField(m_field)) {
+    if (comms::genIsGlobalField(m_genField)) {
         opts.push_back("TExtraOpts...");
     }
 
     if (commsIsFieldCustomizable()) {
-        auto& gen = static_cast<const CommsGenerator&>(m_field.genGenerator());
-        opts.push_back("typename TOpt::" + comms::genScopeFor(m_field, m_field.genGenerator(), gen.commsHasMainNamespaceInOptions(), true));
+        auto& gen = static_cast<const CommsGenerator&>(m_genField.genGenerator());
+        opts.push_back("typename TOpt::" + comms::genScopeFor(m_genField, m_genField.genGenerator(), gen.commsHasMainNamespaceInOptions(), true));
     }
 
     if (!tempFieldObj) {
@@ -774,7 +774,7 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::GenStringsList& op
             break;
         }         
 
-        if (!m_field.genParseObj().parseIsFailOnInvalid()) {
+        if (!m_genField.genParseObj().parseIsFailOnInvalid()) {
             break;
         }      
 
@@ -794,11 +794,11 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::GenStringsList& op
         util::genAddToStrList("comms::option::def::HasCustomWrite", opts);
     }    
 
-    if (m_forcedPseudo || m_field.genParseObj().parseIsPseudo()) {
+    if (m_forcedPseudo || m_genField.genParseObj().parseIsPseudo()) {
         util::genAddToStrList("comms::option::def::EmptySerialization", opts);
     }
 
-    if (m_field.genParseObj().parseIsFixedValue()) {
+    if (m_genField.genParseObj().parseIsFixedValue()) {
         util::genAddToStrList("comms::option::def::FixedValue", opts);
     }
 }
@@ -809,7 +809,7 @@ void CommsField::commsAddFieldTypeOption(commsdsl::gen::util::GenStringsList& op
         "comms::option::def::FieldType<#^#NAME#$##^#SUFFIX#$##^#ORIG#$##^#PARAMS#$#>";
 
     util::GenReplacementMap repl = {
-        {"NAME", comms::genClassName(m_field.genName())}
+        {"NAME", comms::genClassName(m_genField.genName())}
     };
 
     if (commsIsVersionOptional()) {
@@ -820,7 +820,7 @@ void CommsField::commsAddFieldTypeOption(commsdsl::gen::util::GenStringsList& op
         repl["ORIG"] = strings::genOrigSuffixStr();
     }    
 
-    if (comms::genIsGlobalField(m_field)) {
+    if (comms::genIsGlobalField(m_genField)) {
         repl["PARAMS"] = "<TOpt, TExtraOpts...>";
     }   
 
@@ -834,13 +834,13 @@ bool CommsField::commsIsExtended() const
 
 bool CommsField::commsCopyCodeFromInternal()
 {
-    auto obj = m_field.genParseObj();
+    auto obj = m_genField.genParseObj();
     auto& copyFrom = obj.parseCopyCodeFrom();
     if (copyFrom.empty()) {
         return true;
     }
 
-    auto& gen = m_field.genGenerator();
+    auto& gen = m_genField.genGenerator();
     auto* origField = gen.genFindField(copyFrom);
     if (origField == nullptr) {
         gen.genLogger().genError(
@@ -863,15 +863,15 @@ bool CommsField::commsPrepareOverrideInternal(
     const std::string& name,
     CommsBodyCustomCodeFunc bodyFunc)
 {
-    if (isOverrideCodeRequired(type) && (!comms::genIsGlobalField(m_field))) {
-        m_field.genGenerator().genLogger().genError(
+    if (commsIsOverrideCodeRequired(type) && (!comms::genIsGlobalField(m_genField))) {
+        m_genField.genGenerator().genLogger().genError(
             "Overriding \"" + name + "\" operation is not supported for non global fields, detected on \"" +
-            comms::genScopeFor(m_field, m_field.genGenerator()) + "\".");
+            comms::genScopeFor(m_genField, m_genField.genGenerator()) + "\".");
         return false;
     }
 
     do {
-        if (!isOverrideCodeAllowed(type)) {
+        if (!commsIsOverrideCodeAllowed(type)) {
             customCode.clear();
             break;
         }
@@ -893,10 +893,10 @@ bool CommsField::commsPrepareOverrideInternal(
         }        
     } while (false);
 
-    if (customCode.empty() && isOverrideCodeRequired(type)) {
-        m_field.genGenerator().genLogger().genError(
+    if (customCode.empty() && commsIsOverrideCodeRequired(type)) {
+        m_genField.genGenerator().genLogger().genError(
             "Overriding \"" + name + "\" operation is not provided in injected code for field \"" +
-            m_field.genParseObj().parseExternalRef() + "\". Expected overriding file is \"" + codePathPrefix + suffix + ".");
+            m_genField.genParseObj().parseExternalRef() + "\". Expected overriding file is \"" + codePathPrefix + suffix + ".");
         return false;
     }
 
@@ -1033,8 +1033,8 @@ std::string CommsField::commsPrepareCustomNameFromBodyInternal(const std::string
 
 bool CommsField::commsWriteCommonInternal() const
 {
-    auto& generator = m_field.genGenerator();
-    auto filePath = commsdsl::gen::comms::genCommonHeaderPathFor(m_field, generator);
+    auto& generator = m_genField.genGenerator();
+    auto filePath = commsdsl::gen::comms::genCommonHeaderPathFor(m_genField, generator);
 
     auto& logger = generator.genLogger();
     logger.genInfo("Generating " + filePath);
@@ -1068,10 +1068,10 @@ bool CommsField::commsWriteCommonInternal() const
 
     util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
-        {"FIELD_SCOPE", comms::genScopeFor(m_field, generator)},
+        {"FIELD_SCOPE", comms::genScopeFor(m_genField, generator)},
         {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
-        {"NS_BEGIN", comms::genNamespaceBeginFor(m_field, generator)},
-        {"NS_END", comms::genNamespaceEndFor(m_field, generator)},
+        {"NS_BEGIN", comms::genNamespaceBeginFor(m_genField, generator)},
+        {"NS_END", comms::genNamespaceEndFor(m_genField, generator)},
         {"DEF", commsCommonCode()},
     };
     
@@ -1082,8 +1082,8 @@ bool CommsField::commsWriteCommonInternal() const
 
 bool CommsField::commsWriteDefInternal() const
 {
-    auto& generator = m_field.genGenerator();
-    auto filePath = commsdsl::gen::comms::genHeaderPathFor(m_field, generator);
+    auto& generator = m_genField.genGenerator();
+    auto filePath = commsdsl::gen::comms::genHeaderPathFor(m_genField, generator);
 
     auto& logger = generator.genLogger();
     logger.genInfo("Generating " + filePath);
@@ -1112,11 +1112,11 @@ bool CommsField::commsWriteDefInternal() const
 
     util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
-        {"FIELD_NAME", util::genDisplayName(m_field.genParseObj().parseDisplayName(), m_field.genParseObj().parseName())},
+        {"FIELD_NAME", util::genDisplayName(m_genField.genParseObj().parseDisplayName(), m_genField.genParseObj().parseName())},
         {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
         {"EXTRA_INCLUDES", m_customCode.m_inc},
-        {"NS_BEGIN", comms::genNamespaceBeginFor(m_field, generator)},
-        {"NS_END", comms::genNamespaceEndFor(m_field, generator)},
+        {"NS_BEGIN", comms::genNamespaceBeginFor(m_genField, generator)},
+        {"NS_END", comms::genNamespaceEndFor(m_genField, generator)},
         {"DEF", commsDefCode()},
     };
     
@@ -1145,7 +1145,7 @@ std::string CommsField::commsFieldDefCodeInternal() const
         "#^#EXTEND#$#\n"
     ;
 
-    //auto& generator = m_field.genGenerator();
+    //auto& generator = m_genField.genGenerator();
 
     auto pub = commsDefPublicCodeInternal();
     auto prot = commsDefProtectedCodeInternal();
@@ -1171,7 +1171,7 @@ std::string CommsField::commsFieldDefCodeInternal() const
         {"EXTRA_DOC", commsExtraDocInternal()},
         {"DEPRECATED", commsDeprecatedDocInternal()},
         {"PARAMS", commsTemplateParamsInternal()},
-        {"NAME", comms::genClassName(m_field.genName())},
+        {"NAME", comms::genClassName(m_genField.genName())},
         {"BASE", commsDefBaseClassImpl()},
         {"PUBLIC", std::move(pub)},
         {"PROTECTED", std::move(prot)},
@@ -1216,8 +1216,8 @@ std::string CommsField::commsOptionalDefCodeInternal() const
         "};\n"; 
 
 
-        auto& generator = m_field.genGenerator();
-        auto& parseObj = m_field.genParseObj();
+        auto& generator = m_genField.genGenerator();
+        auto& parseObj = m_genField.genParseObj();
         bool fieldExists = 
             generator.genDoesElementExist(
                 parseObj.parseSinceVersion(),
@@ -1253,7 +1253,7 @@ std::string CommsField::commsOptionalDefCodeInternal() const
         {"VERSIONS_OPT", std::move(versionOpt)},
     };
 
-    if (comms::genIsGlobalField(m_field)) {
+    if (comms::genIsGlobalField(m_genField)) {
         repl.insert({{"FIELD_PARAMS", "<TOpt, TExtraOpts...>"}});
     }
 
@@ -1263,12 +1263,12 @@ std::string CommsField::commsOptionalDefCodeInternal() const
 std::string CommsField::commsFieldBriefInternal() const
 {
     if (commsIsVersionOptional()) {
-        return "/// @brief Inner field of @ref " + comms::genClassName(m_field.genName()) + " optional.";
+        return "/// @brief Inner field of @ref " + comms::genClassName(m_genField.genName()) + " optional.";
     }
 
     return
         "/// @brief Definition of <b>\"" +
-        util::genDisplayName(m_field.genParseObj().parseDisplayName(), m_field.genParseObj().parseName()) +
+        util::genDisplayName(m_genField.genParseObj().parseDisplayName(), m_genField.genParseObj().parseName()) +
         "\"</b> field.";
 }
 
@@ -1276,7 +1276,7 @@ std::string CommsField::commsDocDetailsInternal() const
 {
     std::string result;
     do {
-        auto& desc = m_field.genParseObj().parseDescription();       
+        auto& desc = m_genField.genParseObj().parseDescription();       
         auto extraDetails = commsDefDoxigenDetailsImpl();
         if (desc.empty() && extraDetails.empty()) {
             break;
@@ -1321,8 +1321,8 @@ std::string CommsField::commsExtraDocInternal() const
 std::string CommsField::commsDeprecatedDocInternal() const
 {
     std::string result;
-    auto deprecatedVersion = m_field.genParseObj().parseDeprecatedSince();
-    auto& generator = m_field.genGenerator();
+    auto deprecatedVersion = m_genField.genParseObj().parseDeprecatedSince();
+    auto& generator = m_genField.genGenerator();
     if (generator.genIsElementDeprecated(deprecatedVersion)) {
         result += "/// @deprecated Since version " + std::to_string(deprecatedVersion) + '\n';
     }
@@ -1333,11 +1333,11 @@ std::string CommsField::commsDeprecatedDocInternal() const
 std::string CommsField::commsTemplateParamsInternal() const
 {
     std::string result;
-    if (comms::genIsGlobalField(m_field)) {
+    if (comms::genIsGlobalField(m_genField)) {
         result += "/// @tparam TOpt Protocol options.\n";
         result += "/// @tparam TExtraOpts Extra options.\n";
         result += "template <typename TOpt = ";
-        result += comms::genScopeForOptions(strings::genDefaultOptionsStr(), m_field.genGenerator());
+        result += comms::genScopeForOptions(strings::genDefaultOptionsStr(), m_genField.genGenerator());
         result += ", typename... TExtraOpts>";
     }
 
@@ -1356,7 +1356,7 @@ std::string CommsField::commsDefConstructPublicCodeInternal() const
     }
     
     util::GenReplacementMap repl = {
-        {"CLASS_NAME", comms::genClassName(m_field.genParseObj().parseName())},
+        {"CLASS_NAME", comms::genClassName(m_genField.genParseObj().parseName())},
         {"BODY", body}
     };    
 
@@ -1425,7 +1425,7 @@ std::string CommsField::commsDefDestructCodeInternal() const
         "}\n";    
 
     util::GenReplacementMap repl = {
-        {"CLASS_NAME", comms::genClassName(m_field.genParseObj().parseName())},
+        {"CLASS_NAME", comms::genClassName(m_genField.genParseObj().parseName())},
         {"BODY", std::move(body)}
     };    
 
@@ -1542,15 +1542,15 @@ std::string CommsField::commsDefPrivateCodeInternal() const
 
 std::string CommsField::commsDefNameFuncCodeInternal() const
 {
-    auto& generator = m_field.genGenerator();
+    auto& generator = m_genField.genGenerator();
 
     std::string custom;
-    auto overrideType = m_field.genParseObj().parseNameOverride();
+    auto overrideType = m_genField.genParseObj().parseNameOverride();
     if (m_customCode.m_name.empty() && (!commsDefHasNameFuncImpl())) {
         return strings::genEmptyString();
     }
 
-    if (!hasOrigCode(overrideType)) {
+    if (!commsHasOrigCode(overrideType)) {
         return m_customCode.m_name;
     }
 
@@ -1563,7 +1563,7 @@ std::string CommsField::commsDefNameFuncCodeInternal() const
         "#^#CUSTOM#$#\n";
 
     util::GenReplacementMap repl = {
-        {"SCOPE", comms::genCommonScopeFor(m_field, generator)},
+        {"SCOPE", comms::genCommonScopeFor(m_genField, generator)},
         {"CUSTOM", m_customCode.m_name},
     };
 
@@ -1587,7 +1587,7 @@ std::string CommsField::commsDefReadFuncCodeInternal() const
 
     util::GenReplacementMap repl;
     std::string body;
-    if (hasOrigCode(m_field.genParseObj().parseReadOverride())) {
+    if (commsHasOrigCode(m_genField.genParseObj().parseReadOverride())) {
         body = commsDefReadFuncBodyImpl();
     }
 
@@ -1648,7 +1648,7 @@ std::string CommsField::commsDefWriteFuncCodeInternal() const
     util::GenReplacementMap repl;
     std::string body;
 
-    if (hasOrigCode(m_field.genParseObj().parseWriteOverride())) {
+    if (commsHasOrigCode(m_genField.genParseObj().parseWriteOverride())) {
         body = commsDefWriteFuncBodyImpl();
     }
 
@@ -1691,7 +1691,7 @@ std::string CommsField::commsDefRefreshFuncCodeInternal() const
 
     util::GenReplacementMap repl;
     std::string body;
-    if (hasOrigCode(m_field.genParseObj().parseRefreshOverride())) {
+    if (commsHasOrigCode(m_genField.genParseObj().parseRefreshOverride())) {
         body = commsDefRefreshFuncBodyImpl();
     }
 
@@ -1734,7 +1734,7 @@ std::string CommsField::commsDefLengthFuncCodeInternal() const
     util::GenReplacementMap repl;
 
     std::string body;
-    if (hasOrigCode(m_field.genParseObj().parseLengthOverride())) {
+    if (commsHasOrigCode(m_genField.genParseObj().parseLengthOverride())) {
         body = commsDefLengthFuncBodyImpl();
     }
 
@@ -1776,7 +1776,7 @@ std::string CommsField::commsDefValidFuncCodeInternal() const
 
     util::GenReplacementMap repl;
     std::string body;
-    if (hasOrigCode(m_field.genParseObj().parseValidOverride())) {
+    if (commsHasOrigCode(m_genField.genParseObj().parseValidOverride())) {
         body = commsDefValidFuncBodyImpl();
     }
 
@@ -1827,14 +1827,14 @@ std::string CommsField::commsDefMembersCodeInternal() const
         "};\n";    
 
     util::GenReplacementMap repl = {
-        {"CLASS_NAME", comms::genClassName(m_field.genName())},
+        {"CLASS_NAME", comms::genClassName(m_genField.genName())},
         {"BODY", std::move(body)}
     };
 
-    if (comms::genIsGlobalField(m_field)) {
+    if (comms::genIsGlobalField(m_genField)) {
         auto prefix = 
             "/// @tparam TOpt Protocol options.\n"
-            "template <typename TOpt = " + comms::genScopeForOptions(strings::genDefaultOptionsStr(), m_field.genGenerator()) + ">";
+            "template <typename TOpt = " + comms::genScopeForOptions(strings::genDefaultOptionsStr(), m_genField.genGenerator()) + ">";
         
         repl.insert({{"EXTRA_PREFIX", std::move(prefix)}});
     }
@@ -1858,8 +1858,8 @@ std::string CommsField::commsCommonMembersCodeInternal() const
             "using #^#CLASS_NAME#$#MembersCommon = #^#BASE#$#;\n";        
 
         util::GenReplacementMap repl = {
-            {"SCOPE", comms::genScopeFor(m_field, m_field.genGenerator())},
-            {"CLASS_NAME", comms::genClassName(m_field.genName())},
+            {"SCOPE", comms::genScopeFor(m_genField, m_genField.genGenerator())},
+            {"CLASS_NAME", comms::genClassName(m_genField.genName())},
             {"BASE", std::move(base)}
         };
 
@@ -1875,8 +1875,8 @@ std::string CommsField::commsCommonMembersCodeInternal() const
         "};\n";    
 
     util::GenReplacementMap repl = {
-        {"SCOPE", comms::genScopeFor(m_field, m_field.genGenerator())},
-        {"CLASS_NAME", comms::genClassName(m_field.genName())},
+        {"SCOPE", comms::genScopeFor(m_genField, m_genField.genGenerator())},
+        {"CLASS_NAME", comms::genClassName(m_genField.genName())},
         {"BODY", std::move(body)},
         {"BASE", base.empty() ? strings::genEmptyString() : " : public " + base}
     };
@@ -1889,7 +1889,7 @@ std::string CommsField::commsCustomizationOptionsInternal(
     CommsExtraFieldOptsFunc extraFieldOptsFunc,
     bool hasBase) const
 {
-    if ((!m_field.genIsReferenced()) && (comms::genIsGlobalField(m_field))) {
+    if ((!m_genField.genIsReferenced()) && (comms::genIsGlobalField(m_genField))) {
         return strings::genEmptyString();
     }
     
@@ -1903,15 +1903,15 @@ std::string CommsField::commsCustomizationOptionsInternal(
             "}; // struct #^#NAME#$##^#SUFFIX#$#\n";
 
         util::GenReplacementMap repl = {
-            {"NAME", comms::genClassName(m_field.genParseObj().parseName())},
+            {"NAME", comms::genClassName(m_genField.genParseObj().parseName())},
             {"SUFFIX", strings::genMembersSuffixStr()},
             {"BODY", std::move(membersBody)},
         };
 
         if (hasBase) {
-            auto& commsGen = static_cast<const CommsGenerator&>(m_field.genGenerator());
+            auto& commsGen = static_cast<const CommsGenerator&>(m_genField.genGenerator());
             bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();
-            repl["EXT"] = " : public TBase::" + comms::genScopeFor(m_field, m_field.genGenerator(), hasMainNs) + strings::genMembersSuffixStr();
+            repl["EXT"] = " : public TBase::" + comms::genScopeFor(m_genField, m_genField.genGenerator(), hasMainNs) + strings::genMembersSuffixStr();
         }
 
         elems.push_back(util::genProcessTemplate(Templ, repl));
@@ -1936,20 +1936,20 @@ std::string CommsField::commsCustomizationOptionsInternal(
         }
 
         if ((!extraOpts.empty()) && (hasBase)) {
-            auto& commsGen = static_cast<const CommsGenerator&>(m_field.genGenerator());
+            auto& commsGen = static_cast<const CommsGenerator&>(m_genField.genGenerator());
             bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();
-            extraOpts.push_back("typename TBase::" + comms::genScopeFor(m_field, m_field.genGenerator(), hasMainNs));
+            extraOpts.push_back("typename TBase::" + comms::genScopeFor(m_genField, m_genField.genGenerator(), hasMainNs));
         }
 
         auto docStr = 
             "/// @brief Extra options for @ref " +
-            comms::genScopeFor(m_field, m_field.genGenerator()) + " field.";
+            comms::genScopeFor(m_genField, m_genField.genGenerator()) + " field.";
         docStr = util::genStrMakeMultiline(docStr, 40);
         docStr = util::genStrReplace(docStr, "\n", "\n" + strings::genDoxygenPrefixStr() + strings::genIndentStr()); 
 
         util::GenReplacementMap repl = {
             {"DOC", std::move(docStr)},
-            {"NAME", comms::genClassName(m_field.genParseObj().parseName())},
+            {"NAME", comms::genClassName(m_genField.genParseObj().parseName())},
         };        
 
         assert(!extraOpts.empty());

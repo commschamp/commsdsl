@@ -25,10 +25,13 @@ namespace commsdsl2comms
 class CommsGenerator;
 class CommsOptionalField final : public commsdsl::gen::GenOptionalField, public CommsField
 {
-    using Base = commsdsl::gen::GenOptionalField;
+    using GenBase = commsdsl::gen::GenOptionalField;
     using CommsBase = CommsField;
 public:
-    CommsOptionalField(CommsGenerator& generator, commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    CommsOptionalField(CommsGenerator& generator, ParseField parseObj, GenElem* parent);
 
     static std::string commsDslCondToString(
         const CommsGenerator& generator, 
@@ -37,7 +40,7 @@ public:
         bool bracketsWrap = false);
 
 protected:
-    // Base overrides
+    // GenBase overrides
     virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;    
 

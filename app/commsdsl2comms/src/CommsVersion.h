@@ -24,16 +24,16 @@ class CommsGenerator;
 class CommsVersion
 {
 public:
-    static bool write(CommsGenerator& generator);
+    static bool commsWrite(CommsGenerator& generator);
 
 private:
-    explicit CommsVersion(CommsGenerator& generator) : m_generator(generator) {}
+    explicit CommsVersion(CommsGenerator& generator) : m_commsGenerator(generator) {}
 
-    bool writeInternal() const;
+    bool commsWriteInternal() const;
     std::string commsProtVersionDefineInternal() const;
     std::string commsProtVersionFuncsInternal() const;
 
-    CommsGenerator& m_generator;
+    CommsGenerator& m_commsGenerator;
 };
 
 } // namespace commsdsl2comms

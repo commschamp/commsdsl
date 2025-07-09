@@ -32,10 +32,11 @@ public:
     using GenMessagePtr = commsdsl::gen::GenMessagePtr;
     using GenSchemaPtr = commsdsl::gen::GenSchemaPtr;
     using GenNamespacePtr = commsdsl::gen::GenNamespacePtr;
-    using ExtraMessageBundle = std::pair<std::string, GenMessagesAccessList>;
-    using ExtraMessageBundlesList = std::vector<ExtraMessageBundle>;
 
-    enum class CustomizationLevel
+    using CommsExtraMessageBundle = std::pair<std::string, GenMessagesAccessList>;
+    using CommsExtraMessageBundlesList = std::vector<CommsExtraMessageBundle>;
+
+    enum class CommsCustomizationLevel
     {
         Full,
         Limited,
@@ -43,13 +44,13 @@ public:
         NumOfValues
     };    
 
-    static const CommsGenerator& cast(const commsdsl::gen::GenGenerator& ref)
+    static const CommsGenerator& commsCast(const commsdsl::gen::GenGenerator& ref)
     {
         return static_cast<const CommsGenerator&>(ref);
     }
 
     static const std::string& commsFileGeneratedComment();
-    CustomizationLevel commsGetCustomizationLevel() const;
+    CommsCustomizationLevel commsGetCustomizationLevel() const;
     void commsSetCustomizationLevel(const std::string& opt);
 
     const std::string& commsGetProtocolVersion() const;
@@ -61,7 +62,7 @@ public:
 
     const std::vector<std::string>& commsGetExtraInputBundles() const;
     void commsSetExtraInputBundles(const std::vector<std::string>& inputBundles);
-    const ExtraMessageBundlesList& commsExtraMessageBundles() const;
+    const CommsExtraMessageBundlesList& commsExtraMessageBundles() const;
 
     static const std::string& commsMinCommsVersion();
 
@@ -101,11 +102,11 @@ private:
     bool commsPrepareExtraMessageBundlesInternal();
     bool commsWriteExtraFilesInternal() const;
     
-    static const CustomizationLevel DefaultCustomizationLevel = CustomizationLevel::Limited;
-    CustomizationLevel m_customizationLevel = DefaultCustomizationLevel;    
+    static const CommsCustomizationLevel DefaultCustomizationLevel = CommsCustomizationLevel::Limited;
+    CommsCustomizationLevel m_customizationLevel = DefaultCustomizationLevel;    
     std::string m_protocolVersion;
     std::vector<std::string> m_extraInputBundles;
-    ExtraMessageBundlesList m_commsExtraMessageBundles;
+    CommsExtraMessageBundlesList m_commsExtraMessageBundles;
     bool m_mainNamespaceInOptionsForced = false;
 };
 

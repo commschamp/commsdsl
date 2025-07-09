@@ -32,18 +32,15 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2comms
 {
 
-CommsListField::CommsListField(
-    CommsGenerator& generator, 
-    commsdsl::parse::ParseField parseObj, 
-    commsdsl::gen::GenElem* parent) :
-    Base(generator, parseObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsListField::CommsListField(CommsGenerator& generator, ParseField parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
 bool CommsListField::genPrepareImpl()
 {
-    bool result = Base::genPrepareImpl() && commsPrepare();
+    bool result = GenBase::genPrepareImpl() && commsPrepare();
     if (result) {
         auto castField = 
             [](commsdsl::gen::GenField* field) -> CommsField*

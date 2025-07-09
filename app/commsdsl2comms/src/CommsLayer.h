@@ -30,18 +30,21 @@ class CommsLayer
 {
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
+
+    using GenLayer = commsdsl::gen::GenLayer;
+
     using CommsIncludesList = GenStringsList;
     using CommsLayersList = std::vector<CommsLayer*>;
 
-    explicit CommsLayer(commsdsl::gen::GenLayer& layer);
+    explicit CommsLayer(GenLayer& layer);
     virtual ~CommsLayer();
 
-    static CommsLayer* cast(commsdsl::gen::GenLayer* layer)
+    static CommsLayer* commsCast(GenLayer* layer)
     {
         return dynamic_cast<CommsLayer*>(layer);
     }
 
-    static const CommsLayer* cast(const commsdsl::gen::GenLayer* layer)
+    static const CommsLayer* commsCast(const GenLayer* layer)
     {
         return dynamic_cast<const CommsLayer*>(layer);
     }    
@@ -61,9 +64,9 @@ public:
     std::string commsBareMetalDefaultOptions() const;
     std::string commsMsgFactoryDefaultOptions() const;
 
-    const commsdsl::gen::GenLayer& layer() const
+    const GenLayer& commsGenLayer() const
     {
-        return m_layer;
+        return m_genLayer;
     }
 
     const CommsField* commsExternalField() const
@@ -102,13 +105,13 @@ protected:
 
 private:
     using CommsFieldOptsFunc = std::string (CommsField::*)() const;
-    using ExtraLayerOptsFunc = GenStringsList (CommsLayer::*)() const;
+    using CommsExtraLayerOptsFunc = GenStringsList (CommsLayer::*)() const;
 
     std::string commsDefMembersCodeInternal() const;
     std::string commsDefDocInternal() const;
     std::string commsCustomizationOptionsInternal(
         CommsFieldOptsFunc fieldOptsFunc, 
-        ExtraLayerOptsFunc extraLayerOptsFunc,
+        CommsExtraLayerOptsFunc extraLayerOptsFunc,
         bool hasBase,
         const std::string& customFieldOpts) const;  
 
@@ -116,7 +119,7 @@ private:
     GenStringsList commsExtraBareMetalDefaultOptionsInternal() const;
     GenStringsList commsExtraMsgFactoryDefaultOptionsInternal() const;
     
-    commsdsl::gen::GenLayer& m_layer;
+    GenLayer& m_genLayer;
     CommsField* m_commsExternalField = nullptr;
     CommsField* m_commsMemberField = nullptr;
 

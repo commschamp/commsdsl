@@ -81,7 +81,7 @@ public:
 
     const commsdsl::gen::GenField& commsGenField() const
     {
-        return m_field;
+        return m_genField;
     }
 
 
@@ -211,7 +211,7 @@ private:
     GenStringsList commsExtraDataViewDefaultOptionsInternal() const;
     GenStringsList commsExtraBareMetalDefaultOptionsInternal() const;
 
-    commsdsl::gen::GenField& m_field;
+    commsdsl::gen::GenField& m_genField;
     CommsCustomCode m_customCode;
     std::string m_customConstruct;
     bool m_forcedFailOnInvalid = false;

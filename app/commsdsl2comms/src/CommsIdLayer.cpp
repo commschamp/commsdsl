@@ -30,15 +30,15 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsIdLayer::CommsIdLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, parseObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsIdLayer::CommsIdLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
 bool CommsIdLayer::genPrepareImpl()
 {
-    return Base::genPrepareImpl() && CommsBase::commsPrepare();
+    return GenBase::genPrepareImpl() && CommsBase::commsPrepare();
 }
 
 CommsIdLayer::CommsIncludesList CommsIdLayer::commsDefIncludesImpl() const

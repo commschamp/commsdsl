@@ -44,26 +44,26 @@ using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
 } // namespace 
     
 CommsMsgId::CommsMsgId(CommsGenerator& generator, const CommsNamespace& parent) :
-    m_generator(generator),
+    m_commsGenerator(generator),
     m_parent(parent)
 {
 }
 
 bool CommsMsgId::commsWrite() const
 {
-    auto filePath = comms::genHeaderPathForMsgId(strings::genMsgIdEnumNameStr(), m_generator, m_parent);
+    auto filePath = comms::genHeaderPathForMsgId(strings::genMsgIdEnumNameStr(), m_commsGenerator, m_parent);
 
-    m_generator.genLogger().genInfo("Generating " + filePath);
+    m_commsGenerator.genLogger().genInfo("Generating " + filePath);
 
     auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.genCreateDirectory(dirPath)) {
+    if (!m_commsGenerator.genCreateDirectory(dirPath)) {
         return false;
     }
 
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
+        m_commsGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -85,17 +85,17 @@ bool CommsMsgId::commsWrite() const
 
     util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
-        {"PROT_NAMESPACE", m_generator.genCurrentSchema().genMainNamespace()},
+        {"PROT_NAMESPACE", m_commsGenerator.genCurrentSchema().genMainNamespace()},
         {"TYPE", commsTypeInternal()},
         {"IDS", commsIdsInternal()},
-        {"NS_BEGIN", comms::genNamespaceBeginFor(m_parent, m_generator)},
-        {"NS_END", comms::genNamespaceEndFor(m_parent, m_generator)},           
+        {"NS_BEGIN", comms::genNamespaceBeginFor(m_parent, m_commsGenerator)},
+        {"NS_END", comms::genNamespaceEndFor(m_parent, m_commsGenerator)},           
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     if (!stream.good()) {
-        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
+        m_commsGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     
@@ -145,7 +145,7 @@ std::string CommsMsgId::commsIdsInternal() const
     auto& prefix = strings::genMsgIdPrefixStr();
     auto allMsgIdFields = m_parent.genFindMessageIdFields();
     if (allMsgIdFields.empty() && m_parent.genName().empty()) {
-        allMsgIdFields = m_generator.genCurrentSchema().genGetAllMessageIdFields();
+        allMsgIdFields = m_commsGenerator.genCurrentSchema().genGetAllMessageIdFields();
     }
 
     if (allMsgIdFields.size() == 1U) {    
@@ -168,7 +168,7 @@ std::string CommsMsgId::commsIdsInternal() const
 
     auto allMessages = m_parent.genGetAllMessagesIdSorted();
     if (allMessages.empty() && m_parent.genName().empty()) {
-        allMessages = m_generator.genCurrentSchema().genGetAllMessagesIdSorted();
+        allMessages = m_commsGenerator.genCurrentSchema().genGetAllMessagesIdSorted();
     }
 
     util::GenStringsList ids;

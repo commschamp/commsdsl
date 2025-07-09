@@ -25,10 +25,13 @@ namespace commsdsl2comms
 class CommsGenerator;
 class CommsIntField final : public commsdsl::gen::GenIntField, public CommsField
 {
-    using Base = commsdsl::gen::GenIntField;
+    using GenBase = commsdsl::gen::GenIntField;
     using CommsBase = CommsField;
 public:
-    CommsIntField(CommsGenerator& generator, commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    CommsIntField(CommsGenerator& generator, ParseField parseObj, GenElem* parent);
 
     std::string commsVariantPropKeyType() const;
     std::string commsVariantPropKeyValueStr() const;
@@ -36,7 +39,7 @@ public:
     bool commsVariantIsPropKeyEquivalent(const CommsIntField& other) const;
 
 protected:
-    // Base overrides
+    // GenBase overrides
     virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;    
 

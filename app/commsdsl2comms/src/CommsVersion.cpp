@@ -35,7 +35,7 @@ namespace commsdsl2comms
 namespace 
 {
 
-enum VersionIdx
+enum CommsVersionIdx
 {
     VersionIdx_major,
     VersionIdx_minor,
@@ -46,7 +46,7 @@ enum VersionIdx
 } // namespace 
     
 
-bool CommsVersion::write(CommsGenerator& generator)
+bool CommsVersion::commsWrite(CommsGenerator& generator)
 {
     auto& thisSchema = static_cast<CommsSchema&>(generator.genCurrentSchema());
     if ((!generator.genIsCurrentProtocolSchema()) && (!thisSchema.commsHasAnyGeneratedCode())) {
@@ -54,17 +54,17 @@ bool CommsVersion::write(CommsGenerator& generator)
     }
 
     CommsVersion obj(generator);
-    return obj.writeInternal();
+    return obj.commsWriteInternal();
 }
 
-bool CommsVersion::writeInternal() const
+bool CommsVersion::commsWriteInternal() const
 {
-    auto filePath = comms::genHeaderPathRoot(strings::genVersionFileNameStr(), m_generator);
+    auto filePath = comms::genHeaderPathRoot(strings::genVersionFileNameStr(), m_commsGenerator);
 
-    m_generator.genLogger().genInfo("Generating " + filePath);
+    m_commsGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
+        m_commsGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -94,20 +94,20 @@ bool CommsVersion::writeInternal() const
 
     util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
-        {"PROT_NAMESPACE", m_generator.genCurrentSchema().genMainNamespace()},
-        {"VERSION", util::genNumToString(m_generator.genCurrentSchema().genSchemaVersion())},
-        {"NS", util::genStrToUpper(m_generator.genCurrentSchema().genMainNamespace())},
+        {"PROT_NAMESPACE", m_commsGenerator.genCurrentSchema().genMainNamespace()},
+        {"VERSION", util::genNumToString(m_commsGenerator.genCurrentSchema().genSchemaVersion())},
+        {"NS", util::genStrToUpper(m_commsGenerator.genCurrentSchema().genMainNamespace())},
         {"COMMS_MIN", util::genStrReplace(CommsGenerator::commsMinCommsVersion(), ".", ", ")},
         {"PROT_VER_DEFINE", commsProtVersionDefineInternal()},
         {"PROT_VER_FUNC", commsProtVersionFuncsInternal()},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForRoot(strings::genVersionFileNameStr(), m_generator))},
+        {"APPEND", util::genReadFileContents(comms::genInputCodePathForRoot(strings::genVersionFileNameStr(), m_commsGenerator))},
     };        
     
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
 
     if (!stream.good()) {
-        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
+        m_commsGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     
@@ -116,7 +116,7 @@ bool CommsVersion::writeInternal() const
 
 std::string CommsVersion::commsProtVersionDefineInternal() const
 {
-    auto& protVersion = m_generator.commsGetProtocolVersion();
+    auto& protVersion = m_commsGenerator.commsGetProtocolVersion();
     if (protVersion.empty()) {
         return strings::genEmptyString();
     }
@@ -137,7 +137,7 @@ std::string CommsVersion::commsProtVersionDefineInternal() const
         "#define #^#NS#$#_VERSION (COMMS_MAKE_VERSION(#^#NS#$#_MAJOR_VERSION, #^#NS#$#_MINOR_VERSION, #^#NS#$#_PATCH_VERSION))\n";
 
     util::GenReplacementMap repl = {
-        {"NS", util::genStrToUpper(m_generator.genCurrentSchema().genMainNamespace())},
+        {"NS", util::genStrToUpper(m_commsGenerator.genCurrentSchema().genMainNamespace())},
         {"MAJOR_VERSION", tokens[VersionIdx_major]},
         {"MINOR_VERSION", tokens[VersionIdx_minor]},
         {"PATCH_VERSION", tokens[VersionIdx_patch]},
@@ -148,7 +148,7 @@ std::string CommsVersion::commsProtVersionDefineInternal() const
 
 std::string CommsVersion::commsProtVersionFuncsInternal() const
 {
-    auto& protVersion = m_generator.commsGetProtocolVersion();
+    auto& protVersion = m_commsGenerator.commsGetProtocolVersion();
     if (protVersion.empty()) {
         return strings::genEmptyString();
     }
@@ -176,7 +176,7 @@ std::string CommsVersion::commsProtVersionFuncsInternal() const
         "}\n";
 
     util::GenReplacementMap repl = {
-        {"NS", util::genStrToUpper(m_generator.genCurrentSchema().genMainNamespace())},
+        {"NS", util::genStrToUpper(m_commsGenerator.genCurrentSchema().genMainNamespace())},
     };
 
     return util::genProcessTemplate(Templ, repl);

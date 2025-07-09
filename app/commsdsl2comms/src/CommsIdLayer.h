@@ -25,10 +25,13 @@ namespace commsdsl2comms
 class CommsGenerator;
 class CommsIdLayer final : public commsdsl::gen::GenIdLayer, public CommsLayer
 {
-    using Base = commsdsl::gen::GenIdLayer;
+    using GenBase = commsdsl::gen::GenIdLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsIdLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    CommsIdLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
     virtual bool genPrepareImpl() override;
@@ -40,8 +43,6 @@ protected:
     virtual bool commsIsCustomizableImpl() const override;    
     virtual GenStringsList commsExtraBareMetalDefaultOptionsImpl() const override;
     virtual GenStringsList commsExtraMsgFactoryDefaultOptionsImpl() const override;
-
-private:
 };
 
 } // namespace commsdsl2comms

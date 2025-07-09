@@ -65,7 +65,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-const std::string MinCommsVersion("5.4.3");    
+const std::string CommsMinCommsVersion("5.4.3");    
 
 const std::string& CommsGenerator::commsFileGeneratedComment()
 {
@@ -76,7 +76,7 @@ const std::string& CommsGenerator::commsFileGeneratedComment()
     return Str;
 }
 
-CommsGenerator::CustomizationLevel CommsGenerator::commsGetCustomizationLevel() const
+CommsGenerator::CommsCustomizationLevel CommsGenerator::commsGetCustomizationLevel() const
 {
     return m_customizationLevel;
 }
@@ -93,7 +93,7 @@ void CommsGenerator::commsSetCustomizationLevel(const std::string& value)
         /* None */ "none",        
     };
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<unsigned>(CustomizationLevel::NumOfValues));
+    static_assert(MapSize == static_cast<unsigned>(CommsCustomizationLevel::NumOfValues));
 
     auto iter = std::find(std::begin(Map), std::end(Map), value);
     if (iter == std::end(Map)) {
@@ -101,7 +101,7 @@ void CommsGenerator::commsSetCustomizationLevel(const std::string& value)
         return;
     }
 
-    m_customizationLevel = static_cast<CustomizationLevel>(std::distance(std::begin(Map), iter));
+    m_customizationLevel = static_cast<CommsCustomizationLevel>(std::distance(std::begin(Map), iter));
 }
 
 const std::string& CommsGenerator::commsGetProtocolVersion() const
@@ -139,14 +139,14 @@ void CommsGenerator::commsSetExtraInputBundles(const std::vector<std::string>& i
     m_extraInputBundles = inputBundles;
 }
 
-const CommsGenerator::ExtraMessageBundlesList& CommsGenerator::commsExtraMessageBundles() const
+const CommsGenerator::CommsExtraMessageBundlesList& CommsGenerator::commsExtraMessageBundles() const
 {
     return m_commsExtraMessageBundles;
 }
 
 const std::string& CommsGenerator::commsMinCommsVersion()
 {
-    return MinCommsVersion;
+    return CommsMinCommsVersion;
 }
 
 bool CommsGenerator::genPrepareImpl()
@@ -284,8 +284,8 @@ bool CommsGenerator::genWriteImpl()
     for (auto idx = 0U; idx < genSchemas().size(); ++idx) {
         genChooseCurrentSchema(idx);
         bool result = 
-            CommsFieldBase::write(*this) &&
-            CommsVersion::write(*this) &&
+            CommsFieldBase::commsWrite(*this) &&
+            CommsVersion::commsWrite(*this) &&
             CommsDefaultOptions::commsWrite(*this);
 
         if (!result) {

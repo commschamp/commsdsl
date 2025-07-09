@@ -36,24 +36,21 @@ namespace commsdsl2comms
 namespace 
 {
 
-const auto MaxBits = std::numeric_limits<std::uintmax_t>::digits;
+const auto CommsMaxBits = std::numeric_limits<std::uintmax_t>::digits;
 
 } // namespace 
     
 
-CommsSetField::CommsSetField(
-    CommsGenerator& generator, 
-    commsdsl::parse::ParseField parseObj, 
-    commsdsl::gen::GenElem* parent) :
-    Base(generator, parseObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsSetField::CommsSetField(CommsGenerator& generator, ParseField parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
 bool CommsSetField::genPrepareImpl()
 {
     return 
-        Base::genPrepareImpl() && 
+        GenBase::genPrepareImpl() && 
         commsPrepare();
 }
 
@@ -551,7 +548,7 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
     std::map<std::string, unsigned> deprecatedBits;
     for (auto& bitInfo : obj.parseRevBits()) {
         auto idx = bitInfo.first;
-        if (MaxBits <= idx) {
+        if (CommsMaxBits <= idx) {
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             continue;
@@ -723,7 +720,7 @@ void CommsSetField::commsAddDefaultValueOptInternal(commsdsl::gen::util::GenStri
     }
 
     for (auto& bitInfo : obj.parseBits()) {
-        if (MaxBits <= bitInfo.second.m_idx) {
+        if (CommsMaxBits <= bitInfo.second.m_idx) {
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             continue;
@@ -744,7 +741,7 @@ void CommsSetField::commsAddDefaultValueOptInternal(commsdsl::gen::util::GenStri
     }
 
     auto mask = ~static_cast<std::uintmax_t>(0);
-    if (bitLength < MaxBits) {
+    if (bitLength < CommsMaxBits) {
         mask = (static_cast<decltype(defaultValue)>(1U) << bitLength) - 1;
     }
 
@@ -789,7 +786,7 @@ void CommsSetField::commsAddReservedBitsOptInternal(commsdsl::gen::util::GenStri
     bool mustHandleBitsInValidFunc = false;
 
     for (auto& bitInfo : obj.parseBits()) {
-        if (MaxBits <= bitInfo.second.m_idx) {
+        if (CommsMaxBits <= bitInfo.second.m_idx) {
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             continue;
@@ -832,7 +829,7 @@ void CommsSetField::commsAddReservedBitsOptInternal(commsdsl::gen::util::GenStri
     }
 
     auto mask = ~static_cast<std::uintmax_t>(0);
-    if (bitLength < MaxBits) {
+    if (bitLength < CommsMaxBits) {
         mask = (static_cast<decltype(reservedValue)>(1U) << bitLength) - 1;
     }
 

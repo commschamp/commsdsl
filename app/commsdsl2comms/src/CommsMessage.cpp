@@ -41,24 +41,24 @@ namespace commsdsl2comms
 namespace 
 {
 
-bool hasOrigCode(commsdsl::parse::ParseOverrideType value)
+bool commsHasOrigCode(commsdsl::parse::ParseOverrideType value)
 {
     return (value != commsdsl::parse::ParseOverrideType_Replace);
 }    
 
-bool isOverrideCodeAllowed(commsdsl::parse::ParseOverrideType value)
+bool commsIsOverrideCodeAllowed(commsdsl::parse::ParseOverrideType value)
 {
     return (value != commsdsl::parse::ParseOverrideType_None);
 }
 
-bool isOverrideCodeRequired(commsdsl::parse::ParseOverrideType value)
+bool commsIsOverrideCodeRequired(commsdsl::parse::ParseOverrideType value)
 {
     return 
         (value == commsdsl::parse::ParseOverrideType_Replace) || 
         (value == commsdsl::parse::ParseOverrideType_Extend);
 }
 
-void readCustomCodeInternal(const std::string& codePath, std::string& code)
+void commsReadCustomCodeInternal(const std::string& codePath, std::string& code)
 {
     if (!util::genIsFileReadable(codePath)) {
         return;
@@ -67,10 +67,10 @@ void readCustomCodeInternal(const std::string& codePath, std::string& code)
     code = util::genReadFileContents(codePath);
 }
 
-std::pair<const CommsField*, std::string> genFindInterfaceFieldInternal(const CommsGenerator& generator, const std::string& refStr)
+std::pair<const CommsField*, std::string> commsFindInterfaceFieldInternal(const CommsGenerator& generator, const std::string& refStr)
 {
-    auto& currSchema = CommsSchema::cast(generator.genCurrentSchema());
-    auto* field = currSchema.findValidInterfaceReferencedField(refStr);
+    auto& currSchema = CommsSchema::commsCast(generator.genCurrentSchema());
+    auto* field = currSchema.commsFindValidInterfaceReferencedField(refStr);
     if (field == nullptr) {
         generator.genLogger().genError("Failed to find interface field \"" + refStr + "\".");
         assert(false);
@@ -85,12 +85,12 @@ std::pair<const CommsField*, std::string> genFindInterfaceFieldInternal(const Co
     return std::make_pair(field, refStr.substr(dotPos + 1));
 }
 
-std::string interfaceFieldAccStrInternal(const CommsField& field)
+std::string commsInterfaceFieldAccStrInternal(const CommsField& field)
 {
     return strings::genTransportFieldAccessPrefixStr() + comms::genAccessName(field.commsGenField().genParseObj().parseName()) + "()";
 }
 
-void updateConstructBoolInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCondExpr& cond, util::GenStringsList& code)
+void commsUpdateConstructBoolInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCondExpr& cond, util::GenStringsList& code)
 {
     assert(cond.parseOp().empty() || (cond.parseOp() == "!"));
     auto& right = cond.parseRight();
@@ -103,13 +103,13 @@ void updateConstructBoolInternal(const CommsGenerator& generator, const commsdsl
         return;
     }
 
-    auto fieldInfo = genFindInterfaceFieldInternal(generator, right.substr(1, lastSepPos - 1U));
+    auto fieldInfo = commsFindInterfaceFieldInternal(generator, right.substr(1, lastSepPos - 1U));
     if (fieldInfo.first == nullptr) {
         assert(false); // Should not happen
         return;
     }
 
-    auto fieldAccess = fieldInfo.first->commsFieldAccessStr(fieldInfo.second, interfaceFieldAccStrInternal(*fieldInfo.first));
+    auto fieldAccess = fieldInfo.first->commsFieldAccessStr(fieldInfo.second, commsInterfaceFieldAccStrInternal(*fieldInfo.first));
 
     static const std::string TrueStr("true");
     static const std::string FalseStr("false");
@@ -131,16 +131,19 @@ void updateConstructBoolInternal(const CommsGenerator& generator, const commsdsl
     code.push_back(util::genProcessTemplate(Templ, repl));
 }
 
-void updateConstructExprInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCondExpr& cond, util::GenStringsList& code)
+void commsUpdateConstructExprInternal(
+    const CommsGenerator& generator, 
+    const commsdsl::parse::ParseOptCondExpr& cond, 
+    util::GenStringsList& code)
 {
     auto& left = cond.parseLeft();
     if (left.empty()) {
-        updateConstructBoolInternal(generator, cond, code); 
+        commsUpdateConstructBoolInternal(generator, cond, code); 
         return;
     }
 
     assert(left[0] == strings::genInterfaceFieldRefPrefix());
-    auto leftInfo = genFindInterfaceFieldInternal(generator, left.substr(1));
+    auto leftInfo = commsFindInterfaceFieldInternal(generator, left.substr(1));
     if (leftInfo.first == nullptr) {
         assert(false); // Should not happen
         return;
@@ -150,19 +153,19 @@ void updateConstructExprInternal(const CommsGenerator& generator, const commsdsl
     auto& right = cond.parseRight();
     assert(!right.empty());
 
-    auto leftFieldAccess = leftInfo.first->commsFieldAccessStr(leftInfo.second, interfaceFieldAccStrInternal(*leftInfo.first));
+    auto leftFieldAccess = leftInfo.first->commsFieldAccessStr(leftInfo.second, commsInterfaceFieldAccStrInternal(*leftInfo.first));
 
     auto castPrefix = strings::genTransportFieldTypeAccessPrefixStr() + comms::genAccessName(leftInfo.first->commsGenField().genParseObj().parseName()) + "::";
     std::string castType = leftInfo.first->commsCompValueCastType(leftInfo.second, castPrefix);
     std::string valStr;
     if (right[0] == strings::genInterfaceFieldRefPrefix()) {
-        auto rightInfo = genFindInterfaceFieldInternal(generator, right.substr(1));
+        auto rightInfo = commsFindInterfaceFieldInternal(generator, right.substr(1));
         if (rightInfo.first == nullptr) {
             assert(false); // Should not happen
             return;
         }
 
-        valStr = rightInfo.first->commsValueAccessStr(rightInfo.second, interfaceFieldAccStrInternal(*rightInfo.first));
+        valStr = rightInfo.first->commsValueAccessStr(rightInfo.second, commsInterfaceFieldAccStrInternal(*rightInfo.first));
     }
     else {
         valStr = leftInfo.first->commsCompPrepValueStr(leftInfo.second, right);
@@ -180,12 +183,12 @@ void updateConstructExprInternal(const CommsGenerator& generator, const commsdsl
     code.push_back(util::genProcessTemplate(Templ, repl));
 }
 
-void updateConstructCodeInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCond& cond, util::GenStringsList& code)
+void commsUpdateConstructCodeInternal(const CommsGenerator& generator, const commsdsl::parse::ParseOptCond& cond, util::GenStringsList& code)
 {
     assert(cond.parseValid());
     if (cond.parseKind() == commsdsl::parse::ParseOptCond::ParseKind::Expr) {
         commsdsl::parse::ParseOptCondExpr exprCond(cond);
-        updateConstructExprInternal(generator, exprCond, code);
+        commsUpdateConstructExprInternal(generator, exprCond, code);
         return;
     }
 
@@ -194,7 +197,7 @@ void updateConstructCodeInternal(const CommsGenerator& generator, const commsdsl
     assert(listCond.parseType() == commsdsl::parse::ParseOptCondList::ParseType::And);
     auto conditions = listCond.parseConditions();
     for (auto& c : conditions) {
-        updateConstructCodeInternal(generator, c, code);
+        commsUpdateConstructCodeInternal(generator, c, code);
     }
 }
 
@@ -202,7 +205,7 @@ void updateConstructCodeInternal(const CommsGenerator& generator, const commsdsl
     
 
 CommsMessage::CommsMessage(CommsGenerator& generator, commsdsl::parse::ParseMessage parseObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, parseObj, parent)
+    GenBase(generator, parseObj, parent)
 {
 }   
 
@@ -235,11 +238,11 @@ std::string CommsMessage::commsBareMetalDefaultOptions() const
 
 bool CommsMessage::genPrepareImpl()
 {
-    if (!Base::genPrepareImpl()) {
+    if (!GenBase::genPrepareImpl()) {
         return false;
     }
 
-    if (!copyCodeFromInternal()) {
+    if (!commsCopyCodeFromInternal()) {
         return false;
     }
 
@@ -257,13 +260,13 @@ bool CommsMessage::genPrepareImpl()
         return false;
     }
 
-    readCustomCodeInternal(codePathPrefix + strings::genConstructFileSuffixStr(), m_customConstruct);
-    readCustomCodeInternal(codePathPrefix + strings::genIncFileSuffixStr(), m_customCode.m_inc);
-    readCustomCodeInternal(codePathPrefix + strings::genPublicFileSuffixStr(), m_customCode.m_public);
-    readCustomCodeInternal(codePathPrefix + strings::genProtectedFileSuffixStr(), m_customCode.m_protected);
-    readCustomCodeInternal(codePathPrefix + strings::genPrivateFileSuffixStr(), m_customCode.m_private);
-    readCustomCodeInternal(codePathPrefix + strings::genExtendFileSuffixStr(), m_customCode.m_extend);
-    readCustomCodeInternal(codePathPrefix + strings::genAppendFileSuffixStr(), m_customCode.m_append);
+    commsReadCustomCodeInternal(codePathPrefix + strings::genConstructFileSuffixStr(), m_customConstruct);
+    commsReadCustomCodeInternal(codePathPrefix + strings::genIncFileSuffixStr(), m_customCode.m_inc);
+    commsReadCustomCodeInternal(codePathPrefix + strings::genPublicFileSuffixStr(), m_customCode.m_public);
+    commsReadCustomCodeInternal(codePathPrefix + strings::genProtectedFileSuffixStr(), m_customCode.m_protected);
+    commsReadCustomCodeInternal(codePathPrefix + strings::genPrivateFileSuffixStr(), m_customCode.m_private);
+    commsReadCustomCodeInternal(codePathPrefix + strings::genExtendFileSuffixStr(), m_customCode.m_extend);
+    commsReadCustomCodeInternal(codePathPrefix + strings::genAppendFileSuffixStr(), m_customCode.m_append);
 
     m_commsFields = CommsField::commsTransformFieldsList(genFields());
     m_bundledReadPrepareCodes.reserve(m_commsFields.size());
@@ -284,7 +287,7 @@ bool CommsMessage::genWriteImpl() const
         commsWriteDefInternal();
 }
 
-bool CommsMessage::copyCodeFromInternal()
+bool CommsMessage::commsCopyCodeFromInternal()
 {
     auto obj = genParseObj();
     auto& copyFrom = obj.parseCopyCodeFrom();
@@ -312,10 +315,10 @@ bool CommsMessage::commsPrepareOverrideInternal(
     const std::string& suffix,
     std::string& customCode,
     const std::string& name,
-    BodyCustomCodeFunc bodyFunc)
+    CommsBodyCustomCodeFunc bodyFunc)
 {
     do {
-        if (!isOverrideCodeAllowed(type)) {
+        if (!commsIsOverrideCodeAllowed(type)) {
             customCode.clear();
             break;
         }
@@ -337,7 +340,7 @@ bool CommsMessage::commsPrepareOverrideInternal(
         }       
     } while (false);
     
-    if (customCode.empty() && isOverrideCodeRequired(type)) {
+    if (customCode.empty() && commsIsOverrideCodeRequired(type)) {
         genGenerator().genLogger().genError(
             "Overriding \"" + name + "\" operation is not provided in injected code for message \"" +
             genParseObj().parseExternalRef() + "\". Expected overriding file is \"" + codePathPrefix + suffix + ".");
@@ -1135,7 +1138,7 @@ std::string CommsMessage::commsDefLengthCheckInternal() const
 std::string CommsMessage::commsDefNameFuncInternal() const
 {
     std::string origCode;
-    if (hasOrigCode(genParseObj().parseNameOverride())) {
+    if (commsHasOrigCode(genParseObj().parseNameOverride())) {
         static const std::string Templ = 
             "/// @brief Name of the message.\n"
             "static const char* doName#^#ORIG#$#()\n"
@@ -1175,7 +1178,7 @@ std::string CommsMessage::commsDefReadFuncInternal() const
 {
     std::string origCode;
     do {
-        if (!hasOrigCode(genParseObj().parseReadOverride())) {
+        if (!commsHasOrigCode(genParseObj().parseReadOverride())) {
             break;
         }
 
@@ -1320,7 +1323,7 @@ std::string CommsMessage::commsDefRefreshFuncInternal() const
 {
     std::string origCode;
     do {
-        if (!hasOrigCode(genParseObj().parseRefreshOverride())) {
+        if (!commsHasOrigCode(genParseObj().parseRefreshOverride())) {
             break;
         }
 
@@ -1405,7 +1408,7 @@ bool CommsMessage::commsIsCustomizableInternal() const
 {
     auto& gen = static_cast<const CommsGenerator&>(genGenerator());
     auto level = gen.commsGetCustomizationLevel();
-    if (level == CommsGenerator::CustomizationLevel::Full) {
+    if (level == CommsGenerator::CommsCustomizationLevel::Full) {
         return true;
     }
 
@@ -1413,7 +1416,7 @@ bool CommsMessage::commsIsCustomizableInternal() const
         return true;
     }
 
-    if (level == CommsGenerator::CustomizationLevel::None) {
+    if (level == CommsGenerator::CommsCustomizationLevel::None) {
         return false;
     }
 
@@ -1422,7 +1425,7 @@ bool CommsMessage::commsIsCustomizableInternal() const
 
 std::string CommsMessage::commsCustomizationOptionsInternal(
     CommsFieldOptsFunc fieldOptsFunc,
-    ExtraMessageOptsFunc extraMessageOptsFunc,
+    CommsExtraMessageOptsFunc extraMessageOptsFunc,
     bool hasBase) const
 {
     util::GenStringsList fieldOpts;
@@ -1528,7 +1531,7 @@ std::string CommsMessage::commsDefReadConditionsCodeInternal() const
         return strings::genEmptyString();
     }
 
-    auto& gen = CommsGenerator::cast(genGenerator());
+    auto& gen = CommsGenerator::commsCast(genGenerator());
     auto str = 
         CommsOptionalField::commsDslCondToString(gen, CommsFieldsList(), readCond, true);
 
@@ -1554,7 +1557,7 @@ std::string CommsMessage::commsDefOrigValidCodeInternal() const
 {
     auto obj = genParseObj();
 
-    if ((!m_customCode.m_valid.empty()) && (!hasOrigCode(obj.parseValidOverride()))) {
+    if ((!m_customCode.m_valid.empty()) && (!commsHasOrigCode(obj.parseValidOverride()))) {
         return strings::genEmptyString();
     }
 
@@ -1563,7 +1566,7 @@ std::string CommsMessage::commsDefOrigValidCodeInternal() const
         return strings::genEmptyString();
     }
 
-    auto& gen = CommsGenerator::cast(genGenerator());
+    auto& gen = CommsGenerator::commsCast(genGenerator());
     auto str = 
         CommsOptionalField::commsDslCondToString(gen, m_commsFields, cond, true);
 
@@ -1666,7 +1669,7 @@ void CommsMessage::commsPrepareConstructCodeInternal()
     }
 
     GenStringsList code;
-    updateConstructCodeInternal(CommsGenerator::cast(genGenerator()), cond, code);
+    commsUpdateConstructCodeInternal(CommsGenerator::commsCast(genGenerator()), cond, code);
 
     if (code.empty()) {
         return;

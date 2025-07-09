@@ -29,27 +29,27 @@ class CommsProgramOptions : public commsdsl::gen::GenProgramOptions
 public:
     CommsProgramOptions();
 
-    bool quietRequested() const;
-    bool debugRequested() const;
-    bool versionRequested() const;
-    bool warnAsErrRequested() const;
+    bool commsQuietRequested() const;
+    bool commsDebugRequested() const;
+    bool commsVersionRequested() const;
+    bool commsWarnAsErrRequested() const;
 
-    const std::string& getFilesListFile() const;
-    const std::string& getFilesListPrefix() const;
-    const GenArgsList& getFiles() const;
-    const std::string& getOutputDirectory() const;
-    bool hasNamespaceOverride() const;
-    const std::string& getNamespace() const;
-    const std::string& getCodeInputDirectory() const;
-    bool hasForcedSchemaVersion() const;
-    unsigned getForcedSchemaVersion() const;
-    const std::string& getProtocolVersion() const;
-    unsigned genGetMinRemoteVersion() const;
-    const std::string& getCustomizationLevel() const;
-    bool versionIndependentCodeRequested() const;
-    std::vector<std::string> getExtraInputBundles() const;
-    bool multipleSchemasEnabled() const;
-    bool isMainNamespaceInOptionsForced() const;
+    const std::string& commsGetFilesListFile() const;
+    const std::string& commsGetFilesListPrefix() const;
+    const GenArgsList& commsGetFiles() const;
+    const std::string& commsGetOutputDirectory() const;
+    bool commsHasNamespaceOverride() const;
+    const std::string& commsGetNamespace() const;
+    const std::string& commsGetCodeInputDirectory() const;
+    bool commsHasForcedSchemaVersion() const;
+    unsigned commsGetForcedSchemaVersion() const;
+    const std::string& commsGetProtocolVersion() const;
+    unsigned commsGetMinRemoteVersion() const;
+    const std::string& commsGetCustomizationLevel() const;
+    bool commsVersionIndependentCodeRequested() const;
+    std::vector<std::string> commsGetExtraInputBundles() const;
+    bool commsMultipleSchemasEnabled() const;
+    bool commsIsMainNamespaceInOptionsForced() const;
 };
 
 } // namespace commsdsl2comms

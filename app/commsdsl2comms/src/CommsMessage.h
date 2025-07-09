@@ -30,12 +30,16 @@ namespace commsdsl2comms
 class CommsGenerator;
 class CommsMessage final: public commsdsl::gen::GenMessage
 {
-    using Base = commsdsl::gen::GenMessage;
+    using GenBase = commsdsl::gen::GenMessage;
 public:
-    using CommsFieldsList = CommsField::CommsFieldsList;
+    using ParseMessage = commsdsl::parse::ParseMessage;
+
+    using GenElem = commsdsl::gen::GenElem;
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    explicit CommsMessage(CommsGenerator& generator, commsdsl::parse::ParseMessage parseObj, commsdsl::gen::GenElem* parent);
+    using CommsFieldsList = CommsField::CommsFieldsList;
+    
+    explicit CommsMessage(CommsGenerator& generator, ParseMessage parseObj, GenElem* parent);
     virtual ~CommsMessage();
 
     const CommsFieldsList& commsFields() const
@@ -55,9 +59,9 @@ protected:
 
 private:
     using CommsFieldOptsFunc = std::string (CommsField::*)() const;
-    using ExtraMessageOptsFunc = GenStringsList (CommsMessage::*)() const;
+    using CommsExtraMessageOptsFunc = GenStringsList (CommsMessage::*)() const;
 
-    struct CustomCode
+    struct CommsCustomCode
     {
         std::string m_read;
         std::string m_write;
@@ -73,16 +77,16 @@ private:
         std::string m_append;
     };
 
-    using BodyCustomCodeFunc = std::string (*)(const std::string& codePathPrefix);
+    using CommsBodyCustomCodeFunc = std::string (*)(const std::string& codePathPrefix);
 
-    bool copyCodeFromInternal();
+    bool commsCopyCodeFromInternal();
     bool commsPrepareOverrideInternal(
         commsdsl::parse::ParseOverrideType type, 
         std::string& codePathPrefix, 
         const std::string& suffix,
         std::string& customCode,
         const std::string& name,
-        BodyCustomCodeFunc bodyFunc);
+        CommsBodyCustomCodeFunc bodyFunc);
     static std::string commsPrepareCustomReadFromBodyInternal(const std::string& codePathPrefix);
     static std::string commsPrepareCustomWriteFromBodyInternal(const std::string& codePathPrefix);
     static std::string commsPrepareCustomRefreshFromBodyInternal(const std::string& codePathPrefix);
@@ -117,7 +121,7 @@ private:
     bool commsIsCustomizableInternal() const;
     std::string commsCustomizationOptionsInternal(
         CommsFieldOptsFunc fieldOptsFunc,
-        ExtraMessageOptsFunc extraMessageOptsFunc,
+        CommsExtraMessageOptsFunc extraMessageOptsFunc,
         bool hasBase) const;
     std::string commsDefReadConditionsCodeInternal() const;
     std::string commsDefOrigValidCodeInternal() const;
@@ -132,7 +136,7 @@ private:
     commsdsl::gen::util::GenStringsList m_bundledRefreshCodes;
     std::string m_internalConstruct;
     std::string m_customConstruct;
-    CustomCode m_customCode;
+    CommsCustomCode m_customCode;
 };
 
 } // namespace commsdsl2comms

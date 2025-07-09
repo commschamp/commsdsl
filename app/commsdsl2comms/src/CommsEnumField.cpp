@@ -1391,7 +1391,7 @@ const CommsNamespace* CommsEnumField::commsNamespaceForMsgId() const
         return nullptr;
     }
 
-    auto* parentNs = CommsNamespace::cast(genParentNamespace());
+    auto* parentNs = CommsNamespace::commsCast(genParentNamespace());
     while (parentNs != nullptr) {
         if (parentNs->commsHasMsgId()) {
             break;
@@ -1408,7 +1408,7 @@ const CommsNamespace* CommsEnumField::commsNamespaceForMsgId() const
             break;
         }
 
-        parentNs = CommsNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>(parentTmp));
+        parentNs = CommsNamespace::commsCast(static_cast<const commsdsl::gen::GenNamespace*>(parentTmp));
     }
 
     if (parentNs == nullptr) {

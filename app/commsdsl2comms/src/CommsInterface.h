@@ -29,14 +29,16 @@ namespace commsdsl2comms
 class CommsGenerator;
 class CommsInterface final: public commsdsl::gen::GenInterface
 {
-    using Base = commsdsl::gen::GenInterface;
+    using GenBase = commsdsl::gen::GenInterface;
 public:
+    using ParseInterface = commsdsl::parse::ParseInterface;
+    using GenElem = commsdsl::gen::GenElem;
     using CommsFieldsList = CommsField::CommsFieldsList;
 
-    explicit CommsInterface(CommsGenerator& generator, commsdsl::parse::ParseInterface parseObj, commsdsl::gen::GenElem* parent);
+    explicit CommsInterface(CommsGenerator& generator, ParseInterface parseObj, GenElem* parent);
     virtual ~CommsInterface();
 
-    static const CommsInterface* cast(const commsdsl::gen::GenInterface* value)
+    static const CommsInterface* commsCast(const commsdsl::gen::GenInterface* value)
     {
         return static_cast<const CommsInterface*>(value);
     }
@@ -46,7 +48,7 @@ public:
         return m_commsFields;
     }    
 
-    const CommsField* findValidReferencedField(const std::string& refStr) const;
+    const CommsField* commsFindValidReferencedField(const std::string& refStr) const;
 
 
 protected:
@@ -54,7 +56,7 @@ protected:
     virtual bool genWriteImpl() const override;
 
 private:
-    struct CustomCode
+    struct CommsCustomCode
     {
         std::string m_inc;
         std::string m_public;
@@ -64,7 +66,7 @@ private:
         std::string m_append;
     };
 
-    bool copyCodeFromInternal();
+    bool commsCopyCodeFromInternal();
     bool commsWriteCommonInternal() const;  
     bool commsWriteDefInternal() const;  
     std::string commsCommonIncludesInternal() const;
@@ -82,11 +84,8 @@ private:
 
     std::string m_name;
     std::string m_constructCode;
-    // std::string m_publicCode;
-    // std::string m_protectedCode;
-    // std::string m_privateCode;
     CommsFieldsList m_commsFields;  
-    CustomCode m_customCode;
+    CommsCustomCode m_customCode;
 };
 
 } // namespace commsdsl2comms

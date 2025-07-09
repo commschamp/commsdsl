@@ -68,7 +68,7 @@ int main(int argc, const char* argv[])
             return 0;
         }
 
-        if (options.versionRequested()) {
+        if (options.commsVersionRequested()) {
             std::cout << 
                 commsdsl::versionMajor() << '.' << 
                 commsdsl::versionMinor() << '.' <<
@@ -79,35 +79,35 @@ int main(int argc, const char* argv[])
         commsdsl2comms::CommsGenerator generator;
         auto& logger = generator.genLogger();
 
-        if (options.quietRequested()) {
+        if (options.commsQuietRequested()) {
             logger.genSetMinLevel(commsdsl::parse::ParseErrorLevel_Warning);
         }
 
-        if (options.debugRequested()) {
+        if (options.commsDebugRequested()) {
             logger.genSetMinLevel(commsdsl::parse::ParseErrorLevel_Debug);
         }        
 
-        if (options.warnAsErrRequested()) {
+        if (options.commsWarnAsErrRequested()) {
             logger.genSetWarnAsError();
         }
 
-        if (options.hasNamespaceOverride()) {
-            generator.genSetNamespaceOverride(options.getNamespace());
+        if (options.commsHasNamespaceOverride()) {
+            generator.genSetNamespaceOverride(options.commsGetNamespace());
         }
 
-        generator.genSetOutputDir(options.getOutputDirectory());
-        generator.genSetVersionIndependentCodeForced(options.versionIndependentCodeRequested());
-        generator.genSetMultipleSchemasEnabled(options.multipleSchemasEnabled());
-        generator.genSetCodeDir(options.getCodeInputDirectory());
-        generator.genSetMinRemoteVersion(options.genGetMinRemoteVersion());
+        generator.genSetOutputDir(options.commsGetOutputDirectory());
+        generator.genSetVersionIndependentCodeForced(options.commsVersionIndependentCodeRequested());
+        generator.genSetMultipleSchemasEnabled(options.commsMultipleSchemasEnabled());
+        generator.genSetCodeDir(options.commsGetCodeInputDirectory());
+        generator.genSetMinRemoteVersion(options.commsGetMinRemoteVersion());
 
-        generator.commsSetCustomizationLevel(options.getCustomizationLevel());
-        generator.commsSetProtocolVersion(options.getProtocolVersion());
-        generator.commsSetExtraInputBundles(options.getExtraInputBundles());
-        generator.commsSetMainNamespaceInOptionsForced(options.isMainNamespaceInOptionsForced());
+        generator.commsSetCustomizationLevel(options.commsGetCustomizationLevel());
+        generator.commsSetProtocolVersion(options.commsGetProtocolVersion());
+        generator.commsSetExtraInputBundles(options.commsGetExtraInputBundles());
+        generator.commsSetMainNamespaceInOptionsForced(options.commsIsMainNamespaceInOptionsForced());
 
-        auto files = commsdsl2comms::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
-        auto otherFiles = options.getFiles();
+        auto files = commsdsl2comms::getFilesList(options.commsGetFilesListFile(), options.commsGetFilesListPrefix());
+        auto otherFiles = options.commsGetFiles();
         files.insert(files.end(), otherFiles.begin(), otherFiles.end());
 
         if (files.empty()) {

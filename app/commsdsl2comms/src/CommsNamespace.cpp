@@ -35,7 +35,7 @@ namespace commsdsl2comms
 namespace 
 {
 
-const std::string& optsTemplInternal(bool defaultNs)
+const std::string& commsOptsTemplInternal(bool defaultNs)
 {
     if (defaultNs) {
         static const std::string Templ = 
@@ -55,8 +55,8 @@ const std::string& optsTemplInternal(bool defaultNs)
 } // namespace 
 
 
-CommsNamespace::CommsNamespace(CommsGenerator& generator, commsdsl::parse::ParseNamespace parseObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, parseObj, parent),
+CommsNamespace::CommsNamespace(CommsGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
     m_dispatch(generator, *this),
     m_factory(generator, *this),
     m_input(generator, *this),
@@ -82,7 +82,7 @@ std::string CommsNamespace::commsDefaultOptions() const
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
-    return util::genProcessTemplate(optsTemplInternal(nsName.empty()), repl);
+    return util::genProcessTemplate(commsOptsTemplInternal(nsName.empty()), repl);
 }
 
 std::string CommsNamespace::commsClientDefaultOptions() const
@@ -114,7 +114,7 @@ std::string CommsNamespace::commsClientDefaultOptions() const
         repl["EXT"] = ": public TBase::" + thisNsScope;
     }
         
-    return util::genProcessTemplate(optsTemplInternal(nsName.empty()), repl);
+    return util::genProcessTemplate(commsOptsTemplInternal(nsName.empty()), repl);
 }
 
 std::string CommsNamespace::commsServerDefaultOptions() const
@@ -146,7 +146,7 @@ std::string CommsNamespace::commsServerDefaultOptions() const
         repl["EXT"] = ": public TBase::" + thisNsScope;
     }
 
-    return util::genProcessTemplate(optsTemplInternal(nsName.empty()), repl);
+    return util::genProcessTemplate(commsOptsTemplInternal(nsName.empty()), repl);
 }
 
 std::string CommsNamespace::commsDataViewDefaultOptions() const
@@ -178,7 +178,7 @@ std::string CommsNamespace::commsDataViewDefaultOptions() const
         repl["EXT"] = ": public TBase::" + thisNsScope;
     }
 
-    return util::genProcessTemplate(optsTemplInternal(nsName.empty()), repl);
+    return util::genProcessTemplate(commsOptsTemplInternal(nsName.empty()), repl);
 }
 
 std::string CommsNamespace::commsBareMetalDefaultOptions() const
@@ -210,7 +210,7 @@ std::string CommsNamespace::commsBareMetalDefaultOptions() const
         repl["EXT"] = ": public TBase::" + thisNsScope;
     }
 
-    return util::genProcessTemplate(optsTemplInternal(nsName.empty()), repl);
+    return util::genProcessTemplate(commsOptsTemplInternal(nsName.empty()), repl);
 }
 
 std::string CommsNamespace::commsMsgFactoryDefaultOptions() const
@@ -242,7 +242,7 @@ std::string CommsNamespace::commsMsgFactoryDefaultOptions() const
         repl["EXT"] = ": public TBase::" + thisNsScope;
     }
 
-    return util::genProcessTemplate(optsTemplInternal(nsName.empty()), repl);
+    return util::genProcessTemplate(commsOptsTemplInternal(nsName.empty()), repl);
 }
 
 bool CommsNamespace::commsHasReferencedMsgId() const
@@ -346,19 +346,19 @@ bool CommsNamespace::commsHasAnyField() const
             });    
 }
 
-const CommsField* CommsNamespace::findValidInterfaceReferencedField(const std::string& refStr) const
+const CommsField* CommsNamespace::commsFindValidInterfaceReferencedField(const std::string& refStr) const
 {
     for (auto& iPtr : genInterfaces()) {
-        auto* commsInterface = CommsInterface::cast(iPtr.get());
-        auto field = commsInterface->findValidReferencedField(refStr);
+        auto* commsInterface = CommsInterface::commsCast(iPtr.get());
+        auto field = commsInterface->commsFindValidReferencedField(refStr);
         if (field != nullptr) {
             return field;
         }
     }
 
     for (auto& nPtr : genNamespaces()) {
-        auto* commsNamespace = CommsNamespace::cast(nPtr.get());
-        auto field = commsNamespace->findValidInterfaceReferencedField(refStr);
+        auto* commsNamespace = CommsNamespace::commsCast(nPtr.get());
+        auto field = commsNamespace->commsFindValidInterfaceReferencedField(refStr);
         if (field != nullptr) {
             return field;
         }
@@ -411,7 +411,7 @@ bool CommsNamespace::commsHasMsgId() const
 
 bool CommsNamespace::genPrepareImpl()
 {
-    if (!Base::genPrepareImpl()) {
+    if (!GenBase::genPrepareImpl()) {
         return false;
     }
 
@@ -438,10 +438,10 @@ bool CommsNamespace::genWriteImpl() const
 }
 
 std::string CommsNamespace::commsOptionsInternal(
-    NamespaceOptsFunc nsOptsFunc,
+    CommsNamespaceOptsFunc nsOptsFunc,
     CommsFieldOptsFunc fieldOptsFunc,
-    MessageOptsFunc messageOptsFunc,
-    FrameOptsFunc frameOptsFunc,
+    CommsMessageOptsFunc messageOptsFunc,
+    CommsFrameOptsFunc frameOptsFunc,
     bool hasBase) const
 {
     util::GenStringsList elems;

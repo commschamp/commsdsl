@@ -30,15 +30,15 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsPayloadLayer::CommsPayloadLayer(CommsGenerator& generator, commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, parseObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsPayloadLayer::CommsPayloadLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
 bool CommsPayloadLayer::genPrepareImpl()
 {
-    return Base::genPrepareImpl() && CommsBase::commsPrepare();
+    return GenBase::genPrepareImpl() && CommsBase::commsPrepare();
 }
 
 CommsPayloadLayer::CommsIncludesList CommsPayloadLayer::commsDefIncludesImpl() const
@@ -90,7 +90,7 @@ std::string CommsPayloadLayer::commsCustomDefMembersCodeImpl() const
         "    };\n"
         "};\n";
 
-    auto& gen = CommsGenerator::cast(genGenerator());
+    auto& gen = CommsGenerator::commsCast(genGenerator());
     util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
         {"SUFFIX", strings::genMembersSuffixStr()},
