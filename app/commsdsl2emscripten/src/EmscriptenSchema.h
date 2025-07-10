@@ -27,20 +27,22 @@ namespace commsdsl2emscripten
 class EmscriptenGenerator;
 class EmscriptenSchema final: public commsdsl::gen::GenSchema
 {
-    using Base = commsdsl::gen::GenSchema;
+    using GenBase = commsdsl::gen::GenSchema;
 
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
+    using ParseSchema = commsdsl::parse::ParseSchema;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    explicit EmscriptenSchema(EmscriptenGenerator& generator, commsdsl::parse::ParseSchema dslObj, commsdsl::gen::GenElem* parent);
+    explicit EmscriptenSchema(EmscriptenGenerator& generator, ParseSchema parseObj, GenElem* parent);
     virtual ~EmscriptenSchema();
 
-    static const EmscriptenSchema* cast(const commsdsl::gen::GenSchema* schema)
+    static const EmscriptenSchema* emscriptenCast(const commsdsl::gen::GenSchema* schema)
     {
         return static_cast<const EmscriptenSchema*>(schema);
     }
 
-    void emscriptenAddSourceFiles(StringsList& sources) const;
+    void emscriptenAddSourceFiles(GenStringsList& sources) const;
 };
 
 } // namespace commsdsl2emscripten

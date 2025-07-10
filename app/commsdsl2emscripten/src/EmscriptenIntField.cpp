@@ -30,9 +30,9 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenIntField::EmscriptenIntField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    EmscriptenBase(static_cast<Base&>(*this))
+EmscriptenIntField::EmscriptenIntField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    EmscriptenBase(static_cast<GenBase&>(*this))
 {
 }
 
@@ -90,7 +90,7 @@ std::string EmscriptenIntField::emscriptenHeaderSpecialsInternal() const
     }
 
     util::GenStringsList specialsList;
-    auto& gen = EmscriptenGenerator::cast(genGenerator());
+    auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
     for (auto& s : specials) {
         if (!gen.genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
@@ -170,7 +170,7 @@ std::string EmscriptenIntField::emscriptenSourceSpecialsBindInternal() const
     }
 
     util::GenStringsList specialsList;
-    auto& gen = EmscriptenGenerator::cast(genGenerator());
+    auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
     util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}
     };

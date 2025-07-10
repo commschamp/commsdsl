@@ -30,23 +30,25 @@ namespace commsdsl2emscripten
 class EmscriptenGenerator;
 class EmscriptenNamespace final: public commsdsl::gen::GenNamespace
 {
-    using Base = commsdsl::gen::GenNamespace;
+    using GenBase = commsdsl::gen::GenNamespace;
 
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
+    using ParseNamespace = commsdsl::parse::ParseNamespace;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    explicit EmscriptenNamespace(EmscriptenGenerator& generator, commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent);
+    explicit EmscriptenNamespace(EmscriptenGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~EmscriptenNamespace();
 
-    static const EmscriptenNamespace* cast(const commsdsl::gen::GenNamespace* schema)
+    static const EmscriptenNamespace* emscriptenCast(const commsdsl::gen::GenNamespace* schema)
     {
         return static_cast<const EmscriptenNamespace*>(schema);
     }
 
-    void emscriptenAddSourceFiles(StringsList& sources) const;
-    void emscriptenAddCommsMessageIncludes(StringsList& includes) const;
-    void emscriptenAddInputMessageFwdIncludes(StringsList& includes) const;
-    void emscriptenAddInputMessageIncludes(StringsList& includes) const;
+    void emscriptenAddSourceFiles(GenStringsList& sources) const;
+    void emscriptenAddCommsMessageIncludes(GenStringsList& includes) const;
+    void emscriptenAddInputMessageFwdIncludes(GenStringsList& includes) const;
+    void emscriptenAddInputMessageIncludes(GenStringsList& includes) const;
 
     std::string emscriptenHandlerRelHeader() const;
     std::string emscriptenHandlerClassName() const;

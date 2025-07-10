@@ -17,22 +17,12 @@
 
 #include "EmscriptenGenerator.h"
 
-#include "commsdsl/gen/comms.h"
-#include "commsdsl/gen/strings.h"
-#include "commsdsl/gen/util.h"
-
-#include <cassert>
-
-namespace comms = commsdsl::gen::comms;
-namespace util = commsdsl::gen::util;
-namespace strings = commsdsl::gen::strings;
-
 namespace commsdsl2emscripten
 {
 
-EmscriptenSizeLayer::EmscriptenSizeLayer(EmscriptenGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    EmscriptenBase(static_cast<Base&>(*this))
+EmscriptenSizeLayer::EmscriptenSizeLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    EmscriptenBase(static_cast<GenBase&>(*this))
 {
 }
 

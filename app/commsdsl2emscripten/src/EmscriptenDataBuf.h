@@ -26,22 +26,22 @@ class EmscriptenGenerator;
 class EmscriptenDataBuf
 {
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     static bool emscriptenWrite(EmscriptenGenerator& generator);
     static std::string emscriptenClassName(const EmscriptenGenerator& generator);
     static std::string emscriptenRelHeader(const EmscriptenGenerator& generator);
     static const std::string& emscriptenMemViewFuncName();
     static const std::string& emscriptenJsArrayToDataBufFuncName();
-    static void emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources);
+    static void emscriptenAddSourceFiles(const EmscriptenGenerator& generator, GenStringsList& sources);
 
 private:
-    explicit EmscriptenDataBuf(EmscriptenGenerator& generator) : m_generator(generator) {}
+    explicit EmscriptenDataBuf(EmscriptenGenerator& generator) : m_emscriptenGenerator(generator) {}
 
     bool emscriptenWriteHeaderInternal() const;
     bool emscriptenWriteSrcInternal() const;
 
-    EmscriptenGenerator& m_generator;
+    EmscriptenGenerator& m_emscriptenGenerator;
 };
 
 } // namespace commsdsl2emscripten

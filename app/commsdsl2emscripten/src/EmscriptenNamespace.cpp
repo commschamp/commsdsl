@@ -42,7 +42,7 @@ template <typename TElem, typename TList>
 void emscriptenAddSourceFilesInternal(const TList& list, util::GenStringsList& sources)
 {
     for (auto& elemPtr : list) {
-        auto* elem = TElem::cast(elemPtr.get());
+        auto* elem = TElem::emscriptenCast(elemPtr.get());
         elem->emscriptenAddSourceFiles(sources);
     }    
 }
@@ -50,8 +50,8 @@ void emscriptenAddSourceFilesInternal(const TList& list, util::GenStringsList& s
 } // namespace 
     
 
-EmscriptenNamespace::EmscriptenNamespace(EmscriptenGenerator& generator, commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent),
+EmscriptenNamespace::EmscriptenNamespace(EmscriptenGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
     m_msgId(generator, *this),
     m_handler(generator, *this),
     m_input(generator, *this)
@@ -60,7 +60,7 @@ EmscriptenNamespace::EmscriptenNamespace(EmscriptenGenerator& generator, commsds
 
 EmscriptenNamespace::~EmscriptenNamespace() = default;
 
-void EmscriptenNamespace::emscriptenAddSourceFiles(StringsList& sources) const
+void EmscriptenNamespace::emscriptenAddSourceFiles(GenStringsList& sources) const
 {
     emscriptenAddSourceFilesInternal<EmscriptenNamespace>(genNamespaces(), sources);
     emscriptenAddSourceFilesInternal<EmscriptenField>(genFields(), sources);
@@ -74,7 +74,7 @@ void EmscriptenNamespace::emscriptenAddSourceFiles(StringsList& sources) const
     }    
 }
 
-void EmscriptenNamespace::emscriptenAddCommsMessageIncludes(StringsList& includes) const
+void EmscriptenNamespace::emscriptenAddCommsMessageIncludes(GenStringsList& includes) const
 {
     if (emscriptenHasInput()) {
         includes.push_back(comms::genRelHeaderForInput(strings::genAllMessagesStr(), genGenerator(), *this));
@@ -82,11 +82,11 @@ void EmscriptenNamespace::emscriptenAddCommsMessageIncludes(StringsList& include
     }
 
     for (auto& ns : genNamespaces()) {
-        EmscriptenNamespace::cast(ns.get())->emscriptenAddCommsMessageIncludes(includes);
+        EmscriptenNamespace::emscriptenCast(ns.get())->emscriptenAddCommsMessageIncludes(includes);
     }
 }
 
-void EmscriptenNamespace::emscriptenAddInputMessageFwdIncludes(StringsList& includes) const
+void EmscriptenNamespace::emscriptenAddInputMessageFwdIncludes(GenStringsList& includes) const
 {
     if (emscriptenHasInput()) {
         includes.push_back(m_input.emscriptenRelFwdHeader());
@@ -94,11 +94,11 @@ void EmscriptenNamespace::emscriptenAddInputMessageFwdIncludes(StringsList& incl
     }
 
     for (auto& ns : genNamespaces()) {
-        EmscriptenNamespace::cast(ns.get())->emscriptenAddInputMessageFwdIncludes(includes);
+        EmscriptenNamespace::emscriptenCast(ns.get())->emscriptenAddInputMessageFwdIncludes(includes);
     }
 }
 
-void EmscriptenNamespace::emscriptenAddInputMessageIncludes(StringsList& includes) const
+void EmscriptenNamespace::emscriptenAddInputMessageIncludes(GenStringsList& includes) const
 {
     if (emscriptenHasInput()) {
         includes.push_back(m_input.emscriptenRelHeader());
@@ -106,7 +106,7 @@ void EmscriptenNamespace::emscriptenAddInputMessageIncludes(StringsList& include
     }
 
     for (auto& ns : genNamespaces()) {
-        EmscriptenNamespace::cast(ns.get())->emscriptenAddInputMessageIncludes(includes);
+        EmscriptenNamespace::emscriptenCast(ns.get())->emscriptenAddInputMessageIncludes(includes);
     }
 }
 

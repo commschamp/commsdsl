@@ -26,18 +26,18 @@ class EmscriptenGenerator;
 class EmscriptenComms
 {
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     static bool emscriptenWrite(EmscriptenGenerator& generator);
+    static void emscriptenAddSourceFiles(const EmscriptenGenerator& generator, GenStringsList& sources);
     
-    static void emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources);
 private:
-    explicit EmscriptenComms(EmscriptenGenerator& generator) : m_generator(generator) {}
+    explicit EmscriptenComms(EmscriptenGenerator& generator) : m_emscriptenGenerator(generator) {}
 
     bool emscriptenWriteErrorStatusInternal() const;
     bool emscriptenWriteOptionalModeInternal() const;
 
-    EmscriptenGenerator& m_generator;
+    EmscriptenGenerator& m_emscriptenGenerator;
 };
 
 } // namespace commsdsl2emscripten

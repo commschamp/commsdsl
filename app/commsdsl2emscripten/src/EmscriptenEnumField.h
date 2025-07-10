@@ -27,12 +27,16 @@ class EmscriptenNamespace;
 
 class EmscriptenEnumField final : public commsdsl::gen::GenEnumField, public EmscriptenField
 {
-    using Base = commsdsl::gen::GenEnumField;
+    using GenBase = commsdsl::gen::GenEnumField;
     using EmscriptenBase = EmscriptenField;
-public:
-    EmscriptenEnumField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
 
-    static const EmscriptenEnumField* cast(const commsdsl::gen::GenField* f)
+public:
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    EmscriptenEnumField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent);
+
+    static const EmscriptenEnumField* emscriptenCast(const commsdsl::gen::GenField* f)
     {
         return static_cast<const EmscriptenEnumField*>(f);
     }
@@ -40,7 +44,7 @@ public:
     std::string emscriptenBindValues(const EmscriptenNamespace* forcedParent = nullptr) const;
 
 protected:
-    // Base overrides
+    // GenBase overrides
     virtual bool genWriteImpl() const override;    
 
     // EmscriptenBase overrides

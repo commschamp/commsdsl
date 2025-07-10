@@ -30,9 +30,9 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenRefField::EmscriptenRefField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    EmscriptenBase(static_cast<Base&>(*this))
+EmscriptenRefField::EmscriptenRefField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    EmscriptenBase(static_cast<GenBase&>(*this))
 {
 }
 
@@ -41,9 +41,9 @@ bool EmscriptenRefField::genWriteImpl() const
     return emscriptenWrite();
 }
 
-void EmscriptenRefField::emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const
+void EmscriptenRefField::emscriptenHeaderAddExtraIncludesImpl(GenStringsList& incs) const
 {
-    auto* refField = EmscriptenField::cast(genReferencedField());
+    auto* refField = EmscriptenField::emscriptenCast(genReferencedField());
     assert(refField != nullptr);
     incs.push_back(refField->emscriptenRelHeaderPath());
 }
@@ -63,12 +63,12 @@ std::string EmscriptenRefField::emscriptenHeaderExtraPublicFuncsImpl() const
         "            reinterpret_cast<#^#REF_BASE#$#*>(this));\n"
         "}\n";
 
-    auto& gen = EmscriptenGenerator::cast(genGenerator());
-    auto* refField = EmscriptenField::cast(genReferencedField());
+    auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
+    auto* refField = EmscriptenField::emscriptenCast(genReferencedField());
     assert(refField != nullptr);
 
     util::GenReplacementMap repl = {
-        {"REF_FIELD", gen.emscriptenClassName(refField->field())},
+        {"REF_FIELD", gen.emscriptenClassName(refField->emscriptenGenField())},
         {"REF_BASE", refField->emscriptenTemplateScope()}
     };
 

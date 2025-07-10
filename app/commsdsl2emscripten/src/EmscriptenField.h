@@ -27,25 +27,27 @@ namespace commsdsl2emscripten
 class EmscriptenField
 {
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
-    using IncludesList = StringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+    using GenFieldsList = commsdsl::gen::GenField::GenFieldsList;
+
+    using EmscriptenIncludesList = GenStringsList;
     using EmscriptenFieldsList = std::vector<EmscriptenField*>;
 
     explicit EmscriptenField(commsdsl::gen::GenField& field);
     virtual ~EmscriptenField();
 
-    static const EmscriptenField* cast(const commsdsl::gen::GenField* field);
-    static EmscriptenField* cast(commsdsl::gen::GenField* field);
-    static EmscriptenFieldsList emscriptenTransformFieldsList(const commsdsl::gen::GenField::GenFieldsList& fields);
+    static const EmscriptenField* emscriptenCast(const commsdsl::gen::GenField* field);
+    static EmscriptenField* emscriptenCast(commsdsl::gen::GenField* field);
+    static EmscriptenFieldsList emscriptenTransformFieldsList(const GenFieldsList& fields);
 
-    commsdsl::gen::GenField& field()
+    commsdsl::gen::GenField& emscriptenGenField()
     {
-        return m_field;
+        return m_genField;
     }
 
-    const commsdsl::gen::GenField& field() const
+    const commsdsl::gen::GenField& emscriptenGenField() const
     {
-        return m_field;
+        return m_genField;
     }
 
     std::string emscriptenRelHeaderPath() const;
@@ -57,8 +59,8 @@ public:
     std::string emscriptenTemplateScope() const;
     std::string emscriptenSourceCode() const;
 
-    void emscriptenHeaderAddExtraIncludes(StringsList& incs) const;
-    void emscriptenAddSourceFiles(StringsList& sources) const;
+    void emscriptenHeaderAddExtraIncludes(GenStringsList& incs) const;
+    void emscriptenAddSourceFiles(GenStringsList& sources) const;
 
     void emscriptenSetListElement()
     {
@@ -66,7 +68,7 @@ public:
     }    
 
 protected:
-    virtual void emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const;
+    virtual void emscriptenHeaderAddExtraIncludesImpl(GenStringsList& incs) const;
     virtual std::string emscriptenHeaderExtraCodePrefixImpl() const;
     virtual std::string emscriptenHeaderValueAccImpl() const;
     virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const;
@@ -88,7 +90,7 @@ protected:
 
     const EmscriptenFieldsList& emscriptenMembers() const
     {
-        return m_members;
+        return m_emscriptenMembers;
     }
 
     std::string emscriptenBindClassName(bool checkVersionOptional = true) const;
@@ -110,8 +112,8 @@ private:
     std::string emscriptenSourceExtraVectorFuncsInternal() const;
     std::string emscriptenSourceExtraCodeInternal() const;
 
-    commsdsl::gen::GenField& m_field;
-    EmscriptenFieldsList m_members;
+    commsdsl::gen::GenField& m_genField;
+    EmscriptenFieldsList m_emscriptenMembers;
     bool m_listElement = false;
 };
 

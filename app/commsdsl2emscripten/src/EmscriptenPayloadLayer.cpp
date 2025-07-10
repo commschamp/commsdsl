@@ -34,14 +34,14 @@ namespace commsdsl2emscripten
 namespace 
 {
 
-const std::string FieldClassNameSuffix("Field");
+const std::string EmscriptenFieldClassNameSuffix("Field");
 
 } // namespace 
     
 
-EmscriptenPayloadLayer::EmscriptenPayloadLayer(EmscriptenGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    EmscriptenBase(static_cast<Base&>(*this))
+EmscriptenPayloadLayer::EmscriptenPayloadLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    EmscriptenBase(static_cast<GenBase&>(*this))
 {
 }
 
@@ -80,8 +80,8 @@ std::string EmscriptenPayloadLayer::emscriptenHeaderFieldDefImpl() const
 
 std::string EmscriptenPayloadLayer::emscriptenFieldClassNameImpl() const
 {
-    auto& gen = EmscriptenGenerator::cast(genGenerator());
-    return gen.emscriptenClassName(*this) + FieldClassNameSuffix;
+    auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
+    return gen.emscriptenClassName(*this) + EmscriptenFieldClassNameSuffix;
 }
 
 std::string EmscriptenPayloadLayer::emscriptenSourceFieldBindImpl() const

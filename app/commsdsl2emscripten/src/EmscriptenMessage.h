@@ -27,21 +27,23 @@ namespace commsdsl2emscripten
 class EmscriptenGenerator;
 class EmscriptenMessage final: public commsdsl::gen::GenMessage
 {
-    using Base = commsdsl::gen::GenMessage;
+    using GenBase = commsdsl::gen::GenMessage;
 
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
-    
-    explicit EmscriptenMessage(EmscriptenGenerator& generator, commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent);
+    using ParseMessage = commsdsl::parse::ParseMessage;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+
+    explicit EmscriptenMessage(EmscriptenGenerator& generator, ParseMessage parseObj, GenElem* parent);
     virtual ~EmscriptenMessage();
 
-    static const EmscriptenMessage* cast(const commsdsl::gen::GenMessage* i)
+    static const EmscriptenMessage* emscriptenCast(const commsdsl::gen::GenMessage* i)
     {
         return static_cast<const EmscriptenMessage*>(i);
     }
 
     std::string emscriptenRelHeader() const;
-    void emscriptenAddSourceFiles(StringsList& sources) const;
+    void emscriptenAddSourceFiles(GenStringsList& sources) const;
 
 protected:
     virtual bool genPrepareImpl() override;    

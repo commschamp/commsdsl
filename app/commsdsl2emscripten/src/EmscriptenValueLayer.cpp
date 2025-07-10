@@ -18,28 +18,26 @@
 #include "EmscriptenGenerator.h"
 #include "EmscriptenInterface.h"
 
-#include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
 #include <cassert>
 
-namespace comms = commsdsl::gen::comms;
 namespace util = commsdsl::gen::util;
 namespace strings = commsdsl::gen::strings;
 
 namespace commsdsl2emscripten
 {
 
-EmscriptenValueLayer::EmscriptenValueLayer(EmscriptenGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    EmscriptenBase(static_cast<Base&>(*this))
+EmscriptenValueLayer::EmscriptenValueLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    EmscriptenBase(static_cast<GenBase&>(*this))
 {
 }
 
 bool EmscriptenValueLayer::emscriptenIsMainInterfaceSupportedImpl() const
 {
-    auto& gen = EmscriptenGenerator::cast(genGenerator());
+    auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
     auto* iFace = gen.emscriptenMainInterface();
     assert(iFace != nullptr);
     return genIsInterfaceSupported(iFace);
@@ -71,7 +69,7 @@ std::string EmscriptenValueLayer::emscriptenSourceExtraFuncsImpl() const
     static const std::string Templ = 
         ".function(\"pseudoField\", &#^#CLASS_NAME#$#::pseudoField, emscripten::allow_raw_pointers())";
 
-    auto& gen = EmscriptenGenerator::cast(genGenerator());
+    auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
     util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(*this)}
     };

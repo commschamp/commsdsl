@@ -30,25 +30,25 @@ class EmscriptenProgramOptions : public commsdsl::gen::GenProgramOptions
 public:
     EmscriptenProgramOptions();
 
-    bool quietRequested() const;
-    bool versionRequested() const;
-    bool warnAsErrRequested() const;
+    bool emscriptenQuietRequested() const;
+    bool emscriptenVersionRequested() const;
+    bool emscriptenWarnAsErrRequested() const;
 
-    const std::string& getFilesListFile() const;
-    const std::string& getFilesListPrefix() const;
-    const GenArgsList& getFiles() const;
-    const std::string& getOutputDirectory() const;
-    const std::string& getCodeInputDirectory() const;
-    bool hasNamespaceOverride() const;
-    const std::string& getNamespace() const;
-    bool multipleSchemasEnabled() const;
-    unsigned genGetMinRemoteVersion() const;
-    bool isMainNamespaceInNamesForced() const;
-    bool hasForcedInterface() const;
-    const std::string& getForcedInterface() const;
-    bool hasProtocolVersion() const;
-    const std::string& messagesListFile() const;
-    const std::string& forcedPlatform() const;
+    const std::string& emscriptenGetFilesListFile() const;
+    const std::string& emscriptenGetFilesListPrefix() const;
+    const GenArgsList& emscriptenGetFiles() const;
+    const std::string& emscriptenGetOutputDirectory() const;
+    const std::string& emscriptenGetCodeInputDirectory() const;
+    bool emscriptenHasNamespaceOverride() const;
+    const std::string& emscriptenGetNamespace() const;
+    bool emscriptenMultipleSchemasEnabled() const;
+    unsigned emscriptenGetMinRemoteVersion() const;
+    bool emscriptenIsMainNamespaceInNamesForced() const;
+    bool emscriptenHasForcedInterface() const;
+    const std::string& emscriptenGetForcedInterface() const;
+    bool emscriptenHasProtocolVersion() const;
+    const std::string& emscriptenMessagesListFile() const;
+    const std::string& emscriptenForcedPlatform() const;
 };
 
 } // namespace commsdsl2emscripten

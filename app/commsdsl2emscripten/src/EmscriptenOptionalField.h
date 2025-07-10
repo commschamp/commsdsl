@@ -25,20 +25,24 @@ namespace commsdsl2emscripten
 class EmscriptenGenerator;
 class EmscriptenOptionalField final : public commsdsl::gen::GenOptionalField, public EmscriptenField
 {
-    using Base = commsdsl::gen::GenOptionalField;
+    using GenBase = commsdsl::gen::GenOptionalField;
     using EmscriptenBase = EmscriptenField;
+
 public:
-    EmscriptenOptionalField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    EmscriptenOptionalField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent);
 
     static const std::string& emscriptenHeaderCommonModeFuncs();
 
 protected:
-    // Base overrides
+    // GenBase overrides
     virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;    
 
     // EmscriptenBase overrides
-    virtual void emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const override;
+    virtual void emscriptenHeaderAddExtraIncludesImpl(GenStringsList& incs) const override;
     virtual std::string emscriptenHeaderValueAccImpl() const override;
     virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
     virtual std::string emscriptenSourceBindValueAccImpl() const override;

@@ -29,20 +29,20 @@ class EmscriptenNamespace;
 
 class EmscriptenFrame final: public commsdsl::gen::GenFrame
 {
-    using Base = commsdsl::gen::GenFrame;
+    using GenBase = commsdsl::gen::GenFrame;
 
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    explicit EmscriptenFrame(EmscriptenGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent);
+    explicit EmscriptenFrame(EmscriptenGenerator& generator, commsdsl::parse::ParseFrame parseObj, commsdsl::gen::GenElem* parent);
     virtual ~EmscriptenFrame();
 
-    static const EmscriptenFrame* cast(const commsdsl::gen::GenFrame* i)
+    static const EmscriptenFrame* emscriptenCast(const commsdsl::gen::GenFrame* i)
     {
         return static_cast<const EmscriptenFrame*>(i);
     }        
 
-    void emscriptenAddSourceFiles(StringsList& sources) const;
+    void emscriptenAddSourceFiles(GenStringsList& sources) const;
     const EmscriptenNamespace* emscriptenFindInputNamespace() const;
 
 

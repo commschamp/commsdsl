@@ -18,22 +18,18 @@
 #include "EmscriptenDataBuf.h"
 #include "EmscriptenGenerator.h"
 
-#include "commsdsl/gen/comms.h"
-#include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
 #include <cassert>
 
-namespace comms = commsdsl::gen::comms;
 namespace util = commsdsl::gen::util;
-namespace strings = commsdsl::gen::strings;
 
 namespace commsdsl2emscripten
 {
 
-EmscriptenDataField::EmscriptenDataField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    EmscriptenBase(static_cast<Base&>(*this))
+EmscriptenDataField::EmscriptenDataField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    EmscriptenBase(static_cast<GenBase&>(*this))
 {
 }
 

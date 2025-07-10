@@ -27,21 +27,23 @@ namespace commsdsl2emscripten
 class EmscriptenGenerator;
 class EmscriptenInterface final: public commsdsl::gen::GenInterface
 {
-    using Base = commsdsl::gen::GenInterface;
+    using GenBase = commsdsl::gen::GenInterface;
 
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
-    
-    explicit EmscriptenInterface(EmscriptenGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent);
+    using ParseInterface = commsdsl::parse::ParseInterface;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+
+    explicit EmscriptenInterface(EmscriptenGenerator& generator, ParseInterface parseObj, GenElem* parent);
     virtual ~EmscriptenInterface();
 
-    static const EmscriptenInterface* cast(const commsdsl::gen::GenInterface* i)
+    static const EmscriptenInterface* emscriptenCast(const commsdsl::gen::GenInterface* i)
     {
         return static_cast<const EmscriptenInterface*>(i);
     }
 
     std::string emscriptenRelHeader() const;
-    void emscriptenAddSourceFiles(StringsList& sources) const;
+    void emscriptenAddSourceFiles(GenStringsList& sources) const;
 
 protected:
     virtual bool genPrepareImpl() override;    

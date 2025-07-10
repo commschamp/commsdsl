@@ -31,15 +31,15 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenEnumField::EmscriptenEnumField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    EmscriptenBase(static_cast<Base&>(*this))
+EmscriptenEnumField::EmscriptenEnumField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    EmscriptenBase(static_cast<GenBase&>(*this))
 {
 }
 
 std::string EmscriptenEnumField::emscriptenBindValues(const EmscriptenNamespace* forcedParent) const
 {
-    StringsList result;
+    GenStringsList result;
 
     auto addValueBind = 
         [this, &result, forcedParent](const std::string& name)
@@ -133,7 +133,7 @@ std::string EmscriptenEnumField::emscriptenHeaderExtraPublicFuncsImpl() const
         "}\n"  
         ;      
 
-    if (field().genParseObj().parseIsFixedValue()) {
+    if (emscriptenGenField().genParseObj().parseIsFixedValue()) {
         return Templ;
     }
 
@@ -156,7 +156,7 @@ std::string EmscriptenEnumField::emscriptenSourceBindFuncsImpl() const
         ".function(\"getValueConstant\", &#^#CLASS_NAME#$#::getValueConstant)"
         ;
 
-    if (!field().genParseObj().parseIsFixedValue()) {
+    if (!emscriptenGenField().genParseObj().parseIsFixedValue()) {
         templ += 
             "\n"
             ".function(\"setValueConstant\", &#^#CLASS_NAME#$#::setValueConstant)"
@@ -180,7 +180,7 @@ std::string EmscriptenEnumField::emscriptenSourceBindExtraImpl() const
     }
 
     if (genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::MessageId) {
-        auto* parentNs = EmscriptenNamespace::cast(genParentNamespace());
+        auto* parentNs = EmscriptenNamespace::emscriptenCast(genParentNamespace());
         auto allMsgIdFields = parentNs->genFindMessageIdFields();
         if (allMsgIdFields.size() == 1U) {
             // The bindings for MsgId are created separately

@@ -18,7 +18,6 @@
 #include "EmscriptenLayer.h"
 
 #include "commsdsl/gen/GenSyncLayer.h"
-#include "commsdsl/gen/util.h"
 
 namespace commsdsl2emscripten
 {
@@ -26,10 +25,14 @@ namespace commsdsl2emscripten
 class EmscriptenGenerator;
 class EmscriptenSyncLayer final : public commsdsl::gen::GenSyncLayer, public EmscriptenLayer
 {
-    using Base = commsdsl::gen::GenSyncLayer;
+    using GenBase = commsdsl::gen::GenSyncLayer;
     using EmscriptenBase = EmscriptenLayer;
+
 public:
-    EmscriptenSyncLayer(EmscriptenGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    EmscriptenSyncLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent);
 };
 
 } // namespace commsdsl2emscripten

@@ -26,10 +26,14 @@ namespace commsdsl2emscripten
 class EmscriptenGenerator;
 class EmscriptenValueLayer final : public commsdsl::gen::GenValueLayer, public EmscriptenLayer
 {
-    using Base = commsdsl::gen::GenValueLayer;
+    using GenBase = commsdsl::gen::GenValueLayer;
     using EmscriptenBase = EmscriptenLayer;
+
 public:
-    EmscriptenValueLayer(EmscriptenGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    EmscriptenValueLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
     virtual bool emscriptenIsMainInterfaceSupportedImpl() const override;

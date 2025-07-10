@@ -17,15 +17,11 @@
 
 #include "EmscriptenGenerator.h"
 
-#include "commsdsl/gen/comms.h"
-#include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
 #include <cassert>
 #include <fstream>
 
-namespace comms = commsdsl::gen::comms;
-namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
 
 namespace commsdsl2emscripten
@@ -34,7 +30,7 @@ namespace commsdsl2emscripten
 namespace 
 {
 
-const std::string ClassName("DataBuf");
+const std::string EmscriptenClassName("DataBuf");
 
 } // namespace 
     
@@ -49,12 +45,12 @@ bool EmscriptenDataBuf::emscriptenWrite(EmscriptenGenerator& generator)
 
 std::string EmscriptenDataBuf::emscriptenClassName(const EmscriptenGenerator& generator)
 {
-    return generator.emscriptenProtocolClassNameForRoot(ClassName);
+    return generator.emscriptenProtocolClassNameForRoot(EmscriptenClassName);
 }
 
 std::string EmscriptenDataBuf::emscriptenRelHeader(const EmscriptenGenerator& generator)
 {
-    return generator.emscriptenProtocolRelHeaderForRoot(ClassName);
+    return generator.emscriptenProtocolRelHeaderForRoot(EmscriptenClassName);
 }
 
 const std::string& EmscriptenDataBuf::emscriptenMemViewFuncName()
@@ -69,24 +65,24 @@ const std::string& EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()
     return Str;
 }
 
-void EmscriptenDataBuf::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources)
+void EmscriptenDataBuf::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, GenStringsList& sources)
 {
-    sources.push_back(generator.emscriptenRelSourceForRoot(ClassName));
+    sources.push_back(generator.emscriptenRelSourceForRoot(EmscriptenClassName));
 }
 
 bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
 {
-    auto filePath = m_generator.emscriptenAbsHeaderForRoot(ClassName);
+    auto filePath = m_emscriptenGenerator.emscriptenAbsHeaderForRoot(EmscriptenClassName);
     auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.genCreateDirectory(dirPath)) {
+    if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    m_generator.genLogger().genInfo("Generating " + filePath);
+    m_emscriptenGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
+        m_emscriptenGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }     
 
@@ -101,8 +97,8 @@ bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
         ;
 
     util::GenReplacementMap repl = {
-        {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
-        {"CLASS_NAME", emscriptenClassName(m_generator)},
+        {"GENERATED", EmscriptenGenerator::emscriptenFileGeneratedComment()},
+        {"CLASS_NAME", emscriptenClassName(m_emscriptenGenerator)},
         {"MEM_VIEW", emscriptenMemViewFuncName()},
         {"JS_ARRAY", emscriptenJsArrayToDataBufFuncName()},
     };
@@ -111,7 +107,7 @@ bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
     stream << str;
     stream.flush();
     if (!stream.good()) {
-        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
+        m_emscriptenGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
 
@@ -121,17 +117,17 @@ bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
 
 bool EmscriptenDataBuf::emscriptenWriteSrcInternal() const
 {
-    auto filePath = m_generator.emscriptenAbsSourceForRoot(ClassName);
+    auto filePath = m_emscriptenGenerator.emscriptenAbsSourceForRoot(EmscriptenClassName);
     auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.genCreateDirectory(dirPath)) {
+    if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    m_generator.genLogger().genInfo("Generating " + filePath);
+    m_emscriptenGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
+        m_emscriptenGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }     
 
@@ -155,9 +151,9 @@ bool EmscriptenDataBuf::emscriptenWriteSrcInternal() const
         ;
 
     util::GenReplacementMap repl = {
-        {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
-        {"HEADER", emscriptenRelHeader(m_generator)},
-        {"CLASS_NAME", emscriptenClassName(m_generator)},
+        {"GENERATED", EmscriptenGenerator::emscriptenFileGeneratedComment()},
+        {"HEADER", emscriptenRelHeader(m_emscriptenGenerator)},
+        {"CLASS_NAME", emscriptenClassName(m_emscriptenGenerator)},
         {"MEM_VIEW", emscriptenMemViewFuncName()},
         {"JS_ARRAY", emscriptenJsArrayToDataBufFuncName()},
     };
@@ -166,7 +162,7 @@ bool EmscriptenDataBuf::emscriptenWriteSrcInternal() const
     stream << str;
     stream.flush();
     if (!stream.good()) {
-        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
+        m_emscriptenGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
 

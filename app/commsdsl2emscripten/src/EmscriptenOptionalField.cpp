@@ -30,9 +30,9 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenOptionalField::EmscriptenOptionalField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    EmscriptenBase(static_cast<Base&>(*this))
+EmscriptenOptionalField::EmscriptenOptionalField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    EmscriptenBase(static_cast<GenBase&>(*this))
 {
 }
 
@@ -77,18 +77,18 @@ const std::string& EmscriptenOptionalField::emscriptenHeaderCommonModeFuncs()
 
 bool EmscriptenOptionalField::genPrepareImpl()
 {
-    if (!Base::genPrepareImpl()) {
+    if (!GenBase::genPrepareImpl()) {
         return false;
     }
 
     auto* memField = genMemberField();
     if (memField != nullptr) {
         emscriptenAddMember(memField);
-        m_field = EmscriptenField::cast(memField);
+        m_field = EmscriptenField::emscriptenCast(memField);
         return true;
     }    
 
-    m_field = EmscriptenField::cast(genExternalField());
+    m_field = EmscriptenField::emscriptenCast(genExternalField());
     assert(m_field != nullptr);
     return true;
 }
@@ -98,14 +98,14 @@ bool EmscriptenOptionalField::genWriteImpl() const
     return emscriptenWrite();
 }
 
-void EmscriptenOptionalField::emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const
+void EmscriptenOptionalField::emscriptenHeaderAddExtraIncludesImpl(GenStringsList& incs) const
 {
     auto* extField = genExternalField();
     if (extField == nullptr) {
         return;
     }
 
-    auto* emsciptenField = EmscriptenField::cast(extField);
+    auto* emsciptenField = EmscriptenField::emscriptenCast(extField);
     assert(emsciptenField != nullptr);
     incs.push_back(emsciptenField->emscriptenRelHeaderPath());
 }
@@ -124,9 +124,9 @@ std::string EmscriptenOptionalField::emscriptenHeaderExtraPublicFuncsImpl() cons
         "}\n\n"
         "#^#COMMON#$#\n";
 
-    auto& gen = EmscriptenGenerator::cast(genGenerator());
+    auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
     util::GenReplacementMap repl = {
-        {"FIELD", gen.emscriptenClassName(m_field->field())},
+        {"FIELD", gen.emscriptenClassName(m_field->emscriptenGenField())},
         {"COMMON", emscriptenHeaderCommonModeFuncs()}
     };     
 

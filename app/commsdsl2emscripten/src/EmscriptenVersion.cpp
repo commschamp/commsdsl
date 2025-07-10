@@ -27,9 +27,9 @@
 #include <fstream>
 #include <limits>
 
-namespace util = commsdsl::gen::util;
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2emscripten
 {
@@ -44,7 +44,7 @@ bool EmscriptenVersion::emscriptenWrite(EmscriptenGenerator& generator)
     return obj.emscriptenWriteSrcInternal();
 }
 
-void EmscriptenVersion::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources)
+void EmscriptenVersion::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, GenStringsList& sources)
 {
 
     for (auto idx = 0U; idx < generator.genSchemas().size(); ++idx) {
@@ -59,18 +59,18 @@ void EmscriptenVersion::emscriptenAddSourceFiles(const EmscriptenGenerator& gene
 
 bool EmscriptenVersion::emscriptenWriteSrcInternal() const
 {
-    auto filePath = m_generator.emscriptenAbsSourceForRoot(strings::genVersionFileNameStr());
-    m_generator.genLogger().genInfo("Generating " + filePath);
+    auto filePath = m_emscriptenGenerator.emscriptenAbsSourceForRoot(strings::genVersionFileNameStr());
+    m_emscriptenGenerator.genLogger().genInfo("Generating " + filePath);
 
     auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.genCreateDirectory(dirPath)) {
+    if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
         return false;
     }
 
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
+        m_emscriptenGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -85,9 +85,9 @@ bool EmscriptenVersion::emscriptenWriteSrcInternal() const
     ;
 
     util::GenReplacementMap repl = {
-        {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
-        {"HEADER", comms::genRelHeaderForRoot(strings::genVersionFileNameStr(), m_generator)},
-        {"NAME", m_generator.emscriptenScopeNameForRoot(strings::genVersionFileNameStr())},
+        {"GENERATED", EmscriptenGenerator::emscriptenFileGeneratedComment()},
+        {"HEADER", comms::genRelHeaderForRoot(strings::genVersionFileNameStr(), m_emscriptenGenerator)},
+        {"NAME", m_emscriptenGenerator.emscriptenScopeNameForRoot(strings::genVersionFileNameStr())},
         {"SPEC", emscriptenSpecConstantsInternal()},
         {"PROT", emscriptenProtConstantsInternal()},
     };
@@ -95,7 +95,7 @@ bool EmscriptenVersion::emscriptenWriteSrcInternal() const
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     if (!stream.good()) {
-        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
+        m_emscriptenGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     
@@ -108,7 +108,7 @@ std::string EmscriptenVersion::emscriptenSpecConstantsInternal() const
         "emscripten::constant(\"#^#NS#$#_SPEC_VERSION\", #^#NS#$#_SPEC_VERSION);";
 
     util::GenReplacementMap repl = {
-        {"NS", util::genStrToUpper(m_generator.genCurrentSchema().genMainNamespace())}
+        {"NS", util::genStrToUpper(m_emscriptenGenerator.genCurrentSchema().genMainNamespace())}
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -116,7 +116,7 @@ std::string EmscriptenVersion::emscriptenSpecConstantsInternal() const
 
 std::string EmscriptenVersion::emscriptenProtConstantsInternal() const
 {
-    if (!m_generator.emscriptenHasProtocolVersion()) {
+    if (!m_emscriptenGenerator.emscriptenHasProtocolVersion()) {
         return strings::genEmptyString();
     }
 
@@ -127,7 +127,7 @@ std::string EmscriptenVersion::emscriptenProtConstantsInternal() const
         ;
 
     util::GenReplacementMap repl = {
-        {"NS", util::genStrToUpper(m_generator.genCurrentSchema().genMainNamespace())}
+        {"NS", util::genStrToUpper(m_emscriptenGenerator.genCurrentSchema().genMainNamespace())}
     };
 
     return util::genProcessTemplate(Templ, repl);    

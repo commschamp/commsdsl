@@ -18,30 +18,20 @@
 #include "EmscriptenGenerator.h"
 #include "EmscriptenNamespace.h"
 
-#include "commsdsl/gen/comms.h"
-#include "commsdsl/gen/strings.h"
-#include "commsdsl/gen/util.h"
-
-#include <algorithm>
-
-namespace comms = commsdsl::gen::comms;
-namespace strings = commsdsl::gen::strings;
-namespace util = commsdsl::gen::util;
-
 namespace commsdsl2emscripten
 {
 
-EmscriptenSchema::EmscriptenSchema(EmscriptenGenerator& generator, commsdsl::parse::ParseSchema dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent)
+EmscriptenSchema::EmscriptenSchema(EmscriptenGenerator& generator, ParseSchema parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent)
 {
 }   
 
 EmscriptenSchema::~EmscriptenSchema() = default;
 
-void EmscriptenSchema::emscriptenAddSourceFiles(StringsList& sources) const
+void EmscriptenSchema::emscriptenAddSourceFiles(GenStringsList& sources) const
 {
     for (auto& nPtr : genNamespaces()) {
-        auto* n = EmscriptenNamespace::cast(nPtr.get());
+        auto* n = EmscriptenNamespace::emscriptenCast(nPtr.get());
         n->emscriptenAddSourceFiles(sources);
     }
 }

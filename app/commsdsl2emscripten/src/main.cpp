@@ -69,7 +69,7 @@ int main(int argc, const char* argv[])
             return 0;
         }
 
-        if (options.versionRequested()) {
+        if (options.emscriptenVersionRequested()) {
             std::cout << 
                 commsdsl::versionMajor() << '.' << 
                 commsdsl::versionMinor() << '.' <<
@@ -80,34 +80,34 @@ int main(int argc, const char* argv[])
         commsdsl2emscripten::EmscriptenGenerator generator;
         auto& logger = generator.genLogger();
 
-        if (options.quietRequested()) {
+        if (options.emscriptenQuietRequested()) {
             logger.genSetMinLevel(commsdsl::parse::ParseErrorLevel_Warning);
         }
 
-        if (options.warnAsErrRequested()) {
+        if (options.emscriptenWarnAsErrRequested()) {
             logger.genSetWarnAsError();
         }
 
-        if (options.hasNamespaceOverride()) {
-            generator.genSetNamespaceOverride(options.getNamespace());
+        if (options.emscriptenHasNamespaceOverride()) {
+            generator.genSetNamespaceOverride(options.emscriptenGetNamespace());
         }
 
-        if (options.hasForcedInterface()) {
-            generator.emscriptenSetForcedInterface(options.getForcedInterface());
+        if (options.emscriptenHasForcedInterface()) {
+            generator.emscriptenSetForcedInterface(options.emscriptenGetForcedInterface());
         }
 
-        generator.genSetOutputDir(options.getOutputDirectory());
-        generator.genSetCodeDir(options.getCodeInputDirectory());
-        generator.genSetMultipleSchemasEnabled(options.multipleSchemasEnabled());
-        generator.genSetMinRemoteVersion(options.genGetMinRemoteVersion());
-        generator.emscriptenSetMainNamespaceInNamesForced(options.isMainNamespaceInNamesForced());
-        generator.emscriptenSetHasProtocolVersion(options.hasProtocolVersion());
-        generator.emscriptenSetMessagesListFile(options.messagesListFile());
-        generator.emscriptenSetForcedPlatform(options.forcedPlatform());
+        generator.genSetOutputDir(options.emscriptenGetOutputDirectory());
+        generator.genSetCodeDir(options.emscriptenGetCodeInputDirectory());
+        generator.genSetMultipleSchemasEnabled(options.emscriptenMultipleSchemasEnabled());
+        generator.genSetMinRemoteVersion(options.emscriptenGetMinRemoteVersion());
+        generator.emscriptenSetMainNamespaceInNamesForced(options.emscriptenIsMainNamespaceInNamesForced());
+        generator.emscriptenSetHasProtocolVersion(options.emscriptenHasProtocolVersion());
+        generator.emscriptenSetMessagesListFile(options.emscriptenMessagesListFile());
+        generator.emscriptenSetForcedPlatform(options.emscriptenForcedPlatform());
         generator.genSetTopNamespace("cc_emscripten");
 
-        auto files = commsdsl2emscripten::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
-        auto otherFiles = options.getFiles();
+        auto files = commsdsl2emscripten::getFilesList(options.emscriptenGetFilesListFile(), options.emscriptenGetFilesListPrefix());
+        auto otherFiles = options.emscriptenGetFiles();
         files.insert(files.end(), otherFiles.begin(), otherFiles.end());
 
         if (files.empty()) {

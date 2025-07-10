@@ -25,13 +25,17 @@ namespace commsdsl2emscripten
 class EmscriptenGenerator;
 class EmscriptenStringField final : public commsdsl::gen::GenStringField, public EmscriptenField
 {
-    using Base = commsdsl::gen::GenStringField;
+    using GenBase = commsdsl::gen::GenStringField;
     using EmscriptenBase = EmscriptenField;
+
 public:
-    EmscriptenStringField(EmscriptenGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    EmscriptenStringField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    // Base overrides
+    // GenBase overrides
     virtual bool genWriteImpl() const override;    
 
     // EmscriptenBase overrides

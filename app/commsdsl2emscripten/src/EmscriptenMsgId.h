@@ -28,17 +28,17 @@ class EmscriptenNamespace;
 class EmscriptenMsgId
 {
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     EmscriptenMsgId(EmscriptenGenerator& generator, const EmscriptenNamespace& parent);
 
     bool emscriptenWrite() const;
-    void emscriptenAddSourceFiles(StringsList& sources) const;
+    void emscriptenAddSourceFiles(GenStringsList& sources) const;
 
 private:
     std::string emscriptenIdsInternal() const;
     
-    EmscriptenGenerator& m_generator;
+    EmscriptenGenerator& m_emscriptenGenerator;
     const EmscriptenNamespace& m_parent;
 };
 
