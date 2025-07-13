@@ -39,7 +39,7 @@ using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
 } // namespace 
     
 
-bool TestCmake::write(TestGenerator& generator)
+bool TestCmake::testWrite(TestGenerator& generator)
 {
     TestCmake obj(generator);
     return obj.testWriteInternal();
@@ -49,21 +49,21 @@ bool TestCmake::testWriteInternal() const
 {
     auto filePath = 
         commsdsl::gen::util::genPathAddElem(
-            m_generator.genGetOutputDir(), commsdsl::gen::strings::genCmakeListsFileStr());    
+            m_testGenerator.genGetOutputDir(), commsdsl::gen::strings::genCmakeListsFileStr());    
 
-    m_generator.genLogger().genInfo("Generating " + filePath);
+    m_testGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
+        m_testGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
-    auto allInterfaces = m_generator.genGetAllInterfaces();
+    auto allInterfaces = m_testGenerator.genGetAllInterfaces();
     assert(!allInterfaces.empty());
     auto* firstInterface = allInterfaces.front();
-    auto interfaceScope = commsdsl::gen::comms::genScopeFor(*firstInterface, m_generator);
+    auto interfaceScope = commsdsl::gen::comms::genScopeFor(*firstInterface, m_testGenerator);
 
-    auto allFrames = m_generator.genGetAllFrames();
+    auto allFrames = m_testGenerator.genGetAllFrames();
     assert(!allFrames.empty());
     auto* firstFrame = allFrames.front();
     assert(!firstFrame->genName().empty());
@@ -90,13 +90,13 @@ bool TestCmake::testWriteInternal() const
     }
 
     GenReplacementMap repl = {
-        {"PROJ_NAME", m_generator.genCurrentSchema().genSchemaName()},
-        {"PROJ_NS", m_generator.genCurrentSchema().genMainNamespace()},
+        {"PROJ_NAME", m_testGenerator.genCurrentSchema().genSchemaName()},
+        {"PROJ_NS", m_testGenerator.genCurrentSchema().genMainNamespace()},
         {"INTERFACE_SCOPE", std::move(interfaceScope)},
-        {"FRAME_SCOPE", commsdsl::gen::comms::genScopeFor(*firstFrame, m_generator)},
-        {"OPTIONS_SCOPE", commsdsl::gen::comms::genScopeForOptions(commsdsl::gen::strings::genDefaultOptionsStr(), m_generator)},
-        {"INPUT_SCOPE", commsdsl::gen::comms::genScopeForInput(commsdsl::gen::strings::genAllMessagesStr(), m_generator, *inputNs)},
-        {"EXTRA_SOURCES", util::genReadFileContents(util::genPathAddElem(m_generator.genGetCodeDir(), strings::genCmakeListsFileStr()) + strings::genSourcesFileSuffixStr())},
+        {"FRAME_SCOPE", commsdsl::gen::comms::genScopeFor(*firstFrame, m_testGenerator)},
+        {"OPTIONS_SCOPE", commsdsl::gen::comms::genScopeForOptions(commsdsl::gen::strings::genDefaultOptionsStr(), m_testGenerator)},
+        {"INPUT_SCOPE", commsdsl::gen::comms::genScopeForInput(commsdsl::gen::strings::genAllMessagesStr(), m_testGenerator, *inputNs)},
+        {"EXTRA_SOURCES", util::genReadFileContents(util::genPathAddElem(m_testGenerator.genGetCodeDir(), strings::genCmakeListsFileStr()) + strings::genSourcesFileSuffixStr())},
     };
 
     static const std::string Template =
@@ -218,7 +218,7 @@ bool TestCmake::testWriteInternal() const
     stream << str;
     stream.flush();
     if (!stream.good()) {
-        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
+        m_testGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     

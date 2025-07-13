@@ -22,15 +22,15 @@ class TestGenerator;
 class TestCmake
 {
 public:
-    static bool write(TestGenerator& generator);
+    static bool testWrite(TestGenerator& generator);
 
 private:
-    explicit TestCmake(TestGenerator& generator) : m_generator(generator) {}
+    explicit TestCmake(TestGenerator& generator) : m_testGenerator(generator) {}
 
     bool testWriteInternal() const;
     
 private:
-    TestGenerator& m_generator;
+    TestGenerator& m_testGenerator;
 };
 
 } // namespace commsdsl2test

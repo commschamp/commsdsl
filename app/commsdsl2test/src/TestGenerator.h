@@ -23,7 +23,7 @@ namespace commsdsl2test
 class TestGenerator final : public commsdsl::gen::GenGenerator
 {
 public:
-    static const std::string& fileGeneratedComment();
+    static const std::string& testFileGeneratedComment();
 
 protected:
     virtual bool genWriteImpl() override;    

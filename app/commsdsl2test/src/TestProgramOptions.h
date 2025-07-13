@@ -29,18 +29,18 @@ class TestProgramOptions : public commsdsl::gen::GenProgramOptions
 public:
     TestProgramOptions();
 
-    bool quietRequested() const;
-    bool versionRequested() const;
-    bool warnAsErrRequested() const;
+    bool testQuietRequested() const;
+    bool testVersionRequested() const;
+    bool testWarnAsErrRequested() const;
 
-    const std::string& getFilesListFile() const;
-    const std::string& getFilesListPrefix() const;
-    const GenArgsList& getFiles() const;
-    const std::string& getOutputDirectory() const;
-    const std::string& getCodeInputDirectory() const;
-    bool hasNamespaceOverride() const;
-    const std::string& getNamespace() const;
-    bool multipleSchemasEnabled() const;
+    const std::string& gestGetFilesListFile() const;
+    const std::string& testGetFilesListPrefix() const;
+    const GenArgsList& testGetFiles() const;
+    const std::string& testGetOutputDirectory() const;
+    const std::string& getGetCodeInputDirectory() const;
+    bool testHasNamespaceOverride() const;
+    const std::string& testGetNamespace() const;
+    bool testMultipleSchemasEnabled() const;
 };
 
 } // namespace commsdsl2test

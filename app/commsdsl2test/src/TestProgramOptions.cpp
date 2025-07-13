@@ -63,57 +63,57 @@ TestProgramOptions::TestProgramOptions()
     ;
 }
 
-bool TestProgramOptions::quietRequested() const
+bool TestProgramOptions::testQuietRequested() const
 {
     return genIsOptUsed(QuietStr);
 }
 
-bool TestProgramOptions::versionRequested() const
+bool TestProgramOptions::testVersionRequested() const
 {
     return genIsOptUsed(VersionStr);
 }
 
-bool TestProgramOptions::warnAsErrRequested() const
+bool TestProgramOptions::testWarnAsErrRequested() const
 {
     return genIsOptUsed(WarnAsErrStr);
 }
 
-const std::string& TestProgramOptions::getFilesListFile() const
+const std::string& TestProgramOptions::gestGetFilesListFile() const
 {
     return genValue(InputFilesListStr);
 }
 
-const std::string& TestProgramOptions::getFilesListPrefix() const
+const std::string& TestProgramOptions::testGetFilesListPrefix() const
 {
     return genValue(InputFilesPrefixStr);
 }
 
-const TestProgramOptions::GenArgsList& TestProgramOptions::getFiles() const
+const TestProgramOptions::GenArgsList& TestProgramOptions::testGetFiles() const
 {
     return genArgs();
 }
 
-const std::string& TestProgramOptions::getOutputDirectory() const
+const std::string& TestProgramOptions::testGetOutputDirectory() const
 {
     return genValue(OutputDirStr);
 }
 
-const std::string& TestProgramOptions::getCodeInputDirectory() const
+const std::string& TestProgramOptions::getGetCodeInputDirectory() const
 {
     return genValue(CodeInputDirStr);
 }
 
-bool TestProgramOptions::hasNamespaceOverride() const
+bool TestProgramOptions::testHasNamespaceOverride() const
 {
     return genIsOptUsed(NamespaceStr);
 }
 
-const std::string& TestProgramOptions::getNamespace() const
+const std::string& TestProgramOptions::testGetNamespace() const
 {
     return genValue(NamespaceStr);
 }
 
-bool TestProgramOptions::multipleSchemasEnabled() const
+bool TestProgramOptions::testMultipleSchemasEnabled() const
 {
     return genIsOptUsed(MultipleSchemasEnabledStr);
 }

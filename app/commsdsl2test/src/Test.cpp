@@ -40,32 +40,32 @@ using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
 } // namespace 
     
 
-bool Test::write(TestGenerator& generator)
+bool Test::testWrite(TestGenerator& generator)
 {
     Test obj(generator);
-    return obj.writeInputTest();
+    return obj.testWriteInputTest();
 }
 
-bool Test::writeInputTest() const
+bool Test::testWriteInputTest() const
 {
     auto testName = 
-        m_generator.genCurrentSchema().genMainNamespace() + '_' + "input_test.cpp";
+        m_testGenerator.genCurrentSchema().genMainNamespace() + '_' + "input_test.cpp";
 
-    auto filePath = commsdsl::gen::util::genPathAddElem(m_generator.genGetOutputDir(), testName);
+    auto filePath = commsdsl::gen::util::genPathAddElem(m_testGenerator.genGetOutputDir(), testName);
 
-    m_generator.genLogger().genInfo("Generating " + filePath);
+    m_testGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
+        m_testGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
     GenReplacementMap repl = {
-        std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()),
+        std::make_pair("GEN_COMMENT", m_testGenerator.testFileGeneratedComment()),
     };
     
     std::string idType;
-    auto allMsgIds = m_generator.genCurrentSchema().genGetAllMessageIdFields();
+    auto allMsgIds = m_testGenerator.genCurrentSchema().genGetAllMessageIdFields();
     const commsdsl::gen::GenField* idField = nullptr;
     if (allMsgIds.size() == 1U) {
         idField = allMsgIds.front();
@@ -449,7 +449,7 @@ bool Test::writeInputTest() const
 
     stream.flush();
     if (!stream.good()) {
-        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
+        m_testGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
 

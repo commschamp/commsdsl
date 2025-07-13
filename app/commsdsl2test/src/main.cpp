@@ -27,7 +27,7 @@
 namespace commsdsl2test
 {
 
-std::vector<std::string> getFilesList(
+std::vector<std::string> testGetFilesList(
     const std::string& fileName,
     const std::string& prefix)
 {
@@ -68,7 +68,7 @@ int main(int argc, const char* argv[])
             return 0;
         }
 
-        if (options.versionRequested()) {
+        if (options.testVersionRequested()) {
             std::cout << 
                 commsdsl::versionMajor() << '.' << 
                 commsdsl::versionMinor() << '.' <<
@@ -79,24 +79,24 @@ int main(int argc, const char* argv[])
         commsdsl2test::TestGenerator generator;
         auto& logger = generator.genLogger();
 
-        if (options.quietRequested()) {
+        if (options.testQuietRequested()) {
             logger.genSetMinLevel(commsdsl::parse::ParseErrorLevel_Warning);
         }
 
-        if (options.warnAsErrRequested()) {
+        if (options.testWarnAsErrRequested()) {
             logger.genSetWarnAsError();
         }
 
-        if (options.hasNamespaceOverride()) {
-            generator.genSetNamespaceOverride(options.getNamespace());
+        if (options.testHasNamespaceOverride()) {
+            generator.genSetNamespaceOverride(options.testGetNamespace());
         }
 
-        generator.genSetOutputDir(options.getOutputDirectory());
-        generator.genSetCodeDir(options.getCodeInputDirectory());
-        generator.genSetMultipleSchemasEnabled(options.multipleSchemasEnabled());
+        generator.genSetOutputDir(options.testGetOutputDirectory());
+        generator.genSetCodeDir(options.getGetCodeInputDirectory());
+        generator.genSetMultipleSchemasEnabled(options.testMultipleSchemasEnabled());
 
-        auto files = commsdsl2test::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
-        auto otherFiles = options.getFiles();
+        auto files = commsdsl2test::testGetFilesList(options.gestGetFilesListFile(), options.testGetFilesListPrefix());
+        auto otherFiles = options.testGetFiles();
         files.insert(files.end(), otherFiles.begin(), otherFiles.end());
 
         if (files.empty()) {
