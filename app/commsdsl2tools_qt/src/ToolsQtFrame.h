@@ -27,18 +27,23 @@ namespace commsdsl2tools_qt
 class ToolsQtGenerator;
 class ToolsQtFrame final : public commsdsl::gen::GenFrame
 {
-    using Base = commsdsl::gen::GenFrame;
+    using GenBase = commsdsl::gen::GenFrame;
+
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
+    using ParseFrame = commsdsl::parse::ParseFrame;
+
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+
     using ToolsQtLayersList = std::vector<ToolsQtLayer*>;
 
-    explicit ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent);
+    explicit ToolsQtFrame(ToolsQtGenerator& generator, ParseFrame parseObj, GenElem* parent);
 
     std::string toolsHeaderFilePath(const commsdsl::gen::GenInterface& iFace) const;
-    StringsList toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const;
+    GenStringsList toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const;
     std::string toolsClassScope(const commsdsl::gen::GenInterface& iFace) const;
 
-    static const ToolsQtFrame* cast(const commsdsl::gen::GenFrame* val)
+    static const ToolsQtFrame* toolsCast(const commsdsl::gen::GenFrame* val)
     {
         return static_cast<const ToolsQtFrame*>(val);
     }

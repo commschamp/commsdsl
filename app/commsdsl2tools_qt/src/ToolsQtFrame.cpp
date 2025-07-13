@@ -41,7 +41,7 @@ namespace commsdsl2tools_qt
 namespace 
 {
 
-const std::string ProtTransportMsgSuffix("ProtTransportMessage");
+const std::string ToolsProtTransportMsgSuffix("ProtTransportMessage");
 
 ToolsQtFrame::ToolsQtLayersList toolsTransformLayersList(const commsdsl::gen::GenFrame::GenLayersList& layers)
 {
@@ -67,8 +67,8 @@ ToolsQtFrame::ToolsQtLayersList toolsTransformLayersList(const commsdsl::gen::Ge
 } // namespace 
     
 
-ToolsQtFrame::ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent)
+ToolsQtFrame::ToolsQtFrame(ToolsQtGenerator& generator, ParseFrame parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent)
 {
 }
 
@@ -77,22 +77,22 @@ std::string ToolsQtFrame::toolsHeaderFilePath(const commsdsl::gen::GenInterface&
     return toolsRelPathInternal(iFace) + strings::genCppHeaderSuffixStr();
 }
 
-ToolsQtFrame::StringsList ToolsQtFrame::toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const
+ToolsQtFrame::GenStringsList ToolsQtFrame::toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const
 {
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
     auto iter = selectedFrames.find(&iFace);
     if (iter == selectedFrames.end()) {
-        return StringsList();
+        return GenStringsList();
     }
 
     auto frameIter = std::find(iter->second.begin(), iter->second.end(), this);
     if (frameIter == iter->second.end()) {
-        return StringsList();
+        return GenStringsList();
     }
 
     return 
-        StringsList{
+        GenStringsList{
             toolsRelPathInternal(iFace) + strings::genTransportMessageSuffixStr() + strings::genCppSourceSuffixStr(),
             toolsRelPathInternal(iFace) + strings::genCppSourceSuffixStr(),
         };
@@ -100,23 +100,23 @@ ToolsQtFrame::StringsList ToolsQtFrame::toolsSourceFiles(const commsdsl::gen::Ge
 
 std::string ToolsQtFrame::toolsClassScope(const commsdsl::gen::GenInterface& iFace) const
 {
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     return gen.toolsScopePrefixForInterface(iFace) + comms::genScopeFor(*this, gen);    
 }
 
 bool ToolsQtFrame::genPrepareImpl()
 {
-    if (!Base::genPrepareImpl()) {
+    if (!GenBase::genPrepareImpl()) {
         return false;
     }
 
-    m_toolsLayers = toolsTransformLayersList(Base::genLayers());
+    m_toolsLayers = toolsTransformLayersList(GenBase::genLayers());
     return true;
 }
 
 bool ToolsQtFrame::genWriteImpl() const
 {
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     auto frames = gen.toolsGetSelectedFrames();
     auto iter = std::find(frames.begin(), frames.end(), this);
     if (iter == frames.end()) {
@@ -134,7 +134,7 @@ bool ToolsQtFrame::genWriteImpl() const
 
 bool ToolsQtFrame::toolsWriteProtTransportMsgHeaderInternal() const
 {
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     auto& logger = gen.genLogger();
 
     auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
@@ -144,7 +144,7 @@ bool ToolsQtFrame::toolsWriteProtTransportMsgHeaderInternal() const
             continue;
         }
 
-        auto filePath = gen.genGetOutputDir() + '/' + toolsRelPathInternal(*info.first) + ProtTransportMsgSuffix + strings::genCppHeaderSuffixStr();
+        auto filePath = gen.genGetOutputDir() + '/' + toolsRelPathInternal(*info.first) + ToolsProtTransportMsgSuffix + strings::genCppHeaderSuffixStr();
 
         logger.genInfo("Generating " + filePath);
 
@@ -206,7 +206,7 @@ bool ToolsQtFrame::toolsWriteProtTransportMsgHeaderInternal() const
 
 bool ToolsQtFrame::toolsWriteHeaderInternal() const
 {
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     auto& logger = gen.genLogger();
 
     auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
@@ -267,12 +267,12 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
 
 bool ToolsQtFrame::toolsWriteSrcInternal() const
 {
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     auto& logger = gen.genLogger();
 
     auto* parent = genGetParent();
     assert((parent != nullptr) && (parent->genElemType() == commsdsl::gen::GenElem::Type_Namespace));
-    auto* parentNs = ToolsQtNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
+    auto* parentNs = ToolsQtNamespace::toolsCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
 
     auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
     for (auto& info : selectedFrames) {
@@ -310,14 +310,14 @@ bool ToolsQtFrame::toolsWriteSrcInternal() const
             "#^#TOP_NS_END#$#\n"
         ;
 
-        StringsList includes {
+        GenStringsList includes {
             "cc_tools_qt/ToolsFrameBase.h",
             comms::genRelHeaderPathFor(*this, gen),
             toolsRelPathInternal(*info.first) + strings::genTransportMessageSuffixStr() + strings::genCppHeaderSuffixStr(),
             ToolsQtDefaultOptions::toolsRelHeaderPath(gen),
             ToolsQtVersion::toolsRelHeaderPath(gen),
             parentNs->toolsFactoryRelHeaderPath(*info.first),
-            ToolsQtInterface::cast(info.first)->toolsHeaderFilePath(),
+            ToolsQtInterface::toolsCast(info.first)->toolsHeaderFilePath(),
         };
 
         comms::genPrepareIncludeStatement(includes);
@@ -345,7 +345,7 @@ bool ToolsQtFrame::toolsWriteSrcInternal() const
 
 bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
 {
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     auto& logger = gen.genLogger();
 
     auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
@@ -401,7 +401,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
 
 bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
 {
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     auto& logger = gen.genLogger();
 
     auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
@@ -436,8 +436,8 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
 
         util::GenStringsList includes = {
             "cc_tools_qt/ToolsTransportMessageBase.h",
-            toolsRelPathInternal(*info.first) + ProtTransportMsgSuffix + strings::genCppHeaderSuffixStr(),
-            ToolsQtInterface::cast(*info.first).toolsHeaderFilePath(),
+            toolsRelPathInternal(*info.first) + ToolsProtTransportMsgSuffix + strings::genCppHeaderSuffixStr(),
+            ToolsQtInterface::toolsCast(*info.first).toolsHeaderFilePath(),
         };
 
         comms::genPrepareIncludeStatement(includes);
@@ -473,7 +473,7 @@ unsigned ToolsQtFrame::toolsCalcBackPayloadOffsetInternal() const
             m_toolsLayers.rbegin(), m_toolsLayers.rend(),
             [](auto* l)
             {
-                return l->layer().genParseObj().parseKind() == commsdsl::parse::ParseLayer::ParseKind::Payload;
+                return l->toolsGenLayer().genParseObj().parseKind() == commsdsl::parse::ParseLayer::ParseKind::Payload;
             });
     assert(payloadIter != m_toolsLayers.rend());
 
@@ -522,16 +522,16 @@ std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::
     util::GenStringsList names;
     for (auto* l : m_toolsLayers) {
         assert(l != nullptr);
-        names.push_back(comms::genAccessName(l->layer().genParseObj().parseName()));
+        names.push_back(comms::genAccessName(l->toolsGenLayer().genParseObj().parseName()));
 
-        auto* externalField = l->layer().genExternalField();
+        auto* externalField = l->toolsGenLayer().genExternalField();
         if (externalField != nullptr) {
             fields.push_back("::" + comms::genScopeFor(*externalField, genGenerator()) + "<TOpt>");
             continue;
         }
 
-        auto lScope = "typename " + layersScope + "<TOpt>::" + comms::genClassName(l->layer().genParseObj().parseName());
-        auto* memberField = l->layer().genMemberField();
+        auto lScope = "typename " + layersScope + "<TOpt>::" + comms::genClassName(l->toolsGenLayer().genParseObj().parseName());
+        auto* memberField = l->toolsGenLayer().genMemberField();
         if (memberField != nullptr) {
             fields.push_back(lScope + strings::genMembersSuffixStr() + "::" + comms::genClassName(memberField->genParseObj().parseName()));
             continue;
@@ -542,7 +542,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::
 
     util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
-        {"SUFFIX", ProtTransportMsgSuffix},
+        {"SUFFIX", ToolsProtTransportMsgSuffix},
         {"FIELDS_SUFFIX", strings::genFieldsSuffixStr()},
         {"FIELDS_LIST", util::genStrListToString(fields, ",\n", "")},
         {"FIELDS_NAMES", util::genStrListToString(names, ",\n", "")},
@@ -562,7 +562,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::
 
 std::string ToolsQtFrame::toolsProtTransportMsgHeaderExtraIncInternal(const commsdsl::gen::GenInterface& iFace) const
 {
-    auto incFile = genGenerator().genGetCodeDir() + '/' + toolsRelPathInternal(iFace) + ProtTransportMsgSuffix + strings::genCppHeaderSuffixStr() + strings::genIncFileSuffixStr();
+    auto incFile = genGenerator().genGetCodeDir() + '/' + toolsRelPathInternal(iFace) + ToolsProtTransportMsgSuffix + strings::genCppHeaderSuffixStr() + strings::genIncFileSuffixStr();
     return util::genReadFileContents(incFile);
 }
 
@@ -570,7 +570,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::
 {
     std::string readCode;
     do {
-        auto readOverrideFile = genGenerator().genGetCodeDir() + '/' + toolsRelPathInternal(iFace) + ProtTransportMsgSuffix + strings::genCppHeaderSuffixStr() + strings::genReadFileSuffixStr();
+        auto readOverrideFile = genGenerator().genGetCodeDir() + '/' + toolsRelPathInternal(iFace) + ToolsProtTransportMsgSuffix + strings::genCppHeaderSuffixStr() + strings::genReadFileSuffixStr();
         readCode = util::genReadFileContents(readOverrideFile);
         if (!readCode.empty()) {
             break;
@@ -581,7 +581,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::
                 m_toolsLayers.begin(), m_toolsLayers.end(),
                 [](auto* l)
                 {
-                    return l->layer().genParseObj().parseKind() == commsdsl::parse::ParseLayer::ParseKind::Payload;
+                    return l->toolsGenLayer().genParseObj().parseKind() == commsdsl::parse::ParseLayer::ParseKind::Payload;
                 });
 
         assert(payloadIter != m_toolsLayers.end());
@@ -762,12 +762,12 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::G
         "}\n\n"
         ;    
 
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
 
     util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName()) + strings::genTransportMessageSuffixStr()},
-        {"TRANSPORT_MESSAGE", comms::genScopeFor(*this, gen) + ProtTransportMsgSuffix},
-        {"INTERFACE", ToolsQtInterface::cast(iFace).toolsClassScope()},
+        {"TRANSPORT_MESSAGE", comms::genScopeFor(*this, gen) + ToolsProtTransportMsgSuffix},
+        {"INTERFACE", ToolsQtInterface::toolsCast(iFace).toolsClassScope()},
     };
 
     auto idLayerIter = 
@@ -776,7 +776,7 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::G
             [](auto* l)
             {
                 using Kind = commsdsl::parse::ParseLayer::ParseKind;
-                auto kind = l->layer().genParseObj().parseKind();
+                auto kind = l->toolsGenLayer().genParseObj().parseKind();
                 if (kind == Kind::Id) {
                     return true;
                 }
@@ -785,12 +785,12 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::G
                     return false;
                 }
 
-                auto customKind = commsdsl::parse::ParseCustomLayer(l->layer().genParseObj()).parseSemanticLayerType();
+                auto customKind = commsdsl::parse::ParseCustomLayer(l->toolsGenLayer().genParseObj()).parseSemanticLayerType();
                 return (customKind == Kind::Id);
             });
 
     if (idLayerIter != m_toolsLayers.end()) {
-        auto idName = comms::genAccessName((*idLayerIter)->layer().genParseObj().parseName());
+        auto idName = comms::genAccessName((*idLayerIter)->toolsGenLayer().genParseObj().parseName());
         repl["ID_FUNC"] = 
             "virtual qlonglong numericIdImpl() const override\n"
             "{\n"
@@ -895,13 +895,13 @@ std::string ToolsQtFrame::toolsFrameSrcDefInternal(const commsdsl::gen::GenInter
         "}\n\n" 
         ;
 
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     auto* parent = genGetParent();
     assert((parent != nullptr) && (parent->genElemType() == commsdsl::gen::GenElem::Type_Namespace));
-    auto* parentNs = ToolsQtNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
+    auto* parentNs = ToolsQtNamespace::toolsCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
     util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
-        {"INTERFACE", ToolsQtInterface::cast(iFace).toolsClassScope()},
+        {"INTERFACE", ToolsQtInterface::toolsCast(iFace).toolsClassScope()},
         {"MSG_FACTORY", parentNs->toolsFactoryClassScope(iFace)},
         {"TRANSPORT_MSG",  toolsClassScope(iFace) + strings::genTransportMessageSuffixStr()},
         {"SCOPE", comms::genScopeFor(*this, gen)},

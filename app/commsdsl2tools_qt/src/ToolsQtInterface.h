@@ -24,23 +24,25 @@ namespace commsdsl2tools_qt
 class ToolsQtGenerator;
 class ToolsQtInterface final : public commsdsl::gen::GenInterface
 {
-    using Base = commsdsl::gen::GenInterface;
-public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
-    using IncludesList = StringsList;
+    using GenBase = commsdsl::gen::GenInterface;
 
-    explicit ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent);
+public:
+    using ParseInterface = commsdsl::parse::ParseInterface;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+
+    explicit ToolsQtInterface(ToolsQtGenerator& generator, ParseInterface parseObj, GenElem* parent);
 
     std::string toolsClassScope() const;
     std::string toolsHeaderFilePath() const;
-    StringsList toolsSourceFiles() const;
+    GenStringsList toolsSourceFiles() const;
 
-    static const ToolsQtInterface* cast(const commsdsl::gen::GenInterface* val)
+    static const ToolsQtInterface* toolsCast(const commsdsl::gen::GenInterface* val)
     {
         return static_cast<const ToolsQtInterface*>(val);
     }
 
-    static const ToolsQtInterface& cast(const commsdsl::gen::GenInterface& val)
+    static const ToolsQtInterface& toolsCast(const commsdsl::gen::GenInterface& val)
     {
         return static_cast<const ToolsQtInterface&>(val);
     }    

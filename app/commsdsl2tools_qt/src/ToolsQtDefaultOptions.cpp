@@ -117,7 +117,7 @@ std::string ToolsQtDefaultOptions::toolsClassScope(const ToolsQtGenerator& gener
         comms::genScopeForOptions(strings::genDefaultOptionsClassStr(), generator, false);
 }    
 
-bool ToolsQtDefaultOptions::write(ToolsQtGenerator& generator)
+bool ToolsQtDefaultOptions::toolsWrite(ToolsQtGenerator& generator)
 {
     ToolsQtDefaultOptions obj(generator);
     return obj.toolsWriteInternal();
@@ -125,19 +125,19 @@ bool ToolsQtDefaultOptions::write(ToolsQtGenerator& generator)
 
 bool ToolsQtDefaultOptions::toolsWriteInternal() const
 {
-    auto filePath = m_generator.genGetOutputDir() + '/' + toolsRelHeaderPath(m_generator);
+    auto filePath = m_toolsGenerator.genGetOutputDir() + '/' + toolsRelHeaderPath(m_toolsGenerator);
 
     auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.genCreateDirectory(dirPath)) {
+    if (!m_toolsGenerator.genCreateDirectory(dirPath)) {
         return false;
     }      
 
-    m_generator.genLogger().genInfo("Generating " + filePath);
+    m_toolsGenerator.genLogger().genInfo("Generating " + filePath);
 
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
+        m_toolsGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }    
 
@@ -162,26 +162,26 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
         "#^#TOP_NS_END#$#\n"
     ;
 
-    auto codePrefix = m_generator.genGetCodeDir() + '/' + toolsRelHeaderPath(m_generator);
+    auto codePrefix = m_toolsGenerator.genGetCodeDir() + '/' + toolsRelHeaderPath(m_toolsGenerator);
 
     util::GenStringsList includes {
-        ToolsQtVersion::toolsRelHeaderPath(m_generator)
+        ToolsQtVersion::toolsRelHeaderPath(m_toolsGenerator)
     };
 
-    auto& schemas = m_generator.genSchemas();
+    auto& schemas = m_toolsGenerator.genSchemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
-        m_generator.genChooseCurrentSchema(idx);
-        if (!m_generator.genCurrentSchema().genHasAnyReferencedComponent()) {
+        m_toolsGenerator.genChooseCurrentSchema(idx);
+        if (!m_toolsGenerator.genCurrentSchema().genHasAnyReferencedComponent()) {
             continue;
         }       
 
-        if (m_generator.genCurrentSchema().genHasAnyReferencedMessage()) {
-            includes.push_back(comms::genRelHeaderForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_generator));    
+        if (m_toolsGenerator.genCurrentSchema().genHasAnyReferencedMessage()) {
+            includes.push_back(comms::genRelHeaderForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_toolsGenerator));    
         }
         
-        includes.push_back(comms::genRelHeaderForOptions(strings::genDefaultOptionsClassStr(), m_generator));
+        includes.push_back(comms::genRelHeaderForOptions(strings::genDefaultOptionsClassStr(), m_toolsGenerator));
     }
-    assert(m_generator.genIsCurrentProtocolSchema());
+    assert(m_toolsGenerator.genIsCurrentProtocolSchema());
 
     comms::genPrepareIncludeStatement(includes);
 
@@ -189,13 +189,13 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"INCLUDES", util::genStrListToString(includes, "\n", "")},
         {"EXTRA_INCLUDES", util::genReadFileContents(codePrefix + strings::genIncFileSuffixStr())},
-        {"TOP_NS_BEGIN", m_generator.toolsNamespaceBegin()},
-        {"TOP_NS_END", m_generator.toolsNamespaceEnd()},
-        {"PROT_NAMESPACE", m_generator.genProtocolSchema().genMainNamespace()},
+        {"TOP_NS_BEGIN", m_toolsGenerator.toolsNamespaceBegin()},
+        {"TOP_NS_END", m_toolsGenerator.toolsNamespaceEnd()},
+        {"PROT_NAMESPACE", m_toolsGenerator.genProtocolSchema().genMainNamespace()},
         {"NAME", strings::genDefaultOptionsClassStr()},
         {"EXTEND", util::genReadFileContents(codePrefix + strings::genExtendFileSuffixStr())},
         {"APPEND", util::genReadFileContents(codePrefix + strings::genAppendFileSuffixStr())},
-        {"OPTS_BASE", toolsBaseCodeInternal(m_generator, m_generator.genSchemas().size() - 1U)},
+        {"OPTS_BASE", toolsBaseCodeInternal(m_toolsGenerator, m_toolsGenerator.genSchemas().size() - 1U)},
     };
 
     if (!repl["EXTEND"].empty()) {

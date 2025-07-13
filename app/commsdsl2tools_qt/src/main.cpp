@@ -28,7 +28,7 @@
 namespace commsdsl2tools_qt
 {
 
-std::vector<std::string> getFilesList(
+std::vector<std::string> toolsGetFilesList(
     const std::string& fileName,
     const std::string& prefix)
 {
@@ -69,7 +69,7 @@ int main(int argc, const char* argv[])
             return 0;
         }
 
-        if (options.versionRequested()) {
+        if (options.toolsVersionRequested()) {
             std::cout << 
                 commsdsl::versionMajor() << '.' << 
                 commsdsl::versionMinor() << '.' <<
@@ -80,27 +80,27 @@ int main(int argc, const char* argv[])
         commsdsl2tools_qt::ToolsQtGenerator generator;
         auto& logger = generator.genLogger();
 
-        if (options.quietRequested()) {
+        if (options.toolsQuietRequested()) {
             logger.genSetMinLevel(commsdsl::parse::ParseErrorLevel_Warning);
         }
 
-        if (options.warnAsErrRequested()) {
+        if (options.toolsWarnAsErrRequested()) {
             logger.genSetWarnAsError();
         }
 
-        if (options.hasNamespaceOverride()) {
-            generator.genSetNamespaceOverride(options.getNamespace());
+        if (options.toolsHasNamespaceOverride()) {
+            generator.genSetNamespaceOverride(options.toolsGetNamespace());
         }
 
-        generator.genSetOutputDir(options.getOutputDirectory());
-        generator.genSetCodeDir(options.getCodeInputDirectory());
+        generator.genSetOutputDir(options.toolsGetOutputDirectory());
+        generator.genSetCodeDir(options.toolsGetCodeInputDirectory());
         //generator.genSetTopNamespace("cc_tools_qt_plugin");
-        generator.genSetMultipleSchemasEnabled(options.multipleSchemasEnabled());
-        generator.toolsSetPluginInfosList(options.getPlugins());
-        generator.toolsSetMainNamespaceInOptionsForced(options.isMainNamespaceInOptionsForced());
+        generator.genSetMultipleSchemasEnabled(options.toolsMultipleSchemasEnabled());
+        generator.toolsSetPluginInfosList(options.toolsGetPlugins());
+        generator.toolsSetMainNamespaceInOptionsForced(options.toolsIsMainNamespaceInOptionsForced());
 
-        auto files = commsdsl2tools_qt::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
-        auto otherFiles = options.getFiles();
+        auto files = commsdsl2tools_qt::toolsGetFilesList(options.toolsGetFilesListFile(), options.toolsGetFilesListPrefix());
+        auto otherFiles = options.toolsGetFiles();
         files.insert(files.end(), otherFiles.begin(), otherFiles.end());
 
         if (files.empty()) {

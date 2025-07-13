@@ -39,20 +39,20 @@ public:
     
     ToolsQtProgramOptions();
 
-    bool quietRequested() const;
-    bool versionRequested() const;
-    bool warnAsErrRequested() const;
+    bool toolsQuietRequested() const;
+    bool toolsVersionRequested() const;
+    bool toolsWarnAsErrRequested() const;
 
-    const std::string& getFilesListFile() const;
-    const std::string& getFilesListPrefix() const;
-    const GenArgsList& getFiles() const;
-    const std::string& getOutputDirectory() const;
-    bool hasNamespaceOverride() const;
-    const std::string& getNamespace() const;
-    const std::string& getCodeInputDirectory() const;
-    PluginInfosList getPlugins() const;
-    bool multipleSchemasEnabled() const;
-    bool isMainNamespaceInOptionsForced() const;
+    const std::string& toolsGetFilesListFile() const;
+    const std::string& toolsGetFilesListPrefix() const;
+    const GenArgsList& toolsGetFiles() const;
+    const std::string& toolsGetOutputDirectory() const;
+    bool toolsHasNamespaceOverride() const;
+    const std::string& toolsGetNamespace() const;
+    const std::string& toolsGetCodeInputDirectory() const;
+    PluginInfosList toolsGetPlugins() const;
+    bool toolsMultipleSchemasEnabled() const;
+    bool toolsIsMainNamespaceInOptionsForced() const;
 };
 
 } // namespace commsdsl2tools_qt

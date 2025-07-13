@@ -24,15 +24,15 @@ class ToolsQtGenerator;
 class ToolsQtVersion
 {
 public:
-    static bool write(ToolsQtGenerator& generator);
+    static bool toolsWrite(ToolsQtGenerator& generator);
     static std::string toolsRelHeaderPath(const ToolsQtGenerator& generator);
 
 private:
-    explicit ToolsQtVersion(ToolsQtGenerator& generator) : m_generator(generator) {}
+    explicit ToolsQtVersion(ToolsQtGenerator& generator) : m_toolsGenerator(generator) {}
 
-    bool writeInternal() const;
+    bool toolsWriteInternal() const;
 
-    ToolsQtGenerator& m_generator;
+    ToolsQtGenerator& m_toolsGenerator;
 };
 
 } // namespace commsdsl2tools_qt

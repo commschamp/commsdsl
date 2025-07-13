@@ -34,7 +34,7 @@ namespace commsdsl2tools_qt
 {
 
 ToolsQtLayer::ToolsQtLayer(commsdsl::gen::GenLayer& layer) :
-    m_layer(layer)
+    m_genLayer(layer)
 {
 }
 
@@ -51,12 +51,12 @@ unsigned ToolsQtLayer::toolsMinFieldLength() const
             return static_cast<unsigned>(f.genParseObj().parseMinLength());
         };
 
-    auto* externalField = m_layer.genExternalField();
+    auto* externalField = m_genLayer.genExternalField();
     if (externalField !=  nullptr) {
         return calcFunc(*externalField);
     }
 
-    auto* memberField = m_layer.genMemberField();
+    auto* memberField = m_genLayer.genMemberField();
     if (memberField !=  nullptr) {
         return calcFunc(*memberField);
     }    

@@ -24,8 +24,7 @@ namespace commsdsl2tools_qt
 class ToolsQtLayer
 {
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
-    using IncludesList = StringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     explicit ToolsQtLayer(commsdsl::gen::GenLayer& layer);
     virtual ~ToolsQtLayer() = default;
@@ -34,13 +33,13 @@ public:
 
     unsigned toolsMinFieldLength() const;
 
-    const commsdsl::gen::GenLayer& layer() const
+    const commsdsl::gen::GenLayer& toolsGenLayer() const
     {
-        return m_layer;
+        return m_genLayer;
     }
 
 private:
-    commsdsl::gen::GenLayer& m_layer ;
+    commsdsl::gen::GenLayer& m_genLayer ;
 };
 
 } // namespace commsdsl2tools_qt

@@ -25,13 +25,17 @@ namespace commsdsl2tools_qt
 class ToolsQtGenerator;
 class ToolsQtPayloadLayer final : public commsdsl::gen::GenPayloadLayer, public ToolsQtLayer
 {
-    using Base = commsdsl::gen::GenPayloadLayer;
+    using GenBase = commsdsl::gen::GenPayloadLayer;
     using ToolsBase = ToolsQtLayer;
+
 public:
-    explicit ToolsQtPayloadLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    explicit ToolsQtPayloadLayer(ToolsQtGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    // Base overrides
+    // GenBase overrides
     virtual bool genPrepareImpl() override;
 
     // ToolsBase overrides

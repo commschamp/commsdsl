@@ -28,15 +28,18 @@ class ToolsQtInterface;
 
 class ToolsQtNamespace final : public commsdsl::gen::GenNamespace
 {
-    using Base = commsdsl::gen::GenNamespace;
+    using GenBase = commsdsl::gen::GenNamespace;
+
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
+    using ParseNamespace = commsdsl::parse::ParseNamespace;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    explicit ToolsQtNamespace(ToolsQtGenerator& generator, commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent);
+    explicit ToolsQtNamespace(ToolsQtGenerator& generator, ParseNamespace parseObj, GenElem* parent);
 
-    StringsList toolsSourceFiles(const ToolsQtInterface& interface) const;
+    GenStringsList toolsSourceFiles(const ToolsQtInterface& interface) const;
 
-    static const ToolsQtNamespace* cast(const commsdsl::gen::GenNamespace* obj)
+    static const ToolsQtNamespace* toolsCast(const commsdsl::gen::GenNamespace* obj)
     {
         return static_cast<const ToolsQtNamespace*>(obj);
     }

@@ -84,57 +84,57 @@ ToolsQtProgramOptions::ToolsQtProgramOptions()
     ;
 }
 
-bool ToolsQtProgramOptions::quietRequested() const
+bool ToolsQtProgramOptions::toolsQuietRequested() const
 {
     return genIsOptUsed(QuietStr);
 }
 
-bool ToolsQtProgramOptions::versionRequested() const
+bool ToolsQtProgramOptions::toolsVersionRequested() const
 {
     return genIsOptUsed(VersionStr);
 }
 
-bool ToolsQtProgramOptions::warnAsErrRequested() const
+bool ToolsQtProgramOptions::toolsWarnAsErrRequested() const
 {
     return genIsOptUsed(WarnAsErrStr);
 }
 
-const std::string& ToolsQtProgramOptions::getFilesListFile() const
+const std::string& ToolsQtProgramOptions::toolsGetFilesListFile() const
 {
     return genValue(InputFilesListStr);
 }
 
-const std::string& ToolsQtProgramOptions::getFilesListPrefix() const
+const std::string& ToolsQtProgramOptions::toolsGetFilesListPrefix() const
 {
     return genValue(InputFilesPrefixStr);
 }
 
-const ToolsQtProgramOptions::GenArgsList& ToolsQtProgramOptions::getFiles() const
+const ToolsQtProgramOptions::GenArgsList& ToolsQtProgramOptions::toolsGetFiles() const
 {
     return genArgs();
 }
 
-const std::string& ToolsQtProgramOptions::getOutputDirectory() const
+const std::string& ToolsQtProgramOptions::toolsGetOutputDirectory() const
 {
     return genValue(OutputDirStr);
 }
 
-bool ToolsQtProgramOptions::hasNamespaceOverride() const
+bool ToolsQtProgramOptions::toolsHasNamespaceOverride() const
 {
     return genIsOptUsed(NamespaceStr);
 }
 
-const std::string& ToolsQtProgramOptions::getNamespace() const
+const std::string& ToolsQtProgramOptions::toolsGetNamespace() const
 {
     return genValue(NamespaceStr);
 }
 
-const std::string& ToolsQtProgramOptions::getCodeInputDirectory() const
+const std::string& ToolsQtProgramOptions::toolsGetCodeInputDirectory() const
 {
     return genValue(CodeInputDirStr);
 }
 
-ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::getPlugins() const
+ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::toolsGetPlugins() const
 {
     PluginInfosList result;
     if (!genIsOptUsed(ProtocolStr)) {
@@ -166,12 +166,12 @@ ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::getPlugins() const
     return result;
 }
 
-bool ToolsQtProgramOptions::multipleSchemasEnabled() const
+bool ToolsQtProgramOptions::toolsMultipleSchemasEnabled() const
 {
     return genIsOptUsed(MultipleSchemasEnabledStr);
 }
 
-bool ToolsQtProgramOptions::isMainNamespaceInOptionsForced() const
+bool ToolsQtProgramOptions::toolsIsMainNamespaceInOptionsForced() const
 {
     return genIsOptUsed(ForceMainNamespaceInOptionsStr);
 }

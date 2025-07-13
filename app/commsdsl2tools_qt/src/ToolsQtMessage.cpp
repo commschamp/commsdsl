@@ -35,8 +35,8 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2tools_qt
 {
 
-ToolsQtMessage::ToolsQtMessage(ToolsQtGenerator& generator, commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent)
+ToolsQtMessage::ToolsQtMessage(ToolsQtGenerator& generator, ParseMessage parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent)
 {
 }
 
@@ -45,20 +45,20 @@ std::string ToolsQtMessage::toolsHeaderPath(const commsdsl::gen::GenInterface& i
     return toolsRelPathInternal(iFace) + strings::genCppHeaderSuffixStr();
 }
 
-ToolsQtMessage::StringsList ToolsQtMessage::toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const
+ToolsQtMessage::GenStringsList ToolsQtMessage::toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const
 {
-    return StringsList{toolsRelPathInternal(iFace) + strings::genCppSourceSuffixStr()};
+    return GenStringsList{toolsRelPathInternal(iFace) + strings::genCppSourceSuffixStr()};
 }
 
 std::string ToolsQtMessage::toolsClassScope(const commsdsl::gen::GenInterface& iFace) const
 {
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     return gen.toolsScopePrefixForInterface(iFace) + comms::genScopeFor(*this, gen);
 }
 
 bool ToolsQtMessage::genPrepareImpl()
 {
-    if (!Base::genPrepareImpl()) {
+    if (!GenBase::genPrepareImpl()) {
         return false;
     }
 
@@ -86,7 +86,7 @@ bool ToolsQtMessage::genWriteImpl() const
 
 bool ToolsQtMessage::toolsWriteHeaderInternal() const
 {
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     auto& logger = gen.genLogger();
 
     auto& allInterfaces = gen.toolsGetSelectedInterfaces();
@@ -147,7 +147,7 @@ bool ToolsQtMessage::toolsWriteHeaderInternal() const
 
 bool ToolsQtMessage::toolsWriteSrcInternal() const
 {
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     auto& logger = gen.genLogger();
 
     auto& allInterfaces = gen.toolsGetSelectedInterfaces();
@@ -204,9 +204,9 @@ std::string ToolsQtMessage::toolsRelPathInternal(const commsdsl::gen::GenInterfa
     return util::genStrReplace(toolsClassScope(iFace), "::", "/");
 }
 
-ToolsQtMessage::IncludesList ToolsQtMessage::toolsHeaderIncludesInternal() const
+ToolsQtMessage::ToolsIncludesList ToolsQtMessage::toolsHeaderIncludesInternal() const
 {
-    return IncludesList {
+    return ToolsIncludesList {
         "<memory>",
         "cc_tools_qt/ToolsMessage.h"
     };
@@ -255,12 +255,12 @@ std::string ToolsQtMessage::toolsHeaderCodeInternal() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-ToolsQtMessage::IncludesList ToolsQtMessage::toolsSrcIncludesInternal(const commsdsl::gen::GenInterface& iFace) const
+ToolsQtMessage::ToolsIncludesList ToolsQtMessage::toolsSrcIncludesInternal(const commsdsl::gen::GenInterface& iFace) const
 {
-    return IncludesList {
+    return ToolsIncludesList {
         "cc_tools_qt/ToolsMessageBase.h",
         comms::genRelHeaderPathFor(*this, genGenerator()),
-        ToolsQtInterface::cast(iFace).toolsHeaderFilePath(),
+        ToolsQtInterface::toolsCast(iFace).toolsHeaderFilePath(),
     };
 }
 
@@ -361,12 +361,12 @@ std::string ToolsQtMessage::toolsSrcCodeInternal(const commsdsl::gen::GenInterfa
         "}\n\n"
         ;    
 
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
 
     util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
         {"PROT_MESSAGE", comms::genScopeFor(*this, gen)},
-        {"INTERFACE", ToolsQtInterface::cast(iFace).toolsClassScope()},
+        {"INTERFACE", ToolsQtInterface::toolsCast(iFace).toolsClassScope()},
     };
 
     return util::genProcessTemplate(Templ, repl);    

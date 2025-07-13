@@ -29,12 +29,12 @@ class ToolsQtNamespace;
 class ToolsQtMsgFactory
 {
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     ToolsQtMsgFactory(const ToolsQtGenerator& generator, const ToolsQtNamespace& parent);
     bool toolsWrite() const;
     std::string toolsRelHeaderPath(const commsdsl::gen::GenInterface& iFace) const;
-    StringsList toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const; 
+    GenStringsList toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const; 
     std::string toolsClassScope(const commsdsl::gen::GenInterface& iFace) const;
 
 private:
@@ -45,7 +45,7 @@ private:
     std::string toolsSourceCodeInternal(const commsdsl::gen::GenInterface& iFace) const;
     std::string toolsSourceIncludesInternal(const commsdsl::gen::GenInterface& iFace) const;
 
-    const ToolsQtGenerator& m_generator;
+    const ToolsQtGenerator& m_toolsGenerator;
     const ToolsQtNamespace& m_parent;
 };
 

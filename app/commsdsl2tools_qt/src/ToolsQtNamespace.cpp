@@ -36,18 +36,18 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2tools_qt
 {
 
-ToolsQtNamespace::ToolsQtNamespace(ToolsQtGenerator& generator, commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent),
+ToolsQtNamespace::ToolsQtNamespace(ToolsQtGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
     m_factory(generator, *this)
 {
 }
 
-ToolsQtNamespace::StringsList ToolsQtNamespace::toolsSourceFiles(const ToolsQtInterface& interface) const
+ToolsQtNamespace::GenStringsList ToolsQtNamespace::toolsSourceFiles(const ToolsQtInterface& interface) const
 {
-    StringsList result;
+    GenStringsList result;
 
     auto addToResult =
-        [&result](StringsList&& list)
+        [&result](GenStringsList&& list)
         {
             result.reserve(result.size() + list.size());
             std::move(list.begin(), list.end(), std::back_inserter(result));

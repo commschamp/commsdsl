@@ -25,13 +25,17 @@ namespace commsdsl2tools_qt
 class ToolsQtGenerator;
 class ToolsQtChecksumLayer final : public commsdsl::gen::GenChecksumLayer, public ToolsQtLayer
 {
-    using Base = commsdsl::gen::GenChecksumLayer;
+    using GenBase = commsdsl::gen::GenChecksumLayer;
     using ToolsBase = ToolsQtLayer;
+
 public:
-    explicit ToolsQtChecksumLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    explicit ToolsQtChecksumLayer(ToolsQtGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    // Base overrides
+    // GenBase overrides
     virtual bool genPrepareImpl() override;
 
     // ToolsBase overrides

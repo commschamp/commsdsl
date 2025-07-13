@@ -39,7 +39,7 @@ namespace commsdsl2tools_qt
 namespace 
 {
 
-unsigned getHexMsgIdWidthInternal(const commsdsl::gen::GenInterface& interface)
+unsigned toolsGetHexMsgIdWidthInternal(const commsdsl::gen::GenInterface& interface)
 {
     auto* parentNs = interface.genParentNamespace();
     auto allMsgIdFields = parentNs->genFindMessageIdFields();
@@ -59,14 +59,14 @@ unsigned getHexMsgIdWidthInternal(const commsdsl::gen::GenInterface& interface)
 } // namespace 
     
 
-ToolsQtInterface::ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent)
+ToolsQtInterface::ToolsQtInterface(ToolsQtGenerator& generator, ParseInterface parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent)
 {
 }
 
 std::string ToolsQtInterface::toolsClassScope() const
 {
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     return gen.toolsScopePrefixForInterface(*this) + comms::genScopeFor(*this, gen);
 }
 
@@ -75,14 +75,14 @@ std::string ToolsQtInterface::toolsHeaderFilePath() const
     return toolsRelFilePath() + strings::genCppHeaderSuffixStr();
 }
 
-ToolsQtInterface::StringsList ToolsQtInterface::toolsSourceFiles() const
+ToolsQtInterface::GenStringsList ToolsQtInterface::toolsSourceFiles() const
 {
-    return StringsList{toolsRelFilePath() + strings::genCppSourceSuffixStr()};
+    return GenStringsList{toolsRelFilePath() + strings::genCppSourceSuffixStr()};
 }
 
 bool ToolsQtInterface::genWriteImpl() const
 {
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     auto interfaces = gen.toolsGetSelectedInterfaces();
     auto iter = std::find(interfaces.begin(), interfaces.end(), this);
     if (iter == interfaces.end()) {
@@ -95,7 +95,7 @@ bool ToolsQtInterface::genWriteImpl() const
 
 bool ToolsQtInterface::toolsWriteHeaderInternal() const
 {
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     auto filePath = gen.genGetOutputDir() + '/' + toolsHeaderFilePath();
 
     auto& logger = gen.genLogger();
@@ -152,7 +152,7 @@ bool ToolsQtInterface::toolsWriteHeaderInternal() const
 
 bool ToolsQtInterface::toolsWriteSrcInternal() const
 {
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     auto filePath = gen.genGetOutputDir() + '/' + toolsRelFilePath() + strings::genCppSourceSuffixStr();
 
     auto& logger = gen.genLogger();
@@ -209,14 +209,14 @@ std::string ToolsQtInterface::toolsHeaderCodeInternal() const
         "    #^#ID_FUNC#$#\n"
         "};\n";
 
-    auto& gen = ToolsQtGenerator::cast(genGenerator());
+    auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(toolsNameInternal())},
         {"INTERFACE", comms::genScopeFor(*this, gen)},
         {"OPTIONS", ToolsQtDefaultOptions::toolsClassScope(gen)},
     };
 
-    auto hexWidth = getHexMsgIdWidthInternal(*this);
+    auto hexWidth = toolsGetHexMsgIdWidthInternal(*this);
     if (0U < hexWidth) {
         repl["ID_FUNC"] = "virtual QString idAsStringImpl() const override;";
         repl["PROTECTED"] = "protected:";
@@ -238,7 +238,7 @@ std::string ToolsQtInterface::toolsSrcCodeInternal() const
     };
 
 
-    auto hexWidth = getHexMsgIdWidthInternal(*this);
+    auto hexWidth = toolsGetHexMsgIdWidthInternal(*this);
     if (0U < hexWidth) {
         auto func =
             "QString " + comms::genClassName(toolsNameInternal()) + "::idAsStringImpl() const\n"

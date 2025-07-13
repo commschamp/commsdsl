@@ -26,23 +26,26 @@ namespace commsdsl2tools_qt
 class ToolsQtGenerator;
 class ToolsQtMessage final : public commsdsl::gen::GenMessage
 {
-    using Base = commsdsl::gen::GenMessage;
-public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
-    using IncludesList = StringsList;
+    using GenBase = commsdsl::gen::GenMessage;
 
-    explicit ToolsQtMessage(ToolsQtGenerator& generator, commsdsl::parse::ParseMessage dslObj, commsdsl::gen::GenElem* parent);
+public:
+    using ParseMessage = commsdsl::parse::ParseMessage;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+    using ToolsIncludesList = GenStringsList;
+
+    explicit ToolsQtMessage(ToolsQtGenerator& generator, ParseMessage parseObj, GenElem* parent);
 
     std::string toolsHeaderPath(const commsdsl::gen::GenInterface& iFace) const;
-    StringsList toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const;
+    GenStringsList toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const;
     std::string toolsClassScope(const commsdsl::gen::GenInterface& iFace) const;
 
-    static ToolsQtMessage& cast(commsdsl::gen::GenMessage& msg)
+    static ToolsQtMessage& toolsCast(commsdsl::gen::GenMessage& msg)
     {
         return static_cast<ToolsQtMessage&>(msg);
     }
 
-    static const ToolsQtMessage& cast(const commsdsl::gen::GenMessage& msg)
+    static const ToolsQtMessage& toolsCast(const commsdsl::gen::GenMessage& msg)
     {
         return static_cast<const ToolsQtMessage&>(msg);
     }    
@@ -55,9 +58,9 @@ private:
     bool toolsWriteHeaderInternal() const;
     bool toolsWriteSrcInternal() const;
     std::string toolsRelPathInternal(const commsdsl::gen::GenInterface& iFace) const;
-    IncludesList toolsHeaderIncludesInternal() const;
+    ToolsIncludesList toolsHeaderIncludesInternal() const;
     std::string toolsHeaderCodeInternal() const;
-    IncludesList toolsSrcIncludesInternal(const commsdsl::gen::GenInterface& iFace) const;
+    ToolsIncludesList toolsSrcIncludesInternal(const commsdsl::gen::GenInterface& iFace) const;
     std::string toolsSrcCodeInternal(const commsdsl::gen::GenInterface& iFace) const;
 
     bool m_exists = true;

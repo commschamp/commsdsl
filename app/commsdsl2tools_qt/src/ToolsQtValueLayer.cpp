@@ -17,28 +17,18 @@
 
 #include "ToolsQtGenerator.h"
 
-#include "commsdsl/gen/comms.h"
-#include "commsdsl/gen/strings.h"
-#include "commsdsl/gen/util.h"
-
-#include <cassert>
-
-namespace comms = commsdsl::gen::comms;
-namespace strings = commsdsl::gen::strings;
-namespace util = commsdsl::gen::util;
-
 namespace commsdsl2tools_qt
 {
 
-ToolsQtValueLayer::ToolsQtValueLayer(ToolsQtGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent),
-    ToolsBase(static_cast<Base&>(*this))
+ToolsQtValueLayer::ToolsQtValueLayer(ToolsQtGenerator& generator, ParseLayer parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    ToolsBase(static_cast<GenBase&>(*this))
 {
 }
 
 bool ToolsQtValueLayer::genPrepareImpl() 
 {
-    return Base::genPrepareImpl() && ToolsBase::toolsPrepare();
+    return GenBase::genPrepareImpl() && ToolsBase::toolsPrepare();
 }
 
 } // namespace commsdsl2tools_qt
