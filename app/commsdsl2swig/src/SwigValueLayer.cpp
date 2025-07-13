@@ -32,9 +32,9 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigValueLayer::SwigValueLayer(SwigGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigValueLayer::SwigValueLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
@@ -66,7 +66,7 @@ std::string SwigValueLayer::swigCodeFuncsImpl() const
 
 bool SwigValueLayer::swigIsMainInterfaceSupportedImpl() const
 {
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     auto* iFace = gen.swigMainInterface();
     assert(iFace != nullptr);
     return genIsInterfaceSupported(iFace);

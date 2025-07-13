@@ -27,14 +27,14 @@ public:
     static bool swigWrite(SwigGenerator& generator);
 
 private:
-    explicit SwigCmake(SwigGenerator& generator) : m_generator(generator) {}
+    explicit SwigCmake(SwigGenerator& generator) : m_swigGenerator(generator) {}
 
     bool swigWriteInternal() const;
     std::string swigPrependInternal() const;
     std::string swigPrependLangInternal() const;
     std::string swigAppendInternal() const;
 
-    SwigGenerator& m_generator;
+    SwigGenerator& m_swigGenerator;
 };
 
 } // namespace commsdsl2swig

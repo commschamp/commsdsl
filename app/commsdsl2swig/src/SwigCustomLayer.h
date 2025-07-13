@@ -26,10 +26,13 @@ namespace commsdsl2swig
 class SwigGenerator;
 class SwigCustomLayer final : public commsdsl::gen::GenCustomLayer, public SwigLayer
 {
-    using Base = commsdsl::gen::GenCustomLayer;
+    using GenBase = commsdsl::gen::GenCustomLayer;
     using SwigBase = SwigLayer;
 public:
-    SwigCustomLayer(SwigGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    SwigCustomLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent);
 };
 
 } // namespace commsdsl2swig

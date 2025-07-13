@@ -26,10 +26,14 @@ namespace commsdsl2swig
 class SwigGenerator;
 class SwigBitfieldField final : public commsdsl::gen::GenBitfieldField, public SwigField
 {
-    using Base = commsdsl::gen::GenBitfieldField;
+    using GenBase = commsdsl::gen::GenBitfieldField;
     using SwigBase = SwigField;
+
 public:
-    SwigBitfieldField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    SwigBitfieldField(SwigGenerator& generator, ParseField parseObj, GenElem* parent);
 
     const SwigFieldsList& swigMembers() const
     {
@@ -37,7 +41,7 @@ public:
     }
 
 protected:
-    // Base overrides
+    // GenBase overrides
     virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;    
 
@@ -46,8 +50,8 @@ protected:
     virtual std::string swigValueAccDeclImpl() const override;
     virtual std::string swigExtraPublicFuncsDeclImpl() const override;
     virtual std::string swigExtraPublicFuncsCodeImpl() const override;
-    virtual void swigAddDefImpl(StringsList& list) const override;
-    virtual void swigAddMembersCodeImpl(StringsList& list) const override;
+    virtual void swigAddDefImpl(GenStringsList& list) const override;
+    virtual void swigAddMembersCodeImpl(GenStringsList& list) const override;
 
 private:
     bool swigPrepareInternal();

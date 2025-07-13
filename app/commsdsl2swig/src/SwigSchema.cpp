@@ -32,8 +32,8 @@ namespace commsdsl2swig
 {
 
 
-SwigSchema::SwigSchema(SwigGenerator& generator, commsdsl::parse::ParseSchema dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent)
+SwigSchema::SwigSchema(SwigGenerator& generator, ParseSchema parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent)
 {
 }   
 
@@ -49,24 +49,24 @@ bool SwigSchema::swigHasReferencedMsgId() const
     return genHasReferencedMessageIdField();
 }
 
-void SwigSchema::swigAddCodeIncludes(StringsList& list) const
+void SwigSchema::swigAddCodeIncludes(GenStringsList& list) const
 {
     for (auto& ns : genNamespaces()) {
-        SwigNamespace::cast(ns.get())->swigAddCodeIncludes(list);
+        SwigNamespace::swigCast(ns.get())->swigAddCodeIncludes(list);
     }
 }
 
-void SwigSchema::swigAddCode(StringsList& list) const
+void SwigSchema::swigAddCode(GenStringsList& list) const
 {
     for (auto& ns : genNamespaces()) {
-        SwigNamespace::cast(ns.get())->swigAddCode(list);
+        SwigNamespace::swigCast(ns.get())->swigAddCode(list);
     }
 }
 
-void SwigSchema::swigAddDef(StringsList& list) const
+void SwigSchema::swigAddDef(GenStringsList& list) const
 {
     for (auto& ns : genNamespaces()) {
-        SwigNamespace::cast(ns.get())->swigAddDef(list);
+        SwigNamespace::swigCast(ns.get())->swigAddDef(list);
     }
 }
 

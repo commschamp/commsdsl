@@ -38,14 +38,14 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigFrame::SwigFrame(SwigGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent)
+SwigFrame::SwigFrame(SwigGenerator& generator, ParseFrame parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent)
 {
 }   
 
 SwigFrame::~SwigFrame() = default;
 
-void SwigFrame::swigAddCodeIncludes(StringsList& list) const
+void SwigFrame::swigAddCodeIncludes(GenStringsList& list) const
 {
     if (!m_validFrame) {
         return;
@@ -54,7 +54,7 @@ void SwigFrame::swigAddCodeIncludes(StringsList& list) const
     list.push_back(comms::genRelHeaderPathFor(*this, genGenerator()));
 }
 
-void SwigFrame::swigAddCode(StringsList& list) const
+void SwigFrame::swigAddCode(GenStringsList& list) const
 {
     if (!m_validFrame) {
         return;
@@ -68,7 +68,7 @@ void SwigFrame::swigAddCode(StringsList& list) const
     list.push_back(swigFrameCodeInternal());
 }
 
-void SwigFrame::swigAddDef(StringsList& list) const
+void SwigFrame::swigAddDef(GenStringsList& list) const
 {
     if (!m_validFrame) {
         return;
@@ -83,7 +83,7 @@ void SwigFrame::swigAddDef(StringsList& list) const
 
 bool SwigFrame::genPrepareImpl()
 {
-    if (!Base::genPrepareImpl()) {
+    if (!GenBase::genPrepareImpl()) {
         return false;
     }
 
@@ -94,7 +94,7 @@ bool SwigFrame::genPrepareImpl()
     }
 
     for (auto* l : reorderedLayers) {
-        auto* swigLayer = SwigLayer::cast(l);
+        auto* swigLayer = SwigLayer::swigCast(l);
         assert(swigLayer != nullptr);
         m_swigLayers.push_back(const_cast<SwigLayer*>(swigLayer));
     }
@@ -145,7 +145,7 @@ bool SwigFrame::genWriteImpl() const
     ;
 
     util::GenReplacementMap repl = {
-        {"GENERATED", SwigGenerator::fileGeneratedComment()},
+        {"GENERATED", SwigGenerator::swigFileGeneratedComment()},
         {"LAYERS", swigLayerDeclsInternal()},
         {"ALL_FIELDS", swigAllFieldsInternal()},
         {"DEF", swigClassDeclInternal()},
@@ -183,7 +183,7 @@ std::string SwigFrame::swigClassDeclInternal() const
         "    #^#CUSTOM#$#\n"
         "};\n";    
 
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     auto* iFace = gen.swigMainInterface();
     assert(iFace != nullptr);
     util::GenReplacementMap repl = {
@@ -202,7 +202,7 @@ std::string SwigFrame::swigClassDeclInternal() const
 
 std::string SwigFrame::swigLayersAccDeclInternal() const
 {
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     util::GenStringsList elems;
     for (auto& l : genLayers()) {
         static const std::string Templ = 
@@ -220,7 +220,7 @@ std::string SwigFrame::swigLayersAccDeclInternal() const
 
 std::string SwigFrame::swigLayersAccCodeInternal() const
 {
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     util::GenStringsList elems;
     for (auto& l : genLayers()) {
         static const std::string Templ = 
@@ -322,7 +322,7 @@ std::string SwigFrame::swigFrameCodeInternal() const
         frameFieldsAcc.push_back("std::move(std::get<" + std::to_string(idx) + ">(frameFields).value())");
     }    
 
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     auto* iFace = gen.swigMainInterface();
     assert(iFace != nullptr);
     util::GenReplacementMap repl = {
@@ -356,12 +356,12 @@ std::string SwigFrame::swigAllFieldsInternal() const
         "   #^#FIELDS#$#\n"
         "};\n";
 
-    StringsList fields;
+    GenStringsList fields;
     for (auto* l : m_swigLayers) {
         l->swigAddToAllFieldsDecl(fields);
     }
 
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"FIELDS", util::genStrListToString(fields, "", "")}

@@ -30,9 +30,9 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigFloatField::SwigFloatField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigFloatField::SwigFloatField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
@@ -76,7 +76,7 @@ std::string SwigFloatField::swigSpecialsDeclInternal() const
     }
 
     util::GenStringsList specialsList;
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     for (auto& s : specials) {
         if (!gen.genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;

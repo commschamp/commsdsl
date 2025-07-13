@@ -37,25 +37,25 @@ namespace commsdsl2swig
 {
 
 SwigMsgId::SwigMsgId(SwigGenerator& generator, const SwigNamespace& parent) :
-    m_generator(generator),
+    m_swigGenerator(generator),
     m_parent(parent)
 {
 }
 
 bool SwigMsgId::swigWrite() const
 {
-    auto filePath = comms::genHeaderPathForMsgId(strings::genMsgIdEnumNameStr(), m_generator, m_parent);
-    m_generator.genLogger().genInfo("Generating " + filePath);
+    auto filePath = comms::genHeaderPathForMsgId(strings::genMsgIdEnumNameStr(), m_swigGenerator, m_parent);
+    m_swigGenerator.genLogger().genInfo("Generating " + filePath);
 
     auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.genCreateDirectory(dirPath)) {
+    if (!m_swigGenerator.genCreateDirectory(dirPath)) {
         return false;
     }
 
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
+        m_swigGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -69,7 +69,7 @@ bool SwigMsgId::swigWrite() const
     ;
 
     util::GenReplacementMap repl = {
-        {"GENERATED", SwigGenerator::fileGeneratedComment()},
+        {"GENERATED", SwigGenerator::swigFileGeneratedComment()},
         {"CLASS_NAME", swigClassName()},
         {"TYPE", swigTypeInternal()},
         {"IDS", swigIdsInternal()}
@@ -78,24 +78,24 @@ bool SwigMsgId::swigWrite() const
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     if (!stream.good()) {
-        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
+        m_swigGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     
     return true; 
 }
 
-void SwigMsgId::swigAddDef(StringsList& list) const
+void SwigMsgId::swigAddDef(GenStringsList& list) const
 {
-    list.push_back(SwigGenerator::swigDefInclude(comms::genRelHeaderForMsgId(strings::genMsgIdEnumNameStr(), m_generator, m_parent)));
+    list.push_back(SwigGenerator::swigDefInclude(comms::genRelHeaderForMsgId(strings::genMsgIdEnumNameStr(), m_swigGenerator, m_parent)));
 }
 
-void SwigMsgId::swigAddCode(StringsList& list) const
+void SwigMsgId::swigAddCode(GenStringsList& list) const
 {
     const std::string Templ = 
         "using #^#SWIG_TYPE#$# = #^#COMMS_TYPE#$#;\n";
 
-    auto commsType = comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), m_generator, m_parent);
+    auto commsType = comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), m_swigGenerator, m_parent);
     util::GenReplacementMap repl = {
         {"SWIG_TYPE", swigClassName()},
         {"COMMS_TYPE", commsType}
@@ -108,26 +108,26 @@ void SwigMsgId::swigAddCode(StringsList& list) const
 
 std::string SwigMsgId::swigClassName() const
 {
-    return m_generator.swigScopeNameForMsgId(strings::genMsgIdEnumNameStr(), m_parent);
+    return m_swigGenerator.swigScopeNameForMsgId(strings::genMsgIdEnumNameStr(), m_parent);
 }
 
-void SwigMsgId::swigAddCodeIncludes(StringsList& list) const
+void SwigMsgId::swigAddCodeIncludes(GenStringsList& list) const
 {
-    list.push_back(comms::genRelHeaderForNamespaceMember(strings::genMsgIdEnumNameStr(), m_generator, m_parent));
+    list.push_back(comms::genRelHeaderForNamespaceMember(strings::genMsgIdEnumNameStr(), m_swigGenerator, m_parent));
 }
 
 std::string SwigMsgId::swigTypeInternal() const
 {
-    auto allMsgIds = m_generator.genCurrentSchema().genGetAllMessageIdFields();
+    auto allMsgIds = m_swigGenerator.genCurrentSchema().genGetAllMessageIdFields();
     if (allMsgIds.size() == 1U) {
         auto* msgIdField = allMsgIds.front();
         assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Enum);
         auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
-        auto dslObj = castedMsgIdField->genEnumFieldParseObj();
-        return comms::genCppIntTypeFor(dslObj.parseType(), dslObj.parseMaxLength());
+        auto parseObj = castedMsgIdField->genEnumFieldParseObj();
+        return comms::genCppIntTypeFor(parseObj.parseType(), parseObj.parseMaxLength());
     }
 
-    auto allMessages = m_generator.genCurrentSchema().genGetAllMessages();
+    auto allMessages = m_swigGenerator.genCurrentSchema().genGetAllMessages();
     auto iter = 
         std::max_element(
             allMessages.begin(), allMessages.end(),
@@ -159,7 +159,7 @@ std::string SwigMsgId::swigIdsInternal() const
     auto prefix = swigClassName() + '_';
     auto allMsgIds = m_parent.genFindMessageIdFields();
     if (allMsgIds.empty() && m_parent.genName().empty()) {
-        allMsgIds = m_generator.genCurrentSchema().genGetAllMessageIdFields();
+        allMsgIds = m_swigGenerator.genCurrentSchema().genGetAllMessageIdFields();
     }
 
     if (allMsgIds.size() == 1U) {
@@ -182,7 +182,7 @@ std::string SwigMsgId::swigIdsInternal() const
 
     auto allMessages = m_parent.genGetAllMessagesIdSorted();
     if (allMessages.empty() && m_parent.genName().empty()) {
-        allMessages = m_generator.genCurrentSchema().genGetAllMessagesIdSorted();
+        allMessages = m_swigGenerator.genCurrentSchema().genGetAllMessagesIdSorted();
     }
 
     util::GenStringsList ids;
@@ -202,11 +202,11 @@ std::string SwigMsgId::swigCodeInternal() const
     static const std::string Templ = 
         "const auto #^#CLASS_NAME#$#_#^#NAME#$# = #^#SCOPE#$#_#^#NAME#$#;\n";
 
-    auto scope = comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), m_generator, m_parent);
+    auto scope = comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), m_swigGenerator, m_parent);
 
     auto allMsgIds = m_parent.genFindMessageIdFields();
     if (allMsgIds.empty() && m_parent.genName().empty()) {
-        allMsgIds = m_generator.genCurrentSchema().genGetAllMessageIdFields();
+        allMsgIds = m_swigGenerator.genCurrentSchema().genGetAllMessageIdFields();
     }
 
     if (allMsgIds.size() == 1U) {
@@ -242,7 +242,7 @@ std::string SwigMsgId::swigCodeInternal() const
 
     auto allMessages = m_parent.genGetAllMessagesIdSorted();
     if (allMessages.empty() && m_parent.genName().empty()) {
-        allMessages = m_generator.genCurrentSchema().genGetAllMessagesIdSorted();
+        allMessages = m_swigGenerator.genCurrentSchema().genGetAllMessagesIdSorted();
     }
 
     util::GenStringsList result;

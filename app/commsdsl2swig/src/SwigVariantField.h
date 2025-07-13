@@ -26,10 +26,14 @@ namespace commsdsl2swig
 class SwigGenerator;
 class SwigVariantField final : public commsdsl::gen::GenVariantField, public SwigField
 {
-    using Base = commsdsl::gen::GenVariantField;
+    using GenBase = commsdsl::gen::GenVariantField;
     using SwigBase = SwigField;
+
 public:
-    SwigVariantField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    SwigVariantField(SwigGenerator& generator, ParseField parseObj, GenElem* parent);
 
     const SwigFieldsList& swigMembers() const
     {
@@ -37,7 +41,7 @@ public:
     }
 
 protected:
-    // Base overrides
+    // GenBase overrides
     virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;    
 
@@ -47,13 +51,13 @@ protected:
     virtual std::string swigExtraPublicFuncsDeclImpl() const override;
     virtual std::string swigExtraPublicFuncsCodeImpl() const override;
     
-    virtual void swigAddDefImpl(StringsList& list) const override;
-    virtual void swigAddMembersCodeImpl(StringsList& list) const override;
+    virtual void swigAddDefImpl(GenStringsList& list) const override;
+    virtual void swigAddMembersCodeImpl(GenStringsList& list) const override;
 
 private:
     bool swigPrepareInternal();
     std::string swigHandlerDeclInternal() const;
-    void swigAddHandlerCodeInternal(StringsList& list) const;
+    void swigAddHandlerCodeInternal(GenStringsList& list) const;
     
     SwigFieldsList m_swigMembers;
 };

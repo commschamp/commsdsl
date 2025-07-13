@@ -31,15 +31,15 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigListField::SwigListField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigListField::SwigListField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
 bool SwigListField::genPrepareImpl() 
 {
-    if (!Base::genPrepareImpl()) {
+    if (!GenBase::genPrepareImpl()) {
         return false;
     }
 
@@ -49,7 +49,7 @@ bool SwigListField::genPrepareImpl()
     }
 
     assert(elem != nullptr);
-    SwigField::cast(elem)->swigSetListElement();    
+    SwigField::swigCast(elem)->swigSetListElement();    
 
     return true;
 }
@@ -61,7 +61,7 @@ bool SwigListField::genWriteImpl() const
 
 std::string SwigListField::swigMembersDeclImpl() const
 {
-    auto* elem = SwigField::cast(genMemberElementField());
+    auto* elem = SwigField::swigCast(genMemberElementField());
     if (elem == nullptr) {
         return strings::genEmptyString();
     }
@@ -82,7 +82,7 @@ std::string SwigListField::swigValueTypeDeclImpl() const
     assert(elem != nullptr);
 
     util::GenReplacementMap repl = {
-        {"ELEM", SwigGenerator::cast(genGenerator()).swigClassName(*elem)}
+        {"ELEM", SwigGenerator::swigCast(genGenerator()).swigClassName(*elem)}
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -108,7 +108,7 @@ std::string SwigListField::swigExtraPublicFuncsCodeImpl() const
         "    return reinterpret_cast<const ValueType&>(Base::getValue());\n"
         "}\n";
 
-    if (!field().genParseObj().parseIsFixedValue()) {
+    if (!swigGenField().genParseObj().parseIsFixedValue()) {
         templ += 
             "\n"
             "void setValue(const ValueType& val)\n"
@@ -125,23 +125,23 @@ std::string SwigListField::swigExtraPublicFuncsCodeImpl() const
     assert(elem != nullptr);
 
     util::GenReplacementMap repl = {
-        {"ELEM", SwigGenerator::cast(genGenerator()).swigClassName(*elem)}
+        {"ELEM", SwigGenerator::swigCast(genGenerator()).swigClassName(*elem)}
     };
 
     return util::genProcessTemplate(templ, repl);        
 }
 
-void SwigListField::swigAddDefImpl(StringsList& list) const
+void SwigListField::swigAddDefImpl(GenStringsList& list) const
 {
     auto* elem = genMemberElementField();
     if (elem == nullptr) {
         elem = genExternalElementField();
     }   
 
-    SwigField::cast(elem)->swigAddDef(list);
+    SwigField::swigCast(elem)->swigAddDef(list);
 }
 
-void SwigListField::swigAddMembersCodeImpl(StringsList& list) const
+void SwigListField::swigAddMembersCodeImpl(GenStringsList& list) const
 {
     auto* elem = genMemberElementField();
     if (elem == nullptr) {
@@ -150,7 +150,7 @@ void SwigListField::swigAddMembersCodeImpl(StringsList& list) const
 
     assert(elem != nullptr);
 
-    SwigField::cast(elem)->swigAddCode(list);
+    SwigField::swigCast(elem)->swigAddCode(list);
 }
 
 

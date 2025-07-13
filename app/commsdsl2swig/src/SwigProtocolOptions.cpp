@@ -76,7 +76,7 @@ std::string swigCodeInternal(const SwigGenerator& generator, std::size_t idx)
 
 } // namespace 
 
-void SwigProtocolOptions::swigAddCodeIncludes(SwigGenerator& generator, StringsList& list)
+void SwigProtocolOptions::swigAddCodeIncludes(SwigGenerator& generator, GenStringsList& list)
 {
     if (!swigIsDefined(generator)) {
         return;
@@ -98,7 +98,7 @@ void SwigProtocolOptions::swigAddCodeIncludes(SwigGenerator& generator, StringsL
 }
     
 
-void SwigProtocolOptions::swigAddCode(const SwigGenerator& generator, StringsList& list)
+void SwigProtocolOptions::swigAddCode(const SwigGenerator& generator, GenStringsList& list)
 {
     if (!swigIsDefined(generator)) {
         return;

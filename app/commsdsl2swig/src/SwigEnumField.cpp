@@ -33,15 +33,15 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigEnumField::SwigEnumField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigEnumField::SwigEnumField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
-SwigEnumField::StringsList SwigEnumField::swigEnumValues() const
+SwigEnumField::GenStringsList SwigEnumField::swigEnumValues() const
 {
-    StringsList result;
+    GenStringsList result;
     
     auto obj = genEnumFieldParseObj();
     auto& revValues = genSortedRevValues();
@@ -108,7 +108,7 @@ bool SwigEnumField::genWriteImpl() const
 
 std::string SwigEnumField::swigValueTypeDeclImpl() const
 {
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
 
 
     static const std::string Templ =
@@ -133,7 +133,7 @@ std::string SwigEnumField::swigExtraPublicFuncsDeclImpl() const
         "const char* valueName() const;\n"
     ;
 
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     auto type = gen.swigConvertIntType(genEnumFieldParseObj().parseType(), genEnumFieldParseObj().parseMaxLength());
     util::GenReplacementMap repl = {
         {"TYPE", type}
@@ -152,7 +152,7 @@ std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
         "}\n"
     ;
 
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     auto type = gen.swigConvertIntType(genEnumFieldParseObj().parseType(), genEnumFieldParseObj().parseMaxLength());
     util::GenReplacementMap repl = {
         {"TYPE", type}
@@ -167,7 +167,7 @@ std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
             "    return *(reinterpret_cast<const ValueType*>(&Base::getValue()));\n"
             "}\n";
 
-        if (!field().genParseObj().parseIsFixedValue()) {
+        if (!swigGenField().genParseObj().parseIsFixedValue()) {
             valTempl += 
                 "\n"
                 "void setValue(const ValueType& val)\n"

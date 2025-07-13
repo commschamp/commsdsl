@@ -29,25 +29,25 @@ class SwigProgramOptions : public commsdsl::gen::GenProgramOptions
 public:
     SwigProgramOptions();
 
-    bool quietRequested() const;
-    bool versionRequested() const;
-    bool warnAsErrRequested() const;
+    bool swigQuietRequested() const;
+    bool swigVersionRequested() const;
+    bool swigWarnAsErrRequested() const;
 
-    const std::string& getFilesListFile() const;
-    const std::string& getFilesListPrefix() const;
-    const GenArgsList& getFiles() const;
-    const std::string& getOutputDirectory() const;
-    const std::string& getCodeInputDirectory() const;
-    bool hasNamespaceOverride() const;
-    const std::string& getNamespace() const;
-    bool multipleSchemasEnabled() const;
-    unsigned genGetMinRemoteVersion() const;
-    bool isMainNamespaceInNamesForced() const;
-    bool hasForcedInterface() const;
-    const std::string& getForcedInterface() const;
-    bool hasProtocolVersion() const;
-    const std::string& messagesListFile() const;
-    const std::string& forcedPlatform() const;
+    const std::string& swigGetFilesListFile() const;
+    const std::string& swigGetFilesListPrefix() const;
+    const GenArgsList& swigGetFiles() const;
+    const std::string& swigGetOutputDirectory() const;
+    const std::string& swigGetCodeInputDirectory() const;
+    bool swigHasNamespaceOverride() const;
+    const std::string& swigGetNamespace() const;
+    bool swigMultipleSchemasEnabled() const;
+    unsigned swigGetMinRemoteVersion() const;
+    bool swigIsMainNamespaceInNamesForced() const;
+    bool swigHasForcedInterface() const;
+    const std::string& swigGetForcedInterface() const;
+    bool swigHasProtocolVersion() const;
+    const std::string& swigMessagesListFile() const;
+    const std::string& swigForcedPlatform() const;
 };
 
 } // namespace commsdsl2swig

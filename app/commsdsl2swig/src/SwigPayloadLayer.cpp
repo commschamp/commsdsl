@@ -17,22 +17,16 @@
 
 #include "SwigGenerator.h"
 
-#include "commsdsl/gen/comms.h"
-#include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
-#include <cassert>
-
-namespace comms = commsdsl::gen::comms;
 namespace util = commsdsl::gen::util;
-namespace strings = commsdsl::gen::strings;
 
 namespace commsdsl2swig
 {
 
-SwigPayloadLayer::SwigPayloadLayer(SwigGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigPayloadLayer::SwigPayloadLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
@@ -47,7 +41,7 @@ std::string SwigPayloadLayer::swigMemberFieldDeclImpl() const
         "    void setValue(const ValueType& val);\n"
         "};\n";
 
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     util::GenReplacementMap repl = {
         {"FIELD_TYPE", swigFieldTypeImpl()},
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")}
@@ -56,7 +50,7 @@ std::string SwigPayloadLayer::swigMemberFieldDeclImpl() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-void SwigPayloadLayer::swigAddCodeImpl(StringsList& list) const
+void SwigPayloadLayer::swigAddCodeImpl(GenStringsList& list) const
 {
     static const std::string Templ = 
         "class #^#FIELD_TYPE#$# : public #^#COMMS_SCOPE#$#::Field {};\n";
@@ -71,7 +65,7 @@ void SwigPayloadLayer::swigAddCodeImpl(StringsList& list) const
 
 std::string SwigPayloadLayer::swigFieldTypeImpl() const
 {
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     return gen.swigClassName(*this) + "Field";
 }
 

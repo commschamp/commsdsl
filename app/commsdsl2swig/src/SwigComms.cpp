@@ -50,12 +50,12 @@ const std::string& SwigComms::swigRelHeader()
     return Str;
 }
 
-void SwigComms::swigAddDef(StringsList& list)
+void SwigComms::swigAddDef(GenStringsList& list)
 {
     list.push_back(SwigGenerator::swigDefInclude("comms.h"));
 }
 
-void SwigComms::swigAddCode(const SwigGenerator& generator, StringsList& list)
+void SwigComms::swigAddCode(const SwigGenerator& generator, GenStringsList& list)
 {
     const std::string Templ = 
         "using #^#ERR_STATUS#$# = comms::ErrorStatus;\n"
@@ -81,19 +81,19 @@ std::string SwigComms::swigOptionalModeClassName(const SwigGenerator& generator)
 
 bool SwigComms::swigWriteInternal() const
 {
-    auto& schema = m_generator.genProtocolSchema();        
+    auto& schema = m_swigGenerator.genProtocolSchema();        
     auto swigName = schema.genMainNamespace() + ".i";
-    auto filePath = util::genPathAddElem(m_generator.genGetOutputDir(), swigRelHeader());
+    auto filePath = util::genPathAddElem(m_swigGenerator.genGetOutputDir(), swigRelHeader());
     auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.genCreateDirectory(dirPath)) {
+    if (!m_swigGenerator.genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    m_generator.genLogger().genInfo("Generating " + filePath);
+    m_swigGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
+        m_swigGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }     
 
@@ -123,16 +123,16 @@ bool SwigComms::swigWriteInternal() const
         ;      
 
     util::GenReplacementMap repl = {
-        {"GENERATED", SwigGenerator::fileGeneratedComment()},
-        {"ERR_STATUS", swigErrorStatusClassName(m_generator)},
-        {"OPT_MODE", swigOptionalModeClassName(m_generator)}
+        {"GENERATED", SwigGenerator::swigFileGeneratedComment()},
+        {"ERR_STATUS", swigErrorStatusClassName(m_swigGenerator)},
+        {"OPT_MODE", swigOptionalModeClassName(m_swigGenerator)}
     };
 
     auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
-        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
+        m_swigGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
 

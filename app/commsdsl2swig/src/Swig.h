@@ -27,7 +27,7 @@ public:
     static bool swigWrite(SwigGenerator& generator);
 
 private:
-    explicit Swig(SwigGenerator& generator) : m_generator(generator) {}
+    explicit Swig(SwigGenerator& generator) : m_swigGenerator(generator) {}
 
     bool swigWriteInternal();
     std::string swigCodeBlockInternal();
@@ -37,7 +37,7 @@ private:
     std::string swigAppendInternal() const;
     std::string swigFileNameInternal() const;
 
-    SwigGenerator& m_generator;
+    SwigGenerator& m_swigGenerator;
 };
 
 } // namespace commsdsl2swig

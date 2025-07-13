@@ -26,19 +26,19 @@ class SwigGenerator;
 class SwigDataBuf
 {
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     static bool swigWrite(SwigGenerator& generator);
-    static void swigAddDef(const SwigGenerator& generator, StringsList& list);
-    static void swigAddCode(const SwigGenerator& generator, StringsList& list);
+    static void swigAddDef(const SwigGenerator& generator, GenStringsList& list);
+    static void swigAddCode(const SwigGenerator& generator, GenStringsList& list);
     static std::string swigClassName(const SwigGenerator& generator);
 
 private:
-    explicit SwigDataBuf(SwigGenerator& generator) : m_generator(generator) {}
+    explicit SwigDataBuf(SwigGenerator& generator) : m_swigGenerator(generator) {}
 
     bool swigWriteInternal() const;
     
-    SwigGenerator& m_generator;
+    SwigGenerator& m_swigGenerator;
 };
 
 } // namespace commsdsl2swig

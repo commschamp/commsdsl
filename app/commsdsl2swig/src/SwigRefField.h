@@ -26,21 +26,25 @@ namespace commsdsl2swig
 class SwigGenerator;
 class SwigRefField final : public commsdsl::gen::GenRefField, public SwigField
 {
-    using Base = commsdsl::gen::GenRefField;
+    using GenBase = commsdsl::gen::GenRefField;
     using SwigBase = SwigField;
+
 public:
-    SwigRefField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    SwigRefField(SwigGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    // Base overrides
+    // GenBase overrides
     virtual bool genWriteImpl() const override;    
 
     // SwigBase overrides
     virtual std::string swigValueAccDeclImpl() const override;
     virtual std::string swigExtraPublicFuncsCodeImpl() const override;
     virtual std::string swigPublicDeclImpl() const override;
-    virtual void swigAddDefImpl(StringsList& list) const override;
-    virtual void swigAddMembersCodeImpl(StringsList& list) const override;
+    virtual void swigAddDefImpl(GenStringsList& list) const override;
+    virtual void swigAddMembersCodeImpl(GenStringsList& list) const override;
 
 private:
 };

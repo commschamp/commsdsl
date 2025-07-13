@@ -26,19 +26,22 @@ namespace commsdsl2swig
 class SwigGenerator;
 class SwigSetField final : public commsdsl::gen::GenSetField, public SwigField
 {
-    using Base = commsdsl::gen::GenSetField;
+    using GenBase = commsdsl::gen::GenSetField;
     using SwigBase = SwigField;
+
 public:
-    SwigSetField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    SwigSetField(SwigGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    // Base overrides
+    // GenBase overrides
     virtual bool genWriteImpl() const override;    
 
     // SwigBase overrides
     virtual std::string swigValueTypeDeclImpl() const override;
     virtual std::string swigExtraPublicFuncsDeclImpl() const override;
-private:
 };
 
 } // namespace commsdsl2swig

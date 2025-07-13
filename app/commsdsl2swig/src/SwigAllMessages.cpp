@@ -31,7 +31,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-void SwigAllMessages::swigAddCode(const SwigGenerator& generator, StringsList& list)
+void SwigAllMessages::swigAddCode(const SwigGenerator& generator, GenStringsList& list)
 {
     auto allMessages = generator.genGetAllMessagesIdSorted();
     util::GenStringsList msgList;

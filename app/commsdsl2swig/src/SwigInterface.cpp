@@ -37,14 +37,14 @@ namespace commsdsl2swig
 {
 
 
-SwigInterface::SwigInterface(SwigGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent)
+SwigInterface::SwigInterface(SwigGenerator& generator, ParseInterface parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent)
 {
 }   
 
 SwigInterface::~SwigInterface() = default;
 
-void SwigInterface::swigAddCodeIncludes(StringsList& list) const
+void SwigInterface::swigAddCodeIncludes(GenStringsList& list) const
 {
     if (!genIsReferenced()) {
         return;
@@ -53,7 +53,7 @@ void SwigInterface::swigAddCodeIncludes(StringsList& list) const
     list.push_back(comms::genRelHeaderPathFor(*this, genGenerator()));
 }
 
-void SwigInterface::swigAddCode(StringsList& list) const
+void SwigInterface::swigAddCode(GenStringsList& list) const
 {
     if (!genIsReferenced()) {
         return;
@@ -63,7 +63,7 @@ void SwigInterface::swigAddCode(StringsList& list) const
         f->swigAddCode(list);
     }    
 
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
 
     util::GenReplacementMap repl = {
         {"COMMS_CLASS", comms::genScopeFor(*this, gen)},
@@ -144,7 +144,7 @@ void SwigInterface::swigAddCode(StringsList& list) const
     list.push_back(util::genProcessTemplate(Templ, repl));
 }
 
-void SwigInterface::swigAddDef(StringsList& list) const
+void SwigInterface::swigAddDef(GenStringsList& list) const
 {
     if (!genIsReferenced()) {
         return;
@@ -154,14 +154,14 @@ void SwigInterface::swigAddDef(StringsList& list) const
         f->swigAddDef(list);
     }
 
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     list.push_back("%nodefaultctor " + gen.swigClassName(*this) + ";");
     list.push_back(SwigGenerator::swigDefInclude(comms::genRelHeaderPathFor(*this, genGenerator())));
 }
 
 bool SwigInterface::genPrepareImpl()
 {
-    if (!Base::genPrepareImpl()) {
+    if (!GenBase::genPrepareImpl()) {
         return false;
     }
 
@@ -199,7 +199,7 @@ bool SwigInterface::genWriteImpl() const
     ;
 
     util::GenReplacementMap repl = {
-        {"GENERATED", SwigGenerator::fileGeneratedComment()},
+        {"GENERATED", SwigGenerator::swigFileGeneratedComment()},
         {"FIELDS", swigFieldDeclsInternal()},
         {"DEF", swigClassDeclInternal()},
     };
@@ -211,7 +211,7 @@ bool SwigInterface::genWriteImpl() const
 
 std::string SwigInterface::swigFieldDeclsInternal() const
 {
-    StringsList fields;
+    GenStringsList fields;
     fields.reserve(m_swigFields.size());
 
     for (auto* f : m_swigFields) {
@@ -247,9 +247,9 @@ std::string SwigInterface::swigClassDeclInternal() const
     auto* parent = genGetParent();
     assert(parent != nullptr);
     assert(parent->genElemType() == commsdsl::gen::GenElem::Type_Namespace);
-    auto* parentNs = SwigNamespace::cast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
+    auto* parentNs = SwigNamespace::swigCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
 
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"FIELDS", swigFieldsAccDeclInternal()},
@@ -266,18 +266,18 @@ std::string SwigInterface::swigClassDeclInternal() const
 
 std::string SwigInterface::swigFieldsAccDeclInternal() const
 {
-    StringsList accFuncs;
+    GenStringsList accFuncs;
     accFuncs.reserve(m_swigFields.size());
 
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     for (auto* f : m_swigFields) {
         static const std::string Templ = {
             "#^#CLASS_NAME#$#& transportField_#^#ACC_NAME#$#();\n"
         };
 
         util::GenReplacementMap repl = {
-            {"CLASS_NAME", gen.swigClassName(f->field())},
-            {"ACC_NAME", comms::genAccessName(f->field().genParseObj().parseName())}
+            {"CLASS_NAME", gen.swigClassName(f->swigGenField())},
+            {"ACC_NAME", comms::genAccessName(f->swigGenField().genParseObj().parseName())}
         };
 
         accFuncs.push_back(util::genProcessTemplate(Templ, repl));
@@ -288,10 +288,10 @@ std::string SwigInterface::swigFieldsAccDeclInternal() const
 
 std::string SwigInterface::swigFieldsAccCodeInternal() const
 {
-    StringsList accFuncs;
+    GenStringsList accFuncs;
     accFuncs.reserve(m_swigFields.size());
 
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     for (auto* f : m_swigFields) {
         static const std::string Templ = {
             "#^#CLASS_NAME#$#& transportField_#^#ACC_NAME#$#()\n"
@@ -305,8 +305,8 @@ std::string SwigInterface::swigFieldsAccCodeInternal() const
         };
 
         util::GenReplacementMap repl = {
-            {"CLASS_NAME", gen.swigClassName(f->field())},
-            {"ACC_NAME", comms::genAccessName(f->field().genParseObj().parseName())}
+            {"CLASS_NAME", gen.swigClassName(f->swigGenField())},
+            {"ACC_NAME", comms::genAccessName(f->swigGenField().genParseObj().parseName())}
         };
 
         accFuncs.push_back(util::genProcessTemplate(Templ, repl));
@@ -333,7 +333,7 @@ std::string SwigInterface::swigCommonCodeInternal() const
         "}\n"
     ;
 
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     util::GenReplacementMap repl = {
         {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
         {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)}

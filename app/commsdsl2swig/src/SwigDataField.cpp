@@ -30,9 +30,9 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigDataField::SwigDataField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigDataField::SwigDataField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
@@ -46,7 +46,7 @@ std::string SwigDataField::swigValueTypeDeclImpl() const
     static const std::string Templ = 
         "using ValueType = std::vector<#^#UINT8_T#$#>;\n";
 
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     util::GenReplacementMap repl = {
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")}
     };

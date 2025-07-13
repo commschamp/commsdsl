@@ -27,19 +27,21 @@ namespace commsdsl2swig
 class SwigGenerator;
 class SwigInterface final: public commsdsl::gen::GenInterface
 {
-    using Base = commsdsl::gen::GenInterface;
+    using GenBase = commsdsl::gen::GenInterface;
 
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
-    
-    explicit SwigInterface(SwigGenerator& generator, commsdsl::parse::ParseInterface dslObj, commsdsl::gen::GenElem* parent);
+    using ParseInterface = commsdsl::parse::ParseInterface;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+
+    explicit SwigInterface(SwigGenerator& generator, ParseInterface parseObj, GenElem* parent);
     virtual ~SwigInterface();
 
-    void swigAddCodeIncludes(StringsList& list) const; 
-    void swigAddCode(StringsList& list) const; 
-    void swigAddDef(StringsList& list) const;
+    void swigAddCodeIncludes(GenStringsList& list) const; 
+    void swigAddCode(GenStringsList& list) const; 
+    void swigAddDef(GenStringsList& list) const;
 
-    static const SwigInterface* cast(const commsdsl::gen::GenInterface* i)
+    static const SwigInterface* swigCast(const commsdsl::gen::GenInterface* i)
     {
         return static_cast<const SwigInterface*>(i);
     }

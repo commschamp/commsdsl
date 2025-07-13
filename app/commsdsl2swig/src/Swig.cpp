@@ -50,16 +50,16 @@ bool Swig::swigWrite(SwigGenerator& generator)
 bool Swig::swigWriteInternal()
 {
     auto swigName = swigFileNameInternal();
-    auto filePath = util::genPathAddElem(m_generator.genGetOutputDir(), swigName);
-    m_generator.genLogger().genInfo("Generating " + filePath);
+    auto filePath = util::genPathAddElem(m_swigGenerator.genGetOutputDir(), swigName);
+    m_swigGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
+        m_swigGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }     
 
     do {
-        auto replaceFile = util::genReadFileContents(m_generator.swigInputCodePathForFile(swigName + strings::genReplaceFileSuffixStr()));
+        auto replaceFile = util::genReadFileContents(m_swigGenerator.swigInputCodePathForFile(swigName + strings::genReplaceFileSuffixStr()));
         if (!replaceFile.empty()) {
             stream << replaceFile;
             break;
@@ -75,7 +75,7 @@ bool Swig::swigWriteInternal()
             ;      
 
         util::GenReplacementMap repl = {
-            {"NS", m_generator.genProtocolSchema().genMainNamespace()},
+            {"NS", m_swigGenerator.genProtocolSchema().genMainNamespace()},
             {"LANG_DEFS", swigLangDefsInternal()},
             {"CODE", swigCodeBlockInternal()},
             {"DEF", swigDefInternal()},
@@ -89,7 +89,7 @@ bool Swig::swigWriteInternal()
 
     stream.flush();
     if (!stream.good()) {
-        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
+        m_swigGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
 
@@ -103,34 +103,34 @@ std::string Swig::swigCodeBlockInternal()
         "comms/comms.h"
     };
 
-    SwigProtocolOptions::swigAddCodeIncludes(m_generator, includes);
-    SwigVersion::swigAddCodeIncludes(m_generator, includes);
+    SwigProtocolOptions::swigAddCodeIncludes(m_swigGenerator, includes);
+    SwigVersion::swigAddCodeIncludes(m_swigGenerator, includes);
 
     util::GenStringsList codeElems;
 
-    SwigComms::swigAddCode(m_generator, codeElems);
-    SwigDataBuf::swigAddCode(m_generator, codeElems);
-    SwigVersion::swigAddCode(m_generator, codeElems);
+    SwigComms::swigAddCode(m_swigGenerator, codeElems);
+    SwigDataBuf::swigAddCode(m_swigGenerator, codeElems);
+    SwigVersion::swigAddCode(m_swigGenerator, codeElems);
 
-    SwigProtocolOptions::swigAddCode(m_generator, codeElems);
+    SwigProtocolOptions::swigAddCode(m_swigGenerator, codeElems);
 
-    SwigMsgHandler::swigAddFwdCode(m_generator, codeElems);
+    SwigMsgHandler::swigAddFwdCode(m_swigGenerator, codeElems);
 
-    SwigGenerator::cast(m_generator).swigMainInterface()->swigAddCode(codeElems);
+    SwigGenerator::swigCast(m_swigGenerator).swigMainInterface()->swigAddCode(codeElems);
 
-    for (auto& sPtr : m_generator.genSchemas()) {
-        auto* schema = SwigSchema::cast(sPtr.get());
+    for (auto& sPtr : m_swigGenerator.genSchemas()) {
+        auto* schema = SwigSchema::swigCast(sPtr.get());
         schema->swigAddCodeIncludes(includes);
         schema->swigAddCode(codeElems);
     }
 
-    SwigAllMessages::swigAddCode(m_generator, codeElems);
+    SwigAllMessages::swigAddCode(m_swigGenerator, codeElems);
 
-    SwigMsgHandler::swigAddClassCode(m_generator, codeElems);
+    SwigMsgHandler::swigAddClassCode(m_swigGenerator, codeElems);
 
-    auto allFrames = m_generator.genGetAllFramesFromAllSchemas();
+    auto allFrames = m_swigGenerator.genGetAllFramesFromAllSchemas();
     for (auto* fPtr : allFrames) {
-        auto* frame = SwigFrame::cast(fPtr);
+        auto* frame = SwigFrame::swigCast(fPtr);
         frame->swigAddCode(codeElems);
     }
 
@@ -168,18 +168,18 @@ std::string Swig::swigDefInternal()
     util::GenStringsList defs;
 
     SwigComms::swigAddDef(defs);
-    SwigDataBuf::swigAddDef(m_generator, defs);
-    SwigVersion::swigAddDef(m_generator, defs);
+    SwigDataBuf::swigAddDef(m_swigGenerator, defs);
+    SwigVersion::swigAddDef(m_swigGenerator, defs);
 
-    for (auto& sPtr : m_generator.genSchemas()) {
-        SwigSchema::cast(sPtr.get())->swigAddDef(defs);
+    for (auto& sPtr : m_swigGenerator.genSchemas()) {
+        SwigSchema::swigCast(sPtr.get())->swigAddDef(defs);
     }    
 
-    SwigMsgHandler::swigAddDef(m_generator, defs);
+    SwigMsgHandler::swigAddDef(m_swigGenerator, defs);
 
-    auto allFrames = m_generator.genGetAllFrames();
+    auto allFrames = m_swigGenerator.genGetAllFrames();
     for (auto* fPtr : allFrames) {
-        auto* frame = SwigFrame::cast(fPtr);
+        auto* frame = SwigFrame::swigCast(fPtr);
         frame->swigAddDef(defs);
     } 
 
@@ -228,7 +228,7 @@ std::string Swig::swigLangDefsInternal() const
 std::string Swig::swigPrependInternal() const
 {
     auto swigName = swigFileNameInternal();
-    auto fromFile = util::genReadFileContents(m_generator.swigInputCodePathForFile(swigName + strings::genPrependFileSuffixStr()));
+    auto fromFile = util::genReadFileContents(m_swigGenerator.swigInputCodePathForFile(swigName + strings::genPrependFileSuffixStr()));
     if (!fromFile.empty()) {
         return fromFile;
     }
@@ -247,7 +247,7 @@ std::string Swig::swigPrependInternal() const
 std::string Swig::swigAppendInternal() const
 {
     auto swigName = swigFileNameInternal();
-    auto fromFile = util::genReadFileContents(m_generator.swigInputCodePathForFile(swigName + strings::genAppendFileSuffixStr()));
+    auto fromFile = util::genReadFileContents(m_swigGenerator.swigInputCodePathForFile(swigName + strings::genAppendFileSuffixStr()));
     if (!fromFile.empty()) {
         return fromFile;
     }
@@ -265,7 +265,7 @@ std::string Swig::swigAppendInternal() const
 
 std::string Swig::swigFileNameInternal() const
 {
-    auto& schema = m_generator.genProtocolSchema();        
+    auto& schema = m_swigGenerator.genProtocolSchema();        
     return schema.genMainNamespace() + ".i";
 }
 

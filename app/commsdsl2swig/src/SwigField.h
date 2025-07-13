@@ -27,26 +27,25 @@ namespace commsdsl2swig
 class SwigField
 {
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
-    using IncludesList = StringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
     using SwigFieldsList = std::vector<SwigField*>;
 
     explicit SwigField(commsdsl::gen::GenField& field);
     virtual ~SwigField();
 
-    static const SwigField* cast(const commsdsl::gen::GenField* field);
-    static SwigField* cast(commsdsl::gen::GenField* field);
+    static const SwigField* swigCast(const commsdsl::gen::GenField* field);
+    static SwigField* swigCast(commsdsl::gen::GenField* field);
 
     static SwigFieldsList swigTransformFieldsList(const commsdsl::gen::GenField::GenFieldsList& fields);
 
-    commsdsl::gen::GenField& field()
+    commsdsl::gen::GenField& swigGenField()
     {
-        return m_field;
+        return m_genField;
     }
 
-    const commsdsl::gen::GenField& field() const
+    const commsdsl::gen::GenField& swigGenField() const
     {
-        return m_field;
+        return m_genField;
     }
 
     std::string swigRelHeaderPath() const;
@@ -56,9 +55,9 @@ public:
     std::string swigPublicDecl() const;
     std::string swigExtraPublicFuncsCode() const;
     
-    void swigAddCodeIncludes(StringsList& list) const; 
-    void swigAddCode(StringsList& list) const; 
-    void swigAddDef(StringsList& list) const;
+    void swigAddCodeIncludes(GenStringsList& list) const; 
+    void swigAddCode(GenStringsList& list) const; 
+    void swigAddDef(GenStringsList& list) const;
 
     std::string swigTemplateScope() const;
 
@@ -76,8 +75,8 @@ protected:
     virtual std::string swigExtraPublicFuncsDeclImpl() const;
     virtual std::string swigExtraPublicFuncsCodeImpl() const;
     virtual std::string swigPublicDeclImpl() const;
-    virtual void swigAddDefImpl(StringsList& list) const;
-    virtual void swigAddMembersCodeImpl(StringsList& list) const;
+    virtual void swigAddDefImpl(GenStringsList& list) const;
+    virtual void swigAddMembersCodeImpl(GenStringsList& list) const;
 
     std::string swigCommonPublicFuncsDecl() const;
     std::string swigCommonPublicFuncsCode() const;
@@ -90,9 +89,9 @@ private:
     std::string swigOptionalDeclInternal() const;
     std::string swigClassCodeInternal() const;
     std::string swigComparisonRenameInternal() const;
-    void swigAddVectorTemplateInternal(StringsList& list) const;
+    void swigAddVectorTemplateInternal(GenStringsList& list) const;
 
-    commsdsl::gen::GenField& m_field;
+    commsdsl::gen::GenField& m_genField;
     mutable bool m_defAdded = false;
     mutable bool m_codeAdded = false;
     bool m_listElement = false;

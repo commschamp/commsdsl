@@ -27,20 +27,24 @@ namespace commsdsl2swig
 class SwigGenerator;
 class SwigFrame final: public commsdsl::gen::GenFrame
 {
-    using Base = commsdsl::gen::GenFrame;
+    using GenBase = commsdsl::gen::GenFrame;
 
 public:
-    using StringsList = commsdsl::gen::util::GenStringsList;
+    using ParseFrame = commsdsl::parse::ParseFrame;
+
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+    
     using SwigLayersList = SwigLayer::SwigLayersList;
 
-    explicit SwigFrame(SwigGenerator& generator, commsdsl::parse::ParseFrame dslObj, commsdsl::gen::GenElem* parent);
+    explicit SwigFrame(SwigGenerator& generator, ParseFrame parseObj, GenElem* parent);
     virtual ~SwigFrame();
 
-    void swigAddCodeIncludes(StringsList& list) const;
-    void swigAddCode(StringsList& list) const;
-    void swigAddDef(StringsList& list) const;
+    void swigAddCodeIncludes(GenStringsList& list) const;
+    void swigAddCode(GenStringsList& list) const;
+    void swigAddDef(GenStringsList& list) const;
 
-    static const SwigFrame* cast(const commsdsl::gen::GenFrame* i)
+    static const SwigFrame* swigCast(const commsdsl::gen::GenFrame* i)
     {
         return static_cast<const SwigFrame*>(i);
     }        

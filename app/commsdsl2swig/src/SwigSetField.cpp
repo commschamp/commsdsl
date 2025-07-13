@@ -29,9 +29,9 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigSetField::SwigSetField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigSetField::SwigSetField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
@@ -47,7 +47,7 @@ std::string SwigSetField::swigValueTypeDeclImpl() const
 
     auto obj = genSetFieldParseObj();
     util::GenReplacementMap repl = {
-        {"TYPE", SwigGenerator::cast(genGenerator()).swigConvertIntType(obj.parseType(), obj.parseMaxLength())}
+        {"TYPE", SwigGenerator::swigCast(genGenerator()).swigConvertIntType(obj.parseType(), obj.parseMaxLength())}
     };
 
     return util::genProcessTemplate(Templ, repl);    

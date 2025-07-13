@@ -85,62 +85,62 @@ SwigProgramOptions::SwigProgramOptions()
     ;
 }
 
-bool SwigProgramOptions::quietRequested() const
+bool SwigProgramOptions::swigQuietRequested() const
 {
     return genIsOptUsed(QuietStr);
 }
 
-bool SwigProgramOptions::versionRequested() const
+bool SwigProgramOptions::swigVersionRequested() const
 {
     return genIsOptUsed(VersionStr);
 }
 
-bool SwigProgramOptions::warnAsErrRequested() const
+bool SwigProgramOptions::swigWarnAsErrRequested() const
 {
     return genIsOptUsed(WarnAsErrStr);
 }
 
-const std::string& SwigProgramOptions::getFilesListFile() const
+const std::string& SwigProgramOptions::swigGetFilesListFile() const
 {
     return genValue(InputFilesListStr);
 }
 
-const std::string& SwigProgramOptions::getFilesListPrefix() const
+const std::string& SwigProgramOptions::swigGetFilesListPrefix() const
 {
     return genValue(InputFilesPrefixStr);
 }
 
-const SwigProgramOptions::GenArgsList& SwigProgramOptions::getFiles() const
+const SwigProgramOptions::GenArgsList& SwigProgramOptions::swigGetFiles() const
 {
     return genArgs();
 }
 
-const std::string& SwigProgramOptions::getOutputDirectory() const
+const std::string& SwigProgramOptions::swigGetOutputDirectory() const
 {
     return genValue(OutputDirStr);
 }
 
-const std::string& SwigProgramOptions::getCodeInputDirectory() const
+const std::string& SwigProgramOptions::swigGetCodeInputDirectory() const
 {
     return genValue(CodeInputDirStr);
 }
 
-bool SwigProgramOptions::hasNamespaceOverride() const
+bool SwigProgramOptions::swigHasNamespaceOverride() const
 {
     return genIsOptUsed(NamespaceStr);
 }
 
-const std::string& SwigProgramOptions::getNamespace() const
+const std::string& SwigProgramOptions::swigGetNamespace() const
 {
     return genValue(NamespaceStr);
 }
 
-bool SwigProgramOptions::multipleSchemasEnabled() const
+bool SwigProgramOptions::swigMultipleSchemasEnabled() const
 {
     return genIsOptUsed(MultipleSchemasEnabledStr);
 }
 
-unsigned SwigProgramOptions::genGetMinRemoteVersion() const
+unsigned SwigProgramOptions::swigGetMinRemoteVersion() const
 {
     if (!genIsOptUsed(MinRemoteVerStr)) {
         return 0U;
@@ -149,32 +149,32 @@ unsigned SwigProgramOptions::genGetMinRemoteVersion() const
     return util::genStrToUnsigned(genValue(MinRemoteVerStr));
 }
 
-bool SwigProgramOptions::isMainNamespaceInNamesForced() const
+bool SwigProgramOptions::swigIsMainNamespaceInNamesForced() const
 {
     return genIsOptUsed(ForceMainNamespaceInNamesStr);
 }
 
-bool SwigProgramOptions::hasForcedInterface() const
+bool SwigProgramOptions::swigHasForcedInterface() const
 {
     return genIsOptUsed(ForceInterfaceStr);
 }
 
-const std::string& SwigProgramOptions::getForcedInterface() const
+const std::string& SwigProgramOptions::swigGetForcedInterface() const
 {
     return genValue(ForceInterfaceStr);
 }
 
-bool SwigProgramOptions::hasProtocolVersion() const
+bool SwigProgramOptions::swigHasProtocolVersion() const
 {
     return genIsOptUsed(HasProtocolStr);
 }
 
-const std::string& SwigProgramOptions::messagesListFile() const
+const std::string& SwigProgramOptions::swigMessagesListFile() const
 {
     return genValue(MessagesListStr);
 }
 
-const std::string& SwigProgramOptions::forcedPlatform() const
+const std::string& SwigProgramOptions::swigForcedPlatform() const
 {
     return genValue(ForcePlatformStr);
 }

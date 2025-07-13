@@ -30,9 +30,9 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigRefField::SwigRefField(SwigGenerator& generator, commsdsl::parse::ParseField dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigRefField::SwigRefField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
@@ -56,10 +56,10 @@ std::string SwigRefField::swigExtraPublicFuncsCodeImpl() const
         "}\n"
     ;
 
-    auto& gen = SwigGenerator::cast(genGenerator());
-    auto* field = SwigField::cast(genReferencedField());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
+    auto* field = SwigField::swigCast(genReferencedField());
     util::GenReplacementMap repl = {
-        {"REF_TYPE", gen.swigClassName(field->field())},
+        {"REF_TYPE", gen.swigClassName(field->swigGenField())},
         {"BASE_TYPE", field->swigTemplateScope()},
     };    
 
@@ -73,7 +73,7 @@ std::string SwigRefField::swigPublicDeclImpl() const
         "#^#REF_TYPE#$#& ref();\n"
         "#^#FUNCS#$#\n";   
 
-    auto& gen = SwigGenerator::cast(genGenerator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     util::GenReplacementMap repl = {
         {"REF_TYPE", gen.swigClassName(*genReferencedField())},
         {"FUNCS", swigCommonPublicFuncsDecl()}
@@ -82,16 +82,16 @@ std::string SwigRefField::swigPublicDeclImpl() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-void SwigRefField::swigAddDefImpl(StringsList& list) const
+void SwigRefField::swigAddDefImpl(GenStringsList& list) const
 {
     // Make sure the referenced field is defined before
-    SwigField::cast(genReferencedField())->swigAddDef(list);
+    SwigField::swigCast(genReferencedField())->swigAddDef(list);
 }
 
-void SwigRefField::swigAddMembersCodeImpl(StringsList& list) const
+void SwigRefField::swigAddMembersCodeImpl(GenStringsList& list) const
 {
     // Make sure the referenced field is defined before
-    SwigField::cast(genReferencedField())->swigAddCode(list);
+    SwigField::swigCast(genReferencedField())->swigAddCode(list);
 }
 
 } // namespace commsdsl2swig

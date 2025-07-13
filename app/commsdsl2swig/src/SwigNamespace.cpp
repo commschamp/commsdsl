@@ -35,18 +35,18 @@ namespace commsdsl2swig
 {
 
 
-SwigNamespace::SwigNamespace(SwigGenerator& generator, commsdsl::parse::ParseNamespace dslObj, commsdsl::gen::GenElem* parent) :
-    Base(generator, dslObj, parent),
+SwigNamespace::SwigNamespace(SwigGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
     m_msgId(generator, *this)
 {
 }   
 
 SwigNamespace::~SwigNamespace() = default;
 
-void SwigNamespace::swigAddCodeIncludes(StringsList& list) const
+void SwigNamespace::swigAddCodeIncludes(GenStringsList& list) const
 {
     for (auto& ns : genNamespaces()) {
-        SwigNamespace::cast(ns.get())->swigAddCodeIncludes(list);
+        SwigNamespace::swigCast(ns.get())->swigAddCodeIncludes(list);
     }
 
     for (auto* f : m_swigFields) {
@@ -54,7 +54,7 @@ void SwigNamespace::swigAddCodeIncludes(StringsList& list) const
     }
 
     for (auto& i : genInterfaces()) {
-        SwigInterface::cast(i.get())->swigAddCodeIncludes(list);
+        SwigInterface::swigCast(i.get())->swigAddCodeIncludes(list);
     }
 
     if (!genInterfaces().empty()) {
@@ -62,16 +62,16 @@ void SwigNamespace::swigAddCodeIncludes(StringsList& list) const
     }    
 
     for (auto& m : genMessages()) {
-        SwigMessage::cast(m.get())->swigAddCodeIncludes(list);
+        SwigMessage::swigCast(m.get())->swigAddCodeIncludes(list);
     }   
 
     for (auto& f : genFrames()) {
-        SwigFrame::cast(f.get())->swigAddCodeIncludes(list);
+        SwigFrame::swigCast(f.get())->swigAddCodeIncludes(list);
     }    
     
 }
 
-void SwigNamespace::swigAddCode(StringsList& list) const
+void SwigNamespace::swigAddCode(GenStringsList& list) const
 {
     if (!genInterfaces().empty()) {
         m_msgId.swigAddCode(list);
@@ -82,19 +82,19 @@ void SwigNamespace::swigAddCode(StringsList& list) const
     }
 
     for (auto& m : genMessages()) {
-        SwigMessage::cast(m.get())->swigAddCode(list);
+        SwigMessage::swigCast(m.get())->swigAddCode(list);
     }   
 
     // for (auto& f : genFrames()) {
-    //     SwigFrame::cast(f.get())->swigAddCode(list);
+    //     SwigFrame::swigCast(f.get())->swigAddCode(list);
     // }    
 
     for (auto& ns : genNamespaces()) {
-        SwigNamespace::cast(ns.get())->swigAddCode(list);
+        SwigNamespace::swigCast(ns.get())->swigAddCode(list);
     }    
 }
 
-void SwigNamespace::swigAddDef(StringsList& list) const
+void SwigNamespace::swigAddDef(GenStringsList& list) const
 {
     if (!genInterfaces().empty()) {
         m_msgId.swigAddDef(list);
@@ -105,19 +105,19 @@ void SwigNamespace::swigAddDef(StringsList& list) const
     }
 
     for (auto& i : genInterfaces()) {
-        SwigInterface::cast(i.get())->swigAddDef(list);
+        SwigInterface::swigCast(i.get())->swigAddDef(list);
     }
 
     for (auto& m : genMessages()) {
-        SwigMessage::cast(m.get())->swigAddDef(list);
+        SwigMessage::swigCast(m.get())->swigAddDef(list);
     }   
 
     // for (auto& f : genFrames()) {
-    //     SwigFrame::cast(f.get())->swigAddDef(list);
+    //     SwigFrame::swigCast(f.get())->swigAddDef(list);
     // } 
 
     for (auto& ns : genNamespaces()) {
-        SwigNamespace::cast(ns.get())->swigAddDef(list);
+        SwigNamespace::swigCast(ns.get())->swigAddDef(list);
     }    
 }
 
@@ -129,7 +129,7 @@ std::string SwigNamespace::swigMsgIdClassName() const
 
 bool SwigNamespace::genPrepareImpl()
 {
-    if (!Base::genPrepareImpl()) {
+    if (!GenBase::genPrepareImpl()) {
         return false;
     }
 

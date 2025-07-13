@@ -17,24 +17,12 @@
 
 #include "SwigGenerator.h"
 
-#include "commsdsl/gen/comms.h"
-#include "commsdsl/gen/strings.h"
-#include "commsdsl/gen/util.h"
-
-#include <algorithm>
-#include <cassert>
-#include <iterator>
-
-namespace comms = commsdsl::gen::comms;
-namespace util = commsdsl::gen::util;
-namespace strings = commsdsl::gen::strings;
-
 namespace commsdsl2swig
 {
 
-SwigChecksumLayer::SwigChecksumLayer(SwigGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigChecksumLayer::SwigChecksumLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 

@@ -26,10 +26,14 @@ namespace commsdsl2swig
 class SwigGenerator;
 class SwigSizeLayer final : public commsdsl::gen::GenSizeLayer, public SwigLayer
 {
-    using Base = commsdsl::gen::GenSizeLayer;
+    using GenBase = commsdsl::gen::GenSizeLayer;
     using SwigBase = SwigLayer;
+
 public:
-    SwigSizeLayer(SwigGenerator& generator, commsdsl::parse::ParseLayer dslObj, commsdsl::gen::GenElem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    SwigSizeLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
     // SwigBase overrides

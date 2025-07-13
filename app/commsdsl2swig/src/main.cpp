@@ -27,7 +27,7 @@
 namespace commsdsl2swig
 {
 
-std::vector<std::string> getFilesList(
+std::vector<std::string> swigGetFilesList(
     const std::string& fileName,
     const std::string& prefix)
 {
@@ -69,7 +69,7 @@ int main(int argc, const char* argv[])
             return 0;
         }
 
-        if (options.versionRequested()) {
+        if (options.swigVersionRequested()) {
             std::cout << 
                 commsdsl::versionMajor() << '.' << 
                 commsdsl::versionMinor() << '.' <<
@@ -80,33 +80,33 @@ int main(int argc, const char* argv[])
         commsdsl2swig::SwigGenerator generator;
         auto& logger = generator.genLogger();
 
-        if (options.quietRequested()) {
+        if (options.swigQuietRequested()) {
             logger.genSetMinLevel(commsdsl::parse::ParseErrorLevel_Warning);
         }
 
-        if (options.warnAsErrRequested()) {
+        if (options.swigWarnAsErrRequested()) {
             logger.genSetWarnAsError();
         }
 
-        if (options.hasNamespaceOverride()) {
-            generator.genSetNamespaceOverride(options.getNamespace());
+        if (options.swigHasNamespaceOverride()) {
+            generator.genSetNamespaceOverride(options.swigGetNamespace());
         }
 
-        if (options.hasForcedInterface()) {
-            generator.swigSetForcedInterface(options.getForcedInterface());
+        if (options.swigHasForcedInterface()) {
+            generator.swigSetForcedInterface(options.swigGetForcedInterface());
         }
 
-        generator.genSetOutputDir(options.getOutputDirectory());
-        generator.genSetCodeDir(options.getCodeInputDirectory());
-        generator.genSetMultipleSchemasEnabled(options.multipleSchemasEnabled());
-        generator.genSetMinRemoteVersion(options.genGetMinRemoteVersion());
-        generator.swigSetMainNamespaceInNamesForced(options.isMainNamespaceInNamesForced());
-        generator.swigSetHasProtocolVersion(options.hasProtocolVersion());
-        generator.swigSetMessagesListFile(options.messagesListFile());
-        generator.swigSetForcedPlatform(options.forcedPlatform());
+        generator.genSetOutputDir(options.swigGetOutputDirectory());
+        generator.genSetCodeDir(options.swigGetCodeInputDirectory());
+        generator.genSetMultipleSchemasEnabled(options.swigMultipleSchemasEnabled());
+        generator.genSetMinRemoteVersion(options.swigGetMinRemoteVersion());
+        generator.swigSetMainNamespaceInNamesForced(options.swigIsMainNamespaceInNamesForced());
+        generator.swigSetHasProtocolVersion(options.swigHasProtocolVersion());
+        generator.swigSetMessagesListFile(options.swigMessagesListFile());
+        generator.swigSetForcedPlatform(options.swigForcedPlatform());
 
-        auto files = commsdsl2swig::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
-        auto otherFiles = options.getFiles();
+        auto files = commsdsl2swig::swigGetFilesList(options.swigGetFilesListFile(), options.swigGetFilesListPrefix());
+        auto otherFiles = options.swigGetFiles();
         files.insert(files.end(), otherFiles.begin(), otherFiles.end());
 
         if (files.empty()) {

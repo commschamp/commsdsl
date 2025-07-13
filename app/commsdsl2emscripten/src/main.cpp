@@ -27,7 +27,7 @@
 namespace commsdsl2emscripten
 {
 
-std::vector<std::string> getFilesList(
+std::vector<std::string> emscriptenGetFilesList(
     const std::string& fileName,
     const std::string& prefix)
 {
@@ -106,7 +106,7 @@ int main(int argc, const char* argv[])
         generator.emscriptenSetForcedPlatform(options.emscriptenForcedPlatform());
         generator.genSetTopNamespace("cc_emscripten");
 
-        auto files = commsdsl2emscripten::getFilesList(options.emscriptenGetFilesListFile(), options.emscriptenGetFilesListPrefix());
+        auto files = commsdsl2emscripten::emscriptenGetFilesList(options.emscriptenGetFilesListFile(), options.emscriptenGetFilesListPrefix());
         auto otherFiles = options.emscriptenGetFiles();
         files.insert(files.end(), otherFiles.begin(), otherFiles.end());
 
