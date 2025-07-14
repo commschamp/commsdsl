@@ -92,10 +92,10 @@ int main(int argc, const char* argv[])
         }
 
         generator.genSetOutputDir(options.testGetOutputDirectory());
-        generator.genSetCodeDir(options.getGetCodeInputDirectory());
+        generator.genSetCodeDir(options.testGetGetCodeInputDirectory());
         generator.genSetMultipleSchemasEnabled(options.testMultipleSchemasEnabled());
 
-        auto files = commsdsl2test::testGetFilesList(options.gestGetFilesListFile(), options.testGetFilesListPrefix());
+        auto files = commsdsl2test::testGetFilesList(options.testGetFilesListFile(), options.testGetFilesListPrefix());
         auto otherFiles = options.testGetFiles();
         files.insert(files.end(), otherFiles.begin(), otherFiles.end());
 

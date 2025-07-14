@@ -33,11 +33,11 @@ public:
     bool testVersionRequested() const;
     bool testWarnAsErrRequested() const;
 
-    const std::string& gestGetFilesListFile() const;
+    const std::string& testGetFilesListFile() const;
     const std::string& testGetFilesListPrefix() const;
     const GenArgsList& testGetFiles() const;
     const std::string& testGetOutputDirectory() const;
-    const std::string& getGetCodeInputDirectory() const;
+    const std::string& testGetGetCodeInputDirectory() const;
     bool testHasNamespaceOverride() const;
     const std::string& testGetNamespace() const;
     bool testMultipleSchemasEnabled() const;
