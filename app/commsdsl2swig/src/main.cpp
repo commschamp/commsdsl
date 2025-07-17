@@ -16,113 +16,18 @@
 #include "SwigGenerator.h"
 #include "SwigProgramOptions.h"
 
-#include "commsdsl/gen/util.h"
-#include "commsdsl/version.h"
-
 #include <cassert>
-#include <fstream>
 #include <iostream>
 #include <stdexcept>
-
-namespace commsdsl2swig
-{
-
-std::vector<std::string> swigGetFilesList(
-    const std::string& fileName,
-    const std::string& prefix)
-{
-    std::vector<std::string> result;
-    do {
-        if (fileName.empty()) {
-            break;
-        }
-        
-        std::ifstream stream(fileName);
-        if (!stream) {
-            break;
-        }
-        
-        std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
-
-        result = commsdsl::gen::util::genStrSplitByAnyChar(contents, "\r\n");
-        if (prefix.empty()) {
-            break;
-        }
-
-        for (auto& f : result) {
-            f = commsdsl::gen::util::genPathAddElem(prefix, f);
-        }
-    } while (false);
-    return result;
-}
-
-} // namespace commsdsl2swig
 
 int main(int argc, const char* argv[])
 {
     try {
         commsdsl2swig::SwigProgramOptions options;
         options.genParse(argc, argv);
-        if (options.genHelpRequested()) {
-            std::cout << "Usage:\n\t" << argv[0] << " [OPTIONS] schema_file1 [schema_file2] [schema_file3] ...\n\n";
-            std::cout << options.genHelpStr();
-            return 0;
-        }
-
-        if (options.swigVersionRequested()) {
-            std::cout << 
-                commsdsl::versionMajor() << '.' << 
-                commsdsl::versionMinor() << '.' <<
-                commsdsl::versionPatch() << std::endl;
-            return 0;
-        }        
 
         commsdsl2swig::SwigGenerator generator;
-        auto& logger = generator.genLogger();
-
-        if (options.swigQuietRequested()) {
-            logger.genSetMinLevel(commsdsl::parse::ParseErrorLevel_Warning);
-        }
-
-        if (options.swigWarnAsErrRequested()) {
-            logger.genSetWarnAsError();
-        }
-
-        if (options.swigHasNamespaceOverride()) {
-            generator.genSetNamespaceOverride(options.swigGetNamespace());
-        }
-
-        if (options.swigHasForcedInterface()) {
-            generator.swigSetForcedInterface(options.swigGetForcedInterface());
-        }
-
-        generator.genSetOutputDir(options.swigGetOutputDirectory());
-        generator.genSetCodeDir(options.swigGetCodeInputDirectory());
-        generator.genSetMultipleSchemasEnabled(options.swigMultipleSchemasEnabled());
-        generator.genSetMinRemoteVersion(options.swigGetMinRemoteVersion());
-        generator.swigSetMainNamespaceInNamesForced(options.swigIsMainNamespaceInNamesForced());
-        generator.swigSetHasProtocolVersion(options.swigHasProtocolVersion());
-        generator.swigSetMessagesListFile(options.swigMessagesListFile());
-        generator.swigSetForcedPlatform(options.swigForcedPlatform());
-
-        auto files = commsdsl2swig::swigGetFilesList(options.swigGetFilesListFile(), options.swigGetFilesListPrefix());
-        auto otherFiles = options.swigGetFiles();
-        files.insert(files.end(), otherFiles.begin(), otherFiles.end());
-
-        if (files.empty()) {
-            logger.genError("No input files are provided");
-            return -1;
-        }
-
-        if (!generator.genPrepare(files)) {
-            return -1;
-        }
-
-        if (!generator.genWrite()) {
-            return -1;
-        }
-        
-        return 0;
+        return generator.genExec(options);
     }
     catch (const std::exception& e) {
         std::cerr << "Unhandled exception: " << e.what() << std::endl;

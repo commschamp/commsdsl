@@ -34,33 +34,35 @@ class ToolsQtGenerator final : public commsdsl::gen::GenGenerator
 {
     using GenBase = commsdsl::gen::GenGenerator;
 public:
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
     using GenElem = commsdsl::gen::GenElem;
     using GenFieldPtr = commsdsl::gen::GenFieldPtr;
     using GenFramePtr = commsdsl::gen::GenFramePtr;
+    using GenInterface = commsdsl::gen::GenInterface;
     using GenInterfacePtr = commsdsl::gen::GenInterfacePtr;
     using GenLayerPtr = commsdsl::gen::GenLayerPtr;
     using GenMessagePtr = commsdsl::gen::GenMessagePtr;
     using GenNamespacePtr = commsdsl::gen::GenNamespacePtr;
-    using PluginInfo = ToolsQtProgramOptions::PluginInfo;
-    using PluginInfosList = ToolsQtProgramOptions::PluginInfosList;
-    using GenStringsList = commsdsl::gen::util::GenStringsList;
-    using PluginsList = std::vector<ToolsQtPluginPtr>;
-    using FramesPerInterfaceMap = std::map<const commsdsl::gen::GenInterface*, GenFramesAccessList>;
+    using GenProgramOptions = commsdsl::gen::GenProgramOptions;
+    using ToolsPluginInfo = ToolsQtProgramOptions::ToolsPluginInfo;
+    using ToolsPluginInfosList = ToolsQtProgramOptions::ToolsPluginInfosList;
+    using ToolsPluginsList = std::vector<ToolsQtPluginPtr>;
+    using ToolsFramesPerInterfaceMap = std::map<const GenInterface*, GenFramesAccessList>;
 
     static const std::string& toolsFileGeneratedComment();
-    void toolsSetPluginInfosList(PluginInfosList&& value)
+    void toolsSetPluginInfosList(ToolsPluginInfosList&& value)
     {
         m_pluginInfos = std::move(value);
     }
 
-    const PluginInfosList& toolsGetPluginInfosList() const
+    const ToolsPluginInfosList& toolsGetPluginInfosList() const
     {
         return m_pluginInfos;
     }
 
     GenStringsList toolsSourceFilesForInterface(const ToolsQtInterface& interface) const;
 
-    const PluginsList& toolsPlugins() const
+    const ToolsPluginsList& toolsPlugins() const
     {
         return m_plugins;
     }
@@ -75,7 +77,7 @@ public:
         return m_selectedFrames;
     }    
 
-    const FramesPerInterfaceMap& toolsGetSelectedFramesPerInterface() const
+    const ToolsFramesPerInterfaceMap& toolsGetSelectedFramesPerInterface() const
     {
         return m_selectedFramesPerInterface;
     }
@@ -124,17 +126,18 @@ protected:
     virtual GenLayerPtr genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
 
     virtual bool genWriteImpl() override;   
+    virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
 
 private:
     bool toolsPrepareSelectedInterfacesInternal();
     bool toolsPrepareSelectedFramesInternal();
     bool toolsWriteExtraFilesInternal() const;
 
-    PluginInfosList m_pluginInfos;
-    PluginsList m_plugins;
+    ToolsPluginInfosList m_pluginInfos;
+    ToolsPluginsList m_plugins;
     GenInterfacesAccessList m_selectedInterfaces;
     GenFramesAccessList m_selectedFrames;
-    FramesPerInterfaceMap m_selectedFramesPerInterface;
+    ToolsFramesPerInterfaceMap m_selectedFramesPerInterface;
     bool m_mainNamespaceInOptionsForced = false;
 };
 

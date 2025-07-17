@@ -29,24 +29,6 @@ namespace commsdsl2swig
 namespace
 {
 
-const std::string QuietStr("quiet");
-const std::string FullQuietStr("q," + QuietStr);
-const std::string VersionStr("version");
-const std::string OutputDirStr("output-dir");
-const std::string FullOutputDirStr("o," + OutputDirStr);
-const std::string InputFilesListStr("input-files-list");
-const std::string FullInputFilesListStr("i," + InputFilesListStr);
-const std::string InputFilesPrefixStr("input-files-prefix");
-const std::string FullInputFilesPrefixStr("p," + InputFilesPrefixStr);
-const std::string NamespaceStr("namespace");
-const std::string FullNamespaceStr("n," + NamespaceStr);
-const std::string WarnAsErrStr("warn-as-err");
-const std::string CodeInputDirStr("code-input-dir");
-const std::string FullCodeInputDirStr("c," + CodeInputDirStr);
-const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
-const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
-const std::string MinRemoteVerStr("min-remote-version");
-const std::string FullMinRemoteVerStr("m," + MinRemoteVerStr);
 const std::string ForceMainNamespaceInNamesStr("force-main-ns-in-names");
 const std::string ForceInterfaceStr("force-interface");
 const std::string HasProtocolStr("has-protocol-version");
@@ -57,21 +39,7 @@ const std::string ForcePlatformStr("force-platform");
 
 SwigProgramOptions::SwigProgramOptions()
 {
-    genAddHelpOption()
-    (VersionStr, "Print version string and exit.")
-    (FullQuietStr.c_str(), "Quiet, show only warnings and errors.")
-    (FullOutputDirStr.c_str(), "Output directory path. When not provided current is used.", true)        
-    (FullInputFilesListStr.c_str(), "File containing list of input files.", true)        
-    (FullInputFilesPrefixStr.c_str(), "Prefix for the values from the list file.", true)
-    (FullNamespaceStr, 
-        "Force main namespace change. Defaults to schema name. "
-        "In case of having multiple schemas the renaming happends to the last protocol one. "
-        "Renaming of non-protocol or multiple schemas is allowed using <orig_name>:<new_name> comma separated pairs.",
-        true) 
-    (WarnAsErrStr.c_str(), "Treat warning as error.")
-    (FullCodeInputDirStr, "Directory with code updates.", true)
-    (FullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")    
-    (FullMinRemoteVerStr, "Set minimal supported remote version. Defaults to 0.", true)
+    genAddCommonOptions()
     (ForceMainNamespaceInNamesStr, "Force having main namespace in generated class names.")
     (ForceInterfaceStr, "Force usage of the provided interface (CommsDSL reference string).", true)
     (HasProtocolStr, "The protocol definition (produced by commsdsl2comms) contains protocol semantic version.")
@@ -83,70 +51,6 @@ SwigProgramOptions::SwigProgramOptions()
         true)
     (ForcePlatformStr, "Support only messages applicable to specified platform. Requires protocol schema to define it.", true)        
     ;
-}
-
-bool SwigProgramOptions::swigQuietRequested() const
-{
-    return genIsOptUsed(QuietStr);
-}
-
-bool SwigProgramOptions::swigVersionRequested() const
-{
-    return genIsOptUsed(VersionStr);
-}
-
-bool SwigProgramOptions::swigWarnAsErrRequested() const
-{
-    return genIsOptUsed(WarnAsErrStr);
-}
-
-const std::string& SwigProgramOptions::swigGetFilesListFile() const
-{
-    return genValue(InputFilesListStr);
-}
-
-const std::string& SwigProgramOptions::swigGetFilesListPrefix() const
-{
-    return genValue(InputFilesPrefixStr);
-}
-
-const SwigProgramOptions::GenArgsList& SwigProgramOptions::swigGetFiles() const
-{
-    return genArgs();
-}
-
-const std::string& SwigProgramOptions::swigGetOutputDirectory() const
-{
-    return genValue(OutputDirStr);
-}
-
-const std::string& SwigProgramOptions::swigGetCodeInputDirectory() const
-{
-    return genValue(CodeInputDirStr);
-}
-
-bool SwigProgramOptions::swigHasNamespaceOverride() const
-{
-    return genIsOptUsed(NamespaceStr);
-}
-
-const std::string& SwigProgramOptions::swigGetNamespace() const
-{
-    return genValue(NamespaceStr);
-}
-
-bool SwigProgramOptions::swigMultipleSchemasEnabled() const
-{
-    return genIsOptUsed(MultipleSchemasEnabledStr);
-}
-
-unsigned SwigProgramOptions::swigGetMinRemoteVersion() const
-{
-    if (!genIsOptUsed(MinRemoteVerStr)) {
-        return 0U;
-    }
-
-    return util::genStrToUnsigned(genValue(MinRemoteVerStr));
 }
 
 bool SwigProgramOptions::swigIsMainNamespaceInNamesForced() const

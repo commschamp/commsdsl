@@ -36,6 +36,7 @@
 #include "SwigNamespace.h"
 #include "SwigOptionalField.h"
 #include "SwigPayloadLayer.h"
+#include "SwigProgramOptions.h"
 #include "SwigRefField.h"
 #include "SwigSchema.h"
 #include "SwigSetField.h"
@@ -381,6 +382,20 @@ SwigGenerator::GenLayerPtr SwigGenerator::genCreatePayloadLayerImpl(commsdsl::pa
 SwigGenerator::GenLayerPtr SwigGenerator::genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<SwigChecksumLayer>(*this, parseObj, parent);
+}
+
+SwigGenerator::OptsProcessResult SwigGenerator::genProcessOptionsImpl(const GenProgramOptions& options)
+{
+    auto& opts = SwigProgramOptions::swigCast(options);
+    if (opts.swigHasForcedInterface()) {
+        swigSetForcedInterface(opts.swigGetForcedInterface());
+    }
+
+    swigSetMainNamespaceInNamesForced(opts.swigIsMainNamespaceInNamesForced());
+    swigSetHasProtocolVersion(opts.swigHasProtocolVersion());
+    swigSetMessagesListFile(opts.swigMessagesListFile());
+    swigSetForcedPlatform(opts.swigForcedPlatform());
+    return OptsProcessResult_Continue;
 }
 
 bool SwigGenerator::swigWriteExtraFilesInternal() const

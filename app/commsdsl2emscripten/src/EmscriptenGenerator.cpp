@@ -34,6 +34,7 @@
 #include "EmscriptenNamespace.h"
 #include "EmscriptenOptionalField.h"
 #include "EmscriptenPayloadLayer.h"
+#include "EmscriptenProgramOptions.h"
 #include "EmscriptenProtocolOptions.h"
 #include "EmscriptenRefField.h"
 #include "EmscriptenSchema.h"
@@ -433,6 +434,21 @@ EmscriptenGenerator::GenLayerPtr EmscriptenGenerator::genCreatePayloadLayerImpl(
 EmscriptenGenerator::GenLayerPtr EmscriptenGenerator::genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent)
 {
     return std::make_unique<EmscriptenChecksumLayer>(*this, parseObj, parent);
+}
+
+EmscriptenGenerator::OptsProcessResult EmscriptenGenerator::genProcessOptionsImpl(const GenProgramOptions& options)
+{
+    auto& opts = EmscriptenProgramOptions::emscriptenCast(options);
+    if (opts.emscriptenHasForcedInterface()) {
+        emscriptenSetForcedInterface(opts.emscriptenGetForcedInterface());
+    }
+
+    emscriptenSetMainNamespaceInNamesForced(opts.emscriptenIsMainNamespaceInNamesForced());
+    emscriptenSetHasProtocolVersion(opts.emscriptenHasProtocolVersion());
+    emscriptenSetMessagesListFile(opts.emscriptenMessagesListFile());
+    emscriptenSetForcedPlatform(opts.emscriptenForcedPlatform());
+    genSetTopNamespace("cc_emscripten");
+    return OptsProcessResult_Continue;
 }
 
 bool EmscriptenGenerator::emscriptenWriteExtraFilesInternal() const

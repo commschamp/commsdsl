@@ -1,9 +1,7 @@
 set (
     src
-    Test.cpp
-    TestCmake.cpp
-    TestGenerator.cpp
-    TestProgramOptions.cpp
+    LatexGenerator.cpp
+    LatexProgramOptions.cpp
     main.cpp
 )
 

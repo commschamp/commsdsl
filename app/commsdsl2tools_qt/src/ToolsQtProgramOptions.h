@@ -27,7 +27,9 @@ namespace commsdsl2tools_qt
 class ToolsQtProgramOptions : public commsdsl::gen::GenProgramOptions
 {
 public:
-    struct PluginInfo
+    using GenProgramOptions = commsdsl::gen::GenProgramOptions;
+
+    struct ToolsPluginInfo
     {
         std::string m_frame;
         std::string m_interface;
@@ -35,23 +37,16 @@ public:
         std::string m_desc;
         std::string m_pluginId;
     };
-    using PluginInfosList = std::vector<PluginInfo>;
+    using ToolsPluginInfosList = std::vector<ToolsPluginInfo>;
     
     ToolsQtProgramOptions();
 
-    bool toolsQuietRequested() const;
-    bool toolsVersionRequested() const;
-    bool toolsWarnAsErrRequested() const;
+    static const ToolsQtProgramOptions& toolsCast(const GenProgramOptions& options)
+    {
+        return static_cast<const ToolsQtProgramOptions&>(options);
+    }
 
-    const std::string& toolsGetFilesListFile() const;
-    const std::string& toolsGetFilesListPrefix() const;
-    const GenArgsList& toolsGetFiles() const;
-    const std::string& toolsGetOutputDirectory() const;
-    bool toolsHasNamespaceOverride() const;
-    const std::string& toolsGetNamespace() const;
-    const std::string& toolsGetCodeInputDirectory() const;
-    PluginInfosList toolsGetPlugins() const;
-    bool toolsMultipleSchemasEnabled() const;
+    ToolsPluginInfosList toolsGetPlugins() const;
     bool toolsIsMainNamespaceInOptionsForced() const;
 };
 

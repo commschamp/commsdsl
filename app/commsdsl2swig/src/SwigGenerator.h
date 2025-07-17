@@ -40,6 +40,7 @@ public:
     using GenFramePtr = commsdsl::gen::GenFramePtr;
     using GenLayerPtr = commsdsl::gen::GenLayerPtr;
     using GenSchemaPtr = commsdsl::gen::GenSchemaPtr;
+    using GenProgramOptions = commsdsl::gen::GenProgramOptions;
 
     SwigGenerator();
     
@@ -109,6 +110,8 @@ protected:
     virtual GenLayerPtr genCreateValueLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
     virtual GenLayerPtr genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
     virtual GenLayerPtr genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+
+    virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
 
 private:
     bool swigWriteExtraFilesInternal() const;

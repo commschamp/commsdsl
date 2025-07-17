@@ -38,13 +38,14 @@
 #include "commsdsl/gen/GenVariantField.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
-
 #include "commsdsl/parse/ParseProtocol.h"
+#include "commsdsl/version.h"
 
 #include <cassert>
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <map>
 #include <system_error>
 
@@ -555,6 +556,34 @@ GenGenerator::GenGenerator() :
 }
 
 GenGenerator::~GenGenerator() = default;
+
+int GenGenerator::genExec(const GenProgramOptions& options)
+{
+    auto optsResult = genProcessOptions(options);
+    if (optsResult == commsdsl::gen::GenGenerator::OptsProcessResult_EarlyExit) {
+        return 0;
+    }
+
+    if (optsResult == commsdsl::gen::GenGenerator::OptsProcessResult_Failure) {
+        return -1;
+    }
+    
+    auto files = options.genGetInputFiles();
+    if (files.empty()) {
+        genLogger().genError("No input files are provided");
+        return -1;
+    }
+
+    if (!genPrepare(files)) {
+        return -1;
+    }
+
+    if (!genWrite()) {
+        return -2;
+    }
+    
+    return 0;
+}
 
 void GenGenerator::genForceSchemaVersion(unsigned value)
 {
@@ -1131,6 +1160,56 @@ void GenGenerator::genSetAllInterfacesReferencedByDefault(bool value)
     m_impl->genSetAllInterfacesReferencedByDefault(value);
 }    
 
+GenGenerator::OptsProcessResult GenGenerator::genProcessOptions(const GenProgramOptions& options)
+{
+    if (options.genHelpRequested()) {
+        std::cout << "Usage:\n\t" << options.genApp() << " [OPTIONS] schema_file1 [schema_file2] [schema_file3] ...\n\n";
+        std::cout << options.genHelpStr();
+        return OptsProcessResult_EarlyExit;
+    }
+
+    if (options.genVersionRequested()) {
+        std::cout << 
+            commsdsl::versionMajor() << '.' << 
+            commsdsl::versionMinor() << '.' <<
+            commsdsl::versionPatch() << std::endl;
+        return OptsProcessResult_EarlyExit;
+    }    
+    
+    auto& logger = genLogger();
+    if (options.genQuietRequested() && options.genDebugRequested()) {
+        logger.genError("Cannot use both --quiet and --debug options at the same time");
+        return OptsProcessResult_Failure;
+    }
+
+    if (options.genQuietRequested()) {
+        logger.genSetMinLevel(commsdsl::parse::ParseErrorLevel_Warning);
+    }
+
+    if (options.genDebugRequested()) {
+        logger.genSetMinLevel(commsdsl::parse::ParseErrorLevel_Debug);
+    }        
+
+    if (options.genWarnAsErrRequested()) {
+        logger.genSetWarnAsError();
+    }
+
+    if (options.genHasNamespaceOverride()) {
+        genSetNamespaceOverride(options.genGetNamespace());
+    }    
+
+    if (options.genHasForcedSchemaVersion()) {
+        genForceSchemaVersion(options.genGetForcedSchemaVersion());
+    }
+
+    genSetOutputDir(options.genGetOutputDirectory());
+    genSetCodeDir(options.genGetCodeInputDirectory());
+    genSetMultipleSchemasEnabled(options.genMultipleSchemasEnabled());    
+    genSetMinRemoteVersion(options.genGetMinRemoteVersion());
+    
+    return genProcessOptionsImpl(options);
+}
+
 bool GenGenerator::genCreateCompleteImpl()
 {
     return true;
@@ -1269,6 +1348,11 @@ bool GenGenerator::genWriteImpl()
 GenGenerator::GenLoggerPtr GenGenerator::genCreateLoggerImpl()
 {
     return std::make_unique<GenLogger>();
+}
+
+GenGenerator::OptsProcessResult GenGenerator::genProcessOptionsImpl([[maybe_unused]] const GenProgramOptions& options)
+{
+    return OptsProcessResult_Continue;
 }
 
 GenNamespace* GenGenerator::genAddDefaultNamespace()

@@ -23,6 +23,7 @@
 #include "commsdsl/gen/GenLogger.h"
 #include "commsdsl/gen/GenMessage.h"
 #include "commsdsl/gen/GenNamespace.h"
+#include "commsdsl/gen/GenProgramOptions.h"
 #include "commsdsl/gen/GenSchema.h"
 #include "commsdsl/parse/ParseEndian.h"
 
@@ -51,8 +52,18 @@ public:
     using GenFramesAccessList = GenNamespace::GenFramesAccessList;
     using GenFieldsAccessList = GenNamespace::GenFieldsAccessList;
 
+    enum OptsProcessResult
+    {
+        OptsProcessResult_Failure,
+        OptsProcessResult_Continue,
+        OptsProcessResult_EarlyExit,
+        OptsProcessResult_NumOfValues
+    };
+
     GenGenerator();
     virtual ~GenGenerator();
+
+    int genExec(const GenProgramOptions& options);
 
     void genForceSchemaVersion(unsigned value);
     void genSetMinRemoteVersion(unsigned value);
@@ -166,6 +177,8 @@ public:
     bool genGetAllInterfacesReferencedByDefault() const;
     void genSetAllInterfacesReferencedByDefault(bool value = true);    
 
+    OptsProcessResult genProcessOptions(const GenProgramOptions& options);
+
 protected:
     virtual bool genCreateCompleteImpl();
     virtual bool genPrepareImpl();
@@ -199,6 +212,8 @@ protected:
 
     virtual bool genWriteImpl();
     virtual GenLoggerPtr genCreateLoggerImpl();
+
+    virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options);
 
     GenNamespace* genAddDefaultNamespace();
 

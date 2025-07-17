@@ -16,103 +16,18 @@
 #include "TestGenerator.h"
 #include "TestProgramOptions.h"
 
-#include "commsdsl/version.h"
-#include "commsdsl/gen/util.h"
-
 #include <cassert>
-#include <fstream>
 #include <iostream>
 #include <stdexcept>
 
-namespace commsdsl2test
-{
-
-std::vector<std::string> testGetFilesList(
-    const std::string& fileName,
-    const std::string& prefix)
-{
-    std::vector<std::string> result;
-    do {
-        if (fileName.empty()) {
-            break;
-        }
-        
-        std::ifstream stream(fileName);
-        if (!stream) {
-            break;
-        }
-        
-        std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
-
-        result = commsdsl::gen::util::genStrSplitByAnyChar(contents, "\r\n");
-        if (prefix.empty()) {
-            break;
-        }
-
-        for (auto& f : result) {
-            f = commsdsl::gen::util::genPathAddElem(prefix, f);
-        }
-    } while (false);
-    return result;
-}
-
-} // namespace commsdsl2test
 int main(int argc, const char* argv[])
 {
     try {
         commsdsl2test::TestProgramOptions options;
         options.genParse(argc, argv);
-        if (options.genHelpRequested()) {
-            std::cout << "Usage:\n\t" << argv[0] << " [OPTIONS] schema_file1 [schema_file2] [schema_file3] ...\n\n";
-            std::cout << options.genHelpStr();
-            return 0;
-        }
-
-        if (options.testVersionRequested()) {
-            std::cout << 
-                commsdsl::versionMajor() << '.' << 
-                commsdsl::versionMinor() << '.' <<
-                commsdsl::versionPatch() << std::endl;
-            return 0;
-        }        
 
         commsdsl2test::TestGenerator generator;
-        auto& logger = generator.genLogger();
-
-        if (options.testQuietRequested()) {
-            logger.genSetMinLevel(commsdsl::parse::ParseErrorLevel_Warning);
-        }
-
-        if (options.testWarnAsErrRequested()) {
-            logger.genSetWarnAsError();
-        }
-
-        if (options.testHasNamespaceOverride()) {
-            generator.genSetNamespaceOverride(options.testGetNamespace());
-        }
-
-        generator.genSetOutputDir(options.testGetOutputDirectory());
-        generator.genSetCodeDir(options.testGetGetCodeInputDirectory());
-        generator.genSetMultipleSchemasEnabled(options.testMultipleSchemasEnabled());
-
-        auto files = commsdsl2test::testGetFilesList(options.testGetFilesListFile(), options.testGetFilesListPrefix());
-        auto otherFiles = options.testGetFiles();
-        files.insert(files.end(), otherFiles.begin(), otherFiles.end());
-
-        if (files.empty()) {
-            logger.genError("No input files are provided");
-            return -1;
-        }
-
-        if (!generator.genPrepare(files)) {
-            return -1;
-        }
-
-        if (!generator.genWrite()) {
-            return -1;
-        }
-        
-        return 0;
+        return generator.genExec(options);
     }
     catch (const std::exception& e) {
         std::cerr << "Unhandled exception: " << e.what() << std::endl;

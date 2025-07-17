@@ -32,21 +32,37 @@ class GenProgramOptionsImpl;
 class COMMSDSL_API GenProgramOptions
 {
 public:
-    using GenArgsList = std::vector<std::string>;
+    using GenStringsList = std::vector<std::string>;
     
     GenProgramOptions();
     ~GenProgramOptions();
 
-    GenProgramOptions& genAddHelpOption();
+    GenProgramOptions& genAddCommonOptions();
+    GenProgramOptions& genRemoveMinRemoteVersionOptions();
     GenProgramOptions& operator()(const std::string& optStr, const std::string& desc, bool hasParam = false);
     GenProgramOptions& operator()(const std::string& optStr, const std::string& desc, const std::string& defaultValue);
 
     void genParse(int argc, const char** argv);
     bool genIsOptUsed(const std::string& optStr) const;
-    bool genHelpRequested() const;
     const std::string& genValue(const std::string& optStr) const;
-    const GenArgsList& genArgs() const;
+    const GenStringsList& genArgs() const;
+    const std::string& genApp() const;
     std::string genHelpStr() const;
+
+    bool genHelpRequested() const;
+    bool genVersionRequested() const;
+    bool genQuietRequested() const;
+    bool genDebugRequested() const;
+    bool genWarnAsErrRequested() const;
+    const std::string& genGetOutputDirectory() const;
+    GenStringsList genGetInputFiles() const;
+    const std::string& genGetCodeInputDirectory() const;
+    bool genMultipleSchemasEnabled() const;
+    bool genHasNamespaceOverride() const;
+    const std::string& genGetNamespace() const;
+    unsigned genGetMinRemoteVersion() const;
+    bool genHasForcedSchemaVersion() const;
+    unsigned genGetForcedSchemaVersion() const;
 
 private:
     std::unique_ptr<GenProgramOptionsImpl> m_impl;

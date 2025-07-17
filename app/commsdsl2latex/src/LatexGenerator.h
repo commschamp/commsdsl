@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,19 +15,21 @@
 
 #pragma once
 
-#include "commsdsl/gen/GenProgramOptions.h"
+#include "commsdsl/gen/GenGenerator.h"
 
-#include <iosfwd>
-#include <string>
-#include <vector>
-
-namespace commsdsl2test
+namespace commsdsl2latex 
 {
 
-class TestProgramOptions : public commsdsl::gen::GenProgramOptions
+class LatexGenerator final : public commsdsl::gen::GenGenerator
 {
 public:
-    TestProgramOptions();
+    static const std::string& latexFileGeneratedComment();
+
+protected:
+    virtual bool genWriteImpl() override;    
+
+private:
+    bool latexWriteExtraFilesInternal() const;
 };
 
-} // namespace commsdsl2test
+} // namespace commsdsl2latex

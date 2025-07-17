@@ -32,6 +32,7 @@ public:
     using GenMessagePtr = commsdsl::gen::GenMessagePtr;
     using GenSchemaPtr = commsdsl::gen::GenSchemaPtr;
     using GenNamespacePtr = commsdsl::gen::GenNamespacePtr;
+    using GenProgramOptions = commsdsl::gen::GenProgramOptions;
 
     using CommsExtraMessageBundle = std::pair<std::string, GenMessagesAccessList>;
     using CommsExtraMessageBundlesList = std::vector<CommsExtraMessageBundle>;
@@ -97,6 +98,7 @@ protected:
     virtual GenLayerPtr genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
 
     virtual bool genWriteImpl() override;    
+    virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
 
 private:
     bool commsPrepareExtraMessageBundlesInternal();

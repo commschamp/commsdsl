@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "EmscriptenGenerator.h"
-#include "EmscriptenProgramOptions.h"
+#include "LatexGenerator.h"
+#include "LatexProgramOptions.h"
 
 #include <cassert>
 #include <iostream>
@@ -23,10 +23,10 @@
 int main(int argc, const char* argv[])
 {
     try {
-        commsdsl2emscripten::EmscriptenProgramOptions options;
+        commsdsl2latex::LatexProgramOptions options;
         options.genParse(argc, argv);
 
-        commsdsl2emscripten::EmscriptenGenerator generator;
+        commsdsl2latex::LatexGenerator generator;
         return generator.genExec(options);
     }
     catch (const std::exception& e) {

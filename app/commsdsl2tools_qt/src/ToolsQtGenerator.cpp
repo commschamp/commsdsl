@@ -344,6 +344,15 @@ bool ToolsQtGenerator::genWriteImpl()
     return toolsWriteExtraFilesInternal();            
 }
 
+ToolsQtGenerator::OptsProcessResult ToolsQtGenerator::genProcessOptionsImpl(const GenProgramOptions& options)
+{
+    auto& opts = ToolsQtProgramOptions::toolsCast(options);
+    // genSetTopNamespace("cc_tools_qt_plugin");
+    toolsSetPluginInfosList(opts.toolsGetPlugins());
+    toolsSetMainNamespaceInOptionsForced(opts.toolsIsMainNamespaceInOptionsForced());
+    return OptsProcessResult_Continue;
+}
+
 bool ToolsQtGenerator::toolsPrepareSelectedInterfacesInternal()
 {
     std::vector<std::string> ifNames;

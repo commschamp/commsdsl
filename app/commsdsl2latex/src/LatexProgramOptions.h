@@ -13,26 +13,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "EmscriptenGenerator.h"
-#include "EmscriptenProgramOptions.h"
+#pragma once
 
-#include <cassert>
-#include <iostream>
-#include <stdexcept>
+#include "commsdsl/gen/GenProgramOptions.h"
 
-int main(int argc, const char* argv[])
+#include <iosfwd>
+#include <string>
+#include <vector>
+
+namespace commsdsl2latex
 {
-    try {
-        commsdsl2emscripten::EmscriptenProgramOptions options;
-        options.genParse(argc, argv);
 
-        commsdsl2emscripten::EmscriptenGenerator generator;
-        return generator.genExec(options);
-    }
-    catch (const std::exception& e) {
-        std::cerr << "Unhandled exception: " << e.what() << std::endl;
-        assert(false);
-    }
+class LatexProgramOptions : public commsdsl::gen::GenProgramOptions
+{
+public:
+    LatexProgramOptions();
+};
 
-    return -1;
-}
+} // namespace commsdsl2latex

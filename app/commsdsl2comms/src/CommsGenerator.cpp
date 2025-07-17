@@ -36,6 +36,7 @@
 #include "CommsNamespace.h"
 #include "CommsOptionalField.h"
 #include "CommsPayloadLayer.h"
+#include "CommsProgramOptions.h"
 #include "CommsRefField.h"
 #include "CommsSchema.h"
 #include "CommsSetField.h"
@@ -298,6 +299,18 @@ bool CommsGenerator::genWriteImpl()
         CommsCmake::commsWrite(*this) &&
         CommsDoxygen::commsWrite(*this) &&
         commsWriteExtraFilesInternal();
+}
+
+CommsGenerator::OptsProcessResult CommsGenerator::genProcessOptionsImpl(const GenProgramOptions& options)
+{
+    auto& opts = CommsProgramOptions::commsCast(options);
+    genSetVersionIndependentCodeForced(opts.commsVersionIndependentCodeRequested());
+    commsSetCustomizationLevel(opts.commsGetCustomizationLevel());
+    commsSetProtocolVersion(opts.commsGetProtocolVersion());
+    commsSetExtraInputBundles(opts.commsGetExtraInputBundles());
+    commsSetMainNamespaceInOptionsForced(opts.commsIsMainNamespaceInOptionsForced());
+
+    return OptsProcessResult_Continue;
 }
 
 bool CommsGenerator::commsPrepareExtraMessageBundlesInternal()

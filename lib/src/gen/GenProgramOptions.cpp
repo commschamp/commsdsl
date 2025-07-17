@@ -2,10 +2,15 @@
 
 #include "commsdsl/gen/util.h"
 
+#include <algorithm>
 #include <cassert>
+#include <fstream>
 #include <iostream>
+#include <iterator>
 #include <map>
 #include <vector>
+
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl
 {
@@ -13,10 +18,40 @@ namespace commsdsl
 namespace gen
 {
 
+namespace
+{
+
+const std::string GenHelpOptStr("help");
+const std::string GenFullHelpOptStr("h," + GenHelpOptStr);
+const std::string GenVersionOptStr("version");
+const std::string GenQuietStr("quiet");
+const std::string GenFullQuietStr("q," + GenQuietStr);
+const std::string GenDebugStr("debug");
+const std::string GenFullDebugStr("d," + GenDebugStr);
+const std::string GenWarnAsErrStr("warn-as-err");
+const std::string GenFullWarnAsErrStr("w," + GenWarnAsErrStr);
+const std::string GenOutputDirStr("output-dir");
+const std::string GenFullOutputDirStr("o," + GenOutputDirStr);
+const std::string GenInputFilesListStr("input-files-list");
+const std::string GenFullInputFilesListStr("i," + GenInputFilesListStr);
+const std::string GenInputFilesPrefixStr("input-files-prefix");
+const std::string GenFullInputFilesPrefixStr("p," + GenInputFilesPrefixStr);
+const std::string GenCodeInputDirStr("code-input-dir");
+const std::string GenFullCodeInputDirStr("c," + GenCodeInputDirStr);
+const std::string GenMultipleSchemasEnabledStr("multiple-schemas-enabled");
+const std::string GenFullMultipleSchemasEnabledStr("s," + GenMultipleSchemasEnabledStr);
+const std::string GenNamespaceStr("namespace");
+const std::string GenFullNamespaceStr("n," + GenNamespaceStr);
+const std::string GenMinRemoteVerStr("min-remote-version");
+const std::string GenFullMinRemoteVerStr("m," + GenMinRemoteVerStr);
+const std::string GenForceVerStr("force-schema-version");
+
+}    
+
 class GenProgramOptionsImpl
 {
 public:
-    using GenArgsList = GenProgramOptions::GenArgsList;
+    using GenStringsList = GenProgramOptions::GenStringsList;
 
     void genAdd(const std::string& optStr, const std::string& desc, bool hasParam)
     {
@@ -28,10 +63,32 @@ public:
         genAddInternal(optStr, desc, true, defaultValue);
     }
 
+    void genRemove(const std::string& optStr)
+    {
+        auto tokens = util::genStrSplitByAnyChar(optStr, ",");
+        m_opts.erase(
+            std::remove_if(
+                m_opts.begin(), m_opts.end(),
+                [&tokens](auto& oPtr)
+                {
+                    return 
+                        std::any_of(
+                            tokens.begin(), tokens.end(),
+                            [&oPtr](auto& t)
+                            {
+                                return (oPtr->m_shortOpt == t) || (oPtr->m_longOpt == t);
+                            });
+                }),
+            m_opts.end());
+
+    }
+
     void genParse(int argc, const char** argv)
     {
         genPrepareOpts();
 
+        assert(0 < argc);
+        m_app = argv[0];
         OptInfo* opt = nullptr;
         for (auto idx = 1; idx < argc; ++idx) {
             const char* nextToken = argv[idx];
@@ -104,9 +161,14 @@ public:
         return genValueInternal(optStr, m_longOpts);
     }
 
-    const GenArgsList& genArgs() const
+    const GenStringsList& genArgs() const
     {
         return m_args;
+    }
+
+    const std::string& genApp() const
+    {
+        return m_app;
     }
 
     std::string genHelpStr() const
@@ -265,7 +327,8 @@ private:
     OptInfosList m_opts;
     OptInfosMap m_shortOpts;
     OptInfosMap m_longOpts;
-    GenArgsList m_args;
+    GenStringsList m_args;
+    std::string m_app;
 };
     
 GenProgramOptions::GenProgramOptions() : 
@@ -275,9 +338,37 @@ GenProgramOptions::GenProgramOptions() :
  
 GenProgramOptions::~GenProgramOptions() = default;
 
-GenProgramOptions& GenProgramOptions::genAddHelpOption()
+
+GenProgramOptions& GenProgramOptions::genAddCommonOptions()
 {
-    return (*this)("h,help", "This help");
+    return 
+        (*this)
+            (GenFullHelpOptStr, "Show this help")
+            (GenVersionOptStr, "Print version string and exit.")
+            (GenFullQuietStr, "Quiet, show only warnings and errors.")
+            (GenFullDebugStr, "Show debug logging.")
+            (GenFullWarnAsErrStr, "Treat warnings as errors.")            
+            (GenFullOutputDirStr, "Output directory path. When not provided current is used.", true)        
+            (GenFullInputFilesListStr, "File containing list of input files.", true)        
+            (GenFullInputFilesPrefixStr, "Prefix for the values from the list file.", true)
+            (GenFullCodeInputDirStr, "Directory with code updates.", true)
+            (GenFullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")
+            (GenFullNamespaceStr, 
+                "Force main namespace change. Defaults to schema name. "
+                "In case of having multiple schemas the renaming happends to the last protocol one. "
+                "Renaming of non-protocol or multiple schemas is allowed using <orig_name>:<new_name> comma separated pairs.",
+                true) 
+            (GenFullMinRemoteVerStr, "Set minimal supported remote version. Defaults to 0.", true)
+            (GenForceVerStr, 
+                "Force schema version. Must not be greater than version specified in schema file.", true)
+
+            ;
+}
+
+GenProgramOptions& GenProgramOptions::genRemoveMinRemoteVersionOptions()
+{
+    m_impl->genRemove(GenFullMinRemoteVerStr);
+    return *this;
 }
 
 GenProgramOptions& GenProgramOptions::operator()(const std::string& optStr, const std::string& desc, bool hasParam)
@@ -302,25 +393,128 @@ bool GenProgramOptions::genIsOptUsed(const std::string& optStr) const
     return m_impl->genIsOptUsed(optStr);
 }
 
-bool GenProgramOptions::genHelpRequested() const
-{
-    return genIsOptUsed("h");
-}
-
 const std::string& GenProgramOptions::genValue(const std::string& optStr) const
 {
     return m_impl->genValue(optStr);
 }
 
-const GenProgramOptions::GenArgsList& GenProgramOptions::genArgs() const
+const GenProgramOptions::GenStringsList& GenProgramOptions::genArgs() const
 {
     return m_impl->genArgs();
+}
+
+const std::string& GenProgramOptions::genApp() const
+{
+    return m_impl->genApp();
 }
 
 std::string GenProgramOptions::genHelpStr() const
 {
     return m_impl->genHelpStr();
 }
+
+bool GenProgramOptions::genHelpRequested() const
+{
+    return genIsOptUsed(GenHelpOptStr);
+}
+
+bool GenProgramOptions::genVersionRequested() const
+{
+    return genIsOptUsed(GenVersionOptStr);
+}
+
+bool GenProgramOptions::genQuietRequested() const
+{
+    return genIsOptUsed(GenQuietStr);
+}
+
+bool GenProgramOptions::genDebugRequested() const
+{
+    return genIsOptUsed(GenDebugStr);
+}
+
+bool GenProgramOptions::genWarnAsErrRequested() const
+{
+    return genIsOptUsed(GenWarnAsErrStr);
+}
+
+const std::string& GenProgramOptions::genGetOutputDirectory() const
+{
+    return genValue(GenOutputDirStr);
+}
+
+GenProgramOptions::GenStringsList GenProgramOptions::genGetInputFiles() const
+{
+    std::vector<std::string> result;
+    do {
+        auto& fileName = genValue(GenInputFilesListStr);
+        if (fileName.empty()) {
+            break;
+        }
+        
+        std::ifstream stream(fileName);
+        if (!stream) {
+            break;
+        }
+        
+        std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
+
+        result = util::genStrSplitByAnyChar(contents, "\r\n");
+
+        auto& prefix = genValue(GenInputFilesPrefixStr);
+        if (prefix.empty()) {
+            break;
+        }
+
+        for (auto& f : result) {
+            f = util::genPathAddElem(prefix, f);
+        }
+    } while (false);
+
+    auto& otherFiles = genArgs();
+    result.insert(result.end(), otherFiles.begin(), otherFiles.end());
+    return result;
+}
+
+const std::string& GenProgramOptions::genGetCodeInputDirectory() const
+{
+    return genValue(GenCodeInputDirStr);
+}
+
+bool GenProgramOptions::genMultipleSchemasEnabled() const
+{
+    return genIsOptUsed(GenMultipleSchemasEnabledStr);
+}
+
+bool GenProgramOptions::genHasNamespaceOverride() const
+{
+    return genIsOptUsed(GenNamespaceStr);
+}
+
+const std::string& GenProgramOptions::genGetNamespace() const
+{
+    return genValue(GenNamespaceStr);
+}
+
+unsigned GenProgramOptions::genGetMinRemoteVersion() const
+{
+    if (!genIsOptUsed(GenMinRemoteVerStr)) {
+        return 0U;
+    }
+
+    return util::genStrToUnsigned(genValue(GenMinRemoteVerStr));
+}
+
+bool GenProgramOptions::genHasForcedSchemaVersion() const
+{
+    return genIsOptUsed(GenForceVerStr);
+}
+
+unsigned GenProgramOptions::genGetForcedSchemaVersion() const
+{
+    return commsdsl::gen::util::genStrToUnsigned(genValue(GenForceVerStr));
+}
+
 
 } // namespace gen
 

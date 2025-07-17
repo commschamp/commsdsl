@@ -30,23 +30,7 @@ namespace commsdsl2tools_qt
 namespace
 {
 
-const std::string QuietStr("quiet");
-const std::string FullQuietStr("q," + QuietStr);
-const std::string VersionStr("version");
-const std::string OutputDirStr("output-dir");
-const std::string FullOutputDirStr("o," + OutputDirStr);
-const std::string InputFilesListStr("input-files-list");
-const std::string FullInputFilesListStr("i," + InputFilesListStr);
-const std::string InputFilesPrefixStr("input-files-prefix");
-const std::string FullInputFilesPrefixStr("p," + InputFilesPrefixStr);
-const std::string NamespaceStr("namespace");
-const std::string FullNamespaceStr("n," + NamespaceStr);
-const std::string WarnAsErrStr("warn-as-err");
-const std::string CodeInputDirStr("code-input-dir");
-const std::string FullCodeInputDirStr("c," + CodeInputDirStr);
 const std::string ProtocolStr("protocol");
-const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
-const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
 const std::string ForceMainNamespaceInOptionsStr("force-main-ns-in-options");
 
 
@@ -54,19 +38,8 @@ const std::string ForceMainNamespaceInOptionsStr("force-main-ns-in-options");
 
 ToolsQtProgramOptions::ToolsQtProgramOptions()
 {
-    genAddHelpOption()
-    (VersionStr, "Print version string and exit.")
-    (FullQuietStr, "Quiet, show only warnings and errors.")
-    (FullOutputDirStr, "Output directory path. When not provided current is used.", true)        
-    (FullInputFilesListStr, "File containing list of input files.", true)        
-    (FullInputFilesPrefixStr, "Prefix for the values from the list file.", true)
-    (FullNamespaceStr, 
-        "Force main namespace change. Defaults to schema name. "
-        "In case of having multiple schemas the renaming happends to the last protocol one. "
-        "Renaming of non-protocol or multiple schemas is allowed using <orig_name>:<new_name> comma separated pairs.",
-        true) 
-    (WarnAsErrStr, "Treat warning as error.")
-    (FullCodeInputDirStr, "Directory with code updates.", true)
+    genAddCommonOptions();
+    genRemoveMinRemoteVersionOptions()
     (ProtocolStr, 
         "Protocol information for plugin generation. Exepected to be in the following format:\n"
         "\"frame_id:interface_id:protocol_name:description:plugin_id\".\nUse comma separation for multiple plugins. If not provided, "
@@ -79,64 +52,13 @@ ToolsQtProgramOptions::ToolsQtProgramOptions()
         "  * plugin_id - ID of the plugin to be used in the saved configuration file. When empty or "
         "omitted same as \"name\" value is assumed.\n"
         , true)    
-    (FullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")            
     (ForceMainNamespaceInOptionsStr, "Force having main namespace struct in generated options.")
     ;
 }
 
-bool ToolsQtProgramOptions::toolsQuietRequested() const
+ToolsQtProgramOptions::ToolsPluginInfosList ToolsQtProgramOptions::toolsGetPlugins() const
 {
-    return genIsOptUsed(QuietStr);
-}
-
-bool ToolsQtProgramOptions::toolsVersionRequested() const
-{
-    return genIsOptUsed(VersionStr);
-}
-
-bool ToolsQtProgramOptions::toolsWarnAsErrRequested() const
-{
-    return genIsOptUsed(WarnAsErrStr);
-}
-
-const std::string& ToolsQtProgramOptions::toolsGetFilesListFile() const
-{
-    return genValue(InputFilesListStr);
-}
-
-const std::string& ToolsQtProgramOptions::toolsGetFilesListPrefix() const
-{
-    return genValue(InputFilesPrefixStr);
-}
-
-const ToolsQtProgramOptions::GenArgsList& ToolsQtProgramOptions::toolsGetFiles() const
-{
-    return genArgs();
-}
-
-const std::string& ToolsQtProgramOptions::toolsGetOutputDirectory() const
-{
-    return genValue(OutputDirStr);
-}
-
-bool ToolsQtProgramOptions::toolsHasNamespaceOverride() const
-{
-    return genIsOptUsed(NamespaceStr);
-}
-
-const std::string& ToolsQtProgramOptions::toolsGetNamespace() const
-{
-    return genValue(NamespaceStr);
-}
-
-const std::string& ToolsQtProgramOptions::toolsGetCodeInputDirectory() const
-{
-    return genValue(CodeInputDirStr);
-}
-
-ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::toolsGetPlugins() const
-{
-    PluginInfosList result;
+    ToolsPluginInfosList result;
     if (!genIsOptUsed(ProtocolStr)) {
         return result;
     }
@@ -164,11 +86,6 @@ ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::toolsGetPlugins() 
         resInfo.m_pluginId = values[ValueIdx_PluginId];
     }
     return result;
-}
-
-bool ToolsQtProgramOptions::toolsMultipleSchemasEnabled() const
-{
-    return genIsOptUsed(MultipleSchemasEnabledStr);
 }
 
 bool ToolsQtProgramOptions::toolsIsMainNamespaceInOptionsForced() const

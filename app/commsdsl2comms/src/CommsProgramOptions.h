@@ -27,28 +27,19 @@ namespace commsdsl2comms
 class CommsProgramOptions : public commsdsl::gen::GenProgramOptions
 {
 public:
+    using GenProgramOptions = commsdsl::gen::GenProgramOptions;
+    
     CommsProgramOptions();
 
-    bool commsQuietRequested() const;
-    bool commsDebugRequested() const;
-    bool commsVersionRequested() const;
-    bool commsWarnAsErrRequested() const;
+    static const CommsProgramOptions& commsCast(const GenProgramOptions& options)
+    {
+        return static_cast<const CommsProgramOptions&>(options);
+    }
 
-    const std::string& commsGetFilesListFile() const;
-    const std::string& commsGetFilesListPrefix() const;
-    const GenArgsList& commsGetFiles() const;
-    const std::string& commsGetOutputDirectory() const;
-    bool commsHasNamespaceOverride() const;
-    const std::string& commsGetNamespace() const;
-    const std::string& commsGetCodeInputDirectory() const;
-    bool commsHasForcedSchemaVersion() const;
-    unsigned commsGetForcedSchemaVersion() const;
     const std::string& commsGetProtocolVersion() const;
-    unsigned commsGetMinRemoteVersion() const;
     const std::string& commsGetCustomizationLevel() const;
     bool commsVersionIndependentCodeRequested() const;
     std::vector<std::string> commsGetExtraInputBundles() const;
-    bool commsMultipleSchemasEnabled() const;
     bool commsIsMainNamespaceInOptionsForced() const;
 };
 

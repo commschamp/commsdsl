@@ -28,21 +28,15 @@ namespace commsdsl2emscripten
 class EmscriptenProgramOptions : public commsdsl::gen::GenProgramOptions
 {
 public:
+    using GenProgramOptions = commsdsl::gen::GenProgramOptions;
+
     EmscriptenProgramOptions();
 
-    bool emscriptenQuietRequested() const;
-    bool emscriptenVersionRequested() const;
-    bool emscriptenWarnAsErrRequested() const;
+    static const EmscriptenProgramOptions& emscriptenCast(const GenProgramOptions& options)
+    {
+        return static_cast<const EmscriptenProgramOptions&>(options);
+    }
 
-    const std::string& emscriptenGetFilesListFile() const;
-    const std::string& emscriptenGetFilesListPrefix() const;
-    const GenArgsList& emscriptenGetFiles() const;
-    const std::string& emscriptenGetOutputDirectory() const;
-    const std::string& emscriptenGetCodeInputDirectory() const;
-    bool emscriptenHasNamespaceOverride() const;
-    const std::string& emscriptenGetNamespace() const;
-    bool emscriptenMultipleSchemasEnabled() const;
-    unsigned emscriptenGetMinRemoteVersion() const;
     bool emscriptenIsMainNamespaceInNamesForced() const;
     bool emscriptenHasForcedInterface() const;
     const std::string& emscriptenGetForcedInterface() const;

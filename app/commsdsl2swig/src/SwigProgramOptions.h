@@ -27,21 +27,15 @@ namespace commsdsl2swig
 class SwigProgramOptions : public commsdsl::gen::GenProgramOptions
 {
 public:
+    using GenProgramOptions = commsdsl::gen::GenProgramOptions;
+
     SwigProgramOptions();
 
-    bool swigQuietRequested() const;
-    bool swigVersionRequested() const;
-    bool swigWarnAsErrRequested() const;
+    static const SwigProgramOptions& swigCast(const GenProgramOptions& options)
+    {
+        return static_cast<const SwigProgramOptions&>(options);
+    }
 
-    const std::string& swigGetFilesListFile() const;
-    const std::string& swigGetFilesListPrefix() const;
-    const GenArgsList& swigGetFiles() const;
-    const std::string& swigGetOutputDirectory() const;
-    const std::string& swigGetCodeInputDirectory() const;
-    bool swigHasNamespaceOverride() const;
-    const std::string& swigGetNamespace() const;
-    bool swigMultipleSchemasEnabled() const;
-    unsigned swigGetMinRemoteVersion() const;
     bool swigIsMainNamespaceInNamesForced() const;
     bool swigHasForcedInterface() const;
     const std::string& swigGetForcedInterface() const;
