@@ -51,7 +51,7 @@ bool Test::testWriteInputTest() const
     auto testName = 
         m_testGenerator.genCurrentSchema().genMainNamespace() + '_' + "input_test.cpp";
 
-    auto filePath = commsdsl::gen::util::genPathAddElem(m_testGenerator.genGetOutputDir(), testName);
+    auto filePath = util::genPathAddElem(m_testGenerator.genGetOutputDir(), testName);
 
     m_testGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);

@@ -457,6 +457,72 @@ const std::string& genMsgFactorySuffixStr()
     return Str;     
 }
 
+const std::string& genDocumentFileSuffixStr()
+{
+    static const std::string Str(".document");
+    return Str;
+}
+
+const std::string& genPackageFileSuffixStr()
+{
+    static const std::string Str(".package");
+    return Str;
+}
+
+const std::string& genPackageAppendFileSuffixStr()
+{
+    static const std::string Str(".package_append");
+    return Str;
+}
+
+const std::string& genContentFileSuffixStr()
+{
+    static const std::string Str(".content");
+    return Str;
+}
+
+const std::string& genContentPrependFileSuffixStr()
+{
+    static const std::string Str(".content_prepend");
+    return Str;
+}
+
+const std::string& genContentAppendFileSuffixStr()
+{
+    static const std::string Str(".content_append");
+    return Str;
+}
+
+const std::string& genPdfFileSuffixStr()
+{
+    static const std::string Str(".pdf");
+    return Str;    
+}
+
+const std::string& genPdfAppendFileSuffixStr()
+{
+    static const std::string Str(".pdf_append");
+    return Str;    
+}
+
+const std::string& genHtmlFileSuffixStr()
+{
+    static const std::string Str(".html");
+    return Str;    
+}
+
+const std::string& genHtmlAppendFileSuffixStr()
+{
+    static const std::string Str(".html_append");
+    return Str;    
+}
+
+const std::string& genHtmlCmdAppendFileSuffixStr()
+{
+    static const std::string Str(".html_cmd_append");
+    return Str;    
+}
+
 char genSiblingRefPrefix()
 {
     return '$';

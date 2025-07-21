@@ -1,5 +1,7 @@
 set (
     src
+    Latex.cpp
+    LatexCmake.cpp
     LatexGenerator.cpp
     LatexProgramOptions.cpp
     main.cpp

@@ -99,6 +99,18 @@ const std::string& genTransportFieldTypeAccessPrefixStr();
 const std::string& genFieldAccessPrefixStr();
 const std::string& genBodyFileSuffixStr();
 const std::string& genMsgFactorySuffixStr();
+const std::string& genDocumentFileSuffixStr();
+const std::string& genPackageFileSuffixStr();
+const std::string& genPackageAppendFileSuffixStr();
+const std::string& genContentFileSuffixStr();
+const std::string& genContentPrependFileSuffixStr();
+const std::string& genContentAppendFileSuffixStr();
+const std::string& genPdfFileSuffixStr();
+const std::string& genPdfAppendFileSuffixStr();
+const std::string& genHtmlFileSuffixStr();
+const std::string& genHtmlAppendFileSuffixStr();
+const std::string& genHtmlCmdAppendFileSuffixStr();
+
 
 char genSiblingRefPrefix();
 char genStringRefPrefix();

@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2025 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,14 +22,30 @@ namespace commsdsl2latex
 
 class LatexGenerator final : public commsdsl::gen::GenGenerator
 {
+    using Base = commsdsl::gen::GenGenerator;
+
 public:
+    using GenProgramOptions = commsdsl::gen::GenProgramOptions;
+
     static const std::string& latexFileGeneratedComment();
+    static const std::string& latexCodeInjectCommentPrefix();
+
+    std::string latexInputCodePathForFile(const std::string& name) const;    
+
+    bool latexHasCodeInjectionComments() const
+    {
+        return m_hasCodeInjectionComments;
+    }
 
 protected:
     virtual bool genWriteImpl() override;    
 
+    virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
+
 private:
     bool latexWriteExtraFilesInternal() const;
+
+    bool m_hasCodeInjectionComments = false;
 };
 
 } // namespace commsdsl2latex

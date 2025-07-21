@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2025 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,12 +21,22 @@ namespace commsdsl2latex
 namespace
 {
 
+const std::string LatexCodeInjectCommentsStr("code-inject-comments");
+
 } // namespace
 
 LatexProgramOptions::LatexProgramOptions()
 {
     genAddCommonOptions()
+    (LatexCodeInjectCommentsStr, 
+        "Show code injection comments in the generated TEX files. "
+        "They serve as guidance of what can be injected and where")    
     ;
+}
+
+bool LatexProgramOptions::latexCodeInjectCommentsRequested() const
+{
+    return genIsOptUsed(LatexCodeInjectCommentsStr);
 }
 
 } // namespace commsdsl2latex

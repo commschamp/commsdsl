@@ -1,5 +1,5 @@
 //
-// Copyright 2025 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,28 +15,30 @@
 
 #pragma once
 
-#include "commsdsl/gen/GenProgramOptions.h"
-
-#include <iosfwd>
 #include <string>
-#include <vector>
 
 namespace commsdsl2latex
 {
 
-class LatexProgramOptions : public commsdsl::gen::GenProgramOptions
+class LatexGenerator;
+class Latex
 {
 public:
-    using GenProgramOptions = commsdsl::gen::GenProgramOptions;
+    static bool latexWrite(LatexGenerator& generator);
+    
+    static std::string latexDocFileBaseName(const LatexGenerator& generator);
+    static std::string latexDocTexFileName(const LatexGenerator& generator);
+    
+private:
+    explicit Latex(LatexGenerator& generator) : m_latexGenerator(generator) {}
 
-    LatexProgramOptions();
+private:
+    bool latexWriteInternal();
+    std::string latexDocumentInternal() const;
+    std::string latexPackageInternal() const;
+    std::string latexContentsInternal() const;
 
-    static const LatexProgramOptions& latexCast(const GenProgramOptions& options)
-    {
-        return static_cast<const LatexProgramOptions&>(options);
-    }
-
-    bool latexCodeInjectCommentsRequested() const;
+    LatexGenerator& m_latexGenerator;
 };
 
 } // namespace commsdsl2latex
