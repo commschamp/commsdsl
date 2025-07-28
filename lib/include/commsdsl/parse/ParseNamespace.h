@@ -48,6 +48,7 @@ public:
 
     bool parseValid() const;
     const std::string& parseName() const;
+    const std::string& parseDisplayName() const;
     const std::string& parseDescription() const;
     ParseNamespacesList parseNamespaces() const;
     ParseFieldsList parseFields() const;

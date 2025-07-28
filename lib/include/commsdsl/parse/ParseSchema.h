@@ -45,6 +45,8 @@ public:
 
     const std::string& parseName() const;
 
+    const std::string& parseDisplayName() const;
+
     const std::string& parseDescription() const;
 
     unsigned parseId() const;

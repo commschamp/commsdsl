@@ -124,7 +124,7 @@ bool CommsDoxygen::commsWriteConfInternal() const
         "\n";
 
     util::GenReplacementMap repl = {
-        {"PROJ_NAME", m_commsGenerator.genCurrentSchema().genSchemaName()},
+        {"PROJ_NAME", m_commsGenerator.genCurrentSchema().genDisplayName()},
         {"APPEND", util::genReadFileContents(comms::genInputCodePathForDoc(FileName, m_commsGenerator) + strings::genAppendFileSuffixStr())}
     };
 
@@ -408,11 +408,9 @@ bool CommsDoxygen::commsWriteMainpageInternal() const
 {
     const std::string FileName = "main.dox";
     const std::string Templ =
-        "/// @mainpage \"#^#PROJ_NAME#$#\" Binary Protocol Library\n"
+        "/// @mainpage #^#TITLE#$#\n"
         "/// @tableofcontents\n"
-        "/// This generated code implements \"#^#PROJ_NAME#$#\" binary protocol using various\n"
-        "/// classes from\n"
-        "/// <a href=\"https://github.com/commschamp/comms\">COMMS Library</a>.@n\n"
+        "#^#DESC#$#\n"
         "/// Below is a short summary of generated classes.\n"
         "/// Please refer to <b>\"How to Use Defined Custom Protocol\"</b> page of its documentation\n"
         "/// for detailed explanation on how to use them.\n"
@@ -433,6 +431,14 @@ bool CommsDoxygen::commsWriteMainpageInternal() const
         "#^#APPEND#$#\n"
         "\n";
 
+    auto desc = m_commsGenerator.genCurrentSchema().genParseObj().parseDescription();
+    if (desc.empty()) {
+        desc = 
+            "This generated code implements \"" + m_commsGenerator.genCurrentSchema().genDisplayName() + "\" binary protocol using various "
+            "classes from\n<a href=\"https://github.com/commschamp/comms\">COMMS Library</a>.@n";
+    }
+    desc = "/// " + util::genStrReplace(util::genStrMakeMultiline(desc), "\n", "\n/// ");
+
     util::GenReplacementMap repl = {
         {"PROJ_NAME", m_commsGenerator.genCurrentSchema().genSchemaName()},
         {"MESSAGES_DOC", commsMessagesDocInternal()},
@@ -442,8 +448,14 @@ bool CommsDoxygen::commsWriteMainpageInternal() const
         {"DISPATCH_DOC", commsDispatchDocInternal()},
         {"CUSTOMIZE_DOC", commsCustomizeDocInternal()},
         {"VERSION_DOC", commsVersionDocInternal()},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForDoc(FileName, m_commsGenerator) + strings::genAppendFileSuffixStr())}
+        {"APPEND", util::genReadFileContents(comms::genInputCodePathForDoc(FileName, m_commsGenerator) + strings::genAppendFileSuffixStr())},
+        {"TITLE", m_commsGenerator.genCurrentSchema().genParseObj().parseDisplayName()},
+        {"DESC", std::move(desc)},
     };
+
+    if (repl["TITLE"].empty()) {
+        repl["TITLE"] = "\"" + m_commsGenerator.genCurrentSchema().genSchemaName() + "\" Binary Protocol Library";
+    }
 
     return commsWriteFileInternal(FileName, util::genProcessTemplate(Templ, repl), m_commsGenerator);
 }

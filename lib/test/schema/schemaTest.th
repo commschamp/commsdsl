@@ -15,6 +15,8 @@ public:
     void test4();
     void test5();
     void test6();
+    void test7();
+    void test8();
 };
 
 void SchemaTestSuite::setUp()
@@ -42,6 +44,7 @@ void SchemaTestSuite::test1()
     TS_ASSERT(schema.parseNonUniqueMsgIdAllowed());
     TS_ASSERT(schema.parseExtraAttributes().empty());
     TS_ASSERT(schema.parseExtraElements().empty());
+    TS_ASSERT(schema.parseDisplayName().empty());
 }
 
 void SchemaTestSuite::test2()
@@ -65,6 +68,7 @@ void SchemaTestSuite::test2()
     TS_ASSERT_EQUALS(extraAttrs.begin()->second, "hello");
     TS_ASSERT_EQUALS(extraChildren.size(), 1U);
     TS_TRACE(extraChildren.front());
+    TS_ASSERT(schema.parseDisplayName().empty());
 }
 
 void SchemaTestSuite::test3()
@@ -92,6 +96,7 @@ void SchemaTestSuite::test3()
     TS_ASSERT_EQUALS(extraAttrs.begin()->second, "hello");
     TS_ASSERT_EQUALS(extraChildren.size(), 1U);
     TS_TRACE(extraChildren.front());
+    TS_ASSERT(schema.parseDisplayName().empty());
 }
 
 void SchemaTestSuite::test4()
@@ -113,6 +118,7 @@ void SchemaTestSuite::test4()
     TS_ASSERT_EQUALS(platforms[0], "plat1");
     TS_ASSERT_EQUALS(platforms[1], "plat2");
     TS_ASSERT_EQUALS(platforms[2], "plat3");
+    TS_ASSERT(schema.parseDisplayName().empty());
 }
 
 void SchemaTestSuite::test5()
@@ -133,6 +139,7 @@ void SchemaTestSuite::test5()
     TS_ASSERT_EQUALS(platforms.size(), 2U);
     TS_ASSERT_EQUALS(platforms[0], "plat1");
     TS_ASSERT_EQUALS(platforms[1], "plat2");
+    TS_ASSERT(schema.parseDisplayName().empty());
 }
 
 void SchemaTestSuite::test6()
@@ -148,4 +155,26 @@ void SchemaTestSuite::test6()
     TS_ASSERT(!schema.parseNonUniqueMsgIdAllowed());
     TS_ASSERT(schema.parseExtraAttributes().empty());
     TS_ASSERT(schema.parseExtraElements().empty());
+    TS_ASSERT(schema.parseDisplayName().empty());
+}
+
+void SchemaTestSuite::test7()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
+    TS_ASSERT(protocol);
+
+    auto schema = protocol->parseLastParsedSchema();
+    TS_ASSERT_EQUALS(schema.parseName(), "Schema7");
+    TS_ASSERT_EQUALS(schema.parseDisplayName(), "Schema 7");
+}
+
+void SchemaTestSuite::test8()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
+    TS_ASSERT(protocol);
+
+    auto schema = protocol->parseLastParsedSchema();
+    TS_ASSERT_EQUALS(schema.parseName(), "Schema8");
+    TS_ASSERT(schema.parseDisplayName().empty());
 }

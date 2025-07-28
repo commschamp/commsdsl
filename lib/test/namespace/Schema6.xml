@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema6" endian="big" version="5">
+    <ns name="global" displayName="Global Namespace">
+    </ns>
+</schema>

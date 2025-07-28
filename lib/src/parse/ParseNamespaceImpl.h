@@ -108,6 +108,11 @@ public:
         return m_name;
     }
 
+    const std::string& parseDisplayName() const
+    {
+        return m_displayName;
+    }    
+
     const std::string& parseDescription() const
     {
         return m_description;
@@ -197,6 +202,7 @@ private:
     bool processMultipleFrames(::xmlNodePtr node);
     bool parseUpdateExtraAttrs();
     bool parseUpdateExtraChildren();
+    bool parseUpdateDisplayName();
     bool parseStrToValue(const std::string& ref, ParseStrToValueNsConvertFunc&& nsFunc, ParseStrToValueFieldConvertFunc&& fFunc) const;
 
     ParseLogWrapper parseLogError() const;
@@ -211,6 +217,7 @@ private:
     ParseContentsList m_extraChildren;
 
     std::string m_name;
+    std::string m_displayName;
     std::string m_description;
 
     ParseNamespacesMap m_namespaces;

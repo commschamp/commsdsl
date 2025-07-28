@@ -56,6 +56,12 @@ const std::string& ParseSchema::parseName() const
     return m_pImpl->parseName();
 }
 
+
+const std::string& ParseSchema::parseDisplayName() const
+{
+    return m_pImpl->parseDisplayName();
+}
+
 const std::string& ParseSchema::parseDescription() const
 {
     if (!parseValid()) {

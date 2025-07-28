@@ -36,6 +36,7 @@ namespace
 
 const ParseXmlWrap::ParseNamesList PropNames = {
     common::parseNameStr(),
+    common::parseDisplayNameStr(),
     common::parseIdStr(),
     common::parseVersionStr(),
     common::parseDslVersionStr(),
@@ -77,6 +78,7 @@ bool ParseSchemaImpl::parseProcessNode()
         (!parseUpdateUnsignedProperty(m_props, common::parseDslVersionStr(), m_dslVersion)) ||
         (!parseUpdateEndianProperty(m_props, common::parseEndianStr(), m_endian)) ||
         (!parseUpdateBooleanProperty(m_props, common::parseNonUniqueMsgIdAllowedStr(), m_nonUniqueMsgIdAllowed)) ||
+        (!parseUpdateDisplayName()) ||
         (!parseUpdateExtraAttrs()) ||
         (!parseUpdateExtraChildren())) {
         return false;
@@ -351,6 +353,25 @@ bool ParseSchemaImpl::parseUpdateExtraChildren()
 {
     static const ParseXmlWrap::ParseNamesList ChildrenNames = parseGetChildrenList();
     m_extraChildren = ParseXmlWrap::parseGetExtraChildren(m_node, ChildrenNames, m_protocol);
+    return true;
+}
+
+bool ParseSchemaImpl::parseUpdateDisplayName()
+{
+    auto& propName = common::parseDisplayNameStr();
+    if (!parseUpdateStringProperty(m_props, propName, m_displayName)) {
+        return false;
+    }
+
+    if ((!m_displayName.empty()) && (0U < m_dslVersion) && (m_dslVersion < 7U)) {
+        // The check must be explicit here and not via protocol feature check. 
+        // The current schema for the protocol object is not set yet.
+        parseLogWarning(m_protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "The property \"" << propName << "\" of schema is not supported for dslVersion=" << 
+                m_dslVersion << ".";        
+        m_displayName.clear();
+    }
+    
     return true;
 }
 

@@ -56,6 +56,11 @@ public:
     explicit GenNamespace(GenGenerator& generator, ParseNamespace parseObj, GenElem* parent = nullptr);
     virtual ~GenNamespace();
 
+    static const GenNamespace& genCast(const GenElem& obj)
+    {
+        return static_cast<const GenNamespace&>(obj);
+    }    
+
     bool genCreateAll();
     bool genPrepare();
     bool genWrite() const;

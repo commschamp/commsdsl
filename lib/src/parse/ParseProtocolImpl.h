@@ -124,6 +124,7 @@ public:
     bool parseIsMessageReuseSupported() const;
     bool parseIsInterfaceReuseSupported() const;
     bool parseIsValidCondSupportedInCompositeFields() const;
+    bool parseIsNamespaceDisplayNameSupported() const;
 
     void parseSetMultipleSchemasEnabled(bool value)
     {

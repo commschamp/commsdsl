@@ -79,6 +79,16 @@ public:
         return m_parseObj.parseName();
     }
 
+    const std::string& genDisplayName() const
+    {
+        auto& dispName = m_parseObj.parseDisplayName();
+        if (!dispName.empty()) {
+            return dispName;
+        }
+
+        return genSchemaName();
+    }    
+
     parse::ParseEndian genSchemaEndian() const
     {
         return m_parseObj.parseEndian();
@@ -327,6 +337,11 @@ public:
         return m_generator;
     }
 
+    const GenGenerator& genGenerator() const
+    {
+        return m_generator;
+    }    
+
     GenFieldsAccessList genFindMessageIdFields() const
     {
         GenFieldsAccessList result;
@@ -519,6 +534,11 @@ const GenSchema::ParseSchema& GenSchema::genParseObj() const
 const std::string& GenSchema::genSchemaName() const
 {
     return m_impl->genSchemaName();
+}
+
+const std::string& GenSchema::genDisplayName() const
+{
+    return m_impl->genDisplayName();
 }
 
 parse::ParseEndian GenSchema::genSchemaEndian() const
@@ -790,6 +810,16 @@ bool GenSchema::genHasAnyReferencedMessage() const
 bool GenSchema::genHasAnyReferencedComponent() const
 {
     return m_impl->genHasAnyReferencedComponent();
+}
+
+GenGenerator& GenSchema::genGenerator()
+{
+    return m_impl->genGenerator();
+}
+
+const GenGenerator& GenSchema::genGenerator() const
+{
+    return m_impl->genGenerator();
 }
 
 GenElem::Type GenSchema::genElemTypeImpl() const

@@ -35,6 +35,7 @@ namespace
 
 static const ParseXmlWrap::ParseNamesList PropNames = {
     common::parseNameStr(),
+    common::parseDisplayNameStr(),
     common::parseDescriptionStr()
 };
 
@@ -46,7 +47,7 @@ static const ParseXmlWrap::ParseNamesList ChildrenNames = {
     common::parseFrameStr(),
     common::parseNsStr(),
     common::parseInterfacesStr(),
-    common::parseInterfaceStr()
+    common::parseInterfaceStr(),
 };
 
 ParseXmlWrap::ParseNamesList parseAllNames()
@@ -92,6 +93,7 @@ bool ParseNamespaceImpl::parseProps()
 
     if ((!parseUpdateStringProperty(m_props, common::parseNameStr(), m_name)) ||
         (!parseUpdateStringProperty(m_props, common::parseDescriptionStr(), m_description)) ||
+        (!parseUpdateDisplayName()) ||
         (!parseUpdateExtraAttrs()) ||
         (!parseUpdateExtraChildren())) {
         return false;
@@ -733,6 +735,25 @@ bool ParseNamespaceImpl::parseUpdateExtraChildren()
 {
     static const ParseXmlWrap::ParseNamesList Names = parseAllNames();
     m_extraChildren = ParseXmlWrap::parseGetExtraChildren(m_node, Names, m_protocol);
+    return true;
+}
+
+bool ParseNamespaceImpl::parseUpdateDisplayName()
+{
+    auto& propName = common::parseDisplayNameStr();
+    if (!parseUpdateStringProperty(m_props, propName, m_displayName)) {
+        return false;
+    }
+
+    if ((!m_displayName.empty()) && (!m_protocol.parseIsNamespaceDisplayNameSupported())) {
+        // The check must be explicit here and not via protocol feature check. 
+        // The current schema for the protocol object is not set yet.
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "The property \"" << propName << "\" of namespace is not supported for dslVersion=" << 
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
+        m_displayName.clear();
+    }
+    
     return true;
 }
 

@@ -52,9 +52,15 @@ public:
     GenSchema(GenGenerator& generator, ParseSchema parseObj, GenElem* parent = nullptr);
     virtual ~GenSchema();
 
+    static const GenSchema& genCast(const GenElem& obj)
+    {
+        return static_cast<const GenSchema&>(obj);
+    }
+
     const ParseSchema& genParseObj() const;
 
     const std::string& genSchemaName() const;
+    const std::string& genDisplayName() const;
     parse::ParseEndian genSchemaEndian() const;
     unsigned genSchemaVersion() const;
 
@@ -111,6 +117,9 @@ public:
     bool genHasReferencedMessageIdField() const;
     bool genHasAnyReferencedMessage() const;    
     bool genHasAnyReferencedComponent() const;    
+
+    GenGenerator& genGenerator();
+    const GenGenerator& genGenerator() const;
 
 protected:
     virtual Type genElemTypeImpl() const override final;

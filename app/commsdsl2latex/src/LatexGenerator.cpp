@@ -17,9 +17,12 @@
 
 #include "Latex.h"
 #include "LatexCmake.h"
+#include "LatexNamespace.h"
 #include "LatexProgramOptions.h"
+#include "LatexSchema.h"
 
 #include "commsdsl/version.h"
+#include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
@@ -28,11 +31,45 @@
 #include <filesystem>
 
 namespace fs = std::filesystem;
+namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
 
 namespace commsdsl2latex
 {
+
+namespace 
+{
+
+int latexSectionElemIndexInternal(const commsdsl::gen::GenElem& elem)
+{
+    auto* parent = elem.genGetParent();
+    auto type = elem.genElemType();
+    if (parent == nullptr) {
+        assert(elem.genElemType() == commsdsl::gen::GenElem::Type_Schema);
+        auto& schema = LatexSchema::latexCast(commsdsl::gen::GenSchema::genCast(elem));
+        if (schema.latexTitle().empty()) {
+            return -1;
+        }
+
+        return 0U;
+    }
+
+    auto parentIndex = latexSectionElemIndexInternal(*parent);
+    if (type == commsdsl::gen::GenElem::Type_Namespace) {
+        auto& ns = LatexNamespace::latexCast(commsdsl::gen::GenNamespace::genCast(elem));
+        if (ns.latexTitle().empty()) {
+            return parentIndex;
+        }
+
+        return parentIndex + 1;
+    }
+
+    return parentIndex + 1;
+}
+
+} // namespace 
+    
 
 const std::string& LatexGenerator::latexFileGeneratedComment()
 {
@@ -49,6 +86,47 @@ const std::string& LatexGenerator::latexCodeInjectCommentPrefix()
     return Str;
 }
 
+std::string LatexGenerator::latexWrapInput(const std::string& filePath)
+{
+    return "\\input{" + filePath + "}";
+}
+
+void LatexGenerator::latexWrapInputInPlace(std::string& filePath)
+{
+    filePath = latexWrapInput(filePath);
+}
+
+const std::string& LatexGenerator::latexSectionDirective(const GenElem& elem)
+{
+    static const std::string Map[] = {
+        /* 0 */ "\\section",
+        /* 1 */ "\\subsection",
+        /* 2 */ "\\subsubsection",
+        /* 3 */ "\\paragraph",
+        /* 4 */ "\\subparagraph",
+    };
+    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
+
+    int idx = latexSectionElemIndexInternal(elem);
+    assert(int(0) <= idx);
+    if (idx < 0) {
+        return Map[0];
+    }
+
+    if (MapSize <= static_cast<unsigned>(idx)) {
+        static const std::string Bold("\\textbf");
+        return Bold;
+    }
+
+    return Map[idx];
+}
+
+std::string LatexGenerator::latexRelPathFor(const GenElem& elem)
+{
+    auto scope = comms::genScopeFor(elem, *this);
+    return util::genStrReplace(scope, "::", "/");
+}
+
 std::string LatexGenerator::latexInputCodePathForFile(const std::string& name) const
 {
     return genGetCodeDir() + '/' + name;
@@ -61,6 +139,16 @@ bool LatexGenerator::genWriteImpl()
         Latex::latexWrite(*this) &&
         LatexCmake::latexWrite(*this) &&
         latexWriteExtraFilesInternal();
+}
+
+LatexGenerator::GenSchemaPtr LatexGenerator::genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent)
+{
+    return std::make_unique<LatexSchema>(*this, parseObj, parent);
+}
+
+LatexGenerator::GenNamespacePtr LatexGenerator::genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent)
+{
+    return std::make_unique<LatexNamespace>(*this, parseObj, parent);
 }
 
 LatexGenerator::OptsProcessResult LatexGenerator::genProcessOptionsImpl(const GenProgramOptions& options)

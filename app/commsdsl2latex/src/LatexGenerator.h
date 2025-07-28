@@ -25,10 +25,32 @@ class LatexGenerator final : public commsdsl::gen::GenGenerator
     using Base = commsdsl::gen::GenGenerator;
 
 public:
+    using ParseSchema = commsdsl::parse::ParseSchema;
+    using ParseNamespace = commsdsl::parse::ParseNamespace;
+
+    using GenElem = commsdsl::gen::GenElem;
+    using GenSchemaPtr = commsdsl::gen::GenSchemaPtr;
+    using GenNamespacePtr = commsdsl::gen::GenNamespacePtr;
     using GenProgramOptions = commsdsl::gen::GenProgramOptions;
+    using GenGenerator = commsdsl::gen::GenGenerator;
 
     static const std::string& latexFileGeneratedComment();
     static const std::string& latexCodeInjectCommentPrefix();
+    static std::string latexWrapInput(const std::string& filePath);
+    static void latexWrapInputInPlace(std::string& filePath);
+    static const std::string& latexSectionDirective(const GenElem& elem);
+
+    static LatexGenerator& latexCast(GenGenerator& generator)
+    {
+        return static_cast<LatexGenerator&>(generator);
+    }
+
+    static const LatexGenerator& latexCast(const GenGenerator& generator)
+    {
+        return static_cast<const LatexGenerator&>(generator);
+    }    
+
+    std::string latexRelPathFor(const GenElem& elem);
 
     std::string latexInputCodePathForFile(const std::string& name) const;    
 
@@ -39,6 +61,9 @@ public:
 
 protected:
     virtual bool genWriteImpl() override;    
+
+    virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
+    virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
 
     virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
 

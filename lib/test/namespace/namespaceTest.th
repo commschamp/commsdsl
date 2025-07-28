@@ -14,6 +14,8 @@ public:
     void test3();
     void test4();
     void test5();
+    void test6();
+    void test7();
 };
 
 void MessageTestSuite::setUp()
@@ -153,4 +155,31 @@ void MessageTestSuite::test5()
     TS_ASSERT_EQUALS(extraChildren.size(), 2U);
     TS_TRACE(extraChildren.front());
     TS_TRACE(extraChildren.back());
+}
+
+void MessageTestSuite::test6()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.parseName(), "global");
+    TS_ASSERT_EQUALS(ns.parseDisplayName(), "Global Namespace");
+}
+
+void MessageTestSuite::test7()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.parseName(), "global");
+    TS_ASSERT(ns.parseDisplayName().empty());
 }

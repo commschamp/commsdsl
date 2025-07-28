@@ -60,6 +60,11 @@ public:
         return m_name;
     }
 
+    const std::string& parseDisplayName() const
+    {
+        return m_displayName;
+    }    
+
     const std::string& parseDescription() const
     {
         return m_description;
@@ -154,6 +159,7 @@ private:
     bool parseUpdateBooleanProperty(const ParsePropsMap& map, const std::string& name, bool& prop);
     bool parseUpdateExtraAttrs();
     bool parseUpdateExtraChildren();
+    bool parseUpdateDisplayName();
     const ParseNamespaceImpl* parseGetNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const;
 
     ::xmlNodePtr m_node = nullptr;
@@ -163,6 +169,7 @@ private:
     ParsePropsMap m_extraAttrs;
     ParseContentsList m_extraChildren;
     std::string m_name;
+    std::string m_displayName;
     std::string m_description;
     ParseNamespacesMap m_namespaces;
     ParsePlatformsList m_platforms;

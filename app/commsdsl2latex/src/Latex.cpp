@@ -16,10 +16,12 @@
 #include "Latex.h"
 
 #include "LatexGenerator.h"
+#include "LatexSchema.h"
 
 #include "commsdsl/gen/util.h"
 #include "commsdsl/gen/strings.h"
 
+#include <cassert>
 #include <fstream>
 
 namespace util = commsdsl::gen::util;
@@ -36,12 +38,12 @@ bool Latex::latexWrite(LatexGenerator& generator)
 
 std::string Latex::latexDocFileBaseName(const LatexGenerator& generator)
 {
-    return generator.genCurrentSchema().genMainNamespace() + "_doc";
+    return generator.genProtocolSchema().genMainNamespace() + "_doc";
 }
 
 std::string Latex::latexDocTexFileName(const LatexGenerator& generator)
 {
-    return latexDocFileBaseName(generator) + ".tex";
+    return latexDocFileBaseName(generator) + strings::genLatexSuffixStr();
 }
 
 bool Latex::latexWriteInternal()
@@ -164,15 +166,25 @@ std::string Latex::latexContentsInternal() const
     const std::string Templ = 
         "#^#REPLACE_COMMENT#$#\n"
         "#^#PREPEND#$#\n"
+        "#^#INPUTS#$#\n"
         "TODO\n"
         "#^#APPEND#$#\n"
     ;    
+
+    util::GenStringsList schemaInputs;
+    auto& schemas = m_latexGenerator.genSchemas();
+    for (auto& s : schemas) {
+        assert(s);
+        auto* latexSchema = LatexSchema::latexCast(s.get());
+        schemaInputs.push_back(m_latexGenerator.latexWrapInput(latexSchema->latexRelFilePath()));
+    }
 
     auto prependFileName = latexDocTexFileName(m_latexGenerator) + strings::genContentPrependFileSuffixStr();
     auto appendFileName = latexDocTexFileName(m_latexGenerator) + strings::genContentAppendFileSuffixStr();
     util::GenReplacementMap repl = {
         {"PREPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(prependFileName))},
         {"APPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(appendFileName))},
+        {"INPUTS", util::genStrListToString(schemaInputs, "\n", "")},
     }; 
     
     if (m_latexGenerator.latexHasCodeInjectionComments()) {

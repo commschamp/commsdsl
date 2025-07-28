@@ -37,6 +37,7 @@ const std::string& genCommonSuffixStr();
 const std::string& genMembersSuffixStr();
 const std::string& genCppHeaderSuffixStr();
 const std::string& genCppSourceSuffixStr();
+const std::string& genLatexSuffixStr();
 const std::string& genFieldNamespaceStr();
 const std::string& genMessageNamespaceStr();
 const std::string& genFrameNamespaceStr();

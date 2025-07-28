@@ -3,7 +3,9 @@ set (
     Latex.cpp
     LatexCmake.cpp
     LatexGenerator.cpp
+    LatexNamespace.cpp
     LatexProgramOptions.cpp
+    LatexSchema.cpp
     main.cpp
 )
 

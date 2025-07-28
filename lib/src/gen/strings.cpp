@@ -85,6 +85,12 @@ const std::string& genCppSourceSuffixStr()
     return Str;     
 }
 
+const std::string& genLatexSuffixStr()
+{
+    static const std::string Str(".tex");
+    return Str;    
+}
+
 const std::string& genFieldNamespaceStr()
 {
     static const std::string Str("field");
