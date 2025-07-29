@@ -106,6 +106,8 @@ const std::string& genPackageAppendFileSuffixStr();
 const std::string& genContentFileSuffixStr();
 const std::string& genContentPrependFileSuffixStr();
 const std::string& genContentAppendFileSuffixStr();
+const std::string& genTitleFileSuffixStr();
+const std::string& genTitleAppendFileSuffixStr();
 const std::string& genPdfFileSuffixStr();
 const std::string& genPdfAppendFileSuffixStr();
 const std::string& genHtmlFileSuffixStr();

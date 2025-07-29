@@ -39,6 +39,7 @@ public:
     static std::string latexWrapInput(const std::string& filePath);
     static void latexWrapInputInPlace(std::string& filePath);
     static const std::string& latexSectionDirective(const GenElem& elem);
+    static std::string latexLabelId(const GenElem& elem);
 
     static LatexGenerator& latexCast(GenGenerator& generator)
     {

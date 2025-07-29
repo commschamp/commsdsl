@@ -499,6 +499,18 @@ const std::string& genContentAppendFileSuffixStr()
     return Str;
 }
 
+const std::string& genTitleFileSuffixStr()
+{
+    static const std::string Str(".title");
+    return Str;
+}
+
+const std::string& genTitleAppendFileSuffixStr()
+{
+    static const std::string Str(".title_append");
+    return Str;
+}
+
 const std::string& genPdfFileSuffixStr()
 {
     static const std::string Str(".pdf");

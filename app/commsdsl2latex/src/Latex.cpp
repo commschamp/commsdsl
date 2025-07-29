@@ -72,7 +72,10 @@ bool Latex::latexWriteInternal()
             "#^#REPLACE_COMMENT#$#\n"
             "#^#DOCUMENT#$#\n"
             "#^#PACKAGE#$#\n"
-            "\\begin{document}\n"
+            "#^#TITLE#$#\n"
+            "\\begin{document}\n\n"
+            "\\maketitle\n\n"
+            "\\tableofcontents\n\n"
             "#^#CONTENTS#$#\n"
             "\\end{document}\n"
             ;
@@ -82,11 +85,12 @@ bool Latex::latexWriteInternal()
             {"DOCUMENT", latexDocumentInternal()},
             {"PACKAGE", latexPackageInternal()},
             {"CONTENTS", latexContentsInternal()},
+            {"TITLE", latexTitleInternal()},
         };
 
         if (m_latexGenerator.latexHasCodeInjectionComments()) {
             repl["REPLACE_COMMENT"] = 
-                m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".\n";
+                m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
         };        
 
         auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
@@ -167,7 +171,6 @@ std::string Latex::latexContentsInternal() const
         "#^#REPLACE_COMMENT#$#\n"
         "#^#PREPEND#$#\n"
         "#^#INPUTS#$#\n"
-        "TODO\n"
         "#^#APPEND#$#\n"
     ;    
 
@@ -198,6 +201,45 @@ std::string Latex::latexContentsInternal() const
             repl["APPEND"] = m_latexGenerator.latexCodeInjectCommentPrefix() + "Append generated content with \"" + appendFileName + "\".";
         }
     }; 
+    
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string Latex::latexTitleInternal() const
+{
+    auto replaceFileName = latexDocTexFileName(m_latexGenerator) + strings::genTitleFileSuffixStr();
+    auto replaceContents = util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(replaceFileName));
+    if (!replaceContents.empty()) {
+        return replaceContents;
+    }
+
+    const std::string Templ = 
+        "#^#REPLACE_COMMENT#$#\n"
+        "\\title{#^#TITLE#$#}\n"
+        "\\date{\\today}\n"
+        "#^#APPEND#$#\n"
+    ;    
+
+    auto& protSchema = m_latexGenerator.genProtocolSchema();
+    auto title = protSchema.genParseObj().parseDisplayName();
+    if (title.empty()) {
+        title = "Protocol \"" + protSchema.genParseObj().parseName() + "\"";
+    }
+
+    auto appendFileName = latexDocTexFileName(m_latexGenerator) + strings::genTitleAppendFileSuffixStr();
+    util::GenReplacementMap repl = {
+        {"TITLE", std::move(title)},
+        {"APPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(appendFileName))},
+    }; 
+
+    if (m_latexGenerator.latexHasCodeInjectionComments()) {
+        repl["REPLACE_COMMENT"] = 
+            m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace title with \"" + replaceFileName + "\".";
+
+        if (repl["APPEND"].empty()) {
+            repl["APPEND"] = m_latexGenerator.latexCodeInjectCommentPrefix() + "Append to auto info with \"" + appendFileName + "\".";
+        }
+    };
     
     return util::genProcessTemplate(Templ, repl);
 }

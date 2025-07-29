@@ -121,6 +121,21 @@ const std::string& LatexGenerator::latexSectionDirective(const GenElem& elem)
     return Map[idx];
 }
 
+std::string LatexGenerator::latexLabelId(const GenElem& elem)
+{
+    std::string parentPrefix;
+    auto* parent = elem.genGetParent();
+    if (parent != nullptr) {
+        parentPrefix = latexLabelId(*parent);
+    }
+
+    if (!parentPrefix.empty()) {
+        parentPrefix += ':';
+    }
+
+    return parentPrefix + elem.genName();
+}
+
 std::string LatexGenerator::latexRelPathFor(const GenElem& elem)
 {
     auto scope = comms::genScopeFor(elem, *this);

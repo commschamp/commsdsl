@@ -51,6 +51,9 @@ public:
 
 protected:
     virtual bool genWriteImpl() const override;
+
+private:
+    std::string latexInputs() const;    
 };
 
 } // namespace commsdsl2latex

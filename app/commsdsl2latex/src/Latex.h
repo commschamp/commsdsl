@@ -37,6 +37,7 @@ private:
     std::string latexDocumentInternal() const;
     std::string latexPackageInternal() const;
     std::string latexContentsInternal() const;
+    std::string latexTitleInternal() const;
 
     LatexGenerator& m_latexGenerator;
 };

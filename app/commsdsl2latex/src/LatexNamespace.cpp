@@ -126,24 +126,52 @@ bool LatexNamespace::genWriteImpl() const
         return false;
     }
 
-    static const std::string Templ = 
-        "#^#SECTION#$\n"
-        "#^#DESCRIPTION#$#\n"
-        "TODO: NS INPUTS\n";
+    do {
+        auto replaceFileName = latexRelFilePath() + strings::genReplaceFileSuffixStr();
+        auto replaceContents = util::genReadFileContents(latexGenerator.latexInputCodePathForFile(replaceFileName));
+        if (!replaceContents.empty()) {
+            stream << replaceContents;
+            break;
+        }
 
-    util::GenReplacementMap repl;
+        static const std::string Templ = 
+            "#^#GENERATED#$#\n"
+            "#^#REPLACE_COMMENT#$#\n"
+            "#^#SECTION#$\n"
+            "#^#LABEL#$#\n"
+            "#^#DESCRIPTION#$#\n"
+            "#^#INPUTS#$#\n"
+            "#^#APPEND#$#\n";
 
-    if (genParseObj().parseValid()) {
-        repl["DESCRIPTION"] = util::genStrMakeMultiline(genParseObj().parseDescription());
-    }
+        auto appendFileName = latexRelFilePath() + strings::genAppendFileSuffixStr();
+        util::GenReplacementMap repl = {
+            {"GENERATED", LatexGenerator::latexFileGeneratedComment()},
+            {"INPUTS", latexInputs()},
+            {"APPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(appendFileName))},
+        };
 
-    auto title = latexTitle();
-    if (!title.empty()) {
-        repl["SECTION"] = LatexGenerator::latexSectionDirective(*this) + '{' + title + '}';
-    }    
+        auto title = latexTitle();
+        if (!title.empty()) {
+            repl["SECTION"] = LatexGenerator::latexSectionDirective(*this) + '{' + title + '}';
+            repl["LABEL"] = "\\label{" + LatexGenerator::latexLabelId(*this) + '}';
 
-    stream << util::genProcessTemplate(Templ, repl) << std::endl;
-    
+            if (genParseObj().parseValid()) {
+                repl["DESCRIPTION"] = util::genStrMakeMultiline(genParseObj().parseDescription());
+            }
+        }    
+
+        if (latexGenerator.latexHasCodeInjectionComments()) {
+            repl["REPLACE_COMMENT"] = 
+                latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
+
+            if (repl["APPEND"].empty()) {
+                repl["APPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Append to file with \"" + appendFileName + "\".";
+            }                
+        };         
+
+        stream << util::genProcessTemplate(Templ, repl) << std::endl;
+    } while (false);
+
     stream.flush();
     if (!stream.good()) {
         latexGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
@@ -151,6 +179,11 @@ bool LatexNamespace::genWriteImpl() const
     }
 
     return true;
+}
+
+std::string LatexNamespace::latexInputs() const
+{
+    return "TODO: NS INPUTS";
 }
 
 } // namespace commsdsl2latex
