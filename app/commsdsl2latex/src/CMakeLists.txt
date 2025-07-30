@@ -1,11 +1,24 @@
 set (
     src
     Latex.cpp
+    LatexBitfieldField.cpp
+    LatexBundleField.cpp
+    LatexDataField.cpp
     LatexCmake.cpp
+    LatexEnumField.cpp
+    LatexField.cpp
+    LatexFloatField.cpp
     LatexGenerator.cpp
+    LatexIntField.cpp
+    LatexListField.cpp
     LatexNamespace.cpp
+    LatexOptionalField.cpp
     LatexProgramOptions.cpp
+    LatexRefField.cpp
     LatexSchema.cpp
+    LatexSetField.cpp
+    LatexStringField.cpp
+    LatexVariantField.cpp
     main.cpp
 )
 

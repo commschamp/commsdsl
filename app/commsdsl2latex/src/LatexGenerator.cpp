@@ -16,10 +16,22 @@
 #include "LatexGenerator.h"
 
 #include "Latex.h"
+#include "LatexBitfieldField.h"
+#include "LatexBundleField.h"
+#include "LatexDataField.h"
 #include "LatexCmake.h"
+#include "LatexEnumField.h"
+#include "LatexFloatField.h"
+#include "LatexIntField.h"
+#include "LatexListField.h"
 #include "LatexNamespace.h"
+#include "LatexOptionalField.h"
 #include "LatexProgramOptions.h"
+#include "LatexRefField.h"
 #include "LatexSchema.h"
+#include "LatexSetField.h"
+#include "LatexStringField.h"
+#include "LatexVariantField.h"
 
 #include "commsdsl/version.h"
 #include "commsdsl/gen/comms.h"
@@ -123,17 +135,18 @@ const std::string& LatexGenerator::latexSectionDirective(const GenElem& elem)
 
 std::string LatexGenerator::latexLabelId(const GenElem& elem)
 {
-    std::string parentPrefix;
+    std::string prefix;
     auto* parent = elem.genGetParent();
     if (parent != nullptr) {
-        parentPrefix = latexLabelId(*parent);
+        prefix = latexLabelId(*parent);
     }
 
-    if (!parentPrefix.empty()) {
-        parentPrefix += ':';
+    auto& elemName = elem.genName();
+    if ((!prefix.empty()) && (!elemName.empty())) {
+        prefix += ':';
     }
 
-    return parentPrefix + elem.genName();
+    return prefix + elemName;
 }
 
 std::string LatexGenerator::latexRelPathFor(const GenElem& elem)
@@ -166,6 +179,66 @@ LatexGenerator::GenNamespacePtr LatexGenerator::genCreateNamespaceImpl(ParseName
     return std::make_unique<LatexNamespace>(*this, parseObj, parent);
 }
 
+LatexGenerator::GenFieldPtr LatexGenerator::genCreateIntFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<LatexIntField>(*this, parseObj, parent);
+}
+
+LatexGenerator::GenFieldPtr LatexGenerator::genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<LatexEnumField>(*this, parseObj, parent);
+}
+
+LatexGenerator::GenFieldPtr LatexGenerator::genCreateSetFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<LatexSetField>(*this, parseObj, parent);
+}
+
+LatexGenerator::GenFieldPtr LatexGenerator::genCreateFloatFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<LatexFloatField>(*this, parseObj, parent);
+}
+
+LatexGenerator::GenFieldPtr LatexGenerator::genCreateBitfieldFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<LatexBitfieldField>(*this, parseObj, parent);
+}
+
+LatexGenerator::GenFieldPtr LatexGenerator::genCreateBundleFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<LatexBundleField>(*this, parseObj, parent);
+}
+
+LatexGenerator::GenFieldPtr LatexGenerator::genCreateStringFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<LatexStringField>(*this, parseObj, parent);
+}
+
+LatexGenerator::GenFieldPtr LatexGenerator::genCreateDataFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<LatexDataField>(*this, parseObj, parent);
+}
+
+LatexGenerator::GenFieldPtr LatexGenerator::genCreateListFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<LatexListField>(*this, parseObj, parent);
+}
+
+LatexGenerator::GenFieldPtr LatexGenerator::genCreateRefFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<LatexRefField>(*this, parseObj, parent);
+}
+
+LatexGenerator::GenFieldPtr LatexGenerator::genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<LatexOptionalField>(*this, parseObj, parent);
+}
+
+LatexGenerator::GenFieldPtr LatexGenerator::genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<LatexVariantField>(*this, parseObj, parent);
+}
+
 LatexGenerator::OptsProcessResult LatexGenerator::genProcessOptionsImpl(const GenProgramOptions& options)
 {
     auto& opts = LatexProgramOptions::latexCast(options);
@@ -177,7 +250,19 @@ LatexGenerator::OptsProcessResult LatexGenerator::genProcessOptionsImpl(const Ge
 bool LatexGenerator::latexWriteExtraFilesInternal() const
 {
     const std::vector<std::string> ReservedExt = {
-        //strings::genSourcesFileSuffixStr(),
+        strings::genReplaceFileSuffixStr(),
+        strings::genAppendFileSuffixStr(),
+        strings::genPackageFileSuffixStr(),
+        strings::genPackageAppendFileSuffixStr(),
+        strings::genContentFileSuffixStr(),
+        strings::genContentPrependFileSuffixStr(),
+        strings::genContentAppendFileSuffixStr(),
+        strings::genTitleFileSuffixStr(),
+        strings::genTitleAppendFileSuffixStr(),
+        strings::genPdfFileSuffixStr(),
+        strings::genHtmlFileSuffixStr(),
+        strings::genHtmlAppendFileSuffixStr(),
+        strings::genHtmlCmdAppendFileSuffixStr(),
     }; 
 
     return genCopyExtraSourceFiles(ReservedExt);

@@ -513,7 +513,7 @@ const std::string& genTitleAppendFileSuffixStr()
 
 const std::string& genPdfFileSuffixStr()
 {
-    static const std::string Str(".pdf");
+    static const std::string Str(".pdf_replace");
     return Str;    
 }
 
@@ -525,7 +525,7 @@ const std::string& genPdfAppendFileSuffixStr()
 
 const std::string& genHtmlFileSuffixStr()
 {
-    static const std::string Str(".html");
+    static const std::string Str(".html_replace");
     return Str;    
 }
 

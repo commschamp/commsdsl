@@ -68,7 +68,7 @@ void commsReadCustomCodeInternal(const std::string& codePath, std::string& code)
 } // namespace 
     
 
-CommsField::CommsField(commsdsl::gen::GenField& field) :
+CommsField::CommsField(GenField& field) :
     m_genField(field)
 {
 }
@@ -463,7 +463,7 @@ const CommsField* CommsField::commsFindSibling(const std::string& name) const
         return nullptr;
     }    
 
-    auto* parentField = static_cast<const commsdsl::gen::GenField*>(parent);
+    auto* parentField = static_cast<const GenField*>(parent);
     auto fieldKind = parentField->genParseObj().parseKind();
     if (fieldKind == commsdsl::parse::ParseField::ParseKind::Bitfield) {
         auto* bitfield = static_cast<const CommsBitfieldField*>(parentField);

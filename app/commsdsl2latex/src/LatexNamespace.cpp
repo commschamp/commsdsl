@@ -183,6 +183,16 @@ bool LatexNamespace::genWriteImpl() const
 
 std::string LatexNamespace::latexInputs() const
 {
+    // static const std::string Templ = 
+    //     "#^#FIELDS#$#\n"
+    //     ;
+
+    // util::GenStringsList fields;
+
+    // for (auto& f : genFields()) {
+    //     // TODO:
+    // }
+
     return "TODO: NS INPUTS";
 }
 

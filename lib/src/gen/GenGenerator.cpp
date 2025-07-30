@@ -968,75 +968,75 @@ GenFramePtr GenGenerator::genCreateFrame(commsdsl::parse::ParseFrame parseObj, G
     return genCreateFrameImpl(parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateIntField(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateIntField(ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
+    assert(parseObj.parseKind() == ParseField::ParseKind::Int);
     return genCreateIntFieldImpl(parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateEnumField(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateEnumField(ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Enum);
+    assert(parseObj.parseKind() == ParseField::ParseKind::Enum);
     return genCreateEnumFieldImpl(parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateSetField(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateSetField(ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Set);
+    assert(parseObj.parseKind() == ParseField::ParseKind::Set);
     return genCreateSetFieldImpl(parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateFloatField(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateFloatField(ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Float);
+    assert(parseObj.parseKind() == ParseField::ParseKind::Float);
     return genCreateFloatFieldImpl(parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateBitfieldField(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateBitfieldField(ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Bitfield);
+    assert(parseObj.parseKind() == ParseField::ParseKind::Bitfield);
     return genCreateBitfieldFieldImpl(parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateBundleField(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateBundleField(ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Bundle);
+    assert(parseObj.parseKind() == ParseField::ParseKind::Bundle);
     return genCreateBundleFieldImpl(parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateStringField(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateStringField(ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::String);
+    assert(parseObj.parseKind() == ParseField::ParseKind::String);
     return genCreateStringFieldImpl(parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateDataField(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateDataField(ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Data);
+    assert(parseObj.parseKind() == ParseField::ParseKind::Data);
     return genCreateDataFieldImpl(parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateListField(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateListField(ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::List);
+    assert(parseObj.parseKind() == ParseField::ParseKind::List);
     return genCreateListFieldImpl(parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateRefField(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateRefField(ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Ref);
+    assert(parseObj.parseKind() == ParseField::ParseKind::Ref);
     return genCreateRefFieldImpl(parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateOptionalField(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateOptionalField(ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Optional);
+    assert(parseObj.parseKind() == ParseField::ParseKind::Optional);
     return genCreateOptionalFieldImpl(parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateVariantField(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateVariantField(ParseField parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseField::ParseKind::Variant);
+    assert(parseObj.parseKind() == ParseField::ParseKind::Variant);
     return genCreateVariantFieldImpl(parseObj, parent);
 }
 
@@ -1245,62 +1245,62 @@ GenFramePtr GenGenerator::genCreateFrameImpl(commsdsl::parse::ParseFrame parseOb
     return std::make_unique<GenFrame>(*this, parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateIntFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateIntFieldImpl(ParseField parseObj, GenElem* parent)
 {
     return std::make_unique<GenIntField>(*this, parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateEnumFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent)
 {
     return std::make_unique<GenEnumField>(*this, parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateSetFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateSetFieldImpl(ParseField parseObj, GenElem* parent)
 {
     return std::make_unique<GenSetField>(*this, parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateFloatFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateFloatFieldImpl(ParseField parseObj, GenElem* parent)
 {
     return std::make_unique<GenFloatField>(*this, parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateBitfieldFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateBitfieldFieldImpl(ParseField parseObj, GenElem* parent)
 {
     return std::make_unique<GenBitfieldField>(*this, parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateBundleFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateBundleFieldImpl(ParseField parseObj, GenElem* parent)
 {
     return std::make_unique<GenBundleField>(*this, parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateStringFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateStringFieldImpl(ParseField parseObj, GenElem* parent)
 {
     return std::make_unique<GenStringField>(*this, parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateDataFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateDataFieldImpl(ParseField parseObj, GenElem* parent)
 {
     return std::make_unique<GenDataField>(*this, parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateListFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateListFieldImpl(ParseField parseObj, GenElem* parent)
 {
     return std::make_unique<GenListField>(*this, parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateRefFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateRefFieldImpl(ParseField parseObj, GenElem* parent)
 {
     return std::make_unique<GenRefField>(*this, parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateOptionalFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent)
 {
     return std::make_unique<GenOptionalField>(*this, parseObj, parent);
 }
 
-GenFieldPtr GenGenerator::genCreateVariantFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent)
+GenFieldPtr GenGenerator::genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent)
 {
     return std::make_unique<GenVariantField>(*this, parseObj, parent);
 }

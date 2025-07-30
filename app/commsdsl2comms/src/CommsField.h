@@ -30,13 +30,14 @@ class CommsField
 {
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
-    using GenFieldsList = commsdsl::gen::GenField::GenFieldsList;
+    using GenField = commsdsl::gen::GenField;
+    using GenFieldsList = GenField::GenFieldsList;
 
     using CommsIncludesList = GenStringsList;
     using CommsFieldsList = std::vector<CommsField*>;
     using CommsFieldOptsFunc = std::string (CommsField::*)() const;
 
-    explicit CommsField(commsdsl::gen::GenField& field);
+    explicit CommsField(GenField& field);
     virtual ~CommsField();
 
     static CommsFieldsList commsTransformFieldsList(const GenFieldsList& fields);
@@ -79,7 +80,7 @@ public:
         m_forcedPseudo = true;
     }
 
-    const commsdsl::gen::GenField& commsGenField() const
+    const GenField& commsGenField() const
     {
         return m_genField;
     }
@@ -211,7 +212,7 @@ private:
     GenStringsList commsExtraDataViewDefaultOptionsInternal() const;
     GenStringsList commsExtraBareMetalDefaultOptionsInternal() const;
 
-    commsdsl::gen::GenField& m_genField;
+    GenField& m_genField;
     CommsCustomCode m_customCode;
     std::string m_customConstruct;
     bool m_forcedFailOnInvalid = false;

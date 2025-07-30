@@ -40,6 +40,8 @@ class GenGeneratorImpl;
 class GenGenerator
 {
 public:
+    using ParseField = commsdsl::parse::ParseField;
+
     using GenFilesList = std::vector<std::string>;
     using GenLoggerPtr = std::unique_ptr<GenLogger>;
     using GenNamespacesList = GenNamespace::GenNamespacesList;
@@ -140,18 +142,18 @@ public:
     GenMessagePtr genCreateMessage(commsdsl::parse::ParseMessage parseObj, GenElem* parent);
     GenFramePtr genCreateFrame(commsdsl::parse::ParseFrame parseObj, GenElem* parent);
 
-    GenFieldPtr genCreateIntField(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateEnumField(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateSetField(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateFloatField(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateBitfieldField(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateBundleField(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateStringField(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateDataField(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateListField(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateRefField(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateOptionalField(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateVariantField(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateIntField(ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateEnumField(ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateSetField(ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateFloatField(ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateBitfieldField(ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateBundleField(ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateStringField(ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateDataField(ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateListField(ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateRefField(ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateOptionalField(ParseField parseObj, GenElem* parent);
+    GenFieldPtr genCreateVariantField(ParseField parseObj, GenElem* parent);
 
     GenLayerPtr genCreateCustomLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
     GenLayerPtr genCreateSyncLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
@@ -189,18 +191,18 @@ protected:
     virtual GenMessagePtr genCreateMessageImpl(commsdsl::parse::ParseMessage parseObj, GenElem* parent);
     virtual GenFramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame parseObj, GenElem* parent);
 
-    virtual GenFieldPtr genCreateIntFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateEnumFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateSetFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateFloatFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateBitfieldFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateBundleFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateStringFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateDataFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateListFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateRefFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateOptionalFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateVariantFieldImpl(commsdsl::parse::ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateIntFieldImpl(ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateSetFieldImpl(ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateFloatFieldImpl(ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateBitfieldFieldImpl(ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateBundleFieldImpl(ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateStringFieldImpl(ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateDataFieldImpl(ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateListFieldImpl(ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateRefFieldImpl(ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent);
+    virtual GenFieldPtr genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent);
 
     virtual GenLayerPtr genCreateCustomLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
     virtual GenLayerPtr genCreateSyncLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
