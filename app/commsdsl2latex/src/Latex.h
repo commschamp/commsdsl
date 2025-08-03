@@ -36,6 +36,7 @@ private:
     bool latexWriteInternal();
     std::string latexDocumentInternal() const;
     std::string latexPackageInternal() const;
+    std::string latexMacroInternal() const;
     std::string latexContentsInternal() const;
     std::string latexTitleInternal() const;
 

@@ -470,7 +470,7 @@ std::string CommsDoxygen::commsMessagesDocInternal() const
 
         util::GenReplacementMap repl = {
             {"SCOPE", comms::genScopeFor(*n, m_commsGenerator)},
-            {"PATH", util::genStrReplace(comms::genScopeFor(*n, m_commsGenerator), "::", "/")},
+            {"PATH", util::genScopeToRelPath(comms::genScopeFor(*n, m_commsGenerator))},
             {"SUFFIX", strings::genMessageNamespaceStr()},
         };
 
@@ -500,7 +500,7 @@ std::string CommsDoxygen::commsFieldsDocInternal() const
 
         util::GenReplacementMap repl = {
             {"SCOPE", comms::genScopeFor(*n, m_commsGenerator)},
-            {"PATH", util::genStrReplace(comms::genScopeFor(*n, m_commsGenerator), "::", "/")},
+            {"PATH", util::genScopeToRelPath(comms::genScopeFor(*n, m_commsGenerator))},
             {"SUFFIX", strings::genFieldNamespaceStr()},
         };
 

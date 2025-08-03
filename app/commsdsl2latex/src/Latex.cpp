@@ -72,6 +72,7 @@ bool Latex::latexWriteInternal()
             "#^#REPLACE_COMMENT#$#\n"
             "#^#DOCUMENT#$#\n"
             "#^#PACKAGE#$#\n"
+            "#^#MACRO#$#\n"
             "#^#TITLE#$#\n"
             "\\begin{document}\n\n"
             "\\maketitle\n\n"
@@ -84,6 +85,7 @@ bool Latex::latexWriteInternal()
             {"GEN_COMMENT", m_latexGenerator.latexFileGeneratedComment()},
             {"DOCUMENT", latexDocumentInternal()},
             {"PACKAGE", latexPackageInternal()},
+            {"MACRO", latexMacroInternal()},
             {"CONTENTS", latexContentsInternal()},
             {"TITLE", latexTitleInternal()},
         };
@@ -139,6 +141,8 @@ std::string Latex::latexPackageInternal() const
     const std::string Templ = 
         "#^#REPLACE_COMMENT#$#\n"
         "\\usepackage[T1]{fontenc}\n"
+        "\\usepackage[colorlinks]{hyperref}\n"
+        "\\usepackage{nameref}\n"
         "#^#APPEND#$#\n"
     ;
 
@@ -153,6 +157,47 @@ std::string Latex::latexPackageInternal() const
 
         if (repl["APPEND"].empty()) {
             repl["APPEND"] = m_latexGenerator.latexCodeInjectCommentPrefix() + "Append packages definition with \"" + appendFileName + "\".";
+        }
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string Latex::latexMacroInternal() const
+{
+    auto replaceFileName = latexDocTexFileName(m_latexGenerator) + strings::genMacroFileSuffixStr();
+    auto replaceContents = util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(replaceFileName));
+    if (!replaceContents.empty()) {
+        return replaceContents;
+    }
+
+    const std::string Templ = 
+        "#^#REPLACE_COMMENT#$#\n"
+        "% Counter for internal anchors\n"
+        "\\newcounter{dummyctr}\n\n"
+        "% Fake heading\n"
+        "\\newcommand{\\subsubparagraph}[1]{%\n"
+        "\\par\\medskip\n"
+        "\\phantomsection\n"
+        "\\refstepcounter{dummyctr}\n"
+        "\\def\\@currentlabelname{#1}\n"
+        "\\textbf{#1}\n"
+        "\\par\\smallskip\n"
+        "}\n"
+        "#^#APPEND#$#\n"
+    ;
+
+    auto appendFileName = latexDocTexFileName(m_latexGenerator) + strings::genMacroAppendFileSuffixStr();
+    util::GenReplacementMap repl = {
+        {"APPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(appendFileName))},
+    };
+
+    if (m_latexGenerator.latexHasCodeInjectionComments()) {
+        repl["REPLACE_COMMENT"] = 
+            m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace macros definition with \"" + replaceFileName + "\".";
+
+        if (repl["APPEND"].empty()) {
+            repl["APPEND"] = m_latexGenerator.latexCodeInjectCommentPrefix() + "Append macros definition with \"" + appendFileName + "\".";
         }
     };
 
@@ -237,7 +282,7 @@ std::string Latex::latexTitleInternal() const
             m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace title with \"" + replaceFileName + "\".";
 
         if (repl["APPEND"].empty()) {
-            repl["APPEND"] = m_latexGenerator.latexCodeInjectCommentPrefix() + "Append to auto info with \"" + appendFileName + "\".";
+            repl["APPEND"] = m_latexGenerator.latexCodeInjectCommentPrefix() + "Append to title info with \"" + appendFileName + "\".";
         }
     };
     

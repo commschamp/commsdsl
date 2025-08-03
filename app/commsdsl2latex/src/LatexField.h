@@ -26,9 +26,16 @@ class LatexField
 {
 public:
     using GenField = commsdsl::gen::GenField;
+    using GenFieldsList = GenField::GenFieldsList;
+
+    using LatexFieldsList = std::vector<LatexField*>;
 
     explicit LatexField(const GenField& field);
     virtual ~LatexField();
+
+    static LatexFieldsList latexTransformFieldsList(const GenFieldsList& fields);
+
+    std::string latexRelFilePath() const;
 
     bool latexWrite() const;
 

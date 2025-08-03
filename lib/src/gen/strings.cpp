@@ -511,6 +511,18 @@ const std::string& genTitleAppendFileSuffixStr()
     return Str;
 }
 
+const std::string& genMacroFileSuffixStr()
+{
+    static const std::string Str(".macro");
+    return Str;
+}
+
+const std::string& genMacroAppendFileSuffixStr()
+{
+    static const std::string Str(".macro_append");
+    return Str;
+}
+
 const std::string& genPdfFileSuffixStr()
 {
     static const std::string Str(".pdf_replace");

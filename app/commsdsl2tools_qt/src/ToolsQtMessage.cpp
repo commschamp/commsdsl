@@ -201,7 +201,7 @@ bool ToolsQtMessage::toolsWriteSrcInternal() const
 
 std::string ToolsQtMessage::toolsRelPathInternal(const commsdsl::gen::GenInterface& iFace) const
 {
-    return util::genStrReplace(toolsClassScope(iFace), "::", "/");
+    return util::genScopeToRelPath(toolsClassScope(iFace));
 }
 
 ToolsQtMessage::ToolsIncludesList ToolsQtMessage::toolsHeaderIncludesInternal() const

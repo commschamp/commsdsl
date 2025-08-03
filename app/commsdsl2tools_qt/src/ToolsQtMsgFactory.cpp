@@ -76,7 +76,7 @@ std::string ToolsQtMsgFactory::toolsClassScope(const commsdsl::gen::GenInterface
 
 std::string ToolsQtMsgFactory::toolsRelPathInternal(const commsdsl::gen::GenInterface& iFace) const
 {
-    return util::genStrReplace(toolsClassScope(iFace), "::", "/");
+    return util::genScopeToRelPath(toolsClassScope(iFace));
 }
 
 bool ToolsQtMsgFactory::toolsWriteHeaderInternal() const

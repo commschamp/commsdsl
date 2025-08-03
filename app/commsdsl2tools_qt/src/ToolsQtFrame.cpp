@@ -489,7 +489,7 @@ unsigned ToolsQtFrame::toolsCalcBackPayloadOffsetInternal() const
 
 std::string ToolsQtFrame::toolsRelPathInternal(const commsdsl::gen::GenInterface& iFace) const
 {
-    return util::genStrReplace(toolsClassScope(iFace), "::", "/");
+    return util::genScopeToRelPath(toolsClassScope(iFace));
 }
 
 std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::GenInterface& iFace) const

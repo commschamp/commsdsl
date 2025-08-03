@@ -52,7 +52,7 @@ public:
         return static_cast<const LatexGenerator&>(generator);
     }    
 
-    std::string latexRelPathFor(const GenElem& elem);
+    std::string latexRelPathFor(const GenElem& elem) const;
 
     std::string latexInputCodePathForFile(const std::string& name) const;    
 

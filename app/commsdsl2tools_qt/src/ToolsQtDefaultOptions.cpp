@@ -100,7 +100,7 @@ std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t
 std::string ToolsQtDefaultOptions::toolsRelHeaderPath(const ToolsQtGenerator& generator)
 {
     return 
-        util::genStrReplace(toolsClassScope(generator), "::", "/") + 
+        util::genScopeToRelPath(toolsClassScope(generator)) + 
         strings::genCppHeaderSuffixStr();
 }
 

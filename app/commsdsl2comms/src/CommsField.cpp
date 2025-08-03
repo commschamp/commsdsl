@@ -126,17 +126,9 @@ bool CommsField::commsPrepare()
 
 bool CommsField::commsWrite() const
 {
-    auto* parent = m_genField.genGetParent();
-    if (parent == nullptr) {
-        assert(false); // Should not happen
-        return false;
-    } 
-
-    auto type = parent->genElemType();
-    if (type != commsdsl::gen::GenElem::Type::Type_Namespace)
-    {
+    if (!comms::genIsGlobalField(m_genField)) {
         // Skip write for non-global fields,
-        // The code generation will be driven by other means
+        // The code generation will be driven by other means        
         return true;
     }
 

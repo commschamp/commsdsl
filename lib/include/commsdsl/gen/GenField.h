@@ -61,6 +61,8 @@ public:
 
     static GenPtr genCreate(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);    
 
+    const std::string& genDisplayName() const;
+
     bool genIsPrepared() const;
     bool genPrepare();
     bool genWrite() const;

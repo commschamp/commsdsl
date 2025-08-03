@@ -19,9 +19,12 @@
 #include "commsdsl/gen/GenGenerator.h"
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
 
 #include <cassert>
 #include <algorithm>
+
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl
 {
@@ -90,9 +93,9 @@ GenField::GenField(GenGenerator& generator, const ParseField& parseObj, GenElem*
 
 GenField::~GenField() = default;
 
-GenField::GenPtr GenField::genCreate(GenGenerator& generator, ParseField dslobj, GenElem* parent)
+GenField::GenPtr GenField::genCreate(GenGenerator& generator, ParseField parseobj, GenElem* parent)
 {
-    using CreateFunc = GenFieldPtr (GenGenerator::*)(ParseField dslobj, GenElem* parent);
+    using CreateFunc = GenFieldPtr (GenGenerator::*)(ParseField parseobj, GenElem* parent);
     static const CreateFunc Map[] = {
         /* Int */ &GenGenerator::genCreateIntField,
         /* Enum */ &GenGenerator::genCreateEnumField,
@@ -111,7 +114,7 @@ GenField::GenPtr GenField::genCreate(GenGenerator& generator, ParseField dslobj,
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == static_cast<unsigned>(ParseField::ParseKind::NumOfValues), "Invalid map");
 
-    auto idx = static_cast<std::size_t>(dslobj.parseKind());
+    auto idx = static_cast<std::size_t>(parseobj.parseKind());
     if (MapSize <= idx) {
         [[maybe_unused]] static constexpr bool Unexpected_kind = false;
         assert(Unexpected_kind);          
@@ -120,12 +123,18 @@ GenField::GenPtr GenField::genCreate(GenGenerator& generator, ParseField dslobj,
 
     auto func = Map[idx];
     assert(func != nullptr); // NYI
-    return (generator.*func)(dslobj, parent);
+    return (generator.*func)(parseobj, parent);
 }
 
 bool GenField::genIsPrepared() const
 {
     return m_impl->genIsPrepared();
+}
+
+const std::string& GenField::genDisplayName() const
+{
+    auto& obj = m_impl->genParseObj();
+    return util::genDisplayName(obj.parseDisplayName(), obj.parseName());
 }
 
 bool GenField::genPrepare()

@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include "LatexField.h"
+
 #include "commsdsl/gen/GenNamespace.h"
 
 namespace commsdsl2latex
@@ -31,6 +33,8 @@ public:
 
     using GenElem = commsdsl::gen::GenElem;
     using GenNamespace = commsdsl::gen::GenNamespace;
+
+    using LatexFieldsList = LatexField::LatexFieldsList;
 
     LatexNamespace(LatexGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~LatexNamespace();
@@ -50,10 +54,14 @@ public:
     std::string latexTitle() const;
 
 protected:
+    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;
 
 private:
-    std::string latexInputs() const;    
+    bool latexHasDocElements() const;
+    std::string latexInputs() const;   
+    
+    LatexFieldsList m_latexFields;
 };
 
 } // namespace commsdsl2latex

@@ -108,6 +108,8 @@ const std::string& genContentPrependFileSuffixStr();
 const std::string& genContentAppendFileSuffixStr();
 const std::string& genTitleFileSuffixStr();
 const std::string& genTitleAppendFileSuffixStr();
+const std::string& genMacroFileSuffixStr();
+const std::string& genMacroAppendFileSuffixStr();
 const std::string& genPdfFileSuffixStr();
 const std::string& genPdfAppendFileSuffixStr();
 const std::string& genHtmlFileSuffixStr();

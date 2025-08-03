@@ -66,6 +66,10 @@ std::string LatexNamespace::latexRelDirPath() const
 
 std::string LatexNamespace::latexRelFilePath() const
 {
+    if (!latexHasDocElements()) {
+        return strings::genEmptyString();
+    }
+
     return latexRelDirPath() + "/namespace" + strings::genLatexSuffixStr();
 }
 
@@ -108,10 +112,21 @@ std::string LatexNamespace::latexTitle() const
     return "Namespace \"" + *name + "\"";
 }
 
+bool LatexNamespace::genPrepareImpl()
+{
+    m_latexFields = LatexField::latexTransformFieldsList(genFields());
+    return true;
+}
+
 bool LatexNamespace::genWriteImpl() const
 {
+    auto relFilePath = latexRelFilePath();
+    if (relFilePath.empty()) {
+        return true;
+    }
+
     auto& latexGenerator = LatexGenerator::latexCast(genGenerator());
-    auto filePath = util::genPathAddElem(latexGenerator.genGetOutputDir(), latexRelFilePath());
+    auto filePath = util::genPathAddElem(latexGenerator.genGetOutputDir(), relFilePath);
 
     auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
@@ -127,7 +142,7 @@ bool LatexNamespace::genWriteImpl() const
     }
 
     do {
-        auto replaceFileName = latexRelFilePath() + strings::genReplaceFileSuffixStr();
+        auto replaceFileName = relFilePath + strings::genReplaceFileSuffixStr();
         auto replaceContents = util::genReadFileContents(latexGenerator.latexInputCodePathForFile(replaceFileName));
         if (!replaceContents.empty()) {
             stream << replaceContents;
@@ -137,9 +152,11 @@ bool LatexNamespace::genWriteImpl() const
         static const std::string Templ = 
             "#^#GENERATED#$#\n"
             "#^#REPLACE_COMMENT#$#\n"
-            "#^#SECTION#$\n"
+            "#^#SECTION#$#\n"
             "#^#LABEL#$#\n"
+            "\n"
             "#^#DESCRIPTION#$#\n"
+            "\n"
             "#^#INPUTS#$#\n"
             "#^#APPEND#$#\n";
 
@@ -181,19 +198,35 @@ bool LatexNamespace::genWriteImpl() const
     return true;
 }
 
+bool LatexNamespace::latexHasDocElements() const
+{
+    for (auto& f : m_latexFields) {
+        assert(f != nullptr);
+        if (!f->latexRelFilePath().empty()) {
+            return true;
+        }
+    }
+
+    // TODO: messages + frames
+
+    return false;
+}
+
 std::string LatexNamespace::latexInputs() const
 {
-    // static const std::string Templ = 
-    //     "#^#FIELDS#$#\n"
-    //     ;
+    util::GenStringsList inputs;
+    for (auto& f : m_latexFields) {
+        auto fPath = f->latexRelFilePath();
+        if (!fPath.empty()) {
+            inputs.push_back("\\input{" + fPath + "}");
+        }
+    }
 
-    // util::GenStringsList fields;
+    if (inputs.empty()) {
+        return strings::genEmptyString();
+    }
 
-    // for (auto& f : genFields()) {
-    //     // TODO:
-    // }
-
-    return "TODO: NS INPUTS";
+    return util::genStrListToString(inputs, "\n", "\n");
 }
 
 } // namespace commsdsl2latex

@@ -80,6 +80,30 @@ int latexSectionElemIndexInternal(const commsdsl::gen::GenElem& elem)
     return parentIndex + 1;
 }
 
+static const std::string& latexLabelPrefix(commsdsl::gen::GenElem::Type type)
+{
+    static const std::string Map[] = {
+        /* Type_Invalid */ std::string(),
+        /* Type_Namespace */ "ns_",
+        /* Type_Message */ "msg_",
+        /* Type_Field */ "field_",
+        /* Type_Interface */ "iface_",
+        /* Type_Frame */ "frame_",
+        /* Type_Layer */ "layer_",
+        /* Type_Schema */ "schema_",        
+    };
+    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
+    static_assert(MapSize == commsdsl::gen::GenElem::Type_NumOfValues);
+
+    auto idx = static_cast<unsigned>(type);
+    assert (idx < MapSize);
+    if (MapSize <= idx) {
+        idx = static_cast<decltype(idx)>(commsdsl::gen::GenElem::Type_Invalid);
+    }
+
+    return Map[idx];
+}
+
 } // namespace 
     
 
@@ -126,7 +150,7 @@ const std::string& LatexGenerator::latexSectionDirective(const GenElem& elem)
     }
 
     if (MapSize <= static_cast<unsigned>(idx)) {
-        static const std::string Bold("\\textbf");
+        static const std::string Bold("\\subsubparagraph");
         return Bold;
     }
 
@@ -141,7 +165,11 @@ std::string LatexGenerator::latexLabelId(const GenElem& elem)
         prefix = latexLabelId(*parent);
     }
 
-    auto& elemName = elem.genName();
+    auto elemName = elem.genName();
+    if (!elemName.empty()) {
+        elemName = latexLabelPrefix(elem.genElemType()) + elemName;
+    }
+
     if ((!prefix.empty()) && (!elemName.empty())) {
         prefix += ':';
     }
@@ -149,10 +177,10 @@ std::string LatexGenerator::latexLabelId(const GenElem& elem)
     return prefix + elemName;
 }
 
-std::string LatexGenerator::latexRelPathFor(const GenElem& elem)
+std::string LatexGenerator::latexRelPathFor(const GenElem& elem) const
 {
     auto scope = comms::genScopeFor(elem, *this);
-    return util::genStrReplace(scope, "::", "/");
+    return util::genScopeToRelPath(scope);
 }
 
 std::string LatexGenerator::latexInputCodePathForFile(const std::string& name) const
@@ -259,6 +287,8 @@ bool LatexGenerator::latexWriteExtraFilesInternal() const
         strings::genContentAppendFileSuffixStr(),
         strings::genTitleFileSuffixStr(),
         strings::genTitleAppendFileSuffixStr(),
+        strings::genMacroFileSuffixStr(),
+        strings::genMacroAppendFileSuffixStr(),
         strings::genPdfFileSuffixStr(),
         strings::genHtmlFileSuffixStr(),
         strings::genHtmlAppendFileSuffixStr(),

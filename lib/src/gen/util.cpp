@@ -455,6 +455,11 @@ std::string genNameToNs(const std::string& value)
     return result;
 }
 
+std::string genScopeToRelPath(const std::string& value)
+{
+    return genStrReplace(value, "::", "/");
+}
+
 std::string genProcessTemplate(const std::string& templ, const GenReplacementMap& repl, bool tidyCode)
 {
     std::string result;

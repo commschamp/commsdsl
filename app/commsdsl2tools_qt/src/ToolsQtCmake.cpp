@@ -215,7 +215,7 @@ std::string ToolsQtCmake::toolsPerInterfaceFuncsInternal() const
         auto& iFace = ToolsQtInterface::toolsCast(*i);
         auto iFaceScope = comms::genScopeFor(iFace, m_toolsGenerator, false, true);
         auto iFaceName = util::genStrReplace(iFaceScope, "::", "_");
-        auto iFacePath = util::genStrReplace(iFaceScope, "::", "/");
+        auto iFacePath = util::genScopeToRelPath(iFaceScope);
 
         util::GenReplacementMap repl = {
             {"CORE_FILES", util::genStrListToString(m_toolsGenerator.toolsSourceFilesForInterface(iFace), "\n", "")},

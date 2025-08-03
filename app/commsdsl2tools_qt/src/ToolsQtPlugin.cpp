@@ -539,7 +539,7 @@ std::string ToolsQtPlugin::toolsPluginClassNameInternal() const
 
 std::string ToolsQtPlugin::toolsRelFilePath(const std::string& name) const
 {
-    auto prefix = util::genStrReplace(m_toolsGenerator.toolsScopePrefix(), "::", "/");
+    auto prefix = util::genScopeToRelPath(m_toolsGenerator.toolsScopePrefix());
     return 
         prefix + m_toolsGenerator.genProtocolSchema().genMainNamespace() + '/' + 
         strings::genPluginNamespaceStr() + '/' + name;

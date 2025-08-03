@@ -262,7 +262,7 @@ const std::string& ToolsQtInterface::toolsNameInternal() const
 
 std::string ToolsQtInterface::toolsRelFilePath() const
 {
-    return util::genStrReplace(toolsClassScope(), "::", "/");
+    return util::genScopeToRelPath(toolsClassScope());
 }
 
 } // namespace commsdsl2tools_qt

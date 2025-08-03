@@ -48,6 +48,7 @@ const std::string& genBoolToString(bool value);
 std::string genPathAddElem(const std::string& path, const std::string& elem);
 std::string genPathUp(const std::string& path);
 std::string genNameToNs(const std::string& value);
+std::string genScopeToRelPath(const std::string& value);
 
 using GenReplacementMap = std::map<std::string, std::string>;
 std::string genProcessTemplate(const std::string& templ, const GenReplacementMap& repl, bool tidyCode = false);
