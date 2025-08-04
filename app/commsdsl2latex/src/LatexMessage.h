@@ -17,41 +17,38 @@
 #pragma once
 
 #include "LatexField.h"
-#include "LatexMessage.h"
 
-#include "commsdsl/gen/GenNamespace.h"
+#include "commsdsl/gen/GenMessage.h"
 
 namespace commsdsl2latex
 {
 
 class LatexGenerator;
-class LatexNamespace final: public commsdsl::gen::GenNamespace
+class LatexMessage final: public commsdsl::gen::GenMessage
 {
-    using GenBase = commsdsl::gen::GenNamespace;
+    using GenBase = commsdsl::gen::GenMessage;
 
 public:
-    using ParseNamespace = commsdsl::parse::ParseNamespace;
+    using ParseMessage = commsdsl::parse::ParseMessage;
 
     using GenElem = commsdsl::gen::GenElem;
-    using GenNamespace = commsdsl::gen::GenNamespace;
+    using GenMessage = commsdsl::gen::GenMessage;
 
     using LatexFieldsList = LatexField::LatexFieldsList;
-    using LatexMessagesList = std::vector<const LatexMessage*>;
 
-    LatexNamespace(LatexGenerator& generator, ParseNamespace parseObj, GenElem* parent);
-    virtual ~LatexNamespace();
+    LatexMessage(LatexGenerator& generator, ParseMessage parseObj, GenElem* parent);
+    virtual ~LatexMessage();
 
-    static const LatexNamespace* latexCast(const GenNamespace* ptr)
+    static const LatexMessage* latexCast(const GenMessage* ptr)
     {
-        return static_cast<const LatexNamespace*>(ptr);
+        return static_cast<const LatexMessage*>(ptr);
     }
 
-    static const LatexNamespace& latexCast(const GenNamespace& ref)
+    static const LatexMessage& latexCast(const GenMessage& ref)
     {
-        return static_cast<const LatexNamespace&>(ref);
+        return static_cast<const LatexMessage&>(ref);
     }
 
-    std::string latexRelDirPath() const;
     std::string latexRelFilePath() const;
     std::string latexTitle() const;
 
@@ -60,12 +57,9 @@ protected:
     virtual bool genWriteImpl() const override;
 
 private:
-    bool latexHasDocElements() const;
-    std::string latexInputs() const;   
-    std::string latexSection(const std::string& title) const;
+    std::string latexSection() const;
     
     LatexFieldsList m_latexFields;
-    LatexMessagesList m_latexMessages;
 };
 
 } // namespace commsdsl2latex

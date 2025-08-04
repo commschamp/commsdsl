@@ -25,12 +25,10 @@ class LatexGenerator final : public commsdsl::gen::GenGenerator
     using Base = commsdsl::gen::GenGenerator;
 
 public:
-    using ParseSchema = commsdsl::parse::ParseSchema;
-    using ParseNamespace = commsdsl::parse::ParseNamespace;
-
     using GenElem = commsdsl::gen::GenElem;
     using GenSchemaPtr = commsdsl::gen::GenSchemaPtr;
     using GenNamespacePtr = commsdsl::gen::GenNamespacePtr;
+    using GenMessagePtr = commsdsl::gen::GenMessagePtr;
     using GenProgramOptions = commsdsl::gen::GenProgramOptions;
     using GenGenerator = commsdsl::gen::GenGenerator;
     using GenFieldPtr = commsdsl::gen::GenFieldPtr;
@@ -41,6 +39,7 @@ public:
     static void latexWrapInputInPlace(std::string& filePath);
     static const std::string& latexSectionDirective(const GenElem& elem);
     static std::string latexLabelId(const GenElem& elem);
+    static std::string latexEscDisplayName(const std::string& displayName, const std::string& name);
 
     static LatexGenerator& latexCast(GenGenerator& generator)
     {
@@ -66,6 +65,7 @@ protected:
 
     virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
     virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
+    virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent) override;
 
     virtual GenFieldPtr genCreateIntFieldImpl(ParseField parseObj, GenElem* parent) override;
     virtual GenFieldPtr genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent) override;

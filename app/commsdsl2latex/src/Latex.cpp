@@ -143,6 +143,7 @@ std::string Latex::latexPackageInternal() const
         "\\usepackage[T1]{fontenc}\n"
         "\\usepackage[colorlinks]{hyperref}\n"
         "\\usepackage{nameref}\n"
+        "\n"
         "#^#APPEND#$#\n"
     ;
 
@@ -279,7 +280,7 @@ std::string Latex::latexTitleInternal() const
 
     if (m_latexGenerator.latexHasCodeInjectionComments()) {
         repl["REPLACE_COMMENT"] = 
-            m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace title with \"" + replaceFileName + "\".";
+            m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace title (whole section) with \"" + replaceFileName + "\".";
 
         if (repl["APPEND"].empty()) {
             repl["APPEND"] = m_latexGenerator.latexCodeInjectCommentPrefix() + "Append to title info with \"" + appendFileName + "\".";

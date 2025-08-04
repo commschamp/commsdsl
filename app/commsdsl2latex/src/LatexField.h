@@ -36,6 +36,7 @@ public:
     static LatexFieldsList latexTransformFieldsList(const GenFieldsList& fields);
 
     std::string latexRelFilePath() const;
+    std::string latexTitle() const;
 
     bool latexWrite() const;
 
@@ -46,6 +47,8 @@ protected:
     }    
 
 private:
+    std::string latexSection() const;
+
     const GenField& m_genField;
 };
 

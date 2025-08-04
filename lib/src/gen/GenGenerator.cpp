@@ -943,27 +943,27 @@ bool GenGenerator::genIsCurrentProtocolSchema() const
     return &genCurrentSchema() == &genProtocolSchema();
 }
 
-GenSchemaPtr GenGenerator::genCreateSchema(commsdsl::parse::ParseSchema parseObj, GenElem* parent)
+GenSchemaPtr GenGenerator::genCreateSchema(ParseSchema parseObj, GenElem* parent)
 {
     return genCreateSchemaImpl(parseObj, parent);
 }
 
-GenNamespacePtr GenGenerator::genCreateNamespace(commsdsl::parse::ParseNamespace parseObj, GenElem* parent)
+GenNamespacePtr GenGenerator::genCreateNamespace(ParseNamespace parseObj, GenElem* parent)
 {
     return genCreateNamespaceImpl(parseObj, parent);
 }
 
-GenInterfacePtr GenGenerator::genCreateInterface(commsdsl::parse::ParseInterface parseObj, GenElem* parent)
+GenInterfacePtr GenGenerator::genCreateInterface(ParseInterface parseObj, GenElem* parent)
 {
     return genCreateInterfaceImpl(parseObj, parent);
 }
 
-GenMessagePtr GenGenerator::genCreateMessage(commsdsl::parse::ParseMessage parseObj, GenElem* parent)
+GenMessagePtr GenGenerator::genCreateMessage(ParseMessage parseObj, GenElem* parent)
 {
     return genCreateMessageImpl(parseObj, parent);
 }
 
-GenFramePtr GenGenerator::genCreateFrame(commsdsl::parse::ParseFrame parseObj, GenElem* parent)
+GenFramePtr GenGenerator::genCreateFrame(ParseFrame parseObj, GenElem* parent)
 {
     return genCreateFrameImpl(parseObj, parent);
 }
@@ -1220,27 +1220,27 @@ bool GenGenerator::genPrepareImpl()
     return true;
 }
 
-GenSchemaPtr GenGenerator::genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, GenElem* parent)
+GenSchemaPtr GenGenerator::genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent)
 {
     return std::make_unique<GenSchema>(*this, parseObj, parent);
 }
 
-GenNamespacePtr GenGenerator::genCreateNamespaceImpl(commsdsl::parse::ParseNamespace parseObj, GenElem* parent)
+GenNamespacePtr GenGenerator::genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent)
 {
     return std::make_unique<GenNamespace>(*this, parseObj, parent);
 }
 
-GenInterfacePtr GenGenerator::genCreateInterfaceImpl(commsdsl::parse::ParseInterface parseObj, GenElem* parent)
+GenInterfacePtr GenGenerator::genCreateInterfaceImpl(ParseInterface parseObj, GenElem* parent)
 {
     return std::make_unique<GenInterface>(*this, parseObj, parent);
 }
 
-GenMessagePtr GenGenerator::genCreateMessageImpl(commsdsl::parse::ParseMessage parseObj, GenElem* parent)
+GenMessagePtr GenGenerator::genCreateMessageImpl(ParseMessage parseObj, GenElem* parent)
 {
     return std::make_unique<GenMessage>(*this, parseObj, parent);
 }
 
-GenFramePtr GenGenerator::genCreateFrameImpl(commsdsl::parse::ParseFrame parseObj, GenElem* parent)
+GenFramePtr GenGenerator::genCreateFrameImpl(ParseFrame parseObj, GenElem* parent)
 {
     return std::make_unique<GenFrame>(*this, parseObj, parent);
 }

@@ -24,6 +24,7 @@
 #include "LatexFloatField.h"
 #include "LatexIntField.h"
 #include "LatexListField.h"
+#include "LatexMessage.h"
 #include "LatexNamespace.h"
 #include "LatexOptionalField.h"
 #include "LatexProgramOptions.h"
@@ -177,6 +178,16 @@ std::string LatexGenerator::latexLabelId(const GenElem& elem)
     return prefix + elemName;
 }
 
+std::string LatexGenerator::latexEscDisplayName(const std::string& displayName, const std::string& name)
+{
+    auto result = util::genDisplayName(displayName, name);
+    if (result.empty()) {
+        result = name;
+    }
+
+    return util::genStrReplace(result, "_", "\\_");
+}
+
 std::string LatexGenerator::latexRelPathFor(const GenElem& elem) const
 {
     auto scope = comms::genScopeFor(elem, *this);
@@ -205,6 +216,11 @@ LatexGenerator::GenSchemaPtr LatexGenerator::genCreateSchemaImpl(ParseSchema par
 LatexGenerator::GenNamespacePtr LatexGenerator::genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent)
 {
     return std::make_unique<LatexNamespace>(*this, parseObj, parent);
+}
+
+LatexGenerator::GenMessagePtr LatexGenerator::genCreateMessageImpl(ParseMessage parseObj, GenElem* parent)
+{
+    return std::make_unique<LatexMessage>(*this, parseObj, parent);
 }
 
 LatexGenerator::GenFieldPtr LatexGenerator::genCreateIntFieldImpl(ParseField parseObj, GenElem* parent)

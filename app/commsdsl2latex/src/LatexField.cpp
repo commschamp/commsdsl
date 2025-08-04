@@ -41,8 +41,19 @@ LatexField::~LatexField() = default;
 std::string LatexField::latexRelFilePath() const
 {
     assert(comms::genIsGlobalField(m_genField));
+    if (!m_genField.genIsReferenced()) {
+        // Not referenced fields do not need to be written
+        return strings::genEmptyString();
+    }    
+    
     auto& latexGenerator = LatexGenerator::latexCast(m_genField.genGenerator());
     return latexGenerator.latexRelPathFor(m_genField) + strings::genLatexSuffixStr();
+}
+
+std::string LatexField::latexTitle() const
+{
+    auto name = LatexGenerator::latexEscDisplayName(m_genField.genParseObj().parseDisplayName(), m_genField.genParseObj().parseName());
+    return "Field \"" + name + "\"";
 }
 
 LatexField::LatexFieldsList LatexField::latexTransformFieldsList(const GenFieldsList& fields)
@@ -112,7 +123,7 @@ bool LatexField::latexWrite() const
         static const std::string Templ = 
             "#^#GENERATED#$#\n"
             "#^#REPLACE_COMMENT#$#\n"
-            "#^#SECTION#$#{Field \"#^#NAME#$#\"}\n"
+            "#^#SECTION#$#"
             "\\label{#^#LABEL#$#}\n\n"
             "TODO\n"
             "#^#APPEND#$#\n";
@@ -120,8 +131,7 @@ bool LatexField::latexWrite() const
         auto appendFileName = latexRelFilePath() + strings::genAppendFileSuffixStr();
         util::GenReplacementMap repl = {
             {"GENERATED", LatexGenerator::latexFileGeneratedComment()},
-            {"SECTION", LatexGenerator::latexSectionDirective(m_genField)},
-            {"NAME", m_genField.genDisplayName()},
+            {"SECTION", latexSection()},
             {"LABEL", LatexGenerator::latexLabelId(m_genField)},
             {"APPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(appendFileName))},
         };
@@ -135,10 +145,36 @@ bool LatexField::latexWrite() const
             }                
         };         
 
-        stream << util::genProcessTemplate(Templ, repl) << std::endl;
+        stream << util::genProcessTemplate(Templ, repl, true) << std::endl;
     } while (false);
 
     return true;    
+}
+
+std::string LatexField::latexSection() const
+{
+    static const std::string Templ = 
+        "#^#REPLACE_COMMENT#$#\n"
+        "#^#SECTION#$#{#^#TITLE#$#}\n"
+        ;
+
+    auto& latexGenerator = LatexGenerator::latexCast(m_genField.genGenerator());
+    auto titleFileName = latexRelFilePath() + strings::genTitleFileSuffixStr();
+    util::GenReplacementMap repl = {
+        {"SECTION", LatexGenerator::latexSectionDirective(m_genField)},
+        {"TITLE", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(titleFileName))},
+    };
+
+    if (repl["TITLE"].empty()) {
+        repl["TITLE"] = latexTitle();
+    }
+
+    if (latexGenerator.latexHasCodeInjectionComments()) {
+        repl["REPLACE_COMMENT"] = 
+            latexGenerator.latexCodeInjectCommentPrefix() + "Replace the title value with contents of \"" + titleFileName + "\".";
+    };      
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2latex

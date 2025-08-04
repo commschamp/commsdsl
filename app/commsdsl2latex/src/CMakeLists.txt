@@ -11,6 +11,7 @@ set (
     LatexGenerator.cpp
     LatexIntField.cpp
     LatexListField.cpp
+    LatexMessage.cpp
     LatexNamespace.cpp
     LatexOptionalField.cpp
     LatexProgramOptions.cpp

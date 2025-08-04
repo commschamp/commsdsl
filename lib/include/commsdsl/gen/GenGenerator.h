@@ -40,6 +40,11 @@ class GenGeneratorImpl;
 class GenGenerator
 {
 public:
+    using ParseSchema = commsdsl::parse::ParseSchema;
+    using ParseNamespace = commsdsl::parse::ParseNamespace;
+    using ParseInterface = commsdsl::parse::ParseInterface;
+    using ParseMessage = commsdsl::parse::ParseMessage;
+    using ParseFrame = commsdsl::parse::ParseFrame;
     using ParseField = commsdsl::parse::ParseField;
 
     using GenFilesList = std::vector<std::string>;
@@ -136,11 +141,11 @@ public:
     const GenSchema& genProtocolSchema() const;    
     bool genIsCurrentProtocolSchema() const;
 
-    GenSchemaPtr genCreateSchema(commsdsl::parse::ParseSchema parseObj, GenElem* parent = nullptr);
-    GenNamespacePtr genCreateNamespace(commsdsl::parse::ParseNamespace parseObj, GenElem* parent = nullptr);
-    GenInterfacePtr genCreateInterface(commsdsl::parse::ParseInterface parseObj, GenElem* parent);
-    GenMessagePtr genCreateMessage(commsdsl::parse::ParseMessage parseObj, GenElem* parent);
-    GenFramePtr genCreateFrame(commsdsl::parse::ParseFrame parseObj, GenElem* parent);
+    GenSchemaPtr genCreateSchema(ParseSchema parseObj, GenElem* parent = nullptr);
+    GenNamespacePtr genCreateNamespace(ParseNamespace parseObj, GenElem* parent = nullptr);
+    GenInterfacePtr genCreateInterface(ParseInterface parseObj, GenElem* parent);
+    GenMessagePtr genCreateMessage(ParseMessage parseObj, GenElem* parent);
+    GenFramePtr genCreateFrame(ParseFrame parseObj, GenElem* parent);
 
     GenFieldPtr genCreateIntField(ParseField parseObj, GenElem* parent);
     GenFieldPtr genCreateEnumField(ParseField parseObj, GenElem* parent);
@@ -185,11 +190,11 @@ protected:
     virtual bool genCreateCompleteImpl();
     virtual bool genPrepareImpl();
 
-    virtual GenSchemaPtr genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, GenElem* parent);
-    virtual GenNamespacePtr genCreateNamespaceImpl(commsdsl::parse::ParseNamespace parseObj, GenElem* parent);
-    virtual GenInterfacePtr genCreateInterfaceImpl(commsdsl::parse::ParseInterface parseObj, GenElem* parent);
-    virtual GenMessagePtr genCreateMessageImpl(commsdsl::parse::ParseMessage parseObj, GenElem* parent);
-    virtual GenFramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame parseObj, GenElem* parent);
+    virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent);
+    virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent);
+    virtual GenInterfacePtr genCreateInterfaceImpl(ParseInterface parseObj, GenElem* parent);
+    virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent);
+    virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent);
 
     virtual GenFieldPtr genCreateIntFieldImpl(ParseField parseObj, GenElem* parent);
     virtual GenFieldPtr genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent);
