@@ -48,6 +48,7 @@ ParseFrameImpl::ParseFrameImpl(::xmlNodePtr node, ParseProtocolImpl& protocol)
   : m_node(node),
     m_protocol(protocol),
     m_name(&common::parseEmptyString()),
+    m_displayName(&common::parseEmptyString()),
     m_description(&common::parseEmptyString())
 {
 }
@@ -62,6 +63,7 @@ bool ParseFrameImpl::parse()
 
     return
         parseUpdateName() &&
+        parseUpdateDisplayName() &&
         parseUpdateDescription() &&
         parseUpdateLayers() &&
         parseUpdateExtraAttrs() &&
@@ -72,6 +74,12 @@ const std::string& ParseFrameImpl::parseName() const
 {
     assert(m_name != nullptr);
     return *m_name;
+}
+
+const std::string& ParseFrameImpl::parseDisplayName() const
+{
+    assert(m_displayName != nullptr);
+    return *m_displayName;
 }
 
 const std::string& ParseFrameImpl::parseDescription() const
@@ -160,6 +168,7 @@ const ParseXmlWrap::ParseNamesList& ParseFrameImpl::parseCommonProps()
     static const ParseXmlWrap::ParseNamesList CommonNames = {
         common::parseNameStr(),
         common::parseDescriptionStr(),
+        common::parseDisplayNameStr(),
     };
 
     return CommonNames;
@@ -188,6 +197,22 @@ bool ParseFrameImpl::parseUpdateName()
         return false;
     }
 
+    return true;
+}
+
+bool ParseFrameImpl::parseUpdateDisplayName()
+{
+    auto& propName = common::parseDisplayNameStr();
+    if (!parseValidateAndUpdateStringPropValue(propName, m_displayName)) {
+        return false;
+    }
+
+    if ((!parseDisplayName().empty()) && (!m_protocol.parseIsFrameDisplayNameSupported())) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "The property \"" << propName << "\" of frame is not supported for dslVersion=" << 
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
+        m_displayName = &common::parseEmptyString();
+    }
     return true;
 }
 

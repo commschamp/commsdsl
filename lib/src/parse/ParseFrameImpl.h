@@ -62,6 +62,7 @@ public:
     }
 
     const std::string& parseName() const;
+    const std::string& parseDisplayName() const;
     const std::string& parseDescription() const;
 
     ParseLayersList parseLayersList() const;
@@ -94,6 +95,7 @@ private:
     bool parseValidateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
     void parseReportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
     bool parseUpdateName();
+    bool parseUpdateDisplayName();
     bool parseUpdateDescription();
     bool parseUpdateLayers();
     bool parseUpdateExtraAttrs();
@@ -106,6 +108,7 @@ private:
     ParseContentsList m_extraChildren;
 
     const std::string* m_name = nullptr;
+    const std::string* m_displayName = nullptr;
     const std::string* m_description = nullptr;
     std::vector<ParseLayerImplPtr> m_layers;
 };

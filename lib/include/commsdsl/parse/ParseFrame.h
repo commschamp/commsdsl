@@ -42,6 +42,7 @@ public:
 
     bool parseValid() const;
     const std::string& parseName() const;
+    const std::string& parseDisplayName() const;
     const std::string& parseDescription() const;
     ParseLayersList parseLayers() const;
     std::string parseExternalRef(bool schemaRef = true) const;

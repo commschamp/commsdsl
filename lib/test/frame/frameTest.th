@@ -31,6 +31,8 @@ public:
     void test20();
     void test21();
     void test22();
+    void test23();
+    void test24();
 };
 
 void FrameTestSuite::setUp()
@@ -573,5 +575,31 @@ void FrameTestSuite::test22()
     m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test23()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.parseName().empty());
+
+    auto frames = ns.parseFrames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& f1 = frames[0];
+    TS_ASSERT_EQUALS(f1.parseName(), "Frame");
+    TS_ASSERT_EQUALS(f1.parseDisplayName(), "Some Frame");
+}
+
+void FrameTestSuite::test24()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
     TS_ASSERT(protocol);
 }

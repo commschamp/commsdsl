@@ -45,6 +45,12 @@ const std::string& ParseFrame::parseName() const
     return m_pImpl->parseName();
 }
 
+const std::string& ParseFrame::parseDisplayName() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->parseDisplayName();
+}
+
 const std::string& ParseFrame::parseDescription() const
 {
     assert(m_pImpl != nullptr);

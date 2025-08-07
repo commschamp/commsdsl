@@ -746,8 +746,6 @@ bool ParseNamespaceImpl::parseUpdateDisplayName()
     }
 
     if ((!m_displayName.empty()) && (!m_protocol.parseIsNamespaceDisplayNameSupported())) {
-        // The check must be explicit here and not via protocol feature check. 
-        // The current schema for the protocol object is not set yet.
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "The property \"" << propName << "\" of namespace is not supported for dslVersion=" << 
                 m_protocol.parseCurrSchema().parseDslVersion() << ".";        
