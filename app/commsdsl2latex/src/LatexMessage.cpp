@@ -98,21 +98,28 @@ bool LatexMessage::genWriteImpl() const
             "\n"
             "#^#DESCRIPTION#$#\n"
             "\n"
+            "#^#PREPEND#$#\n"
             "TODO: Fields\n"
             "#^#APPEND#$#\n";
 
-        auto appendFileName = latexRelFilePath() + strings::genAppendFileSuffixStr();
+        auto prependFileName = relFilePath + strings::genPrependFileSuffixStr();
+        auto appendFileName = relFilePath + strings::genAppendFileSuffixStr();
         util::GenReplacementMap repl = {
             {"GENERATED", LatexGenerator::latexFileGeneratedComment()},
             {"SECTION", latexSection()},
             {"LABEL", "\\label{" + LatexGenerator::latexLabelId(*this) + '}'},
             {"DESCRIPTION", util::genStrMakeMultiline(genParseObj().parseDescription())},
+            {"PREPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(prependFileName))},
             {"APPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(appendFileName))},
         };
 
         if (latexGenerator.latexHasCodeInjectionComments()) {
             repl["REPLACE_COMMENT"] = 
                 latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
+
+            if (repl["PREPEND"].empty()) {
+                repl["PREPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Prepend to details with \"" + prependFileName + "\".";
+            } 
 
             if (repl["APPEND"].empty()) {
                 repl["APPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Append to file with \"" + appendFileName + "\".";

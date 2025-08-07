@@ -22,6 +22,7 @@
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
+#include <algorithm>
 #include <cassert>
 #include <fstream>
 
@@ -43,6 +44,21 @@ LatexNamespace::LatexMessagesList latexTransformMessagesList(const commsdsl::gen
 
         auto* latexMessage = dynamic_cast<const LatexMessage*>(mPtr.get());
 
+        assert(latexMessage != nullptr);
+        result.push_back(latexMessage);
+    }
+
+    return result;
+}
+
+LatexNamespace::LatexFramesList latexTransformMessagesList(const commsdsl::gen::GenNamespace::GenFramesList& list)
+{
+    LatexNamespace::LatexFramesList result;
+    result.reserve(list.size());
+    for (auto& mPtr : list) {
+        assert(mPtr);
+
+        auto* latexMessage = dynamic_cast<const LatexFrame*>(mPtr.get());
         assert(latexMessage != nullptr);
         result.push_back(latexMessage);
     }
@@ -138,6 +154,7 @@ bool LatexNamespace::genPrepareImpl()
 {
     m_latexFields = LatexField::latexTransformFieldsList(genFields());
     m_latexMessages = latexTransformMessagesList(genMessages());
+    m_latexFrames = latexTransformMessagesList(genFrames());
     return true;
 }
 
@@ -230,23 +247,22 @@ bool LatexNamespace::genWriteImpl() const
 
 bool LatexNamespace::latexHasDocElements() const
 {
-    for (auto* f : m_latexFields) {
-        assert(f != nullptr);
-        if (!f->latexRelFilePath().empty()) {
-            return true;
-        }
-    }
+    auto hasInput = 
+        [](auto& list)
+        {
+            return 
+                std::any_of(
+                    list.begin(), list.end(),
+                    [](auto& ptr)
+                    {
+                        return !ptr->latexRelFilePath().empty();
+                    });
+        };
 
-    for (auto* m : m_latexMessages) {
-        assert(m != nullptr);
-        if (!m->latexRelFilePath().empty()) {
-            return true;
-        }
-    }    
-
-    // TODO: messages + frames
-
-    return false;
+    return
+        hasInput(m_latexFields) ||
+        hasInput(m_latexMessages) ||
+        hasInput(m_latexFrames);
 }
 
 std::string LatexNamespace::latexInputs() const
@@ -265,6 +281,7 @@ std::string LatexNamespace::latexInputs() const
         
     addInputFor(m_latexFields);
     addInputFor(m_latexMessages);
+    addInputFor(m_latexFrames);
 
     if (inputs.empty()) {
         return strings::genEmptyString();

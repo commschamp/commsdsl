@@ -29,6 +29,7 @@ public:
     using GenSchemaPtr = commsdsl::gen::GenSchemaPtr;
     using GenNamespacePtr = commsdsl::gen::GenNamespacePtr;
     using GenMessagePtr = commsdsl::gen::GenMessagePtr;
+    using GenFramePtr = commsdsl::gen::GenFramePtr;
     using GenProgramOptions = commsdsl::gen::GenProgramOptions;
     using GenGenerator = commsdsl::gen::GenGenerator;
     using GenFieldPtr = commsdsl::gen::GenFieldPtr;
@@ -66,6 +67,7 @@ protected:
     virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
     virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
     virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent) override;
+    virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent) override;
 
     virtual GenFieldPtr genCreateIntFieldImpl(ParseField parseObj, GenElem* parent) override;
     virtual GenFieldPtr genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent) override;

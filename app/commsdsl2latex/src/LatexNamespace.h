@@ -17,6 +17,7 @@
 #pragma once
 
 #include "LatexField.h"
+#include "LatexFrame.h"
 #include "LatexMessage.h"
 
 #include "commsdsl/gen/GenNamespace.h"
@@ -37,6 +38,7 @@ public:
 
     using LatexFieldsList = LatexField::LatexFieldsList;
     using LatexMessagesList = std::vector<const LatexMessage*>;
+    using LatexFramesList = std::vector<const LatexFrame*>;
 
     LatexNamespace(LatexGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~LatexNamespace();
@@ -66,6 +68,7 @@ private:
     
     LatexFieldsList m_latexFields;
     LatexMessagesList m_latexMessages;
+    LatexFramesList m_latexFrames;
 };
 
 } // namespace commsdsl2latex

@@ -8,6 +8,7 @@ set (
     LatexEnumField.cpp
     LatexField.cpp
     LatexFloatField.cpp
+    LatexFrame.cpp
     LatexGenerator.cpp
     LatexIntField.cpp
     LatexListField.cpp

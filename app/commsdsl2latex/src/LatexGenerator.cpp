@@ -22,6 +22,7 @@
 #include "LatexCmake.h"
 #include "LatexEnumField.h"
 #include "LatexFloatField.h"
+#include "LatexFrame.h"
 #include "LatexIntField.h"
 #include "LatexListField.h"
 #include "LatexMessage.h"
@@ -221,6 +222,11 @@ LatexGenerator::GenNamespacePtr LatexGenerator::genCreateNamespaceImpl(ParseName
 LatexGenerator::GenMessagePtr LatexGenerator::genCreateMessageImpl(ParseMessage parseObj, GenElem* parent)
 {
     return std::make_unique<LatexMessage>(*this, parseObj, parent);
+}
+
+LatexGenerator::GenFramePtr LatexGenerator::genCreateFrameImpl(ParseFrame parseObj, GenElem* parent)
+{
+    return std::make_unique<LatexFrame>(*this, parseObj, parent);
 }
 
 LatexGenerator::GenFieldPtr LatexGenerator::genCreateIntFieldImpl(ParseField parseObj, GenElem* parent)
