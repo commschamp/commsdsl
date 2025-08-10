@@ -31,6 +31,14 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2latex
 {
 
+namespace 
+{
+
+const std::size_t InvalidLength = std::numeric_limits<std::size_t>::max();    
+
+} // namespace 
+    
+
 LatexField::LatexField(const commsdsl::gen::GenField& field) :
     m_genField(field)
 {
@@ -53,7 +61,68 @@ std::string LatexField::latexRelFilePath() const
 std::string LatexField::latexTitle() const
 {
     auto name = LatexGenerator::latexEscDisplayName(m_genField.genParseObj().parseDisplayName(), m_genField.genParseObj().parseName());
-    return "Field \"" + name + "\"";
+    if (comms::genIsGlobalField(m_genField)) {
+        return "Field \"" + name + "\"";
+    }
+
+    return "Member Field \"" + name + "\"";
+}
+
+std::string LatexField::latexDoc() const
+{
+    static const std::string Templ = 
+            "#^#SECTION#$#"
+            "\\label{#^#LABEL#$#}\n\n"
+            "#^#DESCRIPTION#$#\n"
+            "#^#PREPEND#$#\n"
+            "#^#DETAILS#$#\n"
+            "#^#APPEND#$#\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"SECTION", latexSection()},
+        {"LABEL", LatexGenerator::latexLabelId(m_genField)},
+        {"DESCRIPTION", util::genStrMakeMultiline(m_genField.genParseObj().parseDescription())},
+        {"DETAILS", latexDetails()},
+    };
+
+    LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);    
+
+    do {
+        if (!comms::genIsGlobalField(m_genField)) {
+            break;
+        }
+
+        auto& latexGenerator = LatexGenerator::latexCast(m_genField.genGenerator());
+        auto relFilePath = latexRelFilePath();
+        auto prependFileName = relFilePath + strings::genPrependFileSuffixStr();
+        auto appendFileName = relFilePath + strings::genAppendFileSuffixStr();
+
+
+        repl["PREPEND"] = util::genReadFileContents(latexGenerator.latexInputCodePathForFile(appendFileName));
+        repl["APPEND"] = util::genReadFileContents(latexGenerator.latexInputCodePathForFile(prependFileName));
+
+        if (!latexGenerator.latexHasCodeInjectionComments()) {
+            break;
+        };           
+
+        if (repl["PREPEND"].empty()) {
+            repl["PREPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Prepend to details with \"" + prependFileName + "\".";
+        } 
+                        
+        if (repl["APPEND"].empty()) {
+            repl["APPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Append to file with \"" + appendFileName + "\".";
+        }                
+
+    } while (false);
+
+    
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string LatexField::latexRefLabelId() const
+{
+    return latexRefLabelIdImpl();
 }
 
 LatexField::LatexFieldsList LatexField::latexTransformFieldsList(const GenFieldsList& fields)
@@ -72,6 +141,79 @@ LatexField::LatexFieldsList LatexField::latexTransformFieldsList(const GenFields
     }
 
     return result;
+}
+
+std::string LatexField::latexMembersDetails(const LatexFieldsList& latexFields)
+{
+    util::GenStringsList lines;
+    util::GenStringsList fields;    
+    std::size_t offset = 0;
+    for (auto* f : latexFields) {
+        auto& genField = f->latexGenField();
+        auto parseObj = genField.genParseObj();
+        auto details = f->latexDoc();
+        std::string nameStr = LatexGenerator::latexEscDisplayName(parseObj.parseDisplayName(), parseObj.parseName());
+        if (!details.empty()) {
+            nameStr = "\\hyperref[" + f->latexRefLabelId() + "]{" + nameStr + "}";
+            fields.push_back(details);
+        }
+
+        auto minLength = parseObj.parseMinLength();
+        auto maxLength = parseObj.parseMaxLength();
+
+        auto lengthStr = std::to_string(minLength);
+        do {
+            if (maxLength == minLength) {
+                break;
+            }
+
+            if (maxLength == InvalidLength) {
+                lengthStr += '+';
+                break;
+            }
+
+            lengthStr += " - " + std::to_string(maxLength);
+        } while (false);
+
+        std::string offsetStr;
+        do {
+            if (offset == InvalidLength) {
+                offsetStr = "<variable>";
+                break;
+            }
+
+            offsetStr = std::to_string(offset);
+            if (minLength == maxLength) {
+                offset += minLength;
+                break;
+            }
+
+            offset = InvalidLength;
+        } while (false);
+
+        lines.push_back(offsetStr + " & " + lengthStr + " & " + nameStr);
+    }
+
+    static const std::string Templ = 
+        "\\fbox{%\n"
+        "\\begin{tabular}{c|c|c}\n"
+        "\\textbf{Offset (Bytes)} & \\textbf{Length (Bytes)}& \\textbf{Name}\\\\\n"
+        "\\hline\n"
+        "\\hline\n"
+        "#^#LINES#$#\n"
+        "\\end{tabular}\n"
+        "}\n"
+        "\\smallskip\n"
+        "#^#DETAILS#$#\n"
+        "\n"
+        ;    
+
+    util::GenReplacementMap repl = {
+        {"LINES", util::genStrListToString(lines, " \\\\\\hline\n", " \\\\\n")},
+        {"DETAILS", util::genStrListToString(fields, "\n", "\n")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);      
 }
 
 bool LatexField::latexWrite() const
@@ -116,36 +258,16 @@ bool LatexField::latexWrite() const
         static const std::string Templ = 
             "#^#GENERATED#$#\n"
             "#^#REPLACE_COMMENT#$#\n"
-            "#^#SECTION#$#"
-            "\\label{#^#LABEL#$#}\n\n"
-            "#^#DESCRIPTION#$#\n"
-            "\n"
-            "#^#PREPEND#$#\n"
-            "TODO\n"
-            "#^#APPEND#$#\n";
-
-        auto prependFileName = latexRelFilePath() + strings::genPrependFileSuffixStr();
-        auto appendFileName = latexRelFilePath() + strings::genAppendFileSuffixStr();
+            "#^#DOC#$#\n"
+            ;
         util::GenReplacementMap repl = {
             {"GENERATED", LatexGenerator::latexFileGeneratedComment()},
-            {"SECTION", latexSection()},
-            {"LABEL", LatexGenerator::latexLabelId(m_genField)},
-            {"DESCRIPTION", util::genStrMakeMultiline(m_genField.genParseObj().parseDescription())},
-            {"PREPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(prependFileName))},
-            {"APPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(appendFileName))},
+            {"DOC", latexDoc()},
         };
 
         if (latexGenerator.latexHasCodeInjectionComments()) {
             repl["REPLACE_COMMENT"] = 
                 latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
-
-            if (repl["PREPEND"].empty()) {
-                repl["PREPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Prepend to details with \"" + prependFileName + "\".";
-            } 
-                            
-            if (repl["APPEND"].empty()) {
-                repl["APPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Append to file with \"" + appendFileName + "\".";
-            }                
         };         
 
         stream << util::genProcessTemplate(Templ, repl, true) << std::endl;
@@ -168,22 +290,36 @@ std::string LatexField::latexSection() const
         ;
 
     auto& latexGenerator = LatexGenerator::latexCast(m_genField.genGenerator());
-    auto titleFileName = latexRelFilePath() + strings::genTitleFileSuffixStr();
     util::GenReplacementMap repl = {
         {"SECTION", LatexGenerator::latexSectionDirective(m_genField)},
-        {"TITLE", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(titleFileName))},
     };
+
+    if (comms::genIsGlobalField(m_genField)) {
+        auto titleFileName = latexRelFilePath() + strings::genTitleFileSuffixStr();
+        repl["TITLE"] = util::genReadFileContents(latexGenerator.latexInputCodePathForFile(titleFileName));
+        
+        if (latexGenerator.latexHasCodeInjectionComments()) {
+            repl["REPLACE_COMMENT"] = 
+                latexGenerator.latexCodeInjectCommentPrefix() + "Replace the title value with contents of \"" + titleFileName + "\".";
+        };      
+
+    }
 
     if (repl["TITLE"].empty()) {
         repl["TITLE"] = latexTitle();
     }
 
-    if (latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] = 
-            latexGenerator.latexCodeInjectCommentPrefix() + "Replace the title value with contents of \"" + titleFileName + "\".";
-    };      
-
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string LatexField::latexRefLabelIdImpl() const
+{
+    return LatexGenerator::latexLabelId(m_genField);
+}
+
+std::string LatexField::latexDetails() const
+{
+    return "TODO: Field details";
 }
 
 } // namespace commsdsl2latex

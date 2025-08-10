@@ -58,6 +58,8 @@ protected:
 
 private:
     std::string latexSection() const;
+    std::string latexDetails() const;
+    std::string latexFields() const;
     
     LatexFieldsList m_latexFields;
 };

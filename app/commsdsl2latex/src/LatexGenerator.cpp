@@ -189,6 +189,19 @@ std::string LatexGenerator::latexEscDisplayName(const std::string& displayName, 
     return util::genStrReplace(result, "_", "\\_");
 }
 
+void LatexGenerator::latexEnsureNewLineBreak(std::string& str)
+{
+    if (str.empty()) {
+        return;
+    }
+
+    if (str.back() != '\n') {
+        str.push_back('\n');
+    }
+
+    str.append("\\\\\n");
+}
+
 std::string LatexGenerator::latexRelPathFor(const GenElem& elem) const
 {
     auto scope = comms::genScopeFor(elem, *this);

@@ -41,6 +41,7 @@ public:
     static const std::string& latexSectionDirective(const GenElem& elem);
     static std::string latexLabelId(const GenElem& elem);
     static std::string latexEscDisplayName(const std::string& displayName, const std::string& name);
+    static void latexEnsureNewLineBreak(std::string& str);
 
     static LatexGenerator& latexCast(GenGenerator& generator)
     {

@@ -168,14 +168,21 @@ std::size_t ParseStringFieldImpl::parseMaxLengthImpl() const
         return m_state.m_length;
     }
 
-    if (parseHasPrefixField()) {
+    do {
+        if (!parseHasPrefixField()) {
+            break;
+        }
+
         auto* prefixField = parseGetPrefixField();
-        assert(prefixField->parseKind() == ParseField::ParseKind::Int);
+        if (prefixField->parseKind() != ParseField::ParseKind::Int) {
+            break;
+        }
+
         auto& castedPrefix = static_cast<const ParseIntFieldImpl&>(*prefixField);
         auto result = castedPrefix.parseMaxLength();
         common::parseAddToLength(static_cast<std::size_t>(castedPrefix.parseMaxValue()), result);
         return result;
-    }
+    } while (false);
 
     return common::parseMaxPossibleLength();
 }

@@ -21,14 +21,41 @@
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
+#include "commsdsl/parse/ParseProtocol.h"
+
 #include <cassert>
 #include <fstream>
+#include <iomanip>
+#include <limits>
+#include <sstream>
+#include <type_traits>
 
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
 
 namespace commsdsl2latex
 {
+
+namespace 
+{
+
+const std::string& latexSenderStr(LatexMessage::ParseMessage::ParseSender sender)
+{
+    static const std::string Map[] = {
+        /* Both */ "Client + Server",
+        /* Client */ "Client Only",
+        /* Server */ "Server Only",
+    };
+    static const std::size_t MapSize = std::extent_v<decltype(Map)>;
+    static_assert(MapSize == static_cast<unsigned>(LatexMessage::ParseMessage::ParseSender::NumOfValues));
+
+    auto idx = static_cast<unsigned>(sender);
+    assert(idx < MapSize);
+    return Map[idx];
+}
+
+} // namespace 
+    
 
 LatexMessage::LatexMessage(LatexGenerator& generator, ParseMessage parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent)
@@ -95,11 +122,11 @@ bool LatexMessage::genWriteImpl() const
             "#^#REPLACE_COMMENT#$#\n"
             "#^#SECTION#$#"
             "#^#LABEL#$#\n"
-            "\n"
             "#^#DESCRIPTION#$#\n"
-            "\n"
             "#^#PREPEND#$#\n"
-            "TODO: Fields\n"
+            "#^#DETAILS#$#\n"
+            "#^#FIELDS_SUMMARY#$#\n"
+            "#^#FIELDS#$#\n"
             "#^#APPEND#$#\n";
 
         auto prependFileName = relFilePath + strings::genPrependFileSuffixStr();
@@ -111,7 +138,11 @@ bool LatexMessage::genWriteImpl() const
             {"DESCRIPTION", util::genStrMakeMultiline(genParseObj().parseDescription())},
             {"PREPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(prependFileName))},
             {"APPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(appendFileName))},
+            {"DETAILS", latexDetails()},
+            {"FIELDS_SUMMARY", latexFields()},
         };
+
+        LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);
 
         if (latexGenerator.latexHasCodeInjectionComments()) {
             repl["REPLACE_COMMENT"] = 
@@ -162,6 +193,97 @@ std::string LatexMessage::latexSection() const
     };      
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string LatexMessage::latexDetails() const
+{
+    static const std::string Templ = 
+        "\\subsubparagraph{Details}\n"
+        "\\label{#^#LABEL#$#}\n\n"
+        "\\fbox{%\n"
+        "\\begin{tabular}{c|c}\n"
+        "#^#LINES#$#\n"
+        "\\end{tabular}\n"
+        "}\n"
+        "\\smallskip\n"
+        "\n"
+        ;
+
+    util::GenStringsList lines;
+
+    auto parseObj = genParseObj();
+    auto makeNumericStr = 
+        [](auto val)
+        {
+            std::stringstream stream;
+            stream << val << " (0x" << std::setw(2) << std::setfill('0') << std::hex << val << ")";
+            return stream.str();
+        };
+    do{
+        lines.push_back("\\textbf{ID} & " + makeNumericStr(parseObj.parseId()));
+    } while (false);
+
+    do{
+        lines.push_back("\\textbf{Sent By} & " + latexSenderStr(parseObj.parseSender()));
+    } while (false);  
+    
+    do {
+        lines.push_back("\\textbf{Min Payload Length} & " + std::to_string(parseObj.parseMinLength()) + " Bytes");
+    } while (false);
+
+    do {
+        auto maxLen = parseObj.parseMaxLength();
+        if (maxLen == std::numeric_limits<std::size_t>::max()) {
+            break;
+        }
+        lines.push_back("\\textbf{Max Payload Length} & " + std::to_string(maxLen) + " Bytes");
+    } while (false);    
+
+    do {
+        auto sinceVersion = parseObj.parseSinceVersion();
+        if (sinceVersion == 0) {
+            break;
+        }
+
+        lines.push_back("\\textbf{Introduced In Version} &" + makeNumericStr(sinceVersion));
+    } while (false);
+
+    do {
+        auto deprecatedSince = parseObj.parseDeprecatedSince();
+        if (deprecatedSince == commsdsl::parse::ParseProtocol::parseNotYetDeprecated()) {
+            break;
+        }
+
+        lines.push_back("\\textbf{Deprecated In Version} &" + makeNumericStr(deprecatedSince));
+    } while (false);    
+    
+    util::GenReplacementMap repl = {
+        {"LABEL", LatexGenerator::latexLabelId(*this) + "_details"},
+        {"LINES", util::genStrListToString(lines, " \\\\\\hline\n", " \\\\\n")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string LatexMessage::latexFields() const
+{
+    if (m_latexFields.empty()) {
+        return strings::genEmptyString();
+    }
+
+    static const std::string Templ = 
+        "\\subsubparagraph{Member Fields}\n"
+        "\\label{#^#LABEL#$#}\n\n"
+        "#^#DETAILS#$#\n"
+        "\n"
+        ;    
+
+    util::GenReplacementMap repl = {
+        {"LABEL", LatexGenerator::latexLabelId(*this) + "_fields"},
+        {"DETAILS", LatexField::latexMembersDetails(m_latexFields)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);        
 }
 
 } // namespace commsdsl2latex

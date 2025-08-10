@@ -143,6 +143,8 @@ std::string Latex::latexPackageInternal() const
         "\\usepackage[T1]{fontenc}\n"
         "\\usepackage[colorlinks]{hyperref}\n"
         "\\usepackage{nameref}\n"
+        "\\usepackage{array}\n"
+        "\\usepackage{booktabs}\n"
         "\n"
         "#^#APPEND#$#\n"
     ;
@@ -179,6 +181,7 @@ std::string Latex::latexMacroInternal() const
         "% Fake heading\n"
         "\\newcommand{\\subsubparagraph}[1]{%\n"
         "\\par\\medskip\n"
+        "\\noindent\n"
         "\\phantomsection\n"
         "\\refstepcounter{dummyctr}\n"
         "\\def\\@currentlabelname{#1}\n"

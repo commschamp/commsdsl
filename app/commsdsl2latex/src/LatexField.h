@@ -25,6 +25,7 @@ namespace commsdsl2latex
 class LatexField
 {
 public:
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
     using GenField = commsdsl::gen::GenField;
     using GenFieldsList = GenField::GenFieldsList;
 
@@ -34,20 +35,26 @@ public:
     virtual ~LatexField();
 
     static LatexFieldsList latexTransformFieldsList(const GenFieldsList& fields);
+    static std::string latexMembersDetails(const LatexFieldsList& latexFields);
 
     std::string latexRelFilePath() const;
     std::string latexTitle() const;
+    std::string latexDoc() const;
+    std::string latexRefLabelId() const;
 
     bool latexWrite() const;
 
-protected:
     const GenField& latexGenField() const
     {
         return m_genField;
     }    
 
+protected:
+    virtual std::string latexRefLabelIdImpl() const;
+
 private:
     std::string latexSection() const;
+    std::string latexDetails() const;
 
     const GenField& m_genField;
 };
