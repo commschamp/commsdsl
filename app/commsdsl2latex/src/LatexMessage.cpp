@@ -124,7 +124,7 @@ bool LatexMessage::genWriteImpl() const
             "#^#LABEL#$#\n"
             "#^#DESCRIPTION#$#\n"
             "#^#PREPEND#$#\n"
-            "#^#DETAILS#$#\n"
+            "#^#INFO#$#\n"
             "#^#FIELDS_SUMMARY#$#\n"
             "#^#FIELDS#$#\n"
             "#^#APPEND#$#\n";
@@ -138,7 +138,7 @@ bool LatexMessage::genWriteImpl() const
             {"DESCRIPTION", util::genStrMakeMultiline(genParseObj().parseDescription())},
             {"PREPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(prependFileName))},
             {"APPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(appendFileName))},
-            {"DETAILS", latexDetails()},
+            {"INFO", latexInfoDetails()},
             {"FIELDS_SUMMARY", latexFields()},
         };
 
@@ -195,13 +195,13 @@ std::string LatexMessage::latexSection() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string LatexMessage::latexDetails() const
+std::string LatexMessage::latexInfoDetails() const
 {
     static const std::string Templ = 
         "\\subsubparagraph{Details}\n"
         "\\label{#^#LABEL#$#}\n\n"
         "\\fbox{%\n"
-        "\\begin{tabular}{c|c}\n"
+        "\\begin{tabular}{l|c}\n"
         "#^#LINES#$#\n"
         "\\end{tabular}\n"
         "}\n"
@@ -228,16 +228,20 @@ std::string LatexMessage::latexDetails() const
     } while (false);  
     
     do {
-        lines.push_back("\\textbf{Min Payload Length} & " + std::to_string(parseObj.parseMinLength()) + " Bytes");
-    } while (false);
-
-    do {
-        auto maxLen = parseObj.parseMaxLength();
-        if (maxLen == std::numeric_limits<std::size_t>::max()) {
+        auto minLength = parseObj.parseMinLength();
+        auto maxLength = parseObj.parseMaxLength();
+        if (minLength == maxLength) {
+            lines.push_back("\\textbf{Fixed Length} & " + std::to_string(minLength) + " Bytes");    
             break;
         }
-        lines.push_back("\\textbf{Max Payload Length} & " + std::to_string(maxLen) + " Bytes");
-    } while (false);    
+
+        if (maxLength != std::numeric_limits<std::size_t>::max()) {
+            lines.push_back("\\textbf{Variable Length} & " + std::to_string(minLength) + " - " + std::to_string(maxLength) + " Bytes");
+            break;
+        }
+
+        lines.push_back("\\textbf{Variable Length} & " + std::to_string(minLength) + "+ Bytes");
+    } while (false);
 
     do {
         auto sinceVersion = parseObj.parseSinceVersion();

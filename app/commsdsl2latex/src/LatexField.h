@@ -18,6 +18,7 @@
 #include "commsdsl/gen/GenField.h"
 #include "commsdsl/gen/util.h"
 
+#include "commsdsl/parse/ParseIntField.h"
 
 namespace commsdsl2latex
 {
@@ -25,7 +26,9 @@ namespace commsdsl2latex
 class LatexField
 {
 public:
+    using ParseIntField = commsdsl::parse::ParseIntField;
     using GenStringsList = commsdsl::gen::util::GenStringsList;
+    using GenElem = commsdsl::gen::GenElem;
     using GenField = commsdsl::gen::GenField;
     using GenFieldsList = GenField::GenFieldsList;
 
@@ -49,12 +52,27 @@ public:
         return m_genField;
     }    
 
+    const std::string& latexFieldKind() const
+    {
+        return fieldKindImpl();
+    }
+
 protected:
     virtual std::string latexRefLabelIdImpl() const;
+    virtual std::string latexInfoDetailsImpl() const;
+    virtual std::string latexExtraDetailsImpl() const;
+    virtual const std::string& fieldKindImpl() const;
+    virtual bool latexIsOptionalImpl() const;
+
+    static std::string latexSignedInfo(ParseIntField::ParseType value);
+    static std::string latexEndianInfo(commsdsl::parse::ParseEndian value);
+    static std::string latexUnitsInfo(commsdsl::parse::ParseUnits value);
 
 private:
     std::string latexSection() const;
+    std::string latexInfoDetails() const;
     std::string latexDetails() const;
+    bool latexIsOptional() const;
 
     const GenField& m_genField;
 };

@@ -115,6 +115,10 @@ const std::string& genPdfAppendFileSuffixStr();
 const std::string& genHtmlFileSuffixStr();
 const std::string& genHtmlAppendFileSuffixStr();
 const std::string& genHtmlCmdAppendFileSuffixStr();
+const std::string& genYesStr();
+const std::string& genNoStr();
+const std::string& genBigStr();
+const std::string& genLittleStr();
 
 
 char genSiblingRefPrefix();

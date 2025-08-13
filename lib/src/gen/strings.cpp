@@ -553,6 +553,30 @@ const std::string& genHtmlCmdAppendFileSuffixStr()
     return Str;    
 }
 
+const std::string& genYesStr()
+{
+    static const std::string Str("Yes");
+    return Str;
+}
+
+const std::string& genNoStr()
+{
+    static const std::string Str("No");
+    return Str;
+}
+
+const std::string& genBigStr()
+{
+    static const std::string Str("Big");
+    return Str;
+}
+
+const std::string& genLittleStr()
+{
+    static const std::string Str("Little");
+    return Str;
+}
+
 char genSiblingRefPrefix()
 {
     return '$';

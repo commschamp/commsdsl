@@ -17,12 +17,16 @@
 
 #include "LatexGenerator.h"
 
+#include "commsdsl/gen/GenBitfieldField.h"
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
+#include <algorithm>
 #include <cassert>
 #include <fstream>
+#include <iomanip>
+#include <sstream>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
@@ -35,6 +39,34 @@ namespace
 {
 
 const std::size_t InvalidLength = std::numeric_limits<std::size_t>::max();    
+
+bool isLengthInBits(const LatexField& f)
+{
+    auto* parent = f.latexGenField().genGetParent();
+    assert(parent != nullptr);
+    if (parent == nullptr) {
+        return false;
+    }
+
+    if (parent->genElemType() != LatexField::GenElem::Type_Field) {
+        return false;
+    }
+
+    auto* parentField = static_cast<const LatexField::GenField*>(parent);
+    return parentField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Bitfield;
+}
+
+bool isLengthInBits(const LatexField::LatexFieldsList& fields)
+{
+    return
+        std::any_of(
+            fields.begin(), fields.end(),
+            [](auto* f)
+            {
+                assert(f != nullptr);
+                return isLengthInBits(*f);
+            });    
+}
 
 } // namespace 
     
@@ -75,6 +107,7 @@ std::string LatexField::latexDoc() const
             "\\label{#^#LABEL#$#}\n\n"
             "#^#DESCRIPTION#$#\n"
             "#^#PREPEND#$#\n"
+            "#^#INFO#$#\n"
             "#^#DETAILS#$#\n"
             "#^#APPEND#$#\n"
         ;
@@ -83,7 +116,8 @@ std::string LatexField::latexDoc() const
         {"SECTION", latexSection()},
         {"LABEL", LatexGenerator::latexLabelId(m_genField)},
         {"DESCRIPTION", util::genStrMakeMultiline(m_genField.genParseObj().parseDescription())},
-        {"DETAILS", latexDetails()},
+        {"INFO", latexInfoDetails()},
+        {"DETAILS", latexExtraDetailsImpl()},
     };
 
     LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);    
@@ -145,6 +179,13 @@ LatexField::LatexFieldsList LatexField::latexTransformFieldsList(const GenFields
 
 std::string LatexField::latexMembersDetails(const LatexFieldsList& latexFields)
 {
+    bool inBits = isLengthInBits(latexFields);
+
+    std::string units = "Bytes";
+    if (inBits) {
+        units = "Bits";
+    }
+
     util::GenStringsList lines;
     util::GenStringsList fields;    
     std::size_t offset = 0;
@@ -158,8 +199,17 @@ std::string LatexField::latexMembersDetails(const LatexFieldsList& latexFields)
             fields.push_back(details);
         }
 
+        if (f->latexIsOptional()) {
+            nameStr += " (optional)";
+        }
+
         auto minLength = parseObj.parseMinLength();
         auto maxLength = parseObj.parseMaxLength();
+
+        if (inBits) {
+            minLength = parseObj.parseBitLength();
+            maxLength = minLength;
+        }
 
         auto lengthStr = std::to_string(minLength);
         do {
@@ -197,7 +247,7 @@ std::string LatexField::latexMembersDetails(const LatexFieldsList& latexFields)
     static const std::string Templ = 
         "\\fbox{%\n"
         "\\begin{tabular}{c|c|c}\n"
-        "\\textbf{Offset (Bytes)} & \\textbf{Length (Bytes)}& \\textbf{Name}\\\\\n"
+        "\\textbf{Offset (#^#UNITS#$#)} & \\textbf{Length (#^#UNITS#$#)}& \\textbf{Name}\\\\\n"
         "\\hline\n"
         "\\hline\n"
         "#^#LINES#$#\n"
@@ -209,8 +259,9 @@ std::string LatexField::latexMembersDetails(const LatexFieldsList& latexFields)
         ;    
 
     util::GenReplacementMap repl = {
-        {"LINES", util::genStrListToString(lines, " \\\\\\hline\n", " \\\\\n")},
+        {"LINES", util::genStrListToString(lines, " \\\\\\hline\n", " \\\\")},
         {"DETAILS", util::genStrListToString(fields, "\n", "\n")},
+        {"UNITS", units},
     };
 
     return util::genProcessTemplate(Templ, repl);      
@@ -317,9 +368,250 @@ std::string LatexField::latexRefLabelIdImpl() const
     return LatexGenerator::latexLabelId(m_genField);
 }
 
-std::string LatexField::latexDetails() const
+std::string LatexField::latexInfoDetailsImpl() const
 {
-    return "TODO: Field details";
+    return strings::genEmptyString();
+}
+
+std::string LatexField::latexExtraDetailsImpl() const
+{
+    return strings::genEmptyString();
+}
+
+const std::string& LatexField::fieldKindImpl() const
+{
+    static const std::string Map[] = {
+        /* Int */ "Integral",
+        /* Enum */ "Enumeration",
+        /* Set */ "Bits",
+        /* Float */ "Floating Point",
+        /* Bitfield */ "Bitfield",
+        /* Bundle */ "Bundle (Composite)",
+        /* String */ "String",
+        /* Data */ "Raw Data",
+        /* List */ "List",
+        /* Ref */ strings::genEmptyString(), // Must be overriden
+        /* Optional */ strings::genEmptyString(), // Must be overriden
+        /* Variant */ "Variant", 
+    };
+    static const std::size_t MapSize = std::extent_v<decltype(Map)>;
+
+    auto idx = static_cast<unsigned>(m_genField.genParseObj().parseKind());
+    assert(idx < MapSize);
+    if (MapSize <= idx) {
+        return strings::genEmptyString();
+    }
+
+    return Map[idx];
+}
+
+bool LatexField::latexIsOptionalImpl() const
+{
+    return false;
+}
+
+std::string LatexField::latexSignedInfo(ParseIntField::ParseType value)
+{
+    static const std::string* Map[] = {
+        /* Int8 */ &strings::genYesStr(),
+        /* Uint8 */ &strings::genNoStr(),
+        /* Int16 */ &strings::genYesStr(),
+        /* Uint16 */ &strings::genNoStr(),
+        /* Int32 */ &strings::genYesStr(),
+        /* Uint32 */ &strings::genNoStr(),
+        /* Int64 */ &strings::genYesStr(),
+        /* Uint64 */ &strings::genNoStr(),
+        /* Intvar */ &strings::genYesStr(),
+        /* Uintvar */ &strings::genNoStr(),
+    };
+    static const std::size_t MapSize = std::extent_v<decltype(Map)>;
+    static_assert(MapSize == static_cast<unsigned>(ParseIntField::ParseType::NumOfValues));
+
+    auto idx = static_cast<unsigned>(value);
+    assert(idx < MapSize);
+    return "\\textbf{Signed} & " + *(Map[idx]);
+}
+
+std::string LatexField::latexEndianInfo(commsdsl::parse::ParseEndian value)
+{
+    static const std::string* Map[] = {
+        /* ParseEndian_Little */ &strings::genLittleStr(),
+        /* ParseEndian_Big */ &strings::genBigStr(),
+    };
+    static const std::size_t MapSize = std::extent_v<decltype(Map)>;
+    static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::ParseEndian_NumOfValues));
+
+    auto idx = static_cast<unsigned>(value);
+    assert(idx < MapSize);
+    return "\\textbf{Endian} & " + *(Map[idx]);
+}
+
+std::string LatexField::latexUnitsInfo(commsdsl::parse::ParseUnits value)
+{
+    if ((value == commsdsl::parse::ParseUnits::Unknown) ||
+        (commsdsl::parse::ParseUnits::NumOfValues <= value)) {
+        return strings::genEmptyString();
+    }
+
+    static const std::string Map[] = {
+        /* Unknown */ std::string(),
+
+        // Time
+        /* Nanoseconds */ "Nanoseconds",
+        /* Microseconds */ "Microseconds",
+        /* Milliseconds */ "Milliseconds",
+        /* Seconds */ "Seconds",
+        /* Minutes */ "Minutes",
+        /* Hours */ "Hours",
+        /* Days */ "Days",
+        /* Weeks */ "Weeks",
+
+        // Distance  
+        /* Nanometers */ "Nanometers",
+        /* Micrometers */ "Micromiters",
+        /* Millimeters */ "Millimeters",
+        /* Centimeters */ "Centimeters",
+        /* Meters */ "Meters",
+        /* Kilometers */ "Kilometers",
+
+        // Speed
+        /* NanometersPerSecond */ "Nanometers Per Second",
+        /* MicrometersPerSecond */ "Micrometers Per Second",
+        /* MillimetersPerSecond */ "Millimeters Per Second",
+        /* CentimetersPerSecond */ "Centimeters Per Second",
+        /* MetersPerSecond */ "Meters Per Second",
+        /* KilometersPerSecond */ "Kilometers Per Second",
+        /* KilometersPerHour */ "Kilometers Per Hour",
+
+        // Frequency
+        /* Hertz */ "Hertz",
+        /* KiloHertz */ "Kilohertz",
+        /* MegaHertz */ "Megahertz",
+        /* GigaHertz */ "Gigahertz",
+
+        // Angle
+        /* Degrees */ "Degrees",
+        /* Radians */ "Radians",
+
+        // Electric Current
+        /* Nanoamps */ "Nano Amperes",
+        /* Microamps */ "Micro Amperes",
+        /* Milliamps */ "Milli Amperes",
+        /* Amps */ "Amperes",
+        /* Kiloamps */ "Kilo Amperes",
+
+        // Electric Voltage
+        /* Nanovolts */ "Nano Volts",
+        /* Microvolts */ "Micro Volts",
+        /* Millivolts */ "Milli Volts",
+        /* Volts */ "Volts",
+        /* Kilovolts */ "Killo Volts",
+
+        // Memory Size
+        /* Bytes */ "Bytes",
+        /* Kilobytes */ "Kilobytes",
+        /* Megabytes */ "Megabytes",
+        /* Gigabytes */ "Kigabytes",
+        /* Terabytes */ "Terabytes",
+    };
+    static const std::size_t MapSize = std::extent_v<decltype(Map)>;
+    static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::ParseUnits::NumOfValues));
+
+    auto idx = static_cast<unsigned>(value);
+    assert(idx < MapSize);
+    return "\\textbf{Units} & " + (Map[idx]);
+}
+
+std::string LatexField::latexInfoDetails() const
+{
+    static const std::string Templ = 
+        "\\subsubparagraph{Details}\n"
+        "\\label{#^#LABEL#$#}\n\n"
+        "\\fbox{%\n"
+        "\\begin{tabular}{l|p{5cm}}\n"
+        "#^#LINES#$##^#SEP#$#\n"
+        "#^#EXTRA#$#\n"
+        "\\end{tabular}\n"
+        "}\n"
+        "\\smallskip\n"
+        "\n"
+        ;
+
+    util::GenStringsList lines;    
+    
+    
+    auto parseObj = m_genField.genParseObj();
+    auto makeNumericStr = 
+        [](auto val)
+        {
+            std::stringstream stream;
+            stream << val << " (0x" << std::setw(2) << std::setfill('0') << std::hex << val << ")";
+            return stream.str();
+        };
+
+    do{
+        lines.push_back("\\textbf{Field Kind} & " + fieldKindImpl());
+    } while (false); 
+    
+    do {
+        auto minLength = parseObj.parseMinLength();
+        auto maxLength = parseObj.parseMaxLength();
+
+        bool inBits = isLengthInBits(*this);
+        std::string units = " Bytes";
+        if (inBits) {
+            minLength = parseObj.parseBitLength();
+            maxLength = minLength;
+            units = " Bits";
+        }
+
+        if (minLength == maxLength) {
+            lines.push_back("\\textbf{Fixed Length} & " + std::to_string(minLength) + units);
+            break;
+        }
+
+        if (maxLength != InvalidLength) {
+            lines.push_back("\\textbf{Variable Length} & " + std::to_string(minLength) + " - " + std::to_string(maxLength) + units);
+            break;
+        }
+
+        lines.push_back("\\textbf{Variable Length} & " + std::to_string(minLength) + "+" + units);
+    } while (false);
+
+    do {
+        auto sinceVersion = parseObj.parseSinceVersion();
+        if (sinceVersion == 0) {
+            break;
+        }
+
+        lines.push_back("\\textbf{Introduced In Version} &" + makeNumericStr(sinceVersion));
+    } while (false);
+
+    do {
+        auto deprecatedSince = parseObj.parseDeprecatedSince();
+        if (deprecatedSince == commsdsl::parse::ParseProtocol::parseNotYetDeprecated()) {
+            break;
+        }
+
+        lines.push_back("\\textbf{Deprecated In Version} &" + makeNumericStr(deprecatedSince));
+    } while (false);      
+
+    util::GenReplacementMap repl = {
+        {"LABEL", LatexGenerator::latexLabelId(m_genField) + "_details"},
+        {"LINES", util::genStrListToString(lines, " \\\\\\hline\n", " \\\\")},
+        {"EXTRA", latexInfoDetailsImpl()},
+    };
+
+    if (!repl["EXTRA"].empty()) {
+        repl["SEP"] = "\\hline";
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+bool LatexField::latexIsOptional() const
+{
+    return latexIsOptionalImpl();
 }
 
 } // namespace commsdsl2latex
