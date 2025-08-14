@@ -43,6 +43,8 @@
 #include <cassert>
 #include <fstream>
 #include <filesystem>
+#include <iomanip>
+#include <sstream>
 
 namespace fs = std::filesystem;
 namespace comms = commsdsl::gen::comms;
@@ -200,6 +202,25 @@ void LatexGenerator::latexEnsureNewLineBreak(std::string& str)
     }
 
     str.append("\\\\\n");
+}
+
+std::string LatexGenerator::latexIntegralToStr(std::intmax_t value, bool isUnsigned, std::size_t hexWidth)
+{
+    std::stringstream stream;
+    if ((isUnsigned) || (0 <= value)) {
+        auto castValue = static_cast<std::uintmax_t>(value);
+        stream << castValue << " (0x" << std::hex << std::setw(static_cast<unsigned>(hexWidth)) << std::setfill('0') << castValue << ")";
+    }
+    else {
+        stream << value;
+    }
+
+    return stream.str();
+}
+
+std::string LatexGenerator::latexIntegralToStr(std::uintmax_t value, std::size_t hexWidth)
+{
+    return latexIntegralToStr(static_cast<std::intmax_t>(value), true, hexWidth);
 }
 
 std::string LatexGenerator::latexRelPathFor(const GenElem& elem) const

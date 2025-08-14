@@ -244,6 +244,11 @@ std::string GenEnumField::genValuesLimitStr() const
     return genAdjustName(strings::genEnumValuesLimitStr());
 }
 
+bool GenEnumField::genIsUnsignedType() const
+{
+    return GenIntField::genIsUnsignedType(genEnumFieldParseObj().parseType());
+}
+
 bool GenEnumField::genPrepareImpl()
 {
     return m_impl->genPrepare();

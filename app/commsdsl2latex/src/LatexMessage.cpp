@@ -27,7 +27,6 @@
 #include <fstream>
 #include <iomanip>
 #include <limits>
-#include <sstream>
 #include <type_traits>
 
 namespace strings = commsdsl::gen::strings;
@@ -212,15 +211,8 @@ std::string LatexMessage::latexInfoDetails() const
     util::GenStringsList lines;
 
     auto parseObj = genParseObj();
-    auto makeNumericStr = 
-        [](auto val)
-        {
-            std::stringstream stream;
-            stream << val << " (0x" << std::setw(2) << std::setfill('0') << std::hex << val << ")";
-            return stream.str();
-        };
     do{
-        lines.push_back("\\textbf{ID} & " + makeNumericStr(parseObj.parseId()));
+        lines.push_back("\\textbf{ID} & " + LatexGenerator::latexIntegralToStr(parseObj.parseId()));
     } while (false);
 
     do{
@@ -249,7 +241,7 @@ std::string LatexMessage::latexInfoDetails() const
             break;
         }
 
-        lines.push_back("\\textbf{Introduced In Version} &" + makeNumericStr(sinceVersion));
+        lines.push_back("\\textbf{Introduced In Version} &" + LatexGenerator::latexIntegralToStr(sinceVersion));
     } while (false);
 
     do {
@@ -258,7 +250,7 @@ std::string LatexMessage::latexInfoDetails() const
             break;
         }
 
-        lines.push_back("\\textbf{Deprecated In Version} &" + makeNumericStr(deprecatedSince));
+        lines.push_back("\\textbf{Deprecated In Version} &" + LatexGenerator::latexIntegralToStr(deprecatedSince));
     } while (false);    
     
     util::GenReplacementMap repl = {

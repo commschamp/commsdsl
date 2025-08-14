@@ -21,7 +21,6 @@
 #include "commsdsl/gen/util.h"
 
 #include <algorithm>
-#include <sstream>
 #include <vector>
 
 namespace util = commsdsl::gen::util;
@@ -101,7 +100,7 @@ std::string LatexIntField::latexInfoDetailsImpl() const
         list.push_back("\\textbf{Valid Values} &" + util::genStrListToString(values, ", ", ""));
     } while (false);
 
-    return util::genStrListToString(list, "\\\\\\hline\n", "\\\\\n");
+    return util::genStrListToString(list, "\\\\\\hline\n", "\\\\");
 }
 
 std::string LatexIntField::latexExtraDetailsImpl() const
@@ -127,11 +126,8 @@ std::string LatexIntField::latexExtraDetailsImpl() const
         infos.resize(infos.size() + 1U);
         auto& elem = infos.back();
         elem.m_value = s.second.m_value;
-        elem.m_name = s.second.m_displayName;
+        elem.m_name = LatexGenerator::latexEscDisplayName(s.second.m_displayName, s.first);
         elem.m_description = s.second.m_description;
-        if (elem.m_name.empty()) {
-            elem.m_name = s.first;
-        }
     }
 
     if (infos.empty()) {
@@ -155,18 +151,10 @@ std::string LatexIntField::latexExtraDetailsImpl() const
         });
 
     util::GenStringsList lines;
+    auto hexWidth = parseObj.parseMinLength() * 2U;
     for (auto& elem : infos) {
-        std::stringstream stream;
-        if ((unsignedType) || (0 <= elem.m_value)) {
-            auto castValue = static_cast<std::uintmax_t>(elem.m_value);
-            stream << static_cast<std::uintmax_t>(elem.m_value) << " (0x" << std::hex << castValue << ")";
-        }
-        else {
-            stream << elem.m_value;
-        }
-
-        stream << " & " << elem.m_name << " & " << elem.m_description;
-        lines.push_back(stream.str());
+        auto l = LatexGenerator::latexIntegralToStr(elem.m_value, unsignedType, hexWidth) + " & " + elem.m_name + " & " + elem.m_description;
+        lines.push_back(std::move(l));
     }
 
     static const std::string Templ = 
@@ -183,7 +171,7 @@ std::string LatexIntField::latexExtraDetailsImpl() const
         ;
 
     util::GenReplacementMap repl = {
-        {"LABEL", LatexGenerator::latexLabelId(*this) + "_sepcials"},
+        {"LABEL", LatexGenerator::latexLabelId(*this) + "_specials"},
         {"LINES", util::genStrListToString(lines, " \\\\\\hline\n", " \\\\")},
     };
 

@@ -61,6 +61,8 @@ public:
     std::string genLastValueStr() const;
     std::string genValuesLimitStr() const;
 
+    bool genIsUnsignedType() const;
+
 protected:    
     virtual bool genPrepareImpl() override;
     virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;

@@ -42,6 +42,8 @@ public:
     static std::string latexLabelId(const GenElem& elem);
     static std::string latexEscDisplayName(const std::string& displayName, const std::string& name);
     static void latexEnsureNewLineBreak(std::string& str);
+    static std::string latexIntegralToStr(std::intmax_t value, bool isUnsigned, std::size_t hexWidth = 0);
+    static std::string latexIntegralToStr(std::uintmax_t value, std::size_t hexWidth = 0);
 
     static LatexGenerator& latexCast(GenGenerator& generator)
     {

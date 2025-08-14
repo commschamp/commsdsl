@@ -611,6 +611,22 @@ std::string LatexField::latexInfoDetails() const
 
 bool LatexField::latexIsOptional() const
 {
+    auto& dslObj = m_genField.genParseObj();
+    if (m_genField.genGenerator().genIsElementOptional(dslObj.parseSinceVersion(), dslObj.parseDeprecatedSince(), dslObj.parseIsDeprecatedRemoved())) {
+        return true;
+    }
+
+    auto* parent = m_genField.genGetParent();
+    assert(parent != nullptr);
+    if (comms::genSinceVersionOf(*parent) < dslObj.parseSinceVersion()) {
+        return true;
+    }
+
+    if ((dslObj.parseDeprecatedSince() < commsdsl::parse::ParseProtocol::parseNotYetDeprecated()) &&
+        (dslObj.parseIsDeprecatedRemoved())) {
+        return true;
+    }
+
     return latexIsOptionalImpl();
 }
 
