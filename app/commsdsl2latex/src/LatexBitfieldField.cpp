@@ -17,6 +17,12 @@
 
 #include "LatexGenerator.h"
 
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+namespace util = commsdsl::gen::util;
+namespace strings = commsdsl::gen::strings;
+
 namespace commsdsl2latex
 {
 
@@ -26,10 +32,49 @@ LatexBitfieldField::LatexBitfieldField(LatexGenerator& generator, ParseField par
 {
 }   
 
+bool LatexBitfieldField::genPrepareImpl() 
+{
+    if (!GenBase::genPrepareImpl()) {
+        return false;
+    }
+
+    m_latexFields = LatexField::latexTransformFieldsList(genMembers());
+    return true;
+}
+
 bool LatexBitfieldField::genWriteImpl() const
 {
     return latexWrite();
 }
 
+std::string LatexBitfieldField::latexInfoDetailsImpl() const
+{
+    GenStringsList list;
+    auto parseObj = genBitfieldFieldParseObj();
+    
+    list.push_back(latexEndianInfo(parseObj.parseEndian()));
+    return util::genStrListToString(list, "\\\\\\hline\n", "\\\\");
+}
+
+std::string LatexBitfieldField::latexExtraDetailsImpl() const
+{
+    if (m_latexFields.empty()) {
+        return strings::genEmptyString();
+    }
+
+    static const std::string Templ = 
+        "\\subsubparagraph{Member Fields}\n"
+        "\\label{#^#LABEL#$#}\n\n"
+        "#^#DETAILS#$#\n"
+        "\n"
+        ;    
+
+    util::GenReplacementMap repl = {
+        {"LABEL", LatexGenerator::latexLabelId(*this) + "_members"},
+        {"DETAILS", LatexField::latexMembersDetails(m_latexFields)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);      
+}
 
 } // namespace commsdsl2latex

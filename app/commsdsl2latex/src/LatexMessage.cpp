@@ -212,7 +212,7 @@ std::string LatexMessage::latexInfoDetails() const
 
     auto parseObj = genParseObj();
     do{
-        lines.push_back("\\textbf{ID} & " + LatexGenerator::latexIntegralToStr(parseObj.parseId()));
+        lines.push_back("\\textbf{ID} & " + LatexGenerator::latexIntegralToStr(parseObj.parseId(), 2));
     } while (false);
 
     do{
