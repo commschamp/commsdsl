@@ -31,10 +31,18 @@ public:
     using ParseField = commsdsl::parse::ParseField;
     using GenElem = commsdsl::gen::GenElem;
 
+    using LatexFieldsList = LatexField::LatexFieldsList;
+
     LatexBundleField(LatexGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
+    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;    
+
+    virtual std::string latexExtraDetailsImpl() const override;
+
+private:
+    LatexFieldsList m_latexFields;        
 };
 
 } // namespace commsdsl2latex

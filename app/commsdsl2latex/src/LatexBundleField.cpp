@@ -17,6 +17,12 @@
 
 #include "LatexGenerator.h"
 
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+namespace util = commsdsl::gen::util;
+namespace strings = commsdsl::gen::strings;
+
 namespace commsdsl2latex
 {
 
@@ -24,11 +30,42 @@ LatexBundleField::LatexBundleField(LatexGenerator& generator, ParseField parseOb
     GenBase(generator, parseObj, parent),
     LatexBase(static_cast<GenBase&>(*this)) 
 {
-}   
+}
+
+bool LatexBundleField::genPrepareImpl() 
+{
+    if (!GenBase::genPrepareImpl()) {
+        return false;
+    }
+
+    m_latexFields = LatexField::latexTransformFieldsList(genMembers());
+    return true;
+}
 
 bool LatexBundleField::genWriteImpl() const
 {
     return latexWrite();
+}
+
+std::string LatexBundleField::latexExtraDetailsImpl() const
+{
+    if (m_latexFields.empty()) {
+        return strings::genEmptyString();
+    }
+
+    static const std::string Templ = 
+        "\\subsubparagraph{Member Fields}\n"
+        "\\label{#^#LABEL#$#}\n\n"
+        "#^#DETAILS#$#\n"
+        "\n"
+        ;    
+
+    util::GenReplacementMap repl = {
+        {"LABEL", LatexGenerator::latexLabelId(*this) + "_members"},
+        {"DETAILS", LatexField::latexMembersDetails(m_latexFields)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);      
 }
 
 

@@ -210,6 +210,8 @@ std::string LatexFloatField::latexExtraDetailsImpl() const
         "#^#LINES#$#\n"
         "\\end{tabular}\n"
         "}\n"
+        "\\smallskip\n"
+        "\n"
         ;
 
     util::GenReplacementMap repl = {

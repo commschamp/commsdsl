@@ -253,7 +253,7 @@ std::string LatexField::latexMembersDetails(const LatexFieldsList& latexFields)
         "#^#LINES#$#\n"
         "\\end{tabular}\n"
         "}\n"
-        "\\smallskip\n"
+        "\\smallskip\n\n"
         "#^#DETAILS#$#\n"
         "\n"
         ;    
