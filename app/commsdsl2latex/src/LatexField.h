@@ -54,14 +54,18 @@ public:
 
     const std::string& latexFieldKind() const
     {
-        return fieldKindImpl();
+        return latexFieldKindImpl();
     }
 
+    bool latexIsOptional() const;
+
 protected:
+    virtual std::string latexDocImpl() const;
+    virtual std::string latexDescriptionImpl() const;
     virtual std::string latexRefLabelIdImpl() const;
     virtual std::string latexInfoDetailsImpl() const;
     virtual std::string latexExtraDetailsImpl() const;
-    virtual const std::string& fieldKindImpl() const;
+    virtual const std::string& latexFieldKindImpl() const;
     virtual bool latexIsOptionalImpl() const;
 
     static std::string latexSignedInfo(ParseIntField::ParseType value);
@@ -72,7 +76,6 @@ private:
     std::string latexSection() const;
     std::string latexInfoDetails() const;
     std::string latexDetails() const;
-    bool latexIsOptional() const;
 
     const GenField& m_genField;
 };

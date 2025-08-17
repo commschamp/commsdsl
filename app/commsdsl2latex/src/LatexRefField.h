@@ -34,7 +34,20 @@ public:
     LatexRefField(LatexGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
+    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;    
+
+    virtual std::string latexDocImpl() const override;
+    virtual std::string latexDescriptionImpl() const override;
+    virtual std::string latexRefLabelIdImpl() const override;
+    virtual const std::string& latexFieldKindImpl() const override;
+    virtual bool latexIsOptionalImpl() const override;
+
+
+private:
+    bool latexIsEmptyAlias() const;
+    
+    LatexField* m_latexField = nullptr;
 };
 
 } // namespace commsdsl2latex

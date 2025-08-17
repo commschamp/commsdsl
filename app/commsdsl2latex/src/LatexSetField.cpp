@@ -133,8 +133,12 @@ std::string LatexSetField::latexExtraDetailsImpl() const
             mask |= (1ULL << i);
         }
         
-        auto l = std::to_string(gapIdx) + " - " + std::to_string(bitLimit - 1) + " & " +
-            maskStr(mask) + " & & Reserved. Expected to be " + std::to_string(parseObj.parseReservedBitValue()) + ".";
+        auto l = std::to_string(gapIdx);
+        if (gapIdx < (bitLimit - 1)) {
+            l += " - " + std::to_string(bitLimit - 1);
+        }
+
+        l += " & " + maskStr(mask) + " & & Reserved. Expected to be " + std::to_string(parseObj.parseReservedBitValue()) + ".";
         lines.push_back(std::move(l));
     }
 

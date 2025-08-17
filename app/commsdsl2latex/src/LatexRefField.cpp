@@ -17,6 +17,14 @@
 
 #include "LatexGenerator.h"
 
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
+
+#include <cassert>
+
 namespace commsdsl2latex
 {
 
@@ -26,10 +34,93 @@ LatexRefField::LatexRefField(LatexGenerator& generator, ParseField parseObj, Gen
 {
 }   
 
+bool LatexRefField::genPrepareImpl()
+{
+    if (!GenBase::genPrepareImpl()) {
+        return false;
+    }
+
+    m_latexField = dynamic_cast<LatexField*>(genReferencedField());
+    assert(m_latexField != nullptr);
+
+    return true;
+}
+
 bool LatexRefField::genWriteImpl() const
 {
     return latexWrite();
 }
 
+std::string LatexRefField::latexDocImpl() const
+{
+    if (latexIsEmptyAlias()) {
+        return "\n";
+    }
+
+    return LatexBase::latexDocImpl();
+}
+
+std::string LatexRefField::latexDescriptionImpl() const
+{
+    auto desc = LatexBase::latexDescriptionImpl();
+    if (!latexIsEmptyAlias()) {
+        if (!desc.empty()) {
+            desc += "\n\n";
+        }
+        desc += "Same as \\nameref{" + m_latexField->latexRefLabelId() + "}.";
+    }
+
+    return desc;
+}
+
+std::string LatexRefField::latexRefLabelIdImpl() const
+{
+    if (latexIsEmptyAlias()) {
+        return m_latexField->latexRefLabelId();
+    }
+
+    return LatexBase::latexRefLabelIdImpl();
+}
+
+const std::string& LatexRefField::latexFieldKindImpl() const
+{
+    return m_latexField->latexFieldKind();
+}
+
+bool LatexRefField::latexIsOptionalImpl() const
+{
+    return m_latexField->latexIsOptional();
+}
+
+bool LatexRefField::latexIsEmptyAlias() const
+{
+    auto* parent = genGetParent();
+    assert(parent != nullptr);
+
+    do {
+        auto type = parent->genElemType();
+        if (type != commsdsl::gen::GenElem::Type_Field) {
+            break;
+        }
+
+        auto* parentField = static_cast<const commsdsl::gen::GenField*>(parent);
+        auto parseKind = parentField->genParseObj().parseKind();
+        if (parseKind != commsdsl::parse::ParseField::ParseKind::Bitfield) {
+            break;
+        }
+
+        return false;
+    } while (false);
+
+    assert(m_latexField != nullptr);
+    auto& displayName = genParseObj().parseDisplayName();
+    auto& refDisplayName = m_latexField->latexGenField().genParseObj().parseDisplayName();
+
+    if (!displayName.empty()) {
+        return displayName == refDisplayName;
+    }
+
+    return genParseObj().parseName() == m_latexField->latexGenField().genParseObj().parseName();
+}
 
 } // namespace commsdsl2latex

@@ -102,56 +102,7 @@ std::string LatexField::latexTitle() const
 
 std::string LatexField::latexDoc() const
 {
-    static const std::string Templ = 
-            "#^#SECTION#$#"
-            "\\label{#^#LABEL#$#}\n\n"
-            "#^#DESCRIPTION#$#\n"
-            "#^#PREPEND#$#\n"
-            "#^#INFO#$#\n"
-            "#^#DETAILS#$#\n"
-            "#^#APPEND#$#\n"
-        ;
-
-    util::GenReplacementMap repl = {
-        {"SECTION", latexSection()},
-        {"LABEL", LatexGenerator::latexLabelId(m_genField)},
-        {"DESCRIPTION", util::genStrMakeMultiline(m_genField.genParseObj().parseDescription())},
-        {"INFO", latexInfoDetails()},
-        {"DETAILS", latexExtraDetailsImpl()},
-    };
-
-    LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);    
-
-    do {
-        if (!comms::genIsGlobalField(m_genField)) {
-            break;
-        }
-
-        auto& latexGenerator = LatexGenerator::latexCast(m_genField.genGenerator());
-        auto relFilePath = latexRelFilePath();
-        auto prependFileName = relFilePath + strings::genPrependFileSuffixStr();
-        auto appendFileName = relFilePath + strings::genAppendFileSuffixStr();
-
-
-        repl["PREPEND"] = util::genReadFileContents(latexGenerator.latexInputCodePathForFile(appendFileName));
-        repl["APPEND"] = util::genReadFileContents(latexGenerator.latexInputCodePathForFile(prependFileName));
-
-        if (!latexGenerator.latexHasCodeInjectionComments()) {
-            break;
-        };           
-
-        if (repl["PREPEND"].empty()) {
-            repl["PREPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Prepend to details with \"" + prependFileName + "\".";
-        } 
-                        
-        if (repl["APPEND"].empty()) {
-            repl["APPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Append to file with \"" + appendFileName + "\".";
-        }                
-
-    } while (false);
-
-    
-    return util::genProcessTemplate(Templ, repl);
+    return latexDocImpl();
 }
 
 std::string LatexField::latexRefLabelId() const
@@ -363,6 +314,86 @@ std::string LatexField::latexSection() const
     return util::genProcessTemplate(Templ, repl);
 }
 
+bool LatexField::latexIsOptional() const
+{
+    auto& dslObj = m_genField.genParseObj();
+    if (m_genField.genGenerator().genIsElementOptional(dslObj.parseSinceVersion(), dslObj.parseDeprecatedSince(), dslObj.parseIsDeprecatedRemoved())) {
+        return true;
+    }
+
+    auto* parent = m_genField.genGetParent();
+    assert(parent != nullptr);
+    if (comms::genSinceVersionOf(*parent) < dslObj.parseSinceVersion()) {
+        return true;
+    }
+
+    if ((dslObj.parseDeprecatedSince() < commsdsl::parse::ParseProtocol::parseNotYetDeprecated()) &&
+        (dslObj.parseIsDeprecatedRemoved())) {
+        return true;
+    }
+
+    return latexIsOptionalImpl();
+}
+
+std::string LatexField::latexDocImpl() const
+{
+    static const std::string Templ = 
+            "#^#SECTION#$#"
+            "\\label{#^#LABEL#$#}\n\n"
+            "#^#DESCRIPTION#$#\n"
+            "#^#PREPEND#$#\n"
+            "#^#INFO#$#\n"
+            "#^#DETAILS#$#\n"
+            "#^#APPEND#$#\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"SECTION", latexSection()},
+        {"LABEL", LatexGenerator::latexLabelId(m_genField)},
+        {"DESCRIPTION", latexDescriptionImpl()},
+        {"INFO", latexInfoDetails()},
+        {"DETAILS", latexExtraDetailsImpl()},
+    };
+
+    LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);    
+
+    do {
+        if (!comms::genIsGlobalField(m_genField)) {
+            break;
+        }
+
+        auto& latexGenerator = LatexGenerator::latexCast(m_genField.genGenerator());
+        auto relFilePath = latexRelFilePath();
+        auto prependFileName = relFilePath + strings::genPrependFileSuffixStr();
+        auto appendFileName = relFilePath + strings::genAppendFileSuffixStr();
+
+
+        repl["PREPEND"] = util::genReadFileContents(latexGenerator.latexInputCodePathForFile(appendFileName));
+        repl["APPEND"] = util::genReadFileContents(latexGenerator.latexInputCodePathForFile(prependFileName));
+
+        if (!latexGenerator.latexHasCodeInjectionComments()) {
+            break;
+        };           
+
+        if (repl["PREPEND"].empty()) {
+            repl["PREPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Prepend to details with \"" + prependFileName + "\".";
+        } 
+                        
+        if (repl["APPEND"].empty()) {
+            repl["APPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Append to file with \"" + appendFileName + "\".";
+        }                
+
+    } while (false);
+
+    
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string LatexField::latexDescriptionImpl() const
+{
+    return util::genStrMakeMultiline(m_genField.genParseObj().parseDescription());
+}
+
 std::string LatexField::latexRefLabelIdImpl() const
 {
     return LatexGenerator::latexLabelId(m_genField);
@@ -378,12 +409,12 @@ std::string LatexField::latexExtraDetailsImpl() const
     return strings::genEmptyString();
 }
 
-const std::string& LatexField::fieldKindImpl() const
+const std::string& LatexField::latexFieldKindImpl() const
 {
     static const std::string Map[] = {
         /* Int */ "Integral",
         /* Enum */ "Enumeration",
-        /* Set */ "Bits",
+        /* Set */ "Bitset",
         /* Float */ "Floating Point",
         /* Bitfield */ "Bitfield",
         /* Bundle */ "Bundle (Composite)",
@@ -550,7 +581,7 @@ std::string LatexField::latexInfoDetails() const
         };
 
     do{
-        lines.push_back("\\textbf{Field Kind} & " + fieldKindImpl());
+        lines.push_back("\\textbf{Field Kind} & " + latexFieldKindImpl());
     } while (false); 
     
     do {
@@ -607,27 +638,6 @@ std::string LatexField::latexInfoDetails() const
     }
 
     return util::genProcessTemplate(Templ, repl);
-}
-
-bool LatexField::latexIsOptional() const
-{
-    auto& dslObj = m_genField.genParseObj();
-    if (m_genField.genGenerator().genIsElementOptional(dslObj.parseSinceVersion(), dslObj.parseDeprecatedSince(), dslObj.parseIsDeprecatedRemoved())) {
-        return true;
-    }
-
-    auto* parent = m_genField.genGetParent();
-    assert(parent != nullptr);
-    if (comms::genSinceVersionOf(*parent) < dslObj.parseSinceVersion()) {
-        return true;
-    }
-
-    if ((dslObj.parseDeprecatedSince() < commsdsl::parse::ParseProtocol::parseNotYetDeprecated()) &&
-        (dslObj.parseIsDeprecatedRemoved())) {
-        return true;
-    }
-
-    return latexIsOptionalImpl();
 }
 
 } // namespace commsdsl2latex
