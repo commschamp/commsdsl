@@ -39,6 +39,8 @@ public:
 
     static LatexFieldsList latexTransformFieldsList(const GenFieldsList& fields);
     static std::string latexMembersDetails(const LatexFieldsList& latexFields);
+    static LatexField* latexCast(GenField* genField);
+    static const LatexField* latexCast(const GenField* genField);
 
     std::string latexRelFilePath() const;
     std::string latexTitle() const;

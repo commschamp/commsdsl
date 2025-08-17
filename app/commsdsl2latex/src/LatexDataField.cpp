@@ -17,8 +17,36 @@
 
 #include "LatexGenerator.h"
 
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+#include <cassert>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
+
 namespace commsdsl2latex
 {
+
+namespace 
+{
+
+std::string latexDataStr(const std::vector<std::uint8_t>& data)
+{
+    std::stringstream stream;
+    stream << "0x" << std::hex;
+    
+    for (auto b : data) {
+        stream << std::setw(2) << std::setfill('0') << static_cast<unsigned>(b);
+    }
+    return stream.str();
+}
+
+} // namespace 
+    
 
 LatexDataField::LatexDataField(LatexGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
@@ -31,5 +59,61 @@ bool LatexDataField::genWriteImpl() const
     return latexWrite();
 }
 
+std::string LatexDataField::latexInfoDetailsImpl() const
+{
+    util::GenStringsList list;
+    auto parseObj = genDataFieldParseObj();
+    do {
+        auto& validValues = parseObj.parseValidValues();
+        if (validValues.empty()) {
+            break;
+        }
+
+        util::GenStringsList values;
+        for (auto& v : validValues) {
+            values.push_back(latexDataStr(v.m_value));
+        }
+
+        list.push_back("\\textbf{Valid Values} & " + util::genStrListToString(values, ", ", ""));
+    } while (false);
+
+    do {
+        auto fixedLength = parseObj.parseFixedLength();
+        if (fixedLength != 0U) {
+            list.push_back("\\textbf{Fixed Length} & " + LatexGenerator::latexIntegralToStr(fixedLength) + " Bytes");
+        }
+    } while (false);
+
+    do {
+        auto* prefixField = genExternalPrefixField();
+        if (prefixField == nullptr) {
+            prefixField = genMemberPrefixField();
+        }
+
+        if (prefixField == nullptr) {
+            break;
+        }
+
+        list.push_back("\\textbf{Length Prefix} & \\nameref{" + LatexField::latexCast(prefixField)->latexRefLabelId() + "}");
+    } while (false);
+
+    if (list.empty()) {
+        return strings::genEmptyString();
+    }
+
+    return util::genStrListToString(list, "\\\\\\hline\n", "\\\\");
+}
+
+std::string LatexDataField::latexExtraDetailsImpl() const
+{
+    auto* memField = genMemberPrefixField();
+    if (memField == nullptr) {
+        return strings::genEmptyString();
+    }
+
+    auto* latexField = LatexField::latexCast(memField);
+    assert(latexField != nullptr);
+    return latexField->latexDoc();
+}
 
 } // namespace commsdsl2latex

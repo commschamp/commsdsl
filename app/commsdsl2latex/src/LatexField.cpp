@@ -218,6 +218,16 @@ std::string LatexField::latexMembersDetails(const LatexFieldsList& latexFields)
     return util::genProcessTemplate(Templ, repl);      
 }
 
+LatexField* LatexField::latexCast(GenField* genField)
+{
+    return dynamic_cast<LatexField*>(genField);
+}
+
+const LatexField* LatexField::latexCast(const GenField* genField)
+{
+    return dynamic_cast<const LatexField*>(genField);
+}
+
 bool LatexField::latexWrite() const
 {
     if (!comms::genIsGlobalField(m_genField)) {
