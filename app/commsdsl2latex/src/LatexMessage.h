@@ -52,6 +52,11 @@ public:
     std::string latexRelFilePath() const;
     std::string latexTitle() const;
 
+    const LatexFieldsList& latexMemberFields() const
+    {
+        return m_latexFields;
+    }
+
 protected:
     virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;

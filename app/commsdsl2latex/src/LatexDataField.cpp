@@ -97,6 +97,20 @@ std::string LatexDataField::latexInfoDetailsImpl() const
         list.push_back("\\textbf{Length Prefix} & \\nameref{" + LatexField::latexCast(prefixField)->latexRefLabelId() + "}");
     } while (false);
 
+    do {
+        auto& detachedPrefixName = parseObj.parseDetachedPrefixFieldName();
+        if (detachedPrefixName.empty()) {
+            break;
+        }
+
+        auto* sibling = latexFindSibling(detachedPrefixName);
+        if (sibling == nullptr) {
+            break;
+        }
+
+        list.push_back("\\textbf{Detached Length Prefix} & \\nameref{" + sibling->latexRefLabelId() + "}");
+    } while (false);       
+
     if (list.empty()) {
         return strings::genEmptyString();
     }

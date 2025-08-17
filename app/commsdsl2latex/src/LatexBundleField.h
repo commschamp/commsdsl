@@ -35,6 +35,11 @@ public:
 
     LatexBundleField(LatexGenerator& generator, ParseField parseObj, GenElem* parent);
 
+    const LatexFieldsList& latexMemberFields() const
+    {
+        return m_latexFields;
+    }    
+
 protected:
     virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;    

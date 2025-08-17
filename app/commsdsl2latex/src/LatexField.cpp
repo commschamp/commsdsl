@@ -15,7 +15,9 @@
 
 #include "LatexField.h"
 
+#include "LatexBundleField.h"
 #include "LatexGenerator.h"
+#include "LatexMessage.h"
 
 #include "commsdsl/gen/GenBitfieldField.h"
 #include "commsdsl/gen/comms.h"
@@ -226,6 +228,53 @@ LatexField* LatexField::latexCast(GenField* genField)
 const LatexField* LatexField::latexCast(const GenField* genField)
 {
     return dynamic_cast<const LatexField*>(genField);
+}
+
+const LatexField* LatexField::latexFindSibling(const std::string& name) const
+{
+    if (name.empty()) {
+        return nullptr;
+    }
+
+    auto* parent = m_genField.genGetParent();
+    assert(parent != nullptr);
+    if ((parent->genElemType() != commsdsl::gen::GenElem::Type_Field) &&
+        (parent->genElemType() != commsdsl::gen::GenElem::Type_Message)) {
+        return nullptr;
+    }
+
+    const LatexFieldsList* siblings = nullptr;
+    if (parent->genElemType() == commsdsl::gen::GenElem::Type_Message) {
+        auto* message = static_cast<const LatexMessage*>(parent);
+        siblings = &message->latexMemberFields();
+    }
+    else if (parent->genElemType() == commsdsl::gen::GenElem::Type_Field) {
+        auto* genField = static_cast<const GenField*>(parent);
+        if (genField->genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Bundle) {
+            return nullptr;
+        }
+
+        auto* latexBundleField = static_cast<const LatexBundleField*>(genField);
+        siblings = &latexBundleField->latexMemberFields();
+    }
+
+    if (siblings == nullptr) {
+        return nullptr;
+    }
+
+    auto iter = 
+        std::find_if(
+            siblings->begin(), siblings->end(), 
+            [&name](auto* f)
+            {
+                return f->latexGenField().genName() == name;
+            });
+
+    if (iter == siblings->end()) {
+        return nullptr;
+    }
+
+    return *iter;
 }
 
 bool LatexField::latexWrite() const

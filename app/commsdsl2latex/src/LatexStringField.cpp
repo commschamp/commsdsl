@@ -17,6 +17,14 @@
 
 #include "LatexGenerator.h"
 
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+#include <cassert>
+
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
+
 namespace commsdsl2latex
 {
 
@@ -31,5 +39,83 @@ bool LatexStringField::genWriteImpl() const
     return latexWrite();
 }
 
+
+std::string LatexStringField::latexInfoDetailsImpl() const
+{
+    util::GenStringsList list;
+    auto parseObj = genStringFieldParseObj();
+    do {
+        auto& validValues = parseObj.parseValidValues();
+        if (validValues.empty()) {
+            break;
+        }
+
+        util::GenStringsList values;
+        for (auto& v : validValues) {
+            values.push_back("\"" + v.m_value + "\"");
+        }
+
+        list.push_back("\\textbf{Valid Values} & " + util::genStrListToString(values, ", ", ""));
+    } while (false);
+
+    do {
+        auto fixedLength = parseObj.parseFixedLength();
+        if (fixedLength != 0U) {
+            list.push_back("\\textbf{Fixed Length} & " + LatexGenerator::latexIntegralToStr(fixedLength) + " Bytes");
+        }
+    } while (false);
+
+    do {
+        auto* prefixField = genExternalPrefixField();
+        if (prefixField == nullptr) {
+            prefixField = genMemberPrefixField();
+        }
+
+        if (prefixField == nullptr) {
+            break;
+        }
+
+        list.push_back("\\textbf{Length Prefix} & \\nameref{" + LatexField::latexCast(prefixField)->latexRefLabelId() + "}");
+    } while (false);
+
+    do {
+        auto& detachedPrefixName = parseObj.parseDetachedPrefixFieldName();
+        if (detachedPrefixName.empty()) {
+            break;
+        }
+
+        auto* sibling = latexFindSibling(detachedPrefixName);
+        if (sibling == nullptr) {
+            break;
+        }
+
+        list.push_back("\\textbf{Detached Length Prefix} & \\nameref{" + sibling->latexRefLabelId() + "}");
+    } while (false);    
+
+    do {
+        if (!parseObj.parseHasZeroTermSuffix()) {
+            break;
+        }
+        list.push_back("\\textbf{Zero Termination Suffix} & YES");
+    } while (false);    
+
+    if (list.empty()) {
+        return strings::genEmptyString();
+    }
+
+    return util::genStrListToString(list, "\\\\\\hline\n", "\\\\");
+}
+
+std::string LatexStringField::latexExtraDetailsImpl() const
+{
+    auto* memField = genMemberPrefixField();
+    if (memField == nullptr) {
+        return strings::genEmptyString();
+    }
+
+    auto* latexField = LatexField::latexCast(memField);
+    assert(latexField != nullptr);
+    return latexField->latexDoc();
+}
 
 } // namespace commsdsl2latex
