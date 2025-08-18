@@ -20,6 +20,9 @@
 #include "LatexMessage.h"
 
 #include "commsdsl/gen/GenBitfieldField.h"
+#include "commsdsl/gen/GenDataField.h"
+#include "commsdsl/gen/GenListField.h"
+#include "commsdsl/gen/GenStringField.h"
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -98,6 +101,66 @@ std::string LatexField::latexTitle() const
     if (comms::genIsGlobalField(m_genField)) {
         return "Field \"" + name + "\"";
     }
+
+    do {
+        auto* parent = m_genField.genGetParent();
+        auto parentType = parent->genElemType();
+        if (parentType != commsdsl::gen::GenElem::Type_Field) {
+            break;
+        }
+
+        using ParseKind = commsdsl::parse::ParseField::ParseKind;
+        auto* parentGenField = static_cast<const commsdsl::gen::GenField*>(parent);
+        auto parentParseKind = parentGenField->genParseObj().parseKind();
+        if ((parentParseKind == ParseKind::Bundle) ||
+            (parentParseKind == ParseKind::Bitfield)) {
+            break;
+        }
+
+        if (parentParseKind == ParseKind::String) {
+            auto* stringField = static_cast<const commsdsl::gen::GenStringField*>(parentGenField);
+            if (stringField->genMemberPrefixField() == &m_genField) {
+                return "Length Prefix Field \"" + name + "\"";
+            }
+
+            break;
+        }
+
+        if (parentParseKind == ParseKind::Data) {
+            auto* dataField = static_cast<const commsdsl::gen::GenDataField*>(parentGenField);
+            if (dataField->genMemberPrefixField() == &m_genField) {
+                return "Length Prefix Field \"" + name + "\"";
+            }
+
+            break;
+        }     
+        
+        if (parentParseKind == ParseKind::List) {
+            auto* listField = static_cast<const commsdsl::gen::GenListField*>(parentGenField);
+            if (listField->genMemberElementField() == &m_genField) {
+                return "Element Field \"" + name + "\"";
+            }
+
+            if (listField->genMemberCountPrefixField() == &m_genField) {
+                return "Elements Count Prefix Field \"" + name + "\"";
+            }            
+            
+            if (listField->genMemberLengthPrefixField() == &m_genField) {
+                return "Length Prefix Field \"" + name + "\"";
+            }   
+            
+            if (listField->genMemberElemLengthPrefixField() == &m_genField) {
+                return "Element Length Prefix Field \"" + name + "\"";
+            }   
+            
+            if (listField->genMemberTermSuffixField() == &m_genField) {
+                return "Termination Suffix Field \"" + name + "\"";
+            }   
+            
+            break;
+        }         
+
+    } while (false);
 
     return "Member Field \"" + name + "\"";
 }
