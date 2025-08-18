@@ -60,19 +60,6 @@ std::string LatexRefField::latexDocImpl() const
     return LatexBase::latexDocImpl();
 }
 
-std::string LatexRefField::latexDescriptionImpl() const
-{
-    auto desc = LatexBase::latexDescriptionImpl();
-    if (!latexIsEmptyAlias()) {
-        if (!desc.empty()) {
-            desc += "\n\n";
-        }
-        desc += "Same as \\nameref{" + m_latexField->latexRefLabelId() + "}.";
-    }
-
-    return desc;
-}
-
 std::string LatexRefField::latexRefLabelIdImpl() const
 {
     if (latexIsEmptyAlias()) {
@@ -85,6 +72,12 @@ std::string LatexRefField::latexRefLabelIdImpl() const
 const std::string& LatexRefField::latexFieldKindImpl() const
 {
     return m_latexField->latexFieldKind();
+}
+
+std::string LatexRefField::latexInfoDetailsImpl() const
+{
+    assert(m_latexField != nullptr);
+    return ("\\textbf{Same As} & \\nameref{" + m_latexField->latexRefLabelId() + "}");
 }
 
 bool LatexRefField::latexIsOptionalImpl() const

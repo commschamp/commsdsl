@@ -38,9 +38,9 @@ protected:
     virtual bool genWriteImpl() const override;    
 
     virtual std::string latexDocImpl() const override;
-    virtual std::string latexDescriptionImpl() const override;
     virtual std::string latexRefLabelIdImpl() const override;
     virtual const std::string& latexFieldKindImpl() const override;
+    virtual std::string latexInfoDetailsImpl() const override;
     virtual bool latexIsOptionalImpl() const override;
 
 
