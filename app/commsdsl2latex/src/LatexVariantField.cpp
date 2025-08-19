@@ -17,6 +17,12 @@
 
 #include "LatexGenerator.h"
 
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+namespace util = commsdsl::gen::util;
+namespace strings = commsdsl::gen::strings;
+
 namespace commsdsl2latex
 {
 
@@ -26,9 +32,40 @@ LatexVariantField::LatexVariantField(LatexGenerator& generator, ParseField parse
 {
 }   
 
+bool LatexVariantField::genPrepareImpl() 
+{
+    if (!GenBase::genPrepareImpl()) {
+        return false;
+    }
+
+    m_latexFields = LatexField::latexTransformFieldsList(genMembers());
+    return true;
+}
+
 bool LatexVariantField::genWriteImpl() const
 {
     return latexWrite();
+}
+
+std::string LatexVariantField::latexExtraDetailsImpl() const
+{
+    if (m_latexFields.empty()) {
+        return strings::genEmptyString();
+    }
+
+    static const std::string Templ = 
+        "\\subsubparagraph{Available Member Fields}\n"
+        "\\label{#^#LABEL#$#}\n\n"
+        "#^#DETAILS#$#\n"
+        "\n"
+        ;    
+
+    util::GenReplacementMap repl = {
+        {"LABEL", LatexGenerator::latexLabelId(*this) + "_members"},
+        {"DETAILS", LatexField::latexMembersDetails(m_latexFields)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);      
 }
 
 

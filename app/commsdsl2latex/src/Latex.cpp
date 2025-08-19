@@ -33,7 +33,7 @@ namespace commsdsl2latex
 bool Latex::latexWrite(LatexGenerator& generator)
 {
     Latex obj(generator);
-    return obj.latexWriteInternal();
+    return obj.latexWriteInternal() && obj.latexWriteCfgInternal();
 }
 
 std::string Latex::latexDocFileBaseName(const LatexGenerator& generator)
@@ -44,6 +44,11 @@ std::string Latex::latexDocFileBaseName(const LatexGenerator& generator)
 std::string Latex::latexDocTexFileName(const LatexGenerator& generator)
 {
     return latexDocFileBaseName(generator) + strings::genLatexSuffixStr();
+}
+
+std::string Latex::latexDocCfgFileName(const LatexGenerator& generator)
+{
+    return latexDocFileBaseName(generator) + ".cfg";
 }
 
 bool Latex::latexWriteInternal()
@@ -108,6 +113,58 @@ bool Latex::latexWriteInternal()
     return true;
 }
 
+bool Latex::latexWriteCfgInternal()
+{
+    auto docName = latexDocCfgFileName(m_latexGenerator);
+
+    auto filePath = util::genPathAddElem(m_latexGenerator.genGetOutputDir(), docName);
+
+    m_latexGenerator.genLogger().genInfo("Generating " + filePath);
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_latexGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+
+    do {
+        auto replaceFileName = docName + strings::genReplaceFileSuffixStr();
+        auto replaceContents = util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(replaceFileName));
+        if (!replaceContents.empty()) {
+            stream << replaceContents;
+            break;
+        }
+
+        const std::string Templ = 
+            "#^#GEN_COMMENT#$#\n"
+            "#^#REPLACE_COMMENT#$#\n"
+            "\\Preamble{xhtml}\n"
+            "\\Css{table.longtable {margin-left:0; margin-right:auto;}}"
+            "\\begin{document}\n"
+            "\\EndPreamble\n"
+            ;
+
+        util::GenReplacementMap repl = {
+            {"GEN_COMMENT", m_latexGenerator.latexFileGeneratedComment()},
+        };
+
+        if (m_latexGenerator.latexHasCodeInjectionComments()) {
+            repl["REPLACE_COMMENT"] = 
+                m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
+        };        
+
+        auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
+        stream << str;
+    } while (false); 
+
+    stream.flush();
+    if (!stream.good()) {
+        m_latexGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
 std::string Latex::latexDocumentInternal() const
 {
     auto replaceFileName = latexDocTexFileName(m_latexGenerator) + strings::genDocumentFileSuffixStr();
@@ -145,6 +202,10 @@ std::string Latex::latexPackageInternal() const
         "\\usepackage{nameref}\n"
         "\\usepackage{array}\n"
         "\\usepackage{booktabs}\n"
+        "\\usepackage{longtable}\n"
+        "\n"
+        "\\setlength\\LTleft{15pt}\n"
+        "\\setlength\\LTright{15pt}\n"
         "\n"
         "#^#APPEND#$#\n"
     ;

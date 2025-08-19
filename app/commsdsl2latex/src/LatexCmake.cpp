@@ -147,9 +147,10 @@ std::string LatexCmake::latexSectionHtml() const
         "if (HTLATEX_EXE)\n"
         "    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/html)\n\n"
         "    # Run generation twice for table of contents\n"
+        "    set (CFG_FILE \"${CMAKE_CURRENT_SOURCE_DIR}/#^#CFG_FILE#$#\")\n"
         "    add_custom_target(\"html\"\n"
-        "        COMMAND ${CMAKE_COMMAND} -E env TEXINPUTS=\"${CMAKE_CURRENT_SOURCE_DIR}:\" -- ${HTLATEX_EXE} ${MAIN_FILE}\n"
-        "        COMMAND ${CMAKE_COMMAND} -E env TEXINPUTS=\"${CMAKE_CURRENT_SOURCE_DIR}:\" -- ${HTLATEX_EXE} ${MAIN_FILE}\n"
+        "        COMMAND ${CMAKE_COMMAND} -E env TEXINPUTS=\"${CMAKE_CURRENT_SOURCE_DIR}:\" -- ${HTLATEX_EXE} ${MAIN_FILE} \"${CFG_FILE}\"\n"
+        "        COMMAND ${CMAKE_COMMAND} -E env TEXINPUTS=\"${CMAKE_CURRENT_SOURCE_DIR}:\" -- ${HTLATEX_EXE} ${MAIN_FILE} \"${CFG_FILE}\"\n"
         "        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_INSTALL_PREFIX}/html\n"
         "        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/html/#^#FILE_BASE#$#.html ${CMAKE_INSTALL_PREFIX}/html/\n"
         "        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/html/#^#FILE_BASE#$#.css ${CMAKE_INSTALL_PREFIX}/html/\n"
@@ -165,6 +166,7 @@ std::string LatexCmake::latexSectionHtml() const
         {"FILE_BASE", Latex::latexDocFileBaseName(m_latexGenerator)},
         {"APPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(appendFileName))},
         {"CMD_APPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(cmdAppendFileName))},
+        {"CFG_FILE", Latex::latexDocCfgFileName(m_latexGenerator)},
     };
 
     if (m_latexGenerator.latexHasCodeInjectionComments()) {

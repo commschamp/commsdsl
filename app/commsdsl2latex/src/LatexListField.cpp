@@ -51,6 +51,7 @@ std::string LatexListField::latexInfoDetailsImpl() const
         }
     } while (false);
 
+    using GenField = commsdsl::gen::GenField;
     struct MemFieldInfo
     {
         const GenField* m_extField = nullptr;
@@ -114,6 +115,7 @@ std::string LatexListField::latexInfoDetailsImpl() const
 
 std::string LatexListField::latexExtraDetailsImpl() const
 {
+    using GenField = commsdsl::gen::GenField;
     const GenField* memFields[] = {
         genMemberElementField(),
         genMemberCountPrefixField(),

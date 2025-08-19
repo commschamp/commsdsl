@@ -28,12 +28,14 @@ public:
     
     static std::string latexDocFileBaseName(const LatexGenerator& generator);
     static std::string latexDocTexFileName(const LatexGenerator& generator);
+    static std::string latexDocCfgFileName(const LatexGenerator& generator);
     
 private:
     explicit Latex(LatexGenerator& generator) : m_latexGenerator(generator) {}
 
 private:
     bool latexWriteInternal();
+    bool latexWriteCfgInternal();
     std::string latexDocumentInternal() const;
     std::string latexPackageInternal() const;
     std::string latexMacroInternal() const;

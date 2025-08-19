@@ -75,29 +75,34 @@ std::string LatexIntField::latexInfoDetailsImpl() const
                 continue;
             }
 
-            auto valToString = 
-                [unsignedType](std::intmax_t val)
-                {
-                    if (unsignedType) {
-                        return std::to_string(static_cast<std::uintmax_t>(val));
-                    } 
+            // auto valToString = 
+            //     [unsignedType](std::intmax_t val)
+            //     {
+            //         if (unsignedType) {
+            //             return std::to_string(static_cast<std::uintmax_t>(val));
+            //         } 
 
-                    return std::to_string(val);
-                };
+            //         return std::to_string(val);
+            //     };
 
             if (r.m_min == r.m_max) {
-                values.push_back(valToString(r.m_min));
+                values.push_back(LatexGenerator::latexIntegralToStr(r.m_min, unsignedType));
                 continue;
             }
 
-            values.push_back("[" + valToString(r.m_min) + " - " + valToString(r.m_max) + "]");
+            values.push_back("[" + LatexGenerator::latexIntegralToStr(r.m_min, unsignedType) + " - " + LatexGenerator::latexIntegralToStr(r.m_max, unsignedType) + "]");
         }
 
         if (values.empty()) {
             break;
         }
 
-        list.push_back("\\textbf{Valid Values} &" + util::genStrListToString(values, ", ", ""));
+        std::string name = "Valid Values";
+        if ((values.size() == 1U) && (parseObj.parseIsFailOnInvalid())) {
+            name = "Must Have Value";
+        }
+
+        list.push_back("\\textbf{" + name + "} &" + util::genStrListToString(values, ", ", ""));
     } while (false);
 
     return util::genStrListToString(list, "\\\\\\hline\n", "\\\\");
