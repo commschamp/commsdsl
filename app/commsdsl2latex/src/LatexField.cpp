@@ -18,10 +18,12 @@
 #include "LatexBundleField.h"
 #include "LatexGenerator.h"
 #include "LatexMessage.h"
+#include "LatexOptionalField.h"
 
 #include "commsdsl/gen/GenBitfieldField.h"
 #include "commsdsl/gen/GenDataField.h"
 #include "commsdsl/gen/GenListField.h"
+#include "commsdsl/gen/GenOptionalField.h"
 #include "commsdsl/gen/GenStringField.h"
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -186,7 +188,26 @@ std::string LatexField::latexTitle() const
             }   
             
             break;
-        }         
+        }     
+        
+        if (parentParseKind == ParseKind::Optional) {
+            auto* optionalField = static_cast<const LatexOptionalField*>(parentGenField);
+
+            if (!optionalField->latexIsPassThroughToMember()) {
+                break;
+            }
+
+            auto parentName = 
+                LatexGenerator::latexEscDisplayName(
+                    optionalField->latexGenField().genParseObj().parseDisplayName(), 
+                    optionalField->latexGenField().genParseObj().parseName());
+
+            if (comms::genIsGlobalField(*optionalField)) {
+                return "Field \"" + parentName + "\"";    
+            }            
+
+            return "Member Field \"" + parentName + "\"";    
+        }           
 
     } while (false);
 
@@ -510,6 +531,25 @@ bool LatexField::latexIsOptional() const
         return true;
     }
 
+    do {
+        auto parentType = parent->genElemType();
+        if (parentType != GenElem::Type_Field) {
+            break;
+        }
+
+        auto* parentField = static_cast<const GenField*>(parent);
+        if (parentField->genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Optional) {
+            break;
+        }
+
+        auto* latexOptionalField = static_cast<const LatexOptionalField*>(parentField);
+        if (!latexOptionalField->latexIsPassThroughToMember()) {
+            break;
+        }
+
+        return true;
+    } while (false);
+
     return latexIsOptionalImpl();
 }
 
@@ -786,6 +826,10 @@ std::string LatexField::latexInfoDetails() const
 
         lines.push_back("\\textbf{Variable Length} & " + std::to_string(minLength) + "+" + units);
     } while (false);
+
+    do {
+        lines.push_back("\\textbf{Optional} & " + (latexIsOptional() ? strings::genYesStr() : strings::genNoStr()));
+    } while (false);      
 
     do {
         auto sinceVersion = parseObj.parseSinceVersion();

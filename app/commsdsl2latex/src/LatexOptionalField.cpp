@@ -17,6 +17,12 @@
 
 #include "LatexGenerator.h"
 
+#include "commsdsl/gen/strings.h"
+
+namespace strings = commsdsl::gen::strings;
+
+#include <cassert>
+
 namespace commsdsl2latex
 {
 
@@ -26,10 +32,101 @@ LatexOptionalField::LatexOptionalField(LatexGenerator& generator, ParseField par
 {
 }   
 
+bool LatexOptionalField::latexIsPassThroughToMember() const
+{
+    auto* memField = genMemberField();
+    if (memField == nullptr) {
+        return false;
+    }
+
+    auto* latexMemField = LatexField::latexCast(memField);
+    assert(latexMemField != nullptr);
+    auto& desc = memField->genParseObj().parseDescription();
+    if (!desc.empty()) {
+        return false;
+    }
+
+    return true;
+}
+
 bool LatexOptionalField::genWriteImpl() const
 {
     return latexWrite();
 }
 
+std::string LatexOptionalField::latexDocImpl() const
+{
+    if (latexIsPassThroughToMember()) {
+        return LatexField::latexCast(genMemberField())->latexDoc();
+    }
+
+    return LatexBase::latexDocImpl();
+}
+
+std::string LatexOptionalField::latexDescriptionImpl() const
+{
+    if (latexIsPassThroughToMember()) {
+        return genMemberField()->genParseObj().parseDescription();
+    }
+
+    return LatexBase::latexDescriptionImpl();
+}
+
+std::string LatexOptionalField::latexRefLabelIdImpl() const
+{
+    if (latexIsPassThroughToMember()) {
+        return LatexField::latexCast(genMemberField())->latexRefLabelId();
+    }
+
+    return LatexBase::latexRefLabelIdImpl();
+}
+
+std::string LatexOptionalField::latexInfoDetailsImpl() const
+{
+    if (latexIsPassThroughToMember()) {
+        assert(false); // Should not be called
+        return strings::genEmptyString();
+    }
+
+    auto* actField = genMemberField();
+    if (actField == nullptr) {
+        actField = genExternalField();
+    }    
+
+    assert(actField != nullptr);
+    return ("\\textbf{Same As} & \\nameref{" + LatexField::latexCast(actField)->latexRefLabelId() + "}");
+}
+
+
+std::string LatexOptionalField::latexExtraDetailsImpl() const
+{
+    if (latexIsPassThroughToMember()) {
+        assert(false); // Should not be called
+        return strings::genEmptyString();
+    }    
+
+    auto* memField = genMemberField();
+    if (memField != nullptr) {
+        return LatexField::latexCast(memField)->latexDoc();
+    }
+
+    return strings::genEmptyString();
+}
+
+const std::string& LatexOptionalField::latexFieldKindImpl() const
+{
+    auto* actField = genMemberField();
+    if (actField == nullptr) {
+        actField = genExternalField();
+    }    
+
+    assert(actField != nullptr);
+    return LatexField::latexCast(actField)->latexFieldKind();
+}
+
+bool LatexOptionalField::latexIsOptionalImpl() const
+{
+    return true;
+}
 
 } // namespace commsdsl2latex

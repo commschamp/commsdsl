@@ -229,7 +229,12 @@
             <ref name="F4" field="S1" />                    
 
             <optional name="O1" cond="$#F1 = 0" defaultMode="exists">
-                <int name="ActO1" type="uint8" />
+                <description value="O1 Descritpion" />
+                <field>
+                    <int name="ActO1" type="uint8">
+                        <description value="ActO1 Description" />
+                    </int>
+                </field>
             </optional>
 
             <optional name="O2" cond="$#F2 != 0" defaultMode="missing">

@@ -81,6 +81,26 @@ int latexSectionElemIndexInternal(const commsdsl::gen::GenElem& elem)
         return parentIndex + 1;
     }
 
+    do {
+        auto parentType = parent->genElemType();
+        if (parentType != commsdsl::gen::GenElem::Type_Field) {
+            break;
+        }
+
+        auto* parentField = static_cast<const commsdsl::gen::GenField*>(parent);
+        if (parentField->genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Optional) {
+            break;
+        }
+
+        auto* latexOptionalField = dynamic_cast<const LatexOptionalField*>(parentField);
+        assert(latexOptionalField != nullptr);
+        if (!latexOptionalField->latexIsPassThroughToMember()) {
+            break;
+        }
+
+        return parentIndex;
+    } while (false);
+
     return parentIndex + 1;
 }
 
