@@ -39,8 +39,6 @@ bool LatexOptionalField::latexIsPassThroughToMember() const
         return false;
     }
 
-    auto* latexMemField = LatexField::latexCast(memField);
-    assert(latexMemField != nullptr);
     auto& desc = memField->genParseObj().parseDescription();
     if (!desc.empty()) {
         return false;
