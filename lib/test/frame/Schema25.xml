@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema23" endian="big">
-    <frame name="Frame" displayName="Some Frame">
+<schema name="Schema25" endian="big" dslVersion="6">
+    <frame name="Frame">
         <id name="Id" displayName="ID Layer">        
             <int name="IdField" type="uint8" />
         </id>

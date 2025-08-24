@@ -33,6 +33,7 @@ public:
     void test22();
     void test23();
     void test24();
+    void test25();
 };
 
 void FrameTestSuite::setUp()
@@ -595,11 +596,24 @@ void FrameTestSuite::test23()
     auto& f1 = frames[0];
     TS_ASSERT_EQUALS(f1.parseName(), "Frame");
     TS_ASSERT_EQUALS(f1.parseDisplayName(), "Some Frame");
+
+    auto layers = f1.parseLayers();
+    TS_ASSERT_EQUALS(layers.size(), 2U);  
+    
+    auto& l1 = layers[0];
+    TS_ASSERT_EQUALS(l1.parseDisplayName(), "ID Layer");
 }
 
 void FrameTestSuite::test24()
 {
     m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test25()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema25.xml");
     TS_ASSERT(protocol);
 }

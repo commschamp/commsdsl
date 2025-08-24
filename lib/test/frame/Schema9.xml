@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema9"
-        id="1"
-        endian="big">
+<schema name="Schema9" endian="big">
     <ns name="ns1">
         <fields>
             <enum name="MsgId" type="uint8">

@@ -75,6 +75,12 @@ const std::string& ParseLayer::parseName() const
     return m_pImpl->parseName();
 }
 
+const std::string& ParseLayer::parseDisplayName() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->parseDisplayName();
+}
+
 const std::string& ParseLayer::parseDescription() const
 {
     assert(m_pImpl != nullptr);

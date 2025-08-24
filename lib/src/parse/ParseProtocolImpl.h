@@ -126,6 +126,7 @@ public:
     bool parseIsValidCondSupportedInCompositeFields() const;
     bool parseIsNamespaceDisplayNameSupported() const;
     bool parseIsFrameDisplayNameSupported() const;
+    bool parseIsLayerDisplayNameSupported() const;
 
     void parseSetMultipleSchemasEnabled(bool value)
     {

@@ -65,6 +65,7 @@ public:
     }
 
     const std::string& parseName() const;
+    const std::string& parseDisplayName() const;
     const std::string& parseDescription() const;
 
     ParseKind parseKind() const
@@ -158,6 +159,7 @@ private:
     using ParseCreateMap = std::map<std::string, ParseCreateFunc>;
 
     bool parseUpdateName();
+    bool parseUpdateDisplayName();
     bool parseUpdateDescription();
     bool parseUpdateField();
     bool parseUpdateExtraAttrs(const ParseXmlWrap::ParseNamesList& names);
@@ -171,6 +173,7 @@ private:
     ParseProtocolImpl& m_protocol;
     ParsePropsMap m_props;
     const std::string* m_name = nullptr;
+    const std::string* m_displayName = nullptr;
     const std::string* m_description = nullptr;
     const ParseFieldImpl* m_extField = nullptr;
     ParseFieldImplPtr m_field;

@@ -443,6 +443,11 @@ bool ParseProtocolImpl::parseIsFrameDisplayNameSupported() const
     return parseIsFeatureSupported(7U);
 }
 
+bool ParseProtocolImpl::parseIsLayerDisplayNameSupported() const
+{
+    return parseIsFeatureSupported(7U);
+}
+
 void ParseProtocolImpl::parseCbXmlErrorFunc(void* userData, const xmlError* err)
 {
     reinterpret_cast<ParseProtocolImpl*>(userData)->parseHandleXmlError(err);

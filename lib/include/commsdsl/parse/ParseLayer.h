@@ -52,6 +52,7 @@ public:
 
     bool parseValid() const;
     const std::string& parseName() const;
+    const std::string& parseDisplayName() const;
     const std::string& parseDescription() const;
     ParseKind parseKind() const;
     bool parseHasField() const;
