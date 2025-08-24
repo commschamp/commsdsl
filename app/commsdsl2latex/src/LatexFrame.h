@@ -58,6 +58,7 @@ protected:
 
 private:
     std::string latexSection() const;
+    std::string latexLayers() const;
 };
 
 } // namespace commsdsl2latex

@@ -47,6 +47,9 @@ public:
     std::string latexTitle() const;
     std::string latexDoc() const;
     std::string latexRefLabelId() const;
+    std::string latexInfoDetails() const;
+    std::string latexExtraDetails() const;
+    std::string latexDescription() const;
 
     bool latexWrite() const;
 
@@ -77,8 +80,6 @@ protected:
 
 private:
     std::string latexSection() const;
-    std::string latexInfoDetails() const;
-    std::string latexDetails() const;
 
     const GenField& m_genField;
 };

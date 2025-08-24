@@ -30,6 +30,14 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2latex
 {
 
+namespace 
+{
+
+const std::size_t InvalidLength = std::numeric_limits<std::size_t>::max();    
+
+} // namespace 
+
+
 LatexFrame::LatexFrame(LatexGenerator& generator, ParseFrame parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent)
 {
@@ -95,7 +103,7 @@ bool LatexFrame::genWriteImpl() const
             "#^#DESCRIPTION#$#\n"
             "\n"
             "#^#PREPEND#$#\n"
-            "TODO: Fields\n"
+            "#^#FIELDS#$#\n"
             "#^#APPEND#$#\n";
 
         auto prependFileName = relFilePath + strings::genPrependFileSuffixStr();
@@ -107,6 +115,7 @@ bool LatexFrame::genWriteImpl() const
             {"DESCRIPTION", util::genStrMakeMultiline(genParseObj().parseDescription())},
             {"PREPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(prependFileName))},
             {"APPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(appendFileName))},
+            {"FIELDS", latexLayers()},
         };
 
         if (latexGenerator.latexHasCodeInjectionComments()) {
@@ -158,6 +167,124 @@ std::string LatexFrame::latexSection() const
     };      
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string LatexFrame::latexLayers() const
+{
+    util::GenStringsList lines;
+    util::GenStringsList fields;
+
+    for (auto& lPtr : genLayers()) {
+        auto layerParseObj = lPtr->genParseObj();
+        auto nameStr = LatexGenerator::latexEscDisplayName(layerParseObj.parseDisplayName(), layerParseObj.parseName());
+
+        auto* extField = lPtr->genExternalField();
+        auto* memField = lPtr->genMemberField();
+
+        auto* layerField = extField;
+        if (layerField == nullptr) {
+            layerField = memField;
+        }
+
+        std::string lengthStr("<variable>");
+        if (layerField != nullptr) {
+            auto minLength = layerField->genParseObj().parseMinLength();
+            auto maxLength = layerField->genParseObj().parseMaxLength();            
+
+            lengthStr = std::to_string(minLength);
+            do {
+                if (maxLength == minLength) {
+                    break;
+                }
+
+                if (maxLength == InvalidLength) {
+                    lengthStr += '+';
+                    break;
+                }
+
+                lengthStr += " - " + std::to_string(maxLength);
+            } while (false);                
+        }
+
+        auto refStr = "\\hyperref[" + LatexGenerator::latexLabelId(*lPtr) + "]{" + nameStr + "}";
+        lines.push_back(lengthStr + " & " + refStr);
+
+        static const std::string LayerTempl = {
+            "#^#SECTION#$#{#^#TITLE#$#}"
+            "\\label{#^#LABEL#$#}\n\n"
+            "#^#DESCRIPTION#$#\n"                
+            "#^#NOINDENT#$#\n"
+            "#^#FIELD_DESCRIPTION#$#\n"
+            "#^#FIELD_INFO#$#\n"
+            "#^#FIELD_EXTRA#$#\n"
+        };    
+        
+        util::GenReplacementMap layerRepl = {
+            {"SECTION", LatexGenerator::latexSectionDirective(*lPtr)},
+            {"TITLE", "Frame Field \"" + nameStr + "\""},
+            {"LABEL", LatexGenerator::latexLabelId(*lPtr)},
+            {"DESCRIPTION", layerParseObj.parseDescription()},
+        };        
+
+        LatexGenerator::latexEnsureNewLineBreak(layerRepl["DESCRIPTION"]);
+
+        do {
+            if (extField != nullptr) {
+                layerRepl["NOINDENT"] = "\\noindent";
+                layerRepl["FIELD_DESCRIPTION"] = "Same as \\nameref{" + LatexField::latexCast(extField)->latexRefLabelId() + "}";
+                LatexGenerator::latexEnsureNewLineBreak(layerRepl["FIELD_DESCRIPTION"]);
+                break;
+            }
+
+            if (memField != nullptr) {
+                auto* latexMemField = LatexField::latexCast(memField);
+                assert(latexMemField != nullptr);
+
+                layerRepl["FIELD_DESCRIPTION"] = latexMemField->latexDescription();
+                layerRepl["FIELD_INFO"] = latexMemField->latexInfoDetails();
+                layerRepl["FIELD_EXTRA"] = latexMemField->latexExtraDetails();
+
+                if (!layerRepl["FIELD_DESCRIPTION"].empty()) {
+                    layerRepl["NOINDENT"] = "\\noindent";
+                }
+
+                LatexGenerator::latexEnsureNewLineBreak(layerRepl["FIELD_DESCRIPTION"]);
+                break;
+            }
+
+            if (layerRepl["DESCRIPTION"].empty()) {
+                layerRepl["FIELD_DESCRIPTION"] = "Raw data sequence.";
+                LatexGenerator::latexEnsureNewLineBreak(layerRepl["FIELD_DESCRIPTION"]);
+            }
+
+        } while (false);
+
+        fields.push_back(util::genProcessTemplate(LayerTempl, layerRepl));            
+    }
+
+    static const std::string Templ = 
+        "\\subsubparagraph{Frame Fields}\n"
+        "\\label{#^#LABEL#$#}\n\n"
+        "\\fbox{%\n"
+        "\\begin{tabular}{c|c}\n"
+        "\\textbf{Length (Bytes)}& \\textbf{Name}\\\\\n"
+        "\\hline\n"
+        "\\hline\n"
+        "#^#LINES#$#\n"
+        "\\end{tabular}\n"
+        "}\n"
+        "\\smallskip\n\n"
+        "#^#DETAILS#$#\n"
+        "\n"
+        ;    
+
+    util::GenReplacementMap repl = {
+        {"LABEL", LatexGenerator::latexLabelId(*this) + "_fields"},
+        {"LINES", util::genStrListToString(lines, " \\\\\\hline\n", " \\\\")},
+        {"DETAILS", util::genStrListToString(fields, "\n", "\n")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);     
 }
 
 } // namespace commsdsl2latex

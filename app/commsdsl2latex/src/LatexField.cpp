@@ -83,6 +83,10 @@ bool latexIsOffsetPresent(const LatexField& f)
         return true;
     }
 
+    if (parent->genElemType() != LatexField::GenElem::Type_Layer) {
+        return false;
+    }    
+
     if (parent->genElemType() != LatexField::GenElem::Type_Field) {
         return true;
     }
@@ -94,7 +98,7 @@ bool latexIsOffsetPresent(const LatexField& f)
 bool latexIsOffsetPresent(const LatexField::LatexFieldsList& fields)
 {
     return
-        std::any_of(
+        std::all_of(
             fields.begin(), fields.end(),
             [](auto* f)
             {
@@ -135,6 +139,10 @@ std::string LatexField::latexTitle() const
     do {
         auto* parent = m_genField.genGetParent();
         auto parentType = parent->genElemType();
+        if (parentType == commsdsl::gen::GenElem::Type_Layer) {
+            return "Frame Field \"" + name + "\"";
+        }
+
         if (parentType != commsdsl::gen::GenElem::Type_Field) {
             break;
         }
@@ -224,6 +232,107 @@ std::string LatexField::latexRefLabelId() const
     return latexRefLabelIdImpl();
 }
 
+std::string LatexField::latexInfoDetails() const
+{
+    static const std::string Templ = 
+        "\\subsubparagraph{Details}\n"
+        "\\label{#^#LABEL#$#}\n\n"
+        "\\fbox{%\n"
+        "\\begin{tabular}{l|p{5cm}}\n"
+        "#^#LINES#$##^#SEP#$#\n"
+        "#^#EXTRA#$#\n"
+        "\\end{tabular}\n"
+        "}\n"
+        "\\smallskip\n"
+        "\n"
+        ;
+
+    util::GenStringsList lines;    
+    
+    
+    auto parseObj = m_genField.genParseObj();
+    auto makeNumericStr = 
+        [](auto val)
+        {
+            std::stringstream stream;
+            stream << val << " (0x" << std::setw(2) << std::setfill('0') << std::hex << val << ")";
+            return stream.str();
+        };
+
+    do{
+        lines.push_back("\\textbf{Field Kind} & " + latexFieldKindImpl());
+    } while (false); 
+    
+    do {
+        auto minLength = parseObj.parseMinLength();
+        auto maxLength = parseObj.parseMaxLength();
+
+        bool inBits = latexIsLengthInBits(*this);
+        std::string units = " Bytes";
+        if (inBits) {
+            minLength = parseObj.parseBitLength();
+            maxLength = minLength;
+            units = " Bits";
+        }
+
+        if (minLength == maxLength) {
+            lines.push_back("\\textbf{Fixed Length} & " + std::to_string(minLength) + units);
+            break;
+        }
+
+        if (maxLength != InvalidLength) {
+            lines.push_back("\\textbf{Variable Length} & " + std::to_string(minLength) + " - " + std::to_string(maxLength) + units);
+            break;
+        }
+
+        lines.push_back("\\textbf{Variable Length} & " + std::to_string(minLength) + "+" + units);
+    } while (false);
+
+    do {
+        lines.push_back("\\textbf{Optional} & " + (latexIsOptional() ? strings::genYesStr() : strings::genNoStr()));
+    } while (false);      
+
+    do {
+        auto sinceVersion = parseObj.parseSinceVersion();
+        if (sinceVersion == 0) {
+            break;
+        }
+
+        lines.push_back("\\textbf{Introduced In Version} &" + makeNumericStr(sinceVersion));
+    } while (false);
+
+    do {
+        auto deprecatedSince = parseObj.parseDeprecatedSince();
+        if (deprecatedSince == commsdsl::parse::ParseProtocol::parseNotYetDeprecated()) {
+            break;
+        }
+
+        lines.push_back("\\textbf{Deprecated In Version} &" + makeNumericStr(deprecatedSince));
+    } while (false);      
+
+    util::GenReplacementMap repl = {
+        {"LABEL", LatexGenerator::latexLabelId(m_genField) + "_details"},
+        {"LINES", util::genStrListToString(lines, " \\\\\\hline\n", " \\\\")},
+        {"EXTRA", latexInfoDetailsImpl()},
+    };
+
+    if (!repl["EXTRA"].empty()) {
+        repl["SEP"] = "\\hline";
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string LatexField::latexExtraDetails() const
+{
+    return latexExtraDetailsImpl();
+}
+
+std::string LatexField::latexDescription() const
+{
+    return latexDescriptionImpl();
+}
+
 LatexField::LatexFieldsList LatexField::latexTransformFieldsList(const GenFieldsList& fields)
 {
     LatexFieldsList result;
@@ -257,14 +366,17 @@ std::string LatexField::latexMembersDetails(const LatexFieldsList& latexFields)
     util::GenStringsList fields;    
     std::size_t offset = 0;
     for (auto* f : latexFields) {
+        assert(f != nullptr);
         auto& genField = f->latexGenField();
         auto parseObj = genField.genParseObj();
         auto details = f->latexDoc();
         std::string nameStr = LatexGenerator::latexEscDisplayName(parseObj.parseDisplayName(), parseObj.parseName());
         if (!details.empty()) {
             nameStr = "\\hyperref[" + f->latexRefLabelId() + "]{" + nameStr + "}";
-            fields.push_back(details);
-        }
+            if (!comms::genIsGlobalField(genField)) {
+                fields.push_back(details);
+            }
+        }           
 
         if (f->latexIsOptional()) {
             nameStr += " (optional)";
@@ -769,97 +881,6 @@ std::string LatexField::latexUnitsInfo(commsdsl::parse::ParseUnits value)
     auto idx = static_cast<unsigned>(value);
     assert(idx < MapSize);
     return "\\textbf{Units} & " + (Map[idx]);
-}
-
-std::string LatexField::latexInfoDetails() const
-{
-    static const std::string Templ = 
-        "\\subsubparagraph{Details}\n"
-        "\\label{#^#LABEL#$#}\n\n"
-        "\\fbox{%\n"
-        "\\begin{tabular}{l|p{5cm}}\n"
-        "#^#LINES#$##^#SEP#$#\n"
-        "#^#EXTRA#$#\n"
-        "\\end{tabular}\n"
-        "}\n"
-        "\\smallskip\n"
-        "\n"
-        ;
-
-    util::GenStringsList lines;    
-    
-    
-    auto parseObj = m_genField.genParseObj();
-    auto makeNumericStr = 
-        [](auto val)
-        {
-            std::stringstream stream;
-            stream << val << " (0x" << std::setw(2) << std::setfill('0') << std::hex << val << ")";
-            return stream.str();
-        };
-
-    do{
-        lines.push_back("\\textbf{Field Kind} & " + latexFieldKindImpl());
-    } while (false); 
-    
-    do {
-        auto minLength = parseObj.parseMinLength();
-        auto maxLength = parseObj.parseMaxLength();
-
-        bool inBits = latexIsLengthInBits(*this);
-        std::string units = " Bytes";
-        if (inBits) {
-            minLength = parseObj.parseBitLength();
-            maxLength = minLength;
-            units = " Bits";
-        }
-
-        if (minLength == maxLength) {
-            lines.push_back("\\textbf{Fixed Length} & " + std::to_string(minLength) + units);
-            break;
-        }
-
-        if (maxLength != InvalidLength) {
-            lines.push_back("\\textbf{Variable Length} & " + std::to_string(minLength) + " - " + std::to_string(maxLength) + units);
-            break;
-        }
-
-        lines.push_back("\\textbf{Variable Length} & " + std::to_string(minLength) + "+" + units);
-    } while (false);
-
-    do {
-        lines.push_back("\\textbf{Optional} & " + (latexIsOptional() ? strings::genYesStr() : strings::genNoStr()));
-    } while (false);      
-
-    do {
-        auto sinceVersion = parseObj.parseSinceVersion();
-        if (sinceVersion == 0) {
-            break;
-        }
-
-        lines.push_back("\\textbf{Introduced In Version} &" + makeNumericStr(sinceVersion));
-    } while (false);
-
-    do {
-        auto deprecatedSince = parseObj.parseDeprecatedSince();
-        if (deprecatedSince == commsdsl::parse::ParseProtocol::parseNotYetDeprecated()) {
-            break;
-        }
-
-        lines.push_back("\\textbf{Deprecated In Version} &" + makeNumericStr(deprecatedSince));
-    } while (false);      
-
-    util::GenReplacementMap repl = {
-        {"LABEL", LatexGenerator::latexLabelId(m_genField) + "_details"},
-        {"LINES", util::genStrListToString(lines, " \\\\\\hline\n", " \\\\")},
-        {"EXTRA", latexInfoDetailsImpl()},
-    };
-
-    if (!repl["EXTRA"].empty()) {
-        repl["SEP"] = "\\hline";
-    }
-
-    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2latex
