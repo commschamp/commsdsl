@@ -37,6 +37,9 @@ It allows compilation of the protocol definition C++ code into WebAssembly as we
 generation javascript bindings to it.
 Details are in the [WebAssembly Support](doc/WebAssemblySupport.md) documentation page.
 Build requires explicit cmake enable [option](CMakeLists.txt).
+- **commsdsl2latex** - A code generator that produces [LaTeX](https://en.wikipedia.org/wiki/LaTeX)
+files for the protocol specification. The produced files can be built into
+**pdf** and/or **html** documents.
 - **libcommsdsl** - A C++ library containing common functionality for parsing of the
 [CommsDSL](https://github.com/commschamp/CommsDSL-Specification) schema files as
 well code generation. It can be used to implement independent code generators.
