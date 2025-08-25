@@ -822,9 +822,9 @@ const GenGenerator& GenSchema::genGenerator() const
     return m_impl->genGenerator();
 }
 
-GenElem::Type GenSchema::genElemTypeImpl() const
+GenElem::GenType GenSchema::genElemTypeImpl() const
 {
-    return GenElem::Type_Schema;
+    return GenElem::GenType_Schema;
 }
 
 bool GenSchema::genPrepareImpl()

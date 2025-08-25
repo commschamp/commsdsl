@@ -190,13 +190,13 @@ const GenNamespace* GenFrame::genParentNamespace() const
 {
     auto* parent = genGetParent();
     assert(parent != nullptr);
-    assert(parent->genElemType() == GenElem::Type_Namespace);
+    assert(parent->genElemType() == GenElem::GenType_Namespace);
     return static_cast<const GenNamespace*>(parent);
 }
 
-GenElem::Type GenFrame::genElemTypeImpl() const
+GenElem::GenType GenFrame::genElemTypeImpl() const
 {
-    return Type_Frame;
+    return GenType_Frame;
 }
 
 bool GenFrame::genPrepareImpl()

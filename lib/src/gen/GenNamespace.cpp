@@ -486,7 +486,7 @@ std::string GenNamespace::genAdjustedExternalRef() const
 
     auto* parent = genGetParent();
     assert(parent != nullptr);
-    assert(parent->genElemType() == GenElem::Type_Schema);
+    assert(parent->genElemType() == GenElem::GenType_Schema);
     auto* schema = static_cast<const GenSchema*>(parent);
     assert(schema->genParseObj().parseValid());
     return schema->genParseObj().parseExternalRef();
@@ -884,9 +884,9 @@ bool GenNamespace::genHasAnyReferencedComponent() const
     return m_impl->genHasAnyReferencedComponent();
 }
 
-GenElem::Type GenNamespace::genElemTypeImpl() const
+GenElem::GenType GenNamespace::genElemTypeImpl() const
 {
-    return Type_Namespace;
+    return GenType_Namespace;
 }
 
 bool GenNamespace::genPrepareImpl()

@@ -101,7 +101,7 @@ const GenElem* GenElem::genGetParent() const
     return m_parent;
 }
 
-GenElem::Type GenElem::genElemType() const
+GenElem::GenType GenElem::genElemType() const
 {
     return genElemTypeImpl();
 }
@@ -110,17 +110,17 @@ const std::string& GenElem::genName() const
 {
     using Func = const std::string& (*)(const GenElem& elem);
     static const Func Map[] = {
-        /* Type_Invalid */ nullptr,
-        /* Type_Namespace */ &genNameOfNamespace,
-        /* Type_Message */ &genNameOfMessage,
-        /* Type_Field */ &genNameOfField,
-        /* Type_Interface */ &genNameOfInterface,
-        /* Type_Frame */ &genNameOfFrame,
-        /* Type_Layer */ &genNameOfLayer,    
-        /* Type_Schema */ &genNameOfSchema,    
+        /* GenType_Invalid */ nullptr,
+        /* GenType_Namespace */ &genNameOfNamespace,
+        /* GenType_Message */ &genNameOfMessage,
+        /* GenType_Field */ &genNameOfField,
+        /* GenType_Interface */ &genNameOfInterface,
+        /* GenType_Frame */ &genNameOfFrame,
+        /* GenType_Layer */ &genNameOfLayer,    
+        /* GenType_Schema */ &genNameOfSchema,    
     };
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == Type_NumOfValues, "Invalid map");
+    static_assert(MapSize == GenType_NumOfValues, "Invalid map");
 
     auto idx = static_cast<unsigned>(genElemType());
     if ((MapSize <= idx) || (Map[idx] == nullptr)) {

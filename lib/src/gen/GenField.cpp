@@ -217,19 +217,19 @@ std::string GenField::genTemplateScopeOfComms(const std::string& protOptionsStr)
     while (parent != nullptr)  {
         auto elemType = parent->genElemType();
 
-        if (elemType == GenElem::Type_Interface) {
+        if (elemType == GenElem::GenType_Interface) {
             return commsScope;
         }        
 
-        if ((elemType == GenElem::Type_Field) && (comms::genIsGlobalField(*parent))) {
+        if ((elemType == GenElem::GenType_Field) && (comms::genIsGlobalField(*parent))) {
             return formScopeFunc(parent, strings::genMembersSuffixStr());
         }        
 
-        if (elemType == GenElem::Type_Message) {
+        if (elemType == GenElem::GenType_Message) {
             return formScopeFunc(parent, strings::genFieldsSuffixStr());
         }
 
-        if (elemType == GenElem::Type_Frame) {
+        if (elemType == GenElem::GenType_Frame) {
             return formScopeFunc(parent, strings::genLayersSuffixStr());
         }        
 
@@ -285,7 +285,7 @@ const GenNamespace* GenField::genParentNamespace() const
 {
     auto* parent = genGetParent();
     while (parent != nullptr) {
-        if (parent->genElemType() == GenElem::Type_Namespace) {
+        if (parent->genElemType() == GenElem::GenType_Namespace) {
             return static_cast<const GenNamespace*>(parent);
         }
 
@@ -295,9 +295,9 @@ const GenNamespace* GenField::genParentNamespace() const
     return static_cast<const GenNamespace*>(parent);
 }
 
-GenElem::Type GenField::genElemTypeImpl() const
+GenElem::GenType GenField::genElemTypeImpl() const
 {
-    return Type_Field;
+    return GenType_Field;
 }
 
 bool GenField::genPrepareImpl()

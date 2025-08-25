@@ -28,17 +28,17 @@ class GenGenerator;
 class GenElem
 {
 public:
-    enum Type
+    enum GenType
     {
-        Type_Invalid,
-        Type_Namespace,
-        Type_Message,
-        Type_Field,
-        Type_Interface,
-        Type_Frame,
-        Type_Layer,
-        Type_Schema,
-        Type_NumOfValues
+        GenType_Invalid,
+        GenType_Namespace,
+        GenType_Message,
+        GenType_Field,
+        GenType_Interface,
+        GenType_Frame,
+        GenType_Layer,
+        GenType_Schema,
+        GenType_NumOfValues
     };
     virtual ~GenElem();
 
@@ -46,14 +46,14 @@ public:
     GenElem* genGetParent();
     const GenElem* genGetParent() const;
 
-    Type genElemType() const;
+    GenType genElemType() const;
 
     const std::string& genName() const;
 
 protected:
     explicit GenElem(GenElem* parent = nullptr);
 
-    virtual Type genElemTypeImpl() const = 0;
+    virtual GenType genElemTypeImpl() const = 0;
 
 private:
     GenElem* m_parent = nullptr;

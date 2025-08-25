@@ -717,7 +717,7 @@ const GenSchema& GenGenerator::genSchemaOf(const GenElem& elem)
 {
     auto* parent = elem.genGetParent();
     assert(parent != nullptr);
-    if (parent->genElemType() == GenElem::Type_Schema) {
+    if (parent->genElemType() == GenElem::GenType_Schema) {
         return static_cast<const GenSchema&>(*parent);
     }
 

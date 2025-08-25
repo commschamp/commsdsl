@@ -228,9 +228,9 @@ const GenGenerator& GenMessage::genGenerator() const
     return m_impl->genGenerator();
 }
 
-GenElem::Type GenMessage::genElemTypeImpl() const
+GenElem::GenType GenMessage::genElemTypeImpl() const
 {
-    return Type_Message;
+    return GenType_Message;
 }
 
 bool GenMessage::genPrepareImpl()

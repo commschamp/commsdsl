@@ -82,13 +82,13 @@ std::string LatexNamespace::latexRelDirPath() const
     assert(parent != nullptr);
     std::string parentDir;
     do {
-        if (parent->genElemType() == Type_Schema) {
+        if (parent->genElemType() == GenType_Schema) {
             auto& schema = LatexSchema::latexCast(commsdsl::gen::GenSchema::genCast(*parent));
             parentDir = schema.latexRelDirPath();
             break;
         }
 
-        assert(parent->genElemType() == Type_Namespace);
+        assert(parent->genElemType() == GenType_Namespace);
         auto& parentNs = LatexNamespace::latexCast(commsdsl::gen::GenNamespace::genCast(*parent));
         parentDir = parentNs.latexRelDirPath();        
     } while (false);
@@ -125,7 +125,7 @@ std::string LatexNamespace::latexTitle() const
     do {
         auto* parent = genGetParent();
         assert(parent != nullptr);
-        if (parent->genElemType() != Type_Schema) {
+        if (parent->genElemType() != GenType_Schema) {
             break;
         }
 
@@ -142,7 +142,7 @@ std::string LatexNamespace::latexTitle() const
     if (name->empty()) {
         auto* parent = genGetParent();
         assert(parent != nullptr);
-        assert(parent->genElemType() == Type_Schema);
+        assert(parent->genElemType() == GenType_Schema);
         auto& schema = LatexSchema::latexCast(commsdsl::gen::GenSchema::genCast(*parent));
         name = &(schema.genOrigNamespace());
     }

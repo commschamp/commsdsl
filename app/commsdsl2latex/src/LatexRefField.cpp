@@ -92,7 +92,7 @@ bool LatexRefField::latexIsEmptyAlias() const
 
     do {
         auto type = parent->genElemType();
-        if (type != commsdsl::gen::GenElem::Type_Field) {
+        if (type != commsdsl::gen::GenElem::GenType_Field) {
             break;
         }
 

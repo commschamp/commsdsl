@@ -471,7 +471,7 @@ std::string CommsInterface::commsDefBaseClassInternal() const
     auto& schema = gen.genSchemaOf(*this);
 
     assert(genGetParent() != nullptr);
-    assert(genGetParent()->genElemType() == commsdsl::gen::GenElem::Type_Namespace);
+    assert(genGetParent()->genElemType() == commsdsl::gen::GenElem::GenType_Namespace);
     util::GenReplacementMap repl = {
         {"ENDIAN", comms::genParseEndianToOpt(schema.genSchemaEndian())},
         {"MSG_ID_TYPE", comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), gen, *static_cast<const commsdsl::gen::GenNamespace*>(genGetParent()))},

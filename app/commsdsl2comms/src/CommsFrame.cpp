@@ -338,7 +338,7 @@ std::string CommsFrame::commsCommonBodyInternal() const
 
 std::string CommsFrame::commsDefIncludesInternal() const
 {
-    assert(genGetParent()->genElemType() == commsdsl::gen::GenElem::Type_Namespace);
+    assert(genGetParent()->genElemType() == commsdsl::gen::GenElem::GenType_Namespace);
     auto& gen = genGenerator();
     util::GenStringsList includes = {
         comms::genRelHeaderForOptions(strings::genDefaultOptionsClassStr(), gen),
@@ -425,7 +425,7 @@ std::string CommsFrame::commsDefInputMessagesParamInternal() const
         return strings::genEmptyString();
     }
 
-    assert(genGetParent()->genElemType() == commsdsl::gen::GenElem::Type_Namespace);
+    assert(genGetParent()->genElemType() == commsdsl::gen::GenElem::GenType_Namespace);
     auto& ns = *(static_cast<const commsdsl::gen::GenNamespace*>(genGetParent()));
     return
         "typename TAllMessages = " + comms::genScopeForInput(strings::genAllMessagesStr(), genGenerator(), ns) + "<TMessage>,";

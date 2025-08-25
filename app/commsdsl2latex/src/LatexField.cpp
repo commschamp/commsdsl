@@ -55,7 +55,7 @@ bool latexIsLengthInBits(const LatexField& f)
         return false;
     }
 
-    if (parent->genElemType() != LatexField::GenElem::Type_Field) {
+    if (parent->genElemType() != LatexField::GenElem::GenType_Field) {
         return false;
     }
 
@@ -83,11 +83,11 @@ bool latexIsOffsetPresent(const LatexField& f)
         return true;
     }
 
-    if (parent->genElemType() != LatexField::GenElem::Type_Layer) {
+    if (parent->genElemType() != LatexField::GenElem::GenType_Layer) {
         return false;
     }    
 
-    if (parent->genElemType() != LatexField::GenElem::Type_Field) {
+    if (parent->genElemType() != LatexField::GenElem::GenType_Field) {
         return true;
     }
 
@@ -139,11 +139,11 @@ std::string LatexField::latexTitle() const
     do {
         auto* parent = m_genField.genGetParent();
         auto parentType = parent->genElemType();
-        if (parentType == commsdsl::gen::GenElem::Type_Layer) {
+        if (parentType == commsdsl::gen::GenElem::GenType_Layer) {
             return "Frame Field \"" + name + "\"";
         }
 
-        if (parentType != commsdsl::gen::GenElem::Type_Field) {
+        if (parentType != commsdsl::gen::GenElem::GenType_Field) {
             break;
         }
 
@@ -490,17 +490,17 @@ const LatexField* LatexField::latexFindSibling(const std::string& name) const
 
     auto* parent = m_genField.genGetParent();
     assert(parent != nullptr);
-    if ((parent->genElemType() != commsdsl::gen::GenElem::Type_Field) &&
-        (parent->genElemType() != commsdsl::gen::GenElem::Type_Message)) {
+    if ((parent->genElemType() != commsdsl::gen::GenElem::GenType_Field) &&
+        (parent->genElemType() != commsdsl::gen::GenElem::GenType_Message)) {
         return nullptr;
     }
 
     const LatexFieldsList* siblings = nullptr;
-    if (parent->genElemType() == commsdsl::gen::GenElem::Type_Message) {
+    if (parent->genElemType() == commsdsl::gen::GenElem::GenType_Message) {
         auto* message = static_cast<const LatexMessage*>(parent);
         siblings = &message->latexMemberFields();
     }
-    else if (parent->genElemType() == commsdsl::gen::GenElem::Type_Field) {
+    else if (parent->genElemType() == commsdsl::gen::GenElem::GenType_Field) {
         auto* genField = static_cast<const GenField*>(parent);
         if (genField->genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Bundle) {
             return nullptr;
@@ -645,7 +645,7 @@ bool LatexField::latexIsOptional() const
 
     do {
         auto parentType = parent->genElemType();
-        if (parentType != GenElem::Type_Field) {
+        if (parentType != GenElem::GenType_Field) {
             break;
         }
 

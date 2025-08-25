@@ -87,7 +87,7 @@ public:
 protected:    
     GenField(GenGenerator& generator, const ParseField& parseObj, GenElem* parent = nullptr);
 
-    virtual Type genElemTypeImpl() const override final;
+    virtual GenType genElemTypeImpl() const override final;
     virtual bool genPrepareImpl();
     virtual bool genWriteImpl() const;
     virtual void genSetReferencedImpl();

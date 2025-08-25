@@ -43,9 +43,9 @@ bool CommsIdLayer::genPrepareImpl()
 
 CommsIdLayer::CommsIncludesList CommsIdLayer::commsDefIncludesImpl() const
 {
-    assert(genGetParent()->genElemType() == commsdsl::gen::GenElem::Type_Frame);
+    assert(genGetParent()->genElemType() == commsdsl::gen::GenElem::GenType_Frame);
     auto& frame = *(static_cast<const commsdsl::gen::GenFrame*>(genGetParent()));
-    assert(frame.genGetParent()->genElemType() == commsdsl::gen::GenElem::Type_Namespace);
+    assert(frame.genGetParent()->genElemType() == commsdsl::gen::GenElem::GenType_Namespace);
     auto& ns = *(static_cast<const commsdsl::gen::GenNamespace*>(frame.genGetParent()));
 
     CommsIncludesList result = {

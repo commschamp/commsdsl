@@ -77,60 +77,60 @@ std::string genScopeForElement(
 }
 
 void genAddElemNamespaceScopeInternal(
-    GenElem::Type elemType,
+    GenElem::GenType elemType,
     const GenElem* parent,
     const std::string& sep,
     std::string& str)
 {
-    if ((elemType == GenElem::Type_Field) && (parent->genElemType() == GenElem::Type_Namespace)) {
+    if ((elemType == GenElem::GenType_Field) && (parent->genElemType() == GenElem::GenType_Namespace)) {
         // Global fields reside in appropriate namespace
         str.append(strings::genFieldNamespaceStr() + sep);
     }
 
-    if (elemType == GenElem::Type_Message) {
-        assert(parent->genElemType() == GenElem::Type_Namespace);
+    if (elemType == GenElem::GenType_Message) {
+        assert(parent->genElemType() == GenElem::GenType_Namespace);
         str.append(strings::genMessageNamespaceStr() + sep);
     }     
 
-    if (elemType == GenElem::Type_Frame) {
-        assert(parent->genElemType() == GenElem::Type_Namespace);
+    if (elemType == GenElem::GenType_Frame) {
+        assert(parent->genElemType() == GenElem::GenType_Namespace);
         str.append(strings::genFrameNamespaceStr() + sep);
     }  
 }
 
 void genAddFieldScopeSuffixInternal(
-    GenElem::Type elemType, 
+    GenElem::GenType elemType, 
     bool isLeaf, 
     std::string& str)
 {
-    if ((elemType == GenElem::Type_Message) ||
-        (elemType == GenElem::Type_Interface)) {
+    if ((elemType == GenElem::GenType_Message) ||
+        (elemType == GenElem::GenType_Interface)) {
         str.append(strings::genFieldsSuffixStr());
         return;
     }      
 
-    if (elemType == GenElem::Type_Layer) {
+    if (elemType == GenElem::GenType_Layer) {
         str.append(strings::genMembersSuffixStr());
         return;
     }  
 
-    if (elemType == GenElem::Type_Frame) {
+    if (elemType == GenElem::GenType_Frame) {
         str.append(strings::genLayersSuffixStr());
         return;
     }   
 
-    if ((elemType == GenElem::Type_Field) && (!isLeaf)) {
+    if ((elemType == GenElem::GenType_Field) && (!isLeaf)) {
         str.append(strings::genMembersSuffixStr());
         return;
     }  
 }
 
 void genAddNonFieldElemScopeSuffixInternal(
-    GenElem::Type elemType, 
-    GenElem::Type leafElemType,
+    GenElem::GenType elemType, 
+    GenElem::GenType leafElemType,
     std::string& str)
 {
-    if ((elemType == GenElem::Type_Frame) && (leafElemType != elemType)) {
+    if ((elemType == GenElem::GenType_Frame) && (leafElemType != elemType)) {
         str.append(strings::genLayersSuffixStr());
         return;
     }  
@@ -165,11 +165,11 @@ std::string genScopeForInternal(
         leaf = &elem;
     }
 
-    auto fieldTypeScope = (leaf->genElemType() == GenElem::Type_Field) && (sep == GenScopeSep);
+    auto fieldTypeScope = (leaf->genElemType() == GenElem::GenType_Field) && (sep == GenScopeSep);
 
     auto* parent = elem.genGetParent();
     assert(parent != nullptr);
-    if (parent->genElemType() != GenElem::Type_Schema) {
+    if (parent->genElemType() != GenElem::GenType_Schema) {
         result = genScopeForInternal(*parent, generator, addMainNamespace, true, sep, leaf);
     }
     else if (addMainNamespace) {
@@ -195,7 +195,7 @@ std::string genScopeForInternal(
         
         auto& elemName = elem.genName();
 
-        if (elemType == GenElem::Type_Namespace) {
+        if (elemType == GenElem::GenType_Namespace) {
             genAddNamespaceScopeInernal(elemName, sep, result);
             break;
         }
@@ -205,7 +205,7 @@ std::string genScopeForInternal(
         }            
 
         auto name = genClassName(elemName);
-        if ((name.empty()) && (elemType == GenElem::Type_Interface)) {
+        if ((name.empty()) && (elemType == GenElem::GenType_Interface)) {
             name = strings::genMessageClassStr();
         }    
 
@@ -239,11 +239,11 @@ std::string genCommonScopeForInternal(
         leaf = &elem;
     }
 
-    auto fieldTypeScope = (leaf->genElemType() == GenElem::Type_Field) && (sep == GenScopeSep);
+    auto fieldTypeScope = (leaf->genElemType() == GenElem::GenType_Field) && (sep == GenScopeSep);
 
     auto* parent = elem.genGetParent();
     assert(parent != nullptr);
-    if (parent->genElemType() != GenElem::Type_Schema) {
+    if (parent->genElemType() != GenElem::GenType_Schema) {
         result = genCommonScopeForInternal(*parent, generator, addMainNamespace, true, sep, leaf);
     }
     else if (addMainNamespace) {
@@ -257,7 +257,7 @@ std::string genCommonScopeForInternal(
 
         auto elemType = elem.genElemType();
         auto& elemName = elem.genName();
-        if (elemType == GenElem::Type_Namespace) {
+        if (elemType == GenElem::GenType_Namespace) {
             genAddNamespaceScopeInernal(elemName, sep, result);
             break;
         }
@@ -274,11 +274,11 @@ std::string genCommonScopeForInternal(
             genAddFieldScopeSuffixInternal(elemType, &elem == leaf, result);
         }
 
-        if ((elemType == GenElem::Type_Field) || 
-            (elemType == GenElem::Type_Message) || 
-            (elemType == GenElem::Type_Interface) ||
-            (elemType == GenElem::Type_Layer) ||
-            (elemType == GenElem::Type_Frame)) {
+        if ((elemType == GenElem::GenType_Field) || 
+            (elemType == GenElem::GenType_Message) || 
+            (elemType == GenElem::GenType_Interface) ||
+            (elemType == GenElem::GenType_Layer) ||
+            (elemType == GenElem::GenType_Frame)) {
             result.append(strings::genCommonSuffixStr());
         }
 
@@ -315,7 +315,7 @@ std::string genFullNameFor(const GenElem& elem)
     std::string result;
     auto* parent = elem.genGetParent();
     assert(parent != nullptr);
-    if (parent->genElemType() != GenElem::Type_Schema) {
+    if (parent->genElemType() != GenElem::GenType_Schema) {
         result = genFullNameFor(*parent);
     }
 
@@ -325,7 +325,7 @@ std::string genFullNameFor(const GenElem& elem)
 
     auto elemType = elem.genElemType();
     do {
-        if (elemType == GenElem::Type_Namespace) {
+        if (elemType == GenElem::GenType_Namespace) {
             result.append(elem.genName());
             break;
         }
@@ -722,7 +722,7 @@ std::string genNamespaceBeginFor(
     auto* parent = elem.genGetParent();
     assert(parent != nullptr);
     do {
-        if (parent->genElemType() != GenElem::Type_Schema) {
+        if (parent->genElemType() != GenElem::GenType_Schema) {
             result += genNamespaceBeginFor(*parent, generator);
             break;
         }
@@ -736,26 +736,26 @@ std::string genNamespaceBeginFor(
     } while (false);
 
     auto elemType = elem.genElemType();
-    if ((elemType == GenElem::Type_Field) && (parent->genElemType() == GenElem::Type_Namespace)) {
+    if ((elemType == GenElem::GenType_Field) && (parent->genElemType() == GenElem::GenType_Namespace)) {
         appendToResultFunc(strings::genFieldNamespaceStr());
     }   
 
-    if (elemType == GenElem::Type_Message) {
-        assert(parent->genElemType() == GenElem::Type_Namespace);
+    if (elemType == GenElem::GenType_Message) {
+        assert(parent->genElemType() == GenElem::GenType_Namespace);
         appendToResultFunc(strings::genMessageNamespaceStr());
     }
 
-    if (elemType == GenElem::Type_Frame) {
-        assert(parent->genElemType() == GenElem::Type_Namespace);
+    if (elemType == GenElem::GenType_Frame) {
+        assert(parent->genElemType() == GenElem::GenType_Namespace);
         appendToResultFunc(strings::genFrameNamespaceStr());
     }
 
-    if (elemType == GenElem::Type_Layer) {
-        assert(parent->genElemType() == GenElem::Type_Frame);
+    if (elemType == GenElem::GenType_Layer) {
+        assert(parent->genElemType() == GenElem::GenType_Frame);
         appendToResultFunc(strings::genLayerNamespaceStr());
     }        
 
-    if (elem.genElemType() != GenElem::Type_Namespace) {
+    if (elem.genElemType() != GenElem::GenType_Namespace) {
         return result;
     }
 
@@ -784,24 +784,24 @@ std::string genNamespaceEndFor(
     assert(parent != nullptr);
 
     auto elemType = elem.genElemType();
-    if (elemType != GenElem::Type_Namespace) {
+    if (elemType != GenElem::GenType_Namespace) {
         assert(parent != nullptr);
-        if ((elemType == GenElem::Type_Field) && (parent->genElemType() == GenElem::Type_Namespace)) {
+        if ((elemType == GenElem::GenType_Field) && (parent->genElemType() == GenElem::GenType_Namespace)) {
             appendToResultFunc(strings::genFieldNamespaceStr());
         }
 
-        if (elemType == GenElem::Type_Message) {
-            assert(parent->genElemType() == GenElem::Type_Namespace);
+        if (elemType == GenElem::GenType_Message) {
+            assert(parent->genElemType() == GenElem::GenType_Namespace);
             appendToResultFunc(strings::genMessageNamespaceStr());
         }
 
-        if (elemType == GenElem::Type_Frame) {
-            assert(parent->genElemType() == GenElem::Type_Namespace);
+        if (elemType == GenElem::GenType_Frame) {
+            assert(parent->genElemType() == GenElem::GenType_Namespace);
             appendToResultFunc(strings::genFrameNamespaceStr());
         }
 
-        if (elemType == GenElem::Type_Layer) {
-            assert(parent->genElemType() == GenElem::Type_Frame);
+        if (elemType == GenElem::GenType_Layer) {
+            assert(parent->genElemType() == GenElem::GenType_Frame);
             appendToResultFunc(strings::genLayerNamespaceStr());
         }        
 
@@ -817,7 +817,7 @@ std::string genNamespaceEndFor(
     }
     
     do {
-        if (parent->genElemType() != GenElem::Type_Schema) {
+        if (parent->genElemType() != GenElem::GenType_Schema) {
             result += genNamespaceEndFor(*parent, generator);
             break;
         }
@@ -951,24 +951,24 @@ const std::string& genCppFloatTypeFor(commsdsl::parse::ParseFloatField::ParseTyp
 
 bool genIsGlobalField(const GenElem& elem)
 {
-    if (elem.genElemType() != GenElem::Type_Field) {
+    if (elem.genElemType() != GenElem::GenType_Field) {
         return false;
     }
 
     auto* parent = elem.genGetParent();
     assert(parent != nullptr);
-    return parent->genElemType() == GenElem::Type_Namespace;
+    return parent->genElemType() == GenElem::GenType_Namespace;
 }
 
 bool genIsInterfaceDeepMemberField(const GenElem& elem)
 {
-    if (elem.genElemType() != GenElem::Type_Field) {
+    if (elem.genElemType() != GenElem::GenType_Field) {
         return false;
     }
 
     auto* parent = elem.genGetParent();
     while (parent != nullptr) {
-        if (parent->genElemType() == GenElem::Type_Interface) {
+        if (parent->genElemType() == GenElem::GenType_Interface) {
             return true;
         }
 
@@ -979,29 +979,29 @@ bool genIsInterfaceDeepMemberField(const GenElem& elem)
 
 bool genIsInterfaceShallowMemberField(const GenElem& elem)
 {
-    if (elem.genElemType() != GenElem::Type_Field) {
+    if (elem.genElemType() != GenElem::GenType_Field) {
         return false;
     }
 
     auto* parent = elem.genGetParent();
     assert(parent != nullptr);
-    return parent->genElemType() == GenElem::Type_Interface;
+    return parent->genElemType() == GenElem::GenType_Interface;
 }
 
 bool genIsMessageShallowMemberField(const GenElem& elem)
 {
-    if (elem.genElemType() != GenElem::Type_Field) {
+    if (elem.genElemType() != GenElem::GenType_Field) {
         return false;
     }
 
     auto* parent = elem.genGetParent();
     assert(parent != nullptr);
-    return parent->genElemType() == GenElem::Type_Message;
+    return parent->genElemType() == GenElem::GenType_Message;
 }
 
 bool genIsVersionOptionalField(const GenElem& elem, const GenGenerator& generator)
 {
-    if (elem.genElemType() != GenElem::Type_Field) {
+    if (elem.genElemType() != GenElem::GenType_Field) {
         assert(false); // Should not happen
         return false;
     }    
@@ -1033,11 +1033,11 @@ bool genIsVersionOptionalField(const GenElem& elem, const GenGenerator& generato
 unsigned genSinceVersionOf(const GenElem& elem)
 {
     auto elemType = elem.genElemType();
-    if (elemType == GenElem::Type_Message) {
+    if (elemType == GenElem::GenType_Message) {
         return static_cast<const gen::GenMessage&>(elem).genParseObj().parseSinceVersion();
     }
 
-    if (elemType == GenElem::Type_Field) {
+    if (elemType == GenElem::GenType_Field) {
         auto* parent = elem.genGetParent();
         assert(parent != nullptr);
         auto fieldResult = static_cast<const gen::GenField&>(elem).genParseObj().parseSinceVersion();

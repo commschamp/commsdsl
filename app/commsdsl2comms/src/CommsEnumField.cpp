@@ -1403,7 +1403,7 @@ const CommsNamespace* CommsEnumField::commsNamespaceForMsgId() const
             break;
         }
 
-        if (parentTmp->genElemType() != commsdsl::gen::GenElem::Type_Namespace) {
+        if (parentTmp->genElemType() != commsdsl::gen::GenElem::GenType_Namespace) {
             parentNs = nullptr;
             break;
         }

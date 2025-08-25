@@ -66,7 +66,7 @@ public:
 protected:    
     GenLayer(GenGenerator& generator, const ParseLayer& parseObj, GenElem* parent = nullptr);
 
-    virtual Type genElemTypeImpl() const override final;
+    virtual GenType genElemTypeImpl() const override final;
     virtual bool genPrepareImpl();
     virtual bool genWriteImpl() const;
     virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const;

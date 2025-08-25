@@ -246,7 +246,7 @@ std::string SwigInterface::swigClassDeclInternal() const
 
     auto* parent = genGetParent();
     assert(parent != nullptr);
-    assert(parent->genElemType() == commsdsl::gen::GenElem::Type_Namespace);
+    assert(parent->genElemType() == commsdsl::gen::GenElem::GenType_Namespace);
     auto* parentNs = SwigNamespace::swigCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
 
     auto& gen = SwigGenerator::swigCast(genGenerator());

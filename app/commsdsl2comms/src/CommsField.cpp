@@ -441,17 +441,17 @@ const CommsField* CommsField::commsFindSibling(const std::string& name) const
         };
 
     auto elemType = parent->genElemType();
-    if (elemType == commsdsl::gen::GenElem::Type_Message) {
+    if (elemType == commsdsl::gen::GenElem::GenType_Message) {
         auto* msg = static_cast<const CommsMessage*>(parent);
         return findFieldFunc(msg->commsFields());
     }
 
-    if (elemType == commsdsl::gen::GenElem::Type_Interface) {
+    if (elemType == commsdsl::gen::GenElem::GenType_Interface) {
         auto* iFace = static_cast<const CommsInterface*>(parent);
         return findFieldFunc(iFace->commsFields());
     }    
 
-    if (elemType != commsdsl::gen::GenElem::Type_Field) {
+    if (elemType != commsdsl::gen::GenElem::GenType_Field) {
         return nullptr;
     }    
 

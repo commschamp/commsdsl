@@ -77,7 +77,7 @@ bool TestCmake::testWriteInternal() const
         }
 
         auto* parentNs = inputNs->genGetParent();
-        if ((parentNs != nullptr) && (parentNs->genElemType() != commsdsl::gen::GenElem::Type_Namespace)) {
+        if ((parentNs != nullptr) && (parentNs->genElemType() != commsdsl::gen::GenElem::GenType_Namespace)) {
             inputNs = nullptr;
             break;
         }

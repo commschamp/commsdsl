@@ -224,7 +224,7 @@ std::string GenLayer::genTemplateScopeOfComms(const std::string& iFaceStr, const
 
     auto* parent = genGetParent();
     assert(parent != nullptr);
-    assert(parent->genElemType() == commsdsl::gen::GenElem::Type_Frame);
+    assert(parent->genElemType() == commsdsl::gen::GenElem::GenType_Frame);
 
     auto optLevelScope = comms::genScopeFor(*parent, genGenerator()) + strings::genLayersSuffixStr();
     assert(optLevelScope.size() < commsScope.size());
@@ -286,9 +286,9 @@ std::string GenLayer::genTemplateScopeOfComms(const std::string& iFaceStr, const
     return result;
 }
 
-GenElem::Type GenLayer::genElemTypeImpl() const
+GenElem::GenType GenLayer::genElemTypeImpl() const
 {
-    return Type_Layer;
+    return GenType_Layer;
 }
 
 bool GenLayer::genPrepareImpl()

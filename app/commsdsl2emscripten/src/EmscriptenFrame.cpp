@@ -57,10 +57,10 @@ void EmscriptenFrame::emscriptenAddSourceFiles(GenStringsList& sources) const
 const EmscriptenNamespace* EmscriptenFrame::emscriptenFindInputNamespace() const
 {
     auto* ns = genGetParent();
-    assert(ns->genElemType() == commsdsl::gen::GenElem::Type_Namespace);
+    assert(ns->genElemType() == commsdsl::gen::GenElem::GenType_Namespace);
 
     while (ns != nullptr) {
-        if (ns->genElemType() != commsdsl::gen::GenElem::Type_Namespace) {
+        if (ns->genElemType() != commsdsl::gen::GenElem::GenType_Namespace) {
             ns = nullptr;
             break;
         }

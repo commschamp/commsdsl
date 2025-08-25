@@ -151,7 +151,7 @@ std::string EmscriptenLayer::emscriptenTemplateScope() const
     assert(iFace != nullptr);
 
     auto* frame = emscriptenGenLayer().genGetParent();
-    assert(frame->genElemType() == commsdsl::gen::GenElem::Type_Frame);
+    assert(frame->genElemType() == commsdsl::gen::GenElem::GenType_Frame);
 
     auto* ns = EmscriptenFrame::emscriptenCast(static_cast<const commsdsl::gen::GenFrame*>(frame))->emscriptenFindInputNamespace();
     if (ns == nullptr) {

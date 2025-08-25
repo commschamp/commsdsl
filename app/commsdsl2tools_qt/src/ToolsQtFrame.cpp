@@ -271,7 +271,7 @@ bool ToolsQtFrame::toolsWriteSrcInternal() const
     auto& logger = gen.genLogger();
 
     auto* parent = genGetParent();
-    assert((parent != nullptr) && (parent->genElemType() == commsdsl::gen::GenElem::Type_Namespace));
+    assert((parent != nullptr) && (parent->genElemType() == commsdsl::gen::GenElem::GenType_Namespace));
     auto* parentNs = ToolsQtNamespace::toolsCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
 
     auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
@@ -897,7 +897,7 @@ std::string ToolsQtFrame::toolsFrameSrcDefInternal(const commsdsl::gen::GenInter
 
     auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
     auto* parent = genGetParent();
-    assert((parent != nullptr) && (parent->genElemType() == commsdsl::gen::GenElem::Type_Namespace));
+    assert((parent != nullptr) && (parent->genElemType() == commsdsl::gen::GenElem::GenType_Namespace));
     auto* parentNs = ToolsQtNamespace::toolsCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
     util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},

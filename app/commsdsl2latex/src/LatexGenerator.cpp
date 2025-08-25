@@ -62,7 +62,7 @@ int latexSectionElemIndexInternal(const commsdsl::gen::GenElem& elem)
     auto* parent = elem.genGetParent();
     auto type = elem.genElemType();
     if (parent == nullptr) {
-        assert(elem.genElemType() == commsdsl::gen::GenElem::Type_Schema);
+        assert(elem.genElemType() == commsdsl::gen::GenElem::GenType_Schema);
         auto& schema = LatexSchema::latexCast(commsdsl::gen::GenSchema::genCast(elem));
         if (schema.latexTitle().empty()) {
             return -1;
@@ -72,7 +72,7 @@ int latexSectionElemIndexInternal(const commsdsl::gen::GenElem& elem)
     }
 
     auto parentIndex = latexSectionElemIndexInternal(*parent);
-    if (type == commsdsl::gen::GenElem::Type_Namespace) {
+    if (type == commsdsl::gen::GenElem::GenType_Namespace) {
         auto& ns = LatexNamespace::latexCast(commsdsl::gen::GenNamespace::genCast(elem));
         if (ns.latexTitle().empty()) {
             return parentIndex;
@@ -83,7 +83,7 @@ int latexSectionElemIndexInternal(const commsdsl::gen::GenElem& elem)
 
     do {
         auto parentType = parent->genElemType();
-        if (parentType != commsdsl::gen::GenElem::Type_Field) {
+        if (parentType != commsdsl::gen::GenElem::GenType_Field) {
             break;
         }
 
@@ -104,25 +104,25 @@ int latexSectionElemIndexInternal(const commsdsl::gen::GenElem& elem)
     return parentIndex + 1;
 }
 
-static const std::string& latexLabelPrefix(commsdsl::gen::GenElem::Type type)
+static const std::string& latexLabelPrefix(commsdsl::gen::GenElem::GenType type)
 {
     static const std::string Map[] = {
-        /* Type_Invalid */ std::string(),
-        /* Type_Namespace */ "ns_",
-        /* Type_Message */ "msg_",
-        /* Type_Field */ "field_",
-        /* Type_Interface */ "iface_",
-        /* Type_Frame */ "frame_",
-        /* Type_Layer */ "layer_",
-        /* Type_Schema */ "schema_",        
+        /* GenType_Invalid */ std::string(),
+        /* GenType_Namespace */ "ns_",
+        /* GenType_Message */ "msg_",
+        /* GenType_Field */ "field_",
+        /* GenType_Interface */ "iface_",
+        /* GenType_Frame */ "frame_",
+        /* GenType_Layer */ "layer_",
+        /* GenType_Schema */ "schema_",        
     };
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == commsdsl::gen::GenElem::Type_NumOfValues);
+    static_assert(MapSize == commsdsl::gen::GenElem::GenType_NumOfValues);
 
     auto idx = static_cast<unsigned>(type);
     assert (idx < MapSize);
     if (MapSize <= idx) {
-        idx = static_cast<decltype(idx)>(commsdsl::gen::GenElem::Type_Invalid);
+        idx = static_cast<decltype(idx)>(commsdsl::gen::GenElem::GenType_Invalid);
     }
 
     return Map[idx];

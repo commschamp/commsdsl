@@ -244,13 +244,13 @@ const GenNamespace* GenInterface::genParentNamespace() const
 {
     auto* parent = genGetParent();
     assert(parent != nullptr);
-    assert(parent->genElemType() == GenElem::Type_Namespace);
+    assert(parent->genElemType() == GenElem::GenType_Namespace);
     return static_cast<const GenNamespace*>(parent);
 }
 
-GenElem::Type GenInterface::genElemTypeImpl() const
+GenElem::GenType GenInterface::genElemTypeImpl() const
 {
-    return Type_Interface;
+    return GenType_Interface;
 }
 
 bool GenInterface::genPrepareImpl()

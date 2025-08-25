@@ -331,7 +331,7 @@ std::string CommsLayer::commsMsgFactoryAliasInOptions(const commsdsl::gen::GenEl
             return std::string();
         }
 
-        if (parent->genElemType() != commsdsl::gen::GenElem::Type_Namespace) {
+        if (parent->genElemType() != commsdsl::gen::GenElem::GenType_Namespace) {
             break;
         }
 

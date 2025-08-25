@@ -60,7 +60,7 @@ public:
     const GenNamespace* genParentNamespace() const;
 
 protected:    
-    virtual Type genElemTypeImpl() const override final;
+    virtual GenType genElemTypeImpl() const override final;
     virtual bool genPrepareImpl();
     virtual bool genWriteImpl() const;
 
