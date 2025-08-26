@@ -119,6 +119,7 @@ const std::string& genYesStr();
 const std::string& genNoStr();
 const std::string& genBigStr();
 const std::string& genLittleStr();
+const std::string& genDescriptionStr();
 
 
 char genSiblingRefPrefix();

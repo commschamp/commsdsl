@@ -36,6 +36,7 @@ public:
 
     static const std::string& latexFileGeneratedComment();
     static const std::string& latexCodeInjectCommentPrefix();
+    static const std::string& latexSchemaCommentPrefix();
     static std::string latexWrapInput(const std::string& filePath);
     static void latexWrapInputInPlace(std::string& filePath);
     static const std::string& latexSectionDirective(const GenElem& elem);

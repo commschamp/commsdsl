@@ -146,6 +146,12 @@ const std::string& LatexGenerator::latexCodeInjectCommentPrefix()
     return Str;
 }
 
+const std::string& LatexGenerator::latexSchemaCommentPrefix()
+{
+    static const std::string Str = "% [SCHEMA]: ";
+    return Str;
+}
+
 std::string LatexGenerator::latexWrapInput(const std::string& filePath)
 {
     return "\\input{" + filePath + "}";

@@ -218,6 +218,14 @@ bool LatexNamespace::genWriteImpl() const
             if (genParseObj().parseValid()) {
                 repl["DESCRIPTION"] = util::genStrMakeMultiline(genParseObj().parseDescription());
             }
+
+            LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);
+
+            if (repl["DESCRIPTION"].empty()) {
+                repl["DESCRIPTION"] = 
+                    LatexGenerator::latexSchemaCommentPrefix() + 
+                        "Use \"" + strings::genDescriptionStr() + "\" DSL element property to introduce description";
+            }           
         }    
 
         if (latexGenerator.latexHasCodeInjectionComments()) {

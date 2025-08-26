@@ -686,6 +686,11 @@ std::string LatexField::latexDocImpl() const
     };
 
     LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);    
+    if (repl["DESCRIPTION"].empty()) {
+        repl["DESCRIPTION"] = 
+            LatexGenerator::latexSchemaCommentPrefix() + 
+                "Use \"" + strings::genDescriptionStr() + "\" DSL element property to introduce description";
+    } 
 
     do {
         if (!comms::genIsGlobalField(m_genField)) {

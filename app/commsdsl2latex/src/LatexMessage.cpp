@@ -142,6 +142,11 @@ bool LatexMessage::genWriteImpl() const
         };
 
         LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);
+        if (repl["DESCRIPTION"].empty()) {
+            repl["DESCRIPTION"] = 
+                LatexGenerator::latexSchemaCommentPrefix() + 
+                    "Use \"" + strings::genDescriptionStr() + "\" DSL element property to introduce description";
+        }        
 
         if (latexGenerator.latexHasCodeInjectionComments()) {
             repl["REPLACE_COMMENT"] = 

@@ -577,6 +577,13 @@ const std::string& genLittleStr()
     return Str;
 }
 
+const std::string& genDescriptionStr()
+{
+    static const std::string Str("description");
+    return Str;
+}
+
+
 char genSiblingRefPrefix()
 {
     return '$';

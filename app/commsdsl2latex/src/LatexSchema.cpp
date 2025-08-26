@@ -135,6 +135,14 @@ bool LatexSchema::genWriteImpl()
             repl["SECTION"] = LatexGenerator::latexSectionDirective(*this) + '{' + title + '}';
             repl["LABEL"] = "\\label{" + LatexGenerator::latexLabelId(*this) + '}';
             repl["DESCRIPTION"] = util::genStrMakeMultiline(genParseObj().parseDescription());
+
+            LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);
+
+            if (repl["DESCRIPTION"].empty()) {
+                repl["DESCRIPTION"] = 
+                    LatexGenerator::latexSchemaCommentPrefix() + 
+                        "Use \"" + strings::genDescriptionStr() + "\" DSL element property to introduce description";
+            }              
         }
 
         stream << util::genProcessTemplate(Templ, repl, true) << std::endl;

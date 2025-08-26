@@ -118,6 +118,13 @@ bool LatexFrame::genWriteImpl() const
             {"FIELDS", latexLayers()},
         };
 
+        LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);
+        if (repl["DESCRIPTION"].empty()) {
+            repl["DESCRIPTION"] = 
+                LatexGenerator::latexSchemaCommentPrefix() + 
+                    "Use \"" + strings::genDescriptionStr() + "\" DSL element property to introduce description";
+        }          
+
         if (latexGenerator.latexHasCodeInjectionComments()) {
             repl["REPLACE_COMMENT"] = 
                 latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
@@ -227,6 +234,11 @@ std::string LatexFrame::latexLayers() const
         };        
 
         LatexGenerator::latexEnsureNewLineBreak(layerRepl["DESCRIPTION"]);
+        if (layerRepl["DESCRIPTION"].empty()) {
+            layerRepl["DESCRIPTION"] = 
+                LatexGenerator::latexSchemaCommentPrefix() + 
+                    "Use \"" + strings::genDescriptionStr() + "\" DSL element property to introduce description";
+        }        
 
         do {
             if (extField != nullptr) {
