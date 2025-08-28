@@ -18,35 +18,37 @@
 
 #include "SwigField.h"
 
-#include "commsdsl/gen/Interface.h"
+#include "commsdsl/gen/GenInterface.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigInterface final: public commsdsl::gen::Interface
+class SwigInterface final: public commsdsl::gen::GenInterface
 {
-    using Base = commsdsl::gen::Interface;
+    using GenBase = commsdsl::gen::GenInterface;
 
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
-    
-    explicit SwigInterface(SwigGenerator& generator, commsdsl::parse::Interface dslObj, Elem* parent);
+    using ParseInterface = commsdsl::parse::ParseInterface;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+
+    explicit SwigInterface(SwigGenerator& generator, ParseInterface parseObj, GenElem* parent);
     virtual ~SwigInterface();
 
-    void swigAddCodeIncludes(StringsList& list) const; 
-    void swigAddCode(StringsList& list) const; 
-    void swigAddDef(StringsList& list) const;
+    void swigAddCodeIncludes(GenStringsList& list) const; 
+    void swigAddCode(GenStringsList& list) const; 
+    void swigAddDef(GenStringsList& list) const;
 
-    static const SwigInterface* cast(const commsdsl::gen::Interface* i)
+    static const SwigInterface* swigCast(const commsdsl::gen::GenInterface* i)
     {
         return static_cast<const SwigInterface*>(i);
     }
 
 protected:
-    virtual bool prepareImpl() override;    
-    virtual bool writeImpl() const override;
+    virtual bool genPrepareImpl() override;    
+    virtual bool genWriteImpl() const override;
 
 private:
     using SwigFieldsList = SwigField::SwigFieldsList;

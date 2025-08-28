@@ -28,23 +28,22 @@ class SwigNamespace;
 class SwigMsgId
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     SwigMsgId(SwigGenerator& generator, const SwigNamespace& parent);
 
     bool swigWrite() const;
-    void swigAddDef(StringsList& list) const;
-    void swigAddCode(StringsList& list) const;
+    void swigAddDef(GenStringsList& list) const;
+    void swigAddCode(GenStringsList& list) const;
     std::string swigClassName() const;
-    void swigAddCodeIncludes(StringsList& list) const;
+    void swigAddCodeIncludes(GenStringsList& list) const;
 
 private:
-
     std::string swigTypeInternal() const;
     std::string swigIdsInternal() const;
     std::string swigCodeInternal() const;
     
-    SwigGenerator& m_generator;
+    SwigGenerator& m_swigGenerator;
     const SwigNamespace& m_parent;
 };
 

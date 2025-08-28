@@ -24,21 +24,24 @@
 #include "CommsMsgFactory.h"
 #include "CommsMsgId.h"
 
-#include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/GenNamespace.h"
 
 namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsNamespace final: public commsdsl::gen::Namespace
+class CommsNamespace final: public commsdsl::gen::GenNamespace
 {
-    using Base = commsdsl::gen::Namespace;
+    using GenBase = commsdsl::gen::GenNamespace;
 
 public:
-    explicit CommsNamespace(CommsGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent);
+    using ParseNamespace = commsdsl::parse::ParseNamespace;
+    using GenElem = commsdsl::gen::GenElem;
+
+    CommsNamespace(CommsGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~CommsNamespace();
 
-    static const CommsNamespace* cast(const commsdsl::gen::Namespace* ptr)
+    static const CommsNamespace* commsCast(const commsdsl::gen::GenNamespace* ptr)
     {
         return static_cast<const CommsNamespace*>(ptr);
     }
@@ -54,7 +57,7 @@ public:
     bool commsHasAnyGeneratedCode() const;
     bool commsHasAnyField() const;
 
-    const CommsField* findValidInterfaceReferencedField(const std::string& refStr) const;
+    const CommsField* commsFindValidInterfaceReferencedField(const std::string& refStr) const;
 
     std::string commsMsgFactoryAliasType() const;
     std::string commsMsgFactoryAliasDef(const std::string& namePrefix, const std::string& typeSuffix) const;
@@ -63,21 +66,21 @@ public:
     bool commsHasMsgId() const;
 
 protected:
-    virtual bool prepareImpl() override;    
-    virtual bool writeImpl() const override;
+    virtual bool genPrepareImpl() override;    
+    virtual bool genWriteImpl() const override;
 
 private:
-    using NamespaceOptsFunc = std::string (CommsNamespace::*)() const;
-    using FieldOptsFunc = std::string (CommsField::*)() const;
-    using MessageOptsFunc = std::string (CommsMessage::*)() const;
-    using FrameOptsFunc = std::string (CommsFrame::*)() const;
+    using CommsNamespaceOptsFunc = std::string (CommsNamespace::*)() const;
+    using CommsFieldOptsFunc = std::string (CommsField::*)() const;
+    using CommsMessageOptsFunc = std::string (CommsMessage::*)() const;
+    using CommsFrameOptsFunc = std::string (CommsFrame::*)() const;
     using CommsFieldsList = CommsField::CommsFieldsList;
 
     std::string commsOptionsInternal(
-        NamespaceOptsFunc nsOptsFunc,
-        FieldOptsFunc fieldOptsFunc,
-        MessageOptsFunc messageOptsFunc,
-        FrameOptsFunc frameOptsFunc,
+        CommsNamespaceOptsFunc nsOptsFunc,
+        CommsFieldOptsFunc fieldOptsFunc,
+        CommsMessageOptsFunc messageOptsFunc,
+        CommsFrameOptsFunc frameOptsFunc,
         bool hasBase) const;
 
     CommsFieldsList m_commsFields;        

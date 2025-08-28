@@ -33,12 +33,12 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2tools_qt
 {
 
-ToolsQtLayer::ToolsQtLayer(commsdsl::gen::Layer& layer) :
-    m_layer(layer)
+ToolsQtLayer::ToolsQtLayer(commsdsl::gen::GenLayer& layer) :
+    m_genLayer(layer)
 {
 }
 
-bool ToolsQtLayer::prepare()
+bool ToolsQtLayer::toolsPrepare()
 {
     return true;
 }
@@ -46,17 +46,17 @@ bool ToolsQtLayer::prepare()
 unsigned ToolsQtLayer::toolsMinFieldLength() const
 {
     auto calcFunc = 
-        [](const commsdsl::gen::Field& f)
+        [](const commsdsl::gen::GenField& f)
         {
-            return static_cast<unsigned>(f.dslObj().minLength());
+            return static_cast<unsigned>(f.genParseObj().parseMinLength());
         };
 
-    auto* externalField = m_layer.externalField();
+    auto* externalField = m_genLayer.genExternalField();
     if (externalField !=  nullptr) {
         return calcFunc(*externalField);
     }
 
-    auto* memberField = m_layer.memberField();
+    auto* memberField = m_genLayer.genMemberField();
     if (memberField !=  nullptr) {
         return calcFunc(*memberField);
     }    

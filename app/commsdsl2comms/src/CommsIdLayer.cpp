@@ -15,11 +15,11 @@
 
 #include "CommsIdLayer.h"
 
+#include "CommsGenerator.h"
+
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
-
-#include "CommsGenerator.h"
 
 #include <cassert>
 
@@ -30,27 +30,27 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsIdLayer::CommsIdLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) :
-    Base(generator, dslObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsIdLayer::CommsIdLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool CommsIdLayer::prepareImpl()
+bool CommsIdLayer::genPrepareImpl()
 {
-    return Base::prepareImpl() && CommsBase::commsPrepare();
+    return GenBase::genPrepareImpl() && CommsBase::commsPrepare();
 }
 
-CommsIdLayer::IncludesList CommsIdLayer::commsDefIncludesImpl() const
+CommsIdLayer::CommsIncludesList CommsIdLayer::commsDefIncludesImpl() const
 {
-    assert(getParent()->elemType() == commsdsl::gen::Elem::Type_Frame);
-    auto& frame = *(static_cast<const commsdsl::gen::Frame*>(getParent()));
-    assert(frame.getParent()->elemType() == commsdsl::gen::Elem::Type_Namespace);
-    auto& ns = *(static_cast<const commsdsl::gen::Namespace*>(frame.getParent()));
+    assert(genGetParent()->genElemType() == commsdsl::gen::GenElem::GenType_Frame);
+    auto& frame = *(static_cast<const commsdsl::gen::GenFrame*>(genGetParent()));
+    assert(frame.genGetParent()->genElemType() == commsdsl::gen::GenElem::GenType_Namespace);
+    auto& ns = *(static_cast<const commsdsl::gen::GenNamespace*>(frame.genGetParent()));
 
-    IncludesList result = {
+    CommsIncludesList result = {
         "comms/frame/MsgIdLayer.h",
-        comms::relHeaderForInput(strings::allMessagesStr(), generator(), ns)
+        comms::genRelHeaderForInput(strings::genAllMessagesStr(), genGenerator(), ns)
     };
 
     return result;
@@ -67,7 +67,7 @@ std::string CommsIdLayer::commsDefBaseTypeImpl(const std::string& prevName) cons
         "    #^#EXTRA_OPTS#$#\n"
         ">";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"PREV_LAYER", prevName},
         {"FIELD_TYPE", commsDefFieldType()},
         {"EXTRA_OPTS", commsDefExtraOpts()},
@@ -76,7 +76,7 @@ std::string CommsIdLayer::commsDefBaseTypeImpl(const std::string& prevName) cons
     if (!repl["EXTRA_OPTS"].empty()) {
         repl["COMMA"] = std::string(",");
     }
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool CommsIdLayer::commsDefHasInputMessagesImpl() const
@@ -89,19 +89,19 @@ bool CommsIdLayer::commsIsCustomizableImpl() const
     return true;
 }
 
-CommsIdLayer::StringsList CommsIdLayer::commsExtraBareMetalDefaultOptionsImpl() const
+CommsIdLayer::GenStringsList CommsIdLayer::commsExtraBareMetalDefaultOptionsImpl() const
 {
     return
-        StringsList{
+        GenStringsList{
             "comms::option::app::InPlaceAllocation"
         };    
 }
 
-CommsIdLayer::StringsList CommsIdLayer::commsExtraMsgFactoryDefaultOptionsImpl() const
+CommsIdLayer::GenStringsList CommsIdLayer::commsExtraMsgFactoryDefaultOptionsImpl() const
 {
     return
-        StringsList{
-            "comms::option::app::MsgFactoryTempl<" + commsMsgFactoryAliasInOptions(getParent()) + ">"
+        GenStringsList{
+            "comms::option::app::MsgFactoryTempl<" + commsMsgFactoryAliasInOptions(genGetParent()) + ">"
         };    
 }
 

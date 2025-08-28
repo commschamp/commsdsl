@@ -2,6 +2,8 @@
 
 #include "CommonTestSuite.h"
 
+#include "commsdsl/parse/ParseSetField.h"
+
 class SetTestSuite : public CommonTestSuite, public CxxTest::TestSuite
 {
 public:
@@ -53,33 +55,33 @@ void SetTestSuite::test1()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Set1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "Set1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    auto& bits = setField.bits();
-    auto& revBits = setField.revBits();
-    TS_ASSERT_EQUALS(setField.type(), commsdsl::parse::IntField::Type::Uint8);
-    TS_ASSERT_EQUALS(setField.endian(), commsdsl::parse::Endian_Big);
-    TS_ASSERT_EQUALS(setField.minLength(), 1U);
-    TS_ASSERT_EQUALS(setField.bitLength(), 0U);
-    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
-    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
-    TS_ASSERT(!setField.isNonUniqueAllowed());
-    TS_ASSERT(setField.isUnique());
-    TS_ASSERT(!setField.validCheckVersion());
+    commsdsl::parse::ParseSetField setField(field);
+    auto& bits = setField.parseBits();
+    auto& revBits = setField.parseRevBits();
+    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint8);
+    TS_ASSERT_EQUALS(setField.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT_EQUALS(setField.parseMinLength(), 1U);
+    TS_ASSERT_EQUALS(setField.parseBitLength(), 0U);
+    TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.parseReservedBitValue(), false);
+    TS_ASSERT(!setField.parseIsNonUniqueAllowed());
+    TS_ASSERT(setField.parseIsUnique());
+    TS_ASSERT(!setField.parseValidCheckVersion());
     TS_ASSERT_EQUALS(bits.size(), 3);
     TS_ASSERT_EQUALS(revBits.size(), bits.size());
     auto& b1 = bits.find("B1")->second;
@@ -87,21 +89,21 @@ void SetTestSuite::test1()
     auto& b3 = bits.find("B3")->second;
     TS_ASSERT_EQUALS(b1.m_idx, 0);
     TS_ASSERT_EQUALS(b1.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(b1.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b1.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT_EQUALS(b1.m_description, "desc1");
     TS_ASSERT_EQUALS(b1.m_defaultValue, false);
     TS_ASSERT_EQUALS(b1.m_reserved, false);
     TS_ASSERT_EQUALS(b1.m_reservedValue, false);
     TS_ASSERT_EQUALS(b2.m_idx, 1);
     TS_ASSERT_EQUALS(b2.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(b2.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b2.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT_EQUALS(b2.m_description, "desc2");
     TS_ASSERT_EQUALS(b2.m_defaultValue, false);
     TS_ASSERT_EQUALS(b2.m_reserved, false);
     TS_ASSERT_EQUALS(b2.m_reservedValue, false);
     TS_ASSERT_EQUALS(b3.m_idx, 2);
     TS_ASSERT_EQUALS(b3.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(b3.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b3.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT_EQUALS(b3.m_description, "desc3");
     TS_ASSERT_EQUALS(b3.m_defaultValue, false);
     TS_ASSERT_EQUALS(b3.m_reserved, false);
@@ -115,31 +117,31 @@ void SetTestSuite::test2()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Set1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "Set1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    auto& bits = setField.bits();
-    auto& revBits = setField.revBits();
-    TS_ASSERT_EQUALS(setField.type(), commsdsl::parse::IntField::Type::Uint16);
-    TS_ASSERT_EQUALS(setField.endian(), commsdsl::parse::Endian_Big);
-    TS_ASSERT_EQUALS(setField.minLength(), 2U);
-    TS_ASSERT_EQUALS(setField.defaultBitValue(), true);
-    TS_ASSERT_EQUALS(setField.reservedBitValue(), true);
-    TS_ASSERT(!setField.isNonUniqueAllowed());
-    TS_ASSERT(setField.isUnique());
+    commsdsl::parse::ParseSetField setField(field);
+    auto& bits = setField.parseBits();
+    auto& revBits = setField.parseRevBits();
+    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint16);
+    TS_ASSERT_EQUALS(setField.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT_EQUALS(setField.parseMinLength(), 2U);
+    TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), true);
+    TS_ASSERT_EQUALS(setField.parseReservedBitValue(), true);
+    TS_ASSERT(!setField.parseIsNonUniqueAllowed());
+    TS_ASSERT(setField.parseIsUnique());
     TS_ASSERT_EQUALS(bits.size(), 4);
     TS_ASSERT_EQUALS(revBits.size(), bits.size());
     auto& b1 = bits.find("B1")->second;
@@ -148,28 +150,28 @@ void SetTestSuite::test2()
     auto& res1 = bits.find("res1")->second;
     TS_ASSERT_EQUALS(b1.m_idx, 0);
     TS_ASSERT_EQUALS(b1.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(b1.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b1.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT(b1.m_description.empty());
     TS_ASSERT_EQUALS(b1.m_defaultValue, false);
     TS_ASSERT_EQUALS(b1.m_reserved, false);
     TS_ASSERT_EQUALS(b1.m_reservedValue, true);
     TS_ASSERT_EQUALS(b2.m_idx, 2);
     TS_ASSERT_EQUALS(b2.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(b2.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b2.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT(b2.m_description.empty());
     TS_ASSERT_EQUALS(b2.m_defaultValue, true);
     TS_ASSERT_EQUALS(b2.m_reserved, false);
     TS_ASSERT_EQUALS(b2.m_reservedValue, true);
     TS_ASSERT_EQUALS(b3.m_idx, 8);
     TS_ASSERT_EQUALS(b3.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(b3.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b3.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT(b3.m_description.empty());
     TS_ASSERT_EQUALS(b3.m_defaultValue, true);
     TS_ASSERT_EQUALS(b3.m_reserved, false);
     TS_ASSERT_EQUALS(b3.m_reservedValue, true);
     TS_ASSERT_EQUALS(res1.m_idx, 1);
     TS_ASSERT_EQUALS(res1.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(res1.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(res1.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT_EQUALS(res1.m_defaultValue, false);
     TS_ASSERT_EQUALS(res1.m_reserved, true);
     TS_ASSERT_EQUALS(res1.m_reservedValue, false);
@@ -181,7 +183,7 @@ void SetTestSuite::test2()
 
 void SetTestSuite::test3()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
@@ -189,7 +191,7 @@ void SetTestSuite::test3()
 
 void SetTestSuite::test4()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
@@ -199,31 +201,31 @@ void SetTestSuite::test5()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Set1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "Set1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    auto& bits = setField.bits();
-    auto& revBits = setField.revBits();
-    TS_ASSERT_EQUALS(setField.type(), commsdsl::parse::IntField::Type::Uint32);
-    TS_ASSERT_EQUALS(setField.endian(), commsdsl::parse::Endian_Little);
-    TS_ASSERT_EQUALS(setField.minLength(), 3U);
-    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
-    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
-    TS_ASSERT(setField.isNonUniqueAllowed());
-    TS_ASSERT(!setField.isUnique());
+    commsdsl::parse::ParseSetField setField(field);
+    auto& bits = setField.parseBits();
+    auto& revBits = setField.parseRevBits();
+    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint32);
+    TS_ASSERT_EQUALS(setField.parseEndian(), commsdsl::parse::ParseEndian_Little);
+    TS_ASSERT_EQUALS(setField.parseMinLength(), 3U);
+    TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.parseReservedBitValue(), false);
+    TS_ASSERT(setField.parseIsNonUniqueAllowed());
+    TS_ASSERT(!setField.parseIsUnique());
     TS_ASSERT_EQUALS(bits.size(), 5);
     TS_ASSERT_EQUALS(revBits.size(), bits.size());
     auto& b0 = bits.find("B0")->second;
@@ -233,7 +235,7 @@ void SetTestSuite::test5()
     auto& otherB2 = bits.find("otherB2")->second;
     TS_ASSERT_EQUALS(b0.m_idx, 0);
     TS_ASSERT_EQUALS(b0.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(b0.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b0.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT_EQUALS(b0.m_defaultValue, false);
     TS_ASSERT_EQUALS(b0.m_reserved, false);
     TS_ASSERT_EQUALS(b0.m_reservedValue, false);
@@ -250,7 +252,7 @@ void SetTestSuite::test5()
 
 void SetTestSuite::test6()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
@@ -261,32 +263,32 @@ void SetTestSuite::test7()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Set1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "Set1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    auto& bits = setField.bits();
-    auto& revBits = setField.revBits();
-    TS_ASSERT_EQUALS(setField.type(), commsdsl::parse::IntField::Type::Uint32);
-    TS_ASSERT_EQUALS(setField.endian(), commsdsl::parse::Endian_Little);
-    TS_ASSERT_EQUALS(setField.minLength(), 3U);
-    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
-    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
-    TS_ASSERT(setField.isNonUniqueAllowed());
-    TS_ASSERT(!setField.isUnique());
-    TS_ASSERT(setField.validCheckVersion());
+    commsdsl::parse::ParseSetField setField(field);
+    auto& bits = setField.parseBits();
+    auto& revBits = setField.parseRevBits();
+    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint32);
+    TS_ASSERT_EQUALS(setField.parseEndian(), commsdsl::parse::ParseEndian_Little);
+    TS_ASSERT_EQUALS(setField.parseMinLength(), 3U);
+    TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.parseReservedBitValue(), false);
+    TS_ASSERT(setField.parseIsNonUniqueAllowed());
+    TS_ASSERT(!setField.parseIsUnique());
+    TS_ASSERT(setField.parseValidCheckVersion());
     TS_ASSERT_EQUALS(bits.size(), 3);
     TS_ASSERT_EQUALS(revBits.size(), bits.size());
     auto& b0 = bits.find("B0")->second;
@@ -294,7 +296,7 @@ void SetTestSuite::test7()
     auto& otherB2 = bits.find("otherB2")->second;
     TS_ASSERT_EQUALS(b0.m_idx, 0);
     TS_ASSERT_EQUALS(b0.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(b0.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b0.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT_EQUALS(b0.m_defaultValue, false);
     TS_ASSERT_EQUALS(b0.m_reserved, false);
     TS_ASSERT_EQUALS(b0.m_reservedValue, false);
@@ -306,7 +308,7 @@ void SetTestSuite::test7()
     TS_ASSERT_EQUALS(b2.m_reservedValue, false);
     TS_ASSERT_EQUALS(otherB2.m_idx, 2);
     TS_ASSERT_EQUALS(otherB2.m_sinceVersion, 3);
-    TS_ASSERT_EQUALS(otherB2.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(otherB2.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT_EQUALS(otherB2.m_defaultValue, true);
     TS_ASSERT_EQUALS(otherB2.m_reserved, false);
     TS_ASSERT_EQUALS(otherB2.m_reservedValue, false);
@@ -320,44 +322,44 @@ void SetTestSuite::test8()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Set1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "Set1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    auto& bits = setField.bits();
-    auto& revBits = setField.revBits();
-    TS_ASSERT_EQUALS(setField.type(), commsdsl::parse::IntField::Type::Uint16);
-    TS_ASSERT_EQUALS(setField.endian(), commsdsl::parse::Endian_Big);
-    TS_ASSERT_EQUALS(setField.minLength(), 2U);
-    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
-    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
-    TS_ASSERT(!setField.isNonUniqueAllowed());
-    TS_ASSERT(setField.isUnique());
+    commsdsl::parse::ParseSetField setField(field);
+    auto& bits = setField.parseBits();
+    auto& revBits = setField.parseRevBits();
+    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint16);
+    TS_ASSERT_EQUALS(setField.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT_EQUALS(setField.parseMinLength(), 2U);
+    TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.parseReservedBitValue(), false);
+    TS_ASSERT(!setField.parseIsNonUniqueAllowed());
+    TS_ASSERT(setField.parseIsUnique());
     TS_ASSERT_EQUALS(bits.size(), 2);
     TS_ASSERT_EQUALS(revBits.size(), bits.size());
     auto& b0 = bits.find("B0")->second;
     auto& b1 = bits.find("B1")->second;
     TS_ASSERT_EQUALS(b0.m_idx, 0);
     TS_ASSERT_EQUALS(b0.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(b0.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b0.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT_EQUALS(b0.m_defaultValue, false);
     TS_ASSERT_EQUALS(b0.m_reserved, false);
     TS_ASSERT_EQUALS(b0.m_reservedValue, false);
     TS_ASSERT_EQUALS(b1.m_idx, 1);
     TS_ASSERT_EQUALS(b1.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(b1.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b1.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT_EQUALS(b1.m_defaultValue, false);
     TS_ASSERT_EQUALS(b1.m_reserved, false);
     TS_ASSERT_EQUALS(b1.m_reservedValue, false);
@@ -370,31 +372,31 @@ void SetTestSuite::test9()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Set1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "Set1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    TS_ASSERT_EQUALS(setField.type(), commsdsl::parse::IntField::Type::Uint32);
-    TS_ASSERT_EQUALS(setField.endian(), commsdsl::parse::Endian_Big);
-    TS_ASSERT_EQUALS(setField.minLength(), 3U);
+    commsdsl::parse::ParseSetField setField(field);
+    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint32);
+    TS_ASSERT_EQUALS(setField.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT_EQUALS(setField.parseMinLength(), 3U);
     // Other checks are irrelevant
 }
 
 void SetTestSuite::test10()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
     TS_ASSERT(protocol);
@@ -402,7 +404,7 @@ void SetTestSuite::test10()
 
 void SetTestSuite::test11()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
     TS_ASSERT(protocol);
@@ -410,7 +412,7 @@ void SetTestSuite::test11()
 
 void SetTestSuite::test12()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
     TS_ASSERT(protocol);
@@ -420,31 +422,31 @@ void SetTestSuite::test13()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "Set2");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "Set2");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    auto& bits = setField.bits();
-    auto& revBits = setField.revBits();
-    TS_ASSERT_EQUALS(setField.type(), commsdsl::parse::IntField::Type::Uint8);
-    TS_ASSERT_EQUALS(setField.endian(), commsdsl::parse::Endian_Little);
-    TS_ASSERT_EQUALS(setField.minLength(), 1U);
-    TS_ASSERT_EQUALS(setField.defaultBitValue(), true);
-    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
-    TS_ASSERT(!setField.isNonUniqueAllowed());
-    TS_ASSERT(setField.isUnique());
+    commsdsl::parse::ParseSetField setField(field);
+    auto& bits = setField.parseBits();
+    auto& revBits = setField.parseRevBits();
+    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint8);
+    TS_ASSERT_EQUALS(setField.parseEndian(), commsdsl::parse::ParseEndian_Little);
+    TS_ASSERT_EQUALS(setField.parseMinLength(), 1U);
+    TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), true);
+    TS_ASSERT_EQUALS(setField.parseReservedBitValue(), false);
+    TS_ASSERT(!setField.parseIsNonUniqueAllowed());
+    TS_ASSERT(setField.parseIsUnique());
     TS_ASSERT_EQUALS(bits.size(), 3);
     TS_ASSERT_EQUALS(revBits.size(), bits.size());
     auto& b0 = bits.find("B0")->second;
@@ -452,19 +454,19 @@ void SetTestSuite::test13()
     auto& b2 = bits.find("B2")->second;
     TS_ASSERT_EQUALS(b0.m_idx, 0);
     TS_ASSERT_EQUALS(b0.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(b0.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b0.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT_EQUALS(b0.m_defaultValue, false);
     TS_ASSERT_EQUALS(b0.m_reserved, false);
     TS_ASSERT_EQUALS(b0.m_reservedValue, false);
     TS_ASSERT_EQUALS(b1.m_idx, 1);
     TS_ASSERT_EQUALS(b1.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(b1.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b1.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT_EQUALS(b1.m_defaultValue, false);
     TS_ASSERT_EQUALS(b1.m_reserved, false);
     TS_ASSERT_EQUALS(b1.m_reservedValue, false);
     TS_ASSERT_EQUALS(b2.m_idx, 2);
     TS_ASSERT_EQUALS(b2.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(b2.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b2.m_deprecatedSince, commsdsl::parse::ParseProtocol::parseNotYetDeprecated());
     TS_ASSERT_EQUALS(b2.m_defaultValue, true);
     TS_ASSERT_EQUALS(b2.m_reserved, false);
     TS_ASSERT_EQUALS(b2.m_reservedValue, false);
@@ -475,7 +477,7 @@ void SetTestSuite::test13()
 
 void SetTestSuite::test14()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
     TS_ASSERT(protocol);
@@ -485,31 +487,31 @@ void SetTestSuite::test15()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "Set2");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "Set2");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    auto& bits = setField.bits();
-    auto& revBits = setField.revBits();
-    TS_ASSERT_EQUALS(setField.type(), commsdsl::parse::IntField::Type::Uint8);
-    TS_ASSERT_EQUALS(setField.endian(), commsdsl::parse::Endian_Little);
-    TS_ASSERT_EQUALS(setField.minLength(), 1U);
-    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
-    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
-    TS_ASSERT(setField.isNonUniqueAllowed());
-    TS_ASSERT(!setField.isUnique());
+    commsdsl::parse::ParseSetField setField(field);
+    auto& bits = setField.parseBits();
+    auto& revBits = setField.parseRevBits();
+    TS_ASSERT_EQUALS(setField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint8);
+    TS_ASSERT_EQUALS(setField.parseEndian(), commsdsl::parse::ParseEndian_Little);
+    TS_ASSERT_EQUALS(setField.parseMinLength(), 1U);
+    TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.parseReservedBitValue(), false);
+    TS_ASSERT(setField.parseIsNonUniqueAllowed());
+    TS_ASSERT(!setField.parseIsUnique());
     TS_ASSERT_EQUALS(bits.size(), 3);
     TS_ASSERT_EQUALS(revBits.size(), bits.size());
     auto& b0 = bits.find("B0")->second;
@@ -528,7 +530,7 @@ void SetTestSuite::test15()
 
 void SetTestSuite::test16()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
     TS_ASSERT(protocol);
@@ -536,7 +538,7 @@ void SetTestSuite::test16()
 
 void SetTestSuite::test17()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
     TS_ASSERT(protocol);
@@ -546,23 +548,23 @@ void SetTestSuite::test18()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "S2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "S2");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    auto& bits = setField.bits();
-    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
-    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    commsdsl::parse::ParseSetField setField(field);
+    auto& bits = setField.parseBits();
+    TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.parseReservedBitValue(), false);
     TS_ASSERT_EQUALS(bits.size(), 2);
     auto& b0 = bits.find("B0")->second;
     auto& b1 = bits.find("B1")->second;
@@ -572,7 +574,7 @@ void SetTestSuite::test18()
 
 void SetTestSuite::test19()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
     TS_ASSERT(protocol);
@@ -582,23 +584,23 @@ void SetTestSuite::test20()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema20.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "F2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "F2");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    auto& bits = setField.bits();
-    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
-    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    commsdsl::parse::ParseSetField setField(field);
+    auto& bits = setField.parseBits();
+    TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.parseReservedBitValue(), false);
     TS_ASSERT_EQUALS(bits.size(), 2);
     auto& b0 = bits.find("B0")->second;
     auto& b1 = bits.find("B1")->second;
@@ -610,23 +612,23 @@ void SetTestSuite::test21()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema21.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "F2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "F2");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    auto& bits = setField.bits();
-    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
-    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    commsdsl::parse::ParseSetField setField(field);
+    auto& bits = setField.parseBits();
+    TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.parseReservedBitValue(), false);
     TS_ASSERT_EQUALS(bits.size(), 2);
     auto& b0 = bits.find("B0")->second;
     auto& b1 = bits.find("B1")->second;
@@ -638,23 +640,23 @@ void SetTestSuite::test22()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 3U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "F3");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "F3");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    auto& bits = setField.bits();
-    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
-    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    commsdsl::parse::ParseSetField setField(field);
+    auto& bits = setField.parseBits();
+    TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.parseReservedBitValue(), false);
     TS_ASSERT_EQUALS(bits.size(), 2);
     auto& b0 = bits.find("B0")->second;
     auto& b1 = bits.find("B1")->second;
@@ -666,23 +668,23 @@ void SetTestSuite::test23()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "F2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "F2");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    auto& bits = setField.bits();
-    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
-    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    commsdsl::parse::ParseSetField setField(field);
+    auto& bits = setField.parseBits();
+    TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.parseReservedBitValue(), false);
     TS_ASSERT_EQUALS(bits.size(), 2);
     auto& b0 = bits.find("B0")->second;
     auto& b1 = bits.find("B1")->second;
@@ -692,7 +694,7 @@ void SetTestSuite::test23()
 
 void SetTestSuite::test24()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
     TS_ASSERT(protocol);
@@ -700,8 +702,8 @@ void SetTestSuite::test24()
 
 void SetTestSuite::test25()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema25.xml");
     TS_ASSERT(protocol);
@@ -711,22 +713,22 @@ void SetTestSuite::test26()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema26.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "F2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "F2");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    auto& bits = setField.bits();
-    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
+    commsdsl::parse::ParseSetField setField(field);
+    auto& bits = setField.parseBits();
+    TS_ASSERT_EQUALS(setField.parseDefaultBitValue(), false);
     TS_ASSERT_EQUALS(bits.size(), 2);
     auto& b0 = bits.find("B0")->second;
     auto& b1 = bits.find("B1")->second;
@@ -738,22 +740,22 @@ void SetTestSuite::test27()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema27.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 4U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "F4");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "F4");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    auto& bits = setField.bits();
-    TS_ASSERT_EQUALS(setField.displayName(), "Desc1");
+    commsdsl::parse::ParseSetField setField(field);
+    auto& bits = setField.parseBits();
+    TS_ASSERT_EQUALS(setField.parseDisplayName(), "Desc1");
     TS_ASSERT_EQUALS(bits.size(), 2);
     auto& b0 = bits.find("B0")->second;
     auto& b1 = bits.find("B1")->second;
@@ -765,22 +767,22 @@ void SetTestSuite::test28()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema28.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 4U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "F4");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "F4");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    auto& bits = setField.bits();
-    TS_ASSERT_EQUALS(setField.displayName(), "^F1");
+    commsdsl::parse::ParseSetField setField(field);
+    auto& bits = setField.parseBits();
+    TS_ASSERT_EQUALS(setField.parseDisplayName(), "^F1");
     TS_ASSERT_EQUALS(bits.size(), 2);
     auto& b0 = bits.find("B0")->second;
     auto& b1 = bits.find("B1")->second;
@@ -790,7 +792,7 @@ void SetTestSuite::test28()
 
 void SetTestSuite::test29()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema29.xml");
     TS_ASSERT(protocol);
@@ -800,21 +802,21 @@ void SetTestSuite::test30()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema30.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "S2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+    TS_ASSERT_EQUALS(field.parseName(), "S2");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
 
-    commsdsl::parse::SetField setField(field);
-    auto& bits = setField.bits();
-    TS_ASSERT_EQUALS(setField.displayName(), "Hello");
+    commsdsl::parse::ParseSetField setField(field);
+    auto& bits = setField.parseBits();
+    TS_ASSERT_EQUALS(setField.parseDisplayName(), "Hello");
     TS_ASSERT_EQUALS(bits.size(), 2);
 }

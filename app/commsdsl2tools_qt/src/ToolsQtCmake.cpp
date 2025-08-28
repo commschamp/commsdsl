@@ -34,13 +34,13 @@ namespace commsdsl2tools_qt
 namespace 
 {
 
-using ReplacementMap = commsdsl::gen::util::ReplacementMap;
-using StringsList = commsdsl::gen::util::StringsList;
+using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
+using GenStringsList = commsdsl::gen::util::GenStringsList;
 
 } // namespace 
     
 
-bool ToolsQtCmake::write(ToolsQtGenerator& generator)
+bool ToolsQtCmake::toolsWrite(ToolsQtGenerator& generator)
 {
     ToolsQtCmake obj(generator);
     return obj.toolsWriteInternal();
@@ -49,13 +49,13 @@ bool ToolsQtCmake::write(ToolsQtGenerator& generator)
 bool ToolsQtCmake::toolsWriteInternal() const
 {
     auto filePath = 
-        util::pathAddElem(
-            m_generator.getOutputDir(), strings::cmakeListsFileStr());    
+        util::genPathAddElem(
+            m_toolsGenerator.genGetOutputDir(), strings::genCmakeListsFileStr());    
 
-    m_generator.logger().info("Generating " + filePath);
+    m_toolsGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_toolsGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -162,27 +162,27 @@ bool ToolsQtCmake::toolsWriteInternal() const
         "#^#PLUGINS_LIST#$#\n"
     ;
 
-    auto& plugins = m_generator.toolsPlugins();
-    util::StringsList pluginInvokes;
+    auto& plugins = m_toolsGenerator.toolsPlugins();
+    util::GenStringsList pluginInvokes;
     for (auto& p : plugins) {
         assert(p);
         pluginInvokes.push_back("cc_plugin (\"" + p->toolsProtocolName() + "\" \"" + p->toolsInterfaceName() + "\")");
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"PER_INTERFACE_FUNCS", toolsPerInterfaceFuncsInternal()},
         {"PER_INTERFACE_CALLS", toolsPerInterfaceCallsInternal()},
-        {"PLUGINS_LIST", util::strListToString(pluginInvokes, "\n", "")},
+        {"PLUGINS_LIST", util::genStrListToString(pluginInvokes, "\n", "")},
         {"TOP_NS", "cc_tools_qt_plugin"},
-        {"MAIN_NS", m_generator.protocolSchema().mainNamespace()},
-        {"EXTRA_SOURCES", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::sourcesFileSuffixStr())},
+        {"MAIN_NS", m_toolsGenerator.genProtocolSchema().genMainNamespace()},
+        {"EXTRA_SOURCES", util::genReadFileContents(util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), strings::genCmakeListsFileStr()) + strings::genSourcesFileSuffixStr())},
     };
 
-    auto str = commsdsl::gen::util::processTemplate(Template, repl, true);
+    auto str = commsdsl::gen::util::genProcessTemplate(Template, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_toolsGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     
@@ -208,48 +208,48 @@ std::string ToolsQtCmake::toolsPerInterfaceFuncsInternal() const
         "    )\n"
         "endfunction()\n";
 
-    StringsList result;
-    auto& allInterfaces = m_generator.toolsGetSelectedInterfaces();
+    GenStringsList result;
+    auto& allInterfaces = m_toolsGenerator.toolsGetSelectedInterfaces();
     for (auto* i : allInterfaces) {
         assert(i != nullptr);
-        auto& iFace = ToolsQtInterface::cast(*i);
-        auto iFaceScope = comms::scopeFor(iFace, m_generator, false, true);
-        auto iFaceName = util::strReplace(iFaceScope, "::", "_");
-        auto iFacePath = util::strReplace(iFaceScope, "::", "/");
+        auto& iFace = ToolsQtInterface::toolsCast(*i);
+        auto iFaceScope = comms::genScopeFor(iFace, m_toolsGenerator, false, true);
+        auto iFaceName = util::genStrReplace(iFaceScope, "::", "_");
+        auto iFacePath = util::genScopeToRelPath(iFaceScope);
 
-        util::ReplacementMap repl = {
-            {"CORE_FILES", util::strListToString(m_generator.toolsSourceFilesForInterface(iFace), "\n", "")},
-            {"MAIN_NS", m_generator.protocolSchema().mainNamespace()},
+        util::GenReplacementMap repl = {
+            {"CORE_FILES", util::genStrListToString(m_toolsGenerator.toolsSourceFilesForInterface(iFace), "\n", "")},
+            {"MAIN_NS", m_toolsGenerator.genProtocolSchema().genMainNamespace()},
             {"INTERFACE", iFaceName},
             {"INTERFACE_PATH", iFacePath},
         };        
 
-        result.push_back(util::processTemplate(Templ, repl));
+        result.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    return util::strListToString(result, "\n", "");
+    return util::genStrListToString(result, "\n", "");
 }
 
 std::string ToolsQtCmake::toolsPerInterfaceCallsInternal() const
 {
     const std::string Templ = "cc_plugin_#^#INTERFACE#$#()\n";
 
-    StringsList result;
-    auto& allInterfaces = m_generator.toolsGetSelectedInterfaces();
+    GenStringsList result;
+    auto& allInterfaces = m_toolsGenerator.toolsGetSelectedInterfaces();
     for (auto* i : allInterfaces) {
         assert(i != nullptr);
-        auto& iFace = ToolsQtInterface::cast(*i);
-        auto iFaceScope = comms::scopeFor(iFace, m_generator, false, true);
-        auto iFaceName = util::strReplace(iFaceScope, "::", "_");
+        auto& iFace = ToolsQtInterface::toolsCast(*i);
+        auto iFaceScope = comms::genScopeFor(iFace, m_toolsGenerator, false, true);
+        auto iFaceName = util::genStrReplace(iFaceScope, "::", "_");
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"INTERFACE", iFaceName},
         };        
 
-        result.push_back(util::processTemplate(Templ, repl));
+        result.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    return util::strListToString(result, "\n", "");
+    return util::genStrListToString(result, "\n", "");
 }
 
 } // namespace commsdsl2tools_qt

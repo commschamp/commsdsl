@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include "commsdsl/gen/Frame.h"
-
 #include "CommsLayer.h"
+
+#include "commsdsl/gen/GenFrame.h"
 
 #include <vector>
 #include <string>
@@ -27,13 +27,18 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsFrame final: public commsdsl::gen::Frame
+class CommsFrame final: public commsdsl::gen::GenFrame
 {
-    using Base = commsdsl::gen::Frame;
+    using GenBase = commsdsl::gen::GenFrame;
+
 public:
+    using ParseFrame = commsdsl::parse::ParseFrame;
+
+    using GenElem = commsdsl::gen::GenElem;
+
     using CommsLayersList = CommsLayer::CommsLayersList;
 
-    explicit CommsFrame(CommsGenerator& generator, commsdsl::parse::Frame dslObj, Elem* parent);
+    explicit CommsFrame(CommsGenerator& generator, ParseFrame parseObj, GenElem* parent);
     virtual ~CommsFrame();
 
     std::string commsDefaultOptions() const;
@@ -42,11 +47,11 @@ public:
     std::string commsMsgFactoryDefaultOptions() const;
 
 protected:
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;
 
 private:
-    using LayerOptsFunc = std::string (CommsLayer::*)() const;
+    using CommsLayerOptsFunc = std::string (CommsLayer::*)() const;
 
     bool commsWriteCommonInternal() const;  
     bool commsWriteDefInternal() const;  
@@ -62,7 +67,7 @@ private:
     std::string commsDefProtectedInternal() const;
     std::string commsDefPrivateInternal() const;
     std::string commsCustomizationOptionsInternal(
-        LayerOptsFunc layerOptsFunc,
+        CommsLayerOptsFunc layerOptsFunc,
         bool hasBase) const;    
     
     CommsLayersList m_commsLayers;  

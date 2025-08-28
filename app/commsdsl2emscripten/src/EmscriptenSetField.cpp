@@ -29,13 +29,13 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenSetField::EmscriptenSetField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
-    Base(generator, dslObj, parent),
-    EmscriptenBase(static_cast<Base&>(*this))
+EmscriptenSetField::EmscriptenSetField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    EmscriptenBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool EmscriptenSetField::writeImpl() const
+bool EmscriptenSetField::genWriteImpl() const
 {
     return emscriptenWrite();
 }
@@ -47,11 +47,11 @@ std::string EmscriptenSetField::emscriptenHeaderValueAccImpl() const
 
 std::string EmscriptenSetField::emscriptenHeaderExtraPublicFuncsImpl() const
 {
-    auto obj = setDslObj();
+    auto obj = genSetFieldParseObj();
 
-    util::StringsList accesses;
+    util::GenStringsList accesses;
 
-    for (auto& bitInfo : obj.revBits()) {
+    for (auto& bitInfo : obj.parseRevBits()) {
 
         static const std::string Templ = 
             "bool getBitValue_#^#NAME#$#() const\n"
@@ -63,11 +63,11 @@ std::string EmscriptenSetField::emscriptenHeaderExtraPublicFuncsImpl() const
             "    Base::setBitValue_#^#NAME#$#(val);\n"
             "}\n";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"NAME", bitInfo.second}
         };
 
-        accesses.push_back(util::processTemplate(Templ, repl));
+        accesses.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ = 
@@ -82,30 +82,30 @@ std::string EmscriptenSetField::emscriptenHeaderExtraPublicFuncsImpl() const
         "#^#ACCESS_FUNCS#$#\n"
         ;    
 
-    util::ReplacementMap repl = {
-        {"ACCESS_FUNCS", util::strListToString(accesses, "\n", "")}
+    util::GenReplacementMap repl = {
+        {"ACCESS_FUNCS", util::genStrListToString(accesses, "\n", "")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenSetField::emscriptenSourceBindFuncsImpl() const
 {
-    auto obj = setDslObj();
+    auto obj = genSetFieldParseObj();
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()},
     };    
 
-    util::StringsList accesses;
-    for (auto& bitInfo : obj.revBits()) {
+    util::GenStringsList accesses;
+    for (auto& bitInfo : obj.parseRevBits()) {
 
         static const std::string Templ = 
             ".function(\"getBitValue_#^#NAME#$#\", &#^#CLASS_NAME#$#::getBitValue_#^#NAME#$#)\n"
             ".function(\"setBitValue_#^#NAME#$#\", &#^#CLASS_NAME#$#::setBitValue_#^#NAME#$#)";
 
         repl["NAME"] = bitInfo.second;
-        accesses.push_back(util::processTemplate(Templ, repl));
+        accesses.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ = 
@@ -114,26 +114,26 @@ std::string EmscriptenSetField::emscriptenSourceBindFuncsImpl() const
         ".function(\"setBitValue\", &#^#CLASS_NAME#$#::setBitValue)";    
         ;    
 
-    repl["ACCESS_FUNCS"] = util::strListToString(accesses, "\n", "");
-    return util::processTemplate(Templ, repl);
+    repl["ACCESS_FUNCS"] = util::genStrListToString(accesses, "\n", "");
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenSetField::emscriptenSourceBindExtraImpl() const
 {
-    auto obj = setDslObj();
+    auto obj = genSetFieldParseObj();
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()},
     };    
 
-    util::StringsList values;
-    for (auto& bitInfo : obj.revBits()) {
+    util::GenStringsList values;
+    for (auto& bitInfo : obj.parseRevBits()) {
 
         static const std::string Templ = 
             ".value(\"#^#NAME#$#\", #^#CLASS_NAME#$#::BitIdx_#^#NAME#$#)";
 
         repl["NAME"] = bitInfo.second;
-        values.push_back(util::processTemplate(Templ, repl));
+        values.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ = 
@@ -142,8 +142,8 @@ std::string EmscriptenSetField::emscriptenSourceBindExtraImpl() const
         "    .value(\"BitIdx_numOfValues\", #^#CLASS_NAME#$#::BitIdx_numOfValues)\n"
         "   ;\n";
 
-    repl["VALUES"] = util::strListToString(values, "\n", "");
-    return util::processTemplate(Templ, repl);
+    repl["VALUES"] = util::genStrListToString(values, "\n", "");
+    return util::genProcessTemplate(Templ, repl);
 }
 
 

@@ -2,6 +2,8 @@
 
 #include "CommonTestSuite.h"
 
+#include "commsdsl/parse/ParseInterface.h"
+
 class InterfaceTestSuite : public CommonTestSuite, public CxxTest::TestSuite
 {
 public:
@@ -31,18 +33,18 @@ void InterfaceTestSuite::test1()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto interfaces = ns.interfaces();
+    auto interfaces = ns.parseInterfaces();
     TS_ASSERT_EQUALS(interfaces.size(), 1U);
 
     auto& int1 = interfaces[0];
-    TS_ASSERT_EQUALS(int1.name(), "Generic");
-    TS_ASSERT(int1.fields().empty());
+    TS_ASSERT_EQUALS(int1.parseName(), "Generic");
+    TS_ASSERT(int1.parseFields().empty());
 }
 
 void InterfaceTestSuite::test2()
@@ -50,21 +52,21 @@ void InterfaceTestSuite::test2()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
-    auto interfaces = ns.interfaces();
+    auto interfaces = ns.parseInterfaces();
     TS_ASSERT_EQUALS(interfaces.size(), 1U);
 
     auto& int1 = interfaces[0];
-    TS_ASSERT_EQUALS(int1.name(), "Generic");
-    auto fields = int1.fields();
+    TS_ASSERT_EQUALS(int1.parseName(), "Generic");
+    auto fields = int1.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
-    TS_ASSERT_EQUALS(fields.front().kind(), commsdsl::parse::Field::Kind::Int);
-    TS_ASSERT_EQUALS(fields.front().semanticType(), commsdsl::parse::Field::SemanticType::Version);
+    TS_ASSERT_EQUALS(fields.front().parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
+    TS_ASSERT_EQUALS(fields.front().parseSemanticType(), commsdsl::parse::ParseField::ParseSemanticType::Version);
 }
 
 void InterfaceTestSuite::test3()
@@ -72,32 +74,32 @@ void InterfaceTestSuite::test3()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 2U);
 
     auto& ns1 = namespaces.front();
     auto& ns2 = namespaces.back();
-    TS_ASSERT(ns1.name().empty());
-    TS_ASSERT_EQUALS(ns2.name(), "ns1");
+    TS_ASSERT(ns1.parseName().empty());
+    TS_ASSERT_EQUALS(ns2.parseName(), "ns1");
 
-    auto interfaces1 = ns1.interfaces();
-    auto interfaces2 = ns2.interfaces();
+    auto interfaces1 = ns1.parseInterfaces();
+    auto interfaces2 = ns2.parseInterfaces();
     TS_ASSERT_EQUALS(interfaces1.size(), 1U);
     TS_ASSERT_EQUALS(interfaces2.size(), 1U);
 
     auto& int1 = interfaces1[0];
     auto& int2 = interfaces2[0];
-    TS_ASSERT_EQUALS(int1.name(), "Generic");
-    TS_ASSERT_EQUALS(int2.name(), "I1");
-    auto fields1 = int1.fields();
-    auto fields2 = int2.fields();
+    TS_ASSERT_EQUALS(int1.parseName(), "Generic");
+    TS_ASSERT_EQUALS(int2.parseName(), "I1");
+    auto fields1 = int1.parseFields();
+    auto fields2 = int2.parseFields();
     TS_ASSERT_EQUALS(fields1.size(), 1U);
     TS_ASSERT_EQUALS(fields2.size(), 2U);
 }
 
 void InterfaceTestSuite::test4()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
@@ -105,7 +107,7 @@ void InterfaceTestSuite::test4()
 
 void InterfaceTestSuite::test5()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
@@ -113,7 +115,7 @@ void InterfaceTestSuite::test5()
 
 void InterfaceTestSuite::test6()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
@@ -124,27 +126,27 @@ void InterfaceTestSuite::test7()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto interfaces = ns.interfaces();
+    auto interfaces = ns.parseInterfaces();
     {
         TS_ASSERT_LESS_THAN_EQUALS(1U, interfaces.size());
 
         auto& int1 = interfaces[0];
-        TS_ASSERT_EQUALS(int1.name(), "I1");
-        TS_ASSERT_EQUALS(int1.fields().size(), 1U);
+        TS_ASSERT_EQUALS(int1.parseName(), "I1");
+        TS_ASSERT_EQUALS(int1.parseFields().size(), 1U);
     }
 
     {
         TS_ASSERT_LESS_THAN_EQUALS(2U, interfaces.size());
 
         auto& int2 = interfaces[1];
-        TS_ASSERT_EQUALS(int2.name(), "I2");
-        TS_ASSERT_EQUALS(int2.fields().size(), 2U);
-        TS_ASSERT(!int2.description().empty());
+        TS_ASSERT_EQUALS(int2.parseName(), "I2");
+        TS_ASSERT_EQUALS(int2.parseFields().size(), 2U);
+        TS_ASSERT(!int2.parseDescription().empty());
     }    
 }

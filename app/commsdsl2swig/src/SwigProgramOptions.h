@@ -15,39 +15,33 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
-#include <iosfwd>
+#include "commsdsl/gen/GenProgramOptions.h"
 
-#include "commsdsl/gen/ProgramOptions.h"
+#include <iosfwd>
+#include <string>
+#include <vector>
 
 namespace commsdsl2swig
 {
 
-class SwigProgramOptions : public commsdsl::gen::ProgramOptions
+class SwigProgramOptions : public commsdsl::gen::GenProgramOptions
 {
 public:
+    using GenProgramOptions = commsdsl::gen::GenProgramOptions;
+
     SwigProgramOptions();
 
-    bool quietRequested() const;
-    bool versionRequested() const;
-    bool warnAsErrRequested() const;
+    static const SwigProgramOptions& swigCast(const GenProgramOptions& options)
+    {
+        return static_cast<const SwigProgramOptions&>(options);
+    }
 
-    const std::string& getFilesListFile() const;
-    const std::string& getFilesListPrefix() const;
-    const ArgsList& getFiles() const;
-    const std::string& getOutputDirectory() const;
-    const std::string& getCodeInputDirectory() const;
-    bool hasNamespaceOverride() const;
-    const std::string& getNamespace() const;
-    bool multipleSchemasEnabled() const;
-    unsigned getMinRemoteVersion() const;
-    bool isMainNamespaceInNamesForced() const;
-    bool hasForcedInterface() const;
-    const std::string& getForcedInterface() const;
-    bool hasProtocolVersion() const;
-    const std::string& messagesListFile() const;
-    const std::string& forcedPlatform() const;
+    bool swigIsMainNamespaceInNamesForced() const;
+    bool swigHasForcedInterface() const;
+    const std::string& swigGetForcedInterface() const;
+    bool swigHasProtocolVersion() const;
+    const std::string& swigMessagesListFile() const;
+    const std::string& swigForcedPlatform() const;
 };
 
 } // namespace commsdsl2swig

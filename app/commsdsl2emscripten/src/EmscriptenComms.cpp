@@ -48,7 +48,7 @@ bool EmscriptenComms::emscriptenWrite(EmscriptenGenerator& generator)
         obj.emscriptenWriteOptionalModeInternal();
 }
 
-void EmscriptenComms::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources)
+void EmscriptenComms::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, GenStringsList& sources)
 {
     sources.push_back(generator.emscriptenRelSourceForRoot(generator.emscriptenScopeToName(ErrorStatusScopeStr)));
     sources.push_back(generator.emscriptenRelSourceForRoot(generator.emscriptenScopeToName(OptionalModeScopeStr)));
@@ -56,18 +56,18 @@ void EmscriptenComms::emscriptenAddSourceFiles(const EmscriptenGenerator& genera
 
 bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
 {
-    auto name = m_generator.emscriptenScopeToName(ErrorStatusScopeStr);
-    auto filePath = m_generator.emscriptenAbsSourceForRoot(name);
-    auto dirPath = util::pathUp(filePath);
+    auto name = m_emscriptenGenerator.emscriptenScopeToName(ErrorStatusScopeStr);
+    auto filePath = m_emscriptenGenerator.emscriptenAbsSourceForRoot(name);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    m_generator.logger().info("Generating " + filePath);
+    m_emscriptenGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_emscriptenGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }     
 
@@ -84,17 +84,17 @@ bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
         "NumOfErrorStatuses"
     };
 
-    util::StringsList binds;
+    util::GenStringsList binds;
     for (auto& v : Values) {
         static const std::string Templ = 
             ".value(\"#^#VAL#$#\", #^#SCOPE#$#::#^#VAL#$#)";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"VAL", v},
             {"SCOPE", ErrorStatusScopeStr}
         };
 
-        binds.push_back(util::processTemplate(Templ, repl));
+        binds.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     const std::string Templ = 
@@ -107,18 +107,18 @@ bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
         "        ;\n"
         "}\n";
 
-    util::ReplacementMap repl = {
-        {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
+    util::GenReplacementMap repl = {
+        {"GENERATED", EmscriptenGenerator::emscriptenFileGeneratedComment()},
         {"NAME", name},
         {"SCOPE", ErrorStatusScopeStr},
-        {"BINDS", util::strListToString(binds, "\n", "")}
+        {"BINDS", util::genStrListToString(binds, "\n", "")}
     };
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
+    auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_emscriptenGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
 
@@ -128,18 +128,18 @@ bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
 
 bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
 {
-    auto name = m_generator.emscriptenScopeToName(OptionalModeScopeStr);
-    auto filePath = m_generator.emscriptenAbsSourceForRoot(name);
-    auto dirPath = util::pathUp(filePath);
+    auto name = m_emscriptenGenerator.emscriptenScopeToName(OptionalModeScopeStr);
+    auto filePath = m_emscriptenGenerator.emscriptenAbsSourceForRoot(name);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    m_generator.logger().info("Generating " + filePath);
+    m_emscriptenGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_emscriptenGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }     
 
@@ -150,17 +150,17 @@ bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
         "NumOfModes"
     };
 
-    util::StringsList binds;
+    util::GenStringsList binds;
     for (auto& v : Values) {
         static const std::string Templ = 
             ".value(\"#^#VAL#$#\", #^#SCOPE#$#::#^#VAL#$#)";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"VAL", v},
             {"SCOPE", OptionalModeScopeStr}
         };
 
-        binds.push_back(util::processTemplate(Templ, repl));
+        binds.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     const std::string Templ = 
@@ -173,18 +173,18 @@ bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
         "        ;\n"
         "}\n";
 
-    util::ReplacementMap repl = {
-        {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
+    util::GenReplacementMap repl = {
+        {"GENERATED", EmscriptenGenerator::emscriptenFileGeneratedComment()},
         {"NAME", name},
         {"SCOPE", OptionalModeScopeStr},
-        {"BINDS", util::strListToString(binds, "\n", "")}
+        {"BINDS", util::genStrListToString(binds, "\n", "")}
     };
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
+    auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_emscriptenGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
 

@@ -17,19 +17,22 @@
 
 #include "EmscriptenLayer.h"
 
-#include "commsdsl/gen/IdLayer.h"
-#include "commsdsl/gen/util.h"
+#include "commsdsl/gen/GenIdLayer.h"
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenIdLayer final : public commsdsl::gen::IdLayer, public EmscriptenLayer
+class EmscriptenIdLayer final : public commsdsl::gen::GenIdLayer, public EmscriptenLayer
 {
-    using Base = commsdsl::gen::IdLayer;
+    using GenBase = commsdsl::gen::GenIdLayer;
     using EmscriptenBase = EmscriptenLayer;
+
 public:
-    EmscriptenIdLayer(EmscriptenGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    EmscriptenIdLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent);
 };
 
 } // namespace commsdsl2emscripten

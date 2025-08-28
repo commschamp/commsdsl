@@ -18,31 +18,33 @@
 
 #include "SwigField.h"
 
-#include "commsdsl/gen/Schema.h"
+#include "commsdsl/gen/GenSchema.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigSchema final: public commsdsl::gen::Schema
+class SwigSchema final: public commsdsl::gen::GenSchema
 {
-    using Base = commsdsl::gen::Schema;
+    using GenBase = commsdsl::gen::GenSchema;
 
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using ParseSchema = commsdsl::parse::ParseSchema;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    explicit SwigSchema(SwigGenerator& generator, commsdsl::parse::Schema dslObj, Elem* parent);
+    explicit SwigSchema(SwigGenerator& generator, ParseSchema parseObj, GenElem* parent);
     virtual ~SwigSchema();
 
     bool swigHasAnyMessage() const;
     bool swigHasReferencedMsgId() const;   
 
-    void swigAddCodeIncludes(StringsList& list) const; 
-    void swigAddCode(StringsList& list) const; 
-    void swigAddDef(StringsList& list) const;
+    void swigAddCodeIncludes(GenStringsList& list) const; 
+    void swigAddCode(GenStringsList& list) const; 
+    void swigAddDef(GenStringsList& list) const;
 
-    static const SwigSchema* cast(const commsdsl::gen::Schema* schema)
+    static const SwigSchema* swigCast(const commsdsl::gen::GenSchema* schema)
     {
         return static_cast<const SwigSchema*>(schema);
     }

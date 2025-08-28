@@ -17,19 +17,23 @@
 
 #include "EmscriptenLayer.h"
 
-#include "commsdsl/gen/CustomLayer.h"
+#include "commsdsl/gen/GenCustomLayer.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenCustomLayer final : public commsdsl::gen::CustomLayer, public EmscriptenLayer
+class EmscriptenCustomLayer final : public commsdsl::gen::GenCustomLayer, public EmscriptenLayer
 {
-    using Base = commsdsl::gen::CustomLayer;
+    using GenBase = commsdsl::gen::GenCustomLayer;
     using EmscriptenBase = EmscriptenLayer;
+
 public:
-    EmscriptenCustomLayer(EmscriptenGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    EmscriptenCustomLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent);
 };
 
 } // namespace commsdsl2emscripten

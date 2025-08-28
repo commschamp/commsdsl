@@ -31,10 +31,10 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-void SwigAllMessages::swigAddCode(const SwigGenerator& generator, StringsList& list)
+void SwigAllMessages::swigAddCode(const SwigGenerator& generator, GenStringsList& list)
 {
-    auto allMessages = generator.getAllMessagesIdSorted();
-    util::StringsList msgList;
+    auto allMessages = generator.genGetAllMessagesIdSorted();
+    util::GenStringsList msgList;
     msgList.reserve(allMessages.size());
 
     auto* iFace = generator.swigMainInterface();
@@ -43,7 +43,7 @@ void SwigAllMessages::swigAddCode(const SwigGenerator& generator, StringsList& l
 
 
     for (auto* m : allMessages) {
-        if (!m->isReferenced()) {
+        if (!m->genIsReferenced()) {
             continue;
         }
         msgList.push_back(generator.swigClassName(*m));
@@ -55,12 +55,12 @@ void SwigAllMessages::swigAddCode(const SwigGenerator& generator, StringsList& l
         "        #^#MESSAGES#$#\n"
         "    >;\n";
 
-    util::ReplacementMap repl = {
-        {"NAME", strings::allMessagesStr()},
-        {"MESSAGES", util::strListToString(msgList, ",\n", "")}
+    util::GenReplacementMap repl = {
+        {"NAME", strings::genAllMessagesStr()},
+        {"MESSAGES", util::genStrListToString(msgList, ",\n", "")}
     };
 
-    list.push_back(util::processTemplate(Templ, repl));
+    list.push_back(util::genProcessTemplate(Templ, repl));
 }
 
 } // namespace commsdsl2swig

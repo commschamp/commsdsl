@@ -18,7 +18,7 @@
 
 #include "EmscriptenLayer.h"
 
-#include "commsdsl/gen/Frame.h"
+#include "commsdsl/gen/GenFrame.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2emscripten
@@ -27,28 +27,28 @@ namespace commsdsl2emscripten
 class EmscriptenGenerator;
 class EmscriptenNamespace;
 
-class EmscriptenFrame final: public commsdsl::gen::Frame
+class EmscriptenFrame final: public commsdsl::gen::GenFrame
 {
-    using Base = commsdsl::gen::Frame;
+    using GenBase = commsdsl::gen::GenFrame;
 
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    explicit EmscriptenFrame(EmscriptenGenerator& generator, commsdsl::parse::Frame dslObj, Elem* parent);
+    explicit EmscriptenFrame(EmscriptenGenerator& generator, commsdsl::parse::ParseFrame parseObj, commsdsl::gen::GenElem* parent);
     virtual ~EmscriptenFrame();
 
-    static const EmscriptenFrame* cast(const commsdsl::gen::Frame* i)
+    static const EmscriptenFrame* emscriptenCast(const commsdsl::gen::GenFrame* i)
     {
         return static_cast<const EmscriptenFrame*>(i);
     }        
 
-    void emscriptenAddSourceFiles(StringsList& sources) const;
+    void emscriptenAddSourceFiles(GenStringsList& sources) const;
     const EmscriptenNamespace* emscriptenFindInputNamespace() const;
 
 
 protected:    
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;    
 
 private:
     using EmscriptenLayersList = std::vector<EmscriptenLayer*>;

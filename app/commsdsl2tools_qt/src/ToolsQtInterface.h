@@ -15,38 +15,40 @@
 
 #pragma once
 
-#include "commsdsl/gen/Interface.h"
+#include "commsdsl/gen/GenInterface.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator;
-class ToolsQtInterface final : public commsdsl::gen::Interface
+class ToolsQtInterface final : public commsdsl::gen::GenInterface
 {
-    using Base = commsdsl::gen::Interface;
-public:
-    using StringsList = commsdsl::gen::util::StringsList;
-    using IncludesList = StringsList;
+    using GenBase = commsdsl::gen::GenInterface;
 
-    explicit ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse::Interface dslObj, commsdsl::gen::Elem* parent);
+public:
+    using ParseInterface = commsdsl::parse::ParseInterface;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+
+    explicit ToolsQtInterface(ToolsQtGenerator& generator, ParseInterface parseObj, GenElem* parent);
 
     std::string toolsClassScope() const;
     std::string toolsHeaderFilePath() const;
-    StringsList toolsSourceFiles() const;
+    GenStringsList toolsSourceFiles() const;
 
-    static const ToolsQtInterface* cast(const commsdsl::gen::Interface* val)
+    static const ToolsQtInterface* toolsCast(const commsdsl::gen::GenInterface* val)
     {
         return static_cast<const ToolsQtInterface*>(val);
     }
 
-    static const ToolsQtInterface& cast(const commsdsl::gen::Interface& val)
+    static const ToolsQtInterface& toolsCast(const commsdsl::gen::GenInterface& val)
     {
         return static_cast<const ToolsQtInterface&>(val);
     }    
 
 protected:
-    virtual bool writeImpl() const override;    
+    virtual bool genWriteImpl() const override;    
 
 private:
     bool toolsWriteHeaderInternal() const;

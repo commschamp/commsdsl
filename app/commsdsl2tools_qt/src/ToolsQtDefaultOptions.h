@@ -24,17 +24,17 @@ class ToolsQtGenerator;
 class ToolsQtDefaultOptions
 {
 public:
-    static bool write(ToolsQtGenerator& generator);
+    static bool toolsWrite(ToolsQtGenerator& generator);
     static std::string toolsRelHeaderPath(const ToolsQtGenerator& generator);
     static std::string toolsTemplParam(const ToolsQtGenerator& generator, const std::string& extraParams = std::string());
     static std::string toolsClassScope(const ToolsQtGenerator& generator);
 
 private:
-    explicit ToolsQtDefaultOptions(ToolsQtGenerator& generator) : m_generator(generator) {}
+    explicit ToolsQtDefaultOptions(ToolsQtGenerator& generator) : m_toolsGenerator(generator) {}
 
     bool toolsWriteInternal() const;
 
-    ToolsQtGenerator& m_generator;
+    ToolsQtGenerator& m_toolsGenerator;
 };
 
 } // namespace commsdsl2tools_qt

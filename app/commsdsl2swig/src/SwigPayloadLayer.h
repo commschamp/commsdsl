@@ -17,24 +17,28 @@
 
 #include "SwigLayer.h"
 
-#include "commsdsl/gen/PayloadLayer.h"
+#include "commsdsl/gen/GenPayloadLayer.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigPayloadLayer final : public commsdsl::gen::PayloadLayer, public SwigLayer
+class SwigPayloadLayer final : public commsdsl::gen::GenPayloadLayer, public SwigLayer
 {
-    using Base = commsdsl::gen::PayloadLayer;
+    using GenBase = commsdsl::gen::GenPayloadLayer;
     using SwigBase = SwigLayer;
+
 public:
-    SwigPayloadLayer(SwigGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    SwigPayloadLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
     // SwigBase overrides
     virtual std::string swigMemberFieldDeclImpl() const override;
-    virtual void swigAddCodeImpl(StringsList& list) const override;
+    virtual void swigAddCodeImpl(GenStringsList& list) const override;
     virtual std::string swigFieldTypeImpl() const override;
 };
 

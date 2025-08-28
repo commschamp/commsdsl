@@ -17,22 +17,26 @@
 
 #include "ToolsQtLayer.h"
 
-#include "commsdsl/gen/CustomLayer.h"
+#include "commsdsl/gen/GenCustomLayer.h"
 
 namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator;
-class ToolsQtCustomLayer final : public commsdsl::gen::CustomLayer, public ToolsQtLayer
+class ToolsQtCustomLayer final : public commsdsl::gen::GenCustomLayer, public ToolsQtLayer
 {
-    using Base = commsdsl::gen::CustomLayer;
+    using GenBase = commsdsl::gen::GenCustomLayer;
     using ToolsBase = ToolsQtLayer;
+
 public:
-    explicit ToolsQtCustomLayer(ToolsQtGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    explicit ToolsQtCustomLayer(ToolsQtGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    // Base overrides
-    virtual bool prepareImpl() override;
+    // GenBase overrides
+    virtual bool genPrepareImpl() override;
 
     // ToolsBase overrides
 };

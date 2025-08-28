@@ -21,32 +21,34 @@
 #include "EmscriptenMsgHandler.h"
 #include "EmscriptenMsgId.h"
 
-#include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/GenNamespace.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenNamespace final: public commsdsl::gen::Namespace
+class EmscriptenNamespace final: public commsdsl::gen::GenNamespace
 {
-    using Base = commsdsl::gen::Namespace;
+    using GenBase = commsdsl::gen::GenNamespace;
 
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using ParseNamespace = commsdsl::parse::ParseNamespace;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    explicit EmscriptenNamespace(EmscriptenGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent);
+    explicit EmscriptenNamespace(EmscriptenGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~EmscriptenNamespace();
 
-    static const EmscriptenNamespace* cast(const commsdsl::gen::Namespace* schema)
+    static const EmscriptenNamespace* emscriptenCast(const commsdsl::gen::GenNamespace* schema)
     {
         return static_cast<const EmscriptenNamespace*>(schema);
     }
 
-    void emscriptenAddSourceFiles(StringsList& sources) const;
-    void emscriptenAddCommsMessageIncludes(StringsList& includes) const;
-    void emscriptenAddInputMessageFwdIncludes(StringsList& includes) const;
-    void emscriptenAddInputMessageIncludes(StringsList& includes) const;
+    void emscriptenAddSourceFiles(GenStringsList& sources) const;
+    void emscriptenAddCommsMessageIncludes(GenStringsList& includes) const;
+    void emscriptenAddInputMessageFwdIncludes(GenStringsList& includes) const;
+    void emscriptenAddInputMessageIncludes(GenStringsList& includes) const;
 
     std::string emscriptenHandlerRelHeader() const;
     std::string emscriptenHandlerClassName() const;
@@ -56,7 +58,7 @@ public:
     bool emscriptenHasInput() const;
 
 protected:
-    virtual bool writeImpl() const override;    
+    virtual bool genWriteImpl() const override;    
 
 private:
     EmscriptenMsgId m_msgId; 

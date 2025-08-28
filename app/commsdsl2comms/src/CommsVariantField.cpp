@@ -40,21 +40,21 @@ namespace commsdsl2comms
 namespace 
 {
 
-constexpr std::size_t MaxMembersSupportedByComms = 120;    
+constexpr std::size_t CommsMaxMembersSupportedByComms = 120;    
 
-bool intIsValidPropKeyInternal(const CommsIntField& intField)
+bool commsintIsValidPropKeyInternal(const CommsIntField& intField)
 {
-    auto obj = intField.field().dslObj();
-    if (!obj.isFailOnInvalid()) {
+    auto obj = intField.commsGenField().genParseObj();
+    if (!obj.parseIsFailOnInvalid()) {
         return false;
     }
 
-    if (obj.isPseudo()) {
+    if (obj.parseIsPseudo()) {
         return false;
     }
 
-    auto intDslObj = commsdsl::parse::IntField(obj);
-    auto& validRanges = intDslObj.validRanges();
+    auto genIntFieldParseObj = commsdsl::parse::ParseIntField(obj);
+    auto& validRanges = genIntFieldParseObj.parseValidRanges();
     if (validRanges.size() != 1U) {
         return false;
     }
@@ -64,14 +64,14 @@ bool intIsValidPropKeyInternal(const CommsIntField& intField)
         return false;
     }
 
-    if (r.m_min != intDslObj.defaultValue()) {
+    if (r.m_min != genIntFieldParseObj.parseDefaultValue()) {
         return false;
     }
 
     return true; 
 }    
 
-const CommsField* bundleGetValidPropKeyInternal(const CommsBundleField& bundle)
+const CommsField* commsBundleGetValidPropKeyInternal(const CommsBundleField& bundle)
 {
     auto& members = bundle.commsMembers();
     if (members.empty()) {
@@ -79,12 +79,12 @@ const CommsField* bundleGetValidPropKeyInternal(const CommsBundleField& bundle)
     }
 
     auto& first = members.front();
-    if (first->field().dslObj().kind() != commsdsl::parse::Field::Kind::Int) {
+    if (first->commsGenField().genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Int) {
         return nullptr;
     }
 
     auto& keyField = static_cast<const CommsIntField&>(*first);
-    if (!intIsValidPropKeyInternal(keyField)) {
+    if (!commsintIsValidPropKeyInternal(keyField)) {
         return nullptr;
     }
 
@@ -96,35 +96,35 @@ const CommsField* bundleGetValidPropKeyInternal(const CommsBundleField& bundle)
     return first;
 }
 
-std::string propKeyTypeInternal(const CommsField& field)
+std::string commsPropKeyTypeInternal(const CommsField& field)
 {
-    assert(field.field().dslObj().kind() == commsdsl::parse::Field::Kind::Int);
+    assert(field.commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
 
     auto& keyField = static_cast<const CommsIntField&>(field);
     return keyField.commsVariantPropKeyType();
 }
 
-std::string propKeyValueStrInternal(const CommsField& field)
+std::string commsPropKeyValueStrInternal(const CommsField& field)
 {
-    assert(field.field().dslObj().kind() == commsdsl::parse::Field::Kind::Int);
+    assert(field.commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
 
     auto& keyField = static_cast<const CommsIntField&>(field);
     return keyField.commsVariantPropKeyValueStr();
 }
 
-bool propKeysEquivalent(const CommsField& first, const CommsField& second)
+bool commsPropKeysEquivalent(const CommsField& first, const CommsField& second)
 {
-    assert(first.field().dslObj().kind() == commsdsl::parse::Field::Kind::Int);
-    assert(second.field().dslObj().kind() == commsdsl::parse::Field::Kind::Int);
+    assert(first.commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
+    assert(second.commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
 
     return static_cast<const CommsIntField&>(first).commsVariantIsPropKeyEquivalent(static_cast<const CommsIntField&>(second));
 }
 
-const CommsField* getReferenceFieldInternal(const CommsField* field)
+const CommsField* commsGetReferenceFieldInternal(const CommsField* field)
 {
-    while (field->field().dslObj().kind() == commsdsl::parse::Field::Kind::Ref) {
+    while (field->commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Ref) {
         auto& refField = static_cast<const CommsRefField&>(*field);
-        field = dynamic_cast<decltype(field)>(refField.referencedField());
+        field = dynamic_cast<decltype(field)>(refField.genReferencedField());
         assert(field != nullptr);
     }
 
@@ -134,31 +134,28 @@ const CommsField* getReferenceFieldInternal(const CommsField* field)
 } // namespace 
     
 
-CommsVariantField::CommsVariantField(
-    CommsGenerator& generator, 
-    commsdsl::parse::Field dslObj, 
-    commsdsl::gen::Elem* parent) :
-    Base(generator, dslObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsVariantField::CommsVariantField(CommsGenerator& generator, ParseField parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool CommsVariantField::prepareImpl()
+bool CommsVariantField::genPrepareImpl()
 {
     return 
-        Base::prepareImpl() && 
+        GenBase::genPrepareImpl() && 
         commsPrepare() &&
         commsPrepareInternal();
 }
 
-bool CommsVariantField::writeImpl() const
+bool CommsVariantField::genWriteImpl() const
 {
     return commsWrite();
 }
 
-CommsVariantField::IncludesList CommsVariantField::commsCommonIncludesImpl() const
+CommsVariantField::CommsIncludesList CommsVariantField::commsCommonIncludesImpl() const
 {
-    IncludesList result = {
+    CommsIncludesList result = {
         "<type_traits>",
         "<utility>",
     };
@@ -180,18 +177,18 @@ std::string CommsVariantField::commsCommonCodeBodyImpl() const
         "#^#MEMBER_NAMES_FUNCS#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"MEMBER_NAME_MAP_DEF", commsCommonMemberNameMapInternal()},
         {"NAME_FUNC", commsCommonNameFuncCode()},
         {"MEMBER_NAMES_FUNCS", commsCommonMemberNameFuncsCodeInternal()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsVariantField::commsCommonMembersCodeImpl() const
 {
-    util::StringsList membersCode;
+    util::GenStringsList membersCode;
     for (auto* m : m_commsMembers) {
         auto code = m->commsCommonCode();
         if (!code.empty()) {
@@ -199,12 +196,12 @@ std::string CommsVariantField::commsCommonMembersCodeImpl() const
         }
     }
 
-    return util::strListToString(membersCode, "\n", "");
+    return util::genStrListToString(membersCode, "\n", "");
 }
 
-CommsVariantField::IncludesList CommsVariantField::commsDefIncludesImpl() const
+CommsVariantField::CommsIncludesList CommsVariantField::commsDefIncludesImpl() const
 {
-    IncludesList result = {
+    CommsIncludesList result = {
         "comms/Assert.h",
         "comms/CompileControl.h",
         "comms/field/Variant.h",
@@ -230,7 +227,7 @@ std::string CommsVariantField::commsDefMembersCodeImpl() const
         "       #^#MEMBERS#$#\n"
         "    >;";
 
-    util::StringsList membersCode;
+    util::GenStringsList membersCode;
     for (auto* m : m_commsMembers) {
         auto code = m->commsDefCode();
         if (!code.empty()) {
@@ -238,18 +235,18 @@ std::string CommsVariantField::commsDefMembersCodeImpl() const
         }
     }
     
-    util::StringsList names;
-    for (auto& fPtr : members()) {
+    util::GenStringsList names;
+    for (auto& fPtr : genMembers()) {
         assert(fPtr);
-        names.push_back(comms::className(fPtr->dslObj().name()));
+        names.push_back(comms::genClassName(fPtr->genParseObj().parseName()));
     }
 
-    util::ReplacementMap repl = {
-        {"MEMBERS_DEFS", util::strListToString(membersCode, "\n", "")},
-        {"MEMBERS", util::strListToString(names, ",\n", "")}
+    util::GenReplacementMap repl = {
+        {"MEMBERS_DEFS", util::genStrListToString(membersCode, "\n", "")},
+        {"MEMBERS", util::genStrListToString(names, ",\n", "")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsVariantField::commsDefBaseClassImpl() const
@@ -261,11 +258,11 @@ std::string CommsVariantField::commsDefBaseClassImpl() const
         "    #^#FIELD_OPTS#$#\n"
         ">";  
 
-    auto& gen = generator();
-    auto dslObj = variantDslObj();
-    util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
-        {"CLASS_NAME", comms::className(dslObj.name())},
+    auto& gen = genGenerator();
+    auto parseObj = genVariantFieldParseObj();
+    util::GenReplacementMap repl = {
+        {"PROT_NAMESPACE", gen.genSchemaOf(*this).genMainNamespace()},
+        {"CLASS_NAME", comms::genClassName(parseObj.parseName())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()},
     };
 
@@ -273,30 +270,30 @@ std::string CommsVariantField::commsDefBaseClassImpl() const
         repl["COMMA"] = ",";
     }
 
-    if (comms::isGlobalField(*this)) {
+    if (comms::genIsGlobalField(*this)) {
         repl["MEMBERS_OPT"] = "<TOpt>";
     }
 
-    return util::processTemplate(Templ, repl);       
+    return util::genProcessTemplate(Templ, repl);       
 }
 
 std::string CommsVariantField::commsDefConstructCodeImpl() const
 {
-    auto obj = variantDslObj();
-    auto idx = obj.defaultMemberIdx();
+    auto obj = genVariantFieldParseObj();
+    auto idx = obj.parseDefaultMemberIdx();
     if (m_commsMembers.size() <= idx) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     assert(idx < m_commsMembers.size());
     static const std::string Templ = 
         "initField_#^#NAME#$#();\n";
     
-    util::ReplacementMap repl = {
-        {"NAME", comms::accessName(m_commsMembers[idx]->field().dslObj().name())}
+    util::GenReplacementMap repl = {
+        {"NAME", comms::genAccessName(m_commsMembers[idx]->commsGenField().genParseObj().parseName())}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsVariantField::commsDefDestructCodeImpl() const
@@ -338,23 +335,23 @@ std::string CommsVariantField::commsDefPrivateCodeImpl() const
 std::string CommsVariantField::commsDefReadFuncBodyImpl() const
 {
     if (m_optimizedReadKey.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     std::string keyFieldType;
-    StringsList cases;
+    GenStringsList cases;
     bool hasDefault = false;
     for (auto* memPtr : m_commsMembers) {
-        auto* m = getReferenceFieldInternal(memPtr);
-        assert(m->field().dslObj().kind() == commsdsl::parse::Field::Kind::Bundle);
+        auto* m = commsGetReferenceFieldInternal(memPtr);
+        assert(m->commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Bundle);
         auto& bundle = static_cast<const CommsBundleField&>(*m);
         auto& bundleMembers = bundle.commsMembers();
         assert(!bundleMembers.empty());
         auto* first = bundleMembers.front();
-        assert(first->field().dslObj().kind() == commsdsl::parse::Field::Kind::Int);
+        assert(first->commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
         auto& keyField = static_cast<const CommsIntField&>(*first);
-        auto bundleAccName = comms::accessName(memPtr->field().dslObj().name());
-        auto keyAccName = comms::accessName(keyField.field().dslObj().name());
+        auto bundleAccName = comms::genAccessName(memPtr->commsGenField().genParseObj().parseName());
+        auto keyAccName = comms::genAccessName(keyField.commsGenField().genParseObj().parseName());
 
         if ((memPtr != m_commsMembers.back()) ||
             (keyField.commsVariantIsValidPropKey())) {
@@ -369,7 +366,7 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
                 "        return field_#^#BUNDLE_NAME#$#.template readFrom<1>(iter, len);\n"
                 "    }";
 
-            util::ReplacementMap repl = {
+            util::GenReplacementMap repl = {
                 {"VAL", std::move(valStr)},
                 {"BUNDLE_NAME", bundleAccName},
                 {"KEY_NAME", keyAccName},
@@ -379,7 +376,7 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
                 auto assignStr = "field_" + bundleAccName + ".setVersion(Base::getVersion());";
                 repl["VERSION_ASSIGN"] = std::move(assignStr);
             }
-            cases.push_back(util::processTemplate(Templ, repl));
+            cases.push_back(util::genProcessTemplate(Templ, repl));
             continue;
         }
 
@@ -392,7 +389,7 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
             "    #^#VERSION_ASSIGN#$#\n"
             "    return accessField_#^#BUNDLE_NAME#$#().template readFrom<1>(iter, len);";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"BUNDLE_NAME", bundleAccName},
             {"KEY_NAME", keyAccName},
         };
@@ -402,7 +399,7 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
             repl["VERSION_ASSIGN"] = std::move(assignStr);
         }
 
-        cases.push_back(util::processTemplate(Templ, repl));
+        cases.push_back(util::genProcessTemplate(Templ, repl));
         hasDefault = true;
     }
 
@@ -432,9 +429,9 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
         "};\n\n"
         "return comms::ErrorStatus::InvalidMsgData;\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"KEY_FIELD_TYPE", m_optimizedReadKey},
-        {"CASES", util::strListToString(cases, "\n", "")},
+        {"CASES", util::genStrListToString(cases, "\n", "")},
     };
 
     if (commsIsVersionDependent()) {
@@ -443,25 +440,25 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
         repl["VERSION_DEP"] = CheckStr;
     }
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
-CommsVariantField::StringsList CommsVariantField::commsDefReadMsvcSuppressWarningsImpl() const
+CommsVariantField::GenStringsList CommsVariantField::commsDefReadMsvcSuppressWarningsImpl() const
 {
-    return StringsList{"4702"};
+    return GenStringsList{"4702"};
 }
 
 std::string CommsVariantField::commsDefWriteFuncBodyImpl() const
 {
-    StringsList cases;
+    GenStringsList cases;
     for (auto idx = 0U; idx < m_commsMembers.size(); ++idx) {
         static const std::string Templ =
             "case FieldIdx_#^#MEM_NAME#$#: return accessField_#^#MEM_NAME#$#().write(iter, len);";
             
-        util::ReplacementMap repl = {
-            {"MEM_NAME", comms::accessName(m_commsMembers[idx]->field().dslObj().name())}
+        util::GenReplacementMap repl = {
+            {"MEM_NAME", comms::genAccessName(m_commsMembers[idx]->commsGenField().genParseObj().parseName())}
         };
-        cases.push_back(util::processTemplate(Templ, repl));
+        cases.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ =
@@ -472,24 +469,24 @@ std::string CommsVariantField::commsDefWriteFuncBodyImpl() const
         "return comms::ErrorStatus::Success;\n"
         ;
 
-    util::ReplacementMap repl = {
-        {"CASES", util::strListToString(cases, "\n", "")}
+    util::GenReplacementMap repl = {
+        {"CASES", util::genStrListToString(cases, "\n", "")}
     };
     
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsVariantField::commsDefRefreshFuncBodyImpl() const
 {
-    StringsList cases;
+    GenStringsList cases;
     for (auto idx = 0U; idx < m_commsMembers.size(); ++idx) {
         static const std::string Templ =
             "case FieldIdx_#^#MEM_NAME#$#: return accessField_#^#MEM_NAME#$#().refresh();";
             
-        util::ReplacementMap repl = {
-            {"MEM_NAME", comms::accessName(m_commsMembers[idx]->field().dslObj().name())}
+        util::GenReplacementMap repl = {
+            {"MEM_NAME", comms::genAccessName(m_commsMembers[idx]->commsGenField().genParseObj().parseName())}
         };
-        cases.push_back(util::processTemplate(Templ, repl));
+        cases.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ =
@@ -500,24 +497,24 @@ std::string CommsVariantField::commsDefRefreshFuncBodyImpl() const
         "return false;\n"
         ;
 
-    util::ReplacementMap repl = {
-        {"CASES", util::strListToString(cases, "\n", "")}
+    util::GenReplacementMap repl = {
+        {"CASES", util::genStrListToString(cases, "\n", "")}
     };
     
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsVariantField::commsDefLengthFuncBodyImpl() const
 {
-    StringsList cases;
+    GenStringsList cases;
     for (auto idx = 0U; idx < m_commsMembers.size(); ++idx) {
         static const std::string Templ =
             "case FieldIdx_#^#MEM_NAME#$#: return accessField_#^#MEM_NAME#$#().length();";
             
-        util::ReplacementMap repl = {
-            {"MEM_NAME", comms::accessName(m_commsMembers[idx]->field().dslObj().name())}
+        util::GenReplacementMap repl = {
+            {"MEM_NAME", comms::genAccessName(m_commsMembers[idx]->commsGenField().genParseObj().parseName())}
         };
-        cases.push_back(util::processTemplate(Templ, repl));
+        cases.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ =
@@ -528,24 +525,24 @@ std::string CommsVariantField::commsDefLengthFuncBodyImpl() const
         "return 0U;\n"
         ;
 
-    util::ReplacementMap repl = {
-        {"CASES", util::strListToString(cases, "\n", "")}
+    util::GenReplacementMap repl = {
+        {"CASES", util::genStrListToString(cases, "\n", "")}
     };
     
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsVariantField::commsDefValidFuncBodyImpl() const
 {
-    StringsList cases;
+    GenStringsList cases;
     for (auto idx = 0U; idx < m_commsMembers.size(); ++idx) {
         static const std::string Templ =
             "case FieldIdx_#^#MEM_NAME#$#: return accessField_#^#MEM_NAME#$#().valid();";
             
-        util::ReplacementMap repl = {
-            {"MEM_NAME", comms::accessName(m_commsMembers[idx]->field().dslObj().name())}
+        util::GenReplacementMap repl = {
+            {"MEM_NAME", comms::genAccessName(m_commsMembers[idx]->commsGenField().genParseObj().parseName())}
         };
-        cases.push_back(util::processTemplate(Templ, repl));
+        cases.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ =
@@ -556,11 +553,11 @@ std::string CommsVariantField::commsDefValidFuncBodyImpl() const
         "return false;\n"
         ;
 
-    util::ReplacementMap repl = {
-        {"CASES", util::strListToString(cases, "\n", "")}
+    util::GenReplacementMap repl = {
+        {"CASES", util::genStrListToString(cases, "\n", "")}
     };
     
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool CommsVariantField::commsIsVersionDependentImpl() const
@@ -574,17 +571,17 @@ bool CommsVariantField::commsIsVersionDependentImpl() const
             });
 }
 
-std::string CommsVariantField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
+std::string CommsVariantField::commsMembersCustomizationOptionsBodyImpl(CommsFieldOptsFunc fieldOptsFunc) const
 {
     assert(fieldOptsFunc != nullptr);
-    util::StringsList elems;
+    util::GenStringsList elems;
     for (auto* m : m_commsMembers) {
         auto str = (m->*fieldOptsFunc)();
         if (!str.empty()) {
             elems.push_back(std::move(str));
         }
     }
-    return util::strListToString(elems, "\n", "");
+    return util::genStrListToString(elems, "\n", "");
 }
 
 std::size_t CommsVariantField::commsMaxLengthImpl() const 
@@ -616,13 +613,13 @@ bool CommsVariantField::commsMustDefineDefaultConstructorImpl() const
 
 bool CommsVariantField::commsPrepareInternal()
 {
-    m_commsMembers = commsTransformFieldsList(members());
-    if (generator().schemaOf(*this).versionDependentCode()) {
-        auto sinceVersion = dslObj().sinceVersion();
+    m_commsMembers = commsTransformFieldsList(genMembers());
+    if (genGenerator().genSchemaOf(*this).genVersionDependentCode()) {
+        auto sinceVersion = genParseObj().parseSinceVersion();
         for (auto* m : m_commsMembers) {
             assert(m != nullptr);
-            if (sinceVersion < m->field().dslObj().sinceVersion()) {
-                generator().logger().error("Currently version dependent members of variant are not supported!");
+            if (sinceVersion < m->commsGenField().genParseObj().parseSinceVersion()) {
+                genGenerator().genLogger().genError("Currently version dependent members of variant are not supported!");
                 return false;
             }
         }
@@ -634,19 +631,19 @@ bool CommsVariantField::commsPrepareInternal()
 
 std::string CommsVariantField::commsDefFieldOptsInternal() const
 {
-    commsdsl::gen::util::StringsList opts;
+    commsdsl::gen::util::GenStringsList opts;
     commsAddFieldDefOptions(opts);
     commsAddCustomReadOptInternal(opts);
-    util::addToStrList("comms::option::def::HasCustomWrite", opts);
-    util::addToStrList("comms::option::def::HasCustomRefresh", opts);        
-    util::addToStrList("comms::option::def::VariantHasCustomResetOnDestruct", opts);        
-    util::addToStrList("comms::option::def::HasVersionDependentMembers<" + util::boolToString(commsIsVersionDependentImpl()) + ">", opts);        
-    return util::strListToString(opts, ",\n", "");
+    util::genAddToStrList("comms::option::def::HasCustomWrite", opts);
+    util::genAddToStrList("comms::option::def::HasCustomRefresh", opts);        
+    util::genAddToStrList("comms::option::def::VariantHasCustomResetOnDestruct", opts);        
+    util::genAddToStrList("comms::option::def::HasVersionDependentMembers<" + util::genBoolToString(commsIsVersionDependentImpl()) + ">", opts);        
+    return util::genStrListToString(opts, ",\n", "");
 }
 
 std::string CommsVariantField::commsDefAccessCodeInternal() const
 {
-    if (m_commsMembers.size() <= MaxMembersSupportedByComms) {
+    if (m_commsMembers.size() <= CommsMaxMembersSupportedByComms) {
         return commsDefAccessCodeByCommsInternal();
     }
 
@@ -655,10 +652,10 @@ std::string CommsVariantField::commsDefAccessCodeInternal() const
 
 std::string CommsVariantField::commsDefCopyCodeInternal() const
 {
-    StringsList copyCases;
-    StringsList moveCases;
-    StringsList eqCases;
-    StringsList ltCases;
+    GenStringsList copyCases;
+    GenStringsList moveCases;
+    GenStringsList eqCases;
+    GenStringsList ltCases;
     for (auto idx = 0U; idx < m_commsMembers.size(); ++idx) {
         static const std::string CopyTempl =
             "case FieldIdx_#^#MEM_NAME#$#: initField_#^#MEM_NAME#$#() = other.accessField_#^#MEM_NAME#$#(); return *this;";
@@ -672,14 +669,14 @@ std::string CommsVariantField::commsDefCopyCodeInternal() const
         static const std::string LtTempl =
             "case FieldIdx_#^#MEM_NAME#$#: return accessField_#^#MEM_NAME#$#() < other.accessField_#^#MEM_NAME#$#();";
 
-        util::ReplacementMap repl = {
-            {"MEM_NAME", comms::accessName(m_commsMembers[idx]->field().dslObj().name())}
+        util::GenReplacementMap repl = {
+            {"MEM_NAME", comms::genAccessName(m_commsMembers[idx]->commsGenField().genParseObj().parseName())}
         };
 
-        copyCases.push_back(util::processTemplate(CopyTempl, repl));
-        moveCases.push_back(util::processTemplate(MoveTempl, repl));
-        eqCases.push_back(util::processTemplate(EqTempl, repl));
-        ltCases.push_back(util::processTemplate(LtTempl, repl));
+        copyCases.push_back(util::genProcessTemplate(CopyTempl, repl));
+        moveCases.push_back(util::genProcessTemplate(MoveTempl, repl));
+        eqCases.push_back(util::genProcessTemplate(EqTempl, repl));
+        ltCases.push_back(util::genProcessTemplate(LtTempl, repl));
     }
 
     static const std::string Templ = 
@@ -784,23 +781,23 @@ std::string CommsVariantField::commsDefCopyCodeInternal() const
         ;
 
 
-    util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(dslObj().name())},
-        {"COPY_CASES", util::strListToString(copyCases, "\n", "")},
-        {"MOVE_CASES", util::strListToString(moveCases, "\n", "")},
-        {"EQ_CASES", util::strListToString(eqCases, "\n", "")},
-        {"LT_CASES", util::strListToString(ltCases, "\n", "")},
+    util::GenReplacementMap repl = {
+        {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
+        {"COPY_CASES", util::genStrListToString(copyCases, "\n", "")},
+        {"MOVE_CASES", util::genStrListToString(moveCases, "\n", "")},
+        {"EQ_CASES", util::genStrListToString(eqCases, "\n", "")},
+        {"LT_CASES", util::genStrListToString(ltCases, "\n", "")},
     };
 
     if (commsIsExtended()) {
-        repl["ORIG"] = strings::origSuffixStr();
+        repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
     if (commsIsVersionOptional()) {
-        repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
+        repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
     }    
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsVariantField::commsDefAccessCodeByCommsInternal() const
@@ -817,44 +814,44 @@ std::string CommsVariantField::commsDefAccessCodeByCommsInternal() const
         "    #^#NAMES#$#\n"
         ");\n";
 
-    util::StringsList accessDocList;
-    util::StringsList namesList;
+    util::GenStringsList accessDocList;
+    util::GenStringsList namesList;
     accessDocList.reserve(m_commsMembers.size());
     namesList.reserve(m_commsMembers.size());
 
-    auto& gen = generator();
-    for (auto& mPtr : members()) {
-        namesList.push_back(comms::accessName(mPtr->dslObj().name()));
+    auto& gen = genGenerator();
+    for (auto& mPtr : genMembers()) {
+        namesList.push_back(comms::genAccessName(mPtr->genParseObj().parseName()));
         std::string accessStr =
             "///     @li @b FieldIdx_" +  namesList.back() + 
             " index, @b Field_" + namesList.back() + " type,\n"
             "///         @b initField_" + namesList.back() + "(), @b deinitField_" + namesList.back() +
             "() and @b accessField_" + namesList.back() + "() access functions -\n"
-            "///         for " + comms::scopeFor(*mPtr, gen) + " member field.";
+            "///         for " + comms::genScopeFor(*mPtr, gen) + " member field.";
         accessDocList.push_back(std::move(accessStr));
     }
 
-    util::ReplacementMap repl = {
-        {"ACCESS_DOC", util::strListToString(accessDocList, "\n", "")},
-        {"NAMES", util::strListToString(namesList, ",\n", "")},
+    util::GenReplacementMap repl = {
+        {"ACCESS_DOC", util::genStrListToString(accessDocList, "\n", "")},
+        {"NAMES", util::genStrListToString(namesList, ",\n", "")},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsVariantField::commsDefAccessCodeGeneratedInternal() const
 {
-    StringsList indicesList;
-    StringsList accessList;
+    GenStringsList indicesList;
+    GenStringsList accessList;
     indicesList.reserve(m_commsMembers.size());
     accessList.reserve(m_commsMembers.size());
 
-    auto membersPrefix = comms::className(dslObj().name()) + strings::membersSuffixStr();
+    auto membersPrefix = comms::genClassName(genParseObj().parseName()) + strings::genMembersSuffixStr();
     auto docScope = membersPrefix + "::";
     auto typeScope = "typename " + membersPrefix + "<TOpt>::";
     for (auto& m : m_commsMembers) {
-        auto accName = comms::accessName(m->field().dslObj().name());
-        auto className = comms::className(m->field().dslObj().name());
+        auto accName = comms::genAccessName(m->commsGenField().genParseObj().parseName());
+        auto className = comms::genClassName(m->commsGenField().genParseObj().parseName());
 
         indicesList.push_back("FieldIdx_" + accName);
 
@@ -882,12 +879,12 @@ std::string CommsVariantField::commsDefAccessCodeGeneratedInternal() const
             "    return Base::template accessField<FieldIdx_#^#NAME#$#>();\n"
             "}\n\n";   
 
-        util::ReplacementMap accRepl = {
+        util::GenReplacementMap accRepl = {
             {"DOC_SCOPE", docScope + className},
             {"TYPE_SCOPE", typeScope + className},
             {"NAME", accName}
         };
-        accessList.push_back(util::processTemplate(AccTempl, accRepl));
+        accessList.push_back(util::genProcessTemplate(AccTempl, accRepl));
     }
 
     static const std::string Templ =
@@ -899,25 +896,25 @@ std::string CommsVariantField::commsDefAccessCodeGeneratedInternal() const
         "};\n\n"
         "#^#ACCESS#$#\n";    
 
-    util::ReplacementMap repl = {
-        {"INDICES", util::strListToString(indicesList, ",\n", "")},
-        {"ACCESS", util::strListToString(accessList, "\n", "")},
+    util::GenReplacementMap repl = {
+        {"INDICES", util::genStrListToString(indicesList, ",\n", "")},
+        {"ACCESS", util::genStrListToString(accessList, "\n", "")},
     };
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsVariantField::commsDefFieldExecCodeInternal() const
 {
-    StringsList cases;
+    GenStringsList cases;
     for (auto idx = 0U; idx < m_commsMembers.size(); ++idx) {
         static const std::string Templ =
             "case FieldIdx_#^#MEM_NAME#$#:\n"
             "    memFieldDispatch<FieldIdx_#^#MEM_NAME#$#>(accessField_#^#MEM_NAME#$#(), std::forward<TFunc>(func));\n"
             "    break;";
-        util::ReplacementMap repl = {
-            {"MEM_NAME", comms::accessName(m_commsMembers[idx]->field().dslObj().name())}
+        util::GenReplacementMap repl = {
+            {"MEM_NAME", comms::genAccessName(m_commsMembers[idx]->commsGenField().genParseObj().parseName())}
         };
-        cases.push_back(util::processTemplate(Templ, repl));
+        cases.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ =
@@ -945,31 +942,31 @@ std::string CommsVariantField::commsDefFieldExecCodeInternal() const
         "}\n"
         ;
 
-    util::ReplacementMap repl = {
-        {"CASES", util::strListToString(cases, "\n", "")}
+    util::GenReplacementMap repl = {
+        {"CASES", util::genStrListToString(cases, "\n", "")}
     };
 
-    auto str = util::processTemplate(Templ, repl);
+    auto str = util::genProcessTemplate(Templ, repl);
     str += "\n";
 
     repl.insert({
         {"VARIANT", " (const variant)"},
         {"CONST", "const"}
     });
-    str += util::processTemplate(Templ, repl);
+    str += util::genProcessTemplate(Templ, repl);
     return str;
 }
 
 std::string CommsVariantField::commsDefResetCodeInternal() const
 {
-    StringsList cases;
+    GenStringsList cases;
     for (auto idx = 0U; idx < m_commsMembers.size(); ++idx) {
         static const std::string Templ =
             "case FieldIdx_#^#MEM_NAME#$#: deinitField_#^#MEM_NAME#$#(); return;";
-        util::ReplacementMap repl = {
-            {"MEM_NAME", comms::accessName(m_commsMembers[idx]->field().dslObj().name())}
+        util::GenReplacementMap repl = {
+            {"MEM_NAME", comms::genAccessName(m_commsMembers[idx]->commsGenField().genParseObj().parseName())}
         };
-        cases.push_back(util::processTemplate(Templ, repl));
+        cases.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ =
@@ -988,23 +985,23 @@ std::string CommsVariantField::commsDefResetCodeInternal() const
         "    COMMS_ASSERT(false); // Should not be reached\n"
         "}\n";
 
-    util::ReplacementMap repl = {
-        {"CASES", util::strListToString(cases, "\n", "")}
+    util::GenReplacementMap repl = {
+        {"CASES", util::genStrListToString(cases, "\n", "")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsVariantField::commsDefCanWriteCodeInternal() const
 {
-    StringsList cases;
+    GenStringsList cases;
     for (auto idx = 0U; idx < m_commsMembers.size(); ++idx) {
         static const std::string Templ =
             "case FieldIdx_#^#MEM_NAME#$#: return accessField_#^#MEM_NAME#$#().canWrite();";
-        util::ReplacementMap repl = {
-            {"MEM_NAME", comms::accessName(m_commsMembers[idx]->field().dslObj().name())}
+        util::GenReplacementMap repl = {
+            {"MEM_NAME", comms::genAccessName(m_commsMembers[idx]->commsGenField().genParseObj().parseName())}
         };
-        cases.push_back(util::processTemplate(Templ, repl));
+        cases.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ =
@@ -1024,23 +1021,23 @@ std::string CommsVariantField::commsDefCanWriteCodeInternal() const
         "    return false;\n"
         "}\n";
 
-    util::ReplacementMap repl = {
-        {"CASES", util::strListToString(cases, "\n", "")}
+    util::GenReplacementMap repl = {
+        {"CASES", util::genStrListToString(cases, "\n", "")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsVariantField::commsDefSelectFieldCodeInternal() const
 {
-    StringsList cases;
+    GenStringsList cases;
     for (auto idx = 0U; idx < m_commsMembers.size(); ++idx) {
         static const std::string Templ =
             "case FieldIdx_#^#MEM_NAME#$#: initField_#^#MEM_NAME#$#(); return;";
-        util::ReplacementMap repl = {
-            {"MEM_NAME", comms::accessName(m_commsMembers[idx]->field().dslObj().name())}
+        util::GenReplacementMap repl = {
+            {"MEM_NAME", comms::genAccessName(m_commsMembers[idx]->commsGenField().genParseObj().parseName())}
         };
-        cases.push_back(util::processTemplate(Templ, repl));
+        cases.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ =
@@ -1060,18 +1057,18 @@ std::string CommsVariantField::commsDefSelectFieldCodeInternal() const
         "    COMMS_ASSERT(false); // Should not be reached\n"
         "}\n";
 
-    util::ReplacementMap repl = {
-        {"CASES", util::strListToString(cases, "\n", "")}
+    util::GenReplacementMap repl = {
+        {"CASES", util::genStrListToString(cases, "\n", "")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 
-void CommsVariantField::commsAddCustomReadOptInternal(StringsList& opts) const
+void CommsVariantField::commsAddCustomReadOptInternal(GenStringsList& opts) const
 {
     if (!m_optimizedReadKey.empty()) {
-        util::addToStrList("comms::option::def::HasCustomRead", opts);
+        util::genAddToStrList("comms::option::def::HasCustomRead", opts);
     }
 }
 
@@ -1086,13 +1083,13 @@ std::string CommsVariantField::commsOptimizedReadKeyInternal() const
     std::set<std::string> keyValues;
 
     for (auto* m : m_commsMembers) {
-        const auto* memPtr = getReferenceFieldInternal(m);
-        if (memPtr->field().dslObj().kind() != commsdsl::parse::Field::Kind::Bundle) {
+        const auto* memPtr = commsGetReferenceFieldInternal(m);
+        if (memPtr->commsGenField().genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Bundle) {
             return result;
         }
 
         auto& bundle = static_cast<const CommsBundleField&>(*memPtr);
-        auto* propKeyTmp = bundleGetValidPropKeyInternal(bundle);
+        auto* propKeyTmp = commsBundleGetValidPropKeyInternal(bundle);
         bool validPropKey = (propKeyTmp != nullptr);
         if ((!validPropKey) && (m != m_commsMembers.back())) {
             return result;
@@ -1104,7 +1101,7 @@ std::string CommsVariantField::commsOptimizedReadKeyInternal() const
         }
 
         assert(propKeyTmp != nullptr);
-        auto insertResult = keyValues.insert(propKeyValueStrInternal(*propKeyTmp));
+        auto insertResult = keyValues.insert(commsPropKeyValueStrInternal(*propKeyTmp));
         if (!insertResult.second) {
             // The same key value has been inserted
             return result;
@@ -1115,12 +1112,12 @@ std::string CommsVariantField::commsOptimizedReadKeyInternal() const
             continue;
         }
 
-        if (!propKeysEquivalent(*propKey, *propKeyTmp)) {
+        if (!commsPropKeysEquivalent(*propKey, *propKeyTmp)) {
             return result;
         }
     }
 
-    result = propKeyTypeInternal(*propKey);
+    result = commsPropKeyTypeInternal(*propKey);
     return result;
 }
 
@@ -1159,17 +1156,17 @@ std::string CommsVariantField::commsCommonMemberNameFuncsCodeInternal() const
         "    return std::make_pair(&Map[0], MapSize);\n"
         "}\n";
 
-    auto membersPrefix = comms::className(dslObj().name()) + strings::membersSuffixStr() + strings::commonSuffixStr();
-    util::StringsList names;
-    for (auto& fPtr : members()) {
+    auto membersPrefix = comms::genClassName(genParseObj().parseName()) + strings::genMembersSuffixStr() + strings::genCommonSuffixStr();
+    util::GenStringsList names;
+    for (auto& fPtr : genMembers()) {
         assert(fPtr);
-        names.push_back(membersPrefix + "::" + comms::className(fPtr->dslObj().name()) + strings::commonSuffixStr() + "::name()");
+        names.push_back(membersPrefix + "::" + comms::genClassName(fPtr->genParseObj().parseName()) + strings::genCommonSuffixStr() + "::name()");
     }
 
-    util::ReplacementMap repl = {
-        {"MEMBERS", util::strListToString(names, ",\n", "")}
+    util::GenReplacementMap repl = {
+        {"MEMBERS", util::genStrListToString(names, ",\n", "")}
     };
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsVariantField::commsDefMemberNamesTypesInternal() const
@@ -1181,11 +1178,11 @@ std::string CommsVariantField::commsDefMemberNamesTypesInternal() const
         "/// @see @ref #^#COMMON_SCOPE#$#::MemberNamesMapInfo.\n"
         "using MemberNamesMapInfo = #^#COMMON_SCOPE#$#::MemberNamesMapInfo;\n";
 
-    util::ReplacementMap repl = {
-        {"COMMON_SCOPE", comms::commonScopeFor(*this, generator())}
+    util::GenReplacementMap repl = {
+        {"COMMON_SCOPE", comms::genCommonScopeFor(*this, genGenerator())}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsVariantField::commsDefMemberNamesFuncsInternal() const
@@ -1211,10 +1208,10 @@ std::string CommsVariantField::commsDefMemberNamesFuncsInternal() const
         "}\n";    
 
 
-    util::ReplacementMap repl = {
-        {"COMMON_SCOPE", comms::commonScopeFor(*this, generator())}
+    util::GenReplacementMap repl = {
+        {"COMMON_SCOPE", comms::genCommonScopeFor(*this, genGenerator())}
     };
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2comms

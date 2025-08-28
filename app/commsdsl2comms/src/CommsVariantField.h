@@ -17,30 +17,34 @@
 
 #include "CommsField.h"
 
-#include "commsdsl/gen/VariantField.h"
+#include "commsdsl/gen/GenVariantField.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsVariantField final : public commsdsl::gen::VariantField, public CommsField
+class CommsVariantField final : public commsdsl::gen::GenVariantField, public CommsField
 {
-    using Base = commsdsl::gen::VariantField;
+    using GenBase = commsdsl::gen::GenVariantField;
     using CommsBase = CommsField;
+
 public:
-    CommsVariantField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    CommsVariantField(CommsGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    // Base overrides
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
+    // GenBase overrides
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;    
 
     // CommsBase overrides
-    virtual IncludesList commsCommonIncludesImpl() const override;
+    virtual CommsIncludesList commsCommonIncludesImpl() const override;
     virtual std::string commsCommonCodeBodyImpl() const override;
     virtual std::string commsCommonMembersCodeImpl() const override;
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefMembersCodeImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
     virtual std::string commsDefConstructCodeImpl() const override;
@@ -48,13 +52,13 @@ protected:
     virtual std::string commsDefPublicCodeImpl() const override;
     virtual std::string commsDefPrivateCodeImpl() const override;
     virtual std::string commsDefReadFuncBodyImpl() const override;
-    virtual StringsList commsDefReadMsvcSuppressWarningsImpl() const override;
+    virtual GenStringsList commsDefReadMsvcSuppressWarningsImpl() const override;
     virtual std::string commsDefWriteFuncBodyImpl() const override;
     virtual std::string commsDefRefreshFuncBodyImpl() const override;
     virtual std::string commsDefLengthFuncBodyImpl() const override;
     virtual std::string commsDefValidFuncBodyImpl() const override;    
     virtual bool commsIsVersionDependentImpl() const override;
-    virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
+    virtual std::string commsMembersCustomizationOptionsBodyImpl(CommsFieldOptsFunc fieldOptsFunc) const override;
     virtual std::size_t commsMaxLengthImpl() const override;
     virtual bool commsHasCustomLengthDeepImpl() const override;
     virtual bool commsMustDefineDefaultConstructorImpl() const override;
@@ -71,7 +75,7 @@ private:
     std::string commsDefCanWriteCodeInternal() const;
     std::string commsDefSelectFieldCodeInternal() const;
 
-    void commsAddCustomReadOptInternal(StringsList& opts) const;
+    void commsAddCustomReadOptInternal(GenStringsList& opts) const;
     std::string commsOptimizedReadKeyInternal() const;
     const std::string& commsCommonMemberNameMapInternal() const;
     std::string commsCommonMemberNameFuncsCodeInternal() const;

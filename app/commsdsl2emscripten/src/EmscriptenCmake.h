@@ -26,16 +26,16 @@ class EmscriptenGenerator;
 class EmscriptenCmake
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     static bool emscriptenWrite(EmscriptenGenerator& generator);
 
 private:
-    explicit EmscriptenCmake(EmscriptenGenerator& generator) : m_generator(generator) {}
+    explicit EmscriptenCmake(EmscriptenGenerator& generator) : m_emscriptenGenerator(generator) {}
 
     bool emscriptenWriteInternal() const;
 
-    EmscriptenGenerator& m_generator;
+    EmscriptenGenerator& m_emscriptenGenerator;
 };
 
 } // namespace commsdsl2emscripten

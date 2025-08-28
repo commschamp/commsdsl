@@ -17,23 +17,27 @@
 
 #include "EmscriptenField.h"
 
-#include "commsdsl/gen/BitfieldField.h"
+#include "commsdsl/gen/GenBitfieldField.h"
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenBitfieldField final : public commsdsl::gen::BitfieldField, public EmscriptenField
+class EmscriptenBitfieldField final : public commsdsl::gen::GenBitfieldField, public EmscriptenField
 {
-    using Base = commsdsl::gen::BitfieldField;
+    using GenBase = commsdsl::gen::GenBitfieldField;
     using EmscriptenBase = EmscriptenField;
+
 public:
-    EmscriptenBitfieldField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    EmscriptenBitfieldField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    // Base overrides
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
+    // GenBase overrides
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;    
 
     // EmscriptenBase overrides
     virtual std::string emscriptenHeaderValueAccImpl() const override;

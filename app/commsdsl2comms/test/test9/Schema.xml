@@ -37,9 +37,9 @@
     </interface>      
     
     <message name="Msg1" id="MsgId.M1">
-        <ref name="f1" field="F1" />
-        <ref name="f2" field="F2" />
-        <ref name="f3" field="F3" />
+        <ref field="F1" />
+        <ref field="F2" />
+        <ref field="F3" />
     </message>
     <frame name="Frame">
         <id name="ID" field="MsgId" />

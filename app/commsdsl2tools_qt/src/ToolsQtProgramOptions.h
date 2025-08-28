@@ -15,19 +15,21 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
-#include <iosfwd>
+#include "commsdsl/gen/GenProgramOptions.h"
 
-#include "commsdsl/gen/ProgramOptions.h"
+#include <iosfwd>
+#include <string>
+#include <vector>
 
 namespace commsdsl2tools_qt
 {
 
-class ToolsQtProgramOptions : public commsdsl::gen::ProgramOptions
+class ToolsQtProgramOptions : public commsdsl::gen::GenProgramOptions
 {
 public:
-    struct PluginInfo
+    using GenProgramOptions = commsdsl::gen::GenProgramOptions;
+
+    struct ToolsPluginInfo
     {
         std::string m_frame;
         std::string m_interface;
@@ -35,24 +37,17 @@ public:
         std::string m_desc;
         std::string m_pluginId;
     };
-    using PluginInfosList = std::vector<PluginInfo>;
+    using ToolsPluginInfosList = std::vector<ToolsPluginInfo>;
     
     ToolsQtProgramOptions();
 
-    bool quietRequested() const;
-    bool versionRequested() const;
-    bool warnAsErrRequested() const;
+    static const ToolsQtProgramOptions& toolsCast(const GenProgramOptions& options)
+    {
+        return static_cast<const ToolsQtProgramOptions&>(options);
+    }
 
-    const std::string& getFilesListFile() const;
-    const std::string& getFilesListPrefix() const;
-    const ArgsList& getFiles() const;
-    const std::string& getOutputDirectory() const;
-    bool hasNamespaceOverride() const;
-    const std::string& getNamespace() const;
-    const std::string& getCodeInputDirectory() const;
-    PluginInfosList getPlugins() const;
-    bool multipleSchemasEnabled() const;
-    bool isMainNamespaceInOptionsForced() const;
+    ToolsPluginInfosList toolsGetPlugins() const;
+    bool toolsIsMainNamespaceInOptionsForced() const;
 };
 
 } // namespace commsdsl2tools_qt

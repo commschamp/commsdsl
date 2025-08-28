@@ -26,20 +26,20 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsSizeLayer::CommsSizeLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) :
-    Base(generator, dslObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsSizeLayer::CommsSizeLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool CommsSizeLayer::prepareImpl()
+bool CommsSizeLayer::genPrepareImpl()
 {
-    return Base::prepareImpl() && CommsBase::commsPrepare();
+    return GenBase::genPrepareImpl() && CommsBase::commsPrepare();
 }
 
-CommsSizeLayer::IncludesList CommsSizeLayer::commsDefIncludesImpl() const
+CommsSizeLayer::CommsIncludesList CommsSizeLayer::commsDefIncludesImpl() const
 {
-    IncludesList result = {
+    CommsIncludesList result = {
         "comms/frame/MsgSizeLayer.h"
     };
 
@@ -55,12 +55,12 @@ std::string CommsSizeLayer::commsDefBaseTypeImpl(const std::string& prevName) co
         "    #^#PREV_LAYER#$#\n"
         ">";        
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FIELD_TYPE", commsDefFieldType()},
         {"PREV_LAYER", prevName},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2comms

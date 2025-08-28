@@ -17,22 +17,16 @@
 
 #include "SwigGenerator.h"
 
-#include "commsdsl/gen/comms.h"
-#include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
-#include <cassert>
-
-namespace comms = commsdsl::gen::comms;
 namespace util = commsdsl::gen::util;
-namespace strings = commsdsl::gen::strings;
 
 namespace commsdsl2swig
 {
 
-SwigPayloadLayer::SwigPayloadLayer(SwigGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigPayloadLayer::SwigPayloadLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
@@ -47,31 +41,31 @@ std::string SwigPayloadLayer::swigMemberFieldDeclImpl() const
         "    void setValue(const ValueType& val);\n"
         "};\n";
 
-    auto& gen = SwigGenerator::cast(generator());
-    util::ReplacementMap repl = {
+    auto& gen = SwigGenerator::swigCast(genGenerator());
+    util::GenReplacementMap repl = {
         {"FIELD_TYPE", swigFieldTypeImpl()},
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
-void SwigPayloadLayer::swigAddCodeImpl(StringsList& list) const
+void SwigPayloadLayer::swigAddCodeImpl(GenStringsList& list) const
 {
     static const std::string Templ = 
         "class #^#FIELD_TYPE#$# : public #^#COMMS_SCOPE#$#::Field {};\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FIELD_TYPE", swigFieldTypeImpl()},
         {"COMMS_SCOPE", swigTemplateScope()}
     };
 
-    list.push_back(util::processTemplate(Templ, repl));
+    list.push_back(util::genProcessTemplate(Templ, repl));
 }
 
 std::string SwigPayloadLayer::swigFieldTypeImpl() const
 {
-    auto& gen = SwigGenerator::cast(generator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     return gen.swigClassName(*this) + "Field";
 }
 

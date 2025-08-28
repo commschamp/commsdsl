@@ -22,14 +22,14 @@ class TestGenerator;
 class Test
 {
 public:
-    static bool write(TestGenerator& generator);
+    static bool testWrite(TestGenerator& generator);
 
 private:
-    explicit Test(TestGenerator& generator) : m_generator(generator) {}
+    explicit Test(TestGenerator& generator) : m_testGenerator(generator) {}
 
-    bool writeInputTest() const;
+    bool testWriteInputTest() const;
 private:
-    TestGenerator& m_generator;
+    TestGenerator& m_testGenerator;
 };
 
 } // namespace commsdsl2test

@@ -17,7 +17,7 @@
 
 #include "EmscriptenField.h"
 
-#include "commsdsl/gen/EnumField.h"
+#include "commsdsl/gen/GenEnumField.h"
 
 namespace commsdsl2emscripten
 {
@@ -25,14 +25,18 @@ namespace commsdsl2emscripten
 class EmscriptenGenerator;
 class EmscriptenNamespace;
 
-class EmscriptenEnumField final : public commsdsl::gen::EnumField, public EmscriptenField
+class EmscriptenEnumField final : public commsdsl::gen::GenEnumField, public EmscriptenField
 {
-    using Base = commsdsl::gen::EnumField;
+    using GenBase = commsdsl::gen::GenEnumField;
     using EmscriptenBase = EmscriptenField;
-public:
-    EmscriptenEnumField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
-    static const EmscriptenEnumField* cast(const commsdsl::gen::Field* f)
+public:
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    EmscriptenEnumField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent);
+
+    static const EmscriptenEnumField* emscriptenCast(const commsdsl::gen::GenField* f)
     {
         return static_cast<const EmscriptenEnumField*>(f);
     }
@@ -40,8 +44,8 @@ public:
     std::string emscriptenBindValues(const EmscriptenNamespace* forcedParent = nullptr) const;
 
 protected:
-    // Base overrides
-    virtual bool writeImpl() const override;    
+    // GenBase overrides
+    virtual bool genWriteImpl() const override;    
 
     // EmscriptenBase overrides
     virtual std::string emscriptenHeaderValueAccImpl() const override;

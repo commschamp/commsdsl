@@ -15,27 +15,29 @@
 
 #pragma once
 
-#include "commsdsl/gen/Generator.h"
+#include "commsdsl/gen/GenGenerator.h"
 
 namespace commsdsl2comms 
 {
 
-class CommsGenerator final : public commsdsl::gen::Generator
+class CommsGenerator final : public commsdsl::gen::GenGenerator
 {
-    using Base = commsdsl::gen::Generator;
+    using Base = commsdsl::gen::GenGenerator;
 public:
-    using Elem = commsdsl::gen::Elem;
-    using FieldPtr = commsdsl::gen::FieldPtr;
-    using FramePtr = commsdsl::gen::FramePtr;
-    using InterfacePtr = commsdsl::gen::InterfacePtr;
-    using LayerPtr = commsdsl::gen::LayerPtr;
-    using MessagePtr = commsdsl::gen::MessagePtr;
-    using SchemaPtr = commsdsl::gen::SchemaPtr;
-    using NamespacePtr = commsdsl::gen::NamespacePtr;
-    using ExtraMessageBundle = std::pair<std::string, MessagesAccessList>;
-    using ExtraMessageBundlesList = std::vector<ExtraMessageBundle>;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenFieldPtr = commsdsl::gen::GenFieldPtr;
+    using GenFramePtr = commsdsl::gen::GenFramePtr;
+    using GenInterfacePtr = commsdsl::gen::GenInterfacePtr;
+    using GenLayerPtr = commsdsl::gen::GenLayerPtr;
+    using GenMessagePtr = commsdsl::gen::GenMessagePtr;
+    using GenSchemaPtr = commsdsl::gen::GenSchemaPtr;
+    using GenNamespacePtr = commsdsl::gen::GenNamespacePtr;
+    using GenProgramOptions = commsdsl::gen::GenProgramOptions;
 
-    enum class CustomizationLevel
+    using CommsExtraMessageBundle = std::pair<std::string, GenMessagesAccessList>;
+    using CommsExtraMessageBundlesList = std::vector<CommsExtraMessageBundle>;
+
+    enum class CommsCustomizationLevel
     {
         Full,
         Limited,
@@ -43,13 +45,13 @@ public:
         NumOfValues
     };    
 
-    static const CommsGenerator& cast(const commsdsl::gen::Generator& ref)
+    static const CommsGenerator& commsCast(const commsdsl::gen::GenGenerator& ref)
     {
         return static_cast<const CommsGenerator&>(ref);
     }
 
     static const std::string& commsFileGeneratedComment();
-    CustomizationLevel commsGetCustomizationLevel() const;
+    CommsCustomizationLevel commsGetCustomizationLevel() const;
     void commsSetCustomizationLevel(const std::string& opt);
 
     const std::string& commsGetProtocolVersion() const;
@@ -61,51 +63,52 @@ public:
 
     const std::vector<std::string>& commsGetExtraInputBundles() const;
     void commsSetExtraInputBundles(const std::vector<std::string>& inputBundles);
-    const ExtraMessageBundlesList& commsExtraMessageBundles() const;
+    const CommsExtraMessageBundlesList& commsExtraMessageBundles() const;
 
     static const std::string& commsMinCommsVersion();
 
 protected:
-    virtual bool prepareImpl() override;
+    virtual bool genPrepareImpl() override;
 
-    virtual SchemaPtr createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent) override;
-    virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent) override;
-    virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent) override;
-    virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent) override;
-    virtual FramePtr createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent) override;
+    virtual GenSchemaPtr genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenNamespacePtr genCreateNamespaceImpl(commsdsl::parse::ParseNamespace parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenInterfacePtr genCreateInterfaceImpl(commsdsl::parse::ParseInterface parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenMessagePtr genCreateMessageImpl(commsdsl::parse::ParseMessage parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenFramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame parseObj, commsdsl::gen::GenElem* parent) override;
 
-    virtual FieldPtr createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createSetFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createFloatFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createBitfieldFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createBundleFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createStringFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createDataFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createListFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createRefFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createOptionalFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
+    virtual GenFieldPtr genCreateIntFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenFieldPtr genCreateEnumFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenFieldPtr genCreateSetFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenFieldPtr genCreateFloatFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenFieldPtr genCreateBitfieldFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenFieldPtr genCreateBundleFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenFieldPtr genCreateStringFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenFieldPtr genCreateDataFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenFieldPtr genCreateListFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenFieldPtr genCreateRefFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenFieldPtr genCreateOptionalFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenFieldPtr genCreateVariantFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
 
-    virtual LayerPtr createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
-    virtual LayerPtr createSyncLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
-    virtual LayerPtr createSizeLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
-    virtual LayerPtr createIdLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
-    virtual LayerPtr createValueLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
-    virtual LayerPtr createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
-    virtual LayerPtr createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
+    virtual GenLayerPtr genCreateCustomLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenLayerPtr genCreateSyncLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenLayerPtr genCreateSizeLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenLayerPtr genCreateIdLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenLayerPtr genCreateValueLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenLayerPtr genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenLayerPtr genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
 
-    virtual bool writeImpl() override;    
+    virtual bool genWriteImpl() override;    
+    virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
 
 private:
     bool commsPrepareExtraMessageBundlesInternal();
     bool commsWriteExtraFilesInternal() const;
     
-    static const CustomizationLevel DefaultCustomizationLevel = CustomizationLevel::Limited;
-    CustomizationLevel m_customizationLevel = DefaultCustomizationLevel;    
+    static const CommsCustomizationLevel DefaultCustomizationLevel = CommsCustomizationLevel::Limited;
+    CommsCustomizationLevel m_customizationLevel = DefaultCustomizationLevel;    
     std::string m_protocolVersion;
     std::vector<std::string> m_extraInputBundles;
-    ExtraMessageBundlesList m_commsExtraMessageBundles;
+    CommsExtraMessageBundlesList m_commsExtraMessageBundles;
     bool m_mainNamespaceInOptionsForced = false;
 };
 

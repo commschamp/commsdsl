@@ -17,19 +17,23 @@
 
 #include "EmscriptenLayer.h"
 
-#include "commsdsl/gen/PayloadLayer.h"
+#include "commsdsl/gen/GenPayloadLayer.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenPayloadLayer final : public commsdsl::gen::PayloadLayer, public EmscriptenLayer
+class EmscriptenPayloadLayer final : public commsdsl::gen::GenPayloadLayer, public EmscriptenLayer
 {
-    using Base = commsdsl::gen::PayloadLayer;
+    using GenBase = commsdsl::gen::GenPayloadLayer;
     using EmscriptenBase = EmscriptenLayer;
+
 public:
-    EmscriptenPayloadLayer(EmscriptenGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    EmscriptenPayloadLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
     virtual std::string emscriptenHeaderFieldDefImpl() const override;

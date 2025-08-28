@@ -15,9 +15,9 @@
 
 #pragma once
 
-#include <string>
-
 #include "commsdsl/gen/util.h"
+
+#include <string>
 
 namespace commsdsl2emscripten
 {
@@ -28,13 +28,13 @@ class EmscriptenNamespace;
 class EmscriptenMsgHandler
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     EmscriptenMsgHandler(EmscriptenGenerator& generator, const EmscriptenNamespace& parent);
     bool emscriptenWrite() const;
     std::string emscriptenClassName() const;
     std::string emscriptenRelHeader() const;
-    void emscriptenAddSourceFiles(StringsList& sources) const;
+    void emscriptenAddSourceFiles(GenStringsList& sources) const;
 
 private:
     bool emscriptenWriteHeaderInternal() const;
@@ -48,7 +48,7 @@ private:
     std::string emscriptenSourceBindInternal() const;
     std::string emscriptenSourceBindFuncsInternal() const;
 
-    EmscriptenGenerator& m_generator;
+    EmscriptenGenerator& m_emscriptenGenerator;
     const EmscriptenNamespace& m_parent;
 };
 

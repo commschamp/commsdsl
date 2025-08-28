@@ -15,10 +15,10 @@
 
 #include "CommsCustomLayer.h"
 
+#include "CommsGenerator.h"
+
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/util.h"
-
-#include "CommsGenerator.h"
 
 #include <algorithm>
 #include <cassert>
@@ -29,21 +29,21 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsCustomLayer::CommsCustomLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) :
-    Base(generator, dslObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsCustomLayer::CommsCustomLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool CommsCustomLayer::prepareImpl()
+bool CommsCustomLayer::genPrepareImpl()
 {
-    return Base::prepareImpl() && CommsBase::commsPrepare();
+    return GenBase::genPrepareImpl() && CommsBase::commsPrepare();
 }
 
-CommsCustomLayer::IncludesList CommsCustomLayer::commsDefIncludesImpl() const
+CommsCustomLayer::CommsIncludesList CommsCustomLayer::commsDefIncludesImpl() const
 {
-    IncludesList result = {
-        comms::relHeaderForLayer(comms::className(dslObj().name()), generator())
+    CommsIncludesList result = {
+        comms::genRelHeaderForLayer(comms::genClassName(genParseObj().parseName()), genGenerator())
     };
 
     return result;
@@ -59,14 +59,14 @@ std::string CommsCustomLayer::commsDefBaseTypeImpl(const std::string& prevName) 
         "    #^#EXTRA_OPT#$#\n"
         ">";
 
-    util::ReplacementMap repl = {
-        {"CUSTOM_LAYER_TYPE", comms::scopeForCustomLayer(*this, generator())},
+    util::GenReplacementMap repl = {
+        {"CUSTOM_LAYER_TYPE", comms::genScopeForCustomLayer(*this, genGenerator())},
         {"FIELD_TYPE", commsDefFieldType()},
         {"PREV_LAYER", prevName},
         {"EXTRA_OPT", commsDefExtraOpts()},
     };
 
-    if (customDslObj().semanticLayerType() == commsdsl::parse::Layer::Kind::Id) {
+    if (genCustomLayerParseObj().parseSemanticLayerType() == commsdsl::parse::ParseLayer::ParseKind::Id) {
         repl["ID_TEMPLATE_PARAMS"] = "TMessage,\nTAllMessages,";
     }
 
@@ -74,12 +74,12 @@ std::string CommsCustomLayer::commsDefBaseTypeImpl(const std::string& prevName) 
         repl["COMMA"] = std::string(",");
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool CommsCustomLayer::commsDefHasInputMessagesImpl() const
 {
-    return (customDslObj().semanticLayerType() == commsdsl::parse::Layer::Kind::Id);
+    return (genCustomLayerParseObj().parseSemanticLayerType() == commsdsl::parse::ParseLayer::ParseKind::Id);
 }
 
 bool CommsCustomLayer::commsIsCustomizableImpl() const
@@ -87,11 +87,11 @@ bool CommsCustomLayer::commsIsCustomizableImpl() const
     return true;
 }
 
-CommsCustomLayer::StringsList CommsCustomLayer::commsExtraBareMetalDefaultOptionsImpl() const
+CommsCustomLayer::GenStringsList CommsCustomLayer::commsExtraBareMetalDefaultOptionsImpl() const
 {
     if (commsDefHasInputMessagesImpl()) {
         return
-            StringsList{
+            GenStringsList{
                 "comms::option::app::InPlaceAllocation"
             };    
     }
@@ -99,12 +99,12 @@ CommsCustomLayer::StringsList CommsCustomLayer::commsExtraBareMetalDefaultOption
     return CommsBase::commsExtraBareMetalDefaultOptionsImpl();
 }
 
-CommsCustomLayer::StringsList CommsCustomLayer::commsExtraMsgFactoryDefaultOptionsImpl() const
+CommsCustomLayer::GenStringsList CommsCustomLayer::commsExtraMsgFactoryDefaultOptionsImpl() const
 {
     if (commsDefHasInputMessagesImpl()) {
         return
-            StringsList{
-                "comms::option::app::MsgFactoryTempl<" + commsMsgFactoryAliasInOptions(getParent()) + ">"
+            GenStringsList{
+                "comms::option::app::MsgFactoryTempl<" + commsMsgFactoryAliasInOptions(genGetParent()) + ">"
             };    
     }
 

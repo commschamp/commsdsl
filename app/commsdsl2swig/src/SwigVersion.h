@@ -26,19 +26,19 @@ class SwigGenerator;
 class SwigVersion
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     static bool swigWrite(SwigGenerator& generator);
-    static void swigAddCodeIncludes(SwigGenerator& generator, StringsList& list);
-    static void swigAddDef(SwigGenerator& generator, StringsList& list);
-    static void swigAddCode(SwigGenerator& generator, StringsList& list);
+    static void swigAddCodeIncludes(SwigGenerator& generator, GenStringsList& list);
+    static void swigAddDef(SwigGenerator& generator, GenStringsList& list);
+    static void swigAddCode(SwigGenerator& generator, GenStringsList& list);
 
 private:
-    explicit SwigVersion(SwigGenerator& generator) : m_generator(generator) {}
+    explicit SwigVersion(SwigGenerator& generator) : m_swigGenerator(generator) {}
 
     bool swigWriteInternal() const;
     
-    SwigGenerator& m_generator;
+    SwigGenerator& m_swigGenerator;
 };
 
 } // namespace commsdsl2swig

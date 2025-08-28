@@ -29,9 +29,9 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigOptionalField::SwigOptionalField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigOptionalField::SwigOptionalField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
@@ -51,25 +51,25 @@ std::string SwigOptionalField::swigDeclFuncs(const SwigGenerator& generator, con
         "void setMissing();\n"
     ;
 
-    auto& gen = SwigGenerator::cast(generator);
-    util::ReplacementMap repl = {
+    auto& gen = SwigGenerator::swigCast(generator);
+    util::GenReplacementMap repl = {
         {"FIELD_TYPE", fieldType},
         {"OPT_MODE", SwigComms::swigOptionalModeClassName(gen)}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
-bool SwigOptionalField::writeImpl() const
+bool SwigOptionalField::genWriteImpl() const
 {
     return swigWrite();
 }
 
 std::string SwigOptionalField::swigMembersDeclImpl() const
 {
-    auto* mem = SwigField::cast(memberField());
+    auto* mem = SwigField::swigCast(genMemberField());
     if (mem == nullptr) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     return mem->swigClassDecl();
@@ -78,42 +78,42 @@ std::string SwigOptionalField::swigMembersDeclImpl() const
 
 std::string SwigOptionalField::swigValueTypeDeclImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string SwigOptionalField::swigValueAccDeclImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string SwigOptionalField::swigExtraPublicFuncsDeclImpl() const
 {
-    auto* mem = SwigField::cast(memberField());
+    auto* mem = SwigField::swigCast(genMemberField());
     if (mem == nullptr) {
-        mem = SwigField::cast(externalField());
+        mem = SwigField::swigCast(genExternalField());
     }
 
     assert(mem != nullptr);
-    auto& gen = SwigGenerator::cast(generator());
-    return swigDeclFuncs(gen, gen.swigClassName(mem->field()));
+    auto& gen = SwigGenerator::swigCast(genGenerator());
+    return swigDeclFuncs(gen, gen.swigClassName(mem->swigGenField()));
 }
 
-void SwigOptionalField::swigAddDefImpl(StringsList& list) const
+void SwigOptionalField::swigAddDefImpl(GenStringsList& list) const
 {
-    auto* mem = SwigField::cast(memberField());
+    auto* mem = SwigField::swigCast(genMemberField());
     if (mem == nullptr) {
-        mem = SwigField::cast(externalField());
+        mem = SwigField::swigCast(genExternalField());
     }
 
     assert(mem != nullptr);
     mem->swigAddDef(list);
 }
 
-void SwigOptionalField::swigAddMembersCodeImpl(StringsList& list) const
+void SwigOptionalField::swigAddMembersCodeImpl(GenStringsList& list) const
 {
-    auto* mem = SwigField::cast(memberField());
+    auto* mem = SwigField::swigCast(genMemberField());
     if (mem == nullptr) {
-        mem = SwigField::cast(externalField());
+        mem = SwigField::swigCast(genExternalField());
     }
 
     assert(mem != nullptr);

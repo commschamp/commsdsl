@@ -39,20 +39,20 @@ namespace util
 namespace 
 {
 
-static const char PathSep = '/';
+static const char GenPathSep = '/';
 
 #ifdef WIN32
-static const char WinPathSep = '\\';
+static const char GenWinPathSep = '\\';
 #endif 
 
-bool isPathSep(char ch)
+bool genIsPathSep(char ch)
 {
-    if (ch == PathSep) {
+    if (ch == GenPathSep) {
         return true;
     }
 
 #ifdef WIN32
-    if (ch == WinPathSep) {
+    if (ch == GenWinPathSep) {
         return true;
     }
 #endif    
@@ -60,7 +60,7 @@ bool isPathSep(char ch)
     return false;
 }
 
-void cleanSpaces(std::string& code)
+void genCleanSpaces(std::string& code)
 {
     bool removeChar = false;
     std::size_t processedCount = 0U;
@@ -96,7 +96,7 @@ void cleanSpaces(std::string& code)
         code.end());
 }
 
-void cleanExtraNewLines(std::string& code)
+void genCleanExtraNewLines(std::string& code)
 {
     code.erase(
         std::remove_if(
@@ -119,7 +119,7 @@ void cleanExtraNewLines(std::string& code)
         code.end());
 }
 
-void cleanNewLinesBeforeCloseBracket(std::string& code)
+void genCleanNewLinesBeforeCloseBracket(std::string& code)
 {
     std::size_t processedCount = 0U;
 
@@ -179,19 +179,16 @@ void cleanNewLinesBeforeCloseBracket(std::string& code)
         code.end());    
 }
 
-void doTidyCode(std::string& code)
+void genDoTidyCode(std::string& code)
 {
-    cleanSpaces(code);
-    cleanExtraNewLines(code);
-    cleanNewLinesBeforeCloseBracket(code);
+    genCleanSpaces(code);
+    genCleanExtraNewLines(code);
+    genCleanNewLinesBeforeCloseBracket(code);
 }
-
 
 } // namespace 
 
-
-
-std::string strReplace(const std::string& str, const std::string& what, const std::string& with)
+std::string genStrReplace(const std::string& str, const std::string& what, const std::string& with)
 {
     std::string result;
     std::size_t pos = 0U;
@@ -209,15 +206,15 @@ std::string strReplace(const std::string& str, const std::string& what, const st
     return result;
 }    
 
-std::string strToName(const std::string& value)
+std::string genStrToName(const std::string& value)
 {
-    auto result = strReplace(value, ".", "_");
-    result = strReplace(result, "-", "_");
-    result = strReplace(result, " ", "_");
+    auto result = genStrReplace(value, ".", "_");
+    result = genStrReplace(result, "-", "_");
+    result = genStrReplace(result, " ", "_");
     return result;
 }
 
-std::vector<std::string> strSplitByAnyChar(
+std::vector<std::string> genStrSplitByAnyChar(
     const std::string& str, 
     const std::string& splitChars,
     bool compressed)
@@ -243,12 +240,12 @@ std::vector<std::string> strSplitByAnyChar(
     return result;
 }
 
-std::string strInsertIndent(const std::string& str)
+std::string genStrInsertIndent(const std::string& str)
 {
-    return strings::indentStr() + strReplace(str, "\n", "\n" + strings::indentStr());
+    return strings::genIndentStr() + genStrReplace(str, "\n", "\n" + strings::genIndentStr());
 }
 
-unsigned strToUnsigned(const std::string& str)
+unsigned genStrToUnsigned(const std::string& str)
 {
     try {
         return static_cast<unsigned>(std::stoul(str));
@@ -258,7 +255,7 @@ unsigned strToUnsigned(const std::string& str)
     }
 }
 
-bool strStartsWith(const std::string& str, const std::string& prefix)
+bool genStrStartsWith(const std::string& str, const std::string& prefix)
 {
     if (str.size() < prefix.size()) {
         return false;
@@ -267,7 +264,7 @@ bool strStartsWith(const std::string& str, const std::string& prefix)
     return std::equal(prefix.begin(), prefix.end(), str.begin());
 }
 
-bool strEndsWith(const std::string& str, const std::string& suffix)
+bool genStrEndsWith(const std::string& str, const std::string& suffix)
 {
     if (str.size() < suffix.size()) {
         return false;
@@ -276,7 +273,7 @@ bool strEndsWith(const std::string& str, const std::string& suffix)
     return std::equal(suffix.rbegin(), suffix.rend(), str.rbegin());
 }
 
-std::string strToUpper(const std::string& str)
+std::string genStrToUpper(const std::string& str)
 {
     std::string result;
     result.reserve(str.size());
@@ -289,7 +286,7 @@ std::string strToUpper(const std::string& str)
     return result;
 }
 
-std::string strToLower(const std::string& str)
+std::string genStrToLower(const std::string& str)
 {
     std::string result;
     result.reserve(str.size());
@@ -302,7 +299,7 @@ std::string strToLower(const std::string& str)
     return result;
 }
 
-std::string strToMacroName(const std::string& str)
+std::string genStrToMacroName(const std::string& str)
 {
     std::string result;
     for (char ch : str) {
@@ -315,7 +312,7 @@ std::string strToMacroName(const std::string& str)
     return result;
 }
 
-std::string numToString(std::uintmax_t value, unsigned hexWidth)
+std::string genNumToString(std::uintmax_t value, unsigned hexWidth)
 {
     if (hexWidth == 0U) {
         if (value <= std::numeric_limits<std::uint16_t>::max()) {
@@ -345,7 +342,7 @@ std::string numToString(std::uintmax_t value, unsigned hexWidth)
     return stream.str();
 }
 
-std::string numToString(std::intmax_t value)
+std::string genNumToString(std::intmax_t value)
 {
     if ((std::numeric_limits<std::int32_t>::min() <= value) &&
         (value <= std::numeric_limits<std::int32_t>::max())) {
@@ -363,7 +360,7 @@ std::string numToString(std::intmax_t value)
     return stream.str();
 }
 
-std::string numToStringWithHexComment(std::intmax_t value)
+std::string genNumToStringWithHexComment(std::intmax_t value)
 {
     std::stringstream stream;
     if (0 <= value) {
@@ -375,7 +372,7 @@ std::string numToStringWithHexComment(std::intmax_t value)
 
     if ((std::numeric_limits<std::int32_t>::min() <= value) &&
         (value <= std::numeric_limits<std::int32_t>::max())) {
-        return numToString(value) + " /* " + stream.str() + " */";
+        return genNumToString(value) + " /* " + stream.str() + " */";
     }  
     
     if (value < 0) {
@@ -385,18 +382,18 @@ std::string numToStringWithHexComment(std::intmax_t value)
 
     auto unsValue = static_cast<std::uintmax_t>(value);
     if (unsValue <= std::numeric_limits<std::uint32_t>::max()) {
-        return numToString(unsValue) + " /* " + stream.str() + " */";
+        return genNumToString(unsValue) + " /* " + stream.str() + " */";
     }
 
-    return numToString(unsValue, 1U);
+    return genNumToString(unsValue, 1U);
 }
 
-std::string numToString(unsigned value, unsigned hexWidth)
+std::string genNumToString(unsigned value, unsigned hexWidth)
 {
-    return numToString(static_cast<std::uintmax_t>(value), hexWidth);
+    return genNumToString(static_cast<std::uintmax_t>(value), hexWidth);
 }
 
-const std::string& boolToString(bool value)
+const std::string& genBoolToString(bool value)
 {
     if (value) {
         static const std::string TrueStr("true");
@@ -407,38 +404,38 @@ const std::string& boolToString(bool value)
     return FalseStr;
 }
 
-std::string pathAddElem(const std::string& path, const std::string& elem)
+std::string genPathAddElem(const std::string& path, const std::string& elem)
 {
     std::string result = path;
-    if ((!result.empty()) && (!isPathSep(result.back()))) {
-        result.push_back(PathSep);
+    if ((!result.empty()) && (!genIsPathSep(result.back()))) {
+        result.push_back(GenPathSep);
     }
 
     result.append(elem);
     return result;
 }
 
-std::string pathUp(const std::string& path)
+std::string genPathUp(const std::string& path)
 {
-    auto sepPos = path.rfind(PathSep);
+    auto sepPos = path.rfind(GenPathSep);
     do {
         if (sepPos != std::string::npos) {
             break;
         }
 
 #ifdef WIN32
-        sepPos = path.rfind(WinPathSep);
+        sepPos = path.rfind(GenWinPathSep);
         if (sepPos != std::string::npos) {
             break;
         }        
 #endif     
 
-        return strings::emptyString();
+        return strings::genEmptyString();
     } while (false);
     return path.substr(0, sepPos);
 }
 
-std::string nameToNs(const std::string& value)
+std::string genNameToNs(const std::string& value)
 {
     std::string result;
     for (auto ch : value) {
@@ -458,7 +455,12 @@ std::string nameToNs(const std::string& value)
     return result;
 }
 
-std::string processTemplate(const std::string& templ, const ReplacementMap& repl, bool tidyCode)
+std::string genScopeToRelPath(const std::string& value)
+{
+    return genStrReplace(value, "::", "/");
+}
+
+std::string genProcessTemplate(const std::string& templ, const GenReplacementMap& repl, bool tidyCode)
 {
     std::string result;
     result.reserve(templ.size() * 2U);
@@ -481,7 +483,7 @@ std::string processTemplate(const std::string& templ, const ReplacementMap& repl
         auto afterSuffixPos = suffixPos + Suffix.size();
 
         std::string key(templ.begin() + prefixPos + Prefix.size(), templ.begin() + suffixPos);
-        const std::string* valuePtr = &commsdsl::gen::strings::emptyString();
+        const std::string* valuePtr = &commsdsl::gen::strings::genEmptyString();
         auto iter = repl.find(key);
         if (iter != repl.end()) {
             valuePtr = &(iter->second);
@@ -544,7 +546,7 @@ std::string processTemplate(const std::string& templ, const ReplacementMap& repl
         std::string repSep("\n");
         repSep.reserve(repSep.size() + indent);
         std::fill_n(std::back_inserter(repSep), indent, ' ');
-        auto updatedValue = strReplace(value, "\n", repSep);
+        auto updatedValue = genStrReplace(value, "\n", repSep);
         result += updatedValue;
     }
 
@@ -553,13 +555,13 @@ std::string processTemplate(const std::string& templ, const ReplacementMap& repl
     }
 
     if (tidyCode) {
-        doTidyCode(result);
+        genDoTidyCode(result);
     }
     return result;
 }
 
-std::string strListToString(
-    const StringsList& list,
+std::string genStrListToString(
+    const GenStringsList& list,
     const std::string& join,
     const std::string& last)
 {
@@ -576,7 +578,7 @@ std::string strListToString(
     return result;
 }
 
-void addToStrList(std::string&& value, StringsList& list)
+void genAddToStrList(std::string&& value, GenStringsList& list)
 {
     auto iter = std::find(list.begin(), list.end(), value);
     if (iter == list.end()) {
@@ -584,7 +586,7 @@ void addToStrList(std::string&& value, StringsList& list)
     }
 }
 
-void addToStrList(const std::string& value, StringsList& list)
+void genAddToStrList(const std::string& value, GenStringsList& list)
 {
     auto iter = std::find(list.begin(), list.end(), value);
     if (iter == list.end()) {
@@ -592,7 +594,7 @@ void addToStrList(const std::string& value, StringsList& list)
     }
 }
 
-std::string strMakeMultiline(const std::string& value, unsigned len, bool dropReplacedWhiteChar)
+std::string genStrMakeMultiline(const std::string& value, unsigned len, bool dropReplacedWhiteChar)
 {
     if (value.size() <= len) {
         return value;
@@ -670,7 +672,7 @@ std::string strMakeMultiline(const std::string& value, unsigned len, bool dropRe
     return result;
 }
 
-std::string readFileContents(const std::string& filePath)
+std::string genReadFileContents(const std::string& filePath)
 {
     std::string result;
     std::ifstream stream(filePath);
@@ -681,20 +683,20 @@ std::string readFileContents(const std::string& filePath)
     return result;
 }
 
-bool isFileReadable(const std::string& filePath)
+bool genIsFileReadable(const std::string& filePath)
 {
     std::ifstream stream(filePath);
     return static_cast<bool>(stream);
 }
 
-const std::string& displayName(const std::string& dslDisplayName, const std::string& dslName)
+const std::string& genDisplayName(const std::string& dslDisplayName, const std::string& dslName)
 {
     if (dslDisplayName.empty()) {
         return dslName;
     }
 
-    if (dslDisplayName == strings::forceEmptyDisplayNameStr()) {
-        return strings::emptyString();
+    if (dslDisplayName == strings::genForceEmptyDisplayNameStr()) {
+        return strings::genEmptyString();
     }
 
     return dslDisplayName;

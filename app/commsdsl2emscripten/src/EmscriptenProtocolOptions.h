@@ -26,11 +26,11 @@ class EmscriptenGenerator;
 class EmscriptenProtocolOptions
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     static std::string emscriptenClassName(const EmscriptenGenerator& generator);
     static bool emscriptenIsDefined(const EmscriptenGenerator& generator);
-    static void emscriptenAddInclude(const EmscriptenGenerator& generator, StringsList& list);
+    static void emscriptenAddInclude(const EmscriptenGenerator& generator, GenStringsList& list);
 
     static bool emscriptenWrite(EmscriptenGenerator& generator);
 
@@ -41,7 +41,7 @@ private:
     std::string emscriptenTypeDefInternal();
     std::string emscriptenIncludesInternal();
 
-    EmscriptenGenerator& m_generator;
+    EmscriptenGenerator& m_emscriptenGenerator;
 };
 
 } // namespace commsdsl2emscripten

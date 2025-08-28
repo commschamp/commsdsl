@@ -30,44 +30,44 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenListField::EmscriptenListField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
-    Base(generator, dslObj, parent),
-    EmscriptenBase(static_cast<Base&>(*this))
+EmscriptenListField::EmscriptenListField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    EmscriptenBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool EmscriptenListField::prepareImpl()
+bool EmscriptenListField::genPrepareImpl()
 {
-    if (!Base::prepareImpl()) {
+    if (!GenBase::genPrepareImpl()) {
         return false;
     }
 
-    auto* memElement = memberElementField();
+    auto* memElement = genMemberElementField();
     if (memElement != nullptr) {
         emscriptenAddMember(memElement);
-        m_element = EmscriptenField::cast(memElement);
+        m_element = EmscriptenField::emscriptenCast(memElement);
     }
     else {
-        m_element = EmscriptenField::cast(externalElementField());
+        m_element = EmscriptenField::emscriptenCast(genExternalElementField());
     }
     assert(m_element != nullptr);
     m_element->emscriptenSetListElement();
     return true;
 }
 
-bool EmscriptenListField::writeImpl() const
+bool EmscriptenListField::genWriteImpl() const
 {
     return emscriptenWrite();
 }
 
-void EmscriptenListField::emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const
+void EmscriptenListField::emscriptenHeaderAddExtraIncludesImpl(GenStringsList& incs) const
 {
-    auto* extElement = externalElementField();
+    auto* extElement = genExternalElementField();
     if (extElement == nullptr) {
         return;
     }
 
-    auto* emsciptenField = EmscriptenField::cast(extElement);
+    auto* emsciptenField = EmscriptenField::emscriptenCast(extElement);
     assert(emsciptenField != nullptr);
     incs.push_back(emsciptenField->emscriptenRelHeaderPath());
 }
@@ -86,7 +86,7 @@ std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
         "}\n"
         ;   
 
-    if (!field().dslObj().isFixedValue()) {
+    if (!emscriptenGenField().genParseObj().parseIsFixedValue()) {
         templ += 
             "\n"
             "void setValue(const ValueType& val)\n"
@@ -97,13 +97,13 @@ std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
     }             
 
     assert(m_element != nullptr);
-    auto& gen = EmscriptenGenerator::cast(generator());
-    util::ReplacementMap repl = {
-        {"ELEMENT", gen.emscriptenClassName(m_element->field())},
+    auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"ELEMENT", gen.emscriptenClassName(m_element->emscriptenGenField())},
         {"STORAGE", emscriptenHeaderValueStorageAccByPointer()},
     };
 
-    return util::processTemplate(templ, repl);
+    return util::genProcessTemplate(templ, repl);
 }
 
 std::string EmscriptenListField::emscriptenSourceBindValueAccImpl() const
@@ -112,12 +112,12 @@ std::string EmscriptenListField::emscriptenSourceBindValueAccImpl() const
         "#^#STORAGE#$#\n"
         "#^#ACC#$#";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"STORAGE", emscriptenSourceBindValueStorageAccByPointer()},
         {"ACC", emscriptenSourceBindValueAccByPointer()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 

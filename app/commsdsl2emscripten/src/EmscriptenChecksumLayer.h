@@ -17,19 +17,23 @@
 
 #include "EmscriptenLayer.h"
 
-#include "commsdsl/gen/ChecksumLayer.h"
+#include "commsdsl/gen/GenChecksumLayer.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenChecksumLayer final : public commsdsl::gen::ChecksumLayer, public EmscriptenLayer
+class EmscriptenChecksumLayer final : public commsdsl::gen::GenChecksumLayer, public EmscriptenLayer
 {
-    using Base = commsdsl::gen::ChecksumLayer;
+    using GenBase = commsdsl::gen::GenChecksumLayer;
     using EmscriptenBase = EmscriptenLayer;
+
 public:
-    EmscriptenChecksumLayer(EmscriptenGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    EmscriptenChecksumLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent);
 };
 
 } // namespace commsdsl2emscripten

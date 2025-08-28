@@ -30,27 +30,27 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenRefField::EmscriptenRefField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
-    Base(generator, dslObj, parent),
-    EmscriptenBase(static_cast<Base&>(*this))
+EmscriptenRefField::EmscriptenRefField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    EmscriptenBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool EmscriptenRefField::writeImpl() const
+bool EmscriptenRefField::genWriteImpl() const
 {
     return emscriptenWrite();
 }
 
-void EmscriptenRefField::emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const
+void EmscriptenRefField::emscriptenHeaderAddExtraIncludesImpl(GenStringsList& incs) const
 {
-    auto* refField = EmscriptenField::cast(referencedField());
+    auto* refField = EmscriptenField::emscriptenCast(genReferencedField());
     assert(refField != nullptr);
     incs.push_back(refField->emscriptenRelHeaderPath());
 }
 
 std::string EmscriptenRefField::emscriptenHeaderValueAccImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string EmscriptenRefField::emscriptenHeaderExtraPublicFuncsImpl() const
@@ -63,21 +63,21 @@ std::string EmscriptenRefField::emscriptenHeaderExtraPublicFuncsImpl() const
         "            reinterpret_cast<#^#REF_BASE#$#*>(this));\n"
         "}\n";
 
-    auto& gen = EmscriptenGenerator::cast(generator());
-    auto* refField = EmscriptenField::cast(referencedField());
+    auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
+    auto* refField = EmscriptenField::emscriptenCast(genReferencedField());
     assert(refField != nullptr);
 
-    util::ReplacementMap repl = {
-        {"REF_FIELD", gen.emscriptenClassName(refField->field())},
+    util::GenReplacementMap repl = {
+        {"REF_FIELD", gen.emscriptenClassName(refField->emscriptenGenField())},
         {"REF_BASE", refField->emscriptenTemplateScope()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenRefField::emscriptenSourceBindValueAccImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string EmscriptenRefField::emscriptenSourceBindFuncsImpl() const
@@ -85,11 +85,11 @@ std::string EmscriptenRefField::emscriptenSourceBindFuncsImpl() const
     static const std::string Templ = 
         ".function(\"ref\", &#^#CLASS_NAME#$#::ref, emscripten::allow_raw_pointers())";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 

@@ -17,7 +17,7 @@
 
 #include "ToolsQtMsgFactory.h"
 
-#include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/GenNamespace.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2tools_qt
@@ -26,27 +26,30 @@ namespace commsdsl2tools_qt
 class ToolsQtGenerator;
 class ToolsQtInterface;
 
-class ToolsQtNamespace final : public commsdsl::gen::Namespace
+class ToolsQtNamespace final : public commsdsl::gen::GenNamespace
 {
-    using Base = commsdsl::gen::Namespace;
+    using GenBase = commsdsl::gen::GenNamespace;
+
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using ParseNamespace = commsdsl::parse::ParseNamespace;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    explicit ToolsQtNamespace(ToolsQtGenerator& generator, commsdsl::parse::Namespace dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtNamespace(ToolsQtGenerator& generator, ParseNamespace parseObj, GenElem* parent);
 
-    StringsList toolsSourceFiles(const ToolsQtInterface& interface) const;
+    GenStringsList toolsSourceFiles(const ToolsQtInterface& interface) const;
 
-    static const ToolsQtNamespace* cast(const commsdsl::gen::Namespace* obj)
+    static const ToolsQtNamespace* toolsCast(const commsdsl::gen::GenNamespace* obj)
     {
         return static_cast<const ToolsQtNamespace*>(obj);
     }
 
-    std::string toolsFactoryRelHeaderPath(const commsdsl::gen::Interface& iFace) const;
-    std::string toolsFactoryClassScope(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsFactoryRelHeaderPath(const commsdsl::gen::GenInterface& iFace) const;
+    std::string toolsFactoryClassScope(const commsdsl::gen::GenInterface& iFace) const;
 
 
 protected:
-    virtual bool writeImpl() const override;    
+    virtual bool genWriteImpl() const override;    
 
 private:
     ToolsQtMsgFactory m_factory;

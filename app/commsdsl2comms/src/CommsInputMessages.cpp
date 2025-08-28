@@ -41,7 +41,7 @@ namespace
 const std::string ClientInputSuffixStr = "ClientInputMessages";    
 const std::string ServerInputSuffixStr = "ServerInputMessages";
 
-using CheckFunction = std::function<bool (const commsdsl::gen::Message&)>;
+using CheckFunction = std::function<bool (const commsdsl::gen::GenMessage&)>;
 bool writeFileInternal(
     const std::string& name,
     const std::string& desc,
@@ -49,29 +49,29 @@ bool writeFileInternal(
     const CommsNamespace& parent,
     CheckFunction&& func)
 {
-    auto filePath = comms::headerPathForInput(name, generator, parent);
-    generator.logger().info("Generating " + filePath);
+    auto filePath = comms::genHeaderPathForInput(name, generator, parent);
+    generator.genLogger().genInfo("Generating " + filePath);
 
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!generator.createDirectory(dirPath)) {
+    if (!generator.genCreateDirectory(dirPath)) {
         return false;
     }      
 
     std::ofstream stream(filePath);
     if (!stream) {
-        generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }    
 
-    auto allMessages = parent.getAllMessagesIdSorted();
-    util::StringsList includes = {
+    auto allMessages = parent.genGetAllMessagesIdSorted();
+    util::GenStringsList includes = {
         "<tuple>",
-        comms::relHeaderForOptions(strings::defaultOptionsClassStr(), generator)
+        comms::genRelHeaderForOptions(strings::genDefaultOptionsClassStr(), generator)
     };
 
-    util::StringsList scopes;
-    util::StringsList aliases;
+    util::GenStringsList scopes;
+    util::GenStringsList aliases;
 
     for (auto* m : allMessages) {
         assert(m != nullptr);
@@ -79,10 +79,10 @@ bool writeFileInternal(
             continue;
         }
 
-        auto scopeStr = comms::scopeFor(*m, generator);
+        auto scopeStr = comms::genScopeFor(*m, generator);
         auto aliasStr = 
-            "using prefix_ ## " + comms::className(m->dslObj().name()) + " ## suffix_ = " + scopeStr + "<interface_, opts_>;";
-        includes.push_back(comms::relHeaderPathFor(*m, generator));
+            "using prefix_ ## " + comms::genClassName(m->genParseObj().parseName()) + " ## suffix_ = " + scopeStr + "<interface_, opts_>;";
+        includes.push_back(comms::genRelHeaderPathFor(*m, generator));
         scopes.push_back(scopeStr + "<TBase, TOpt>");
         aliases.push_back(std::move(aliasStr));
     }
@@ -123,29 +123,29 @@ bool writeFileInternal(
         "    #^#PROT_PREFIX#$#_ALIASES_FOR_#^#MACRO_NAME#$#(prefix_, suffix_, interface_, #^#OPTIONS#$#)\n"
         ;
 
-    comms::prepareIncludeStatement(includes);
-    util::ReplacementMap repl = {
+    comms::genPrepareIncludeStatement(includes);
+    util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"NAME", name},
-        {"NS_BEGIN", comms::namespaceBeginFor(parent, generator)},
-        {"NS_END", comms::namespaceEndFor(parent, generator)},          
-        {"OPTIONS", comms::scopeForOptions(strings::defaultOptionsClassStr(), generator)},
-        {"INCLUDES", util::strListToString(includes, "\n", "\n")},
-        {"MESSAGES", util::strListToString(scopes, ",\n", "")},
-        {"EXTEND", util::readFileContents(comms::inputCodePathForInput(name, generator, parent) + strings::extendFileSuffixStr())},
-        {"APPEND", util::readFileContents(comms::inputCodePathForInput(name, generator, parent) + strings::appendFileSuffixStr())},
-        {"PROT_PREFIX", util::strToUpper(util::strReplace(comms::scopeFor(parent, generator), "::", "_"))},
-        {"MACRO_NAME", util::strToMacroName(name)},
-        {"ALIASES", util::strListToString(aliases, " \\\n", "\n")},
+        {"NS_BEGIN", comms::genNamespaceBeginFor(parent, generator)},
+        {"NS_END", comms::genNamespaceEndFor(parent, generator)},          
+        {"OPTIONS", comms::genScopeForOptions(strings::genDefaultOptionsClassStr(), generator)},
+        {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
+        {"MESSAGES", util::genStrListToString(scopes, ",\n", "")},
+        {"EXTEND", util::genReadFileContents(comms::genInputCodePathForInput(name, generator, parent) + strings::genExtendFileSuffixStr())},
+        {"APPEND", util::genReadFileContents(comms::genInputCodePathForInput(name, generator, parent) + strings::genAppendFileSuffixStr())},
+        {"PROT_PREFIX", util::genStrToUpper(util::genStrReplace(comms::genScopeFor(parent, generator), "::", "_"))},
+        {"MACRO_NAME", util::genStrToMacroName(name)},
+        {"ALIASES", util::genStrListToString(aliases, " \\\n", "\n")},
         {"DESC", desc},
-        {"LOW_DESC", util::strToLower(desc)},
+        {"LOW_DESC", util::genStrToLower(desc)},
     };
 
     if (!repl["EXTEND"].empty()) {
-        repl["ORIG"] = strings::origSuffixStr();
+        repl["ORIG"] = strings::genOrigSuffixStr();
     }
     
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -171,7 +171,7 @@ bool CommsInputMessages::commsWrite() const
 bool CommsInputMessages::commsWriteAllMessagesInternal() const
 {
     auto checkFunc = 
-        [](const commsdsl::gen::Message& msg) noexcept
+        [](const commsdsl::gen::GenMessage& msg) noexcept
         {
             static_cast<void>(msg);
             return true;
@@ -179,7 +179,7 @@ bool CommsInputMessages::commsWriteAllMessagesInternal() const
 
     return 
         writeFileInternal(
-            strings::allMessagesStr(),
+            strings::genAllMessagesStr(),
             "All",
             m_generator,
             m_parent,
@@ -190,9 +190,9 @@ bool CommsInputMessages::commsWriteAllMessagesInternal() const
 bool CommsInputMessages::commsWriteClientInputMessagesInternal() const
 {
     auto checkFunc = 
-        [](const commsdsl::gen::Message& msg)
+        [](const commsdsl::gen::GenMessage& msg)
         {
-            return msg.dslObj().sender() != commsdsl::parse::Message::Sender::Client;
+            return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Client;
         };
 
     return 
@@ -207,9 +207,9 @@ bool CommsInputMessages::commsWriteClientInputMessagesInternal() const
 bool CommsInputMessages::commsWriteServerInputMessagesInternal() const
 {
     auto checkFunc = 
-        [](const commsdsl::gen::Message& msg)
+        [](const commsdsl::gen::GenMessage& msg)
         {
-            return msg.dslObj().sender() != commsdsl::parse::Message::Sender::Server;
+            return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Server;
         };
 
     return 
@@ -223,13 +223,13 @@ bool CommsInputMessages::commsWriteServerInputMessagesInternal() const
 
 bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
 {
-    auto& platforms = m_generator.currentSchema().platformNames();
+    auto& platforms = m_generator.genCurrentSchema().platformNames();
     for (auto& p : platforms) {
 
         auto platformCheckFunc = 
-            [&p](const commsdsl::gen::Message& msg)
+            [&p](const commsdsl::gen::GenMessage& msg)
             {
-                auto& msgPlatforms = msg.dslObj().platforms();
+                auto& msgPlatforms = msg.genParseObj().parsePlatforms();
                 if (msgPlatforms.empty()) {
                     return true;
                 }
@@ -238,36 +238,36 @@ bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
             };
 
         auto allCheckFunc = 
-            [&platformCheckFunc](const commsdsl::gen::Message& msg)
+            [&platformCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
                 return platformCheckFunc(msg);
             };
 
-        if (!writeFileInternal(comms::className(p) + "Messages", "All " + p + " platform", m_generator, m_parent, allCheckFunc)) {
+        if (!writeFileInternal(comms::genClassName(p) + "Messages", "All " + p + " platform", m_generator, m_parent, allCheckFunc)) {
             return false;
         }
 
         auto clientCheckFunc = 
-            [&platformCheckFunc](const commsdsl::gen::Message& msg)
+            [&platformCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
                 return 
                     platformCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Client);
+                    (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Client);
             };
 
-        if (!writeFileInternal(comms::className(p) + ClientInputSuffixStr, "Client input " + p + " platform", m_generator, m_parent, clientCheckFunc)) {
+        if (!writeFileInternal(comms::genClassName(p) + ClientInputSuffixStr, "Client input " + p + " platform", m_generator, m_parent, clientCheckFunc)) {
             return false;
         }  
 
         auto serverCheckFunc = 
-            [&platformCheckFunc](const commsdsl::gen::Message& msg)
+            [&platformCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
                 return 
                     platformCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Server);
+                    (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Server);
             };
 
-        if (!writeFileInternal(comms::className(p) + ServerInputSuffixStr, "Server input " + p + " platform", m_generator, m_parent, serverCheckFunc)) {
+        if (!writeFileInternal(comms::genClassName(p) + ServerInputSuffixStr, "Server input " + p + " platform", m_generator, m_parent, serverCheckFunc)) {
             return false;
         }                     
     };        
@@ -281,42 +281,42 @@ bool CommsInputMessages::commsWriteExtraInputMessagesInternal() const
     for (auto& b : extraBundles) {
 
         auto bundleCheckFunc = 
-            [&b](const commsdsl::gen::Message& msg)
+            [&b](const commsdsl::gen::GenMessage& msg)
             {
                 return std::find(b.second.begin(), b.second.end(), &msg) != b.second.end();
             };
 
         auto allCheckFunc = 
-            [&bundleCheckFunc](const commsdsl::gen::Message& msg)
+            [&bundleCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
                 return bundleCheckFunc(msg);
             };
 
-        if (!writeFileInternal(comms::className(b.first) + "Messages", "All " + b.first + " bundle", m_generator, m_parent, allCheckFunc)) {
+        if (!writeFileInternal(comms::genClassName(b.first) + "Messages", "All " + b.first + " bundle", m_generator, m_parent, allCheckFunc)) {
             return false;
         }
 
         auto clientCheckFunc = 
-            [&bundleCheckFunc](const commsdsl::gen::Message& msg)
+            [&bundleCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
                 return 
                     bundleCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Client);
+                    (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Client);
             };
 
-        if (!writeFileInternal(comms::className(b.first) + ClientInputSuffixStr, "Client input " + b.first + " bundle", m_generator, m_parent, clientCheckFunc)) {
+        if (!writeFileInternal(comms::genClassName(b.first) + ClientInputSuffixStr, "Client input " + b.first + " bundle", m_generator, m_parent, clientCheckFunc)) {
             return false;
         }  
 
         auto serverCheckFunc = 
-            [&bundleCheckFunc](const commsdsl::gen::Message& msg)
+            [&bundleCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
                 return 
                     bundleCheckFunc(msg) &&
-                    (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Server);
+                    (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Server);
             };
 
-        if (!writeFileInternal(comms::className(b.first) + ServerInputSuffixStr, "Server input " + b.first + " bundle", m_generator, m_parent, serverCheckFunc)) {
+        if (!writeFileInternal(comms::genClassName(b.first) + ServerInputSuffixStr, "Server input " + b.first + " bundle", m_generator, m_parent, serverCheckFunc)) {
             return false;
         }                     
     };        

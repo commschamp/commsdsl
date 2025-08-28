@@ -17,23 +17,27 @@
 
 #include "SwigField.h"
 
-#include "commsdsl/gen/StringField.h"
+#include "commsdsl/gen/GenStringField.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigStringField final : public commsdsl::gen::StringField, public SwigField
+class SwigStringField final : public commsdsl::gen::GenStringField, public SwigField
 {
-    using Base = commsdsl::gen::StringField;
+    using GenBase = commsdsl::gen::GenStringField;
     using SwigBase = SwigField;
+
 public:
-    SwigStringField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    SwigStringField(SwigGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    // Base overrides
-    virtual bool writeImpl() const override;    
+    // GenBase overrides
+    virtual bool genWriteImpl() const override;    
 
     // SwigBase overrides
     virtual std::string swigValueTypeDeclImpl() const override;

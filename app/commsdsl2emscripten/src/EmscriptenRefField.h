@@ -17,25 +17,29 @@
 
 #include "EmscriptenField.h"
 
-#include "commsdsl/gen/RefField.h"
+#include "commsdsl/gen/GenRefField.h"
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenRefField final : public commsdsl::gen::RefField, public EmscriptenField
+class EmscriptenRefField final : public commsdsl::gen::GenRefField, public EmscriptenField
 {
-    using Base = commsdsl::gen::RefField;
+    using GenBase = commsdsl::gen::GenRefField;
     using EmscriptenBase = EmscriptenField;
+
 public:
-    EmscriptenRefField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    EmscriptenRefField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    // Base overrides
-    virtual bool writeImpl() const override;    
+    // GenBase overrides
+    virtual bool genWriteImpl() const override;    
 
     // EmscriptenBase overrides
-    virtual void emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const override;
+    virtual void emscriptenHeaderAddExtraIncludesImpl(GenStringsList& incs) const override;
     virtual std::string emscriptenHeaderValueAccImpl() const override;
     virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
     virtual std::string emscriptenSourceBindValueAccImpl() const override;

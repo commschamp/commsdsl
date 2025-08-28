@@ -18,8 +18,8 @@
 #include "commsdsl/gen/util.h"
 
 #include <algorithm>
-#include <iostream>
 #include <cassert>
+#include <iostream>
 #include <vector>
 
 namespace util = commsdsl::gen::util;
@@ -30,23 +30,7 @@ namespace commsdsl2tools_qt
 namespace
 {
 
-const std::string QuietStr("quiet");
-const std::string FullQuietStr("q," + QuietStr);
-const std::string VersionStr("version");
-const std::string OutputDirStr("output-dir");
-const std::string FullOutputDirStr("o," + OutputDirStr);
-const std::string InputFilesListStr("input-files-list");
-const std::string FullInputFilesListStr("i," + InputFilesListStr);
-const std::string InputFilesPrefixStr("input-files-prefix");
-const std::string FullInputFilesPrefixStr("p," + InputFilesPrefixStr);
-const std::string NamespaceStr("namespace");
-const std::string FullNamespaceStr("n," + NamespaceStr);
-const std::string WarnAsErrStr("warn-as-err");
-const std::string CodeInputDirStr("code-input-dir");
-const std::string FullCodeInputDirStr("c," + CodeInputDirStr);
 const std::string ProtocolStr("protocol");
-const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
-const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
 const std::string ForceMainNamespaceInOptionsStr("force-main-ns-in-options");
 
 
@@ -54,19 +38,8 @@ const std::string ForceMainNamespaceInOptionsStr("force-main-ns-in-options");
 
 ToolsQtProgramOptions::ToolsQtProgramOptions()
 {
-    addHelpOption()
-    (VersionStr, "Print version string and exit.")
-    (FullQuietStr, "Quiet, show only warnings and errors.")
-    (FullOutputDirStr, "Output directory path. When not provided current is used.", true)        
-    (FullInputFilesListStr, "File containing list of input files.", true)        
-    (FullInputFilesPrefixStr, "Prefix for the values from the list file.", true)
-    (FullNamespaceStr, 
-        "Force main namespace change. Defaults to schema name. "
-        "In case of having multiple schemas the renaming happends to the last protocol one. "
-        "Renaming of non-protocol or multiple schemas is allowed using <orig_name>:<new_name> comma separated pairs.",
-        true) 
-    (WarnAsErrStr, "Treat warning as error.")
-    (FullCodeInputDirStr, "Directory with code updates.", true)
+    genAddCommonOptions();
+    genRemoveMinRemoteVersionOptions()
     (ProtocolStr, 
         "Protocol information for plugin generation. Exepected to be in the following format:\n"
         "\"frame_id:interface_id:protocol_name:description:plugin_id\".\nUse comma separation for multiple plugins. If not provided, "
@@ -79,69 +52,18 @@ ToolsQtProgramOptions::ToolsQtProgramOptions()
         "  * plugin_id - ID of the plugin to be used in the saved configuration file. When empty or "
         "omitted same as \"name\" value is assumed.\n"
         , true)    
-    (FullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")            
     (ForceMainNamespaceInOptionsStr, "Force having main namespace struct in generated options.")
     ;
 }
 
-bool ToolsQtProgramOptions::quietRequested() const
+ToolsQtProgramOptions::ToolsPluginInfosList ToolsQtProgramOptions::toolsGetPlugins() const
 {
-    return isOptUsed(QuietStr);
-}
-
-bool ToolsQtProgramOptions::versionRequested() const
-{
-    return isOptUsed(VersionStr);
-}
-
-bool ToolsQtProgramOptions::warnAsErrRequested() const
-{
-    return isOptUsed(WarnAsErrStr);
-}
-
-const std::string& ToolsQtProgramOptions::getFilesListFile() const
-{
-    return value(InputFilesListStr);
-}
-
-const std::string& ToolsQtProgramOptions::getFilesListPrefix() const
-{
-    return value(InputFilesPrefixStr);
-}
-
-const ToolsQtProgramOptions::ArgsList& ToolsQtProgramOptions::getFiles() const
-{
-    return args();
-}
-
-const std::string& ToolsQtProgramOptions::getOutputDirectory() const
-{
-    return value(OutputDirStr);
-}
-
-bool ToolsQtProgramOptions::hasNamespaceOverride() const
-{
-    return isOptUsed(NamespaceStr);
-}
-
-const std::string& ToolsQtProgramOptions::getNamespace() const
-{
-    return value(NamespaceStr);
-}
-
-const std::string& ToolsQtProgramOptions::getCodeInputDirectory() const
-{
-    return value(CodeInputDirStr);
-}
-
-ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::getPlugins() const
-{
-    PluginInfosList result;
-    if (!isOptUsed(ProtocolStr)) {
+    ToolsPluginInfosList result;
+    if (!genIsOptUsed(ProtocolStr)) {
         return result;
     }
 
-    auto infos = util::strSplitByAnyChar(value(ProtocolStr), ",");
+    auto infos = util::genStrSplitByAnyChar(genValue(ProtocolStr), ",");
     for (auto& i : infos) {
         enum ValueIdx : unsigned
         {
@@ -153,7 +75,7 @@ ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::getPlugins() const
             ValueIdx_NumOfValues
         };
 
-        auto values = util::strSplitByAnyChar(i, ":", false);
+        auto values = util::genStrSplitByAnyChar(i, ":", false);
         values.resize(std::max(values.size(), std::size_t(ValueIdx_NumOfValues)));
         result.resize(result.size() + 1U);
         auto& resInfo = result.back();
@@ -166,14 +88,9 @@ ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::getPlugins() const
     return result;
 }
 
-bool ToolsQtProgramOptions::multipleSchemasEnabled() const
+bool ToolsQtProgramOptions::toolsIsMainNamespaceInOptionsForced() const
 {
-    return isOptUsed(MultipleSchemasEnabledStr);
-}
-
-bool ToolsQtProgramOptions::isMainNamespaceInOptionsForced() const
-{
-    return isOptUsed(ForceMainNamespaceInOptionsStr);
+    return genIsOptUsed(ForceMainNamespaceInOptionsStr);
 }
 
 

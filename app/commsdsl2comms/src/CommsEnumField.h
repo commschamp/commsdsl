@@ -17,7 +17,7 @@
 
 #include "CommsField.h"
 
-#include "commsdsl/gen/EnumField.h"
+#include "commsdsl/gen/GenEnumField.h"
 #include "commsdsl/gen/util.h"
 
 #include <vector>
@@ -28,25 +28,30 @@ namespace commsdsl2comms
 class CommsGenerator;
 class CommsNamespace;
 
-class CommsEnumField final : public commsdsl::gen::EnumField, public CommsField
+class CommsEnumField final : public commsdsl::gen::GenEnumField, public CommsField
 {
-    using Base = commsdsl::gen::EnumField;
+    using GenBase = commsdsl::gen::GenEnumField;
     using CommsBase = CommsField;
 public:
-    CommsEnumField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    using ParseField = commsdsl::parse::ParseField;
 
-    commsdsl::gen::util::StringsList commsEnumValues() const;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+
+    CommsEnumField(CommsGenerator& generator, ParseField parseObj, GenElem* parent);
+
+    GenStringsList commsEnumValues() const;
 
 protected:
-    // Base overrides
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
+    // GenBase overrides
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;    
 
     // CommsBase overrides
-    virtual IncludesList commsCommonIncludesImpl() const override;
+    virtual CommsIncludesList commsCommonIncludesImpl() const override;
     virtual std::string commsCommonCodeBodyImpl() const override;
     virtual std::string commsCommonCodeExtraImpl() const override;
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefExtraDoxigenImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
     virtual std::string commsDefPublicCodeImpl() const override;
@@ -57,15 +62,15 @@ protected:
     virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
 
 private:
-    struct RangeInfo
+    struct CommsRangeInfo
     {
         std::intmax_t m_min = 0;
         std::intmax_t m_max = 0;
         unsigned m_sinceVersion = 0;
-        unsigned m_deprecatedSince = commsdsl::parse::Protocol::notYetDeprecated();
+        unsigned m_deprecatedSince = commsdsl::parse::ParseProtocol::parseNotYetDeprecated();
     };
 
-    using ValidRangesList = std::vector<RangeInfo>;
+    using CommsValidRangesList = std::vector<CommsRangeInfo>;
 
     bool commsPrepareValidRangesInternal();
     bool commsIsDirectValueNameMappingInternal() const;
@@ -84,13 +89,13 @@ private:
     std::string commsDefValueNameFuncCodeInternal() const;
     std::string commsDefValueNamesMapFuncCodeInternal() const;
 
-    void commsAddDefaultValueOptInternal(StringsList& opts) const;
-    void commsAddLengthOptInternal(StringsList& opts) const;
-    void commsAddValidRangesOptInternal(StringsList& opts) const;
-    void commsAddAvailableLengthLimitOptInternal(StringsList& opts) const;
+    void commsAddDefaultValueOptInternal(GenStringsList& opts) const;
+    void commsAddLengthOptInternal(GenStringsList& opts) const;
+    void commsAddValidRangesOptInternal(GenStringsList& opts) const;
+    void commsAddAvailableLengthLimitOptInternal(GenStringsList& opts) const;
     const CommsNamespace* commsNamespaceForMsgId() const;
 
-    ValidRangesList m_validRanges;
+    CommsValidRangesList m_validRanges;
 };
 
 } // namespace commsdsl2comms

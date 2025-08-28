@@ -30,34 +30,31 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2comms
 {
 
-CommsRefField::CommsRefField(
-    CommsGenerator& generator, 
-    commsdsl::parse::Field dslObj, 
-    commsdsl::gen::Elem* parent) :
-    Base(generator, dslObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsRefField::CommsRefField(CommsGenerator& generator, ParseField parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool CommsRefField::prepareImpl()
+bool CommsRefField::genPrepareImpl()
 {
-    bool result = Base::prepareImpl() && commsPrepare();
+    bool result = GenBase::genPrepareImpl() && commsPrepare();
     if (!result) {
         return false;
     }
 
-    auto* refField = referencedField();
+    auto* refField = genReferencedField();
     m_commsReferencedField = dynamic_cast<CommsField*>(refField);
     assert(m_commsReferencedField != nullptr);
 
-    if ((refDslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) && 
-        (refField->dslObj().semanticType() != commsdsl::parse::Field::SemanticType::Length) &&
+    if ((genRefFieldParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Length) && 
+        (refField->genParseObj().parseSemanticType() != commsdsl::parse::ParseField::ParseSemanticType::Length) &&
         (!commsHasCustomValue()) && 
         (!m_commsReferencedField->commsHasCustomValue())) {
-        generator().logger().warning(
-            "Field \"" + comms::scopeFor(*this, generator()) + "\" is used as \"length\" field (semanticType=\"length\"), but custom value "
+        genGenerator().genLogger().genWarning(
+            "Field \"" + comms::genScopeFor(*this, genGenerator()) + "\" is used as \"length\" field (semanticType=\"length\"), but custom value "
             "retrieval functionality is not provided. Please create relevant code injection functionality with \"" + 
-            strings::valueFileSuffixStr() + "\" file name suffix. Inside that file the following functions are "
+            strings::genValueFileSuffixStr() + "\" file name suffix. Inside that file the following functions are "
             "expected to be defined: getValue(), setValue(), and maxValue()."
         );
     }     
@@ -65,16 +62,16 @@ bool CommsRefField::prepareImpl()
     return true;
 }
 
-bool CommsRefField::writeImpl() const
+bool CommsRefField::genWriteImpl() const
 {
     return commsWrite();
 }
 
-CommsRefField::IncludesList CommsRefField::commsCommonIncludesImpl() const 
+CommsRefField::CommsIncludesList CommsRefField::commsCommonIncludesImpl() const 
 {
     assert(m_commsReferencedField != nullptr);
-    IncludesList result = {
-        comms::relCommonHeaderPathFor(m_commsReferencedField->field(), generator())
+    CommsIncludesList result = {
+        comms::genRelCommonHeaderPathFor(m_commsReferencedField->commsGenField(), genGenerator())
     };
 
     return result;
@@ -83,13 +80,13 @@ CommsRefField::IncludesList CommsRefField::commsCommonIncludesImpl() const
 std::string CommsRefField::commsCommonCodeBaseClassImpl() const
 {
     assert(m_commsReferencedField != nullptr);
-    return comms::commonScopeFor(m_commsReferencedField->field(), generator());
+    return comms::genCommonScopeFor(m_commsReferencedField->commsGenField(), genGenerator());
 }
 
 std::string CommsRefField::commsCommonCodeBodyImpl() const
 {
     if (!commsDefHasNameFuncImpl()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     return commsCommonNameFuncCode();
@@ -99,23 +96,23 @@ std::string CommsRefField::commsCommonMembersBaseClassImpl() const
 {
     assert(m_commsReferencedField != nullptr);
     if (!m_commsReferencedField->commsHasMembersCode()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    auto str = comms::commonScopeFor(m_commsReferencedField->field(), generator());
-    auto& commonSuffix = strings::commonSuffixStr();
+    auto str = comms::genCommonScopeFor(m_commsReferencedField->commsGenField(), genGenerator());
+    auto& commonSuffix = strings::genCommonSuffixStr();
     assert(commonSuffix.size() < str.size());
     auto commonSuffixPos = str.size() - commonSuffix.size();
     assert(commonSuffix == str.substr(commonSuffixPos));
-    str.insert(commonSuffixPos, strings::membersSuffixStr());
+    str.insert(commonSuffixPos, strings::genMembersSuffixStr());
     return str;
 }
 
-CommsRefField::IncludesList CommsRefField::commsDefIncludesImpl() const
+CommsRefField::CommsIncludesList CommsRefField::commsDefIncludesImpl() const
 {
     assert(m_commsReferencedField != nullptr);
-    IncludesList result = {
-        comms::relHeaderPathFor(m_commsReferencedField->field(), generator())
+    CommsIncludesList result = {
+        comms::genRelHeaderPathFor(m_commsReferencedField->commsGenField(), genGenerator())
     };
 
     return result;
@@ -130,12 +127,12 @@ std::string CommsRefField::commsDefBaseClassImpl() const
 
     assert(m_commsReferencedField != nullptr);
 
-    util::ReplacementMap repl = {
-        {"REF_FIELD", comms::scopeFor(m_commsReferencedField->field(), generator())},
+    util::GenReplacementMap repl = {
+        {"REF_FIELD", comms::genScopeFor(m_commsReferencedField->commsGenField(), genGenerator())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool CommsRefField::commsIsLimitedCustomizableImpl() const
@@ -146,10 +143,10 @@ bool CommsRefField::commsIsLimitedCustomizableImpl() const
 
 bool CommsRefField::commsDefHasNameFuncImpl() const
 {
-    auto dslObj = refDslObj();
-    auto thisDisplayName = util::displayName(dslObj.displayName(), dslObj.name());
-    auto refDslObj = m_commsReferencedField->field().dslObj();
-    auto refDisplayName = util::displayName(refDslObj.displayName(), refDslObj.name());
+    auto parseObj = genRefFieldParseObj();
+    auto thisDisplayName = util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName());
+    auto refDslObj = m_commsReferencedField->commsGenField().genParseObj();
+    auto refDisplayName = util::genDisplayName(refDslObj.parseDisplayName(), refDslObj.parseName());
 
     return thisDisplayName != refDisplayName;
 }
@@ -178,7 +175,7 @@ std::string CommsRefField::commsSizeAccessStrImpl(const std::string& accStr, con
     return m_commsReferencedField->commsSizeAccessStr(accStr, prefix);
 }
 
-void CommsRefField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const
+void CommsRefField::commsCompOptChecksImpl(const std::string& accStr, GenStringsList& checks, const std::string& prefix) const
 {
     assert(m_commsReferencedField != nullptr);
     return m_commsReferencedField->commsCompOptChecks(accStr, checks, prefix);
@@ -204,31 +201,31 @@ bool CommsRefField::commsVerifyInnerRefImpl(const std::string& refStr) const
 
 std::string CommsRefField::commsDefFieldOptsInternal() const
 {
-    util::StringsList opts;
+    util::GenStringsList opts;
 
     commsAddProtocolOptInternal(opts);
     commsAddFieldDefOptions(opts);
     commsAddBitLengthOptInternal(opts);
 
-    return util::strListToString(opts, ",\n", "");
+    return util::genStrListToString(opts, ",\n", "");
 }
 
-void CommsRefField::commsAddProtocolOptInternal(StringsList& opts) const
+void CommsRefField::commsAddProtocolOptInternal(GenStringsList& opts) const
 {
-    if (comms::isInterfaceDeepMemberField(*this)) {
-        opts.push_back(comms::scopeForOptions(strings::defaultOptionsClassStr(), generator()));
+    if (comms::genIsInterfaceDeepMemberField(*this)) {
+        opts.push_back(comms::genScopeForOptions(strings::genDefaultOptionsClassStr(), genGenerator()));
     }
     else {
         opts.push_back("TOpt");
     }
 }
 
-void CommsRefField::commsAddBitLengthOptInternal(StringsList& opts) const
+void CommsRefField::commsAddBitLengthOptInternal(GenStringsList& opts) const
 {
-    auto obj = refDslObj();
-    auto bitLength = obj.bitLength();
+    auto obj = genRefFieldParseObj();
+    auto bitLength = obj.parseBitLength();
     if (bitLength != 0U) {
-        opts.push_back("comms::option::def::FixedBitLength<" + util::numToString(bitLength) + '>');
+        opts.push_back("comms::option::def::FixedBitLength<" + util::genNumToString(bitLength) + '>');
     }    
 }
 

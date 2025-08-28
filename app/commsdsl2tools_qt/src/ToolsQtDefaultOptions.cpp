@@ -39,38 +39,38 @@ namespace
 
 std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t idx, bool wrapWithFactoryOpts = true)
 {
-    assert(idx < generator.schemas().size());
+    assert(idx < generator.genSchemas().size());
 
-    auto oldIdx = generator.currentSchemaIdx();
-    generator.chooseCurrentSchema(static_cast<unsigned>(idx));
-    if (!generator.currentSchema().hasAnyReferencedComponent()) {
+    auto oldIdx = generator.genCurrentSchemaIdx();
+    generator.genChooseCurrentSchema(static_cast<unsigned>(idx));
+    if (!generator.genCurrentSchema().genHasAnyReferencedComponent()) {
         if (idx == 0U) {
-            generator.chooseCurrentSchema(oldIdx);
-            return strings::emptyString();
+            generator.genChooseCurrentSchema(oldIdx);
+            return strings::genEmptyString();
         }
 
         auto result = toolsBaseCodeInternal(generator, idx - 1U);
-        generator.chooseCurrentSchema(oldIdx);
+        generator.genChooseCurrentSchema(oldIdx);
         return result;
     }
 
-    if (wrapWithFactoryOpts && generator.currentSchema().hasAnyReferencedMessage()) {
+    if (wrapWithFactoryOpts && generator.genCurrentSchema().genHasAnyReferencedMessage()) {
         static const std::string Templ = 
             "::#^#SCOPE#$#T<\n"
             "    #^#NEXT#$#\n"
             ">";
 
-        util::ReplacementMap repl = {
-            {"SCOPE", comms::scopeForOptions(strings::allMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator)},
+        util::GenReplacementMap repl = {
+            {"SCOPE", comms::genScopeForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator)},
             {"NEXT", toolsBaseCodeInternal(generator, idx, false)}
         };        
 
-        generator.chooseCurrentSchema(oldIdx);
-        return util::processTemplate(Templ, repl);
+        generator.genChooseCurrentSchema(oldIdx);
+        return util::genProcessTemplate(Templ, repl);
     }
 
-    auto scope = comms::scopeForOptions(strings::defaultOptionsClassStr(), generator);
-    generator.chooseCurrentSchema(oldIdx);
+    auto scope = comms::genScopeForOptions(strings::genDefaultOptionsClassStr(), generator);
+    generator.genChooseCurrentSchema(oldIdx);
 
     if (idx == 0U) {
         return "::" + scope;
@@ -86,12 +86,12 @@ std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t
         "    #^#NEXT#$#\n"
         ">";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SCOPE", std::move(scope)},
         {"NEXT", std::move(nextScope)}
     };
     
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace 
@@ -100,8 +100,8 @@ std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t
 std::string ToolsQtDefaultOptions::toolsRelHeaderPath(const ToolsQtGenerator& generator)
 {
     return 
-        util::strReplace(toolsClassScope(generator), "::", "/") + 
-        strings::cppHeaderSuffixStr();
+        util::genScopeToRelPath(toolsClassScope(generator)) + 
+        strings::genCppHeaderSuffixStr();
 }
 
 std::string ToolsQtDefaultOptions::toolsTemplParam(const ToolsQtGenerator& generator, const std::string& extraParams)
@@ -113,11 +113,11 @@ std::string ToolsQtDefaultOptions::toolsClassScope(const ToolsQtGenerator& gener
 {
     return 
         generator.toolsScopePrefix() + 
-        generator.protocolSchema().mainNamespace() + "::" + 
-        comms::scopeForOptions(strings::defaultOptionsClassStr(), generator, false);
+        generator.genProtocolSchema().genMainNamespace() + "::" + 
+        comms::genScopeForOptions(strings::genDefaultOptionsClassStr(), generator, false);
 }    
 
-bool ToolsQtDefaultOptions::write(ToolsQtGenerator& generator)
+bool ToolsQtDefaultOptions::toolsWrite(ToolsQtGenerator& generator)
 {
     ToolsQtDefaultOptions obj(generator);
     return obj.toolsWriteInternal();
@@ -125,19 +125,19 @@ bool ToolsQtDefaultOptions::write(ToolsQtGenerator& generator)
 
 bool ToolsQtDefaultOptions::toolsWriteInternal() const
 {
-    auto filePath = m_generator.getOutputDir() + '/' + toolsRelHeaderPath(m_generator);
+    auto filePath = m_toolsGenerator.genGetOutputDir() + '/' + toolsRelHeaderPath(m_toolsGenerator);
 
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_toolsGenerator.genCreateDirectory(dirPath)) {
         return false;
     }      
 
-    m_generator.logger().info("Generating " + filePath);
+    m_toolsGenerator.genLogger().genInfo("Generating " + filePath);
 
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_toolsGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }    
 
@@ -162,47 +162,47 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
         "#^#TOP_NS_END#$#\n"
     ;
 
-    auto codePrefix = m_generator.getCodeDir() + '/' + toolsRelHeaderPath(m_generator);
+    auto codePrefix = m_toolsGenerator.genGetCodeDir() + '/' + toolsRelHeaderPath(m_toolsGenerator);
 
-    util::StringsList includes {
-        ToolsQtVersion::toolsRelHeaderPath(m_generator)
+    util::GenStringsList includes {
+        ToolsQtVersion::toolsRelHeaderPath(m_toolsGenerator)
     };
 
-    auto& schemas = m_generator.schemas();
+    auto& schemas = m_toolsGenerator.genSchemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
-        m_generator.chooseCurrentSchema(idx);
-        if (!m_generator.currentSchema().hasAnyReferencedComponent()) {
+        m_toolsGenerator.genChooseCurrentSchema(idx);
+        if (!m_toolsGenerator.genCurrentSchema().genHasAnyReferencedComponent()) {
             continue;
         }       
 
-        if (m_generator.currentSchema().hasAnyReferencedMessage()) {
-            includes.push_back(comms::relHeaderForOptions(strings::allMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_generator));    
+        if (m_toolsGenerator.genCurrentSchema().genHasAnyReferencedMessage()) {
+            includes.push_back(comms::genRelHeaderForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_toolsGenerator));    
         }
         
-        includes.push_back(comms::relHeaderForOptions(strings::defaultOptionsClassStr(), m_generator));
+        includes.push_back(comms::genRelHeaderForOptions(strings::genDefaultOptionsClassStr(), m_toolsGenerator));
     }
-    assert(m_generator.isCurrentProtocolSchema());
+    assert(m_toolsGenerator.genIsCurrentProtocolSchema());
 
-    comms::prepareIncludeStatement(includes);
+    comms::genPrepareIncludeStatement(includes);
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
-        {"INCLUDES", util::strListToString(includes, "\n", "")},
-        {"EXTRA_INCLUDES", util::readFileContents(codePrefix + strings::incFileSuffixStr())},
-        {"TOP_NS_BEGIN", m_generator.toolsNamespaceBegin()},
-        {"TOP_NS_END", m_generator.toolsNamespaceEnd()},
-        {"PROT_NAMESPACE", m_generator.protocolSchema().mainNamespace()},
-        {"NAME", strings::defaultOptionsClassStr()},
-        {"EXTEND", util::readFileContents(codePrefix + strings::extendFileSuffixStr())},
-        {"APPEND", util::readFileContents(codePrefix + strings::appendFileSuffixStr())},
-        {"OPTS_BASE", toolsBaseCodeInternal(m_generator, m_generator.schemas().size() - 1U)},
+        {"INCLUDES", util::genStrListToString(includes, "\n", "")},
+        {"EXTRA_INCLUDES", util::genReadFileContents(codePrefix + strings::genIncFileSuffixStr())},
+        {"TOP_NS_BEGIN", m_toolsGenerator.toolsNamespaceBegin()},
+        {"TOP_NS_END", m_toolsGenerator.toolsNamespaceEnd()},
+        {"PROT_NAMESPACE", m_toolsGenerator.genProtocolSchema().genMainNamespace()},
+        {"NAME", strings::genDefaultOptionsClassStr()},
+        {"EXTEND", util::genReadFileContents(codePrefix + strings::genExtendFileSuffixStr())},
+        {"APPEND", util::genReadFileContents(codePrefix + strings::genAppendFileSuffixStr())},
+        {"OPTS_BASE", toolsBaseCodeInternal(m_toolsGenerator, m_toolsGenerator.genSchemas().size() - 1U)},
     };
 
     if (!repl["EXTEND"].empty()) {
-        repl["ORIG"] = strings::origSuffixStr();
+        repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();    
 }

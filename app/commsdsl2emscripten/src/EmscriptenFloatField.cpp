@@ -30,13 +30,13 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenFloatField::EmscriptenFloatField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
-    Base(generator, dslObj, parent),
-    EmscriptenBase(static_cast<Base&>(*this))
+EmscriptenFloatField::EmscriptenFloatField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    EmscriptenBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool EmscriptenFloatField::writeImpl() const
+bool EmscriptenFloatField::genWriteImpl() const
 {
     return emscriptenWrite();
 }
@@ -59,11 +59,11 @@ std::string EmscriptenFloatField::emscriptenHeaderExtraPublicFuncsImpl() const
         "    return Base::displayDecimals();\n"
         "}\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SPECIALS", emscriptenHeaderSpecialsInternal()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenFloatField::emscriptenSourceBindFuncsImpl() const
@@ -73,25 +73,25 @@ std::string EmscriptenFloatField::emscriptenSourceBindFuncsImpl() const
         "#^#SPECIALS#$#\n"
         ".class_function(\"displayDecimals\", &#^#CLASS_NAME#$#::displayDecimals)";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()},
         {"SPECIALS", emscriptenSourceSpecialsBindInternal()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenFloatField::emscriptenHeaderSpecialsInternal() const
 {
-    auto& specials = specialsSortedByValue();
+    auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    util::StringsList specialsList;
-    auto& gen = EmscriptenGenerator::cast(generator());
+    util::GenStringsList specialsList;
+    auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
     for (auto& s : specials) {
-        if (!gen.doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
+        if (!gen.genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
         }
 
@@ -110,31 +110,31 @@ std::string EmscriptenFloatField::emscriptenHeaderSpecialsInternal() const
             "}\n"
         ;
 
-        util::ReplacementMap repl = {
-            {"SPEC_ACC", comms::className(s.first)},
+        util::GenReplacementMap repl = {
+            {"SPEC_ACC", comms::genClassName(s.first)},
         };
 
-        specialsList.push_back(util::processTemplate(Templ, repl));
+        specialsList.push_back(util::genProcessTemplate(Templ, repl));
     }    
 
-    return util::strListToString(specialsList, "\n", "");
+    return util::genStrListToString(specialsList, "\n", "");
 }
 
 std::string EmscriptenFloatField::emscriptenSourceSpecialsBindInternal() const
 {
-    auto& specials = specialsSortedByValue();
+    auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()},
     };
 
-    util::StringsList specialsList;
-    auto& gen = EmscriptenGenerator::cast(generator());
+    util::GenStringsList specialsList;
+    auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
     for (auto& s : specials) {
-        if (!gen.doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
+        if (!gen.genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
         }
 
@@ -143,12 +143,12 @@ std::string EmscriptenFloatField::emscriptenSourceSpecialsBindInternal() const
             ".function(\"is#^#SPEC_ACC#$#\", &#^#CLASS_NAME#$#::is#^#SPEC_ACC#$#)\n"
             ".function(\"set#^#SPEC_ACC#$#\", &#^#CLASS_NAME#$#::set#^#SPEC_ACC#$#)";
 
-        repl["SPEC_ACC"] = comms::className(s.first);
+        repl["SPEC_ACC"] = comms::genClassName(s.first);
 
-        specialsList.push_back(util::processTemplate(Templ, repl));
+        specialsList.push_back(util::genProcessTemplate(Templ, repl));
     }    
 
-    return util::strListToString(specialsList, "\n", "");    
+    return util::genStrListToString(specialsList, "\n", "");    
 }
 
 } // namespace commsdsl2emscripten

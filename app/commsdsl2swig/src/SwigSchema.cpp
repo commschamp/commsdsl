@@ -18,11 +18,11 @@
 #include "SwigGenerator.h"
 #include "SwigNamespace.h"
 
-#include <algorithm>
-
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
+
+#include <algorithm>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
@@ -32,8 +32,8 @@ namespace commsdsl2swig
 {
 
 
-SwigSchema::SwigSchema(SwigGenerator& generator, commsdsl::parse::Schema dslObj, Elem* parent) :
-    Base(generator, dslObj, parent)
+SwigSchema::SwigSchema(SwigGenerator& generator, ParseSchema parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent)
 {
 }   
 
@@ -41,32 +41,32 @@ SwigSchema::~SwigSchema() = default;
 
 bool SwigSchema::swigHasAnyMessage() const
 {
-    return hasAnyReferencedMessage();
+    return genHasAnyReferencedMessage();
 }
 
 bool SwigSchema::swigHasReferencedMsgId() const
 {
-    return hasReferencedMessageIdField();
+    return genHasReferencedMessageIdField();
 }
 
-void SwigSchema::swigAddCodeIncludes(StringsList& list) const
+void SwigSchema::swigAddCodeIncludes(GenStringsList& list) const
 {
-    for (auto& ns : namespaces()) {
-        SwigNamespace::cast(ns.get())->swigAddCodeIncludes(list);
+    for (auto& ns : genNamespaces()) {
+        SwigNamespace::swigCast(ns.get())->swigAddCodeIncludes(list);
     }
 }
 
-void SwigSchema::swigAddCode(StringsList& list) const
+void SwigSchema::swigAddCode(GenStringsList& list) const
 {
-    for (auto& ns : namespaces()) {
-        SwigNamespace::cast(ns.get())->swigAddCode(list);
+    for (auto& ns : genNamespaces()) {
+        SwigNamespace::swigCast(ns.get())->swigAddCode(list);
     }
 }
 
-void SwigSchema::swigAddDef(StringsList& list) const
+void SwigSchema::swigAddDef(GenStringsList& list) const
 {
-    for (auto& ns : namespaces()) {
-        SwigNamespace::cast(ns.get())->swigAddDef(list);
+    for (auto& ns : genNamespaces()) {
+        SwigNamespace::swigCast(ns.get())->swigAddDef(list);
     }
 }
 

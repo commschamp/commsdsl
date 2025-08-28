@@ -15,10 +15,10 @@
 
 #pragma once
 
-#include "commsdsl/gen/Layer.h"
-#include "commsdsl/gen/util.h"
-
 #include "CommsField.h"
+
+#include "commsdsl/gen/GenLayer.h"
+#include "commsdsl/gen/util.h"
 
 #include <string>
 #include <vector>
@@ -29,28 +29,31 @@ namespace commsdsl2comms
 class CommsLayer
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
-    using IncludesList = StringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+
+    using GenLayer = commsdsl::gen::GenLayer;
+
+    using CommsIncludesList = GenStringsList;
     using CommsLayersList = std::vector<CommsLayer*>;
 
-    explicit CommsLayer(commsdsl::gen::Layer& layer);
+    explicit CommsLayer(GenLayer& layer);
     virtual ~CommsLayer();
 
-    static CommsLayer* cast(commsdsl::gen::Layer* layer)
+    static CommsLayer* commsCast(GenLayer* layer)
     {
         return dynamic_cast<CommsLayer*>(layer);
     }
 
-    static const CommsLayer* cast(const commsdsl::gen::Layer* layer)
+    static const CommsLayer* commsCast(const GenLayer* layer)
     {
         return dynamic_cast<const CommsLayer*>(layer);
     }    
 
     bool commsPrepare();
 
-    IncludesList commsCommonIncludes() const;
+    CommsIncludesList commsCommonIncludes() const;
     std::string commsCommonCode() const;
-    IncludesList commsDefIncludes() const;
+    CommsIncludesList commsDefIncludes() const;
     std::string commsDefType(const CommsLayer* prevLayer, bool& hasInputMessages) const;
     bool commsIsCustomizable() const;
     void commsSetForcedPseudoField();
@@ -61,9 +64,9 @@ public:
     std::string commsBareMetalDefaultOptions() const;
     std::string commsMsgFactoryDefaultOptions() const;
 
-    const commsdsl::gen::Layer& layer() const
+    const GenLayer& commsGenLayer() const
     {
-        return m_layer;
+        return m_genLayer;
     }
 
     const CommsField* commsExternalField() const
@@ -83,14 +86,14 @@ public:
 
 
 protected:
-    virtual IncludesList commsDefIncludesImpl() const;
+    virtual CommsIncludesList commsDefIncludesImpl() const;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const;
     virtual bool commsDefHasInputMessagesImpl() const;
-    virtual StringsList commsDefExtraOptsImpl() const; 
+    virtual GenStringsList commsDefExtraOptsImpl() const; 
     virtual bool commsIsCustomizableImpl() const;
-    virtual StringsList commsExtraDataViewDefaultOptionsImpl() const;
-    virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const;
-    virtual StringsList commsExtraMsgFactoryDefaultOptionsImpl() const;
+    virtual GenStringsList commsExtraDataViewDefaultOptionsImpl() const;
+    virtual GenStringsList commsExtraBareMetalDefaultOptionsImpl() const;
+    virtual GenStringsList commsExtraMsgFactoryDefaultOptionsImpl() const;
     virtual std::string commsCustomDefMembersCodeImpl() const;
     virtual std::string commsCustomFieldOptsImpl() const;
     virtual std::string commsCustomFieldDataViewOptsImpl() const;
@@ -98,25 +101,25 @@ protected:
 
     std::string commsDefFieldType() const;
     std::string commsDefExtraOpts() const;
-    static std::string commsMsgFactoryAliasInOptions(const commsdsl::gen::Elem* parent);
+    static std::string commsMsgFactoryAliasInOptions(const commsdsl::gen::GenElem* parent);
 
 private:
-    using FieldOptsFunc = std::string (CommsField::*)() const;
-    using ExtraLayerOptsFunc = StringsList (CommsLayer::*)() const;
+    using CommsFieldOptsFunc = std::string (CommsField::*)() const;
+    using CommsExtraLayerOptsFunc = GenStringsList (CommsLayer::*)() const;
 
     std::string commsDefMembersCodeInternal() const;
     std::string commsDefDocInternal() const;
     std::string commsCustomizationOptionsInternal(
-        FieldOptsFunc fieldOptsFunc, 
-        ExtraLayerOptsFunc extraLayerOptsFunc,
+        CommsFieldOptsFunc fieldOptsFunc, 
+        CommsExtraLayerOptsFunc extraLayerOptsFunc,
         bool hasBase,
         const std::string& customFieldOpts) const;  
 
-    StringsList commsExtraDataViewDefaultOptionsInternal() const;
-    StringsList commsExtraBareMetalDefaultOptionsInternal() const;
-    StringsList commsExtraMsgFactoryDefaultOptionsInternal() const;
+    GenStringsList commsExtraDataViewDefaultOptionsInternal() const;
+    GenStringsList commsExtraBareMetalDefaultOptionsInternal() const;
+    GenStringsList commsExtraMsgFactoryDefaultOptionsInternal() const;
     
-    commsdsl::gen::Layer& m_layer;
+    GenLayer& m_genLayer;
     CommsField* m_commsExternalField = nullptr;
     CommsField* m_commsMemberField = nullptr;
 

@@ -18,7 +18,7 @@
         </int>        
 
         <bundle name="Bundle2">
-            <int name="Type" type="uint8" defaultValidValue="1" failOnInvalid="true" />
+            <int name="ParseType" type="uint8" defaultValidValue="1" failOnInvalid="true" />
             <bundle name="Length" semanticType="length" valueOverride="replace">
                 <ref field="Short" />
                 <optional name="Long" defaultMode="missing" cond="$Short = Short.LongVariant">

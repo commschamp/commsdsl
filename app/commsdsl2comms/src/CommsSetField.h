@@ -17,29 +17,33 @@
 
 #include "CommsField.h"
 
-#include "commsdsl/gen/SetField.h"
+#include "commsdsl/gen/GenSetField.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsSetField final : public commsdsl::gen::SetField, public CommsField
+class CommsSetField final : public commsdsl::gen::GenSetField, public CommsField
 {
-    using Base = commsdsl::gen::SetField;
+    using GenBase = commsdsl::gen::GenSetField;
     using CommsBase = CommsField;
+
 public:
-    CommsSetField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    CommsSetField(CommsGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    // Base overrides
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
+    // GenBase overrides
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;    
 
     // CommsBase overrides
-    virtual IncludesList commsCommonIncludesImpl() const override;
+    virtual CommsIncludesList commsCommonIncludesImpl() const override;
     virtual std::string commsCommonCodeBodyImpl() const override;
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
     virtual std::string commsDefPublicCodeImpl() const override;
     virtual std::string commsDefValidFuncBodyImpl() const override;
@@ -54,10 +58,10 @@ private:
     std::string commsDefBitsAccessCodeInternal() const;
     std::string commsDefBitNameFuncCodeInternal() const;
 
-    void commsAddLengthOptInternal(commsdsl::gen::util::StringsList& opts) const;
-    void commsAddDefaultValueOptInternal(commsdsl::gen::util::StringsList& opts) const;
-    void commsAddReservedBitsOptInternal(commsdsl::gen::util::StringsList& opts) const;
-    void commsAddAvailableLengthLimitOptInternal(StringsList& opts) const;
+    void commsAddLengthOptInternal(commsdsl::gen::util::GenStringsList& opts) const;
+    void commsAddDefaultValueOptInternal(commsdsl::gen::util::GenStringsList& opts) const;
+    void commsAddReservedBitsOptInternal(commsdsl::gen::util::GenStringsList& opts) const;
+    void commsAddAvailableLengthLimitOptInternal(GenStringsList& opts) const;
 };
 
 } // namespace commsdsl2comms

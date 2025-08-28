@@ -21,8 +21,8 @@
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
-#include <fstream>
 #include <cassert>
+#include <fstream>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
@@ -31,26 +31,26 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2tools_qt
 {
 
-bool ToolsQtVersion::write(ToolsQtGenerator& generator)
+bool ToolsQtVersion::toolsWrite(ToolsQtGenerator& generator)
 {
     ToolsQtVersion obj(generator);
-    return obj.writeInternal();
+    return obj.toolsWriteInternal();
 }
 
 std::string ToolsQtVersion::toolsRelHeaderPath(const ToolsQtGenerator& generator)
 {
-    auto scope = generator.toolsScopePrefix() + comms::scopeForRoot(strings::versionFileNameStr(), generator);
-    return util::strReplace(scope, "::", "/") + strings::cppHeaderSuffixStr();
+    auto scope = generator.toolsScopePrefix() + comms::genScopeForRoot(strings::genVersionFileNameStr(), generator);
+    return util::genScopeToRelPath(scope) + strings::genCppHeaderSuffixStr();
 }
 
-bool ToolsQtVersion::writeInternal() const
+bool ToolsQtVersion::toolsWriteInternal() const
 {
-    auto filePath = m_generator.getOutputDir() + '/' + toolsRelHeaderPath(m_generator);
+    auto filePath = m_toolsGenerator.genGetOutputDir() + '/' + toolsRelHeaderPath(m_toolsGenerator);
 
-    m_generator.logger().info("Generating " + filePath);
+    m_toolsGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_toolsGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -63,17 +63,17 @@ bool ToolsQtVersion::writeInternal() const
         "#^#APPEND#$#\n";
 
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
-        {"TOOLS_QT_MIN", util::strReplace(ToolsQtGenerator::toolsMinCcToolsQtVersion(), ".", ", ")},
-        {"APPEND", util::readFileContents(m_generator.getCodeDir() + '/' + toolsRelHeaderPath(m_generator) + strings::appendFileSuffixStr())},
+        {"TOOLS_QT_MIN", util::genStrReplace(ToolsQtGenerator::toolsMinCcToolsQtVersion(), ".", ", ")},
+        {"APPEND", util::genReadFileContents(m_toolsGenerator.genGetCodeDir() + '/' + toolsRelHeaderPath(m_toolsGenerator) + strings::genAppendFileSuffixStr())},
     };        
     
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
 
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_toolsGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     

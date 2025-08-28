@@ -35,14 +35,14 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigLayer::SwigLayer(commsdsl::gen::Layer& layer) :
-    m_layer(layer)
+SwigLayer::SwigLayer(commsdsl::gen::GenLayer& layer) :
+    m_genLayer(layer)
 {
 }
 
 SwigLayer::~SwigLayer() = default;
 
-const SwigLayer* SwigLayer::cast(const commsdsl::gen::Layer* layer)
+const SwigLayer* SwigLayer::swigCast(const commsdsl::gen::GenLayer* layer)
 {
     if (layer == nullptr) {
         return nullptr;
@@ -64,20 +64,20 @@ std::string SwigLayer::swigDeclCode() const
         "    #^#FUNCS#$#\n"
         "};\n";
 
-    auto& gen = SwigGenerator::cast(m_layer.generator());
-    auto* memField = SwigField::cast(m_layer.memberField());
+    auto& gen = SwigGenerator::swigCast(m_genLayer.genGenerator());
+    auto* memField = SwigField::swigCast(m_genLayer.genMemberField());
     auto* field = memField;
     if (field == nullptr) {
-        field = SwigField::cast(m_layer.externalField());
+        field = SwigField::swigCast(m_genLayer.genExternalField());
     }
 
     std::string fieldDef = swigFieldTypeImpl();
     if (field != nullptr) {
-        fieldDef = gen.swigClassName(field->field());
+        fieldDef = gen.swigClassName(field->swigGenField());
     }
 
-    util::ReplacementMap repl = {
-        {"CLASS_NAME", gen.swigClassName(m_layer)},
+    util::GenReplacementMap repl = {
+        {"CLASS_NAME", gen.swigClassName(m_genLayer)},
         {"FIELD", std::move(fieldDef)},
         {"FUNCS", swigDeclFuncsImpl()},
         {"MEMBER", swigMemberFieldDeclImpl()}
@@ -87,14 +87,14 @@ std::string SwigLayer::swigDeclCode() const
         repl["MEMBER"] = memField->swigClassDecl();
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
-void SwigLayer::swigAddDef(StringsList& list) const
+void SwigLayer::swigAddDef(GenStringsList& list) const
 {
-    auto* field = SwigField::cast(m_layer.memberField());
+    auto* field = SwigField::swigCast(m_genLayer.genMemberField());
     if (field == nullptr) {
-        field = SwigField::cast(m_layer.externalField());
+        field = SwigField::swigCast(m_genLayer.genExternalField());
     }
 
     if (field != nullptr) {
@@ -102,11 +102,11 @@ void SwigLayer::swigAddDef(StringsList& list) const
     }
 }
 
-void SwigLayer::swigAddCode(StringsList& list) const
+void SwigLayer::swigAddCode(GenStringsList& list) const
 {
-    auto* field = SwigField::cast(m_layer.memberField());
+    auto* field = SwigField::swigCast(m_genLayer.genMemberField());
     if (field == nullptr) {
-        field = SwigField::cast(m_layer.externalField());
+        field = SwigField::swigCast(m_genLayer.genExternalField());
     }
 
     if (field != nullptr) {
@@ -124,35 +124,35 @@ void SwigLayer::swigAddCode(StringsList& list) const
         "    #^#FUNCS#$#\n"
         "};\n";
 
-    auto& gen = SwigGenerator::cast(m_layer.generator());
+    auto& gen = SwigGenerator::swigCast(m_genLayer.genGenerator());
 
     std::string fieldDef = swigFieldTypeImpl();
     if (field != nullptr) {
-        fieldDef = gen.swigClassName(field->field());
+        fieldDef = gen.swigClassName(field->swigGenField());
     }
 
-    util::ReplacementMap repl = {
-        {"CLASS_NAME", gen.swigClassName(m_layer)},
+    util::GenReplacementMap repl = {
+        {"CLASS_NAME", gen.swigClassName(m_genLayer)},
         {"COMMS_CLASS", swigTemplateScope()},
         {"FIELD", std::move(fieldDef)},
         {"FUNCS", swigCodeFuncsImpl()},
     };
 
-    list.push_back(util::processTemplate(Templ, repl));
+    list.push_back(util::genProcessTemplate(Templ, repl));
 }
 
-void SwigLayer::swigAddToAllFieldsDecl(StringsList& list) const
+void SwigLayer::swigAddToAllFieldsDecl(GenStringsList& list) const
 {
     static const std::string Templ = 
         "#^#CLASS_NAME#$#::Field #^#ACC_NAME#$#;\n";
 
-    auto& gen = SwigGenerator::cast(m_layer.generator());
-    util::ReplacementMap repl = {
-        {"CLASS_NAME", gen.swigClassName(m_layer)},
+    auto& gen = SwigGenerator::swigCast(m_genLayer.genGenerator());
+    util::GenReplacementMap repl = {
+        {"CLASS_NAME", gen.swigClassName(m_genLayer)},
         {"ACC_NAME", swigFieldAccName()}
     };
 
-    list.push_back(util::processTemplate(Templ, repl));
+    list.push_back(util::genProcessTemplate(Templ, repl));
 }
 
 bool SwigLayer::swigIsMainInterfaceSupported() const
@@ -162,17 +162,17 @@ bool SwigLayer::swigIsMainInterfaceSupported() const
 
 std::string SwigLayer::swigFieldAccName() const
 {
-    return "m_" + comms::accessName(m_layer.dslObj().name());
+    return "m_" + comms::genAccessName(m_genLayer.genParseObj().parseName());
 }
 
 std::string SwigLayer::swigDeclFuncsImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string SwigLayer::swigCodeFuncsImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 bool SwigLayer::swigIsMainInterfaceSupportedImpl() const
@@ -182,24 +182,24 @@ bool SwigLayer::swigIsMainInterfaceSupportedImpl() const
 
 std::string SwigLayer::swigMemberFieldDeclImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
-void SwigLayer::swigAddCodeImpl([[maybe_unused]] StringsList& list) const
+void SwigLayer::swigAddCodeImpl([[maybe_unused]] GenStringsList& list) const
 {
 }
 
 std::string SwigLayer::swigFieldTypeImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string SwigLayer::swigTemplateScope() const
 {
-    auto& gen = SwigGenerator::cast(m_layer.generator());
+    auto& gen = SwigGenerator::swigCast(m_genLayer.genGenerator());
     auto* iFace = gen.swigMainInterface();
     assert(iFace != nullptr);
-    return m_layer.templateScopeOfComms(gen.swigClassName(*iFace), strings::allMessagesStr(), SwigProtocolOptions::swigClassName(gen));
+    return m_genLayer.genTemplateScopeOfComms(gen.swigClassName(*iFace), strings::genAllMessagesStr(), SwigProtocolOptions::swigClassName(gen));
 }
 
 

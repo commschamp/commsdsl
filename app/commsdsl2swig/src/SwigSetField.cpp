@@ -29,13 +29,13 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigSetField::SwigSetField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigSetField::SwigSetField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool SwigSetField::writeImpl() const
+bool SwigSetField::genWriteImpl() const
 {
     return swigWrite();
 }
@@ -45,33 +45,33 @@ std::string SwigSetField::swigValueTypeDeclImpl() const
     static const std::string Templ = 
         "using ValueType = #^#TYPE#$#;\n";
 
-    auto obj = setDslObj();
-    util::ReplacementMap repl = {
-        {"TYPE", SwigGenerator::cast(generator()).swigConvertIntType(obj.type(), obj.maxLength())}
+    auto obj = genSetFieldParseObj();
+    util::GenReplacementMap repl = {
+        {"TYPE", SwigGenerator::swigCast(genGenerator()).swigConvertIntType(obj.parseType(), obj.parseMaxLength())}
     };
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
 {
-    auto obj = setDslObj();
+    auto obj = genSetFieldParseObj();
 
-    util::StringsList indices;
-    util::StringsList accesses;
+    util::GenStringsList indices;
+    util::GenStringsList accesses;
 
-    for (auto& bitInfo : obj.revBits()) {
+    for (auto& bitInfo : obj.parseRevBits()) {
         indices.push_back("BitIdx_" + bitInfo.second + " = " + std::to_string(bitInfo.first));
 
         static const std::string Templ = 
             "bool getBitValue_#^#NAME#$#() const;\n"
             "void setBitValue_#^#NAME#$#(bool val);";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"NAME", bitInfo.second}
         };
 
-        accesses.push_back(util::processTemplate(Templ, repl));
+        accesses.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ = 
@@ -85,12 +85,12 @@ std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
         "#^#ACCESS_FUNCS#$#\n"
         ;    
 
-    util::ReplacementMap repl = {
-        {"INDICES", util::strListToString(indices, ",\n", ",")},
-        {"ACCESS_FUNCS", util::strListToString(accesses, "\n", "")}
+    util::GenReplacementMap repl = {
+        {"INDICES", util::genStrListToString(indices, ",\n", ",")},
+        {"ACCESS_FUNCS", util::genStrListToString(accesses, "\n", "")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2swig

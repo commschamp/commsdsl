@@ -33,21 +33,21 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigEnumField::SwigEnumField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigEnumField::SwigEnumField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
-SwigEnumField::StringsList SwigEnumField::swigEnumValues() const
+SwigEnumField::GenStringsList SwigEnumField::swigEnumValues() const
 {
-    StringsList result;
+    GenStringsList result;
     
-    auto obj = enumDslObj();
-    auto& revValues = sortedRevValues();
-    util::StringsList valuesStrings;
+    auto obj = genEnumFieldParseObj();
+    auto& revValues = genSortedRevValues();
+    util::GenStringsList valuesStrings;
     valuesStrings.reserve(revValues.size() + 3);
-    auto& values = obj.values();
+    auto& values = obj.parseValues();
 
     for (auto& v : revValues) {
         auto iter = values.find(*v.second);
@@ -58,7 +58,7 @@ SwigEnumField::StringsList SwigEnumField::swigEnumValues() const
         }
 
         bool exists =
-            generator().doesElementExist(
+            genGenerator().genDoesElementExist(
                 iter->second.m_sinceVersion,
                 iter->second.m_deprecatedSince,
                 false);
@@ -71,44 +71,44 @@ SwigEnumField::StringsList SwigEnumField::swigEnumValues() const
             "#^#NAME#$# = #^#VALUE#$#, ";
 
 
-        std::string valStr = valueToString(v.first);
+        std::string valStr = genValueToString(v.first);
 
         assert(!valStr.empty());
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"NAME", *v.second},
             {"VALUE", std::move(valStr)},
         };
-        valuesStrings.push_back(util::processTemplate(Templ, repl));
+        valuesStrings.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     if (!revValues.empty()) {
         auto createValueStrFunc =
             [this](const std::string& n, std::intmax_t val, const std::string& doc) -> std::string
             {
-                return n + " = " + valueToString(val) + ", // " + doc;
+                return n + " = " + genValueToString(val) + ", // " + doc;
 
             };
 
         valuesStrings.push_back("\n// --- Extra values generated for convenience ---");
-        valuesStrings.push_back(createValueStrFunc(firstValueStr(), revValues.front().first, "First defined value."));
-        valuesStrings.push_back(createValueStrFunc(lastValueStr(), revValues.back().first, "Last defined value."));
+        valuesStrings.push_back(createValueStrFunc(genFirstValueStr(), revValues.front().first, "First defined value."));
+        valuesStrings.push_back(createValueStrFunc(genLastValueStr(), revValues.back().first, "Last defined value."));
 
-        if (hasValuesLimit()) {
-            valuesStrings.push_back(createValueStrFunc(valuesLimitStr(), revValues.back().first + 1, "Upper limit for defined values."));
+        if (genHasValuesLimit()) {
+            valuesStrings.push_back(createValueStrFunc(genValuesLimitStr(), revValues.back().first + 1, "Upper limit for defined values."));
         }
     }
 
     return valuesStrings;    
 }
 
-bool SwigEnumField::writeImpl() const
+bool SwigEnumField::genWriteImpl() const
 {
     return swigWrite();
 }
 
 std::string SwigEnumField::swigValueTypeDeclImpl() const
 {
-    auto& gen = SwigGenerator::cast(generator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
 
 
     static const std::string Templ =
@@ -119,11 +119,11 @@ std::string SwigEnumField::swigValueTypeDeclImpl() const
     ;    
 
     auto values = swigEnumValues();
-    util::ReplacementMap repl = {
-        {"TYPE", gen.swigConvertIntType(enumDslObj().type(), enumDslObj().maxLength())},
-        {"VALUES", util::strListToString(values, "\n", "")}
+    util::GenReplacementMap repl = {
+        {"TYPE", gen.swigConvertIntType(genEnumFieldParseObj().parseType(), genEnumFieldParseObj().parseMaxLength())},
+        {"VALUES", util::genStrListToString(values, "\n", "")}
     };
-    return util::processTemplate(Templ, repl); 
+    return util::genProcessTemplate(Templ, repl); 
 }
 
 std::string SwigEnumField::swigExtraPublicFuncsDeclImpl() const
@@ -133,13 +133,13 @@ std::string SwigEnumField::swigExtraPublicFuncsDeclImpl() const
         "const char* valueName() const;\n"
     ;
 
-    auto& gen = SwigGenerator::cast(generator());
-    auto type = gen.swigConvertIntType(enumDslObj().type(), enumDslObj().maxLength());
-    util::ReplacementMap repl = {
+    auto& gen = SwigGenerator::swigCast(genGenerator());
+    auto type = gen.swigConvertIntType(genEnumFieldParseObj().parseType(), genEnumFieldParseObj().parseMaxLength());
+    util::GenReplacementMap repl = {
         {"TYPE", type}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
@@ -152,13 +152,13 @@ std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
         "}\n"
     ;
 
-    auto& gen = SwigGenerator::cast(generator());
-    auto type = gen.swigConvertIntType(enumDslObj().type(), enumDslObj().maxLength());
-    util::ReplacementMap repl = {
+    auto& gen = SwigGenerator::swigCast(genGenerator());
+    auto type = gen.swigConvertIntType(genEnumFieldParseObj().parseType(), genEnumFieldParseObj().parseMaxLength());
+    util::GenReplacementMap repl = {
         {"TYPE", type}
     };
 
-    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
+    if (genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::MessageId) {
         std::string valTempl = 
             "#^#TYPE#$#\n"
             "const ValueType& getValue() const\n"
@@ -167,7 +167,7 @@ std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
             "    return *(reinterpret_cast<const ValueType*>(&Base::getValue()));\n"
             "}\n";
 
-        if (!field().dslObj().isFixedValue()) {
+        if (!swigGenField().genParseObj().parseIsFixedValue()) {
             valTempl += 
                 "\n"
                 "void setValue(const ValueType& val)\n"
@@ -176,14 +176,14 @@ std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
                 "}\n";            
         }
 
-        util::ReplacementMap valRepl = {
+        util::GenReplacementMap valRepl = {
             {"TYPE", swigValueTypeDeclImpl()},
         };
 
-        repl["VALUE_TYPE"] = util::processTemplate(valTempl, valRepl);
+        repl["VALUE_TYPE"] = util::genProcessTemplate(valTempl, valRepl);
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2swig

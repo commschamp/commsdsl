@@ -38,7 +38,7 @@ private:
     bool commsWritePlatformMsgFactoryInternal() const;
     bool commsWriteExtraMsgFactoryInternal() const;
 
-    CommsGenerator& m_generator;
+    CommsGenerator& m_commsGenerator;
     const CommsNamespace& m_parent;
 };
 

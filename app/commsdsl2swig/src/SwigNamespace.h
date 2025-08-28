@@ -19,29 +19,31 @@
 #include "SwigField.h"
 #include "SwigMsgId.h"
 
-#include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/GenNamespace.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigNamespace final: public commsdsl::gen::Namespace
+class SwigNamespace final: public commsdsl::gen::GenNamespace
 {
-    using Base = commsdsl::gen::Namespace;
+    using GenBase = commsdsl::gen::GenNamespace;
 
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using ParseNamespace = commsdsl::parse::ParseNamespace;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    explicit SwigNamespace(SwigGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent);
+    explicit SwigNamespace(SwigGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~SwigNamespace();
 
-    void swigAddCodeIncludes(StringsList& list) const; 
-    void swigAddCode(StringsList& list) const; 
+    void swigAddCodeIncludes(GenStringsList& list) const; 
+    void swigAddCode(GenStringsList& list) const; 
 
-    void swigAddDef(StringsList& list) const;
+    void swigAddDef(GenStringsList& list) const;
 
-    static const SwigNamespace* cast(const commsdsl::gen::Namespace* ns)
+    static const SwigNamespace* swigCast(const commsdsl::gen::GenNamespace* ns)
     {
         return static_cast<const SwigNamespace*>(ns);
     }
@@ -49,8 +51,8 @@ public:
     std::string swigMsgIdClassName() const;
 
 protected:
-    virtual bool prepareImpl() override;    
-    virtual bool writeImpl() const override;
+    virtual bool genPrepareImpl() override;    
+    virtual bool genWriteImpl() const override;
 
 private:
     using SwigFieldsList = SwigField::SwigFieldsList;

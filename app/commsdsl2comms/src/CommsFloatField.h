@@ -15,30 +15,34 @@
 
 #pragma once
 
-#include "commsdsl/gen/FloatField.h"
-
 #include "CommsField.h"
+
+#include "commsdsl/gen/GenFloatField.h"
 
 namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsFloatField final : public commsdsl::gen::FloatField, public CommsField
+class CommsFloatField final : public commsdsl::gen::GenFloatField, public CommsField
 {
-    using Base = commsdsl::gen::FloatField;
+    using GenBase = commsdsl::gen::GenFloatField;
     using CommsBase = CommsField;
+
 public:
-    CommsFloatField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    CommsFloatField(CommsGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    // Base overrides
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
+    // GenBase overrides
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;    
 
     // CommsBase overrides
-    virtual IncludesList commsCommonIncludesImpl() const override;
+    virtual CommsIncludesList commsCommonIncludesImpl() const override;
     virtual std::string commsCommonCodeBodyImpl() const override;
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefConstructCodeImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
     virtual std::string commsDefPublicCodeImpl() const override;
@@ -58,12 +62,12 @@ private:
     std::string commsDefSpecialNamesMapCodeInternal() const;
     std::string commsDefDisplayDecimalsCodeInternal() const;
 
-    void commsAddUnitsOptInternal(StringsList& opts) const;
-    void commsAddVersionOptInternal(StringsList& opts) const;
-    void commsAddInvalidOptInternal(StringsList& opts) const;
+    void commsAddUnitsOptInternal(GenStringsList& opts) const;
+    void commsAddVersionOptInternal(GenStringsList& opts) const;
+    void commsAddInvalidOptInternal(GenStringsList& opts) const;
 
-    StringsList commsValidNormalConditionsInternal() const;
-    StringsList commsValidVersionBasedConditionsInternal() const;
+    GenStringsList commsValidNormalConditionsInternal() const;
+    GenStringsList commsValidVersionBasedConditionsInternal() const;
 };
 
 } // namespace commsdsl2comms

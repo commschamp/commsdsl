@@ -15,33 +15,34 @@
 
 #pragma once
 
-#include "commsdsl/gen/IdLayer.h"
-
 #include "CommsLayer.h"
+
+#include "commsdsl/gen/GenIdLayer.h"
 
 namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsIdLayer final : public commsdsl::gen::IdLayer, public CommsLayer
+class CommsIdLayer final : public commsdsl::gen::GenIdLayer, public CommsLayer
 {
-    using Base = commsdsl::gen::IdLayer;
+    using GenBase = commsdsl::gen::GenIdLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsIdLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    CommsIdLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual bool prepareImpl() override;
+    virtual bool genPrepareImpl() override;
     
     // CommsBase overrides
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
     virtual bool commsDefHasInputMessagesImpl() const override;
     virtual bool commsIsCustomizableImpl() const override;    
-    virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const override;
-    virtual StringsList commsExtraMsgFactoryDefaultOptionsImpl() const override;
-
-private:
+    virtual GenStringsList commsExtraBareMetalDefaultOptionsImpl() const override;
+    virtual GenStringsList commsExtraMsgFactoryDefaultOptionsImpl() const override;
 };
 
 } // namespace commsdsl2comms

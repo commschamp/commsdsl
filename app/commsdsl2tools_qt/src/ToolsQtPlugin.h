@@ -28,7 +28,7 @@ class ToolsQtGenerator;
 class ToolsQtPlugin
 {
 public:
-    using Ptr = std::unique_ptr<ToolsQtPlugin>;
+    using ToolsPtr = std::unique_ptr<ToolsQtPlugin>;
 
     explicit ToolsQtPlugin(
         ToolsQtGenerator& generator,
@@ -37,7 +37,7 @@ public:
         const std::string& name,
         const std::string& description,
         const std::string& pluginId) :
-        m_generator(generator),
+        m_toolsGenerator(generator),
         m_frame(frame),
         m_interface(interface),
         m_name(name),
@@ -46,8 +46,8 @@ public:
     {
     }        
 
-    bool prepare();
-    bool write();
+    bool toolsPrepare();
+    bool toolsWrite();
 
     std::string toolsProtocolName() const;
     std::string toolsInterfaceName() const;
@@ -66,18 +66,18 @@ private:
     std::string toolsPluginClassNameInternal() const;
     std::string toolsRelFilePath(const std::string& name) const;
 
-    ToolsQtGenerator& m_generator;
+    ToolsQtGenerator& m_toolsGenerator;
     std::string m_frame;
     std::string m_interface;
     std::string m_name;
     std::string m_description;
     std::string m_pluginId;
 
-    const ToolsQtFrame* m_framePtr = nullptr;
-    const ToolsQtInterface* m_interfacePtr = nullptr;
+    const ToolsQtFrame* m_toolsFramePtr = nullptr;
+    const ToolsQtInterface* m_toolsInterfacePtr = nullptr;
 };
 
-using ToolsQtPluginPtr = ToolsQtPlugin::Ptr;
+using ToolsQtPluginPtr = ToolsQtPlugin::ToolsPtr;
 
 
 } // namespace commsdsl2tools_qt

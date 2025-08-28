@@ -20,8 +20,8 @@
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
-#include <fstream>
 #include <cassert>
+#include <fstream>
 
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
@@ -32,12 +32,12 @@ namespace commsdsl2comms
 namespace 
 {
 
-using ReplacementMap = util::ReplacementMap;
+using GenReplacementMap = util::GenReplacementMap;
 
 } // namespace 
     
 
-bool CommsCmake::write(CommsGenerator& generator)
+bool CommsCmake::commsWrite(CommsGenerator& generator)
 {
     CommsCmake obj(generator);
     return obj.commsWriteInternal();
@@ -46,13 +46,13 @@ bool CommsCmake::write(CommsGenerator& generator)
 bool CommsCmake::commsWriteInternal() const
 {
     auto filePath = 
-        util::pathAddElem(
-            m_generator.getOutputDir(), strings::cmakeListsFileStr());    
+        util::genPathAddElem(
+            m_generator.genGetOutputDir(), strings::genCmakeListsFileStr());    
 
-    m_generator.logger().info("Generating " + filePath);
+    m_generator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -140,15 +140,15 @@ bool CommsCmake::commsWriteInternal() const
         "endif ()\n"
     ;
     
-    util::ReplacementMap repl = {
-        {"NAME", m_generator.protocolSchema().mainNamespace()},
-        {"CAP_NAME", util::strToUpper(m_generator.protocolSchema().mainNamespace())},
+    util::GenReplacementMap repl = {
+        {"NAME", m_generator.genProtocolSchema().genMainNamespace()},
+        {"CAP_NAME", util::genStrToUpper(m_generator.genProtocolSchema().genMainNamespace())},
     };
 
-    stream << util::processTemplate(Templ, repl);
+    stream << util::genProcessTemplate(Templ, repl);
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     

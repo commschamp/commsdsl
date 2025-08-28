@@ -27,13 +27,13 @@ class CommsMsgId
 {
 public:
     CommsMsgId(CommsGenerator& generator, const CommsNamespace& parent);
-    bool write() const;
+    bool commsWrite() const;
 
 private:
     std::string commsTypeInternal() const;
     std::string commsIdsInternal() const;
     
-    CommsGenerator& m_generator;
+    CommsGenerator& m_commsGenerator;
     const CommsNamespace& m_parent;
 };
 

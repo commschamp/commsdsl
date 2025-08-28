@@ -24,10 +24,10 @@ class CommsGenerator;
 class CommsDoxygen
 {
 public:
-    static bool write(CommsGenerator& generator);
+    static bool commsWrite(CommsGenerator& generator);
 
 private:
-    explicit CommsDoxygen(CommsGenerator& generator) : m_generator(generator) {}
+    explicit CommsDoxygen(CommsGenerator& generator) : m_commsGenerator(generator) {}
 
     bool commsWriteInternal() const;
 
@@ -44,7 +44,7 @@ private:
     std::string commsVersionDocInternal() const;
     std::string commsPlatformsDocInternal() const;
     
-    CommsGenerator& m_generator;
+    CommsGenerator& m_commsGenerator;
 };
 
 } // namespace commsdsl2comms

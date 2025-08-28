@@ -37,7 +37,7 @@ namespace commsdsl2swig
 namespace 
 {
 
-const std::string ClassName("DataBuf");
+const std::string SwigClassName("DataBuf");
 
 
 } // namespace 
@@ -48,55 +48,55 @@ bool SwigDataBuf::swigWrite(SwigGenerator& generator)
     return obj.swigWriteInternal();
 }
 
-void SwigDataBuf::swigAddDef(const SwigGenerator& generator, StringsList& list)
+void SwigDataBuf::swigAddDef(const SwigGenerator& generator, GenStringsList& list)
 {
     static const std::string Templ = 
         "%template(#^#CLASS_NAME#$#) std::vector<#^#UINT8_T#$#>;\n"
         "%feature(\"valuewrapper\") #^#CLASS_NAME#$#;";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", swigClassName(generator)},
-        {"UINT8_T", SwigGenerator::cast(generator).swigConvertCppType("std::uint8_t")}
+        {"UINT8_T", SwigGenerator::swigCast(generator).swigConvertCppType("std::uint8_t")}
     };
 
-    list.push_back(util::processTemplate(Templ, repl));        
+    list.push_back(util::genProcessTemplate(Templ, repl));        
 
-    list.push_back(SwigGenerator::swigDefInclude(ClassName + strings::cppHeaderSuffixStr()));
+    list.push_back(SwigGenerator::swigDefInclude(SwigClassName + strings::genCppHeaderSuffixStr()));
 }
 
-void SwigDataBuf::swigAddCode(const SwigGenerator& generator, StringsList& list)
+void SwigDataBuf::swigAddCode(const SwigGenerator& generator, GenStringsList& list)
 {
     const std::string Templ = 
         "using #^#CLASS_NAME#$# = std::vector<#^#UINT8_T#$#>;\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", swigClassName(generator)},
-        {"UINT8_T", SwigGenerator::cast(generator).swigConvertCppType("std::uint8_t")}
+        {"UINT8_T", SwigGenerator::swigCast(generator).swigConvertCppType("std::uint8_t")}
     };
 
-    list.push_back(util::processTemplate(Templ, repl));
+    list.push_back(util::genProcessTemplate(Templ, repl));
 }
 
 std::string SwigDataBuf::swigClassName(const SwigGenerator& generator)
 {
-    return generator.swigProtocolClassNameForRoot(ClassName);
+    return generator.swigProtocolClassNameForRoot(SwigClassName);
 }
 
 bool SwigDataBuf::swigWriteInternal() const
 {
-    auto subPath = util::pathAddElem(strings::includeDirStr(), ClassName + strings::cppHeaderSuffixStr());
-    auto filePath = util::pathAddElem(m_generator.getOutputDir(), subPath);
-    m_generator.logger().info("Generating " + filePath);
+    auto subPath = util::genPathAddElem(strings::genIncludeDirStr(), SwigClassName + strings::genCppHeaderSuffixStr());
+    auto filePath = util::genPathAddElem(m_swigGenerator.genGetOutputDir(), subPath);
+    m_swigGenerator.genLogger().genInfo("Generating " + filePath);
 
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_swigGenerator.genCreateDirectory(dirPath)) {
         return false;
     }
 
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_swigGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -106,16 +106,16 @@ bool SwigDataBuf::swigWriteInternal() const
         "using #^#CLASS_NAME#$# = std::vector<#^#UINT8_T#$#>;\n"
     ;
 
-    util::ReplacementMap repl = {
-        {"GENERATED", SwigGenerator::fileGeneratedComment()},
-        {"CLASS_NAME", swigClassName(m_generator)},
-        {"UINT8_T", SwigGenerator::cast(m_generator).swigConvertCppType("std::uint8_t")}
+    util::GenReplacementMap repl = {
+        {"GENERATED", SwigGenerator::swigFileGeneratedComment()},
+        {"CLASS_NAME", swigClassName(m_swigGenerator)},
+        {"UINT8_T", SwigGenerator::swigCast(m_swigGenerator).swigConvertCppType("std::uint8_t")}
     };
 
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_swigGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     

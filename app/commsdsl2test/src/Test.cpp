@@ -15,15 +15,15 @@
 
 #include "Test.h"
 
-#include <fstream>
-
 #include "TestGenerator.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
-#include "commsdsl/gen/EnumField.h"
-#include "commsdsl/gen/IntField.h"
+#include "commsdsl/gen/GenEnumField.h"
+#include "commsdsl/gen/GenIntField.h"
+
+#include <fstream>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
@@ -35,60 +35,60 @@ namespace commsdsl2test
 namespace 
 {
 
-using ReplacementMap = commsdsl::gen::util::ReplacementMap;
+using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
 
 } // namespace 
     
 
-bool Test::write(TestGenerator& generator)
+bool Test::testWrite(TestGenerator& generator)
 {
     Test obj(generator);
-    return obj.writeInputTest();
+    return obj.testWriteInputTest();
 }
 
-bool Test::writeInputTest() const
+bool Test::testWriteInputTest() const
 {
     auto testName = 
-        m_generator.currentSchema().mainNamespace() + '_' + "input_test.cpp";
+        m_testGenerator.genCurrentSchema().genMainNamespace() + '_' + "input_test.cpp";
 
-    auto filePath = commsdsl::gen::util::pathAddElem(m_generator.getOutputDir(), testName);
+    auto filePath = util::genPathAddElem(m_testGenerator.genGetOutputDir(), testName);
 
-    m_generator.logger().info("Generating " + filePath);
+    m_testGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_testGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
-    ReplacementMap repl = {
-        std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()),
+    GenReplacementMap repl = {
+        std::make_pair("GEN_COMMENT", m_testGenerator.testFileGeneratedComment()),
     };
     
     std::string idType;
-    auto allMsgIds = m_generator.currentSchema().getAllMessageIdFields();
-    const commsdsl::gen::Field* idField = nullptr;
+    auto allMsgIds = m_testGenerator.genCurrentSchema().genGetAllMessageIdFields();
+    const commsdsl::gen::GenField* idField = nullptr;
     if (allMsgIds.size() == 1U) {
         idField = allMsgIds.front();
     }
 
-    if ((idField != nullptr) && (idField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum)) {
-        auto* enumMsgIdField = static_cast<const commsdsl::gen::EnumField*>(idField);
-        if (enumMsgIdField->isUnsignedUnderlyingType()) {
+    if ((idField != nullptr) && (idField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Enum)) {
+        auto* enumMsgIdField = static_cast<const commsdsl::gen::GenEnumField*>(idField);
+        if (enumMsgIdField->genIsUnsignedUnderlyingType()) {
             idType = "std::uintmax_t";
         }
         else {
             idType = "std::intmax_t";
         }
 
-        auto hexWidth = enumMsgIdField->hexWidth();
+        auto hexWidth = enumMsgIdField->genHexWidth();
         if (hexWidth != 0U) {
             repl.insert(std::make_pair("BEFORE_ID", " << \"0x\" << std::hex << std::setfill('0') << std::setw(" + std::to_string(hexWidth) + ")"));
             repl.insert(std::make_pair("AFTER_ID", " << std::dec"));
         }
     }
-    else if ((idField != nullptr) && (idField->dslObj().kind() == commsdsl::parse::Field::Kind::Int)) {
-        auto* intMsgIdField = static_cast<const commsdsl::gen::IntField*>(idField);
-        if (intMsgIdField->isUnsignedType()) {
+    else if ((idField != nullptr) && (idField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int)) {
+        auto* intMsgIdField = static_cast<const commsdsl::gen::GenIntField*>(idField);
+        if (intMsgIdField->genIsUnsignedType()) {
             idType = "std::uintmax_t";
         }
         else {
@@ -444,12 +444,12 @@ bool Test::writeInputTest() const
         "    return 0;\n"
         "}\n\n";
 
-    auto str = commsdsl::gen::util::processTemplate(Template, repl, true);
+    auto str = commsdsl::gen::util::genProcessTemplate(Template, repl, true);
     stream << str;
 
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_testGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
 

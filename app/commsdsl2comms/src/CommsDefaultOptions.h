@@ -24,10 +24,10 @@ class CommsGenerator;
 class CommsDefaultOptions
 {
 public:
-    static bool write(CommsGenerator& generator);
+    static bool commsWrite(CommsGenerator& generator);
 
 private:
-    explicit CommsDefaultOptions(CommsGenerator& generator) : m_generator(generator) {}
+    explicit CommsDefaultOptions(CommsGenerator& generator) : m_commsGenerator(generator) {}
 
     bool commsWriteInternal() const;
     bool commsWriteDefaultOptionsInternal() const;
@@ -46,7 +46,7 @@ private:
         const std::string& messagesDesc,
         const std::string& allocDesc) const;
 
-    CommsGenerator& m_generator;
+    CommsGenerator& m_commsGenerator;
 };
 
 } // namespace commsdsl2comms

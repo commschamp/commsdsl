@@ -16,26 +16,30 @@
 
 #pragma once
 
-#include "commsdsl/gen/Message.h"
-#include "commsdsl/gen/util.h"
-
 #include "CommsField.h"
 
-#include <vector>
+#include "commsdsl/gen/GenMessage.h"
+#include "commsdsl/gen/util.h"
+
 #include <string>
+#include <vector>
 
 namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsMessage final: public commsdsl::gen::Message
+class CommsMessage final: public commsdsl::gen::GenMessage
 {
-    using Base = commsdsl::gen::Message;
+    using GenBase = commsdsl::gen::GenMessage;
 public:
-    using CommsFieldsList = CommsField::CommsFieldsList;
-    using StringsList = commsdsl::gen::util::StringsList;
+    using ParseMessage = commsdsl::parse::ParseMessage;
 
-    explicit CommsMessage(CommsGenerator& generator, commsdsl::parse::Message dslObj, Elem* parent);
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+
+    using CommsFieldsList = CommsField::CommsFieldsList;
+    
+    explicit CommsMessage(CommsGenerator& generator, ParseMessage parseObj, GenElem* parent);
     virtual ~CommsMessage();
 
     const CommsFieldsList& commsFields() const
@@ -50,14 +54,14 @@ public:
     std::string commsBareMetalDefaultOptions() const;
 
 protected:
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;
 
 private:
-    using FieldOptsFunc = std::string (CommsField::*)() const;
-    using ExtraMessageOptsFunc = StringsList (CommsMessage::*)() const;
+    using CommsFieldOptsFunc = std::string (CommsField::*)() const;
+    using CommsExtraMessageOptsFunc = GenStringsList (CommsMessage::*)() const;
 
-    struct CustomCode
+    struct CommsCustomCode
     {
         std::string m_read;
         std::string m_write;
@@ -73,16 +77,16 @@ private:
         std::string m_append;
     };
 
-    using BodyCustomCodeFunc = std::string (*)(const std::string& codePathPrefix);
+    using CommsBodyCustomCodeFunc = std::string (*)(const std::string& codePathPrefix);
 
-    bool copyCodeFromInternal();
+    bool commsCopyCodeFromInternal();
     bool commsPrepareOverrideInternal(
-        commsdsl::parse::OverrideType type, 
+        commsdsl::parse::ParseOverrideType type, 
         std::string& codePathPrefix, 
         const std::string& suffix,
         std::string& customCode,
         const std::string& name,
-        BodyCustomCodeFunc bodyFunc);
+        CommsBodyCustomCodeFunc bodyFunc);
     static std::string commsPrepareCustomReadFromBodyInternal(const std::string& codePathPrefix);
     static std::string commsPrepareCustomWriteFromBodyInternal(const std::string& codePathPrefix);
     static std::string commsPrepareCustomRefreshFromBodyInternal(const std::string& codePathPrefix);
@@ -116,23 +120,23 @@ private:
     std::string commsDefPrivateConstructInternal() const;
     bool commsIsCustomizableInternal() const;
     std::string commsCustomizationOptionsInternal(
-        FieldOptsFunc fieldOptsFunc,
-        ExtraMessageOptsFunc extraMessageOptsFunc,
+        CommsFieldOptsFunc fieldOptsFunc,
+        CommsExtraMessageOptsFunc extraMessageOptsFunc,
         bool hasBase) const;
     std::string commsDefReadConditionsCodeInternal() const;
     std::string commsDefOrigValidCodeInternal() const;
     std::string commsDefValidFuncInternal() const;
 
-    StringsList commsClientExtraCustomizationOptionsInternal() const;
-    StringsList commsServerExtraCustomizationOptionsInternal() const;
+    GenStringsList commsClientExtraCustomizationOptionsInternal() const;
+    GenStringsList commsServerExtraCustomizationOptionsInternal() const;
     void commsPrepareConstructCodeInternal();
 
     CommsFieldsList m_commsFields;  
-    commsdsl::gen::util::StringsList m_bundledReadPrepareCodes;
-    commsdsl::gen::util::StringsList m_bundledRefreshCodes;
+    commsdsl::gen::util::GenStringsList m_bundledReadPrepareCodes;
+    commsdsl::gen::util::GenStringsList m_bundledRefreshCodes;
     std::string m_internalConstruct;
     std::string m_customConstruct;
-    CustomCode m_customCode;
+    CommsCustomCode m_customCode;
 };
 
 } // namespace commsdsl2comms

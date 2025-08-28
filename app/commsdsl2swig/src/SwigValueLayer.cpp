@@ -32,17 +32,17 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigValueLayer::SwigValueLayer(SwigGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigValueLayer::SwigValueLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
 std::string SwigValueLayer::swigDeclFuncsImpl() const
 {
-    auto obj = valueDslObj();
-    if (!obj.pseudo()) {
-        return strings::emptyString();
+    auto obj = genValueLayerParseObj();
+    if (!obj.parsePseudo()) {
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -53,9 +53,9 @@ std::string SwigValueLayer::swigDeclFuncsImpl() const
 
 std::string SwigValueLayer::swigCodeFuncsImpl() const
 {
-    auto obj = valueDslObj();
-    if (!obj.pseudo()) {
-        return strings::emptyString();
+    auto obj = genValueLayerParseObj();
+    if (!obj.parsePseudo()) {
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -66,10 +66,10 @@ std::string SwigValueLayer::swigCodeFuncsImpl() const
 
 bool SwigValueLayer::swigIsMainInterfaceSupportedImpl() const
 {
-    auto& gen = SwigGenerator::cast(generator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     auto* iFace = gen.swigMainInterface();
     assert(iFace != nullptr);
-    return isInterfaceSupported(iFace);
+    return genIsInterfaceSupported(iFace);
 }
 
 } // namespace commsdsl2swig

@@ -15,107 +15,18 @@
 
 #include "TestProgramOptions.h"
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 #include <vector>
 
 namespace commsdsl2test
 {
 
-namespace
-{
-
-const std::string QuietStr("quiet");
-const std::string FullQuietStr("q," + QuietStr);
-const std::string VersionStr("version");
-const std::string OutputDirStr("output-dir");
-const std::string FullOutputDirStr("o," + OutputDirStr);
-const std::string InputFilesListStr("input-files-list");
-const std::string FullInputFilesListStr("i," + InputFilesListStr);
-const std::string InputFilesPrefixStr("input-files-prefix");
-const std::string FullInputFilesPrefixStr("p," + InputFilesPrefixStr);
-const std::string NamespaceStr("namespace");
-const std::string FullNamespaceStr("n," + NamespaceStr);
-const std::string WarnAsErrStr("warn-as-err");
-const std::string CodeInputDirStr("code-input-dir");
-const std::string FullCodeInputDirStr("c," + CodeInputDirStr);
-const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
-const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
-
-} // namespace
-
 TestProgramOptions::TestProgramOptions()
 {
-    addHelpOption()
-    (VersionStr, "Print version string and exit.")
-    (FullQuietStr.c_str(), "Quiet, show only warnings and errors.")
-    (FullOutputDirStr.c_str(), "Output directory path. When not provided current is used.", true)        
-    (FullInputFilesListStr.c_str(), "File containing list of input files.", true)        
-    (FullInputFilesPrefixStr.c_str(), "Prefix for the values from the list file.", true)
-    (FullNamespaceStr, 
-        "Force main namespace change. Defaults to schema name. "
-        "In case of having multiple schemas the renaming happends to the last protocol one. "
-        "Renaming of non-protocol or multiple schemas is allowed using <orig_name>:<new_name> comma separated pairs.",
-        true) 
-    (WarnAsErrStr.c_str(), "Treat warning as error.")
-    (FullCodeInputDirStr, "Directory with code updates.", true)
-    (FullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")    
+    genAddCommonOptions();
+    genRemoveMinRemoteVersionOptions();
     ;
-}
-
-bool TestProgramOptions::quietRequested() const
-{
-    return isOptUsed(QuietStr);
-}
-
-bool TestProgramOptions::versionRequested() const
-{
-    return isOptUsed(VersionStr);
-}
-
-bool TestProgramOptions::warnAsErrRequested() const
-{
-    return isOptUsed(WarnAsErrStr);
-}
-
-const std::string& TestProgramOptions::getFilesListFile() const
-{
-    return value(InputFilesListStr);
-}
-
-const std::string& TestProgramOptions::getFilesListPrefix() const
-{
-    return value(InputFilesPrefixStr);
-}
-
-const TestProgramOptions::ArgsList& TestProgramOptions::getFiles() const
-{
-    return args();
-}
-
-const std::string& TestProgramOptions::getOutputDirectory() const
-{
-    return value(OutputDirStr);
-}
-
-const std::string& TestProgramOptions::getCodeInputDirectory() const
-{
-    return value(CodeInputDirStr);
-}
-
-bool TestProgramOptions::hasNamespaceOverride() const
-{
-    return isOptUsed(NamespaceStr);
-}
-
-const std::string& TestProgramOptions::getNamespace() const
-{
-    return value(NamespaceStr);
-}
-
-bool TestProgramOptions::multipleSchemasEnabled() const
-{
-    return isOptUsed(MultipleSchemasEnabledStr);
 }
 
 } // namespace commsdsl2test

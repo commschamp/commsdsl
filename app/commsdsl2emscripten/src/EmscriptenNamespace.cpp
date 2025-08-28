@@ -21,12 +21,12 @@
 #include "EmscriptenMessage.h"
 #include "EmscriptenFrame.h"
 
-#include <algorithm>
-#include <cassert>
-
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
+
+#include <algorithm>
+#include <cassert>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
@@ -39,10 +39,10 @@ namespace
 {
 
 template <typename TElem, typename TList>
-void emscriptenAddSourceFilesInternal(const TList& list, util::StringsList& sources)
+void emscriptenAddSourceFilesInternal(const TList& list, util::GenStringsList& sources)
 {
     for (auto& elemPtr : list) {
-        auto* elem = TElem::cast(elemPtr.get());
+        auto* elem = TElem::emscriptenCast(elemPtr.get());
         elem->emscriptenAddSourceFiles(sources);
     }    
 }
@@ -50,8 +50,8 @@ void emscriptenAddSourceFilesInternal(const TList& list, util::StringsList& sour
 } // namespace 
     
 
-EmscriptenNamespace::EmscriptenNamespace(EmscriptenGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
-    Base(generator, dslObj, parent),
+EmscriptenNamespace::EmscriptenNamespace(EmscriptenGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
     m_msgId(generator, *this),
     m_handler(generator, *this),
     m_input(generator, *this)
@@ -60,53 +60,53 @@ EmscriptenNamespace::EmscriptenNamespace(EmscriptenGenerator& generator, commsds
 
 EmscriptenNamespace::~EmscriptenNamespace() = default;
 
-void EmscriptenNamespace::emscriptenAddSourceFiles(StringsList& sources) const
+void EmscriptenNamespace::emscriptenAddSourceFiles(GenStringsList& sources) const
 {
-    emscriptenAddSourceFilesInternal<EmscriptenNamespace>(namespaces(), sources);
-    emscriptenAddSourceFilesInternal<EmscriptenField>(fields(), sources);
-    emscriptenAddSourceFilesInternal<EmscriptenInterface>(interfaces(), sources);
-    emscriptenAddSourceFilesInternal<EmscriptenMessage>(messages(), sources);
-    emscriptenAddSourceFilesInternal<EmscriptenFrame>(frames(), sources);
+    emscriptenAddSourceFilesInternal<EmscriptenNamespace>(genNamespaces(), sources);
+    emscriptenAddSourceFilesInternal<EmscriptenField>(genFields(), sources);
+    emscriptenAddSourceFilesInternal<EmscriptenInterface>(genInterfaces(), sources);
+    emscriptenAddSourceFilesInternal<EmscriptenMessage>(genMessages(), sources);
+    emscriptenAddSourceFilesInternal<EmscriptenFrame>(genFrames(), sources);
 
-    if (!interfaces().empty()) {
+    if (!genInterfaces().empty()) {
         m_msgId.emscriptenAddSourceFiles(sources);
         m_handler.emscriptenAddSourceFiles(sources);
     }    
 }
 
-void EmscriptenNamespace::emscriptenAddCommsMessageIncludes(StringsList& includes) const
+void EmscriptenNamespace::emscriptenAddCommsMessageIncludes(GenStringsList& includes) const
 {
     if (emscriptenHasInput()) {
-        includes.push_back(comms::relHeaderForInput(strings::allMessagesStr(), generator(), *this));
+        includes.push_back(comms::genRelHeaderForInput(strings::genAllMessagesStr(), genGenerator(), *this));
         return;
     }
 
-    for (auto& ns : namespaces()) {
-        EmscriptenNamespace::cast(ns.get())->emscriptenAddCommsMessageIncludes(includes);
+    for (auto& ns : genNamespaces()) {
+        EmscriptenNamespace::emscriptenCast(ns.get())->emscriptenAddCommsMessageIncludes(includes);
     }
 }
 
-void EmscriptenNamespace::emscriptenAddInputMessageFwdIncludes(StringsList& includes) const
+void EmscriptenNamespace::emscriptenAddInputMessageFwdIncludes(GenStringsList& includes) const
 {
     if (emscriptenHasInput()) {
         includes.push_back(m_input.emscriptenRelFwdHeader());
         return;
     }
 
-    for (auto& ns : namespaces()) {
-        EmscriptenNamespace::cast(ns.get())->emscriptenAddInputMessageFwdIncludes(includes);
+    for (auto& ns : genNamespaces()) {
+        EmscriptenNamespace::emscriptenCast(ns.get())->emscriptenAddInputMessageFwdIncludes(includes);
     }
 }
 
-void EmscriptenNamespace::emscriptenAddInputMessageIncludes(StringsList& includes) const
+void EmscriptenNamespace::emscriptenAddInputMessageIncludes(GenStringsList& includes) const
 {
     if (emscriptenHasInput()) {
         includes.push_back(m_input.emscriptenRelHeader());
         return;
     }
 
-    for (auto& ns : namespaces()) {
-        EmscriptenNamespace::cast(ns.get())->emscriptenAddInputMessageIncludes(includes);
+    for (auto& ns : genNamespaces()) {
+        EmscriptenNamespace::emscriptenCast(ns.get())->emscriptenAddInputMessageIncludes(includes);
     }
 }
 
@@ -134,12 +134,12 @@ std::string EmscriptenNamespace::emscriptenInputClassName() const
 
 bool EmscriptenNamespace::emscriptenHasInput() const
 {
-    return (hasFramesRecursive() && hasMessagesRecursive());
+    return (genHasFramesRecursive() && genHasMessagesRecursive());
 }
 
-bool EmscriptenNamespace::writeImpl() const
+bool EmscriptenNamespace::genWriteImpl() const
 {
-    if (!interfaces().empty()) {
+    if (!genInterfaces().empty()) {
         if ((!m_msgId.emscriptenWrite()) || 
             (!m_handler.emscriptenWrite())) {
             return false;

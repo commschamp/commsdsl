@@ -97,26 +97,26 @@ const std::string& classTempl()
     return Templ;
 }
 
-void readCustomCodeInternal(const std::string& codePath, std::string& code)
+void commsReadCustomCodeInternal(const std::string& codePath, std::string& code)
 {
-    if (!util::isFileReadable(codePath)) {
+    if (!util::genIsFileReadable(codePath)) {
         return;
     }
 
-    code = util::readFileContents(codePath);
+    code = util::genReadFileContents(codePath);
 }
 
 } // namespace 
     
 
-CommsInterface::CommsInterface(CommsGenerator& generator, commsdsl::parse::Interface dslObj, Elem* parent) :
-    Base(generator, dslObj, parent)
+CommsInterface::CommsInterface(CommsGenerator& generator, ParseInterface parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent)
 {
 }   
 
 CommsInterface::~CommsInterface() = default;
 
-const CommsField* CommsInterface::findValidReferencedField(const std::string& refStr) const
+const CommsField* CommsInterface::commsFindValidReferencedField(const std::string& refStr) const
 {
     auto dotPos = refStr.find(".");
     std::string fieldName(refStr, 0, dotPos);
@@ -126,7 +126,7 @@ const CommsField* CommsInterface::findValidReferencedField(const std::string& re
             m_commsFields.begin(), m_commsFields.end(),
             [&fieldName](auto* f)
             {
-                return fieldName == f->field().dslObj().name();
+                return fieldName == f->commsGenField().genParseObj().parseName();
             });
 
     if (iter == m_commsFields.end()) {
@@ -138,71 +138,71 @@ const CommsField* CommsInterface::findValidReferencedField(const std::string& re
         restAcc = refStr.substr(dotPos + 1);
     }
 
-    auto info = (*iter)->field().processInnerRef(restAcc);
+    auto info = (*iter)->commsGenField().genProcessInnerRef(restAcc);
 
     if ((info.m_field != nullptr) &&
         (info.m_valueName.empty()) &&
-        (info.m_refType == commsdsl::gen::Field::FieldRefType_Field)) {
+        (info.m_refType == commsdsl::gen::GenField::FieldRefType_Field)) {
         return *iter;
     }
 
     return nullptr;
 }
 
-bool CommsInterface::prepareImpl()
+bool CommsInterface::genPrepareImpl()
 {
-    if (!Base::prepareImpl()) {
+    if (!GenBase::genPrepareImpl()) {
         return false;
     }
 
-    if (!copyCodeFromInternal()) {
+    if (!commsCopyCodeFromInternal()) {
         return false;
     }    
 
-    if (dslObj().valid()) {
-        m_name = comms::className(dslObj().name());
+    if (genParseObj().parseValid()) {
+        m_name = comms::genClassName(genParseObj().parseName());
     }
 
     if (m_name.empty()) {
-        m_name = strings::messageClassStr();
+        m_name = strings::genMessageClassStr();
     }
 
-    auto inputCodePrefix = comms::inputCodePathFor(*this, generator());
+    auto inputCodePrefix = comms::genInputCodePathFor(*this, genGenerator());
 
-    readCustomCodeInternal(inputCodePrefix + strings::constructFileSuffixStr(), m_constructCode);
-    readCustomCodeInternal(inputCodePrefix + strings::incFileSuffixStr(), m_customCode.m_inc);
-    readCustomCodeInternal(inputCodePrefix + strings::publicFileSuffixStr(), m_customCode.m_public);
-    readCustomCodeInternal(inputCodePrefix + strings::protectedFileSuffixStr(), m_customCode.m_protected);
-    readCustomCodeInternal(inputCodePrefix + strings::privateFileSuffixStr(), m_customCode.m_private);
-    readCustomCodeInternal(inputCodePrefix + strings::extendFileSuffixStr(), m_customCode.m_extend);
-    readCustomCodeInternal(inputCodePrefix + strings::appendFileSuffixStr(), m_customCode.m_append);
-    m_commsFields = CommsField::commsTransformFieldsList(fields());
+    commsReadCustomCodeInternal(inputCodePrefix + strings::genConstructFileSuffixStr(), m_constructCode);
+    commsReadCustomCodeInternal(inputCodePrefix + strings::genIncFileSuffixStr(), m_customCode.m_inc);
+    commsReadCustomCodeInternal(inputCodePrefix + strings::genPublicFileSuffixStr(), m_customCode.m_public);
+    commsReadCustomCodeInternal(inputCodePrefix + strings::genProtectedFileSuffixStr(), m_customCode.m_protected);
+    commsReadCustomCodeInternal(inputCodePrefix + strings::genPrivateFileSuffixStr(), m_customCode.m_private);
+    commsReadCustomCodeInternal(inputCodePrefix + strings::genExtendFileSuffixStr(), m_customCode.m_extend);
+    commsReadCustomCodeInternal(inputCodePrefix + strings::genAppendFileSuffixStr(), m_customCode.m_append);
+    m_commsFields = CommsField::commsTransformFieldsList(genFields());
 
     return true;
 }
 
-bool CommsInterface::writeImpl() const
+bool CommsInterface::genWriteImpl() const
 {
     return 
         commsWriteCommonInternal() &&
         commsWriteDefInternal();
 }
 
-bool CommsInterface::copyCodeFromInternal()
+bool CommsInterface::commsCopyCodeFromInternal()
 {
-    auto obj = dslObj();
-    if (!obj.valid()) {
+    auto obj = genParseObj();
+    if (!obj.parseValid()) {
         return true;
     }
     
-    auto& copyFrom = obj.copyCodeFrom();
+    auto& copyFrom = obj.parseCopyCodeFrom();
     if (copyFrom.empty()) {
         return true;
     }
 
-    auto* origIface = generator().findInterface(copyFrom);
+    auto* origIface = genGenerator().genFindInterface(copyFrom);
     if (origIface == nullptr) {
-        generator().logger().error(
+        genGenerator().genLogger().genError(
             "Failed to find referenced field \"" + copyFrom + "\" for copying overriding code.");
         assert(false); // Should not happen
         return false;
@@ -220,20 +220,20 @@ bool CommsInterface::commsWriteCommonInternal() const
         return true;
     }
 
-    auto& gen = generator();
-    auto filePath = comms::commonHeaderPathFor(*this, gen);
+    auto& gen = genGenerator();
+    auto filePath = comms::genCommonHeaderPathFor(*this, gen);
 
-    gen.logger().info("Generating " + filePath);
+    gen.genLogger().genInfo("Generating " + filePath);
 
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!gen.createDirectory(dirPath)) {
+    if (!gen.genCreateDirectory(dirPath)) {
         return false;
     }
 
     std::ofstream stream(filePath);
     if (!stream) {
-        gen.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        gen.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }    
 
@@ -256,39 +256,39 @@ bool CommsInterface::commsWriteCommonInternal() const
         "};\n"
         "#^#NS_END#$#\n";
 
-    util::ReplacementMap repl =  {
+    util::GenReplacementMap repl =  {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"CLASS_NAME", m_name},
-        {"SCOPE", comms::scopeFor(*this, gen)},
+        {"SCOPE", comms::genScopeFor(*this, gen)},
         {"INCLUDES", commsCommonIncludesInternal()},
-        {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
-        {"NS_END", comms::namespaceEndFor(*this, gen)},
+        {"NS_BEGIN", comms::genNamespaceBeginFor(*this, gen)},
+        {"NS_END", comms::genNamespaceEndFor(*this, gen)},
         {"CODE", commsCommonFieldsCodeInternal()}
     };
 
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
 
 bool CommsInterface::commsWriteDefInternal() const
 {
-    auto& gen = generator();
+    auto& gen = genGenerator();
     auto writeFunc = 
         [&gen](const std::string& filePath, const std::string& content)
         {
-            auto& logger = gen.logger();
-            logger.info("Generating " + filePath);
+            auto& logger = gen.genLogger();
+            logger.genInfo("Generating " + filePath);
 
-            auto dirPath = util::pathUp(filePath);
+            auto dirPath = util::genPathUp(filePath);
             assert(!dirPath.empty());
-            if (!gen.createDirectory(dirPath)) {
+            if (!gen.genCreateDirectory(dirPath)) {
                 return false;
             }
 
             std::ofstream stream(filePath);
             if (!stream) {
-                logger.error("Failed to open \"" + filePath + "\" for writing.");
+                logger.genError("Failed to open \"" + filePath + "\" for writing.");
                 return false;
             }
             
@@ -297,30 +297,30 @@ bool CommsInterface::commsWriteDefInternal() const
             return stream.good();
         };
     
-    auto genFilePath = comms::headerPathFor(*this, gen);
-    auto codePathPrefix = comms::inputCodePathFor(*this, gen);
-    auto replaceContent = util::readFileContents(codePathPrefix + strings::replaceFileSuffixStr());
+    auto genFilePath = comms::genHeaderPathFor(*this, gen);
+    auto codePathPrefix = comms::genInputCodePathFor(*this, gen);
+    auto replaceContent = util::genReadFileContents(codePathPrefix + strings::genReplaceFileSuffixStr());
     if (!replaceContent.empty()) {
         return writeFunc(genFilePath, replaceContent);
     }
 
-    auto obj = dslObj();
-    util::ReplacementMap repl = {
+    auto obj = genParseObj();
+    util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"CLASS_NAME", m_name},
         {"INCLUDES", commsDefIncludesInternal()},
         {"CUSTOM_INCLUDES", m_customCode.m_inc},
-        {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
-        {"NS_END", comms::namespaceEndFor(*this, gen)},
+        {"NS_BEGIN", comms::genNamespaceBeginFor(*this, gen)},
+        {"NS_END", comms::genNamespaceEndFor(*this, gen)},
         {"DOC_DETAILS", commsDefDocDetailsInternal()},
         {"BASE", commsDefBaseClassInternal()},
-        {"HEADERFILE", comms::relHeaderPathFor(*this, gen)},
+        {"HEADERFILE", comms::genRelHeaderPathFor(*this, gen)},
         {"EXTEND", m_customCode.m_extend},
         {"APPEND", m_customCode.m_append}
     };
 
     if (!repl["EXTEND"].empty()) {
-        repl["SUFFIX"] = strings::origSuffixStr();
+        repl["SUFFIX"] = strings::genOrigSuffixStr();
     }
 
     bool useClass = 
@@ -341,12 +341,12 @@ bool CommsInterface::commsWriteDefInternal() const
         templ = &(classTempl());
     }
 
-    return writeFunc(genFilePath, util::processTemplate(*templ, repl, true));
+    return writeFunc(genFilePath, util::genProcessTemplate(*templ, repl, true));
 }
 
 std::string CommsInterface::commsCommonIncludesInternal() const
 {
-    util::StringsList includes;
+    util::GenStringsList includes;
 
     for (auto* commsField : m_commsFields) {
         assert(commsField != nullptr);
@@ -356,13 +356,13 @@ std::string CommsInterface::commsCommonIncludesInternal() const
         std::move(fIncludes.begin(), fIncludes.end(), std::back_inserter(includes));
     }
 
-    comms::prepareIncludeStatement(includes);    
-    return util::strListToString(includes, "\n", "\n");
+    comms::genPrepareIncludeStatement(includes);    
+    return util::genStrListToString(includes, "\n", "\n");
 }
 
 std::string CommsInterface::commsCommonFieldsCodeInternal() const
 {
-    util::StringsList fields;
+    util::GenStringsList fields;
     for (auto* cField : m_commsFields) {
         assert(cField != nullptr);
         auto def = cField->commsCommonCode();
@@ -373,22 +373,22 @@ std::string CommsInterface::commsCommonFieldsCodeInternal() const
         fields.push_back(std::move(def));
     }
 
-    return util::strListToString(fields, "\n", "");
+    return util::genStrListToString(fields, "\n", "");
 }
 
 std::string CommsInterface::commsDefIncludesInternal() const
 {
-    auto& gen = generator();
-    util::StringsList includes = {
+    auto& gen = genGenerator();
+    util::GenStringsList includes = {
         "comms/Message.h",
         "comms/options.h",
-        comms::relHeaderForMsgId(strings::msgIdEnumNameStr(), gen, *static_cast<const commsdsl::gen::Namespace*>(getParent())),
+        comms::genRelHeaderForMsgId(strings::genMsgIdEnumNameStr(), gen, *static_cast<const commsdsl::gen::GenNamespace*>(genGetParent())),
     };
 
     if (!m_commsFields.empty()) {
         includes.insert(includes.end(), {
             "<tuple>",
-            comms::relCommonHeaderPathFor(*this, gen)
+            comms::genRelCommonHeaderPathFor(*this, gen)
         });
     }
 
@@ -399,14 +399,14 @@ std::string CommsInterface::commsDefIncludesInternal() const
         includes.reserve(includes.size() + fIncludes.size());
         std::move(fIncludes.begin(), fIncludes.end(), std::back_inserter(includes));
     }
-    comms::prepareIncludeStatement(includes);    
-    return util::strListToString(includes, "\n", "\n");
+    comms::genPrepareIncludeStatement(includes);    
+    return util::genStrListToString(includes, "\n", "\n");
 }
 
 std::string CommsInterface::commsDefFieldsCodeInternal() const
 {
     if (m_commsFields.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ =
@@ -422,36 +422,36 @@ std::string CommsInterface::commsDefFieldsCodeInternal() const
         "    >;\n"
         "};\n";
 
-    util::StringsList defs;
-    util::StringsList names;
+    util::GenStringsList defs;
+    util::GenStringsList names;
     for (auto* commsField : m_commsFields) {
         assert(commsField != nullptr);
         defs.push_back(commsField->commsDefCode());
-        names.push_back(comms::className(commsField->field().dslObj().name()));
+        names.push_back(comms::genClassName(commsField->commsGenField().genParseObj().parseName()));
     }
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", m_name},
-        {"HEADERFILE", comms::relHeaderPathFor(*this, generator())},
-        {"FIELDS_DEF", util::strListToString(defs, "\n", "")},
-        {"FIELDS_LIST", util::strListToString(names, ",\n", "")},
+        {"HEADERFILE", comms::genRelHeaderPathFor(*this, genGenerator())},
+        {"FIELDS_DEF", util::genStrListToString(defs, "\n", "")},
+        {"FIELDS_LIST", util::genStrListToString(names, ",\n", "")},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsInterface::commsDefDocDetailsInternal() const
 {
     std::string desc;
-    if (dslObj().valid()) {
-        desc = util::strMakeMultiline(dslObj().description());
+    if (genParseObj().parseValid()) {
+        desc = util::genStrMakeMultiline(genParseObj().parseDescription());
     } 
 
     if (!desc.empty()) {
-        static const std::string DocPrefix = strings::doxygenPrefixStr() + strings::incFileSuffixStr();
+        static const std::string DocPrefix = strings::genDoxygenPrefixStr() + strings::genIncFileSuffixStr();
         desc.insert(desc.begin(), DocPrefix.begin(), DocPrefix.end());
         static const std::string DocNewLineRepl("\n" + DocPrefix);
-        desc = util::strReplace(desc, "\n", DocNewLineRepl);
+        desc = util::genStrReplace(desc, "\n", DocNewLineRepl);
         desc += " @n";
     }
     return desc;    
@@ -467,14 +467,14 @@ std::string CommsInterface::commsDefBaseClassInternal() const
         "    #^#EXTRA_OPTS#$#\n"
         ">";
 
-    auto& gen = generator();
-    auto& schema = gen.schemaOf(*this);
+    auto& gen = genGenerator();
+    auto& schema = gen.genSchemaOf(*this);
 
-    assert(getParent() != nullptr);
-    assert(getParent()->elemType() == commsdsl::gen::Elem::Type_Namespace);
-    util::ReplacementMap repl = {
-        {"ENDIAN", comms::dslEndianToOpt(schema.schemaEndian())},
-        {"MSG_ID_TYPE", comms::scopeForMsgId(strings::msgIdEnumNameStr(), gen, *static_cast<const commsdsl::gen::Namespace*>(getParent()))},
+    assert(genGetParent() != nullptr);
+    assert(genGetParent()->genElemType() == commsdsl::gen::GenElem::GenType_Namespace);
+    util::GenReplacementMap repl = {
+        {"ENDIAN", comms::genParseEndianToOpt(schema.genSchemaEndian())},
+        {"MSG_ID_TYPE", comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), gen, *static_cast<const commsdsl::gen::GenNamespace*>(genGetParent()))},
         {"EXTRA_OPTS", commsDefExtraOptionsInternal()}
     };
 
@@ -482,18 +482,18 @@ std::string CommsInterface::commsDefBaseClassInternal() const
         repl["COMMA"] = ",";
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsInterface::commsDefExtraOptionsInternal() const
 {
-    util::StringsList opts;
+    util::GenStringsList opts;
 
     if (!m_commsFields.empty()) {
         opts.push_back(
             "comms::option::def::ExtraTransportFields<" +
             m_name + 
-            strings::fieldsSuffixStr() + 
+            strings::genFieldsSuffixStr() + 
             "::All>"
         );
     }
@@ -503,17 +503,17 @@ std::string CommsInterface::commsDefExtraOptionsInternal() const
             m_commsFields.begin(), m_commsFields.end(),
             [](auto& f)
             {
-                return f->field().dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Version;
+                return f->commsGenField().genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Version;
             });
 
     if (iter != m_commsFields.end()) {
         opts.push_back(
             "comms::option::def::VersionInExtraTransportFields<" +
-            util::numToString(static_cast<std::size_t>(std::distance(m_commsFields.begin(), iter))) +
+            util::genNumToString(static_cast<std::size_t>(std::distance(m_commsFields.begin(), iter))) +
             ">"
         );
     }
-    return util::strListToString(opts, ",\n", "");
+    return util::genStrListToString(opts, ",\n", "");
 }
 
 std::string CommsInterface::commsDefPublicInternal() const
@@ -526,20 +526,20 @@ std::string CommsInterface::commsDefPublicInternal() const
         "    #^#EXTRA#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CONSTRUCT", m_constructCode},
         {"ACCESS", commsDefFieldsAccessInternal()},
         {"ALIASES", commsDefFieldsAliasesInternal()},
         {"EXTRA", m_customCode.m_public},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }        
 
 std::string CommsInterface::commsDefProtectedInternal() const
 {
     if (m_customCode.m_protected.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -547,17 +547,17 @@ std::string CommsInterface::commsDefProtectedInternal() const
         "    #^#CUSTOM#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CUSTOM", m_customCode.m_protected}
     };
     
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsInterface::commsDefPrivateInternal() const
 {
     if (m_customCode.m_private.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -565,17 +565,17 @@ std::string CommsInterface::commsDefPrivateInternal() const
         "    #^#CUSTOM#$#\n"
     ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CUSTOM", m_customCode.m_private}
     };
     
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsInterface::commsDefFieldsAccessInternal() const
 {
     if (m_commsFields.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -591,49 +591,49 @@ std::string CommsInterface::commsDefFieldsAccessInternal() const
         ");\n"
         ;
 
-    util::StringsList docs;
-    util::StringsList names;
+    util::GenStringsList docs;
+    util::GenStringsList names;
 
-    auto interfaceClassName = comms::className(dslObj().name());
-    for (auto& fPtr : fields()) {
+    auto interfaceClassName = comms::genClassName(genParseObj().parseName());
+    for (auto& fPtr : genFields()) {
         assert(fPtr);
-        auto& name = fPtr->dslObj().name();
-        auto accName = comms::accessName(name);
-        auto className = comms::className(name);
+        auto& name = fPtr->genParseObj().parseName();
+        auto accName = comms::genAccessName(name);
+        auto className = comms::genClassName(name);
 
-        static const std::string DocPrefix = strings::doxygenPrefixStr() + strings::indentStr();
+        static const std::string DocPrefix = strings::genDoxygenPrefixStr() + strings::genIndentStr();
         auto doc = 
             DocPrefix + "@li @b TransportFieldIdx_" + accName + " index, @b TransportField_" + accName +
-            " type\n" + DocPrefix + strings::indentStr() +
+            " type\n" + DocPrefix + strings::genIndentStr() +
             "and @b transportField_" + accName + "() access fuction for @ref " + 
-            interfaceClassName + strings::fieldsSuffixStr() + "::" +
+            interfaceClassName + strings::genFieldsSuffixStr() + "::" +
             className + " field.";
 
         names.push_back(accName);
         docs.push_back(std::move(doc));
     }
     
-    util::ReplacementMap repl = {
-        {"DOC", util::strListToString(docs, "\n", "")},
-        {"NAMES", util::strListToString(names, ",\n", "")},
+    util::GenReplacementMap repl = {
+        {"DOC", util::genStrListToString(docs, "\n", "")},
+        {"NAMES", util::genStrListToString(names, ",\n", "")},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsInterface::commsDefFieldsAliasesInternal() const
 {
-    auto obj = dslObj();
-    if (!obj.valid()) {
-        return strings::emptyString();
+    auto obj = genParseObj();
+    if (!obj.parseValid()) {
+        return strings::genEmptyString();
     }
 
-    auto aliases = obj.aliases();
+    auto aliases = obj.parseAliases();
     if (aliases.empty()) {
-        return strings::emptyString();    
+        return strings::genEmptyString();    
     }
 
-    util::StringsList result;
+    util::GenStringsList result;
     for (auto& a : aliases) {
         static const std::string Templ =
             "/// @brief Alias to an extra transport member field.\n"
@@ -643,29 +643,29 @@ std::string CommsInterface::commsDefFieldsAliasesInternal() const
             "///     @b transportField_#^#ALIAS_NAME#$#() -> <b>transportField_#^#ALIASED_FIELD_DOC#$#</b>\n"
             "COMMS_MSG_TRANSPORT_FIELD_ALIAS(#^#ALIAS_NAME#$#, #^#ALIASED_FIELD#$#);\n";
 
-        auto& fieldName = a.fieldName();
-        auto fieldSubNames = util::strSplitByAnyChar(fieldName, ".");
+        auto& fieldName = a.parseFieldName();
+        auto fieldSubNames = util::genStrSplitByAnyChar(fieldName, ".");
         for (auto& n : fieldSubNames) {
-            n = comms::accessName(n);
+            n = comms::genAccessName(n);
         }
 
-        auto desc = util::strMakeMultiline(a.description());
+        auto desc = util::genStrMakeMultiline(a.parseDescription());
         if (!desc.empty()) {
-            desc = strings::doxygenPrefixStr() + strings::indentStr() + desc + " @n";
-            desc = util::strReplace(desc, "\n", "\n" + strings::doxygenPrefixStr() + strings::indentStr());
+            desc = strings::genDoxygenPrefixStr() + strings::genIndentStr() + desc + " @n";
+            desc = util::genStrReplace(desc, "\n", "\n" + strings::genDoxygenPrefixStr() + strings::genIndentStr());
         }        
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"ALIAS_DESC", std::move(desc)},
-            {"ALIAS_NAME", comms::accessName(a.name())},
-            {"ALIASED_FIELD_DOC", util::strListToString(fieldSubNames, "().transportField_", "()")},
-            {"ALIASED_FIELD", util::strListToString(fieldSubNames, ", ", "")}
+            {"ALIAS_NAME", comms::genAccessName(a.parseName())},
+            {"ALIASED_FIELD_DOC", util::genStrListToString(fieldSubNames, "().transportField_", "()")},
+            {"ALIASED_FIELD", util::genStrListToString(fieldSubNames, ", ", "")}
         };
 
-        result.push_back(util::processTemplate(Templ, repl));
+        result.push_back(util::genProcessTemplate(Templ, repl));
     }
     
-    return util::strListToString(result, "\n", "");
+    return util::genStrListToString(result, "\n", "");
 }
 
 } // namespace commsdsl2comms

@@ -15,47 +15,50 @@
 
 #pragma once
 
-#include "commsdsl/gen/OptionalField.h"
-
 #include "CommsField.h"
+
+#include "commsdsl/gen/GenOptionalField.h"
 
 namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsOptionalField final : public commsdsl::gen::OptionalField, public CommsField
+class CommsOptionalField final : public commsdsl::gen::GenOptionalField, public CommsField
 {
-    using Base = commsdsl::gen::OptionalField;
+    using GenBase = commsdsl::gen::GenOptionalField;
     using CommsBase = CommsField;
 public:
-    CommsOptionalField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    CommsOptionalField(CommsGenerator& generator, ParseField parseObj, GenElem* parent);
 
     static std::string commsDslCondToString(
         const CommsGenerator& generator, 
         const CommsFieldsList& siblings, 
-        const commsdsl::parse::OptCond& cond, 
+        const commsdsl::parse::ParseOptCond& cond, 
         bool bracketsWrap = false);
 
 protected:
-    // Base overrides
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
+    // GenBase overrides
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;    
 
     // CommsBase overrides
-    virtual IncludesList commsCommonIncludesImpl() const override;
+    virtual CommsIncludesList commsCommonIncludesImpl() const override;
     virtual std::string commsCommonCodeBodyImpl() const override;
     virtual std::string commsCommonMembersCodeImpl() const override;
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefMembersCodeImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
     virtual std::string commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const override;
     virtual std::string commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const override;
     virtual bool commsIsVersionDependentImpl() const override;
-    virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
+    virtual std::string commsMembersCustomizationOptionsBodyImpl(CommsFieldOptsFunc fieldOptsFunc) const override;
     virtual std::size_t commsMaxLengthImpl() const override;
     virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
     virtual std::string commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
-    virtual void commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const override;
+    virtual void commsCompOptChecksImpl(const std::string& accStr, GenStringsList& checks, const std::string& prefix) const override;
     virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const override;
     virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
 
@@ -65,11 +68,11 @@ private:
     std::string commsDefFieldRefInternal() const;
     std::string commsDefFieldOptsInternal() const;
 
-    void commsAddModeOptInternal(StringsList& opts) const;
-    void commsAddMissingOnReadFailOptInternal(StringsList& opts) const;
-    void commsAddMissingOnInvalidOptInternal(StringsList& opts) const;
+    void commsAddModeOptInternal(GenStringsList& opts) const;
+    void commsAddMissingOnReadFailOptInternal(GenStringsList& opts) const;
+    void commsAddMissingOnInvalidOptInternal(GenStringsList& opts) const;
 
-    std::string commsDslCondToStringInternal(const CommsFieldsList& siblings, const commsdsl::parse::OptCond& cond, bool bracketsWrap = false) const;
+    std::string commsDslCondToStringInternal(const CommsFieldsList& siblings, const commsdsl::parse::ParseOptCond& cond, bool bracketsWrap = false) const;
     std::string commsMemberAccessStringInternal(const std::string& accStr) const;
     static std::string commsDslCondToStringFieldValueCompInternal(
         const CommsField* field, 

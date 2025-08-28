@@ -26,19 +26,19 @@ class EmscriptenGenerator;
 class EmscriptenVersion
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     static bool emscriptenWrite(EmscriptenGenerator& generator);
-    static void emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources);
+    static void emscriptenAddSourceFiles(const EmscriptenGenerator& generator, GenStringsList& sources);
 
 private:
-    explicit EmscriptenVersion(EmscriptenGenerator& generator) : m_generator(generator) {}
+    explicit EmscriptenVersion(EmscriptenGenerator& generator) : m_emscriptenGenerator(generator) {}
 
     bool emscriptenWriteSrcInternal() const;
     std::string emscriptenSpecConstantsInternal() const;
     std::string emscriptenProtConstantsInternal() const;
     
-    EmscriptenGenerator& m_generator;
+    EmscriptenGenerator& m_emscriptenGenerator;
 };
 
 } // namespace commsdsl2emscripten

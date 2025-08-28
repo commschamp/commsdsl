@@ -26,22 +26,22 @@ class SwigGenerator;
 class SwigMsgHandler
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     static bool swigWrite(SwigGenerator& generator);
 
-    static void swigAddFwdCode(const SwigGenerator& generator, StringsList& list);
-    static void swigAddClassCode(const SwigGenerator& generator, StringsList& list);
-    static void swigAddDef(const SwigGenerator& generator, StringsList& list);
+    static void swigAddFwdCode(const SwigGenerator& generator, GenStringsList& list);
+    static void swigAddClassCode(const SwigGenerator& generator, GenStringsList& list);
+    static void swigAddDef(const SwigGenerator& generator, GenStringsList& list);
     static std::string swigClassName(const SwigGenerator& generator);
 
 private:
-    explicit SwigMsgHandler(SwigGenerator& generator) : m_generator(generator) {}
+    explicit SwigMsgHandler(SwigGenerator& generator) : m_swigGenerator(generator) {}
 
     bool swigWriteInternal() const;
     std::string swigClassDeclInternal() const;
     
-    SwigGenerator& m_generator;    
+    SwigGenerator& m_swigGenerator;    
 };
 
 } // namespace commsdsl2swig

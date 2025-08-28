@@ -15,41 +15,32 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
-#include <iosfwd>
+#include "commsdsl/gen/GenProgramOptions.h"
 
-#include "commsdsl/gen/ProgramOptions.h"
+#include <iosfwd>
+#include <string>
+#include <vector>
 
 namespace commsdsl2comms
 {
 
-class CommsProgramOptions : public commsdsl::gen::ProgramOptions
+class CommsProgramOptions : public commsdsl::gen::GenProgramOptions
 {
 public:
+    using GenProgramOptions = commsdsl::gen::GenProgramOptions;
+    
     CommsProgramOptions();
 
-    bool quietRequested() const;
-    bool debugRequested() const;
-    bool versionRequested() const;
-    bool warnAsErrRequested() const;
+    static const CommsProgramOptions& commsCast(const GenProgramOptions& options)
+    {
+        return static_cast<const CommsProgramOptions&>(options);
+    }
 
-    const std::string& getFilesListFile() const;
-    const std::string& getFilesListPrefix() const;
-    const ArgsList& getFiles() const;
-    const std::string& getOutputDirectory() const;
-    bool hasNamespaceOverride() const;
-    const std::string& getNamespace() const;
-    const std::string& getCodeInputDirectory() const;
-    bool hasForcedSchemaVersion() const;
-    unsigned getForcedSchemaVersion() const;
-    const std::string& getProtocolVersion() const;
-    unsigned getMinRemoteVersion() const;
-    const std::string& getCustomizationLevel() const;
-    bool versionIndependentCodeRequested() const;
-    std::vector<std::string> getExtraInputBundles() const;
-    bool multipleSchemasEnabled() const;
-    bool isMainNamespaceInOptionsForced() const;
+    const std::string& commsGetProtocolVersion() const;
+    const std::string& commsGetCustomizationLevel() const;
+    bool commsVersionIndependentCodeRequested() const;
+    std::vector<std::string> commsGetExtraInputBundles() const;
+    bool commsIsMainNamespaceInOptionsForced() const;
 };
 
 } // namespace commsdsl2comms

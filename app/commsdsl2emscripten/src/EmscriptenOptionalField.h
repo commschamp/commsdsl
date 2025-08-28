@@ -17,28 +17,32 @@
 
 #include "EmscriptenField.h"
 
-#include "commsdsl/gen/OptionalField.h"
+#include "commsdsl/gen/GenOptionalField.h"
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenOptionalField final : public commsdsl::gen::OptionalField, public EmscriptenField
+class EmscriptenOptionalField final : public commsdsl::gen::GenOptionalField, public EmscriptenField
 {
-    using Base = commsdsl::gen::OptionalField;
+    using GenBase = commsdsl::gen::GenOptionalField;
     using EmscriptenBase = EmscriptenField;
+
 public:
-    EmscriptenOptionalField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    EmscriptenOptionalField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent);
 
     static const std::string& emscriptenHeaderCommonModeFuncs();
 
 protected:
-    // Base overrides
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
+    // GenBase overrides
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;    
 
     // EmscriptenBase overrides
-    virtual void emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const override;
+    virtual void emscriptenHeaderAddExtraIncludesImpl(GenStringsList& incs) const override;
     virtual std::string emscriptenHeaderValueAccImpl() const override;
     virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
     virtual std::string emscriptenSourceBindValueAccImpl() const override;

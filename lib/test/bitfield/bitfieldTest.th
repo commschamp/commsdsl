@@ -2,6 +2,10 @@
 
 #include "CommonTestSuite.h"
 
+#include "commsdsl/parse/ParseBitfieldField.h"
+#include "commsdsl/parse/ParseEnumField.h"
+#include "commsdsl/parse/ParseSetField.h"
+
 class BitfieldTestSuite : public CommonTestSuite, public CxxTest::TestSuite
 {
 public:
@@ -38,33 +42,33 @@ void BitfieldTestSuite::test1()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Bitfield1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bitfield);
+    TS_ASSERT_EQUALS(field.parseName(), "Bitfield1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bitfield);
 
-    commsdsl::parse::BitfieldField bitfieldField(field);
-    TS_ASSERT_EQUALS(bitfieldField.endian(), commsdsl::parse::Endian_Big);
-    TS_ASSERT_EQUALS(bitfieldField.minLength(), 1U);
-    TS_ASSERT_EQUALS(bitfieldField.bitLength(), 0U);
-    auto members = bitfieldField.members();
+    commsdsl::parse::ParseBitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT_EQUALS(bitfieldField.parseMinLength(), 1U);
+    TS_ASSERT_EQUALS(bitfieldField.parseBitLength(), 0U);
+    auto members = bitfieldField.parseMembers();
     TS_ASSERT_EQUALS(members.size(), 3U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
     auto& mem3 = members[2];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Enum);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Set);
-    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem1.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
+    TS_ASSERT_EQUALS(mem2.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
+    TS_ASSERT_EQUALS(mem3.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
 }
 
 void BitfieldTestSuite::test2()
@@ -72,32 +76,32 @@ void BitfieldTestSuite::test2()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 4U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Bitfield1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bitfield);
+    TS_ASSERT_EQUALS(field.parseName(), "Bitfield1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bitfield);
 
-    commsdsl::parse::BitfieldField bitfieldField(field);
-    TS_ASSERT_EQUALS(bitfieldField.endian(), commsdsl::parse::Endian_Little);
-    TS_ASSERT_EQUALS(bitfieldField.minLength(), 1U);
-    auto members = bitfieldField.members();
+    commsdsl::parse::ParseBitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.parseEndian(), commsdsl::parse::ParseEndian_Little);
+    TS_ASSERT_EQUALS(bitfieldField.parseMinLength(), 1U);
+    auto members = bitfieldField.parseMembers();
     TS_ASSERT_EQUALS(members.size(), 3U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
     auto& mem3 = members[2];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Enum);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Set);
-    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem1.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
+    TS_ASSERT_EQUALS(mem2.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
+    TS_ASSERT_EQUALS(mem3.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
 }
 
 void BitfieldTestSuite::test3()
@@ -105,37 +109,37 @@ void BitfieldTestSuite::test3()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 5U);
 
     auto& field = fields[1];
-    TS_ASSERT_EQUALS(field.name(), "Bitfield2");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bitfield);
+    TS_ASSERT_EQUALS(field.parseName(), "Bitfield2");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bitfield);
 
-    commsdsl::parse::BitfieldField bitfieldField(field);
-    TS_ASSERT_EQUALS(bitfieldField.endian(), commsdsl::parse::Endian_Big);
-    TS_ASSERT_EQUALS(bitfieldField.minLength(), 1U);
-    auto members = bitfieldField.members();
+    commsdsl::parse::ParseBitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT_EQUALS(bitfieldField.parseMinLength(), 1U);
+    auto members = bitfieldField.parseMembers();
     TS_ASSERT_EQUALS(members.size(), 3U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
     auto& mem3 = members[2];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Enum);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Set);
-    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem1.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
+    TS_ASSERT_EQUALS(mem2.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
+    TS_ASSERT_EQUALS(mem3.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
 }
 
 void BitfieldTestSuite::test4()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error); m_status.m_expValidateResult = false;
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error); m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
 }
@@ -145,40 +149,40 @@ void BitfieldTestSuite::test5()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 4U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Bitfield1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bitfield);
+    TS_ASSERT_EQUALS(field.parseName(), "Bitfield1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bitfield);
 
-    commsdsl::parse::BitfieldField bitfieldField(field);
-    TS_ASSERT_EQUALS(bitfieldField.endian(), commsdsl::parse::Endian_Little);
-    TS_ASSERT_EQUALS(bitfieldField.minLength(), 3U);
-    auto members = bitfieldField.members();
+    commsdsl::parse::ParseBitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.parseEndian(), commsdsl::parse::ParseEndian_Little);
+    TS_ASSERT_EQUALS(bitfieldField.parseMinLength(), 3U);
+    auto members = bitfieldField.parseMembers();
     TS_ASSERT_EQUALS(members.size(), 3U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
     auto& mem3 = members[2];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Enum);
-    TS_ASSERT_EQUALS(commsdsl::parse::EnumField(mem1).bitLength(), 4U);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Set);
-    TS_ASSERT_EQUALS(commsdsl::parse::SetField(mem2).bitLength(), 8U);
-    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::Int);
-    TS_ASSERT_EQUALS(commsdsl::parse::IntField(mem3).bitLength(), 12U);
+    TS_ASSERT_EQUALS(mem1.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
+    TS_ASSERT_EQUALS(commsdsl::parse::ParseEnumField(mem1).parseBitLength(), 4U);
+    TS_ASSERT_EQUALS(mem2.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
+    TS_ASSERT_EQUALS(commsdsl::parse::ParseSetField(mem2).parseBitLength(), 8U);
+    TS_ASSERT_EQUALS(mem3.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
+    TS_ASSERT_EQUALS(commsdsl::parse::ParseIntField(mem3).parseBitLength(), 12U);
 }
 
 void BitfieldTestSuite::test6()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
@@ -189,25 +193,25 @@ void BitfieldTestSuite::test7()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 4U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Bitfield1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bitfield);
+    TS_ASSERT_EQUALS(field.parseName(), "Bitfield1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bitfield);
 
-    commsdsl::parse::BitfieldField bitfieldField(field);
-    TS_ASSERT_EQUALS(bitfieldField.endian(), commsdsl::parse::Endian_Little);
-    TS_ASSERT_EQUALS(bitfieldField.minLength(), 3U);
-    auto members = bitfieldField.members();
+    commsdsl::parse::ParseBitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.parseEndian(), commsdsl::parse::ParseEndian_Little);
+    TS_ASSERT_EQUALS(bitfieldField.parseMinLength(), 3U);
+    auto members = bitfieldField.parseMembers();
     TS_ASSERT_EQUALS(members.size(), 3U);
 }
 
@@ -216,32 +220,32 @@ void BitfieldTestSuite::test8()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Bitfield1");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bitfield);
+    TS_ASSERT_EQUALS(field.parseName(), "Bitfield1");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bitfield);
 
-    commsdsl::parse::BitfieldField bitfieldField(field);
-    TS_ASSERT_EQUALS(bitfieldField.endian(), commsdsl::parse::Endian_Big);
-    TS_ASSERT_EQUALS(bitfieldField.minLength(), 1U);
-    TS_ASSERT_EQUALS(bitfieldField.bitLength(), 0U);
-    auto members = bitfieldField.members();
+    commsdsl::parse::ParseBitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT_EQUALS(bitfieldField.parseMinLength(), 1U);
+    TS_ASSERT_EQUALS(bitfieldField.parseBitLength(), 0U);
+    auto members = bitfieldField.parseMembers();
     TS_ASSERT_EQUALS(members.size(), 2U);
 }
 
 void BitfieldTestSuite::test9()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
     TS_ASSERT(protocol);
@@ -252,38 +256,38 @@ void BitfieldTestSuite::test10()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "F2");
-    TS_ASSERT(field.displayName().empty());
-    TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bitfield);
+    TS_ASSERT_EQUALS(field.parseName(), "F2");
+    TS_ASSERT(field.parseDisplayName().empty());
+    TS_ASSERT(field.parseDescription().empty());
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bitfield);
 
-    commsdsl::parse::BitfieldField bitfieldField(field);
-    TS_ASSERT_EQUALS(bitfieldField.endian(), commsdsl::parse::Endian_Big);
-    TS_ASSERT_EQUALS(bitfieldField.minLength(), 1U);
-    TS_ASSERT_EQUALS(bitfieldField.bitLength(), 0U);
-    auto members = bitfieldField.members();
+    commsdsl::parse::ParseBitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.parseEndian(), commsdsl::parse::ParseEndian_Big);
+    TS_ASSERT_EQUALS(bitfieldField.parseMinLength(), 1U);
+    TS_ASSERT_EQUALS(bitfieldField.parseBitLength(), 0U);
+    auto members = bitfieldField.parseMembers();
     TS_ASSERT_EQUALS(members.size(), 2U);
 
     auto& mem1 = members[0];
     auto& mem2 = members[1];
 
-    TS_ASSERT_EQUALS(mem1.bitLength(), 5U);
-    TS_ASSERT_EQUALS(mem2.bitLength(), 3U);
+    TS_ASSERT_EQUALS(mem1.parseBitLength(), 5U);
+    TS_ASSERT_EQUALS(mem2.parseBitLength(), 3U);
 }
 
 void BitfieldTestSuite::test11()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
     TS_ASSERT(protocol);
@@ -294,33 +298,33 @@ void BitfieldTestSuite::test12()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     do {
         TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());
 
         auto& field = fields[0];
-        TS_ASSERT_EQUALS(field.name(), "F1");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bitfield);
+        TS_ASSERT_EQUALS(field.parseName(), "F1");
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bitfield);
 
-        commsdsl::parse::BitfieldField bitfieldField(field);
-        TS_ASSERT_EQUALS(bitfieldField.endian(), commsdsl::parse::Endian_Big);
-        TS_ASSERT_EQUALS(bitfieldField.minLength(), 2U);
-        TS_ASSERT_EQUALS(bitfieldField.bitLength(), 0U);
-        TS_ASSERT_EQUALS(bitfieldField.semanticType(), commsdsl::parse::Field::SemanticType::Length);
-        auto members = bitfieldField.members();
+        commsdsl::parse::ParseBitfieldField bitfieldField(field);
+        TS_ASSERT_EQUALS(bitfieldField.parseEndian(), commsdsl::parse::ParseEndian_Big);
+        TS_ASSERT_EQUALS(bitfieldField.parseMinLength(), 2U);
+        TS_ASSERT_EQUALS(bitfieldField.parseBitLength(), 0U);
+        TS_ASSERT_EQUALS(bitfieldField.parseSemanticType(), commsdsl::parse::ParseField::ParseSemanticType::Length);
+        auto members = bitfieldField.parseMembers();
         TS_ASSERT_EQUALS(members.size(), 2U);
 
         auto& mem1 = members[0];
         auto& mem2 = members[1];
 
-        TS_ASSERT_EQUALS(mem1.bitLength(), 14U);
-        TS_ASSERT_EQUALS(mem2.bitLength(), 2U);
+        TS_ASSERT_EQUALS(mem1.parseBitLength(), 14U);
+        TS_ASSERT_EQUALS(mem2.parseBitLength(), 2U);
     } while (false);
 }
 
@@ -329,34 +333,34 @@ void BitfieldTestSuite::test13()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     do {
         TS_ASSERT_LESS_THAN_EQUALS(2U, fields.size());
 
         auto& field = fields[1];
-        TS_ASSERT_EQUALS(field.name(), "F2");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bitfield);
+        TS_ASSERT_EQUALS(field.parseName(), "F2");
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bitfield);
 
-        commsdsl::parse::BitfieldField bitfieldField(field);
-        TS_ASSERT_EQUALS(bitfieldField.endian(), commsdsl::parse::Endian_Big);
-        TS_ASSERT_EQUALS(bitfieldField.minLength(), 2U);
-        TS_ASSERT_EQUALS(bitfieldField.bitLength(), 0U);
-        auto members = bitfieldField.members();
+        commsdsl::parse::ParseBitfieldField bitfieldField(field);
+        TS_ASSERT_EQUALS(bitfieldField.parseEndian(), commsdsl::parse::ParseEndian_Big);
+        TS_ASSERT_EQUALS(bitfieldField.parseMinLength(), 2U);
+        TS_ASSERT_EQUALS(bitfieldField.parseBitLength(), 0U);
+        auto members = bitfieldField.parseMembers();
         TS_ASSERT_EQUALS(members.size(), 2U);
 
         auto& mem1 = members[0];
         auto& mem2 = members[1];
 
-        TS_ASSERT_EQUALS(mem1.bitLength(), 14U);
-        TS_ASSERT_EQUALS(mem2.bitLength(), 2U);
+        TS_ASSERT_EQUALS(mem1.parseBitLength(), 14U);
+        TS_ASSERT_EQUALS(mem2.parseBitLength(), 2U);
 
-        TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Enum);
+        TS_ASSERT_EQUALS(mem2.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
     } while (false);
 }
 
@@ -365,52 +369,52 @@ void BitfieldTestSuite::test14()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.name().empty());
+    TS_ASSERT(ns.parseName().empty());
 
-    auto fields = ns.fields();
+    auto fields = ns.parseFields();
     {
         TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());
 
         auto& field = fields.front();
-        TS_ASSERT_EQUALS(field.name(), "Bitfield1");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bitfield);
+        TS_ASSERT_EQUALS(field.parseName(), "Bitfield1");
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bitfield);
 
-        commsdsl::parse::BitfieldField bitfieldField(field);
-        auto validCond = bitfieldField.validCond();
-        TS_ASSERT(validCond.valid());
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);
+        commsdsl::parse::ParseBitfieldField bitfieldField(field);
+        auto validCond = bitfieldField.parseValidCond();
+        TS_ASSERT(validCond.parseValid());
+        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);
 
-        commsdsl::parse::OptCondList validCondList(validCond);
-        TS_ASSERT_EQUALS(validCondList.type(), commsdsl::parse::OptCondList::Type::Or);
+        commsdsl::parse::ParseOptCondList validCondList(validCond);
+        TS_ASSERT_EQUALS(validCondList.parseType(), commsdsl::parse::ParseOptCondList::ParseType::Or);
     }
 
     {
         TS_ASSERT_LESS_THAN_EQUALS(2U, fields.size());
 
         auto& field = fields[1];
-        TS_ASSERT_EQUALS(field.name(), "Bitfield2");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bitfield);
+        TS_ASSERT_EQUALS(field.parseName(), "Bitfield2");
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bitfield);
 
-        commsdsl::parse::BitfieldField bitfieldField(field);
-        auto validCond = bitfieldField.validCond();
-        TS_ASSERT(validCond.valid());
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);
+        commsdsl::parse::ParseBitfieldField bitfieldField(field);
+        auto validCond = bitfieldField.parseValidCond();
+        TS_ASSERT(validCond.parseValid());
+        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);
     }      
 
     {
         TS_ASSERT_LESS_THAN_EQUALS(3U, fields.size());
 
         auto& field = fields[2];
-        TS_ASSERT_EQUALS(field.name(), "Bitfield3");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bitfield);
+        TS_ASSERT_EQUALS(field.parseName(), "Bitfield3");
+        TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bitfield);
 
-        commsdsl::parse::BitfieldField bitfieldField(field);
-        auto validCond = bitfieldField.validCond();
-        TS_ASSERT(validCond.valid());
-        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::Expr);
+        commsdsl::parse::ParseBitfieldField bitfieldField(field);
+        auto validCond = bitfieldField.parseValidCond();
+        TS_ASSERT(validCond.parseValid());
+        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::Expr);
     }      
 }

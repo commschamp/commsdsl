@@ -30,13 +30,13 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigFloatField::SwigFloatField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigFloatField::SwigFloatField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool SwigFloatField::writeImpl() const
+bool SwigFloatField::genWriteImpl() const
 {
     return swigWrite();
 }
@@ -46,12 +46,12 @@ std::string SwigFloatField::swigValueTypeDeclImpl() const
     static const std::string Templ = 
         "using ValueType = #^#TYPE#$#;\n";
 
-    auto obj = floatDslObj();
-    util::ReplacementMap repl = {
-        {"TYPE", comms::cppFloatTypeFor(obj.type())}
+    auto obj = genFloatFieldParseObj();
+    util::GenReplacementMap repl = {
+        {"TYPE", comms::genCppFloatTypeFor(obj.parseType())}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string SwigFloatField::swigExtraPublicFuncsDeclImpl() const
@@ -61,24 +61,24 @@ std::string SwigFloatField::swigExtraPublicFuncsDeclImpl() const
         "#^#SCPECIALS#$#\n"
         "static unsigned displayDecimals();\n";
 
-    util::ReplacementMap repl {
+    util::GenReplacementMap repl {
         {"SCPECIALS", swigSpecialsDeclInternal()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string SwigFloatField::swigSpecialsDeclInternal() const
 {
-    auto& specials = specialsSortedByValue();
+    auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    util::StringsList specialsList;
-    auto& gen = SwigGenerator::cast(generator());
+    util::GenStringsList specialsList;
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     for (auto& s : specials) {
-        if (!gen.doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
+        if (!gen.genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
         }
 
@@ -88,14 +88,14 @@ std::string SwigFloatField::swigSpecialsDeclInternal() const
             "void set#^#SPEC_ACC#$#();\n"
         ;
 
-        util::ReplacementMap repl = {
-            {"SPEC_ACC", comms::className(s.first)},
+        util::GenReplacementMap repl = {
+            {"SPEC_ACC", comms::genClassName(s.first)},
         };
 
-        specialsList.push_back(util::processTemplate(Templ, repl));
+        specialsList.push_back(util::genProcessTemplate(Templ, repl));
     }    
 
-    return util::strListToString(specialsList, "", "");
+    return util::genStrListToString(specialsList, "", "");
 }
 
 } // namespace commsdsl2swig

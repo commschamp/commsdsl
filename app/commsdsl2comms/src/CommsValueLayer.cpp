@@ -24,30 +24,30 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsValueLayer::CommsValueLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) :
-    Base(generator, dslObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsValueLayer::CommsValueLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool CommsValueLayer::prepareImpl()
+bool CommsValueLayer::genPrepareImpl()
 {
-    bool result = Base::prepareImpl() && CommsBase::commsPrepare();
+    bool result = GenBase::genPrepareImpl() && CommsBase::commsPrepare();
     if (!result) {
         return false;
     }
 
-    auto obj = valueDslObj();
-    if (obj.pseudo()) {
+    auto obj = genValueLayerParseObj();
+    if (obj.parsePseudo()) {
         commsSetForcedPseudoField();
     }
 
     return true;
 }
 
-CommsValueLayer::IncludesList CommsValueLayer::commsDefIncludesImpl() const
+CommsValueLayer::CommsIncludesList CommsValueLayer::commsDefIncludesImpl() const
 {
-    IncludesList result = {
+    CommsIncludesList result = {
         "comms/frame/TransportValueLayer.h"
     };
 
@@ -64,9 +64,9 @@ std::string CommsValueLayer::commsDefBaseTypeImpl(const std::string& prevName) c
         "    #^#EXTRA_OPTS#$#\n"
         ">";    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FIELD_TYPE", commsDefFieldType()},
-        {"INTERFACE_FIELD_IDX", util::numToString(valueDslObj().fieldIdx())},
+        {"INTERFACE_FIELD_IDX", util::genNumToString(genValueLayerParseObj().parseFieldIdx())},
         {"PREV_LAYER", prevName},
         {"EXTRA_OPTS", commsDefExtraOptsInternal()}
     };
@@ -75,17 +75,17 @@ std::string CommsValueLayer::commsDefBaseTypeImpl(const std::string& prevName) c
         repl["COMMA"] = std::string(",");
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsValueLayer::commsDefExtraOptsInternal() const
 {
-    StringsList result;
-    auto obj = valueDslObj();
-    if (obj.pseudo()) {
+    GenStringsList result;
+    auto obj = genValueLayerParseObj();
+    if (obj.parsePseudo()) {
         result.push_back("comms::option::def::PseudoValue");
     }
-    return util::strListToString(result, ",\n", "");
+    return util::genStrListToString(result, ",\n", "");
 }
 
 

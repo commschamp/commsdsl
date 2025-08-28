@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/Message.h"
+#include "commsdsl/gen/GenMessage.h"
 
 #include <cstdint>
 #include <functional>
@@ -34,9 +34,11 @@ public:
     bool commsWrite() const;
 
 private:
-    using CheckMsgFunc = std::function<bool (const commsdsl::gen::Message& msg)>;
-    using MessagesList = std::vector<const commsdsl::gen::Message*>;
-    using MessagesMap = std::map<std::uintmax_t, MessagesList>;
+    using GenMessage = commsdsl::gen::GenMessage;
+    using GenMessagesList = std::vector<const GenMessage*>;
+
+    using CommsCheckMsgFunc = std::function<bool (const GenMessage& msg)>;
+    using CommsMessagesMap = std::map<std::uintmax_t, GenMessagesList>;
 
     bool commsWriteDispatchInternal() const;
     bool commsWriteClientDispatchInternal() const;
@@ -45,12 +47,12 @@ private:
     bool commsWriteExtraDispatchInternal() const;
 
     std::string commsIncludesInternal(const std::string& inputPrefix) const;
-    std::string commsDispatchCodeInternal(const std::string& name, CheckMsgFunc&& func) const;
-    std::string commsCasesCodeInternal(const MessagesMap& map) const;
+    std::string commsDispatchCodeInternal(const std::string& name, CommsCheckMsgFunc&& func) const;
+    std::string commsCasesCodeInternal(const CommsMessagesMap& map) const;
     std::string commsMsgDispatcherCodeInternal(const std::string& inputPrefix) const;
 
-    CommsGenerator& m_generator;
-    const CommsNamespace& m_parent;
+    CommsGenerator& m_commsGenerator;
+    const CommsNamespace& m_commsParent;
 };
 
 } // namespace commsdsl2comms

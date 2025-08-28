@@ -15,32 +15,19 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
-#include <iosfwd>
+#include "commsdsl/gen/GenProgramOptions.h"
 
-#include "commsdsl/gen/ProgramOptions.h"
+#include <iosfwd>
+#include <string>
+#include <vector>
 
 namespace commsdsl2test
 {
 
-class TestProgramOptions : public commsdsl::gen::ProgramOptions
+class TestProgramOptions : public commsdsl::gen::GenProgramOptions
 {
 public:
     TestProgramOptions();
-
-    bool quietRequested() const;
-    bool versionRequested() const;
-    bool warnAsErrRequested() const;
-
-    const std::string& getFilesListFile() const;
-    const std::string& getFilesListPrefix() const;
-    const ArgsList& getFiles() const;
-    const std::string& getOutputDirectory() const;
-    const std::string& getCodeInputDirectory() const;
-    bool hasNamespaceOverride() const;
-    const std::string& getNamespace() const;
-    bool multipleSchemasEnabled() const;
 };
 
 } // namespace commsdsl2test

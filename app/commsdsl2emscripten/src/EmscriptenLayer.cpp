@@ -37,14 +37,14 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2emscripten
 {
 
-EmscriptenLayer::EmscriptenLayer(commsdsl::gen::Layer& layer) :
-    m_layer(layer)
+EmscriptenLayer::EmscriptenLayer(GenLayer& layer) :
+    m_genLayer(layer)
 {
 }
 
 EmscriptenLayer::~EmscriptenLayer() = default;
 
-const EmscriptenLayer* EmscriptenLayer::cast(const commsdsl::gen::Layer* layer)
+const EmscriptenLayer* EmscriptenLayer::emscriptenCast(const GenLayer* layer)
 {
     if (layer == nullptr) {
         return nullptr;
@@ -62,25 +62,25 @@ bool EmscriptenLayer::emscriptenIsMainInterfaceSupported() const
 
 std::string EmscriptenLayer::emscriptenFieldAccName() const
 {
-    return "m_" + comms::accessName(m_layer.dslObj().name());
+    return "m_" + comms::genAccessName(m_genLayer.genParseObj().parseName());
 }
 
 std::string EmscriptenLayer::emscriptenFieldAccFuncName() const
 {
-    return "get" + comms::className(m_layer.dslObj().name());
+    return "get" + comms::genClassName(m_genLayer.genParseObj().parseName());
 }
 
-void EmscriptenLayer::emscriptenAddHeaderInclude(StringsList& includes) const
+void EmscriptenLayer::emscriptenAddHeaderInclude(GenStringsList& includes) const
 {
-    auto& gen = EmscriptenGenerator::cast(m_layer.generator());
-    auto* extField = m_layer.externalField();
+    auto& gen = EmscriptenGenerator::emscriptenCast(m_genLayer.genGenerator());
+    auto* extField = m_genLayer.genExternalField();
     if (extField != nullptr) {
         includes.push_back(gen.emscriptenRelHeaderFor(*extField));
     }
 
-    auto* memField = m_layer.memberField();
+    auto* memField = m_genLayer.genMemberField();
     if (memField != nullptr) {
-        EmscriptenField::cast(memField)->emscriptenHeaderAddExtraIncludes(includes);
+        EmscriptenField::emscriptenCast(memField)->emscriptenHeaderAddExtraIncludes(includes);
     }
 }
 
@@ -90,12 +90,12 @@ std::string EmscriptenLayer::emscriptenHeaderClass() const
         "#^#FIELD#$#\n"
         "#^#DEF#$#\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FIELD", emscriptenHeaderFieldDefInternal()},
         {"DEF", emscriptenHeaderClassDefInternal()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenLayer::emscriptenSourceCode() const
@@ -104,12 +104,12 @@ std::string EmscriptenLayer::emscriptenSourceCode() const
         "#^#FIELD#$#\n"
         "#^#CODE#$#\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FIELD", emscriptenSourceFieldBindInternal()},
         {"CODE", emscriptenSourceCodeInternal()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool EmscriptenLayer::emscriptenIsMainInterfaceSupportedImpl() const
@@ -119,58 +119,58 @@ bool EmscriptenLayer::emscriptenIsMainInterfaceSupportedImpl() const
 
 std::string EmscriptenLayer::emscriptenHeaderFieldDefImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string EmscriptenLayer::emscriptenFieldClassNameImpl() const
 {
     assert(false); // should not be called.
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string EmscriptenLayer::emscriptenHeaderExtraFuncsImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string EmscriptenLayer::emscriptenSourceFieldBindImpl() const
 {
     assert(false); // should not be called.
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string EmscriptenLayer::emscriptenSourceExtraFuncsImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string EmscriptenLayer::emscriptenTemplateScope() const
 {
-    auto& gen = EmscriptenGenerator::cast(m_layer.generator());
+    auto& gen = EmscriptenGenerator::emscriptenCast(m_genLayer.genGenerator());
     auto* iFace = gen.emscriptenMainInterface();
     assert(iFace != nullptr);
 
-    auto* frame = layer().getParent();
-    assert(frame->elemType() == commsdsl::gen::Elem::Type_Frame);
+    auto* frame = emscriptenGenLayer().genGetParent();
+    assert(frame->genElemType() == commsdsl::gen::GenElem::GenType_Frame);
 
-    auto* ns = EmscriptenFrame::cast(static_cast<const commsdsl::gen::Frame*>(frame))->emscriptenFindInputNamespace();
+    auto* ns = EmscriptenFrame::emscriptenCast(static_cast<const commsdsl::gen::GenFrame*>(frame))->emscriptenFindInputNamespace();
     if (ns == nullptr) {
-        ns = EmscriptenNamespace::cast(static_cast<const commsdsl::gen::Namespace*>((iFace->parentNamespace())));
+        ns = EmscriptenNamespace::emscriptenCast(static_cast<const commsdsl::gen::GenNamespace*>((iFace->genParentNamespace())));
         assert(ns->emscriptenHasInput());
     }
 
     return 
-        m_layer.templateScopeOfComms(
+        m_genLayer.genTemplateScopeOfComms(
             gen.emscriptenClassName(*iFace), 
-            EmscriptenNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(ns))->emscriptenInputClassName(), 
+            EmscriptenNamespace::emscriptenCast(static_cast<const commsdsl::gen::GenNamespace*>(ns))->emscriptenInputClassName(), 
             EmscriptenProtocolOptions::emscriptenClassName(gen));
 }
 
 std::string EmscriptenLayer::emscriptenHeaderFieldDefInternal() const
 {
-    auto* memField = m_layer.memberField();
+    auto* memField = m_genLayer.genMemberField();
     if (memField != nullptr) {
-        return EmscriptenField::cast(memField)->emscriptenHeaderClass();
+        return EmscriptenField::emscriptenCast(memField)->emscriptenHeaderClass();
     }
 
     return emscriptenHeaderFieldDefImpl();
@@ -187,26 +187,26 @@ std::string EmscriptenLayer::emscriptenHeaderClassDefInternal() const
         "    #^#FUNCS#$#\n"
         "};\n";
 
-    auto& gen = EmscriptenGenerator::cast(m_layer.generator());
-    util::ReplacementMap repl = {
-        {"CLASS_NAME", gen.emscriptenClassName(m_layer)},
+    auto& gen = EmscriptenGenerator::emscriptenCast(m_genLayer.genGenerator());
+    util::GenReplacementMap repl = {
+        {"CLASS_NAME", gen.emscriptenClassName(m_genLayer)},
         {"COMMS_CLASS", emscriptenTemplateScope()},
         {"FIELD", emscriptenFieldClassNameInternal()},
         {"FUNCS", emscriptenHeaderExtraFuncsImpl()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenLayer::emscriptenFieldClassNameInternal() const
 {
-    auto* field = m_layer.externalField();
+    auto* field = m_genLayer.genExternalField();
     if (field == nullptr) {
-        field = m_layer.memberField();
+        field = m_genLayer.genMemberField();
     }
 
     if (field != nullptr) {
-        auto& gen = EmscriptenGenerator::cast(m_layer.generator());
+        auto& gen = EmscriptenGenerator::emscriptenCast(m_genLayer.genGenerator());
         return gen.emscriptenClassName(*field);
     }
 
@@ -215,14 +215,14 @@ std::string EmscriptenLayer::emscriptenFieldClassNameInternal() const
 
 std::string EmscriptenLayer::emscriptenSourceFieldBindInternal() const
 {
-    auto* memField = m_layer.memberField();
+    auto* memField = m_genLayer.genMemberField();
     if (memField != nullptr) {
-        return EmscriptenField::cast(memField)->emscriptenSourceCode();
+        return EmscriptenField::emscriptenCast(memField)->emscriptenSourceCode();
     }
 
-    auto* extField = m_layer.externalField();
+    auto* extField = m_genLayer.genExternalField();
     if (extField != nullptr) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     return emscriptenSourceFieldBindImpl();
@@ -239,13 +239,13 @@ std::string EmscriptenLayer::emscriptenSourceCodeInternal() const
         "        ;\n"
         "}\n";
 
-    auto& gen = EmscriptenGenerator::cast(m_layer.generator());
-    util::ReplacementMap repl = {
-        {"CLASS_NAME", gen.emscriptenClassName(m_layer)},
+    auto& gen = EmscriptenGenerator::emscriptenCast(m_genLayer.genGenerator());
+    util::GenReplacementMap repl = {
+        {"CLASS_NAME", gen.emscriptenClassName(m_genLayer)},
         {"FUNCS", emscriptenSourceExtraFuncsImpl()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2emscripten

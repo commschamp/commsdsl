@@ -37,25 +37,25 @@ namespace commsdsl2swig
 {
 
 
-SwigInterface::SwigInterface(SwigGenerator& generator, commsdsl::parse::Interface dslObj, Elem* parent) :
-    Base(generator, dslObj, parent)
+SwigInterface::SwigInterface(SwigGenerator& generator, ParseInterface parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent)
 {
 }   
 
 SwigInterface::~SwigInterface() = default;
 
-void SwigInterface::swigAddCodeIncludes(StringsList& list) const
+void SwigInterface::swigAddCodeIncludes(GenStringsList& list) const
 {
-    if (!isReferenced()) {
+    if (!genIsReferenced()) {
         return;
     }
 
-    list.push_back(comms::relHeaderPathFor(*this, generator()));
+    list.push_back(comms::genRelHeaderPathFor(*this, genGenerator()));
 }
 
-void SwigInterface::swigAddCode(StringsList& list) const
+void SwigInterface::swigAddCode(GenStringsList& list) const
 {
-    if (!isReferenced()) {
+    if (!genIsReferenced()) {
         return;
     }
 
@@ -63,30 +63,30 @@ void SwigInterface::swigAddCode(StringsList& list) const
         f->swigAddCode(list);
     }    
 
-    auto& gen = SwigGenerator::cast(generator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
 
-    util::ReplacementMap repl = {
-        {"COMMS_CLASS", comms::scopeFor(*this, gen)},
+    util::GenReplacementMap repl = {
+        {"COMMS_CLASS", comms::genScopeFor(*this, gen)},
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
         {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
         {"MSG_HANDLER", SwigMsgHandler::swigClassName(gen)}
     };    
 
-    std::string publicCode = util::readFileContents(gen.swigInputCodePathFor(*this) + strings::publicFileSuffixStr());
-    std::string protectedCode = util::readFileContents(gen.swigInputCodePathFor(*this) + strings::protectedFileSuffixStr());
-    std::string privateCode = util::readFileContents(gen.swigInputCodePathFor(*this) + strings::privateFileSuffixStr());    
+    std::string publicCode = util::genReadFileContents(gen.swigInputCodePathFor(*this) + strings::genPublicFileSuffixStr());
+    std::string protectedCode = util::genReadFileContents(gen.swigInputCodePathFor(*this) + strings::genProtectedFileSuffixStr());
+    std::string privateCode = util::genReadFileContents(gen.swigInputCodePathFor(*this) + strings::genPrivateFileSuffixStr());    
 
     if (!protectedCode.empty()) {
         static const std::string TemplTmp = 
             "protected:\n"
             "    #^#CODE#$#\n";
 
-        util::ReplacementMap replTmp = {
+        util::GenReplacementMap replTmp = {
             {"CODE", std::move(protectedCode)}
         };
 
-        protectedCode = util::processTemplate(TemplTmp, replTmp);
+        protectedCode = util::genProcessTemplate(TemplTmp, replTmp);
     }
 
     if (!privateCode.empty()) {
@@ -94,11 +94,11 @@ void SwigInterface::swigAddCode(StringsList& list) const
             "private:\n"
             "    #^#CODE#$#\n";
 
-        util::ReplacementMap replTmp = {
+        util::GenReplacementMap replTmp = {
             {"CODE", std::move(privateCode)}
         };
 
-        privateCode = util::processTemplate(TemplTmp, replTmp);
+        privateCode = util::genProcessTemplate(TemplTmp, replTmp);
     }    
 
     std::string base;
@@ -115,7 +115,7 @@ void SwigInterface::swigAddCode(StringsList& list) const
             "    comms::option::app::Handler<#^#MSG_HANDLER#$#>\n"
             ">";
 
-        base = util::processTemplate(BaseTempl, repl);
+        base = util::genProcessTemplate(BaseTempl, repl);
     } while (false);
 
     const std::string Templ = 
@@ -141,12 +141,12 @@ void SwigInterface::swigAddCode(StringsList& list) const
         {"PRIVATE", std::move(privateCode)}
     });        
 
-    list.push_back(util::processTemplate(Templ, repl));
+    list.push_back(util::genProcessTemplate(Templ, repl));
 }
 
-void SwigInterface::swigAddDef(StringsList& list) const
+void SwigInterface::swigAddDef(GenStringsList& list) const
 {
-    if (!isReferenced()) {
+    if (!genIsReferenced()) {
         return;
     }
 
@@ -154,40 +154,40 @@ void SwigInterface::swigAddDef(StringsList& list) const
         f->swigAddDef(list);
     }
 
-    auto& gen = SwigGenerator::cast(generator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     list.push_back("%nodefaultctor " + gen.swigClassName(*this) + ";");
-    list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderPathFor(*this, generator())));
+    list.push_back(SwigGenerator::swigDefInclude(comms::genRelHeaderPathFor(*this, genGenerator())));
 }
 
-bool SwigInterface::prepareImpl()
+bool SwigInterface::genPrepareImpl()
 {
-    if (!Base::prepareImpl()) {
+    if (!GenBase::genPrepareImpl()) {
         return false;
     }
 
-    assert(isReferenced());
+    assert(genIsReferenced());
 
-    m_swigFields = SwigField::swigTransformFieldsList(fields());
+    m_swigFields = SwigField::swigTransformFieldsList(genFields());
     return true;
 }
 
-bool SwigInterface::writeImpl() const
+bool SwigInterface::genWriteImpl() const
 {
-    assert(isReferenced());
+    assert(genIsReferenced());
 
-    auto filePath = comms::headerPathFor(*this, generator());
-    auto dirPath = util::pathUp(filePath);
+    auto filePath = comms::genHeaderPathFor(*this, genGenerator());
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!generator().createDirectory(dirPath)) {
+    if (!genGenerator().genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    auto& logger = generator().logger();
-    logger.info("Generating " + filePath);
+    auto& logger = genGenerator().genLogger();
+    logger.genInfo("Generating " + filePath);
 
     std::ofstream stream(filePath);
     if (!stream) {
-        logger.error("Failed to open \"" + filePath + "\" for writing.");
+        logger.genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -198,27 +198,27 @@ bool SwigInterface::writeImpl() const
         "#^#DEF#$#\n"
     ;
 
-    util::ReplacementMap repl = {
-        {"GENERATED", SwigGenerator::fileGeneratedComment()},
+    util::GenReplacementMap repl = {
+        {"GENERATED", SwigGenerator::swigFileGeneratedComment()},
         {"FIELDS", swigFieldDeclsInternal()},
         {"DEF", swigClassDeclInternal()},
     };
     
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();   
 }
 
 std::string SwigInterface::swigFieldDeclsInternal() const
 {
-    StringsList fields;
+    GenStringsList fields;
     fields.reserve(m_swigFields.size());
 
     for (auto* f : m_swigFields) {
         fields.push_back(f->swigClassDecl());
     }
 
-    return util::strListToString(fields, "\n", "");
+    return util::genStrListToString(fields, "\n", "");
 }
 
 std::string SwigInterface::swigClassDeclInternal() const
@@ -244,16 +244,16 @@ std::string SwigInterface::swigClassDeclInternal() const
         "    #^#CLASS_NAME#$#(const #^#CLASS_NAME#$#& other);\n"
         "};\n";
 
-    auto* parent = getParent();
+    auto* parent = genGetParent();
     assert(parent != nullptr);
-    assert(parent->elemType() == commsdsl::gen::Elem::Type_Namespace);
-    auto* parentNs = SwigNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(parent));
+    assert(parent->genElemType() == commsdsl::gen::GenElem::GenType_Namespace);
+    auto* parentNs = SwigNamespace::swigCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
 
-    auto& gen = SwigGenerator::cast(generator());
-    util::ReplacementMap repl = {
+    auto& gen = SwigGenerator::swigCast(genGenerator());
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"FIELDS", swigFieldsAccDeclInternal()},
-        {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
+        {"CUSTOM", util::genReadFileContents(gen.swigInputCodePathFor(*this) + strings::genAppendFileSuffixStr())},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
         {"MSG_ID", parentNs->swigMsgIdClassName()},
         {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
@@ -261,37 +261,37 @@ std::string SwigInterface::swigClassDeclInternal() const
         {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)}
     };
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 std::string SwigInterface::swigFieldsAccDeclInternal() const
 {
-    StringsList accFuncs;
+    GenStringsList accFuncs;
     accFuncs.reserve(m_swigFields.size());
 
-    auto& gen = SwigGenerator::cast(generator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     for (auto* f : m_swigFields) {
         static const std::string Templ = {
             "#^#CLASS_NAME#$#& transportField_#^#ACC_NAME#$#();\n"
         };
 
-        util::ReplacementMap repl = {
-            {"CLASS_NAME", gen.swigClassName(f->field())},
-            {"ACC_NAME", comms::accessName(f->field().dslObj().name())}
+        util::GenReplacementMap repl = {
+            {"CLASS_NAME", gen.swigClassName(f->swigGenField())},
+            {"ACC_NAME", comms::genAccessName(f->swigGenField().genParseObj().parseName())}
         };
 
-        accFuncs.push_back(util::processTemplate(Templ, repl));
+        accFuncs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    return util::strListToString(accFuncs, "\n", "");
+    return util::genStrListToString(accFuncs, "\n", "");
 }
 
 std::string SwigInterface::swigFieldsAccCodeInternal() const
 {
-    StringsList accFuncs;
+    GenStringsList accFuncs;
     accFuncs.reserve(m_swigFields.size());
 
-    auto& gen = SwigGenerator::cast(generator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     for (auto* f : m_swigFields) {
         static const std::string Templ = {
             "#^#CLASS_NAME#$#& transportField_#^#ACC_NAME#$#()\n"
@@ -304,15 +304,15 @@ std::string SwigInterface::swigFieldsAccCodeInternal() const
             "}\n"            
         };
 
-        util::ReplacementMap repl = {
-            {"CLASS_NAME", gen.swigClassName(f->field())},
-            {"ACC_NAME", comms::accessName(f->field().dslObj().name())}
+        util::GenReplacementMap repl = {
+            {"CLASS_NAME", gen.swigClassName(f->swigGenField())},
+            {"ACC_NAME", comms::genAccessName(f->swigGenField().genParseObj().parseName())}
         };
 
-        accFuncs.push_back(util::processTemplate(Templ, repl));
+        accFuncs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    return util::strListToString(accFuncs, "\n", "");
+    return util::genStrListToString(accFuncs, "\n", "");
 }
 
 std::string SwigInterface::swigCommonCodeInternal() const
@@ -333,13 +333,13 @@ std::string SwigInterface::swigCommonCodeInternal() const
         "}\n"
     ;
 
-    auto& gen = SwigGenerator::cast(generator());
-    util::ReplacementMap repl = {
+    auto& gen = SwigGenerator::swigCast(genGenerator());
+    util::GenReplacementMap repl = {
         {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
         {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)}
     };
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 } // namespace commsdsl2swig

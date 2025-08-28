@@ -47,7 +47,7 @@ const std::string PatchVersionFunc("versionPatch");
 
 bool SwigVersion::swigWrite(SwigGenerator& generator)
 {
-    if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+    if ((!generator.genIsCurrentProtocolSchema()) && (!generator.genCurrentSchema().genHasAnyReferencedComponent())) {
         return true;
     }
 
@@ -55,59 +55,59 @@ bool SwigVersion::swigWrite(SwigGenerator& generator)
     return obj.swigWriteInternal();
 }
 
-void SwigVersion::swigAddCodeIncludes(SwigGenerator& generator, StringsList& list)
+void SwigVersion::swigAddCodeIncludes(SwigGenerator& generator, GenStringsList& list)
 {
-    assert(generator.isCurrentProtocolSchema());
+    assert(generator.genIsCurrentProtocolSchema());
 
-    auto& schemas = generator.schemas();
+    auto& schemas = generator.genSchemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
-        generator.chooseCurrentSchema(idx);
-        if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+        generator.genChooseCurrentSchema(idx);
+        if ((!generator.genIsCurrentProtocolSchema()) && (!generator.genCurrentSchema().genHasAnyReferencedComponent())) {
             continue;
         }            
-        list.push_back(comms::relHeaderForRoot(strings::versionFileNameStr(), generator));
+        list.push_back(comms::genRelHeaderForRoot(strings::genVersionFileNameStr(), generator));
     }
 
-    generator.chooseProtocolSchema();
+    generator.genChooseProtocolSchema();
 }
 
-void SwigVersion::swigAddDef(SwigGenerator& generator, StringsList& list)
+void SwigVersion::swigAddDef(SwigGenerator& generator, GenStringsList& list)
 {
-    assert(generator.isCurrentProtocolSchema());
-    auto& schemas = generator.schemas();
+    assert(generator.genIsCurrentProtocolSchema());
+    auto& schemas = generator.genSchemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
-        generator.chooseCurrentSchema(idx);
+        generator.genChooseCurrentSchema(idx);
 
-        if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+        if ((!generator.genIsCurrentProtocolSchema()) && (!generator.genCurrentSchema().genHasAnyReferencedComponent())) {
             continue;
         }        
 
         const std::string Templ = 
             "%constant unsigned #^#NS#$#_#^#NAME#$# = #^#NS#$#_#^#NAME#$#;";
 
-        util::ReplacementMap repl = {
-            {"NS", util::strToUpper(schemas[idx]->mainNamespace())},
+        util::GenReplacementMap repl = {
+            {"NS", util::genStrToUpper(schemas[idx]->genMainNamespace())},
             {"NAME", "SPEC_VERSION"}
         };
-        list.push_back(util::processTemplate(Templ, repl));
+        list.push_back(util::genProcessTemplate(Templ, repl));
 
-        if (generator.isCurrentProtocolSchema() && generator.swigHasProtocolVersion()) {
+        if (generator.genIsCurrentProtocolSchema() && generator.swigHasProtocolVersion()) {
             repl["NAME"] = "MAJOR_VERSION";
-            list.push_back(util::processTemplate(Templ, repl));
+            list.push_back(util::genProcessTemplate(Templ, repl));
 
             repl["NAME"] = "MINOR_VERSION";
-            list.push_back(util::processTemplate(Templ, repl));
+            list.push_back(util::genProcessTemplate(Templ, repl));
 
             repl["NAME"] = "PATCH_VERSION";
-            list.push_back(util::processTemplate(Templ, repl));
+            list.push_back(util::genProcessTemplate(Templ, repl));
         }          
 
-        list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderForRoot(strings::versionFileNameStr(), generator)));
+        list.push_back(SwigGenerator::swigDefInclude(comms::genRelHeaderForRoot(strings::genVersionFileNameStr(), generator)));
     }
-    assert(generator.isCurrentProtocolSchema());
+    assert(generator.genIsCurrentProtocolSchema());
 }
 
-void SwigVersion::swigAddCode(SwigGenerator& generator, StringsList& list)
+void SwigVersion::swigAddCode(SwigGenerator& generator, GenStringsList& list)
 {
     const std::string Templ = 
         "unsigned #^#NAME#$#()\n"
@@ -115,64 +115,64 @@ void SwigVersion::swigAddCode(SwigGenerator& generator, StringsList& list)
         "    return #^#COMMS_SCOPE#$#();\n"
         "}\n";
 
-    assert(generator.isCurrentProtocolSchema());
-    auto& schemas = generator.schemas();
+    assert(generator.genIsCurrentProtocolSchema());
+    auto& schemas = generator.genSchemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
-        generator.chooseCurrentSchema(idx);
-        if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+        generator.genChooseCurrentSchema(idx);
+        if ((!generator.genIsCurrentProtocolSchema()) && (!generator.genCurrentSchema().genHasAnyReferencedComponent())) {
             continue;
         }      
 
-        util::ReplacementMap specRepl = {
+        util::GenReplacementMap specRepl = {
             {"NAME", generator.swigScopeNameForRoot(SpecVersionFunc)},
-            {"COMMS_SCOPE", comms::scopeForRoot(SpecVersionFunc, generator)}
+            {"COMMS_SCOPE", comms::genScopeForRoot(SpecVersionFunc, generator)}
         };
 
-        list.push_back(util::processTemplate(Templ, specRepl));
+        list.push_back(util::genProcessTemplate(Templ, specRepl));
 
-        if ((!generator.isCurrentProtocolSchema()) || (!generator.swigHasProtocolVersion())) {
+        if ((!generator.genIsCurrentProtocolSchema()) || (!generator.swigHasProtocolVersion())) {
             continue;
         }
 
-        util::ReplacementMap majorRepl = {
+        util::GenReplacementMap majorRepl = {
             {"NAME", generator.swigScopeNameForRoot(MajorVersionFunc)},
-            {"COMMS_SCOPE", comms::scopeForRoot(MajorVersionFunc, generator)}
+            {"COMMS_SCOPE", comms::genScopeForRoot(MajorVersionFunc, generator)}
         };
 
-        list.push_back(util::processTemplate(Templ, majorRepl));
+        list.push_back(util::genProcessTemplate(Templ, majorRepl));
 
-        util::ReplacementMap minorRepl = {
+        util::GenReplacementMap minorRepl = {
             {"NAME", generator.swigScopeNameForRoot(MinorVersionFunc)},
-            {"COMMS_SCOPE", comms::scopeForRoot(MinorVersionFunc, generator)}
+            {"COMMS_SCOPE", comms::genScopeForRoot(MinorVersionFunc, generator)}
         }; 
 
-        list.push_back(util::processTemplate(Templ, minorRepl));  
+        list.push_back(util::genProcessTemplate(Templ, minorRepl));  
 
-        util::ReplacementMap patchRepl = {
+        util::GenReplacementMap patchRepl = {
             {"NAME", generator.swigScopeNameForRoot(PatchVersionFunc)},
-            {"COMMS_SCOPE", comms::scopeForRoot(PatchVersionFunc, generator)}
+            {"COMMS_SCOPE", comms::genScopeForRoot(PatchVersionFunc, generator)}
         }; 
 
-        list.push_back(util::processTemplate(Templ, patchRepl));  
+        list.push_back(util::genProcessTemplate(Templ, patchRepl));  
     }
 
-    assert(generator.isCurrentProtocolSchema());
+    assert(generator.genIsCurrentProtocolSchema());
 }
 
 bool SwigVersion::swigWriteInternal() const
 {
-    auto filePath = comms::headerPathRoot(strings::versionFileNameStr(), m_generator);
-    m_generator.logger().info("Generating " + filePath);
+    auto filePath = comms::genHeaderPathRoot(strings::genVersionFileNameStr(), m_swigGenerator);
+    m_swigGenerator.genLogger().genInfo("Generating " + filePath);
 
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_swigGenerator.genCreateDirectory(dirPath)) {
         return false;
     }
 
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_swigGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -183,31 +183,31 @@ bool SwigVersion::swigWriteInternal() const
         "#^#PROTOCOL#$#\n"
     ;
 
-    util::ReplacementMap repl = {
-        {"GENERATED", SwigGenerator::fileGeneratedComment()},
-        {"SPEC_VERSION", m_generator.swigScopeNameForRoot(SpecVersionFunc)}
+    util::GenReplacementMap repl = {
+        {"GENERATED", SwigGenerator::swigFileGeneratedComment()},
+        {"SPEC_VERSION", m_swigGenerator.swigScopeNameForRoot(SpecVersionFunc)}
     };
 
-    if (m_generator.isCurrentProtocolSchema() && m_generator.swigHasProtocolVersion()) {
+    if (m_swigGenerator.genIsCurrentProtocolSchema() && m_swigGenerator.swigHasProtocolVersion()) {
         const std::string ProtTempl = 
             "unsigned #^#MAJOR#$#();\n"
             "unsigned #^#MINOR#$#();\n"
             "unsigned #^#PATCH#$#();\n"
         ;  
 
-        util::ReplacementMap protRepl = {
-            {"MAJOR", m_generator.swigScopeNameForRoot(MajorVersionFunc)},
-            {"MINOR", m_generator.swigScopeNameForRoot(MinorVersionFunc)},
-            {"PATCH", m_generator.swigScopeNameForRoot(PatchVersionFunc)},
+        util::GenReplacementMap protRepl = {
+            {"MAJOR", m_swigGenerator.swigScopeNameForRoot(MajorVersionFunc)},
+            {"MINOR", m_swigGenerator.swigScopeNameForRoot(MinorVersionFunc)},
+            {"PATCH", m_swigGenerator.swigScopeNameForRoot(PatchVersionFunc)},
         };
 
-        repl["PROTOCOL"] = util::processTemplate(ProtTempl, protRepl);
+        repl["PROTOCOL"] = util::genProcessTemplate(ProtTempl, protRepl);
     }    
 
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_swigGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     

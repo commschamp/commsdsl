@@ -30,46 +30,46 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigBundleField::SwigBundleField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigBundleField::SwigBundleField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool SwigBundleField::prepareImpl()
+bool SwigBundleField::genPrepareImpl()
 {
     return 
-        Base::prepareImpl() &&
+        GenBase::genPrepareImpl() &&
         swigPrepareInternal();
 }
 
-bool SwigBundleField::writeImpl() const
+bool SwigBundleField::genWriteImpl() const
 {
     return swigWrite();
 }
 
 bool SwigBundleField::swigPrepareInternal()
 {
-    m_swigMembers = swigTransformFieldsList(members());
+    m_swigMembers = swigTransformFieldsList(genMembers());
     return true;
 }
 
 std::string SwigBundleField::swigMembersDeclImpl() const
 {
-    StringsList memberDefs;
+    GenStringsList memberDefs;
     memberDefs.reserve(m_swigMembers.size());
 
     for (auto* m : m_swigMembers) {
         memberDefs.push_back(m->swigClassDecl());
     }
 
-    return util::strListToString(memberDefs, "\n", "\n");
+    return util::genStrListToString(memberDefs, "\n", "\n");
 }
 
 std::string SwigBundleField::swigValueAccDeclImpl() const
 {
-    if (dslObj().semanticType() != commsdsl::parse::Field::SemanticType::Length) {
-        return strings::emptyString();
+    if (genParseObj().parseSemanticType() != commsdsl::parse::ParseField::ParseSemanticType::Length) {
+        return strings::genEmptyString();
     }
 
     return swigSemanticTypeLengthValueAccDecl();
@@ -77,32 +77,32 @@ std::string SwigBundleField::swigValueAccDeclImpl() const
 
 std::string SwigBundleField::swigExtraPublicFuncsDeclImpl() const
 {
-    StringsList accFuncs;
+    GenStringsList accFuncs;
     accFuncs.reserve(m_swigMembers.size());
 
-    auto& gen = SwigGenerator::cast(generator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     for (auto* m : m_swigMembers) {
         static const std::string Templ = 
             "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#();\n"
         ;
 
-        util::ReplacementMap repl = {
-            {"CLASS_NAME", gen.swigClassName(m->field())},
-            {"ACC_NAME", comms::accessName(m->field().dslObj().name())}
+        util::GenReplacementMap repl = {
+            {"CLASS_NAME", gen.swigClassName(m->swigGenField())},
+            {"ACC_NAME", comms::genAccessName(m->swigGenField().genParseObj().parseName())}
         };
 
-        accFuncs.push_back(util::processTemplate(Templ, repl));
+        accFuncs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    return util::strListToString(accFuncs, "", "");
+    return util::genStrListToString(accFuncs, "", "");
 }
 
 std::string SwigBundleField::swigExtraPublicFuncsCodeImpl() const
 {
-    StringsList accFuncs;
+    GenStringsList accFuncs;
     accFuncs.reserve(m_swigMembers.size());
 
-    auto& gen = SwigGenerator::cast(generator());
+    auto& gen = SwigGenerator::swigCast(genGenerator());
     for (auto* m : m_swigMembers) {
         static const std::string Templ = 
             "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#()\n"
@@ -115,16 +115,16 @@ std::string SwigBundleField::swigExtraPublicFuncsCodeImpl() const
             "}\n"
         ;
 
-        util::ReplacementMap repl = {
-            {"CLASS_NAME", gen.swigClassName(m->field())},
-            {"ACC_NAME", comms::accessName(m->field().dslObj().name())}
+        util::GenReplacementMap repl = {
+            {"CLASS_NAME", gen.swigClassName(m->swigGenField())},
+            {"ACC_NAME", comms::genAccessName(m->swigGenField().genParseObj().parseName())}
         };
 
-        accFuncs.push_back(util::processTemplate(Templ, repl));
+        accFuncs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     std::string valueAccCode;
-    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) {
+    if (genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Length) {
         valueAccCode = swigSemanticTypeLengthValueAccCode();
     }
 
@@ -132,23 +132,23 @@ std::string SwigBundleField::swigExtraPublicFuncsCodeImpl() const
         "#^#VALUE_ACC#$#\n"
         "#^#MEM_ACC#$#\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"VALUE_ACC", std::move(valueAccCode)},
-        {"MEM_ACC", util::strListToString(accFuncs, "\n", "")}
+        {"MEM_ACC", util::genStrListToString(accFuncs, "\n", "")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 
-void SwigBundleField::swigAddDefImpl(StringsList& list) const
+void SwigBundleField::swigAddDefImpl(GenStringsList& list) const
 {
     for (auto* m : m_swigMembers) {
         m->swigAddDef(list);
     }    
 }
 
-void SwigBundleField::swigAddMembersCodeImpl(StringsList& list) const
+void SwigBundleField::swigAddMembersCodeImpl(GenStringsList& list) const
 {
     for (auto* m : m_swigMembers) {
         m->swigAddCode(list);

@@ -17,19 +17,23 @@
 
 #include "SwigLayer.h"
 
-#include "commsdsl/gen/ChecksumLayer.h"
+#include "commsdsl/gen/GenChecksumLayer.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigChecksumLayer final : public commsdsl::gen::ChecksumLayer, public SwigLayer
+class SwigChecksumLayer final : public commsdsl::gen::GenChecksumLayer, public SwigLayer
 {
-    using Base = commsdsl::gen::ChecksumLayer;
+    using GenBase = commsdsl::gen::GenChecksumLayer;
     using SwigBase = SwigLayer;
+
 public:
-    SwigChecksumLayer(SwigGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    SwigChecksumLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent);
 };
 
 } // namespace commsdsl2swig

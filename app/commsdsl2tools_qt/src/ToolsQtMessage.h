@@ -17,48 +17,51 @@
 
 #include "ToolsQtInterface.h"
 
-#include "commsdsl/gen/Message.h"
+#include "commsdsl/gen/GenMessage.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator;
-class ToolsQtMessage final : public commsdsl::gen::Message
+class ToolsQtMessage final : public commsdsl::gen::GenMessage
 {
-    using Base = commsdsl::gen::Message;
+    using GenBase = commsdsl::gen::GenMessage;
+
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
-    using IncludesList = StringsList;
+    using ParseMessage = commsdsl::parse::ParseMessage;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+    using ToolsIncludesList = GenStringsList;
 
-    explicit ToolsQtMessage(ToolsQtGenerator& generator, commsdsl::parse::Message dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtMessage(ToolsQtGenerator& generator, ParseMessage parseObj, GenElem* parent);
 
-    std::string toolsHeaderPath(const commsdsl::gen::Interface& iFace) const;
-    StringsList toolsSourceFiles(const commsdsl::gen::Interface& iFace) const;
-    std::string toolsClassScope(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsHeaderPath(const commsdsl::gen::GenInterface& iFace) const;
+    GenStringsList toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const;
+    std::string toolsClassScope(const commsdsl::gen::GenInterface& iFace) const;
 
-    static ToolsQtMessage& cast(commsdsl::gen::Message& msg)
+    static ToolsQtMessage& toolsCast(commsdsl::gen::GenMessage& msg)
     {
         return static_cast<ToolsQtMessage&>(msg);
     }
 
-    static const ToolsQtMessage& cast(const commsdsl::gen::Message& msg)
+    static const ToolsQtMessage& toolsCast(const commsdsl::gen::GenMessage& msg)
     {
         return static_cast<const ToolsQtMessage&>(msg);
     }    
 
 protected:
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;    
 
 private:
     bool toolsWriteHeaderInternal() const;
     bool toolsWriteSrcInternal() const;
-    std::string toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const;
-    IncludesList toolsHeaderIncludesInternal() const;
+    std::string toolsRelPathInternal(const commsdsl::gen::GenInterface& iFace) const;
+    ToolsIncludesList toolsHeaderIncludesInternal() const;
     std::string toolsHeaderCodeInternal() const;
-    IncludesList toolsSrcIncludesInternal(const commsdsl::gen::Interface& iFace) const;
-    std::string toolsSrcCodeInternal(const commsdsl::gen::Interface& iFace) const;
+    ToolsIncludesList toolsSrcIncludesInternal(const commsdsl::gen::GenInterface& iFace) const;
+    std::string toolsSrcCodeInternal(const commsdsl::gen::GenInterface& iFace) const;
 
     bool m_exists = true;
 };

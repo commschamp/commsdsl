@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/Layer.h"
+#include "commsdsl/gen/GenLayer.h"
 #include "commsdsl/gen/util.h"
 
 #include <string>
@@ -27,28 +27,28 @@ namespace commsdsl2swig
 class SwigLayer
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
     using SwigLayersList = std::vector<SwigLayer*>;
     
-    explicit SwigLayer(commsdsl::gen::Layer& layer);
+    explicit SwigLayer(commsdsl::gen::GenLayer& layer);
     virtual ~SwigLayer();
 
-    static const SwigLayer* cast(const commsdsl::gen::Layer* layer);
+    static const SwigLayer* swigCast(const commsdsl::gen::GenLayer* layer);
 
-    commsdsl::gen::Layer& layer()
+    commsdsl::gen::GenLayer& swigGenLayer()
     {
-        return m_layer;
+        return m_genLayer;
     }
 
-    const commsdsl::gen::Layer& layer() const
+    const commsdsl::gen::GenLayer& swigGenLayer() const
     {
-        return m_layer;
+        return m_genLayer;
     }
 
     std::string swigDeclCode() const;
-    void swigAddDef(StringsList& list) const;
-    void swigAddCode(StringsList& list) const;
-    void swigAddToAllFieldsDecl(StringsList& list) const;
+    void swigAddDef(GenStringsList& list) const;
+    void swigAddCode(GenStringsList& list) const;
+    void swigAddToAllFieldsDecl(GenStringsList& list) const;
 
     bool swigIsMainInterfaceSupported() const;
     std::string swigFieldAccName() const;
@@ -58,15 +58,13 @@ protected:
     virtual std::string swigCodeFuncsImpl() const;    
     virtual bool swigIsMainInterfaceSupportedImpl() const;
     virtual std::string swigMemberFieldDeclImpl() const;
-    virtual void swigAddCodeImpl(StringsList& list) const;
+    virtual void swigAddCodeImpl(GenStringsList& list) const;
     virtual std::string swigFieldTypeImpl() const;
 
     std::string swigTemplateScope() const;
     
 private:
-    
-
-    commsdsl::gen::Layer& m_layer;
+    commsdsl::gen::GenLayer& m_genLayer;
 };
 
 } // namespace commsdsl2swig

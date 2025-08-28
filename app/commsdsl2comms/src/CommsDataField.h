@@ -15,31 +15,35 @@
 
 #pragma once
 
-#include "commsdsl/gen/DataField.h"
-
 #include "CommsField.h"
+
+#include "commsdsl/gen/GenDataField.h"
 
 namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsDataField final : public commsdsl::gen::DataField, public CommsField
+class CommsDataField final : public commsdsl::gen::GenDataField, public CommsField
 {
-    using Base = commsdsl::gen::DataField;
+    using GenBase = commsdsl::gen::GenDataField;
     using CommsBase = CommsField;
+
 public:
-    CommsDataField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    CommsDataField(CommsGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    // Base overrides
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
+    // GenBase overrides
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;    
 
     // CommsBase overrides
-    virtual IncludesList commsCommonIncludesImpl() const override;
+    virtual CommsIncludesList commsCommonIncludesImpl() const override;
     virtual std::string commsCommonCodeBodyImpl() const override;
     virtual std::string commsCommonMembersCodeImpl() const override;
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefMembersCodeImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
     virtual std::string commsDefConstructCodeImpl() const override;
@@ -47,18 +51,18 @@ protected:
     virtual std::string commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const override;
     virtual std::string commsDefValidFuncBodyImpl() const override;
     virtual bool commsIsLimitedCustomizableImpl() const override;
-    virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
-    virtual StringsList commsExtraDataViewDefaultOptionsImpl() const override;
-    virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const override;
+    virtual std::string commsMembersCustomizationOptionsBodyImpl(CommsFieldOptsFunc fieldOptsFunc) const override;
+    virtual GenStringsList commsExtraDataViewDefaultOptionsImpl() const override;
+    virtual GenStringsList commsExtraBareMetalDefaultOptionsImpl() const override;
     virtual std::size_t commsMaxLengthImpl() const override; 
     virtual std::string commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
 
 private:
     std::string commsDefFieldOptsInternal() const;
 
-    void commsAddFixedLengthOptInternal(StringsList& opts) const;
-    void commsAddLengthPrefixOptInternal(StringsList& opts) const;
-    void commsAddLengthForcingOptInternal(StringsList& opts) const;
+    void commsAddFixedLengthOptInternal(GenStringsList& opts) const;
+    void commsAddLengthPrefixOptInternal(GenStringsList& opts) const;
+    void commsAddLengthForcingOptInternal(GenStringsList& opts) const;
 
     CommsField* m_commsExternalPrefixField = nullptr;
     CommsField* m_commsMemberPrefixField = nullptr;

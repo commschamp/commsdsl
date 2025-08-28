@@ -101,7 +101,6 @@ the **commsdsl2tools_qt** as well.
 $> /path/to/commsdsl2tools_qt -n other_ns_name schema.xml
 ```
 
-
 ### Using Subsets of Messages
 The generated code of the protocol plugin for the [CommsChampion Tools](https://github.com/commschamp/cc_tools_qt)
 includes all the messages defined in the schema file(s). Sometimes, when the

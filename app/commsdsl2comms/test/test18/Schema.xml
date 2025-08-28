@@ -32,12 +32,19 @@
     
     <frame name="TestFrame2" >
         <size name="Size">
+            <description value="Size layer description" />
             <field>
-                <int type="uint16" name="Size" />
+                <int type="uint16" name="Size">
+                    <description value="Size field description" />
+                </int>
             </field>
         </size>
-        <id name="Id" field="MsgId" />
-        <payload name="Data" />
+        <id name="Id" field="MsgId" displayName="ID">
+            <description value="Id layer description" />
+        </id>
+        <payload name="Data">
+            <description value="Payload layer description" />
+        </payload>
     </frame>
     
     <frame name="TestFrame3" >
@@ -118,12 +125,14 @@
     <frame name="TestFrame11" >
         <sync name="Sync" field="Sync" />
         <size name="Size">
+            <description value="Remaining size, including final checksum" />
             <field>
                 <int name="Size" type="uint16" serOffset="2" />
             </field>
         </size>
         <id name="Id" field="MsgId" />        
         <checksum name="DataChecksum" until="Data" alg="custom" algName="Sum" >
+            <description value="Prefix checksum" />
             <field>
                 <int name="Checksum" type="uint8" />
             </field>

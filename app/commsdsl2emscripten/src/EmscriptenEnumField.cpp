@@ -31,48 +31,48 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenEnumField::EmscriptenEnumField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
-    Base(generator, dslObj, parent),
-    EmscriptenBase(static_cast<Base&>(*this))
+EmscriptenEnumField::EmscriptenEnumField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    EmscriptenBase(static_cast<GenBase&>(*this))
 {
 }
 
 std::string EmscriptenEnumField::emscriptenBindValues(const EmscriptenNamespace* forcedParent) const
 {
-    StringsList result;
+    GenStringsList result;
 
     auto addValueBind = 
         [this, &result, forcedParent](const std::string& name)
         {
             if ((forcedParent != nullptr) && 
-                (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId)) {
+                (genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::MessageId)) {
                 static const std::string Templ = 
                     ".value(\"#^#NAME#$#\", #^#SCOPE#$#_#^#NAME#$#)";
 
-                util::ReplacementMap repl = {
+                util::GenReplacementMap repl = {
                     {"NAME", name},
-                    {"SCOPE", comms::scopeForMsgId(strings::msgIdEnumNameStr(), generator(), *forcedParent)}
+                    {"SCOPE", comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), genGenerator(), *forcedParent)}
                 };                    
 
-                result.push_back(util::processTemplate(Templ, repl));
+                result.push_back(util::genProcessTemplate(Templ, repl));
                 return;
             }
 
             static const std::string Templ = 
                 ".value(\"#^#NAME#$#\", #^#CLASS_NAME#$#::ValueType::#^#NAME#$#)";
 
-            util::ReplacementMap repl = {
+            util::GenReplacementMap repl = {
                 {"NAME", name},
                 {"CLASS_NAME", emscriptenBindClassName()}
             };
 
-            result.push_back(util::processTemplate(Templ, repl));
+            result.push_back(util::genProcessTemplate(Templ, repl));
         };
 
-    auto& revValues = sortedRevValues();
+    auto& revValues = genSortedRevValues();
     result.reserve(revValues.size() + 3);
-    auto obj = enumDslObj();
-    auto& values = obj.values();
+    auto obj = genEnumFieldParseObj();
+    auto& values = obj.parseValues();
 
     for (auto& v : revValues) {
         auto iter = values.find(*v.second);
@@ -83,7 +83,7 @@ std::string EmscriptenEnumField::emscriptenBindValues(const EmscriptenNamespace*
         }
 
         bool exists =
-            generator().doesElementExist(
+            genGenerator().genDoesElementExist(
                 iter->second.m_sinceVersion,
                 iter->second.m_deprecatedSince,
                 false);
@@ -95,14 +95,14 @@ std::string EmscriptenEnumField::emscriptenBindValues(const EmscriptenNamespace*
         addValueBind(iter->first);
     }
 
-    if (hasValuesLimit()) {
-        addValueBind(valuesLimitStr());
+    if (genHasValuesLimit()) {
+        addValueBind(genValuesLimitStr());
     }
 
-    return util::strListToString(result, "\n", "");
+    return util::genStrListToString(result, "\n", "");
 }
 
-bool EmscriptenEnumField::writeImpl() const
+bool EmscriptenEnumField::genWriteImpl() const
 {
     return emscriptenWrite();
 }
@@ -133,7 +133,7 @@ std::string EmscriptenEnumField::emscriptenHeaderExtraPublicFuncsImpl() const
         "}\n"  
         ;      
 
-    if (field().dslObj().isFixedValue()) {
+    if (emscriptenGenField().genParseObj().parseIsFixedValue()) {
         return Templ;
     }
 
@@ -156,35 +156,35 @@ std::string EmscriptenEnumField::emscriptenSourceBindFuncsImpl() const
         ".function(\"getValueConstant\", &#^#CLASS_NAME#$#::getValueConstant)"
         ;
 
-    if (!field().dslObj().isFixedValue()) {
+    if (!emscriptenGenField().genParseObj().parseIsFixedValue()) {
         templ += 
             "\n"
             ".function(\"setValueConstant\", &#^#CLASS_NAME#$#::setValueConstant)"
             ;
     }        
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}
     };
     
-    return util::processTemplate(templ, repl);
+    return util::genProcessTemplate(templ, repl);
 }
 
 std::string EmscriptenEnumField::emscriptenSourceBindExtraImpl() const
 {
     if (!emscriptenCanProvideValuesInternal()) {
-        generator().logger().warning(
+        genGenerator().genLogger().genWarning(
             "emscripten cannot handle enum values with types wider than long, cannot provide bindings for " +
             emscriptenBindClassName() + "::ValueType.");
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
-        auto* parentNs = EmscriptenNamespace::cast(parentNamespace());
-        auto allMsgIdFields = parentNs->findMessageIdFields();
+    if (genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::MessageId) {
+        auto* parentNs = EmscriptenNamespace::emscriptenCast(genParentNamespace());
+        auto allMsgIdFields = parentNs->genFindMessageIdFields();
         if (allMsgIdFields.size() == 1U) {
             // The bindings for MsgId are created separately
-            return strings::emptyString();  
+            return strings::genEmptyString();  
         }
     }
 
@@ -193,36 +193,36 @@ std::string EmscriptenEnumField::emscriptenSourceBindExtraImpl() const
         "    #^#VALUES#$#\n"
         "   ;\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()},
         {"VALUES", emscriptenBindValues()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool EmscriptenEnumField::emscriptenCanProvideValuesInternal() const
 {
-    auto type = enumDslObj().type();
-    if (type < commsdsl::parse::IntField::Type::Int64) {
+    auto type = genEnumFieldParseObj().parseType();
+    if (type < commsdsl::parse::ParseIntField::ParseType::Int64) {
         return true;
     }
 
-    if (type == commsdsl::parse::IntField::Type::Int64) {
+    if (type == commsdsl::parse::ParseIntField::ParseType::Int64) {
         return false;
     }
 
-    if (type == commsdsl::parse::IntField::Type::Uint64) {
+    if (type == commsdsl::parse::ParseIntField::ParseType::Uint64) {
         return false;
     }   
 
-    if ((type == commsdsl::parse::IntField::Type::Intvar) &&
-        (dslObj().minLength() > sizeof(std::int32_t))) {
+    if ((type == commsdsl::parse::ParseIntField::ParseType::Intvar) &&
+        (genParseObj().parseMinLength() > sizeof(std::int32_t))) {
         return false;
     }
 
-    if ((type == commsdsl::parse::IntField::Type::Uintvar) &&
-        (dslObj().minLength() > sizeof(std::int32_t))) {
+    if ((type == commsdsl::parse::ParseIntField::ParseType::Uintvar) &&
+        (genParseObj().parseMinLength() > sizeof(std::int32_t))) {
         return false;
     }
 

@@ -2,6 +2,8 @@
 
 #include "CommonTestSuite.h"
 
+#include "commsdsl/parse/ParseNamespace.h"
+
 class MessageTestSuite : public CommonTestSuite, public CxxTest::TestSuite
 {
 public:
@@ -12,6 +14,8 @@ public:
     void test3();
     void test4();
     void test5();
+    void test6();
+    void test7();
 };
 
 void MessageTestSuite::setUp()
@@ -29,58 +33,58 @@ void MessageTestSuite::test1()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
-    TS_ASSERT_EQUALS(ns.description(), "NS1");
-    TS_ASSERT(ns.namespaces().empty());
-    TS_ASSERT_EQUALS(ns.fields().size(), 2U);
-    TS_ASSERT(ns.messages().empty());
-    TS_ASSERT(ns.extraAttributes().empty());
-    TS_ASSERT(ns.extraElements().empty());
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseDescription(), "NS1");
+    TS_ASSERT(ns.parseNamespaces().empty());
+    TS_ASSERT_EQUALS(ns.parseFields().size(), 2U);
+    TS_ASSERT(ns.parseMessages().empty());
+    TS_ASSERT(ns.parseExtraAttributes().empty());
+    TS_ASSERT(ns.parseExtraElements().empty());
 }
 
 void MessageTestSuite::test2()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
-    TS_ASSERT_EQUALS(ns.description(), "NS1");
-    TS_ASSERT(ns.namespaces().empty());
-    TS_ASSERT_EQUALS(ns.fields().size(), 3U);
-    TS_ASSERT(ns.messages().empty());
-    TS_ASSERT(ns.extraAttributes().empty());
-    TS_ASSERT(ns.extraElements().empty());
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseDescription(), "NS1");
+    TS_ASSERT(ns.parseNamespaces().empty());
+    TS_ASSERT_EQUALS(ns.parseFields().size(), 3U);
+    TS_ASSERT(ns.parseMessages().empty());
+    TS_ASSERT(ns.parseExtraAttributes().empty());
+    TS_ASSERT(ns.parseExtraElements().empty());
 }
 
 void MessageTestSuite::test3()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
-    TS_ASSERT_EQUALS(ns.description(), "NS1");
-    TS_ASSERT(ns.namespaces().empty());
-    TS_ASSERT_EQUALS(ns.fields().size(), 3U);
-    TS_ASSERT(ns.messages().empty());
-    auto& extraAttrs = ns.extraAttributes();
-    auto& extraChildren = ns.extraElements();
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseDescription(), "NS1");
+    TS_ASSERT(ns.parseNamespaces().empty());
+    TS_ASSERT_EQUALS(ns.parseFields().size(), 3U);
+    TS_ASSERT(ns.parseMessages().empty());
+    auto& extraAttrs = ns.parseExtraAttributes();
+    auto& extraChildren = ns.parseExtraElements();
     TS_ASSERT_EQUALS(extraAttrs.size(), 2U);
     TS_ASSERT_EQUALS(extraAttrs.begin()->first, "extraAttr1");
     TS_ASSERT_EQUALS((++extraAttrs.begin())->first, "extraAttr2");
@@ -92,25 +96,25 @@ void MessageTestSuite::test3()
 void MessageTestSuite::test4()
 {
     m_status.m_preValidateFunc =
-        [](commsdsl::parse::Protocol& p)
+        [](commsdsl::parse::ParseProtocol& p)
         {
-            p.addExpectedExtraPrefix("prefix.");
+            p.parseAddExpectedExtraPrefix("prefix.");
         };
 
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
-    TS_ASSERT_EQUALS(ns.description(), "NS1");
-    TS_ASSERT(ns.namespaces().empty());
-    TS_ASSERT_EQUALS(ns.fields().size(), 3U);
-    TS_ASSERT(ns.messages().empty());
-    auto& extraAttrs = ns.extraAttributes();
-    auto& extraChildren = ns.extraElements();
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseDescription(), "NS1");
+    TS_ASSERT(ns.parseNamespaces().empty());
+    TS_ASSERT_EQUALS(ns.parseFields().size(), 3U);
+    TS_ASSERT(ns.parseMessages().empty());
+    auto& extraAttrs = ns.parseExtraAttributes();
+    auto& extraChildren = ns.parseExtraElements();
     TS_ASSERT_EQUALS(extraAttrs.size(), 2U);
     TS_ASSERT_EQUALS(extraAttrs.begin()->first, "prefix.extraAttr1");
     TS_ASSERT_EQUALS((++extraAttrs.begin())->first, "prefix.extraAttr2");
@@ -121,34 +125,61 @@ void MessageTestSuite::test4()
 
 void MessageTestSuite::test5()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->lastParsedSchema().namespaces();
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& globalNs = namespaces.front();
-    TS_ASSERT_EQUALS(globalNs.name(), "global");
+    TS_ASSERT_EQUALS(globalNs.parseName(), "global");
 
-    auto innerNamespaces = globalNs.namespaces();
+    auto innerNamespaces = globalNs.parseNamespaces();
     TS_ASSERT_EQUALS(innerNamespaces.size(), 1U);
 
     auto& ns = innerNamespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
-    TS_ASSERT_EQUALS(ns.description(), "NS1");
-    TS_ASSERT(ns.namespaces().empty());
-    TS_ASSERT_EQUALS(ns.fields().size(), 3U);
-    TS_ASSERT(ns.messages().empty());
-    auto& extraAttrs = ns.extraAttributes();
-    auto& extraChildren = ns.extraElements();
+    TS_ASSERT_EQUALS(ns.parseName(), "ns1");
+    TS_ASSERT_EQUALS(ns.parseDescription(), "NS1");
+    TS_ASSERT(ns.parseNamespaces().empty());
+    TS_ASSERT_EQUALS(ns.parseFields().size(), 3U);
+    TS_ASSERT(ns.parseMessages().empty());
+    auto& extraAttrs = ns.parseExtraAttributes();
+    auto& extraChildren = ns.parseExtraElements();
     TS_ASSERT_EQUALS(extraAttrs.size(), 2U);
     TS_ASSERT_EQUALS(extraAttrs.begin()->first, "extraAttr1");
     TS_ASSERT_EQUALS((++extraAttrs.begin())->first, "extraAttr2");
     TS_ASSERT_EQUALS(extraChildren.size(), 2U);
     TS_TRACE(extraChildren.front());
     TS_TRACE(extraChildren.back());
+}
+
+void MessageTestSuite::test6()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.parseName(), "global");
+    TS_ASSERT_EQUALS(ns.parseDisplayName(), "Global Namespace");
+}
+
+void MessageTestSuite::test7()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.parseName(), "global");
+    TS_ASSERT(ns.parseDisplayName().empty());
 }

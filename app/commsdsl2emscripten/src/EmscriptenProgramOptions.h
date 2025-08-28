@@ -15,39 +15,34 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
-#include <iosfwd>
+#include "commsdsl/gen/GenProgramOptions.h"
 
-#include "commsdsl/gen/ProgramOptions.h"
+#include <iosfwd>
+#include <string>
+#include <vector>
+
 
 namespace commsdsl2emscripten
 {
 
-class EmscriptenProgramOptions : public commsdsl::gen::ProgramOptions
+class EmscriptenProgramOptions : public commsdsl::gen::GenProgramOptions
 {
 public:
+    using GenProgramOptions = commsdsl::gen::GenProgramOptions;
+
     EmscriptenProgramOptions();
 
-    bool quietRequested() const;
-    bool versionRequested() const;
-    bool warnAsErrRequested() const;
+    static const EmscriptenProgramOptions& emscriptenCast(const GenProgramOptions& options)
+    {
+        return static_cast<const EmscriptenProgramOptions&>(options);
+    }
 
-    const std::string& getFilesListFile() const;
-    const std::string& getFilesListPrefix() const;
-    const ArgsList& getFiles() const;
-    const std::string& getOutputDirectory() const;
-    const std::string& getCodeInputDirectory() const;
-    bool hasNamespaceOverride() const;
-    const std::string& getNamespace() const;
-    bool multipleSchemasEnabled() const;
-    unsigned getMinRemoteVersion() const;
-    bool isMainNamespaceInNamesForced() const;
-    bool hasForcedInterface() const;
-    const std::string& getForcedInterface() const;
-    bool hasProtocolVersion() const;
-    const std::string& messagesListFile() const;
-    const std::string& forcedPlatform() const;
+    bool emscriptenIsMainNamespaceInNamesForced() const;
+    bool emscriptenHasForcedInterface() const;
+    const std::string& emscriptenGetForcedInterface() const;
+    bool emscriptenHasProtocolVersion() const;
+    const std::string& emscriptenMessagesListFile() const;
+    const std::string& emscriptenForcedPlatform() const;
 };
 
 } // namespace commsdsl2emscripten

@@ -32,34 +32,30 @@ namespace strings = commsdsl::gen::strings;
 
 namespace commsdsl2comms
 {
-    
 
-CommsBitfieldField::CommsBitfieldField(
-    CommsGenerator& generator, 
-    commsdsl::parse::Field dslObj, 
-    commsdsl::gen::Elem* parent) :
-    Base(generator, dslObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsBitfieldField::CommsBitfieldField(CommsGenerator& generator, ParseField parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool CommsBitfieldField::prepareImpl()
+bool CommsBitfieldField::genPrepareImpl()
 {
     return 
-        Base::prepareImpl() && 
+        GenBase::genPrepareImpl() && 
         commsPrepare() &&
         commsPrepareInternal();
 }
 
-bool CommsBitfieldField::writeImpl() const
+bool CommsBitfieldField::genWriteImpl() const
 {
     return commsWrite();
 }
 
-CommsBitfieldField::IncludesList CommsBitfieldField::commsCommonIncludesImpl() const
+CommsBitfieldField::CommsIncludesList CommsBitfieldField::commsCommonIncludesImpl() const
 {
-    IncludesList result;
-    for (auto* m : m_members) {
+    CommsIncludesList result;
+    for (auto* m : m_commsMembers) {
         assert(m != nullptr);
         auto incList = m->commsCommonIncludes();
         result.reserve(result.size() + incList.size());
@@ -75,25 +71,25 @@ std::string CommsBitfieldField::commsCommonCodeBodyImpl() const
 
 std::string CommsBitfieldField::commsCommonMembersCodeImpl() const
 {
-    util::StringsList membersCode;
-    for (auto* m : m_members) {
+    util::GenStringsList membersCode;
+    for (auto* m : m_commsMembers) {
         auto code = m->commsCommonCode();
         if (!code.empty()) {
             membersCode.push_back(std::move(code));
         }
     }
 
-    return util::strListToString(membersCode, "\n", "");
+    return util::genStrListToString(membersCode, "\n", "");
 }
 
-CommsBitfieldField::IncludesList CommsBitfieldField::commsDefIncludesImpl() const
+CommsBitfieldField::CommsIncludesList CommsBitfieldField::commsDefIncludesImpl() const
 {
-    IncludesList result = {
+    CommsIncludesList result = {
         "comms/field/Bitfield.h",
         "<tuple>"        
     };
     
-    for (auto* m : m_members) {
+    for (auto* m : m_commsMembers) {
         assert(m != nullptr);
         auto incList = m->commsDefIncludes();
         result.reserve(result.size() + incList.size());
@@ -112,26 +108,26 @@ std::string CommsBitfieldField::commsDefMembersCodeImpl() const
         "       #^#MEMBERS#$#\n"
         "    >;";
 
-    util::StringsList membersCode;
-    for (auto* m : m_members) {
+    util::GenStringsList membersCode;
+    for (auto* m : m_commsMembers) {
         auto code = m->commsDefCode();
         if (!code.empty()) {
             membersCode.push_back(std::move(code));
         }
     }
     
-    util::StringsList names;
-    for (auto& fPtr : members()) {
+    util::GenStringsList names;
+    for (auto& fPtr : genMembers()) {
         assert(fPtr);
-        names.push_back(comms::className(fPtr->dslObj().name()));
+        names.push_back(comms::genClassName(fPtr->genParseObj().parseName()));
     }
 
-    util::ReplacementMap repl = {
-        {"MEMBERS_DEFS", util::strListToString(membersCode, "\n", "")},
-        {"MEMBERS", util::strListToString(names, ",\n", "")}
+    util::GenReplacementMap repl = {
+        {"MEMBERS_DEFS", util::genStrListToString(membersCode, "\n", "")},
+        {"MEMBERS", util::genStrListToString(names, ",\n", "")}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsBitfieldField::commsDefBaseClassImpl() const
@@ -143,12 +139,12 @@ std::string CommsBitfieldField::commsDefBaseClassImpl() const
         "    #^#FIELD_OPTS#$#\n"
         ">";  
 
-    auto& gen = generator();
-    auto dslObj = bitfieldDslObj();
-    util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
-        {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
-        {"CLASS_NAME", comms::className(dslObj.name())},
+    auto& gen = genGenerator();
+    auto parseObj = genBitfieldFieldParseObj();
+    util::GenReplacementMap repl = {
+        {"PROT_NAMESPACE", gen.genSchemaOf(*this).genMainNamespace()},
+        {"FIELD_BASE_PARAMS", commsFieldBaseParams(parseObj.parseEndian())},
+        {"CLASS_NAME", comms::genClassName(parseObj.parseName())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()},
     };
 
@@ -156,11 +152,11 @@ std::string CommsBitfieldField::commsDefBaseClassImpl() const
         repl["COMMA"] = std::string(",");
     }
 
-    if (comms::isGlobalField(*this)) {
+    if (comms::genIsGlobalField(*this)) {
         repl["MEMBERS_OPT"] = "<TOpt>";
     }
 
-    return util::processTemplate(Templ, repl);       
+    return util::genProcessTemplate(Templ, repl);       
 }
 
 std::string CommsBitfieldField::commsDefPublicCodeImpl() const
@@ -170,16 +166,16 @@ std::string CommsBitfieldField::commsDefPublicCodeImpl() const
 
 std::string CommsBitfieldField::commsDefValidFuncBodyImpl() const
 {
-    auto validCond = bitfieldDslObj().validCond();
-    if (!validCond.valid()) {
-        return strings::emptyString();
+    auto validCond = genBitfieldFieldParseObj().parseValidCond();
+    if (!validCond.parseValid()) {
+        return strings::genEmptyString();
     }
 
-    auto& gen = CommsGenerator::cast(generator());
-    auto str = CommsOptionalField::commsDslCondToString(gen, m_members, validCond, true);    
+    auto& gen = CommsGenerator::commsCast(genGenerator());
+    auto str = CommsOptionalField::commsDslCondToString(gen, m_commsMembers, validCond, true);    
 
     if (str.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -190,35 +186,35 @@ std::string CommsBitfieldField::commsDefValidFuncBodyImpl() const
         "    #^#CODE#$#;\n"
         ;
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CODE", std::move(str)},
     };
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 bool CommsBitfieldField::commsIsVersionDependentImpl() const
 {
     return 
         std::any_of(
-            m_members.begin(), m_members.end(),
+            m_commsMembers.begin(), m_commsMembers.end(),
             [](auto* m)
             {
                 return m->commsIsVersionDependent();
             });
 }
 
-std::string CommsBitfieldField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
+std::string CommsBitfieldField::commsMembersCustomizationOptionsBodyImpl(CommsFieldOptsFunc fieldOptsFunc) const
 {
     assert(fieldOptsFunc != nullptr);
-    util::StringsList elems;
-    for (auto* m : m_members) {
+    util::GenStringsList elems;
+    for (auto* m : m_commsMembers) {
         auto str = (m->*fieldOptsFunc)();
         if (!str.empty()) {
             elems.push_back(std::move(str));
         }
     }
-    return util::strListToString(elems, "\n", "");
+    return util::genStrListToString(elems, "\n", "");
 }
 
 std::string CommsBitfieldField::commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const
@@ -227,15 +223,15 @@ std::string CommsBitfieldField::commsValueAccessStrImpl(const std::string& accSt
         return CommsBase::commsValueAccessStrImpl(accStr, prefix);
     }
 
-    auto memInfo = parseMemRefInternal(accStr);
+    auto memInfo = commsParseMemRefInternal(accStr);
 
     if (memInfo.first == nullptr) {
         [[maybe_unused]] static const bool Should_not_happen = false;
         assert(Should_not_happen);
-        return strings::unexpectedValueStr();
+        return strings::genUnexpectedValueStr();
     }
 
-    return memInfo.first->commsValueAccessStr(memInfo.second, prefix + ".field_" + comms::accessName(memInfo.first->field().dslObj().name()) + "()");
+    return memInfo.first->commsValueAccessStr(memInfo.second, prefix + ".field_" + comms::genAccessName(memInfo.first->commsGenField().genParseObj().parseName()) + "()");
 }
 
 std::string CommsBitfieldField::commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const
@@ -244,25 +240,25 @@ std::string CommsBitfieldField::commsSizeAccessStrImpl(const std::string& accStr
         return CommsBase::commsSizeAccessStrImpl(accStr, prefix);
     }
 
-    auto memInfo = parseMemRefInternal(accStr);
+    auto memInfo = commsParseMemRefInternal(accStr);
 
     if (memInfo.first == nullptr) {
         [[maybe_unused]] static const bool Should_not_happen = false;
         assert(Should_not_happen);
-        return strings::unexpectedValueStr();
+        return strings::genUnexpectedValueStr();
     }
 
-    return memInfo.first->commsSizeAccessStr(memInfo.second, prefix + ".field_" + comms::accessName(memInfo.first->field().dslObj().name()) + "()");
+    return memInfo.first->commsSizeAccessStr(memInfo.second, prefix + ".field_" + comms::genAccessName(memInfo.first->commsGenField().genParseObj().parseName()) + "()");
 }
 
-void CommsBitfieldField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const
+void CommsBitfieldField::commsCompOptChecksImpl(const std::string& accStr, GenStringsList& checks, const std::string& prefix) const
 {
     if (accStr.empty()) {
         CommsBase::commsCompOptChecksImpl(accStr, checks, prefix);
         return;
     }
 
-    auto memInfo = parseMemRefInternal(accStr);
+    auto memInfo = commsParseMemRefInternal(accStr);
 
     if (memInfo.first == nullptr) {
         [[maybe_unused]] static const bool Should_not_happen = false;
@@ -270,7 +266,7 @@ void CommsBitfieldField::commsCompOptChecksImpl(const std::string& accStr, Strin
         return;
     }
 
-    return memInfo.first->commsCompOptChecks(memInfo.second, checks, prefix + ".field_" + comms::accessName(memInfo.first->field().dslObj().name()) + "()");
+    return memInfo.first->commsCompOptChecks(memInfo.second, checks, prefix + ".field_" + comms::genAccessName(memInfo.first->commsGenField().genParseObj().parseName()) + "()");
 }
 
 std::string CommsBitfieldField::commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const
@@ -279,15 +275,15 @@ std::string CommsBitfieldField::commsCompValueCastTypeImpl(const std::string& ac
         return CommsBase::commsCompValueCastTypeImpl(accStr, prefix);
     }
 
-    auto memInfo = parseMemRefInternal(accStr);
+    auto memInfo = commsParseMemRefInternal(accStr);
 
     if (memInfo.first == nullptr) {
         [[maybe_unused]] static const bool Should_not_happen = false;
         assert(Should_not_happen);
-        return strings::unexpectedValueStr();
+        return strings::genUnexpectedValueStr();
     }
 
-    auto accName = comms::accessName(memInfo.first->field().dslObj().name());
+    auto accName = comms::genAccessName(memInfo.first->commsGenField().genParseObj().parseName());
     return memInfo.first->commsCompValueCastType(memInfo.second, prefix + "Field_" + accName + "::");
 }
 
@@ -297,7 +293,7 @@ std::string CommsBitfieldField::commsCompPrepValueStrImpl(const std::string& acc
         return CommsBase::commsCompPrepValueStrImpl(accStr, value);
     }
 
-    auto memInfo = parseMemRefInternal(accStr);
+    auto memInfo = commsParseMemRefInternal(accStr);
 
     if (memInfo.first == nullptr) {
         [[maybe_unused]] static const bool Should_not_happen = false;
@@ -312,7 +308,7 @@ bool CommsBitfieldField::commsHasCustomLengthDeepImpl() const
 {
     return 
         std::any_of(
-            m_members.begin(), m_members.end(),
+            m_commsMembers.begin(), m_commsMembers.end(),
             [](auto* m)
             {
                 return m->commsHasCustomLength(true);
@@ -321,7 +317,7 @@ bool CommsBitfieldField::commsHasCustomLengthDeepImpl() const
 
 bool CommsBitfieldField::commsVerifyInnerRefImpl(const std::string& refStr) const
 {
-    auto info = parseMemRefInternal(refStr);
+    auto info = commsParseMemRefInternal(refStr);
     if (info.first == nullptr) {
         return false;
     }
@@ -331,14 +327,14 @@ bool CommsBitfieldField::commsVerifyInnerRefImpl(const std::string& refStr) cons
 
 bool CommsBitfieldField::commsPrepareInternal()
 {
-    m_members = commsTransformFieldsList(members());
+    m_commsMembers = commsTransformFieldsList(genMembers());
 
-    if ((bitfieldDslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) && 
+    if ((genBitfieldFieldParseObj().parseSemanticType() == ParseField::ParseSemanticType::Length) && 
         (!commsHasCustomValue())) {
-        generator().logger().warning(
-            "Field \"" + comms::scopeFor(*this, generator()) + "\" is used as \"length\" field (semanticType=\"length\"), but custom value "
+        genGenerator().genLogger().genWarning(
+            "Field \"" + comms::genScopeFor(*this, genGenerator()) + "\" is used as \"length\" field (semanticType=\"length\"), but custom value "
             "retrieval functionality is not provided. Please create relevant code injection functionality with \"" + 
-            strings::valueFileSuffixStr() + "\" file name suffix. Inside that file the following functions are "
+            strings::genValueFileSuffixStr() + "\" file name suffix. Inside that file the following functions are "
             "expected to be defined: getValue(), setValue(), and maxValue()."
         );
     }    
@@ -347,10 +343,10 @@ bool CommsBitfieldField::commsPrepareInternal()
 
 std::string CommsBitfieldField::commsDefFieldOptsInternal() const
 {
-    commsdsl::gen::util::StringsList opts;
+    commsdsl::gen::util::GenStringsList opts;
     commsAddFieldDefOptions(opts);
-    util::addToStrList("comms::option::def::HasVersionDependentMembers<" + util::boolToString(commsIsVersionDependentImpl()) + ">", opts);        
-    return util::strListToString(opts, ",\n", "");
+    util::genAddToStrList("comms::option::def::HasVersionDependentMembers<" + util::genBoolToString(commsIsVersionDependentImpl()) + ">", opts);        
+    return util::genStrListToString(opts, ",\n", "");
 }
 
 std::string CommsBitfieldField::commsAccessCodeInternal() const
@@ -367,45 +363,45 @@ std::string CommsBitfieldField::commsAccessCodeInternal() const
         "    #^#NAMES#$#\n"
         ");\n";
 
-    util::StringsList accessDocList;
-    util::StringsList namesList;
-    accessDocList.reserve(m_members.size());
-    namesList.reserve(m_members.size());
+    util::GenStringsList accessDocList;
+    util::GenStringsList namesList;
+    accessDocList.reserve(m_commsMembers.size());
+    namesList.reserve(m_commsMembers.size());
 
-    auto& gen = generator();
-    for (auto& mPtr : members()) {
-        namesList.push_back(comms::accessName(mPtr->dslObj().name()));
+    auto& gen = genGenerator();
+    for (auto& mPtr : genMembers()) {
+        namesList.push_back(comms::genAccessName(mPtr->genParseObj().parseName()));
         std::string accessStr =
             "///     @li @b FieldIdx_" + namesList.back() +
             " index, @b Field_" + namesList.back() +
             " type and @b field_" + namesList.back() +
             "() access function -\n"
-            "///         for " + comms::scopeFor(*mPtr, gen) + " member field.";
+            "///         for " + comms::genScopeFor(*mPtr, gen) + " member field.";
         accessDocList.push_back(std::move(accessStr));
     }
 
-    util::ReplacementMap repl = {
-        {"ACCESS_DOC", util::strListToString(accessDocList, "\n", "")},
-        {"NAMES", util::strListToString(namesList, ",\n", "")},
+    util::GenReplacementMap repl = {
+        {"ACCESS_DOC", util::genStrListToString(accessDocList, "\n", "")},
+        {"NAMES", util::genStrListToString(namesList, ",\n", "")},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
-std::pair<const CommsField*, std::string> CommsBitfieldField::parseMemRefInternal(const std::string& accStr) const
+std::pair<const CommsField*, std::string> CommsBitfieldField::commsParseMemRefInternal(const std::string& accStr) const
 {
     auto sepPos = accStr.find(".");
     auto memberName = accStr.substr(0, sepPos);
 
     auto iter = 
         std::find_if(
-            m_members.begin(), m_members.end(),
+            m_commsMembers.begin(), m_commsMembers.end(),
             [&memberName](auto* mem)
             {
-                return mem->field().dslObj().name() == memberName;
+                return mem->commsGenField().genParseObj().parseName() == memberName;
             });
 
-    if (iter == m_members.end()) {
+    if (iter == m_commsMembers.end()) {
         return std::make_pair(nullptr, accStr);
     }
 

@@ -18,29 +18,33 @@
 
 #include "SwigLayer.h"
 
-#include "commsdsl/gen/Frame.h"
+#include "commsdsl/gen/GenFrame.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigFrame final: public commsdsl::gen::Frame
+class SwigFrame final: public commsdsl::gen::GenFrame
 {
-    using Base = commsdsl::gen::Frame;
+    using GenBase = commsdsl::gen::GenFrame;
 
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using ParseFrame = commsdsl::parse::ParseFrame;
+
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+    
     using SwigLayersList = SwigLayer::SwigLayersList;
 
-    explicit SwigFrame(SwigGenerator& generator, commsdsl::parse::Frame dslObj, Elem* parent);
+    explicit SwigFrame(SwigGenerator& generator, ParseFrame parseObj, GenElem* parent);
     virtual ~SwigFrame();
 
-    void swigAddCodeIncludes(StringsList& list) const;
-    void swigAddCode(StringsList& list) const;
-    void swigAddDef(StringsList& list) const;
+    void swigAddCodeIncludes(GenStringsList& list) const;
+    void swigAddCode(GenStringsList& list) const;
+    void swigAddDef(GenStringsList& list) const;
 
-    static const SwigFrame* cast(const commsdsl::gen::Frame* i)
+    static const SwigFrame* swigCast(const commsdsl::gen::GenFrame* i)
     {
         return static_cast<const SwigFrame*>(i);
     }        
@@ -51,8 +55,8 @@ public:
     }
 
 protected:    
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;    
 
 private:
 

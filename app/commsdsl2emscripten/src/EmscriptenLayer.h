@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/Layer.h"
+#include "commsdsl/gen/GenLayer.h"
 #include "commsdsl/gen/util.h"
 
 #include <string>
@@ -27,27 +27,28 @@ namespace commsdsl2emscripten
 class EmscriptenLayer
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
-    
-    explicit EmscriptenLayer(commsdsl::gen::Layer& layer);
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+    using GenLayer = commsdsl::gen::GenLayer;
+
+    explicit EmscriptenLayer(GenLayer& layer);
     virtual ~EmscriptenLayer();
 
-    static const EmscriptenLayer* cast(const commsdsl::gen::Layer* layer);
+    static const EmscriptenLayer* emscriptenCast(const GenLayer* layer);
 
-    commsdsl::gen::Layer& layer()
+    commsdsl::gen::GenLayer& emscriptenGenLayer()
     {
-        return m_layer;
+        return m_genLayer;
     }
 
-    const commsdsl::gen::Layer& layer() const
+    const commsdsl::gen::GenLayer& emscriptenGenLayer() const
     {
-        return m_layer;
+        return m_genLayer;
     }
 
     bool emscriptenIsMainInterfaceSupported() const;
     std::string emscriptenFieldAccName() const;
     std::string emscriptenFieldAccFuncName() const;
-    void emscriptenAddHeaderInclude(StringsList& includes) const;
+    void emscriptenAddHeaderInclude(GenStringsList& includes) const;
     std::string emscriptenHeaderClass() const;
     std::string emscriptenSourceCode() const;
 
@@ -69,7 +70,7 @@ private:
     std::string emscriptenSourceCodeInternal() const;
     
 private:
-    commsdsl::gen::Layer& m_layer;
+    commsdsl::gen::GenLayer& m_genLayer;
 };
 
 } // namespace commsdsl2emscripten

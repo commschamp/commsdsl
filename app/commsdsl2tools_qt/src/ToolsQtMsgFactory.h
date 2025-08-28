@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/Interface.h"
+#include "commsdsl/gen/GenInterface.h"
 #include "commsdsl/gen/util.h"
 
 #include <string>
@@ -29,23 +29,23 @@ class ToolsQtNamespace;
 class ToolsQtMsgFactory
 {
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     ToolsQtMsgFactory(const ToolsQtGenerator& generator, const ToolsQtNamespace& parent);
     bool toolsWrite() const;
-    std::string toolsRelHeaderPath(const commsdsl::gen::Interface& iFace) const;
-    StringsList toolsSourceFiles(const commsdsl::gen::Interface& iFace) const; 
-    std::string toolsClassScope(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsRelHeaderPath(const commsdsl::gen::GenInterface& iFace) const;
+    GenStringsList toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const; 
+    std::string toolsClassScope(const commsdsl::gen::GenInterface& iFace) const;
 
 private:
-    std::string toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsRelPathInternal(const commsdsl::gen::GenInterface& iFace) const;
     bool toolsWriteHeaderInternal() const;
     bool toolsWriteSourceInternal() const;
     std::string toolsHeaderCodeInternal() const;
-    std::string toolsSourceCodeInternal(const commsdsl::gen::Interface& iFace) const;
-    std::string toolsSourceIncludesInternal(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsSourceCodeInternal(const commsdsl::gen::GenInterface& iFace) const;
+    std::string toolsSourceIncludesInternal(const commsdsl::gen::GenInterface& iFace) const;
 
-    const ToolsQtGenerator& m_generator;
+    const ToolsQtGenerator& m_toolsGenerator;
     const ToolsQtNamespace& m_parent;
 };
 

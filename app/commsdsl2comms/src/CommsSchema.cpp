@@ -24,8 +24,8 @@
 namespace commsdsl2comms
 {
 
-CommsSchema::CommsSchema(CommsGenerator& generator, commsdsl::parse::Schema dslObj, Elem* parent) :
-    Base(generator, dslObj, parent)
+CommsSchema::CommsSchema(CommsGenerator& generator, ParseSchema parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent)
 {
 }
 
@@ -33,49 +33,49 @@ CommsSchema::~CommsSchema() = default;
 
 bool CommsSchema::commsHasAnyMessage() const
 {
-    return !getAllMessages().empty();
+    return !genGetAllMessages().empty();
 }
 
 bool CommsSchema::commsHasReferencedMsgId() const
 {
-    auto allNs = getAllNamespaces();
+    auto allNs = genGetAllNamespaces();
     return 
         std::any_of(
             allNs.begin(), allNs.end(),
             [](auto* ns)
             {
-                return CommsNamespace::cast(ns)->commsHasReferencedMsgId();
+                return CommsNamespace::commsCast(ns)->commsHasReferencedMsgId();
             });
 }
 
 bool CommsSchema::commsHasAnyField() const
 {
-    auto allNs = getAllNamespaces();
+    auto allNs = genGetAllNamespaces();
     return 
         std::any_of(
             allNs.begin(), allNs.end(),
             [](auto* ns)
             {
-                return CommsNamespace::cast(ns)->commsHasAnyField();
+                return CommsNamespace::commsCast(ns)->commsHasAnyField();
             });
 }
 
 bool CommsSchema::commsHasAnyGeneratedCode() const
 {
-    auto allNs = getAllNamespaces();
+    auto allNs = genGetAllNamespaces();
     return 
         std::any_of(
             allNs.begin(), allNs.end(),
             [](auto* ns)
             {
-                return CommsNamespace::cast(ns)->commsHasAnyGeneratedCode();
+                return CommsNamespace::commsCast(ns)->commsHasAnyGeneratedCode();
             });
 }
 
-const CommsField* CommsSchema::findValidInterfaceReferencedField(const std::string& refStr) const
+const CommsField* CommsSchema::commsFindValidInterfaceReferencedField(const std::string& refStr) const
 {
-    for (auto& nsPtr : namespaces()) {
-        auto* field = CommsNamespace::cast(nsPtr.get())->findValidInterfaceReferencedField(refStr);
+    for (auto& nsPtr : genNamespaces()) {
+        auto* field = CommsNamespace::commsCast(nsPtr.get())->commsFindValidInterfaceReferencedField(refStr);
         if (field != nullptr) {
             return field;
         }

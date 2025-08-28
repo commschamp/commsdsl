@@ -30,13 +30,13 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenIntField::EmscriptenIntField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
-    Base(generator, dslObj, parent),
-    EmscriptenBase(static_cast<Base&>(*this))
+EmscriptenIntField::EmscriptenIntField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    EmscriptenBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool EmscriptenIntField::writeImpl() const
+bool EmscriptenIntField::genWriteImpl() const
 {
     return emscriptenWrite();
 }
@@ -57,13 +57,13 @@ std::string EmscriptenIntField::emscriptenHeaderExtraPublicFuncsImpl() const
         "#^#DISPLAY_DECIMALS#$#\n"
         "#^#SCALED#$#\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SPECIALS", emscriptenHeaderSpecialsInternal()},
         {"DISPLAY_DECIMALS", emscriptenHeaderDisplayDecimalsInternal()},
         {"SCALED", emscriptenHeaderScaledInternal()},
     };     
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenIntField::emscriptenSourceBindFuncsImpl() const
@@ -73,26 +73,26 @@ std::string EmscriptenIntField::emscriptenSourceBindFuncsImpl() const
         "#^#DISPLAY_DECIMALS#$#\n"
         "#^#SCALED#$#\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"SPECIALS", emscriptenSourceSpecialsBindInternal()},
         {"DISPLAY_DECIMALS", emscriptenSourceDisplayDecimalsBindInternal()},
         {"SCALED", emscriptenSourceScaledBindInternal()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenIntField::emscriptenHeaderSpecialsInternal() const
 {
-    auto& specials = specialsSortedByValue();
+    auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    util::StringsList specialsList;
-    auto& gen = EmscriptenGenerator::cast(generator());
+    util::GenStringsList specialsList;
+    auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
     for (auto& s : specials) {
-        if (!gen.doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
+        if (!gen.genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
         }
 
@@ -111,20 +111,20 @@ std::string EmscriptenIntField::emscriptenHeaderSpecialsInternal() const
             "}\n"
         ;
 
-        util::ReplacementMap repl = {
-            {"SPEC_ACC", comms::className(s.first)},
+        util::GenReplacementMap repl = {
+            {"SPEC_ACC", comms::genClassName(s.first)},
         };
 
-        specialsList.push_back(util::processTemplate(Templ, repl));
+        specialsList.push_back(util::genProcessTemplate(Templ, repl));
     }    
 
-    return util::strListToString(specialsList, "\n", "");
+    return util::genStrListToString(specialsList, "\n", "");
 }
 
 std::string EmscriptenIntField::emscriptenHeaderDisplayDecimalsInternal() const
 {
-    auto obj = intDslObj();
-    auto scaling = obj.scaling();
+    auto obj = genIntFieldParseObj();
+    auto scaling = obj.parseScaling();
     std::string result;
     if (scaling.first != scaling.second) {
         result = 
@@ -139,13 +139,13 @@ std::string EmscriptenIntField::emscriptenHeaderDisplayDecimalsInternal() const
 
 std::string EmscriptenIntField::emscriptenHeaderScaledInternal() const
 {
-    auto obj = intDslObj();
-    auto scaling = obj.scaling();
+    auto obj = genIntFieldParseObj();
+    auto scaling = obj.parseScaling();
     auto num = scaling.first;
     auto denom = scaling.second;
 
     if ((num == 1) && (denom == 1)) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -164,19 +164,19 @@ std::string EmscriptenIntField::emscriptenHeaderScaledInternal() const
 
 std::string EmscriptenIntField::emscriptenSourceSpecialsBindInternal() const
 {
-    auto& specials = specialsSortedByValue();
+    auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
-    util::StringsList specialsList;
-    auto& gen = EmscriptenGenerator::cast(generator());
-    util::ReplacementMap repl = {
+    util::GenStringsList specialsList;
+    auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}
     };
 
     for (auto& s : specials) {
-        if (!gen.doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
+        if (!gen.genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
         }
 
@@ -186,33 +186,33 @@ std::string EmscriptenIntField::emscriptenSourceSpecialsBindInternal() const
             ".function(\"set#^#SPEC_ACC#$#\", &#^#CLASS_NAME#$#::set#^#SPEC_ACC#$#)"
         ;
 
-        repl["SPEC_ACC"] = comms::className(s.first);
-        specialsList.push_back(util::processTemplate(Templ, repl));
+        repl["SPEC_ACC"] = comms::genClassName(s.first);
+        specialsList.push_back(util::genProcessTemplate(Templ, repl));
     }    
 
     static const std::string Templ = 
         "#^#SPECIALS#$#\n"
         ".class_function(\"hasSpecials\", &#^#CLASS_NAME#$#::hasSpecials)";
 
-    repl["SPECIALS"] = util::strListToString(specialsList, "\n", "");
+    repl["SPECIALS"] = util::genStrListToString(specialsList, "\n", "");
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenIntField::emscriptenSourceDisplayDecimalsBindInternal() const
 {
-    auto obj = intDslObj();
-    auto scaling = obj.scaling();
+    auto obj = genIntFieldParseObj();
+    auto scaling = obj.parseScaling();
     std::string result;
     if (scaling.first != scaling.second) {
         static const std::string Templ = 
             ".class_function(\"displayDecimals\", &#^#CLASS_NAME#$#::displayDecimals)";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"CLASS_NAME", emscriptenBindClassName()}
         };
 
-        result = util::processTemplate(Templ, repl);
+        result = util::genProcessTemplate(Templ, repl);
     }
 
     return result;
@@ -220,24 +220,24 @@ std::string EmscriptenIntField::emscriptenSourceDisplayDecimalsBindInternal() co
 
 std::string EmscriptenIntField::emscriptenSourceScaledBindInternal() const
 {
-    auto obj = intDslObj();
-    auto scaling = obj.scaling();
+    auto obj = genIntFieldParseObj();
+    auto scaling = obj.parseScaling();
     auto num = scaling.first;
     auto denom = scaling.second;
 
     if ((num == 1) && (denom == 1)) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
         ".function(\"getScaled\", &#^#CLASS_NAME#$#::getScaled)\n"
         ".function(\"setScaled\", &#^#CLASS_NAME#$#::setScaled)";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}
     };
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 } // namespace commsdsl2emscripten

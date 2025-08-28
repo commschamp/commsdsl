@@ -38,7 +38,7 @@ namespace commsdsl2swig
 namespace 
 {
 
-const std::string ClassName("MsgHandler");
+const std::string SwigClassName("MsgHandler");
 
 } // namespace
 
@@ -48,30 +48,30 @@ bool SwigMsgHandler::swigWrite(SwigGenerator& generator)
     return obj.swigWriteInternal();
 }
 
-void SwigMsgHandler::swigAddFwdCode(const SwigGenerator& generator, StringsList& list)
+void SwigMsgHandler::swigAddFwdCode(const SwigGenerator& generator, GenStringsList& list)
 {
     const std::string Templ =  
         "class #^#CLASS_NAME#$#;\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", swigClassName(generator)}
     };
 
-    list.push_back(util::processTemplate(Templ, repl));
+    list.push_back(util::genProcessTemplate(Templ, repl));
 }
 
-void SwigMsgHandler::swigAddClassCode(const SwigGenerator& generator, StringsList& list)
+void SwigMsgHandler::swigAddClassCode(const SwigGenerator& generator, GenStringsList& list)
 {
     auto* iFace = generator.swigMainInterface();
     assert(iFace != nullptr);
     auto interfaceClassName = generator.swigClassName(*iFace);
 
-    auto allMessages = generator.getAllMessagesIdSorted();
-    util::StringsList handleFuncs;
+    auto allMessages = generator.genGetAllMessagesIdSorted();
+    util::GenStringsList handleFuncs;
     handleFuncs.reserve(allMessages.size());
 
     for (auto* m : allMessages) {
-        if (!m->isReferenced()) {
+        if (!m->genIsReferenced()) {
             continue;
         }
 
@@ -86,9 +86,9 @@ void SwigMsgHandler::swigAddClassCode(const SwigGenerator& generator, StringsLis
             "    handle_#^#INTERFACE#$#(static_cast<#^#INTERFACE#$#&>(msg));\n"
             "}\n";
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"MESSAGE", generator.swigClassName(*m)},
-            {"COMMS_MESSAGE", comms::scopeFor(*m, generator)},
+            {"COMMS_MESSAGE", comms::genScopeFor(*m, generator)},
             {"INTERFACE", interfaceClassName},
         };
 
@@ -96,7 +96,7 @@ void SwigMsgHandler::swigAddClassCode(const SwigGenerator& generator, StringsLis
             repl["PROT_OPTS"] = ", " + SwigProtocolOptions::swigClassName(generator);
         }
 
-        handleFuncs.push_back(util::processTemplate(Templ, repl));
+        handleFuncs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ = 
@@ -115,48 +115,48 @@ void SwigMsgHandler::swigAddClassCode(const SwigGenerator& generator, StringsLis
         "    }\n"
         "};\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME",swigClassName(generator)},
         {"INTERFACE", interfaceClassName},
-        {"HANDLE_FUNCS", util::strListToString(handleFuncs, "\n", "")},
+        {"HANDLE_FUNCS", util::genStrListToString(handleFuncs, "\n", "")},
     };
 
-    list.push_back(util::processTemplate(Templ, repl));
+    list.push_back(util::genProcessTemplate(Templ, repl));
 }
 
-void SwigMsgHandler::swigAddDef(const SwigGenerator& generator, StringsList& list)
+void SwigMsgHandler::swigAddDef(const SwigGenerator& generator, GenStringsList& list)
 {
     static const std::string Templ = 
         "%feature(\"director\") #^#CLASS_NAME#$#;";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", swigClassName(generator)},
     };    
 
-    list.push_back(util::processTemplate(Templ, repl));
+    list.push_back(util::genProcessTemplate(Templ, repl));
 
-    list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderForRoot(ClassName, generator)));    
+    list.push_back(SwigGenerator::swigDefInclude(comms::genRelHeaderForRoot(SwigClassName, generator)));    
 }
 
 std::string SwigMsgHandler::swigClassName(const SwigGenerator& generator)
 {
-    return generator.swigScopeNameForRoot(ClassName);
+    return generator.swigScopeNameForRoot(SwigClassName);
 }
 
 bool SwigMsgHandler::swigWriteInternal() const
 {
-    auto filePath = comms::headerPathRoot(ClassName, m_generator);
-    m_generator.logger().info("Generating " + filePath);
+    auto filePath = comms::genHeaderPathRoot(SwigClassName, m_swigGenerator);
+    m_swigGenerator.genLogger().genInfo("Generating " + filePath);
 
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_swigGenerator.genCreateDirectory(dirPath)) {
         return false;
     }
 
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_swigGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -166,15 +166,15 @@ bool SwigMsgHandler::swigWriteInternal() const
         "#^#CLASS#$#\n"
     ;
 
-    util::ReplacementMap repl = {
-        {"GENERATED", SwigGenerator::fileGeneratedComment()},
+    util::GenReplacementMap repl = {
+        {"GENERATED", SwigGenerator::swigFileGeneratedComment()},
         {"CLASS", swigClassDeclInternal()},
     };
 
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_swigGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     
@@ -183,26 +183,26 @@ bool SwigMsgHandler::swigWriteInternal() const
 
 std::string SwigMsgHandler::swigClassDeclInternal() const
 {
-    auto* iFace = m_generator.swigMainInterface();
+    auto* iFace = m_swigGenerator.swigMainInterface();
     assert(iFace != nullptr);
 
-    auto allMessages = m_generator.getAllMessagesIdSorted();
-    util::StringsList handleFuncs;
+    auto allMessages = m_swigGenerator.genGetAllMessagesIdSorted();
+    util::GenStringsList handleFuncs;
     handleFuncs.reserve(allMessages.size());
 
     for (auto* m : allMessages) {
-        if (!m->isReferenced()) {
+        if (!m->genIsReferenced()) {
             continue;
         }
                 
         static const std::string Templ = 
             "virtual void handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg);\n";
 
-        util::ReplacementMap repl = {
-            {"MESSAGE", m_generator.swigClassName(*m)}
+        util::GenReplacementMap repl = {
+            {"MESSAGE", m_swigGenerator.swigClassName(*m)}
         };
 
-        handleFuncs.push_back(util::processTemplate(Templ, repl));
+        handleFuncs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ = 
@@ -214,14 +214,14 @@ std::string SwigMsgHandler::swigClassDeclInternal() const
         "     virtual void handle_#^#INTERFACE#$#(#^#INTERFACE#$#& msg);\n"
         "};\n";
 
-    util::ReplacementMap repl = {
-        {"CLASS_NAME", swigClassName(m_generator)},
-        {"INTERFACE", m_generator.swigClassName(*iFace)},
-        {"HANDLE_FUNCS", util::strListToString(handleFuncs, "", "")},
-        {"SIZE_T", m_generator.swigConvertCppType("std::size_t")},
+    util::GenReplacementMap repl = {
+        {"CLASS_NAME", swigClassName(m_swigGenerator)},
+        {"INTERFACE", m_swigGenerator.swigClassName(*iFace)},
+        {"HANDLE_FUNCS", util::genStrListToString(handleFuncs, "", "")},
+        {"SIZE_T", m_swigGenerator.swigConvertCppType("std::size_t")},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2swig

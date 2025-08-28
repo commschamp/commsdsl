@@ -18,34 +18,36 @@
 
 #include "EmscriptenField.h"
 
-#include "commsdsl/gen/Interface.h"
+#include "commsdsl/gen/GenInterface.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenInterface final: public commsdsl::gen::Interface
+class EmscriptenInterface final: public commsdsl::gen::GenInterface
 {
-    using Base = commsdsl::gen::Interface;
+    using GenBase = commsdsl::gen::GenInterface;
 
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
-    
-    explicit EmscriptenInterface(EmscriptenGenerator& generator, commsdsl::parse::Interface dslObj, Elem* parent);
+    using ParseInterface = commsdsl::parse::ParseInterface;
+    using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+
+    explicit EmscriptenInterface(EmscriptenGenerator& generator, ParseInterface parseObj, GenElem* parent);
     virtual ~EmscriptenInterface();
 
-    static const EmscriptenInterface* cast(const commsdsl::gen::Interface* i)
+    static const EmscriptenInterface* emscriptenCast(const commsdsl::gen::GenInterface* i)
     {
         return static_cast<const EmscriptenInterface*>(i);
     }
 
     std::string emscriptenRelHeader() const;
-    void emscriptenAddSourceFiles(StringsList& sources) const;
+    void emscriptenAddSourceFiles(GenStringsList& sources) const;
 
 protected:
-    virtual bool prepareImpl() override;    
-    virtual bool writeImpl() const override;
+    virtual bool genPrepareImpl() override;    
+    virtual bool genWriteImpl() const override;
 
 private:
     using EmscriptenFieldsList = EmscriptenField::EmscriptenFieldsList;

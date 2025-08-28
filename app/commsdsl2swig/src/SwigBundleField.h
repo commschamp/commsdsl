@@ -17,18 +17,22 @@
 
 #include "SwigField.h"
 
-#include "commsdsl/gen/BundleField.h"
+#include "commsdsl/gen/GenBundleField.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigBundleField final : public commsdsl::gen::BundleField, public SwigField
+class SwigBundleField final : public commsdsl::gen::GenBundleField, public SwigField
 {
-    using Base = commsdsl::gen::BundleField;
+    using GenBase = commsdsl::gen::GenBundleField;
     using SwigBase = SwigField;
+
 public:
-    SwigBundleField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+
+    SwigBundleField(SwigGenerator& generator, ParseField parseObj, GenElem* parent);
 
     const SwigFieldsList& swigMembers() const
     {
@@ -36,17 +40,17 @@ public:
     }
 
 protected:
-    // Base overrides
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
+    // GenBase overrides
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;    
 
     // SwigBase overrides
     virtual std::string swigMembersDeclImpl() const override;
     virtual std::string swigValueAccDeclImpl() const override;
     virtual std::string swigExtraPublicFuncsDeclImpl() const override;
     virtual std::string swigExtraPublicFuncsCodeImpl() const override;
-    virtual void swigAddDefImpl(StringsList& list) const override;
-    virtual void swigAddMembersCodeImpl(StringsList& list) const override;
+    virtual void swigAddDefImpl(GenStringsList& list) const override;
+    virtual void swigAddMembersCodeImpl(GenStringsList& list) const override;
 
 private:
     bool swigPrepareInternal();

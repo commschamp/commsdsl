@@ -27,16 +27,16 @@
 #include <fstream>
 #include <limits>
 
-namespace util = commsdsl::gen::util;
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2emscripten
 {
 
 bool EmscriptenVersion::emscriptenWrite(EmscriptenGenerator& generator)
 {
-    if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+    if ((!generator.genIsCurrentProtocolSchema()) && (!generator.genCurrentSchema().genHasAnyReferencedComponent())) {
         return true;
     }
 
@@ -44,33 +44,33 @@ bool EmscriptenVersion::emscriptenWrite(EmscriptenGenerator& generator)
     return obj.emscriptenWriteSrcInternal();
 }
 
-void EmscriptenVersion::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources)
+void EmscriptenVersion::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, GenStringsList& sources)
 {
 
-    for (auto idx = 0U; idx < generator.schemas().size(); ++idx) {
-        auto& schema = generator.schemas()[idx];
-        if ((schema.get() != &generator.protocolSchema()) && (!schema->hasAnyReferencedComponent())) {
+    for (auto idx = 0U; idx < generator.genSchemas().size(); ++idx) {
+        auto& schema = generator.genSchemas()[idx];
+        if ((schema.get() != &generator.genProtocolSchema()) && (!schema->genHasAnyReferencedComponent())) {
             continue;
         }
         
-        sources.push_back(generator.emscriptenSchemaRelSourceForRoot(idx, strings::versionFileNameStr()));
+        sources.push_back(generator.emscriptenSchemaRelSourceForRoot(idx, strings::genVersionFileNameStr()));
     }
 }
 
 bool EmscriptenVersion::emscriptenWriteSrcInternal() const
 {
-    auto filePath = m_generator.emscriptenAbsSourceForRoot(strings::versionFileNameStr());
-    m_generator.logger().info("Generating " + filePath);
+    auto filePath = m_emscriptenGenerator.emscriptenAbsSourceForRoot(strings::genVersionFileNameStr());
+    m_emscriptenGenerator.genLogger().genInfo("Generating " + filePath);
 
-    auto dirPath = util::pathUp(filePath);
+    auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!m_generator.createDirectory(dirPath)) {
+    if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
         return false;
     }
 
     std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        m_emscriptenGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -84,18 +84,18 @@ bool EmscriptenVersion::emscriptenWriteSrcInternal() const
         "}\n"
     ;
 
-    util::ReplacementMap repl = {
-        {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
-        {"HEADER", comms::relHeaderForRoot(strings::versionFileNameStr(), m_generator)},
-        {"NAME", m_generator.emscriptenScopeNameForRoot(strings::versionFileNameStr())},
+    util::GenReplacementMap repl = {
+        {"GENERATED", EmscriptenGenerator::emscriptenFileGeneratedComment()},
+        {"HEADER", comms::genRelHeaderForRoot(strings::genVersionFileNameStr(), m_emscriptenGenerator)},
+        {"NAME", m_emscriptenGenerator.emscriptenScopeNameForRoot(strings::genVersionFileNameStr())},
         {"SPEC", emscriptenSpecConstantsInternal()},
         {"PROT", emscriptenProtConstantsInternal()},
     };
 
-    stream << util::processTemplate(Templ, repl, true);
+    stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        m_emscriptenGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
     
@@ -107,17 +107,17 @@ std::string EmscriptenVersion::emscriptenSpecConstantsInternal() const
     const std::string Templ = 
         "emscripten::constant(\"#^#NS#$#_SPEC_VERSION\", #^#NS#$#_SPEC_VERSION);";
 
-    util::ReplacementMap repl = {
-        {"NS", util::strToUpper(m_generator.currentSchema().mainNamespace())}
+    util::GenReplacementMap repl = {
+        {"NS", util::genStrToUpper(m_emscriptenGenerator.genCurrentSchema().genMainNamespace())}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenVersion::emscriptenProtConstantsInternal() const
 {
-    if (!m_generator.emscriptenHasProtocolVersion()) {
-        return strings::emptyString();
+    if (!m_emscriptenGenerator.emscriptenHasProtocolVersion()) {
+        return strings::genEmptyString();
     }
 
     const std::string Templ = 
@@ -126,11 +126,11 @@ std::string EmscriptenVersion::emscriptenProtConstantsInternal() const
         "emscripten::constant(\"#^#NS#$#_PATCH_VERSION\", #^#NS#$#_PATCH_VERSION);"
         ;
 
-    util::ReplacementMap repl = {
-        {"NS", util::strToUpper(m_generator.currentSchema().mainNamespace())}
+    util::GenReplacementMap repl = {
+        {"NS", util::genStrToUpper(m_emscriptenGenerator.genCurrentSchema().genMainNamespace())}
     };
 
-    return util::processTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);    
 }
 
 } // namespace commsdsl2emscripten

@@ -15,26 +15,30 @@
 
 #pragma once
 
-#include "commsdsl/gen/PayloadLayer.h"
-
 #include "CommsLayer.h"
+
+#include "commsdsl/gen/GenPayloadLayer.h"
 
 namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsPayloadLayer final : public commsdsl::gen::PayloadLayer, public CommsLayer
+class CommsPayloadLayer final : public commsdsl::gen::GenPayloadLayer, public CommsLayer
 {
-    using Base = commsdsl::gen::PayloadLayer;
+    using GenBase = commsdsl::gen::GenPayloadLayer;
     using CommsBase = CommsLayer;
+
 public:
-    CommsPayloadLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    using ParseLayer = commsdsl::parse::ParseLayer;
+    using GenElem = commsdsl::gen::GenElem;
+
+    CommsPayloadLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual bool prepareImpl() override;
+    virtual bool genPrepareImpl() override;
 
     // CommsBase overrides
-    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
     virtual std::string commsCustomDefMembersCodeImpl() const override;
     virtual std::string commsCustomFieldOptsImpl() const override;

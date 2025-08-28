@@ -36,6 +36,7 @@
 #include "CommsNamespace.h"
 #include "CommsOptionalField.h"
 #include "CommsPayloadLayer.h"
+#include "CommsProgramOptions.h"
 #include "CommsRefField.h"
 #include "CommsSchema.h"
 #include "CommsSetField.h"
@@ -65,7 +66,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-const std::string MinCommsVersion("5.4.3");    
+const std::string CommsMinCommsVersion("5.4.4");    
 
 const std::string& CommsGenerator::commsFileGeneratedComment()
 {
@@ -76,7 +77,7 @@ const std::string& CommsGenerator::commsFileGeneratedComment()
     return Str;
 }
 
-CommsGenerator::CustomizationLevel CommsGenerator::commsGetCustomizationLevel() const
+CommsGenerator::CommsCustomizationLevel CommsGenerator::commsGetCustomizationLevel() const
 {
     return m_customizationLevel;
 }
@@ -93,15 +94,15 @@ void CommsGenerator::commsSetCustomizationLevel(const std::string& value)
         /* None */ "none",        
     };
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<unsigned>(CustomizationLevel::NumOfValues));
+    static_assert(MapSize == static_cast<unsigned>(CommsCustomizationLevel::NumOfValues));
 
     auto iter = std::find(std::begin(Map), std::end(Map), value);
     if (iter == std::end(Map)) {
-        logger().warning("Unknown customization level \"" + value + "\", using default.");
+        genLogger().genWarning("Unknown customization level \"" + value + "\", using default.");
         return;
     }
 
-    m_customizationLevel = static_cast<CustomizationLevel>(std::distance(std::begin(Map), iter));
+    m_customizationLevel = static_cast<CommsCustomizationLevel>(std::distance(std::begin(Map), iter));
 }
 
 const std::string& CommsGenerator::commsGetProtocolVersion() const
@@ -126,7 +127,7 @@ void CommsGenerator::commsSetMainNamespaceInOptionsForced(bool value)
 
 bool CommsGenerator::commsHasMainNamespaceInOptions() const
 {
-    return m_mainNamespaceInOptionsForced || (schemas().size() > 1U);
+    return m_mainNamespaceInOptionsForced || (genSchemas().size() > 1U);
 }
 
 const std::vector<std::string>& CommsGenerator::commsGetExtraInputBundles() const
@@ -139,19 +140,19 @@ void CommsGenerator::commsSetExtraInputBundles(const std::vector<std::string>& i
     m_extraInputBundles = inputBundles;
 }
 
-const CommsGenerator::ExtraMessageBundlesList& CommsGenerator::commsExtraMessageBundles() const
+const CommsGenerator::CommsExtraMessageBundlesList& CommsGenerator::commsExtraMessageBundles() const
 {
     return m_commsExtraMessageBundles;
 }
 
 const std::string& CommsGenerator::commsMinCommsVersion()
 {
-    return MinCommsVersion;
+    return CommsMinCommsVersion;
 }
 
-bool CommsGenerator::prepareImpl()
+bool CommsGenerator::genPrepareImpl()
 {
-    if (!Base::prepareImpl()) {
+    if (!Base::genPrepareImpl()) {
         return false;
     }
 
@@ -159,145 +160,157 @@ bool CommsGenerator::prepareImpl()
         commsPrepareExtraMessageBundlesInternal();
 }
 
-CommsGenerator::SchemaPtr CommsGenerator::createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent)
+CommsGenerator::GenSchemaPtr CommsGenerator::genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsSchema>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsSchema>(*this, parseObj, parent);
 }
 
-CommsGenerator::NamespacePtr CommsGenerator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
+CommsGenerator::GenNamespacePtr CommsGenerator::genCreateNamespaceImpl(commsdsl::parse::ParseNamespace parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsNamespace>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsNamespace>(*this, parseObj, parent);
 }
 
-CommsGenerator::InterfacePtr CommsGenerator::createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent)
+CommsGenerator::GenInterfacePtr CommsGenerator::genCreateInterfaceImpl(commsdsl::parse::ParseInterface parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsInterface>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsInterface>(*this, parseObj, parent);
 }
 
-CommsGenerator::MessagePtr CommsGenerator::createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent)
+CommsGenerator::GenMessagePtr CommsGenerator::genCreateMessageImpl(commsdsl::parse::ParseMessage parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsMessage>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsMessage>(*this, parseObj, parent);
 }
 
-CommsGenerator::FramePtr CommsGenerator::createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent)
+CommsGenerator::GenFramePtr CommsGenerator::genCreateFrameImpl(commsdsl::parse::ParseFrame parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsFrame>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsFrame>(*this, parseObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::GenFieldPtr CommsGenerator::genCreateIntFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsIntField>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsIntField>(*this, parseObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::GenFieldPtr CommsGenerator::genCreateEnumFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsEnumField>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsEnumField>(*this, parseObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createSetFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::GenFieldPtr CommsGenerator::genCreateSetFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsSetField>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsSetField>(*this, parseObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createFloatFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::GenFieldPtr CommsGenerator::genCreateFloatFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsFloatField>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsFloatField>(*this, parseObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createBitfieldFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::GenFieldPtr CommsGenerator::genCreateBitfieldFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsBitfieldField>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsBitfieldField>(*this, parseObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createBundleFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::GenFieldPtr CommsGenerator::genCreateBundleFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsBundleField>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsBundleField>(*this, parseObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createStringFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::GenFieldPtr CommsGenerator::genCreateStringFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsStringField>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsStringField>(*this, parseObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createDataFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::GenFieldPtr CommsGenerator::genCreateDataFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsDataField>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsDataField>(*this, parseObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createListFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::GenFieldPtr CommsGenerator::genCreateListFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsListField>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsListField>(*this, parseObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createRefFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::GenFieldPtr CommsGenerator::genCreateRefFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsRefField>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsRefField>(*this, parseObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createOptionalFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::GenFieldPtr CommsGenerator::genCreateOptionalFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsOptionalField>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsOptionalField>(*this, parseObj, parent);
 }
 
-CommsGenerator::FieldPtr CommsGenerator::createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+CommsGenerator::GenFieldPtr CommsGenerator::genCreateVariantFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsVariantField>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsVariantField>(*this, parseObj, parent);
 }
 
-CommsGenerator::LayerPtr CommsGenerator::createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+CommsGenerator::GenLayerPtr CommsGenerator::genCreateCustomLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsCustomLayer>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsCustomLayer>(*this, parseObj, parent);
 }
 
-CommsGenerator::LayerPtr CommsGenerator::createSyncLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+CommsGenerator::GenLayerPtr CommsGenerator::genCreateSyncLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsSyncLayer>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsSyncLayer>(*this, parseObj, parent);
 }
 
-CommsGenerator::LayerPtr CommsGenerator::createSizeLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+CommsGenerator::GenLayerPtr CommsGenerator::genCreateSizeLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsSizeLayer>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsSizeLayer>(*this, parseObj, parent);
 }
 
-CommsGenerator::LayerPtr CommsGenerator::createIdLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+CommsGenerator::GenLayerPtr CommsGenerator::genCreateIdLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsIdLayer>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsIdLayer>(*this, parseObj, parent);
 }
 
-CommsGenerator::LayerPtr CommsGenerator::createValueLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+CommsGenerator::GenLayerPtr CommsGenerator::genCreateValueLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsValueLayer>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsValueLayer>(*this, parseObj, parent);
 }
 
-CommsGenerator::LayerPtr CommsGenerator::createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+CommsGenerator::GenLayerPtr CommsGenerator::genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsPayloadLayer>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsPayloadLayer>(*this, parseObj, parent);
 }
 
-CommsGenerator::LayerPtr CommsGenerator::createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+CommsGenerator::GenLayerPtr CommsGenerator::genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent)
 {
-    return std::make_unique<commsdsl2comms::CommsChecksumLayer>(*this, dslObj, parent);
+    return std::make_unique<commsdsl2comms::CommsChecksumLayer>(*this, parseObj, parent);
 }
 
-bool CommsGenerator::writeImpl() 
+bool CommsGenerator::genWriteImpl() 
 {
-    for (auto idx = 0U; idx < schemas().size(); ++idx) {
-        chooseCurrentSchema(idx);
+    for (auto idx = 0U; idx < genSchemas().size(); ++idx) {
+        genChooseCurrentSchema(idx);
         bool result = 
-            CommsFieldBase::write(*this) &&
-            CommsVersion::write(*this) &&
-            CommsDefaultOptions::write(*this);
+            CommsFieldBase::commsWrite(*this) &&
+            CommsVersion::commsWrite(*this) &&
+            CommsDefaultOptions::commsWrite(*this);
 
         if (!result) {
             return false;
         }
     }
 
-    assert(&currentSchema() == &protocolSchema());
+    assert(&genCurrentSchema() == &genProtocolSchema());
     return 
-        CommsCmake::write(*this) &&
-        CommsDoxygen::write(*this) &&
+        CommsCmake::commsWrite(*this) &&
+        CommsDoxygen::commsWrite(*this) &&
         commsWriteExtraFilesInternal();
+}
+
+CommsGenerator::OptsProcessResult CommsGenerator::genProcessOptionsImpl(const GenProgramOptions& options)
+{
+    auto& opts = CommsProgramOptions::commsCast(options);
+    genSetVersionIndependentCodeForced(opts.commsVersionIndependentCodeRequested());
+    commsSetCustomizationLevel(opts.commsGetCustomizationLevel());
+    commsSetProtocolVersion(opts.commsGetProtocolVersion());
+    commsSetExtraInputBundles(opts.commsGetExtraInputBundles());
+    commsSetMainNamespaceInOptionsForced(opts.commsIsMainNamespaceInOptionsForced());
+
+    return OptsProcessResult_Continue;
 }
 
 bool CommsGenerator::commsPrepareExtraMessageBundlesInternal()
@@ -315,36 +328,36 @@ bool CommsGenerator::commsPrepareExtraMessageBundlesInternal()
 
         if (name.empty()) {
             name = fs::path(path).stem().string();
-            logger().debug("Bundle name from path: " + path + " --> " + name);
+            genLogger().genDebug("Bundle name from path: " + path + " --> " + name);
         }
 
         if (name.empty()) {
-            logger().error("Failed to idenity bundle name for " + b);
+            genLogger().genError("Failed to idenity bundle name for " + b);
             return false;
         }
 
         std::ifstream stream(path);
         if (!stream) {
-            logger().error("Failed to read extra messages bundle file " + path);
+            genLogger().genError("Failed to read extra messages bundle file " + path);
             return false;
         }
 
         std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
-        auto lines = util::strSplitByAnyChar(contents, "\n\r");
-        MessagesAccessList messages;
+        auto lines = util::genStrSplitByAnyChar(contents, "\n\r");
+        GenMessagesAccessList messages;
         messages.reserve(lines.size());
 
         for (auto& l : lines) {
-            auto* m = findMessage(l);
+            auto* m = genGindMessage(l);
             if (m == nullptr) {
-                logger().error("Failed to fined message \"" + l + "\" for bundle " + name);
+                genLogger().genError("Failed to fined message \"" + l + "\" for bundle " + name);
                 return false;
             }
 
             messages.push_back(m);
         }
 
-        logger().debug("Extra message bundle: " + name);
+        genLogger().genDebug("Extra message bundle: " + name);
         m_commsExtraMessageBundles.emplace_back(std::move(name), std::move(messages));
     };
     return true;
@@ -353,30 +366,30 @@ bool CommsGenerator::commsPrepareExtraMessageBundlesInternal()
 bool CommsGenerator::commsWriteExtraFilesInternal() const
 {
     const std::vector<std::string> ReservedExt = {
-        strings::replaceFileSuffixStr(),
-        strings::extendFileSuffixStr(),
-        strings::publicFileSuffixStr(),
-        strings::protectedFileSuffixStr(),
-        strings::privateFileSuffixStr(),
-        strings::valueFileSuffixStr(),
-        strings::readFileSuffixStr(),
-        strings::readBodyFileSuffixStr(),
-        strings::writeFileSuffixStr(),
-        strings::writeBodyFileSuffixStr(),
-        strings::lengthFileSuffixStr(),
-        strings::lengthBodyFileSuffixStr(),
-        strings::validFileSuffixStr(),
-        strings::validBodyFileSuffixStr(),
-        strings::refreshFileSuffixStr(),
-        strings::refreshBodyFileSuffixStr(),
-        strings::nameFileSuffixStr(),
-        strings::nameBodyFileSuffixStr(),
-        strings::incFileSuffixStr(),
-        strings::appendFileSuffixStr(),
-        strings::constructFileSuffixStr(),
+        strings::genReplaceFileSuffixStr(),
+        strings::genExtendFileSuffixStr(),
+        strings::genPublicFileSuffixStr(),
+        strings::genProtectedFileSuffixStr(),
+        strings::genPrivateFileSuffixStr(),
+        strings::genValueFileSuffixStr(),
+        strings::genReadFileSuffixStr(),
+        strings::genReadBodyFileSuffixStr(),
+        strings::genWriteFileSuffixStr(),
+        strings::genWriteBodyFileSuffixStr(),
+        strings::genLengthFileSuffixStr(),
+        strings::genLengthBodyFileSuffixStr(),
+        strings::genValidFileSuffixStr(),
+        strings::genValidBodyFileSuffixStr(),
+        strings::genRefreshFileSuffixStr(),
+        strings::genRefreshBodyFileSuffixStr(),
+        strings::genNameFileSuffixStr(),
+        strings::genNameBodyFileSuffixStr(),
+        strings::genIncFileSuffixStr(),
+        strings::genAppendFileSuffixStr(),
+        strings::genConstructFileSuffixStr(),
     }; 
 
-    return copyExtraSourceFiles(ReservedExt);
+    return genCopyExtraSourceFiles(ReservedExt);
 }
 
 } // namespace commsdsl2comms

@@ -24,17 +24,17 @@ class ToolsQtGenerator;
 class ToolsQtCmake
 {
 public:
-    static bool write(ToolsQtGenerator& generator);
+    static bool toolsWrite(ToolsQtGenerator& generator);
 
 private:
-    explicit ToolsQtCmake(ToolsQtGenerator& generator) : m_generator(generator) {}
+    explicit ToolsQtCmake(ToolsQtGenerator& generator) : m_toolsGenerator(generator) {}
 
     bool toolsWriteInternal() const;
     std::string toolsPerInterfaceFuncsInternal() const;
     std::string toolsPerInterfaceCallsInternal() const;
 
 private:
-    ToolsQtGenerator& m_generator;
+    ToolsQtGenerator& m_toolsGenerator;
 };
 
 } // namespace commsdsl2tools_qt

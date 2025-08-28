@@ -18,26 +18,31 @@
 
 #include "CommsField.h"
 
-#include "commsdsl/gen/Schema.h"
+#include "commsdsl/gen/GenSchema.h"
 
 namespace commsdsl2comms
 {
 
 class CommsGenerator;
-class CommsSchema final: public commsdsl::gen::Schema
+class CommsSchema final: public commsdsl::gen::GenSchema
 {
-    using Base = commsdsl::gen::Schema;
+    using GenBase = commsdsl::gen::GenSchema;
 
 public:
-    explicit CommsSchema(CommsGenerator& generator, commsdsl::parse::Schema dslObj, Elem* parent);
+    using ParseSchema = commsdsl::parse::ParseSchema;
+
+    using GenElem = commsdsl::gen::GenElem;
+    using GenSchema = commsdsl::gen::GenSchema;
+
+    CommsSchema(CommsGenerator& generator, ParseSchema parseObj, GenElem* parent);
     virtual ~CommsSchema();
 
-    static const CommsSchema* cast(const commsdsl::gen::Schema* ptr)
+    static const CommsSchema* commsCast(const GenSchema* ptr)
     {
         return static_cast<const CommsSchema*>(ptr);
     }
 
-    static const CommsSchema& cast(const commsdsl::gen::Schema& ref)
+    static const CommsSchema& commsCast(const GenSchema& ref)
     {
         return static_cast<const CommsSchema&>(ref);
     }
@@ -47,7 +52,7 @@ public:
     bool commsHasAnyField() const;
     bool commsHasAnyGeneratedCode() const;
 
-    const CommsField* findValidInterfaceReferencedField(const std::string& refStr) const;
+    const CommsField* commsFindValidInterfaceReferencedField(const std::string& refStr) const;
 };
 
 } // namespace commsdsl2comms

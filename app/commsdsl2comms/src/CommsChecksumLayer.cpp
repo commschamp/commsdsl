@@ -15,11 +15,11 @@
 
 #include "CommsChecksumLayer.h"
 
+#include "CommsGenerator.h"
+
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
-
-#include "CommsGenerator.h"
 
 #include <algorithm>
 #include <cassert>
@@ -32,32 +32,32 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsChecksumLayer::CommsChecksumLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) :
-    Base(generator, dslObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsChecksumLayer::CommsChecksumLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool CommsChecksumLayer::prepareImpl()
+bool CommsChecksumLayer::genPrepareImpl()
 {
-    return Base::prepareImpl() && CommsBase::commsPrepare();
+    return GenBase::genPrepareImpl() && CommsBase::commsPrepare();
 }
 
-CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() const
+CommsChecksumLayer::CommsIncludesList CommsChecksumLayer::commsDefIncludesImpl() const
 {
-    IncludesList result;
+    CommsIncludesList result;
     auto obj = checksumDslObj();
-    if (!obj.fromLayer().empty()) {
-        assert(obj.untilLayer().empty());
+    if (!obj.parseFromLayer().empty()) {
+        assert(obj.parseUntilLayer().empty());
         result.push_back("comms/frame/ChecksumLayer.h");
     }
     else {
-        assert(!obj.untilLayer().empty());
+        assert(!obj.parseUntilLayer().empty());
         result.push_back("comms/frame/ChecksumPrefixLayer.h");
     }
 
     const std::string ChecksumMap[] = {
-        /* Custom */ strings::emptyString(),
+        /* Custom */ strings::genEmptyString(),
         /* Sum */ "BasicSum",
         /* Crc_CCITT */ "Crc",
         /* Crc_16 */ "Crc",
@@ -66,10 +66,10 @@ CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() cons
     };
 
     const std::size_t ChecksumMapSize = std::extent<decltype(ChecksumMap)>::value;
-    static_assert(ChecksumMapSize == static_cast<std::size_t>(commsdsl::parse::ChecksumLayer::Alg::NumOfValues),
+    static_assert(ChecksumMapSize == static_cast<std::size_t>(commsdsl::parse::ParseChecksumLayer::ParseAlg::NumOfValues),
             "Invalid map");
 
-    auto idx = static_cast<std::size_t>(obj.alg());
+    auto idx = static_cast<std::size_t>(obj.parseAlg());
     if (ChecksumMapSize <= idx) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
@@ -77,11 +77,11 @@ CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() cons
     }
 
     if (!ChecksumMap[idx].empty()) {
-        result.push_back("comms/frame/checksum/" + ChecksumMap[idx] + strings::cppHeaderSuffixStr());
+        result.push_back("comms/frame/checksum/" + ChecksumMap[idx] + strings::genCppHeaderSuffixStr());
     }
     else {
-        assert(!obj.customAlgName().empty());
-        result.push_back(comms::relHeaderForChecksum(comms::className(obj.customAlgName()), generator()));
+        assert(!obj.parseCustomAlgName().empty());
+        result.push_back(comms::genRelHeaderForChecksum(comms::genClassName(obj.parseCustomAlgName()), genGenerator()));
     }
     return result;
 }
@@ -96,7 +96,7 @@ std::string CommsChecksumLayer::commsDefBaseTypeImpl(const std::string& prevName
         "    #^#EXTRA_OPT#$#\n"
         ">";    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FIELD_TYPE", commsDefFieldType()},
         {"ALG", commsDefAlgInternal()},
         {"PREV_LAYER", prevName},
@@ -107,17 +107,17 @@ std::string CommsChecksumLayer::commsDefBaseTypeImpl(const std::string& prevName
         repl["COMMA"] = std::string(",");
     }
 
-    if (!checksumDslObj().untilLayer().empty()) {
+    if (!checksumDslObj().parseUntilLayer().empty()) {
         repl["PREFIX_VAR"] = "Prefix";
     }    
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsChecksumLayer::commsDefAlgInternal() const
 {
     const std::string ClassMap[] = {
-        /* Custom */ strings::emptyString(),
+        /* Custom */ strings::genEmptyString(),
         /* Sum */ "BasicSum",
         /* Crc_CCITT */ "Crc_CCITT",
         /* Crc_16 */ "Crc_16",
@@ -126,12 +126,12 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
     };
 
     const std::size_t ClassMapSize = std::extent<decltype(ClassMap)>::value;
-    static_assert(ClassMapSize == static_cast<std::size_t>(commsdsl::parse::ChecksumLayer::Alg::NumOfValues),
+    static_assert(ClassMapSize == static_cast<std::size_t>(commsdsl::parse::ParseChecksumLayer::ParseAlg::NumOfValues),
             "Invalid map");
 
 
     auto obj = checksumDslObj();
-    auto alg = obj.alg();
+    auto alg = obj.parseAlg();
     auto idx = static_cast<std::size_t>(alg);
 
     if (ClassMapSize <= idx) {
@@ -141,13 +141,13 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
     }
 
     if (ClassMap[idx].empty()) {
-        assert(!obj.customAlgName().empty());
-        return comms::scopeForChecksum(obj.customAlgName(), generator());
+        assert(!obj.parseCustomAlgName().empty());
+        return comms::genScopeForChecksum(obj.parseCustomAlgName(), genGenerator());
     }
 
     auto str = "comms::frame::checksum::" + ClassMap[idx];
-    if ((alg != commsdsl::parse::ChecksumLayer::Alg::Sum) &&
-        (alg != commsdsl::parse::ChecksumLayer::Alg::Xor)) {
+    if ((alg != commsdsl::parse::ParseChecksumLayer::ParseAlg::Sum) &&
+        (alg != commsdsl::parse::ParseChecksumLayer::ParseAlg::Xor)) {
         return str;
     }
 
@@ -156,22 +156,22 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
         "    #^#FIELD#$#::ValueType\n"
         ">";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"ALG", std::move(str)},
         {"FIELD", commsDefFieldType()},
     };
 
-    if (!util::strStartsWith(repl["FIELD"], "typename")) {
+    if (!util::genStrStartsWith(repl["FIELD"], "typename")) {
         repl["FIELD"] = "typename " + repl["FIELD"];
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsChecksumLayer::commsDefExtraOptInternal() const
 {
     std::string result;
-    if (checksumDslObj().verifyBeforeRead()) {
+    if (checksumDslObj().parseVerifyBeforeRead()) {
         result = "comms::option::def::ChecksumLayerVerifyBeforeRead";
     }
     return result;

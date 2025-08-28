@@ -17,33 +17,37 @@
 
 #include "SwigField.h"
 
-#include "commsdsl/gen/OptionalField.h"
+#include "commsdsl/gen/GenOptionalField.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigOptionalField final : public commsdsl::gen::OptionalField, public SwigField
+class SwigOptionalField final : public commsdsl::gen::GenOptionalField, public SwigField
 {
-    using Base = commsdsl::gen::OptionalField;
+    using GenBase = commsdsl::gen::GenOptionalField;
     using SwigBase = SwigField;
+
 public:
-    SwigOptionalField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    using ParseField = commsdsl::parse::ParseField;
+    using GenElem = commsdsl::gen::GenElem;
+    
+    SwigOptionalField(SwigGenerator& generator, ParseField parseObj, GenElem* parent);
 
     static std::string swigDeclFuncs(const SwigGenerator& generator, const std::string& fieldType);
 
 protected:
-    // Base overrides
-    virtual bool writeImpl() const override;    
+    // GenBase overrides
+    virtual bool genWriteImpl() const override;    
 
     // SwigBase overrides
     virtual std::string swigMembersDeclImpl() const override;
     virtual std::string swigValueTypeDeclImpl() const override;
     virtual std::string swigValueAccDeclImpl() const override;
     virtual std::string swigExtraPublicFuncsDeclImpl() const override;
-    virtual void swigAddDefImpl(StringsList& list) const override;
-    virtual void swigAddMembersCodeImpl(StringsList& list) const override;
+    virtual void swigAddDefImpl(GenStringsList& list) const override;
+    virtual void swigAddMembersCodeImpl(GenStringsList& list) const override;
 
 private:
 };

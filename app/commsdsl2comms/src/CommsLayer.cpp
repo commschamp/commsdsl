@@ -18,7 +18,7 @@
 #include "CommsGenerator.h"
 #include "CommsNamespace.h"
 
-#include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/GenNamespace.h"
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -34,8 +34,8 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-CommsLayer::CommsLayer(commsdsl::gen::Layer& layer) :
-    m_layer(layer)
+CommsLayer::CommsLayer(GenLayer& layer) :
+    m_genLayer(layer)
 {
 }
     
@@ -43,16 +43,16 @@ CommsLayer::~CommsLayer() = default;
 
 bool CommsLayer::commsPrepare()
 {
-    m_commsExternalField = dynamic_cast<CommsField*>(m_layer.externalField());
-    m_commsMemberField = dynamic_cast<CommsField*>(m_layer.memberField());
-    assert((m_commsExternalField != nullptr) || (m_layer.externalField() == nullptr));
-    assert((m_commsMemberField != nullptr) || (m_layer.memberField() == nullptr));
+    m_commsExternalField = dynamic_cast<CommsField*>(m_genLayer.genExternalField());
+    m_commsMemberField = dynamic_cast<CommsField*>(m_genLayer.genMemberField());
+    assert((m_commsExternalField != nullptr) || (m_genLayer.genExternalField() == nullptr));
+    assert((m_commsMemberField != nullptr) || (m_genLayer.genMemberField() == nullptr));
     return true;
 }
 
-CommsLayer::IncludesList CommsLayer::commsCommonIncludes() const
+CommsLayer::CommsIncludesList CommsLayer::commsCommonIncludes() const
 {
-    IncludesList result;
+    CommsIncludesList result;
     if (m_commsMemberField != nullptr) {
         auto fieldIncs = m_commsMemberField->commsCommonIncludes();
         std::move(fieldIncs.begin(), fieldIncs.end(), std::back_inserter(result));
@@ -66,12 +66,12 @@ CommsLayer::IncludesList CommsLayer::commsCommonIncludes() const
 std::string CommsLayer::commsCommonCode() const
 {
     if (m_commsMemberField == nullptr) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     auto code = m_commsMemberField->commsCommonCode();
     if (code.empty()) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -82,22 +82,22 @@ std::string CommsLayer::commsCommonCode() const
         "    #^#CODE#$#\n"
         "};\n";    
 
-    util::ReplacementMap repl = {
-        {"SCOPE", comms::scopeFor(m_layer, m_layer.generator())},
-        {"MEMBERS_SUFFIX", strings::membersSuffixStr()},
-        {"COMMON_SUFFIX", strings::commonSuffixStr()},
-        {"CLASS_NAME", comms::className(m_layer.dslObj().name())},
+    util::GenReplacementMap repl = {
+        {"SCOPE", comms::genScopeFor(m_genLayer, m_genLayer.genGenerator())},
+        {"MEMBERS_SUFFIX", strings::genMembersSuffixStr()},
+        {"COMMON_SUFFIX", strings::genCommonSuffixStr()},
+        {"CLASS_NAME", comms::genClassName(m_genLayer.genParseObj().parseName())},
         {"CODE", std::move(code)},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
-CommsLayer::IncludesList CommsLayer::commsDefIncludes() const
+CommsLayer::CommsIncludesList CommsLayer::commsDefIncludes() const
 {
-    IncludesList result;
+    CommsIncludesList result;
     if (m_commsExternalField != nullptr) {
-        result.push_back(comms::relHeaderPathFor(m_commsExternalField->field(), m_layer.generator()));
+        result.push_back(comms::genRelHeaderPathFor(m_commsExternalField->commsGenField(), m_genLayer.genGenerator()));
     }
 
     if (m_commsMemberField != nullptr) {
@@ -121,7 +121,7 @@ std::string CommsLayer::commsDefType(const CommsLayer* prevLayer, bool& hasInput
 
     std::string prevName;
     if (prevLayer != nullptr) {
-        prevName = comms::className(prevLayer->layer().dslObj().name());
+        prevName = comms::genClassName(prevLayer->commsGenLayer().genParseObj().parseName());
     }
 
     if (hasInputMessages) {
@@ -129,10 +129,10 @@ std::string CommsLayer::commsDefType(const CommsLayer* prevLayer, bool& hasInput
         prevName.append("<TMessage, TAllMessages>");
     }    
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"MEMBERS", commsDefMembersCodeInternal()},
         {"DOC", commsDefDocInternal()},
-        {"CLASS_NAME", comms::className(m_layer.dslObj().name())},
+        {"CLASS_NAME", comms::genClassName(m_genLayer.genParseObj().parseName())},
         {"BASE", commsDefBaseTypeImpl(prevName)},
     };
 
@@ -141,14 +141,14 @@ std::string CommsLayer::commsDefType(const CommsLayer* prevLayer, bool& hasInput
         repl["TEMPL_PARAMS"] = "template <typename TMessage, typename TAllMessages>";
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool CommsLayer::commsIsCustomizable() const
 {
-    auto& gen = static_cast<CommsGenerator&>(m_layer.generator());
+    auto& gen = static_cast<CommsGenerator&>(m_genLayer.genGenerator());
     auto level = gen.commsGetCustomizationLevel();
-    if (level == CommsGenerator::CustomizationLevel::Full) {
+    if (level == CommsGenerator::CommsCustomizationLevel::Full) {
         return true;
     }
         
@@ -215,15 +215,15 @@ std::string CommsLayer::commsMsgFactoryDefaultOptions() const
         );
 }
 
-CommsLayer::IncludesList CommsLayer::commsDefIncludesImpl() const
+CommsLayer::CommsIncludesList CommsLayer::commsDefIncludesImpl() const
 {
-    return IncludesList();
+    return CommsIncludesList();
 }
 
 std::string CommsLayer::commsDefBaseTypeImpl([[maybe_unused]] const std::string& prevName) const
 {
     assert(false); // Not implemented in derived class
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 bool CommsLayer::commsDefHasInputMessagesImpl() const
@@ -231,9 +231,9 @@ bool CommsLayer::commsDefHasInputMessagesImpl() const
     return false;
 }
 
-CommsLayer::StringsList CommsLayer::commsDefExtraOptsImpl() const
+CommsLayer::GenStringsList CommsLayer::commsDefExtraOptsImpl() const
 {
-    return StringsList();
+    return GenStringsList();
 }
 
 bool CommsLayer::commsIsCustomizableImpl() const
@@ -241,19 +241,19 @@ bool CommsLayer::commsIsCustomizableImpl() const
     return false;
 }
 
-CommsLayer::StringsList CommsLayer::commsExtraDataViewDefaultOptionsImpl() const
+CommsLayer::GenStringsList CommsLayer::commsExtraDataViewDefaultOptionsImpl() const
 {
-    return StringsList();
+    return GenStringsList();
 }
 
-CommsLayer::StringsList CommsLayer::commsExtraBareMetalDefaultOptionsImpl() const
+CommsLayer::GenStringsList CommsLayer::commsExtraBareMetalDefaultOptionsImpl() const
 {
-    return StringsList();
+    return GenStringsList();
 }
 
-CommsLayer::StringsList CommsLayer::commsExtraMsgFactoryDefaultOptionsImpl() const
+CommsLayer::GenStringsList CommsLayer::commsExtraMsgFactoryDefaultOptionsImpl() const
 {
-    return StringsList();
+    return GenStringsList();
 }
 
 std::string CommsLayer::commsCustomDefMembersCodeImpl() const
@@ -285,7 +285,7 @@ std::string CommsLayer::commsDefFieldType() const
             "    #^#EXTRA_OPTS#$#\n"
             ">";
 
-        util::StringsList opts;
+        util::GenStringsList opts;
         if (m_forcedPseudoField) {
             opts.push_back("comms::option::def::EmptySerialization");
         }
@@ -294,48 +294,48 @@ std::string CommsLayer::commsDefFieldType() const
             opts.push_back("comms::option::def::FailOnInvalid<comms::ErrorStatus::ProtocolError>");
         }
 
-        util::ReplacementMap repl = {
-            {"SCOPE", comms::scopeFor(m_commsExternalField->field(), m_layer.generator())},
-            {"EXTRA_OPTS", util::strListToString(opts, ",\n", "")}
+        util::GenReplacementMap repl = {
+            {"SCOPE", comms::genScopeFor(m_commsExternalField->commsGenField(), m_genLayer.genGenerator())},
+            {"EXTRA_OPTS", util::genStrListToString(opts, ",\n", "")}
         };
 
         if (!repl["EXTRA_OPTS"].empty()) {
             repl["COMMA"] = std::string(",");
         }
-        return util::processTemplate(Templ, repl);
+        return util::genProcessTemplate(Templ, repl);
     }
 
     assert(m_commsMemberField != nullptr);
     return
         "typename " +
-        comms::className(m_layer.dslObj().name()) + strings::membersSuffixStr() +
-        "::" + comms::className(m_commsMemberField->field().dslObj().name());    
+        comms::genClassName(m_genLayer.genParseObj().parseName()) + strings::genMembersSuffixStr() +
+        "::" + comms::genClassName(m_commsMemberField->commsGenField().genParseObj().parseName());    
 }
 
 std::string CommsLayer::commsDefExtraOpts() const
 {
-    StringsList opts = commsDefExtraOptsImpl();
+    GenStringsList opts = commsDefExtraOptsImpl();
 
     if (commsIsCustomizable()) {
-        auto& gen = static_cast<const CommsGenerator&>(m_layer.generator());
-        opts.push_back("typename TOpt::" + comms::scopeFor(m_layer, m_layer.generator(), gen.commsHasMainNamespaceInOptions()));
+        auto& gen = static_cast<const CommsGenerator&>(m_genLayer.genGenerator());
+        opts.push_back("typename TOpt::" + comms::genScopeFor(m_genLayer, m_genLayer.genGenerator(), gen.commsHasMainNamespaceInOptions()));
     }    
 
-    return util::strListToString(opts, ",\n", "");
+    return util::genStrListToString(opts, ",\n", "");
 }
 
-std::string CommsLayer::commsMsgFactoryAliasInOptions(const commsdsl::gen::Elem* parent)
+std::string CommsLayer::commsMsgFactoryAliasInOptions(const commsdsl::gen::GenElem* parent)
 {
     do {
         if (parent == nullptr) {
             return std::string();
         }
 
-        if (parent->elemType() != commsdsl::gen::Elem::Type_Namespace) {
+        if (parent->genElemType() != commsdsl::gen::GenElem::GenType_Namespace) {
             break;
         }
 
-        auto type = CommsNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(parent))->commsMsgFactoryAliasType();
+        auto type = CommsNamespace::commsCast(static_cast<const commsdsl::gen::GenNamespace*>(parent))->commsMsgFactoryAliasType();
         if (type.empty()) {
             break;
         }
@@ -343,7 +343,7 @@ std::string CommsLayer::commsMsgFactoryAliasInOptions(const commsdsl::gen::Elem*
         return type;
     } while (false);
 
-    return commsMsgFactoryAliasInOptions(parent->getParent());
+    return commsMsgFactoryAliasInOptions(parent->genGetParent());
 }
 
 std::string CommsLayer::commsDefMembersCodeInternal() const
@@ -354,7 +354,7 @@ std::string CommsLayer::commsDefMembersCodeInternal() const
     }
 
     if (m_commsMemberField == nullptr) {
-        return strings::emptyString();
+        return strings::genEmptyString();
     }
 
     static const std::string Templ = 
@@ -364,37 +364,37 @@ std::string CommsLayer::commsDefMembersCodeInternal() const
         "    #^#FIELD_DEF#$#\n"
         "};\n";
 
-    util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(m_layer.dslObj().name())},
-        {"SUFFIX", strings::membersSuffixStr()},
+    util::GenReplacementMap repl = {
+        {"CLASS_NAME", comms::genClassName(m_genLayer.genParseObj().parseName())},
+        {"SUFFIX", strings::genMembersSuffixStr()},
         {"FIELD_DEF", m_commsMemberField->commsDefCode()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsLayer::commsDefDocInternal() const
 {
-    auto dslObj = m_layer.dslObj();
-    auto str = "/// @brief Definition of layer \"" + dslObj.name() + "\".";
-    auto& desc = dslObj.description();
+    auto parseObj = m_genLayer.genParseObj();
+    auto str = "/// @brief Definition of layer \"" + parseObj.parseName() + "\".";
+    auto& desc = parseObj.parseDescription();
     if (!desc.empty()) {
         str += "\n/// @details\n";
-        auto descMultiline = util::strMakeMultiline(desc);
-        static const std::string DoxPrefix = strings::doxygenPrefixStr() + strings::indentStr();
-        descMultiline = DoxPrefix + util::strReplace(descMultiline, "\n", "\n" + DoxPrefix);
+        auto descMultiline = util::genStrMakeMultiline(desc);
+        static const std::string DoxPrefix = strings::genDoxygenPrefixStr() + strings::genIndentStr();
+        descMultiline = DoxPrefix + util::genStrReplace(descMultiline, "\n", "\n" + DoxPrefix);
         str += descMultiline;
     }
     return str;
 }
 
 std::string CommsLayer::commsCustomizationOptionsInternal(
-    FieldOptsFunc fieldOptsFunc, 
-    ExtraLayerOptsFunc extraLayerOptsFunc,
+    CommsFieldOptsFunc fieldOptsFunc, 
+    CommsExtraLayerOptsFunc extraLayerOptsFunc,
     bool hasBase,
     const std::string& customFieldOpts) const
 {
-    util::StringsList elems;
+    util::GenStringsList elems;
 
     // Field portion
     do {
@@ -420,20 +420,20 @@ std::string CommsLayer::commsCustomizationOptionsInternal(
             "    #^#FIELD_OPT#$#\n"
             "}; // struct #^#CLASS_NAME#$##^#SUFFIX#$#\n";
 
-        util::ReplacementMap repl = {
-            {"SCOPE", comms::scopeFor(m_layer, m_layer.generator())},
-            {"CLASS_NAME", comms::className(m_layer.dslObj().name())},
-            {"SUFFIX", strings::membersSuffixStr()},
+        util::GenReplacementMap repl = {
+            {"SCOPE", comms::genScopeFor(m_genLayer, m_genLayer.genGenerator())},
+            {"CLASS_NAME", comms::genClassName(m_genLayer.genParseObj().parseName())},
+            {"SUFFIX", strings::genMembersSuffixStr()},
             {"FIELD_OPTS", std::move(fieldOpts)}
         };
 
         if (hasBase) {
-            auto& commsGen = static_cast<const CommsGenerator&>(m_layer.generator());
+            auto& commsGen = static_cast<const CommsGenerator&>(m_genLayer.genGenerator());
             bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();
-            repl["EXT"] = " : public TBase::" + comms::scopeFor(m_layer, m_layer.generator(), hasMainNs) + strings::membersSuffixStr();
+            repl["EXT"] = " : public TBase::" + comms::genScopeFor(m_genLayer, m_genLayer.genGenerator(), hasMainNs) + strings::genMembersSuffixStr();
         }
 
-        elems.push_back(util::processTemplate(Templ, repl));
+        elems.push_back(util::genProcessTemplate(Templ, repl));
     } while (false);
 
     // Layer itself portion
@@ -442,7 +442,7 @@ std::string CommsLayer::commsCustomizationOptionsInternal(
             break;
         }
 
-        util::StringsList extraOpts;
+        util::GenStringsList extraOpts;
         if (extraLayerOptsFunc != nullptr) {
             extraOpts = (this->*extraLayerOptsFunc)();
         }
@@ -456,20 +456,20 @@ std::string CommsLayer::commsCustomizationOptionsInternal(
         }
 
         if ((!extraOpts.empty()) && (hasBase)) {
-            auto& commsGen = static_cast<const CommsGenerator&>(m_layer.generator());
+            auto& commsGen = static_cast<const CommsGenerator&>(m_genLayer.genGenerator());
             bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();            
-            extraOpts.push_back("typename TBase::" + comms::scopeFor(m_layer, m_layer.generator(), hasMainNs));
+            extraOpts.push_back("typename TBase::" + comms::genScopeFor(m_genLayer, m_genLayer.genGenerator(), hasMainNs));
         }
 
         auto docStr = 
             "/// @brief Extra options for @ref " +
-            comms::scopeFor(m_layer, m_layer.generator()) + " layer.";
-        docStr = util::strMakeMultiline(docStr, 40);
-        docStr = util::strReplace(docStr, "\n", "\n" + strings::doxygenPrefixStr() + strings::indentStr()); 
+            comms::genScopeFor(m_genLayer, m_genLayer.genGenerator()) + " layer.";
+        docStr = util::genStrMakeMultiline(docStr, 40);
+        docStr = util::genStrReplace(docStr, "\n", "\n" + strings::genDoxygenPrefixStr() + strings::genIndentStr()); 
 
-        util::ReplacementMap repl = {
+        util::GenReplacementMap repl = {
             {"DOC", std::move(docStr)},
-            {"NAME", comms::className(m_layer.dslObj().name())},
+            {"NAME", comms::genClassName(m_genLayer.genParseObj().parseName())},
         };        
 
         assert(!extraOpts.empty());
@@ -479,7 +479,7 @@ std::string CommsLayer::commsCustomizationOptionsInternal(
                 "using #^#NAME#$# = #^#OPT#$#;\n";
         
             repl["OPT"] = extraOpts.front();
-            elems.push_back(util::processTemplate(Templ, repl));
+            elems.push_back(util::genProcessTemplate(Templ, repl));
             break;
         }    
 
@@ -490,24 +490,24 @@ std::string CommsLayer::commsCustomizationOptionsInternal(
             "        #^#OPTS#$#\n"
             "    >;\n";
     
-        repl["OPTS"] = util::strListToString(extraOpts, ",\n", "");
-        elems.push_back(util::processTemplate(Templ, repl));          
+        repl["OPTS"] = util::genStrListToString(extraOpts, ",\n", "");
+        elems.push_back(util::genProcessTemplate(Templ, repl));          
     } while (false);
 
-    return util::strListToString(elems, "\n", "");
+    return util::genStrListToString(elems, "\n", "");
 }
 
-CommsLayer::StringsList CommsLayer::commsExtraDataViewDefaultOptionsInternal() const
+CommsLayer::GenStringsList CommsLayer::commsExtraDataViewDefaultOptionsInternal() const
 {
     return commsExtraDataViewDefaultOptionsImpl();
 }
 
-CommsLayer::StringsList CommsLayer::commsExtraBareMetalDefaultOptionsInternal() const
+CommsLayer::GenStringsList CommsLayer::commsExtraBareMetalDefaultOptionsInternal() const
 {
     return commsExtraBareMetalDefaultOptionsImpl();
 }
 
-CommsLayer::StringsList CommsLayer::commsExtraMsgFactoryDefaultOptionsInternal() const
+CommsLayer::GenStringsList CommsLayer::commsExtraMsgFactoryDefaultOptionsInternal() const
 {
     return commsExtraMsgFactoryDefaultOptionsImpl();
 }

@@ -34,14 +34,14 @@ namespace commsdsl2emscripten
 namespace 
 {
 
-const std::string FieldClassNameSuffix("Field");
+const std::string EmscriptenFieldClassNameSuffix("Field");
 
 } // namespace 
     
 
-EmscriptenPayloadLayer::EmscriptenPayloadLayer(EmscriptenGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) : 
-    Base(generator, dslObj, parent),
-    EmscriptenBase(static_cast<Base&>(*this))
+EmscriptenPayloadLayer::EmscriptenPayloadLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    EmscriptenBase(static_cast<GenBase&>(*this))
 {
 }
 
@@ -69,19 +69,19 @@ std::string EmscriptenPayloadLayer::emscriptenHeaderFieldDefImpl() const
         "    }\n"
         "};\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenFieldClassNameImpl()},
         {"COMMS_SCOPE", emscriptenTemplateScope()},
         {"JS_ARRAY_FUNC", EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenPayloadLayer::emscriptenFieldClassNameImpl() const
 {
-    auto& gen = EmscriptenGenerator::cast(generator());
-    return gen.emscriptenClassName(*this) + FieldClassNameSuffix;
+    auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
+    return gen.emscriptenClassName(*this) + EmscriptenFieldClassNameSuffix;
 }
 
 std::string EmscriptenPayloadLayer::emscriptenSourceFieldBindImpl() const
@@ -97,11 +97,11 @@ std::string EmscriptenPayloadLayer::emscriptenSourceFieldBindImpl() const
         "        ;\n"
         "}\n";
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenFieldClassNameImpl()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 

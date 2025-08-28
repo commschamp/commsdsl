@@ -30,20 +30,20 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigRefField::SwigRefField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent) : 
-    Base(generator, dslObj, parent),
-    SwigBase(static_cast<Base&>(*this))
+SwigRefField::SwigRefField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+    GenBase(generator, parseObj, parent),
+    SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool SwigRefField::writeImpl() const
+bool SwigRefField::genWriteImpl() const
 {
     return swigWrite();
 }
 
 std::string SwigRefField::swigValueAccDeclImpl() const
 {
-    return strings::emptyString();
+    return strings::genEmptyString();
 }
 
 std::string SwigRefField::swigExtraPublicFuncsCodeImpl() const
@@ -56,14 +56,14 @@ std::string SwigRefField::swigExtraPublicFuncsCodeImpl() const
         "}\n"
     ;
 
-    auto& gen = SwigGenerator::cast(generator());
-    auto* field = SwigField::cast(referencedField());
-    util::ReplacementMap repl = {
-        {"REF_TYPE", gen.swigClassName(field->field())},
+    auto& gen = SwigGenerator::swigCast(genGenerator());
+    auto* field = SwigField::swigCast(genReferencedField());
+    util::GenReplacementMap repl = {
+        {"REF_TYPE", gen.swigClassName(field->swigGenField())},
         {"BASE_TYPE", field->swigTemplateScope()},
     };    
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string SwigRefField::swigPublicDeclImpl() const
@@ -73,25 +73,25 @@ std::string SwigRefField::swigPublicDeclImpl() const
         "#^#REF_TYPE#$#& ref();\n"
         "#^#FUNCS#$#\n";   
 
-    auto& gen = SwigGenerator::cast(generator());
-    util::ReplacementMap repl = {
-        {"REF_TYPE", gen.swigClassName(*referencedField())},
+    auto& gen = SwigGenerator::swigCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"REF_TYPE", gen.swigClassName(*genReferencedField())},
         {"FUNCS", swigCommonPublicFuncsDecl()}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
-void SwigRefField::swigAddDefImpl(StringsList& list) const
+void SwigRefField::swigAddDefImpl(GenStringsList& list) const
 {
     // Make sure the referenced field is defined before
-    SwigField::cast(referencedField())->swigAddDef(list);
+    SwigField::swigCast(genReferencedField())->swigAddDef(list);
 }
 
-void SwigRefField::swigAddMembersCodeImpl(StringsList& list) const
+void SwigRefField::swigAddMembersCodeImpl(GenStringsList& list) const
 {
     // Make sure the referenced field is defined before
-    SwigField::cast(referencedField())->swigAddCode(list);
+    SwigField::swigCast(genReferencedField())->swigAddCode(list);
 }
 
 } // namespace commsdsl2swig

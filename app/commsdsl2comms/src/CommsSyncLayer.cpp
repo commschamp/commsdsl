@@ -15,24 +15,24 @@
 
 #include "CommsSyncLayer.h"
 
-#include "commsdsl/gen/util.h"
-
 #include "CommsGenerator.h"
+
+#include "commsdsl/gen/util.h"
 
 namespace util = commsdsl::gen::util;
 
 namespace commsdsl2comms
 {
 
-CommsSyncLayer::CommsSyncLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) :
-    Base(generator, dslObj, parent),
-    CommsBase(static_cast<Base&>(*this))
+CommsSyncLayer::CommsSyncLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    CommsBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool CommsSyncLayer::prepareImpl()
+bool CommsSyncLayer::genPrepareImpl()
 {
-    bool result = Base::prepareImpl() && CommsBase::commsPrepare();
+    bool result = GenBase::genPrepareImpl() && CommsBase::commsPrepare();
     if (!result) {
         return false;
     }
@@ -42,9 +42,9 @@ bool CommsSyncLayer::prepareImpl()
 
 }
 
-CommsSyncLayer::IncludesList CommsSyncLayer::commsDefIncludesImpl() const
+CommsSyncLayer::CommsIncludesList CommsSyncLayer::commsDefIncludesImpl() const
 {
-    IncludesList result = {
+    CommsIncludesList result = {
         "comms/frame/SyncPrefixLayer.h"
     };
 
@@ -59,12 +59,12 @@ std::string CommsSyncLayer::commsDefBaseTypeImpl(const std::string& prevName) co
         "    #^#PREV_LAYER#$#\n"
         ">";  
 
-    util::ReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"FIELD_TYPE", commsDefFieldType()},
         {"PREV_LAYER", prevName}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2comms
