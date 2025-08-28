@@ -39,11 +39,13 @@ Details are in the [WebAssembly Support](doc/WebAssemblySupport.md) documentatio
 Build requires explicit cmake enable [option](CMakeLists.txt).
 - **commsdsl2latex** - A code generator that produces [LaTeX](https://en.wikipedia.org/wiki/LaTeX)
 files for the protocol specification. The produced files can be built into
-**pdf** and/or **html** documents.
-- **libcommsdsl** - A C++ library containing common functionality for parsing of the
+**pdf** and/or **html** documents. For details on how to use the tool, please read the
+[commsdsl2latex Manual](doc/Manual_commsdsl2latex.md)
+documentation page. Build requires explicit cmake enable [option](CMakeLists.txt).
+- **libcommsdsl** - A C++ library containing common functionality for parsing
 [CommsDSL](https://github.com/commschamp/CommsDSL-Specification) schema files as
 well code generation. It can be used to implement independent code generators.
-NOTE, that at this moment, the library is not documented. Please
+At this moment, the library is not documented. Please
 [get in touch](#contact-information) in case you need it. I'll let you know
 when it's going to be ready.
 
