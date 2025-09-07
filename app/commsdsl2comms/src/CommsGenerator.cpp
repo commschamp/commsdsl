@@ -66,7 +66,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-const std::string CommsMinCommsVersion("5.4.4");    
+const std::string CommsMinCommsVersion("5.4.5");    
 
 const std::string& CommsGenerator::commsFileGeneratedComment()
 {
