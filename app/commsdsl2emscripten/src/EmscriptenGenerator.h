@@ -80,9 +80,8 @@ public:
     std::string emscriptenRelSourceFor(const commsdsl::gen::GenElem& elem) const;
     std::string emscriptenAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
 
-    std::string emspriptenInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const;
-    std::string emspriptenInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
-
+    std::string emscriptenInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const;
+    std::string emscriptenInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
 
     static std::string emscriptenScopeToName(const std::string& scope);
 

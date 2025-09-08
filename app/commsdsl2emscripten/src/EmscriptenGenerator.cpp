@@ -197,12 +197,12 @@ std::string EmscriptenGenerator::emscriptenAbsSourceFor(const commsdsl::gen::Gen
     return genGetOutputDir() + '/' + emscriptenRelSourceFor(elem);
 }
 
-std::string EmscriptenGenerator::emspriptenInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const
+std::string EmscriptenGenerator::emscriptenInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const
 {
     return genGetCodeDir() + '/' + strings::genIncludeDirStr() + '/' + emscriptenRelHeaderFor(elem);
 }
 
-std::string EmscriptenGenerator::emspriptenInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const
+std::string EmscriptenGenerator::emscriptenInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const
 {
     return genGetCodeDir() + '/' + emscriptenRelSourceFor(elem);
 }
