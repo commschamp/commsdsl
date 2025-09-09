@@ -1,9 +1,20 @@
 set (
     src
+    CBitfieldField.cpp
+    CBundleField.cpp
+    CDataField.cpp
+    CEnumField.cpp
+    CFloatField.cpp
     CField.cpp
     CGenerator.cpp
     CIntField.cpp
+    CListField.cpp
+    COptionalField.cpp
     CProgramOptions.cpp
+    CRefField.cpp
+    CSetField.cpp
+    CStringField.cpp
+    CVariantField.cpp
     main.cpp
 )
 

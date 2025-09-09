@@ -16,24 +16,24 @@
 #include "CGenerator.h"
 
 // #include "C.h"
-// #include "CBitfieldField.h"
-// #include "CBundleField.h"
-// #include "CDataField.h"
+#include "CBitfieldField.h"
+#include "CBundleField.h"
+#include "CDataField.h"
 // #include "CCmake.h"
-// #include "CEnumField.h"
-// #include "CFloatField.h"
+#include "CEnumField.h"
+#include "CFloatField.h"
 // #include "CFrame.h"
 #include "CIntField.h"
-// #include "CListField.h"
+#include "CListField.h"
 // #include "CMessage.h"
 // #include "CNamespace.h"
-// #include "COptionalField.h"
+#include "COptionalField.h"
 #include "CProgramOptions.h"
-// #include "CRefField.h"
+#include "CRefField.h"
 // #include "CSchema.h"
-// #include "CSetField.h"
-// #include "CStringField.h"
-// #include "CVariantField.h"
+#include "CSetField.h"
+#include "CStringField.h"
+#include "CVariantField.h"
 
 #include "commsdsl/version.h"
 #include "commsdsl/gen/comms.h"
@@ -130,60 +130,60 @@ CGenerator::GenFieldPtr CGenerator::genCreateIntFieldImpl(ParseField parseObj, G
     return std::make_unique<CIntField>(*this, parseObj, parent);
 }
 
-// CGenerator::GenFieldPtr CGenerator::genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent)
-// {
-//     return std::make_unique<CEnumField>(*this, parseObj, parent);
-// }
+CGenerator::GenFieldPtr CGenerator::genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<CEnumField>(*this, parseObj, parent);
+}
 
-// CGenerator::GenFieldPtr CGenerator::genCreateSetFieldImpl(ParseField parseObj, GenElem* parent)
-// {
-//     return std::make_unique<CSetField>(*this, parseObj, parent);
-// }
+CGenerator::GenFieldPtr CGenerator::genCreateSetFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<CSetField>(*this, parseObj, parent);
+}
 
-// CGenerator::GenFieldPtr CGenerator::genCreateFloatFieldImpl(ParseField parseObj, GenElem* parent)
-// {
-//     return std::make_unique<CFloatField>(*this, parseObj, parent);
-// }
+CGenerator::GenFieldPtr CGenerator::genCreateFloatFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<CFloatField>(*this, parseObj, parent);
+}
 
-// CGenerator::GenFieldPtr CGenerator::genCreateBitfieldFieldImpl(ParseField parseObj, GenElem* parent)
-// {
-//     return std::make_unique<CBitfieldField>(*this, parseObj, parent);
-// }
+CGenerator::GenFieldPtr CGenerator::genCreateBitfieldFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<CBitfieldField>(*this, parseObj, parent);
+}
 
-// CGenerator::GenFieldPtr CGenerator::genCreateBundleFieldImpl(ParseField parseObj, GenElem* parent)
-// {
-//     return std::make_unique<CBundleField>(*this, parseObj, parent);
-// }
+CGenerator::GenFieldPtr CGenerator::genCreateBundleFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<CBundleField>(*this, parseObj, parent);
+}
 
-// CGenerator::GenFieldPtr CGenerator::genCreateStringFieldImpl(ParseField parseObj, GenElem* parent)
-// {
-//     return std::make_unique<CStringField>(*this, parseObj, parent);
-// }
+CGenerator::GenFieldPtr CGenerator::genCreateStringFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<CStringField>(*this, parseObj, parent);
+}
 
-// CGenerator::GenFieldPtr CGenerator::genCreateDataFieldImpl(ParseField parseObj, GenElem* parent)
-// {
-//     return std::make_unique<CDataField>(*this, parseObj, parent);
-// }
+CGenerator::GenFieldPtr CGenerator::genCreateDataFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<CDataField>(*this, parseObj, parent);
+}
 
-// CGenerator::GenFieldPtr CGenerator::genCreateListFieldImpl(ParseField parseObj, GenElem* parent)
-// {
-//     return std::make_unique<CListField>(*this, parseObj, parent);
-// }
+CGenerator::GenFieldPtr CGenerator::genCreateListFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<CListField>(*this, parseObj, parent);
+}
 
-// CGenerator::GenFieldPtr CGenerator::genCreateRefFieldImpl(ParseField parseObj, GenElem* parent)
-// {
-//     return std::make_unique<CRefField>(*this, parseObj, parent);
-// }
+CGenerator::GenFieldPtr CGenerator::genCreateRefFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<CRefField>(*this, parseObj, parent);
+}
 
-// CGenerator::GenFieldPtr CGenerator::genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent)
-// {
-//     return std::make_unique<COptionalField>(*this, parseObj, parent);
-// }
+CGenerator::GenFieldPtr CGenerator::genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<COptionalField>(*this, parseObj, parent);
+}
 
-// CGenerator::GenFieldPtr CGenerator::genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent)
-// {
-//     return std::make_unique<CVariantField>(*this, parseObj, parent);
-// }
+CGenerator::GenFieldPtr CGenerator::genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<CVariantField>(*this, parseObj, parent);
+}
 
 CGenerator::OptsProcessResult CGenerator::genProcessOptionsImpl(const GenProgramOptions& options)
 {
