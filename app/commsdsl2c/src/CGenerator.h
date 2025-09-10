@@ -55,6 +55,8 @@ public:
     std::string cInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
 
     static std::string cScopeToName(const std::string& scope);    
+    static const std::string& cCppGuardBegin();
+    static const std::string& cCppGuardEnd();
 
 protected:
     virtual bool genWriteImpl() override;    

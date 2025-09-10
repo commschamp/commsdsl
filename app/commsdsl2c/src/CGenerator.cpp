@@ -98,6 +98,28 @@ std::string CGenerator::cScopeToName(const std::string& scope)
     return util::genStrReplace(scope, "::", "_");
 }
 
+const std::string& CGenerator::cCppGuardBegin()
+{
+    static const std::string Str = 
+        "#ifdef __cplusplus\n"
+        "extern \"C\" {\n"
+        "#endif\n"
+        ;
+
+    return Str;
+}
+
+const std::string& CGenerator::cCppGuardEnd()
+{
+    static const std::string Str = 
+        "#ifdef __cplusplus\n"
+        "}\n"
+        "#endif\n"
+        ;
+
+    return Str;
+}
+
 bool CGenerator::genWriteImpl()
 {
     assert(&genCurrentSchema() == &genProtocolSchema());

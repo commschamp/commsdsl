@@ -40,17 +40,34 @@ public:
     static CFieldsList cTransformFieldsList(const GenFieldsList& fields);
 
     bool cWrite() const;
+    void cAddHeaderIncludes(CIncludesList& includes) const;
+    void cAddSourceIncludes(CIncludesList& includes) const;
+    std::string cStructName() const;
+    std::string cHeaderCode() const;
+    std::string cSourceCode() const;
+    bool cIsVersionOptional() const;
 
     const GenField& cGenField() const
     {
         return m_genField;
-    }
+    }    
 
 protected:
+    virtual void cAddHeaderIncludesImpl(CIncludesList& includes) const;
+    virtual void cAddSourceIncludesImpl(CIncludesList& includes) const;
+    virtual std::string cHeaderCodeImpl() const;
+    virtual std::string cSourceCodeImpl() const;
 
 private:
     bool cWriteHeaderInternal() const;
     bool cWriteSrcInternal() const;
+    std::string cHeaderIncludesInternal() const;
+    std::string cSourceIncludesInternal() const;
+    std::string cHeaderLengthFunc() const;
+    std::string cSourceLengthFunc() const;
+    std::string cHeaderNameFunc() const;
+    std::string cSourceNameFunc() const;
+    std::string cHandleBrief() const;
     
     GenField& m_genField;
 };

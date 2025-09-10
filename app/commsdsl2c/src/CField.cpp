@@ -76,6 +76,101 @@ bool CField::cWrite() const
         cWriteSrcInternal();    
 }
 
+void CField::cAddHeaderIncludes(CIncludesList& includes) const
+{
+    includes.push_back("<stddef.h>");
+
+    return cAddHeaderIncludesImpl(includes);
+}
+
+void CField::cAddSourceIncludes(CIncludesList& includes) const
+{
+    includes.push_back(comms::genRelHeaderPathFor(m_genField, m_genField.genGenerator()));
+    return cAddHeaderIncludesImpl(includes);
+}
+
+std::string CField::cStructName() const
+{
+    return CGenerator::cScopeToName(comms::genScopeFor(m_genField, m_genField.genGenerator()));
+}
+
+std::string CField::cHeaderCode() const
+{
+    static const std::string Templ = 
+        "#^#BRIEF#$#\n"
+        "typedef struct #^#NAME#$#_ #^#NAME#$#;\n\n"
+        "#^#CODE#$#\n"
+        "#^#LENGTH_FUNC#$#\n"
+        "#^#NAME_FUNC#$#\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cStructName()},
+        {"CODE", cHeaderCodeImpl()},
+        {"BRIEF", cHandleBrief()},
+        {"LENGTH_FUNC", cHeaderLengthFunc()},
+        {"NAME_FUNC", cHeaderNameFunc()},
+    };
+    
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CField::cSourceCode() const
+{
+    static const std::string Templ = 
+        "using #^#NAME#$#__cpp = #^#SCOPE#$#<#^#OPTIONS#$#>;\n"
+        "struct alignas(alignof(#^#NAME#$#__cpp)) #^#NAME#$#_ {};\n\n"
+        "namespace\n"
+        "{\n\n"
+        "const #^#NAME#$#__cpp* fromHandle(const #^#NAME#$#* field)\n"
+        "{\n"
+        "    return reinterpret_cast<const #^#NAME#$#__cpp*>(field);\n"
+        "}\n"
+        // "const #^#NAME#$#* toHandle(const #^#NAME#$#__cpp* field)\n"
+        // "{\n"
+        // "    return reinterpret_cast<const #^#NAME#$#*>(field);\n"
+        // "}\n"
+        "\n"        
+        "} // namespace\n\n"
+        "#^#CODE#$#\n"
+        "#^#LENGTH_FUNC#$#\n"
+        "#^#NAME_FUNC#$#\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cStructName()},
+        {"CODE", cSourceCodeImpl()},
+        {"LENGTH_FUNC", cSourceLengthFunc()},
+        {"NAME_FUNC", cSourceNameFunc()},
+        {"SCOPE", comms::genScopeFor(m_genField, m_genField.genGenerator())},
+    };
+    
+    return util::genProcessTemplate(Templ, repl);
+}
+
+bool CField::cIsVersionOptional() const
+{
+    return comms::genIsVersionOptionalField(m_genField, m_genField.genGenerator());
+}
+
+void CField::cAddHeaderIncludesImpl([[maybe_unused]] CIncludesList& includes) const
+{
+}
+
+void CField::cAddSourceIncludesImpl([[maybe_unused]] CIncludesList& includes) const
+{
+}
+
+std::string CField::cHeaderCodeImpl() const
+{
+    return strings::genEmptyString();
+}
+
+std::string CField::cSourceCodeImpl() const
+{
+    return strings::genEmptyString();
+}
+
 bool CField::cWriteHeaderInternal() const
 {
     auto& generator = CGenerator::cCast(m_genField.genGenerator());
@@ -99,15 +194,19 @@ bool CField::cWriteHeaderInternal() const
         "#^#GENERATED#$#\n\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
-        "#^#DEF#$#\n"
+        "#^#CPP_GUARD_BEGIN#$#\n"
+        "#^#CODE#$#\n"
         "#^#APPEND#$#\n"
+        "#^#CPP_GUARD_END#$#\n"
     ;
 
     util::GenReplacementMap repl = {
         {"GENERATED", CGenerator::cFileGeneratedComment()},
-        // {"INCLUDES", cHeaderIncludesInternal()},
-        // {"DEF", cHeaderClass()},
-        {"APPEND", util::genReadFileContents(generator.cInputAbsHeaderFor(m_genField) + strings::genAppendFileSuffixStr())}
+        {"INCLUDES", cHeaderIncludesInternal()},
+        {"CODE", cHeaderCode()},
+        {"APPEND", util::genReadFileContents(generator.cInputAbsHeaderFor(m_genField) + strings::genAppendFileSuffixStr())},
+        {"CPP_GUARD_BEGIN", CGenerator::cCppGuardBegin()},
+        {"CPP_GUARD_END", CGenerator::cCppGuardEnd()},
     };
     
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -136,6 +235,7 @@ bool CField::cWriteSrcInternal() const
 
     static const std::string Templ = 
         "#^#GENERATED#$#\n\n"
+        "#include \"#^#HEADER#$#\"\n\n"
         "#^#INCLUDES#$#\n"
         "#^#CODE#$#\n"
         "#^#APPEND#$#\n"
@@ -143,14 +243,104 @@ bool CField::cWriteSrcInternal() const
 
     util::GenReplacementMap repl = {
         {"GENERATED", CGenerator::cFileGeneratedComment()},
-        // {"INCLUDES", cSourceIncludesInternal()},
-        // {"CODE", cSourceCode()},
-        {"APPEND", util::genReadFileContents(generator.cInputAbsSourceFor(m_genField) + strings::genAppendFileSuffixStr())}
+        {"HEADER", generator.cRelHeaderFor(m_genField)},
+        {"INCLUDES", cSourceIncludesInternal()},
+        {"CODE", cSourceCode()},
+        {"APPEND", util::genReadFileContents(generator.cInputAbsSourceFor(m_genField) + strings::genAppendFileSuffixStr())},
     };
     
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     return stream.good(); 
 }
+
+std::string CField::cHeaderIncludesInternal() const
+{
+    CIncludesList includes;
+    cAddHeaderIncludes(includes);
+    comms::genPrepareIncludeStatement(includes);
+    return util::genStrListToString(includes, "\n", "\n");
+}
+
+std::string CField::cSourceIncludesInternal() const
+{
+    CIncludesList includes;
+    cAddSourceIncludes(includes);
+    comms::genPrepareIncludeStatement(includes);
+    return util::genStrListToString(includes, "\n", "\n");
+}
+
+std::string CField::cHeaderLengthFunc() const
+{
+    static const std::string Templ = 
+        "/// @brief Retrieve serialization length of the @ref #^#NAME#$# field.\n"
+        "size_t #^#NAME#$#_length(const #^#NAME#$#* field);\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cStructName()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CField::cSourceLengthFunc() const
+{
+    static const std::string Templ = 
+        "size_t #^#NAME#$#_length(const #^#NAME#$#* field)\n"
+        "{\n"
+        "    return fromHandle(field)->length();\n"
+        "}\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cStructName()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CField::cHeaderNameFunc() const
+{
+    static const std::string Templ = 
+        "/// @brief Retrieve name of the @ref #^#NAME#$# field.\n"
+        "const char* #^#NAME#$#_name(const #^#NAME#$#* field);\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cStructName()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CField::cSourceNameFunc() const
+{
+    static const std::string Templ = 
+        "const char* #^#NAME#$#_name(const #^#NAME#$#* field)\n"
+        "{\n"
+        "    return fromHandle(field)->name();\n"
+        "}\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cStructName()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CField::cHandleBrief() const
+{
+    if (cIsVersionOptional()) {
+        return "/// @brief Inner field of @ref " + cStructName() + " optional.";
+    }
+
+    return
+        "/// @brief Definition of <b>\"" +
+        util::genDisplayName(m_genField.genParseObj().parseDisplayName(), m_genField.genParseObj().parseName()) +
+        "\"</b> field.";
+}
+
 
 } // namespace commsdsl2c
