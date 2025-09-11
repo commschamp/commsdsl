@@ -107,7 +107,7 @@ bool EmscriptenProtocolOptions::emscriptenWrite(EmscriptenGenerator& generator)
     }
 
     EmscriptenProtocolOptions obj(generator);
-    return obj.emsciptenWriteHeaderInternal();
+    return obj.emscriptenWriteHeaderInternal();
 }
 
 EmscriptenProtocolOptions::EmscriptenProtocolOptions(EmscriptenGenerator& generator) :
@@ -115,7 +115,7 @@ EmscriptenProtocolOptions::EmscriptenProtocolOptions(EmscriptenGenerator& genera
 {
 }    
 
-bool EmscriptenProtocolOptions::emsciptenWriteHeaderInternal()
+bool EmscriptenProtocolOptions::emscriptenWriteHeaderInternal()
 {
     auto name = emscriptenClassName(m_emscriptenGenerator);
     auto filePath = m_emscriptenGenerator.emscriptenAbsHeaderForRoot(name);

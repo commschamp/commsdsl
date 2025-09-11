@@ -37,7 +37,7 @@ public:
 private:
     explicit EmscriptenProtocolOptions(EmscriptenGenerator& generator);
 
-    bool emsciptenWriteHeaderInternal();
+    bool emscriptenWriteHeaderInternal();
     std::string emscriptenTypeDefInternal();
     std::string emscriptenIncludesInternal();
 

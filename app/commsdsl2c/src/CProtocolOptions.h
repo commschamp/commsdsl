@@ -15,30 +15,32 @@
 
 #pragma once
 
-#include "commsdsl/gen/GenProgramOptions.h"
+#include "commsdsl/gen/util.h"
 
-#include <iosfwd>
 #include <string>
-#include <vector>
 
 namespace commsdsl2c
 {
 
-class CProgramOptions : public commsdsl::gen::GenProgramOptions
+class CGenerator;
+class CProtocolOptions
 {
 public:
-    using GenProgramOptions = commsdsl::gen::GenProgramOptions;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    CProgramOptions();
+    static std::string cClassName(const CGenerator& generator);
+    static std::string cRelHeaderPath(const CGenerator& generator);
 
-    static const CProgramOptions& cCast(const GenProgramOptions& options)
-    {
-        return static_cast<const CProgramOptions&>(options);
-    }
+    static bool cWrite(CGenerator& generator);
 
-    const std::string& cGetNamesPrefix() const;
-    const std::string& cGetCommsOptions() const;
-    const std::string& cGetCommsInterface() const;
+private:
+    explicit CProtocolOptions(CGenerator& generator);
+
+    bool cWriteHeaderInternal();
+    std::string cTypeDefInternal();
+    std::string cIncludesInternal();
+
+    CGenerator& m_cGenerator;
 };
 
 } // namespace commsdsl2c

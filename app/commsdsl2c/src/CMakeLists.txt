@@ -11,6 +11,7 @@ set (
     CListField.cpp
     COptionalField.cpp
     CProgramOptions.cpp
+    CProtocolOptions.cpp
     CRefField.cpp
     CSetField.cpp
     CStringField.cpp

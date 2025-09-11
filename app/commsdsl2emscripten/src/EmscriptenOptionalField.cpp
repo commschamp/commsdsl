@@ -105,9 +105,9 @@ void EmscriptenOptionalField::emscriptenHeaderAddExtraIncludesImpl(GenStringsLis
         return;
     }
 
-    auto* emsciptenField = EmscriptenField::emscriptenCast(extField);
-    assert(emsciptenField != nullptr);
-    incs.push_back(emsciptenField->emscriptenRelHeaderPath());
+    auto* emscriptenField = EmscriptenField::emscriptenCast(extField);
+    assert(emscriptenField != nullptr);
+    incs.push_back(emscriptenField->emscriptenRelHeaderPath());
 }
 
 std::string EmscriptenOptionalField::emscriptenHeaderValueAccImpl() const

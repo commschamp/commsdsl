@@ -16,6 +16,7 @@
 #include "CField.h"
 
 #include "CGenerator.h"
+#include "CProtocolOptions.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -79,19 +80,21 @@ bool CField::cWrite() const
 void CField::cAddHeaderIncludes(CIncludesList& includes) const
 {
     includes.push_back("<stddef.h>");
-
     return cAddHeaderIncludesImpl(includes);
 }
 
 void CField::cAddSourceIncludes(CIncludesList& includes) const
 {
-    includes.push_back(comms::genRelHeaderPathFor(m_genField, m_genField.genGenerator()));
+    auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
+    includes.push_back(comms::genRelHeaderPathFor(m_genField, cGenerator));
+    includes.push_back(CProtocolOptions::cRelHeaderPath(cGenerator));
     return cAddHeaderIncludesImpl(includes);
 }
 
 std::string CField::cStructName() const
 {
-    return CGenerator::cScopeToName(comms::genScopeFor(m_genField, m_genField.genGenerator()));
+    auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
+    return cGenerator.cNamesPrefix() + CGenerator::cScopeToName(comms::genScopeFor(m_genField, cGenerator, false));
 }
 
 std::string CField::cHeaderCode() const
@@ -137,12 +140,14 @@ std::string CField::cSourceCode() const
         "#^#NAME_FUNC#$#\n"
         ;
 
+    auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
     util::GenReplacementMap repl = {
         {"NAME", cStructName()},
         {"CODE", cSourceCodeImpl()},
         {"LENGTH_FUNC", cSourceLengthFunc()},
         {"NAME_FUNC", cSourceNameFunc()},
-        {"SCOPE", comms::genScopeFor(m_genField, m_genField.genGenerator())},
+        {"SCOPE", comms::genScopeFor(m_genField, cGenerator)},
+        {"OPTIONS", CProtocolOptions::cClassName(cGenerator)},
     };
     
     return util::genProcessTemplate(Templ, repl);

@@ -240,6 +240,32 @@ std::vector<std::string> genStrSplitByAnyChar(
     return result;
 }
 
+std::vector<std::string> genStrSplit(
+    const std::string& str, 
+    const std::string& sep,
+    bool compressed)
+{
+    std::vector<std::string> result;
+    std::size_t pos = 0U;
+    while (pos < str.size()) {
+        auto nextPos = str.find(sep, pos);
+
+        if (compressed && (nextPos == pos)) {
+            pos += sep.size();
+            continue;
+        }
+
+        if (str.size() <= nextPos) {
+            nextPos = str.size();
+        }
+
+        auto count = nextPos - pos;
+        result.push_back(std::string(str, pos, count));
+        pos = nextPos + sep.size();
+    }
+    return result;
+}
+
 std::string genStrInsertIndent(const std::string& str)
 {
     return strings::genIndentStr() + genStrReplace(str, "\n", "\n" + strings::genIndentStr());

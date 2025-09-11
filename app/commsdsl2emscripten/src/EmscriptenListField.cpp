@@ -67,9 +67,9 @@ void EmscriptenListField::emscriptenHeaderAddExtraIncludesImpl(GenStringsList& i
         return;
     }
 
-    auto* emsciptenField = EmscriptenField::emscriptenCast(extElement);
-    assert(emsciptenField != nullptr);
-    incs.push_back(emsciptenField->emscriptenRelHeaderPath());
+    auto* emscriptenField = EmscriptenField::emscriptenCast(extElement);
+    assert(emscriptenField != nullptr);
+    incs.push_back(emscriptenField->emscriptenRelHeaderPath());
 }
 
 std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const

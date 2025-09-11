@@ -29,6 +29,7 @@
 // #include "CNamespace.h"
 #include "COptionalField.h"
 #include "CProgramOptions.h"
+#include "CProtocolOptions.h"
 #include "CRefField.h"
 // #include "CSchema.h"
 #include "CSetField.h"
@@ -120,10 +121,30 @@ const std::string& CGenerator::cCppGuardEnd()
     return Str;
 }
 
+const std::string& CGenerator::cNamesPrefix() const
+{
+    return m_namesPrefix;
+}
+
+const CGenerator::GenStringsList& CGenerator::cProtocolOptions() const
+{
+    return m_commsOptions;
+}
+
+bool CGenerator::genPrepareImpl()
+{
+    return 
+        cPrepareNamesPrefixInternal() &&
+        cPrepareCommsOptionsInternal();
+
+    return true;
+}
+
 bool CGenerator::genWriteImpl()
 {
     assert(&genCurrentSchema() == &genProtocolSchema());
     return 
+        CProtocolOptions::cWrite(*this) &&
         cWriteExtraFilesInternal();
 }
 
@@ -209,8 +230,9 @@ CGenerator::GenFieldPtr CGenerator::genCreateVariantFieldImpl(ParseField parseOb
 
 CGenerator::OptsProcessResult CGenerator::genProcessOptionsImpl(const GenProgramOptions& options)
 {
-    [[maybe_unused]] auto& opts = CProgramOptions::cCast(options);
+    auto& opts = CProgramOptions::cCast(options);
 
+    cSetNamesPrefixInternal(opts.cGetNamesPrefix());
     genSetTopNamespace("cc_c");
     return OptsProcessResult_Continue;
 }
@@ -221,6 +243,50 @@ bool CGenerator::cWriteExtraFilesInternal() const
     }; 
 
     return genCopyExtraSourceFiles(ReservedExt);
+}
+
+void CGenerator::cSetNamesPrefixInternal(const std::string& value)
+{
+    m_namesPrefix = util::genStrToName(value);
+}
+
+void CGenerator::cSetCommsOptions(const std::string& value)
+{
+    m_commsOptions = util::genStrSplit(value, "::");
+}
+
+bool CGenerator::cPrepareNamesPrefixInternal()
+{
+    if (m_namesPrefix.empty()) {
+        m_namesPrefix = genProtocolSchema().genMainNamespace();
+    }
+    m_namesPrefix += '_';
+    return true;
+}
+
+bool CGenerator::cPrepareCommsOptionsInternal()
+{
+    auto& schemas = genSchemas();
+    while (m_commsOptions.size() < schemas.size()) {
+        m_commsOptions.push_back(strings::genDefaultOptionsClassStr());
+    }
+
+    for (auto idx = 0U; idx < m_commsOptions.size(); ++idx) {
+        auto& optStr = m_commsOptions[idx];
+        auto scopePos = optStr.find("::");
+        if (scopePos != std::string::npos) {
+            continue;
+        }
+
+        if (schemas.size() <= idx) {
+            genLogger().genError("Unable to determine options scope from \"" + optStr + "\" options string.");
+            return false;
+        }
+
+        optStr = schemas[idx]->genMainNamespace() + "::" + comms::genScopeForOptions(optStr, *this, false, true);
+    }
+
+    return true;
 }
 
 } // namespace commsdsl2c

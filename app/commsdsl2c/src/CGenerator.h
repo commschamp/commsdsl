@@ -16,6 +16,7 @@
 #pragma once
 
 #include "commsdsl/gen/GenGenerator.h"
+#include "commsdsl/gen/util.h"
 
 namespace commsdsl2c 
 {
@@ -25,6 +26,7 @@ class CGenerator final : public commsdsl::gen::GenGenerator
     using Base = commsdsl::gen::GenGenerator;
 
 public:
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
     using GenElem = commsdsl::gen::GenElem;
     using GenSchemaPtr = commsdsl::gen::GenSchemaPtr;
     using GenNamespacePtr = commsdsl::gen::GenNamespacePtr;
@@ -58,7 +60,11 @@ public:
     static const std::string& cCppGuardBegin();
     static const std::string& cCppGuardEnd();
 
+    const std::string& cNamesPrefix() const;
+    const GenStringsList& cProtocolOptions() const;
+
 protected:
+    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() override;    
 
     // virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
@@ -83,6 +89,14 @@ protected:
 
 private:
     bool cWriteExtraFilesInternal() const;
+    void cSetNamesPrefixInternal(const std::string& value);
+    void cSetCommsOptions(const std::string& value);
+
+    bool cPrepareNamesPrefixInternal();
+    bool cPrepareCommsOptionsInternal();
+
+    std::string m_namesPrefix;    
+    GenStringsList m_commsOptions;
 };
 
 } // namespace commsdsl2c
