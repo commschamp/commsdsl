@@ -1,7 +1,6 @@
 //
 // Copyright 2022 - 2025 (C). Alex Robenko. All rights reserved.
 //
-
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -16,33 +15,27 @@
 
 #pragma once
 
-#include "CField.h"
+#include <string>
 
-#include "commsdsl/gen/GenSchema.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2c
 {
 
 class CGenerator;
-class CSchema final: public commsdsl::gen::GenSchema
+class CCmake
 {
-    using GenBase = commsdsl::gen::GenSchema;
-
 public:
-    using ParseSchema = commsdsl::parse::ParseSchema;
-    using GenElem = commsdsl::gen::GenElem;
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    explicit CSchema(CGenerator& generator, ParseSchema parseObj, GenElem* parent);
-    virtual ~CSchema();
+    static bool cWrite(CGenerator& generator);
 
-    static const CSchema* cCast(const commsdsl::gen::GenSchema* schema)
-    {
-        return static_cast<const CSchema*>(schema);
-    }
+private:
+    explicit CCmake(CGenerator& generator) : m_cGenerator(generator) {}
 
-    void cAddSourceFiles(GenStringsList& sources) const;
+    bool cWriteInternal() const;
+
+    CGenerator& m_cGenerator;
 };
 
 } // namespace commsdsl2c

@@ -39,6 +39,28 @@ CField::CField(GenField& field) :
 
 CField::~CField() = default;
 
+const CField* CField::cCast(const commsdsl::gen::GenField* field)
+{
+    if (field == nullptr) {
+        return nullptr;
+    }
+
+    auto* cField = dynamic_cast<const CField*>(field);    
+    assert(cField != nullptr);
+    return cField;
+}
+
+CField* CField::cCast(commsdsl::gen::GenField* field)
+{
+    if (field == nullptr) {
+        return nullptr;
+    }
+
+    auto* cField = dynamic_cast<CField*>(field);    
+    assert(cField != nullptr);
+    return cField;
+}
+
 CField::CFieldsList CField::cTransformFieldsList(const GenFieldsList& fields)
 {
     CFieldsList result;
@@ -156,6 +178,16 @@ std::string CField::cSourceCode() const
 bool CField::cIsVersionOptional() const
 {
     return comms::genIsVersionOptionalField(m_genField, m_genField.genGenerator());
+}
+
+void CField::cAddSourceFiles(GenStringsList& sources) const
+{
+    if ((!comms::genIsGlobalField(m_genField)) || (!m_genField.genIsReferenced())) {
+        return;
+    }
+
+    auto& gen = CGenerator::cCast(m_genField.genGenerator());
+    sources.push_back(gen.cRelSourceFor(m_genField));
 }
 
 void CField::cAddHeaderIncludesImpl([[maybe_unused]] CIncludesList& includes) const

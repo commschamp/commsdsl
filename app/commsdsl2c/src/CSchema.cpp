@@ -1,7 +1,6 @@
 //
 // Copyright 2022 - 2025 (C). Alex Robenko. All rights reserved.
 //
-
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -14,35 +13,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#include "CSchema.h"
 
-#include "CField.h"
-
-#include "commsdsl/gen/GenSchema.h"
-#include "commsdsl/gen/util.h"
+#include "CGenerator.h"
+#include "CNamespace.h"
 
 namespace commsdsl2c
 {
 
-class CGenerator;
-class CSchema final: public commsdsl::gen::GenSchema
+CSchema::CSchema(CGenerator& generator, ParseSchema parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent)
 {
-    using GenBase = commsdsl::gen::GenSchema;
+}   
 
-public:
-    using ParseSchema = commsdsl::parse::ParseSchema;
-    using GenElem = commsdsl::gen::GenElem;
-    using GenStringsList = commsdsl::gen::util::GenStringsList;
+CSchema::~CSchema() = default;
 
-    explicit CSchema(CGenerator& generator, ParseSchema parseObj, GenElem* parent);
-    virtual ~CSchema();
-
-    static const CSchema* cCast(const commsdsl::gen::GenSchema* schema)
-    {
-        return static_cast<const CSchema*>(schema);
+void CSchema::cAddSourceFiles(GenStringsList& sources) const
+{
+    for (auto& nPtr : genNamespaces()) {
+        auto* n = CNamespace::cCast(nPtr.get());
+        n->cAddSourceFiles(sources);
     }
+}
 
-    void cAddSourceFiles(GenStringsList& sources) const;
-};
 
 } // namespace commsdsl2c

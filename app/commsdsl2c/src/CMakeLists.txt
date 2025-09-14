@@ -2,6 +2,7 @@ set (
     src
     CBitfieldField.cpp
     CBundleField.cpp
+    CCmake.cpp
     CDataField.cpp
     CEnumField.cpp
     CFloatField.cpp
@@ -9,10 +10,12 @@ set (
     CGenerator.cpp
     CIntField.cpp
     CListField.cpp
+    CNamespace.cpp
     COptionalField.cpp
     CProgramOptions.cpp
     CProtocolOptions.cpp
     CRefField.cpp
+    CSchema.cpp
     CSetField.cpp
     CStringField.cpp
     CVariantField.cpp

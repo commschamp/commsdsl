@@ -37,6 +37,8 @@ public:
     explicit CField(GenField& field);
     virtual ~CField();
 
+    static const CField* cCast(const commsdsl::gen::GenField* field);
+    static CField* cCast(commsdsl::gen::GenField* field);    
     static CFieldsList cTransformFieldsList(const GenFieldsList& fields);
 
     bool cWrite() const;
@@ -46,6 +48,7 @@ public:
     std::string cHeaderCode() const;
     std::string cSourceCode() const;
     bool cIsVersionOptional() const;
+    void cAddSourceFiles(GenStringsList& sources) const;
 
     const GenField& cGenField() const
     {

@@ -47,50 +47,39 @@ foreach (name ${tests})
 
     add_dependencies(${APP_NAME}.all_tests ${output_tgt})         
 
-    # set (build_tgt ${APP_NAME}.${name}_build_tgt)
-    # set (build_dir ${output_dir}_build)
-    # set (install_dir ${build_dir}/install)
-    # set (prot_include_dir "${PROJECT_BINARY_DIR}/app/commsdsl2comms/test/${name}_install/include")
-    # set (extra_includes_path ${prot_include_dir} ${comms_include_dirs})
-    # string (REPLACE ";" "|" extra_includes_path_str "${extra_includes_path}")    
+    set (build_tgt ${APP_NAME}.${name}_build_tgt)
+    set (build_dir ${output_dir}_build)
+    set (install_dir ${build_dir}/install)
+    set (prot_include_dir "${PROJECT_BINARY_DIR}/app/commsdsl2comms/test/${name}_install/include")
+    set (extra_includes_path ${prot_include_dir} ${comms_include_dirs})
+    string (REPLACE ";" "|" extra_includes_path_str "${extra_includes_path}")    
 
-    # execute_process (
-    #     COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}")          
+    execute_process (
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}")          
 
-    # execute_process (
-    #     COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/dummy.txt")        
+    execute_process (
+        COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/dummy.txt")        
 
-    # ExternalProject_Add(
-    #     ${build_tgt}
-    #     BUILD_ALWAYS TRUE
-    #     DEPENDS ${output_tgt} commsdsl2comms.${name}_build_tgt
-    #     SOURCE_DIR ${output_dir}
-    #     BINARY_DIR ${build_dir}
-    #     INSTALL_DIR ${install_dir}
-    #     CMAKE_COMMAND ${EMCMAKE_EXECUTABLE} ${CMAKE_COMMAND}
-    #     CMAKE_GENERATOR ${CMAKE_GENERATOR}
-    #     CMAKE_GENERATOR_PLATFORM ${CMAKE_GENERATOR_PLATFORM}
-    #     CMAKE_GENERATOR_TOOLSET ${CMAKE_GENERATOR_TOOLSET}
-    #     LIST_SEPARATOR |
-    #     CMAKE_ARGS 
-    #         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-    #         -DCMAKE_INSTALL_PREFIX=${install_dir}
-    #         -DOPT_MODULARIZE=ON
-    #         -DOPT_EXTRA_INCLUDE_DIRS=${extra_includes_path_str}
-    #         -DOPT_USE_CCACHE=${COMMSDSL_USE_CCACHE}
-    #         -DOPT_CCACHE_EXECUTABLE=${COMMSDSL_CCACHE_EXECUTABLE}            
-    # )     
+    ExternalProject_Add(
+        ${build_tgt}
+        BUILD_ALWAYS TRUE
+        DEPENDS ${output_tgt} commsdsl2comms.${name}_build_tgt
+        SOURCE_DIR ${output_dir}
+        BINARY_DIR ${build_dir}
+        INSTALL_DIR ${install_dir}
+        CMAKE_GENERATOR ${CMAKE_GENERATOR}
+        CMAKE_GENERATOR_PLATFORM ${CMAKE_GENERATOR_PLATFORM}
+        CMAKE_GENERATOR_TOOLSET ${CMAKE_GENERATOR_TOOLSET}
+        LIST_SEPARATOR |
+        CMAKE_ARGS 
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DCMAKE_INSTALL_PREFIX=${install_dir}
+            -DOPT_FIND_COMMS=OFF
+            -DOPT_FIND_PROTOCOL=OFF
+            -DOPT_EXTRA_INCLUDE_DIRS=${extra_includes_path_str}
+            -DOPT_USE_CCACHE=${COMMSDSL_USE_CCACHE}
+            -DOPT_CCACHE_EXECUTABLE=${COMMSDSL_CCACHE_EXECUTABLE}            
+    )     
 
-    # add_dependencies(${APP_NAME}.all_tests ${build_tgt})     
-
-    # if (EXISTS ${this_test_dir}/c_${name}.js)
-    #     add_test(
-    #         NAME ${APP_NAME}.${name}
-    #         COMMAND ${NODE_EXECUTABLE} ${extra_node_params} ${this_test_dir}/c_${name}.js
-    #         WORKING_DIRECTORY ${build_dir}
-    #     )    
-
-    #     set_property(TEST ${APP_NAME}.${name} PROPERTY ENVIRONMENT "NODE_PATH=${install_dir}/js")
-    # endif ()
-
+    add_dependencies(${APP_NAME}.all_tests ${build_tgt})     
 endforeach ()

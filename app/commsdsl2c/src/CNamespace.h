@@ -18,28 +18,28 @@
 
 #include "CField.h"
 
-#include "commsdsl/gen/GenSchema.h"
+#include "commsdsl/gen/GenNamespace.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2c
 {
 
 class CGenerator;
-class CSchema final: public commsdsl::gen::GenSchema
+class CNamespace final: public commsdsl::gen::GenNamespace
 {
-    using GenBase = commsdsl::gen::GenSchema;
+    using GenBase = commsdsl::gen::GenNamespace;
 
 public:
-    using ParseSchema = commsdsl::parse::ParseSchema;
+    using ParseNamespace = commsdsl::parse::ParseNamespace;
     using GenElem = commsdsl::gen::GenElem;
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    explicit CSchema(CGenerator& generator, ParseSchema parseObj, GenElem* parent);
-    virtual ~CSchema();
+    explicit CNamespace(CGenerator& generator, ParseNamespace parseObj, GenElem* parent);
+    virtual ~CNamespace();
 
-    static const CSchema* cCast(const commsdsl::gen::GenSchema* schema)
+    static const CNamespace* cCast(const commsdsl::gen::GenNamespace* schema)
     {
-        return static_cast<const CSchema*>(schema);
+        return static_cast<const CNamespace*>(schema);
     }
 
     void cAddSourceFiles(GenStringsList& sources) const;

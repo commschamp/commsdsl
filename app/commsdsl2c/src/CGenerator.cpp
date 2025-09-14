@@ -15,23 +15,22 @@
 
 #include "CGenerator.h"
 
-// #include "C.h"
 #include "CBitfieldField.h"
 #include "CBundleField.h"
 #include "CDataField.h"
-// #include "CCmake.h"
+#include "CCmake.h"
 #include "CEnumField.h"
 #include "CFloatField.h"
 // #include "CFrame.h"
 #include "CIntField.h"
 #include "CListField.h"
 // #include "CMessage.h"
-// #include "CNamespace.h"
+#include "CNamespace.h"
 #include "COptionalField.h"
 #include "CProgramOptions.h"
 #include "CProtocolOptions.h"
 #include "CRefField.h"
-// #include "CSchema.h"
+#include "CSchema.h"
 #include "CSetField.h"
 #include "CStringField.h"
 #include "CVariantField.h"
@@ -136,8 +135,6 @@ bool CGenerator::genPrepareImpl()
     return 
         cPrepareNamesPrefixInternal() &&
         cPrepareCommsOptionsInternal();
-
-    return true;
 }
 
 bool CGenerator::genWriteImpl()
@@ -145,18 +142,19 @@ bool CGenerator::genWriteImpl()
     assert(&genCurrentSchema() == &genProtocolSchema());
     return 
         CProtocolOptions::cWrite(*this) &&
+        CCmake::cWrite(*this) &&
         cWriteExtraFilesInternal();
 }
 
-// CGenerator::GenSchemaPtr CGenerator::genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent)
-// {
-//     return std::make_unique<CSchema>(*this, parseObj, parent);
-// }
+CGenerator::GenSchemaPtr CGenerator::genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent)
+{
+    return std::make_unique<CSchema>(*this, parseObj, parent);
+}
 
-// CGenerator::GenNamespacePtr CGenerator::genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent)
-// {
-//     return std::make_unique<CNamespace>(*this, parseObj, parent);
-// }
+CGenerator::GenNamespacePtr CGenerator::genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent)
+{
+    return std::make_unique<CNamespace>(*this, parseObj, parent);
+}
 
 // CGenerator::GenMessagePtr CGenerator::genCreateMessageImpl(ParseMessage parseObj, GenElem* parent)
 // {
