@@ -24,7 +24,7 @@
 // #include "CFrame.h"
 #include "CIntField.h"
 #include "CListField.h"
-// #include "CMessage.h"
+#include "CMessage.h"
 #include "CNamespace.h"
 #include "COptionalField.h"
 #include "CProgramOptions.h"
@@ -40,6 +40,7 @@
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
+#include <algorithm>
 #include <cassert>
 #include <fstream>
 #include <filesystem>
@@ -156,10 +157,10 @@ CGenerator::GenNamespacePtr CGenerator::genCreateNamespaceImpl(ParseNamespace pa
     return std::make_unique<CNamespace>(*this, parseObj, parent);
 }
 
-// CGenerator::GenMessagePtr CGenerator::genCreateMessageImpl(ParseMessage parseObj, GenElem* parent)
-// {
-//     return std::make_unique<CMessage>(*this, parseObj, parent);
-// }
+CGenerator::GenMessagePtr CGenerator::genCreateMessageImpl(ParseMessage parseObj, GenElem* parent)
+{
+    return std::make_unique<CMessage>(*this, parseObj, parent);
+}
 
 // CGenerator::GenFramePtr CGenerator::genCreateFrameImpl(ParseFrame parseObj, GenElem* parent)
 // {
@@ -266,11 +267,20 @@ bool CGenerator::cPrepareCommsOptionsInternal()
 {
     auto& schemas = genSchemas();
     while (m_commsOptions.size() < schemas.size()) {
+        if (!schemas[m_commsOptions.size()]->genHasAnyReferencedComponent()) {
+            m_commsOptions.push_back(strings::genEmptyString());
+            continue;
+        }
+
         m_commsOptions.push_back(strings::genDefaultOptionsClassStr());
     }
 
     for (auto idx = 0U; idx < m_commsOptions.size(); ++idx) {
         auto& optStr = m_commsOptions[idx];
+        if (optStr.empty()) {
+            continue;
+        }
+
         auto scopePos = optStr.find("::");
         if (scopePos != std::string::npos) {
             continue;
@@ -283,6 +293,16 @@ bool CGenerator::cPrepareCommsOptionsInternal()
 
         optStr = schemas[idx]->genMainNamespace() + "::" + comms::genScopeForOptions(optStr, *this, false, true);
     }
+
+    // Clean empty strings
+    m_commsOptions.erase(
+        std::remove_if(
+            m_commsOptions.begin(), m_commsOptions.end(),
+            [](auto& str)
+            {
+                return str.empty();
+            }),
+        m_commsOptions.end());    
 
     return true;
 }

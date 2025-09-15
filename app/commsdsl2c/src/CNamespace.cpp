@@ -1,5 +1,5 @@
 //
-// Copyright 2022 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2025 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #include "CField.h"
 #include "CGenerator.h"
 // #include "CInterface.h"
-// #include "CMessage.h"
+#include "CMessage.h"
 // #include "CFrame.h"
 
 #include "commsdsl/gen/comms.h"
@@ -63,7 +63,7 @@ void CNamespace::cAddSourceFiles(GenStringsList& sources) const
     // cAddSourceFilesInternal<CNamespace>(genNamespaces(), sources);
     cAddSourceFilesInternal<CField>(genFields(), sources);
     // cAddSourceFilesInternal<CInterface>(genInterfaces(), sources);
-    // cAddSourceFilesInternal<CMessage>(genMessages(), sources);
+    cAddSourceFilesInternal<CMessage>(genMessages(), sources);
     // cAddSourceFilesInternal<CFrame>(genFrames(), sources);
 
     // if (!genInterfaces().empty()) {

@@ -69,7 +69,7 @@ protected:
 
     virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
     virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
-    // virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent) override;
+    virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent) override;
     // virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent) override;
 
     virtual GenFieldPtr genCreateIntFieldImpl(ParseField parseObj, GenElem* parent) override;

@@ -16,6 +16,7 @@
 #include "CField.h"
 
 #include "CGenerator.h"
+#include "CMessage.h"
 #include "CProtocolOptions.h"
 
 #include "commsdsl/gen/comms.h"
@@ -108,8 +109,10 @@ void CField::cAddHeaderIncludes(CIncludesList& includes) const
 void CField::cAddSourceIncludes(CIncludesList& includes) const
 {
     auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
-    includes.push_back(comms::genRelHeaderPathFor(m_genField, cGenerator));
     includes.push_back(CProtocolOptions::cRelHeaderPath(cGenerator));
+    if (comms::genIsGlobalField(m_genField) && m_genField.genIsReferenced()) {
+        includes.push_back(comms::genRelHeaderPathFor(m_genField, cGenerator));
+    }
     return cAddHeaderIncludesImpl(includes);
 }
 
@@ -143,7 +146,7 @@ std::string CField::cHeaderCode() const
 std::string CField::cSourceCode() const
 {
     static const std::string Templ = 
-        "using #^#NAME#$#__cpp = #^#SCOPE#$#<#^#OPTIONS#$#>;\n"
+        "using #^#NAME#$#__cpp = #^#COMMS_TYPE#$#;\n"
         "struct alignas(alignof(#^#NAME#$#__cpp)) #^#NAME#$#_ {};\n\n"
         "namespace\n"
         "{\n\n"
@@ -162,17 +165,50 @@ std::string CField::cSourceCode() const
         "#^#NAME_FUNC#$#\n"
         ;
 
-    auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
     util::GenReplacementMap repl = {
         {"NAME", cStructName()},
         {"CODE", cSourceCodeImpl()},
         {"LENGTH_FUNC", cSourceLengthFunc()},
         {"NAME_FUNC", cSourceNameFunc()},
-        {"SCOPE", comms::genScopeFor(m_genField, cGenerator)},
-        {"OPTIONS", CProtocolOptions::cClassName(cGenerator)},
+        {"COMMS_TYPE", cCommsType()},
     };
     
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CField::cCommsType(bool appendOptions) const
+{
+    auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
+    auto adjustType = 
+        [this, &cGenerator](const std::string& type, bool withOpts)
+        {
+            auto str = type + strings::genFieldsSuffixStr();
+            if (withOpts) {
+                str += '<' + CProtocolOptions::cClassName(cGenerator) + '>';
+            }
+            str += "::";
+            str += comms::genClassName(m_genField.genName());
+            return str;
+        };
+        
+    auto* parent = m_genField.genGetParent();
+    assert(parent != nullptr);
+    auto parentType = parent->genElemType();
+    if (parentType == GenElem::GenType::GenType_Field) {
+        return adjustType(CField::cCast(static_cast<const GenField*>(parent))->cCommsType(appendOptions), false);
+    }
+
+    if (parentType == GenElem::GenType::GenType_Message) {
+        return adjustType(CMessage::cCast(static_cast<const commsdsl::gen::GenMessage*>(parent))->cCommsType(false), true);
+    }
+
+    // TODO: Frame Layer
+    assert (parentType == GenElem::GenType::GenType_Namespace);
+    auto str = comms::genScopeFor(m_genField, cGenerator);
+    if (appendOptions) {
+        str += '<' + CProtocolOptions::cClassName(cGenerator) + '>';
+    }
+    return str;
 }
 
 bool CField::cIsVersionOptional() const
@@ -186,8 +222,8 @@ void CField::cAddSourceFiles(GenStringsList& sources) const
         return;
     }
 
-    auto& gen = CGenerator::cCast(m_genField.genGenerator());
-    sources.push_back(gen.cRelSourceFor(m_genField));
+    auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
+    sources.push_back(cGenerator.cRelSourceFor(m_genField));
 }
 
 void CField::cAddHeaderIncludesImpl([[maybe_unused]] CIncludesList& includes) const

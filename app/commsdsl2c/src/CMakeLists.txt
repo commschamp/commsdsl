@@ -10,6 +10,7 @@ set (
     CGenerator.cpp
     CIntField.cpp
     CListField.cpp
+    CMessage.cpp
     CNamespace.cpp
     COptionalField.cpp
     CProgramOptions.cpp

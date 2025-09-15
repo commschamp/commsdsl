@@ -28,6 +28,7 @@ class CField
 {
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
+    using GenElem = commsdsl::gen::GenElem;
     using GenField = commsdsl::gen::GenField;
     using GenFieldsList = GenField::GenFieldsList;
 
@@ -47,6 +48,7 @@ public:
     std::string cStructName() const;
     std::string cHeaderCode() const;
     std::string cSourceCode() const;
+    std::string cCommsType(bool appendOptions = true) const;
     bool cIsVersionOptional() const;
     void cAddSourceFiles(GenStringsList& sources) const;
 
