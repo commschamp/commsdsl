@@ -16,6 +16,7 @@
 #include "CField.h"
 
 #include "CGenerator.h"
+#include "CInterface.h"
 #include "CMessage.h"
 #include "CProtocolOptions.h"
 
@@ -94,7 +95,7 @@ bool CField::cWrite() const
             "Skipping file generation for non-referenced field \"" + m_genField.genParseObj().parseExternalRef() + "\".");
         return true;
     }
-    
+
     return 
         cWriteHeaderInternal() &&
         cWriteSrcInternal();    
@@ -109,7 +110,13 @@ void CField::cAddHeaderIncludes(CIncludesList& includes) const
 void CField::cAddSourceIncludes(CIncludesList& includes) const
 {
     auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
-    includes.push_back(CProtocolOptions::cRelHeaderPath(cGenerator));
+    auto* parent = m_genField.genGetParent();
+    assert(parent != nullptr);
+
+    if (parent->genElemType() != GenElem::GenType_Interface) {
+        includes.push_back(CProtocolOptions::cRelHeaderPath(cGenerator));
+    }
+
     if (comms::genIsGlobalField(m_genField) && m_genField.genIsReferenced()) {
         includes.push_back(comms::genRelHeaderPathFor(m_genField, cGenerator));
     }
@@ -119,7 +126,7 @@ void CField::cAddSourceIncludes(CIncludesList& includes) const
 std::string CField::cStructName() const
 {
     auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
-    return cGenerator.cNamesPrefix() + CGenerator::cScopeToName(comms::genScopeFor(m_genField, cGenerator, false));
+    return cGenerator.cStructNameFor(m_genField);
 }
 
 std::string CField::cHeaderCode() const
@@ -146,7 +153,7 @@ std::string CField::cHeaderCode() const
 std::string CField::cSourceCode() const
 {
     static const std::string Templ = 
-        "using #^#NAME#$#__cpp = #^#COMMS_TYPE#$#;\n"
+        "using #^#NAME#$#__cpp = ::#^#COMMS_TYPE#$#;\n"
         "struct alignas(alignof(#^#NAME#$#__cpp)) #^#NAME#$#_ {};\n\n"
         "namespace\n"
         "{\n\n"
@@ -201,6 +208,10 @@ std::string CField::cCommsType(bool appendOptions) const
     if (parentType == GenElem::GenType::GenType_Message) {
         return adjustType(CMessage::cCast(static_cast<const commsdsl::gen::GenMessage*>(parent))->cCommsType(false), true);
     }
+
+    if (parentType == GenElem::GenType::GenType_Interface) {
+        return adjustType(CInterface::cCast(static_cast<const commsdsl::gen::GenInterface*>(parent))->cCommsType(), false);
+    }    
 
     // TODO: Frame Layer
     assert (parentType == GenElem::GenType::GenType_Namespace);

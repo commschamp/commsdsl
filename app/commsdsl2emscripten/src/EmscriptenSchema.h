@@ -16,16 +16,16 @@
 
 #pragma once
 
-#include "CField.h"
+#include "EmscriptenField.h"
 
 #include "commsdsl/gen/GenSchema.h"
 #include "commsdsl/gen/util.h"
 
-namespace commsdsl2c
+namespace commsdsl2emscripten
 {
 
-class CGenerator;
-class CSchema final: public commsdsl::gen::GenSchema
+class EmscriptenGenerator;
+class EmscriptenSchema final: public commsdsl::gen::GenSchema
 {
     using GenBase = commsdsl::gen::GenSchema;
 
@@ -34,15 +34,15 @@ public:
     using GenElem = commsdsl::gen::GenElem;
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    explicit CSchema(CGenerator& generator, ParseSchema parseObj, GenElem* parent);
-    virtual ~CSchema();
+    explicit EmscriptenSchema(EmscriptenGenerator& generator, ParseSchema parseObj, GenElem* parent);
+    virtual ~EmscriptenSchema();
 
-    static const CSchema* cCast(const commsdsl::gen::GenSchema* schema)
+    static const EmscriptenSchema* emscriptenCast(const commsdsl::gen::GenSchema* schema)
     {
-        return static_cast<const CSchema*>(schema);
+        return static_cast<const EmscriptenSchema*>(schema);
     }
 
-    void cAddSourceFiles(GenStringsList& sources) const;
+    void emscriptenAddSourceFiles(GenStringsList& sources) const;
 };
 
-} // namespace commsdsl2c
+} // namespace commsdsl2emscripten

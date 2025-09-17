@@ -120,6 +120,7 @@ const std::string& genNoStr();
 const std::string& genBigStr();
 const std::string& genLittleStr();
 const std::string& genDescriptionStr();
+const std::string& genCommsNameSuffixStr();
 
 
 char genSiblingRefPrefix();

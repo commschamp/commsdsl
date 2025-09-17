@@ -18,51 +18,55 @@
 
 #include "CField.h"
 
-#include "commsdsl/gen/GenMessage.h"
+#include "commsdsl/gen/GenInterface.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2c
 {
 
 class CGenerator;
-class CMessage final: public commsdsl::gen::GenMessage
+class CInterface final: public commsdsl::gen::GenInterface
 {
-    using GenBase = commsdsl::gen::GenMessage;
+    using GenBase = commsdsl::gen::GenInterface;
 
 public:
-    using ParseMessage = commsdsl::parse::ParseMessage;
+    using ParseInterface = commsdsl::parse::ParseInterface;
     using GenElem = commsdsl::gen::GenElem;
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    explicit CMessage(CGenerator& generator, ParseMessage parseObj, GenElem* parent);
-    virtual ~CMessage();
+    explicit CInterface(CGenerator& generator, ParseInterface parseObj, GenElem* parent);
+    virtual ~CInterface();
 
-    static const CMessage* cCast(const commsdsl::gen::GenMessage* i)
+    static const CInterface* cCast(const commsdsl::gen::GenInterface* schema)
     {
-        return static_cast<const CMessage*>(i);
+        return static_cast<const CInterface*>(schema);
     }
 
     std::string cRelHeader() const;
+    std::string cRelCommsDefHeader() const;
     void cAddSourceFiles(GenStringsList& sources) const;
-    std::string cCommsType(bool appendOptions = true) const;
+    std::string cCommsType() const;
+    bool cCodeGenerationAllowed() const;
     std::string cStructName() const;
+    std::string cStructCommsName() const;
 
 protected:
     virtual bool genPrepareImpl() override;    
-    virtual bool genWriteImpl() const override;
+    virtual bool genWriteImpl() const override;        
 
 private:
     using CFieldsList = CField::CFieldsList;
 
     bool cWriteHeaderInternal() const;
-    bool cWriteSourceInternal() const;
-    
+    bool cWriteSourceInternal() const;    
+    bool cWriteSourceCommsDefInternal() const;    
+
     std::string cHeaderIncludesInternal() const;
     std::string cHeaderFieldsInternal() const;
     std::string cHeaderCodeInternal() const;
     std::string cSourceIncludesInternal() const;
     std::string cSourceFieldsInternal() const;
-    std::string cSourceCodeInternal() const;
+    std::string cSourceCodeInternal() const;    
 
     CFieldsList m_cFields;        
 };

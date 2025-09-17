@@ -8,6 +8,7 @@ set (
     CFloatField.cpp
     CField.cpp
     CGenerator.cpp
+    CInterface.cpp
     CIntField.cpp
     CListField.cpp
     CMessage.cpp

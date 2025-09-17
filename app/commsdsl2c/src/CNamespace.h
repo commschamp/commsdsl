@@ -25,6 +25,7 @@ namespace commsdsl2c
 {
 
 class CGenerator;
+class CInterface;
 class CNamespace final: public commsdsl::gen::GenNamespace
 {
     using GenBase = commsdsl::gen::GenNamespace;
@@ -42,7 +43,13 @@ public:
         return static_cast<const CNamespace*>(schema);
     }
 
+    const CInterface* cInterface() const;
+    bool cIsSuitableInterface(const CInterface& iFace) const;
     void cAddSourceFiles(GenStringsList& sources) const;
+    bool cCodeGenerationAllowed() const;
+
+private:
+    const CInterface* cFindSuitableInterfaceInternal() const;    
 };
 
 } // namespace commsdsl2c

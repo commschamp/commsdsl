@@ -22,6 +22,7 @@
 #include "CEnumField.h"
 #include "CFloatField.h"
 // #include "CFrame.h"
+#include "CInterface.h"
 #include "CIntField.h"
 #include "CListField.h"
 #include "CMessage.h"
@@ -94,6 +95,11 @@ std::string CGenerator::cInputAbsSourceFor(const commsdsl::gen::GenElem& elem) c
     return genGetCodeDir() + '/' + cRelSourceFor(elem);
 }
 
+std::string CGenerator::cStructNameFor(const commsdsl::gen::GenElem& elem) const
+{
+    return cNamesPrefix() + cScopeToName(comms::genScopeFor(elem, *this, false));
+}
+
 std::string CGenerator::cScopeToName(const std::string& scope)
 {
     return util::genStrReplace(scope, "::", "_");
@@ -131,6 +137,11 @@ const CGenerator::GenStringsList& CGenerator::cProtocolOptions() const
     return m_commsOptions;
 }
 
+const CInterface* CGenerator::cForcedInterface() const
+{
+    return m_forcedInterface;
+}
+
 bool CGenerator::genPrepareImpl()
 {
     return 
@@ -155,6 +166,11 @@ CGenerator::GenSchemaPtr CGenerator::genCreateSchemaImpl(ParseSchema parseObj, G
 CGenerator::GenNamespacePtr CGenerator::genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent)
 {
     return std::make_unique<CNamespace>(*this, parseObj, parent);
+}
+
+CGenerator::GenInterfacePtr CGenerator::genCreateInterfaceImpl(ParseInterface parseObj, GenElem* parent)
+{
+    return std::make_unique<CInterface>(*this, parseObj, parent);
 }
 
 CGenerator::GenMessagePtr CGenerator::genCreateMessageImpl(ParseMessage parseObj, GenElem* parent)
@@ -232,6 +248,8 @@ CGenerator::OptsProcessResult CGenerator::genProcessOptionsImpl(const GenProgram
     auto& opts = CProgramOptions::cCast(options);
 
     cSetNamesPrefixInternal(opts.cGetNamesPrefix());
+    cSetCommsOptionsInternal(opts.cGetCommsOptions());
+    cSetCommsinterfaceInternal(opts.cGetCommsInterface());
     genSetTopNamespace("cc_c");
     return OptsProcessResult_Continue;
 }
@@ -249,9 +267,14 @@ void CGenerator::cSetNamesPrefixInternal(const std::string& value)
     m_namesPrefix = util::genStrToName(value);
 }
 
-void CGenerator::cSetCommsOptions(const std::string& value)
+void CGenerator::cSetCommsOptionsInternal(const std::string& value)
 {
     m_commsOptions = util::genStrSplit(value, "::");
+}
+
+void CGenerator::cSetCommsinterfaceInternal(const std::string& value)
+{
+    m_forcedInterfaceName = value;
 }
 
 bool CGenerator::cPrepareNamesPrefixInternal()
@@ -304,6 +327,22 @@ bool CGenerator::cPrepareCommsOptionsInternal()
             }),
         m_commsOptions.end());    
 
+    return true;
+}
+
+bool CGenerator::cPrepareForcedInterfaceInternal()
+{
+    if (m_forcedInterfaceName.empty()) {
+        return true;
+    }
+
+    auto* iFace = genFindInterface(m_forcedInterfaceName);
+    if (iFace == nullptr) {
+        genLogger().genError("Unknown forced interface \"" + m_forcedInterfaceName + "\"");
+        return false;
+    }
+
+    m_forcedInterface = CInterface::cCast(iFace);
     return true;
 }
 

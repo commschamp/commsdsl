@@ -44,8 +44,8 @@ CMessage::~CMessage() = default;
 
 std::string CMessage::cRelHeader() const
 {
-    auto& gen = CGenerator::cCast(genGenerator());
-    return gen.cRelHeaderFor(*this);
+    auto& cGenerator = CGenerator::cCast(genGenerator());
+    return cGenerator.cRelHeaderFor(*this);
 }
 
 void CMessage::cAddSourceFiles(GenStringsList& sources) const
@@ -54,8 +54,8 @@ void CMessage::cAddSourceFiles(GenStringsList& sources) const
         return;
     }
     
-    auto& gen = CGenerator::cCast(genGenerator());
-    sources.push_back(gen.cRelSourceFor(*this));
+    auto& cGenerator = CGenerator::cCast(genGenerator());
+    sources.push_back(cGenerator.cRelSourceFor(*this));
 }
 
 std::string CMessage::cCommsType(bool appendOptions) const
@@ -66,6 +66,12 @@ std::string CMessage::cCommsType(bool appendOptions) const
         str += '<' + CProtocolOptions::cClassName(cGenerator) + '>';
     }    
     return str;
+}
+
+std::string CMessage::cStructName() const
+{
+    auto& cGenerator = CGenerator::cCast(genGenerator());
+    return cGenerator.cStructNameFor(*this);
 }
 
 bool CMessage::genPrepareImpl()
@@ -111,8 +117,10 @@ bool CMessage::cWriteHeaderInternal() const
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n\n"
+        "#^#CPP_GUARD_BEGIN#$#\n"
         "#^#FIELDS#$#\n"
         "#^#DEF#$#\n"
+        "#^#CPP_GUARD_END#$#\n"
     ;
 
     util::GenReplacementMap repl = {
@@ -120,6 +128,8 @@ bool CMessage::cWriteHeaderInternal() const
         {"INCLUDES", cHeaderIncludesInternal()},
         {"FIELDS", cHeaderFieldsInternal()},
         {"DEF", cHeaderCodeInternal()},
+        {"CPP_GUARD_BEGIN", CGenerator::cCppGuardBegin()},
+        {"CPP_GUARD_END", CGenerator::cCppGuardEnd()},   
     };
     
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -129,15 +139,15 @@ bool CMessage::cWriteHeaderInternal() const
 
 bool CMessage::cWriteSourceInternal() const
 {
-    auto& gen = CGenerator::cCast(genGenerator());
-    auto filePath = gen.cAbsSourceFor(*this);
+    auto& cGenerator = CGenerator::cCast(genGenerator());
+    auto filePath = cGenerator.cAbsSourceFor(*this);
     auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!gen.genCreateDirectory(dirPath)) {
+    if (!cGenerator.genCreateDirectory(dirPath)) {
         return false;
     }       
 
-    auto& logger = gen.genLogger();
+    auto& logger = cGenerator.genLogger();
     logger.genInfo("Generating " + filePath);
 
     std::ofstream stream(filePath);
@@ -156,7 +166,7 @@ bool CMessage::cWriteSourceInternal() const
 
     util::GenReplacementMap repl = {
         {"GENERATED", CGenerator::cFileGeneratedComment()},
-        {"HEADER", gen.cRelHeaderFor(*this)},
+        {"HEADER", cGenerator.cRelHeaderFor(*this)},
         {"INCLUDES", cSourceIncludesInternal()},
         {"FIELDS", cSourceFieldsInternal()},
         {"CODE", cSourceCodeInternal()},
@@ -197,56 +207,20 @@ std::string CMessage::cHeaderFieldsInternal() const
 
 std::string CMessage::cHeaderCodeInternal() const
 {
-    // auto& gen = CGenerator::cCast(genGenerator());
-    // util::GenStringsList fields;
-    // for (auto* f : m_cFields) {
-    //     static const std::string Templ = 
-    //         "using Base::field_#^#NAME#$#;\n"
-    //         "#^#FIELD_CLASS#$#* field_#^#NAME#$#_()\n"
-    //         "{\n"
-    //         "    return static_cast<#^#FIELD_CLASS#$#*>(&field_#^#NAME#$#());\n"
-    //         "}\n";
+    static const std::string Templ = 
+        // TODO: fields
+        "/// @brief Definition of <b>#^#DISP_NAME#$#</b> message handle.\n"
+        "typedef struct #^#NAME#$#_ #^#NAME#$#;\n\n"
+        // TODO: extra code
+        ;
 
-    //     util::GenReplacementMap repl = {
-    //         {"FIELD_CLASS", gen.cClassName(f->cGenField())},
-    //         {"NAME", comms::genAccessName(f->cGenField().genParseObj().parseName())},
-    //     };
-
-    //     fields.push_back(util::genProcessTemplate(Templ, repl));
-    // }
-
-    // static const std::string Templ =
-    //     "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#<#^#INTERFACE#$##^#PROT_OPTS#$#>\n"
-    //     "{\n"
-    //     "    using Base = #^#COMMS_CLASS#$#<#^#INTERFACE#$##^#PROT_OPTS#$#>;\n"
-    //     "public:\n"
-    //     "    #^#CLASS_NAME#$#() = default;\n"
-    //     "    #^#CLASS_NAME#$#(const #^#CLASS_NAME#$#&) = default;\n"
-    //     "    virtual ~#^#CLASS_NAME#$#() = default;\n\n"
-    //     "    #^#FIELDS#$#\n"
-    //     "};\n\n"
-    //     "inline bool eq_#^#CLASS_NAME#$#(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second)\n"
-    //     "{\n"
-    //     "    return first == second;\n"
-    //     "}\n"
-    //     ;
-
-    // auto* iFace = gen.cMainInterface();
-    // assert(iFace != nullptr);
-
-    // util::GenReplacementMap repl = {
-    //     {"CLASS_NAME", gen.cClassName(*this)},
-    //     {"COMMS_CLASS", comms::genScopeFor(*this, gen)},
-    //     {"INTERFACE", gen.cClassName(*iFace)},
-    //     {"FIELDS", util::genStrListToString(fields, "\n", "")}
-    // };
-
-    // if (CProtocolOptions::cIsDefined(gen)) {
-    //     repl["PROT_OPTS"] = ", " + CProtocolOptions::cClassName(gen);
-    // }
-
-    // return util::genProcessTemplate(Templ, repl);
-    return std::string(); // TODO
+    auto parseObj = genParseObj();
+    util::GenReplacementMap repl = {
+        {"NAME", cStructName()},
+        {"DISP_NAME", util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName())},
+    };
+    
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CMessage::cSourceIncludesInternal() const
@@ -279,37 +253,6 @@ std::string CMessage::cSourceFieldsInternal() const
 
 std::string CMessage::cSourceCodeInternal() const
 {
-    // auto& gen = CGenerator::cCast(genGenerator());
-
-    // util::GenReplacementMap repl = {
-    //     {"CLASS_NAME", gen.cClassName(*this)},
-    // };
-
-    // util::GenStringsList fields;
-    // for (auto* f : m_cFields) {
-    //     static const std::string Templ = 
-    //         ".function(\"field_#^#NAME#$#\", &#^#CLASS_NAME#$#::field_#^#NAME#$#_, c::allow_raw_pointers())";
-
-    //     repl["NAME"] = comms::genAccessName(f->cGenField().genParseObj().parseName());
-    //     fields.push_back(util::genProcessTemplate(Templ, repl));
-    // }
-
-    // static const std::string Templ = 
-    //     "C_BINDINGS(#^#CLASS_NAME#$#) {\n"
-    //     "    c::class_<#^#CLASS_NAME#$#, c::base<#^#INTERFACE#$#> >(\"#^#CLASS_NAME#$#\")\n"
-    //     "        .constructor<>()\n"
-    //     "        .constructor<const #^#CLASS_NAME#$#&>()\n"
-    //     "        #^#FIELDS#$#\n"
-    //     "        ;\n"
-    //     "    c::function(\"eq_#^#CLASS_NAME#$#\", &eq_#^#CLASS_NAME#$#);\n"
-    //     "}\n";
-
-    // auto* iFace = gen.cMainInterface();
-    // assert(iFace != nullptr);
-    // repl["INTERFACE"] = gen.cClassName(*iFace);
-    // repl["FIELDS"] = util::genStrListToString(fields, "\n", "");
-    // return util::genProcessTemplate(Templ, repl);
-
     return std::string(); // TODO
 }
 

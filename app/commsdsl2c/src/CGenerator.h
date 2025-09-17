@@ -21,6 +21,7 @@
 namespace commsdsl2c 
 {
 
+class CInterface;
 class CGenerator final : public commsdsl::gen::GenGenerator
 {
     using Base = commsdsl::gen::GenGenerator;
@@ -30,6 +31,7 @@ public:
     using GenElem = commsdsl::gen::GenElem;
     using GenSchemaPtr = commsdsl::gen::GenSchemaPtr;
     using GenNamespacePtr = commsdsl::gen::GenNamespacePtr;
+    using GenInterfacePtr = commsdsl::gen::GenInterfacePtr;
     using GenMessagePtr = commsdsl::gen::GenMessagePtr;
     using GenFramePtr = commsdsl::gen::GenFramePtr;
     using GenProgramOptions = commsdsl::gen::GenProgramOptions;
@@ -56,6 +58,8 @@ public:
     std::string cInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const;
     std::string cInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
 
+    std::string cStructNameFor(const commsdsl::gen::GenElem& elem) const;
+
     static std::string cScopeToName(const std::string& scope);    
     static const std::string& cCppGuardBegin();
     static const std::string& cCppGuardEnd();
@@ -63,12 +67,15 @@ public:
     const std::string& cNamesPrefix() const;
     const GenStringsList& cProtocolOptions() const;
 
+    const CInterface* cForcedInterface() const;
+
 protected:
     virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() override;    
 
     virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
     virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
+    virtual GenInterfacePtr genCreateInterfaceImpl(ParseInterface parseObj, GenElem* parent) override;
     virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent) override;
     // virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent) override;
 
@@ -90,13 +97,17 @@ protected:
 private:
     bool cWriteExtraFilesInternal() const;
     void cSetNamesPrefixInternal(const std::string& value);
-    void cSetCommsOptions(const std::string& value);
+    void cSetCommsOptionsInternal(const std::string& value);
+    void cSetCommsinterfaceInternal(const std::string& value);
 
     bool cPrepareNamesPrefixInternal();
     bool cPrepareCommsOptionsInternal();
+    bool cPrepareForcedInterfaceInternal();
 
     std::string m_namesPrefix;    
+    std::string m_forcedInterfaceName;
     GenStringsList m_commsOptions;
+    const CInterface* m_forcedInterface = nullptr;
 };
 
 } // namespace commsdsl2c

@@ -583,6 +583,11 @@ const std::string& genDescriptionStr()
     return Str;
 }
 
+const std::string& genCommsNameSuffixStr()
+{
+    static const std::string Str("_comms");
+    return Str;    
+}
 
 char genSiblingRefPrefix()
 {
