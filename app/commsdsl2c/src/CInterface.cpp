@@ -50,8 +50,7 @@ std::string CInterface::cRelHeader() const
 std::string CInterface::cRelCommsDefHeader() const
 {
     auto& cGenerator = CGenerator::cCast(genGenerator());
-    auto scope = comms::genScopeFor(*this, cGenerator) + strings::genCommsNameSuffixStr();
-    return cGenerator.genGetTopNamespace() + '/' + util::genScopeToRelPath(scope) + strings::genCppHeaderSuffixStr();
+    return cGenerator.cRelCommsHeaderFor(*this);
 }
 
 void CInterface::cAddSourceFiles(GenStringsList& sources) const
@@ -83,7 +82,7 @@ std::string CInterface::cStructName() const
     return cGenerator.cStructNameFor(*this);
 }
 
-std::string CInterface::cStructCommsName() const
+std::string CInterface::cCommsTypeName() const
 {
     return cStructName() + strings::genCommsNameSuffixStr();
 }
@@ -107,7 +106,7 @@ bool CInterface::genWriteImpl() const
     return 
         cWriteHeaderInternal() &&
         cWriteSourceInternal() &&
-        cWriteSourceCommsDefInternal();
+        cWriteCommsHeaderInternal();
 }
 
 bool CInterface::cWriteHeaderInternal() const
@@ -193,10 +192,10 @@ bool CInterface::cWriteSourceInternal() const
     return stream.good();   
 }
 
-bool CInterface::cWriteSourceCommsDefInternal() const
+bool CInterface::cWriteCommsHeaderInternal() const
 {
     auto& cGenerator = CGenerator::cCast(genGenerator());
-    auto filePath = cGenerator.genGetOutputDir() + '/' + cRelCommsDefHeader();
+    auto filePath = cGenerator.cAbsCommsHeaderFor(*this);
     auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
     if (!cGenerator.genCreateDirectory(dirPath)) {
@@ -216,7 +215,8 @@ bool CInterface::cWriteSourceCommsDefInternal() const
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
-        "using #^#CPP_NAME#$# =\n"
+        "#^#FIELDS#$#\n"
+        "using #^#COMMS_NAME#$# =\n"
         "    ::#^#SCOPE#$#<\n"
         "        comms::option::app::IdInfoInterface,\n"
         "        comms::option::app::ReadIterator<const uint8_t*>,\n"
@@ -227,20 +227,20 @@ bool CInterface::cWriteSourceCommsDefInternal() const
         "        comms::option::app::NameInterface\n"
         // TODO: handling
         "    >;\n\n"
-        "struct alignas(alignof(#^#CPP_NAME#$#)) #^#NAME#$#_ {};\n\n"
-        "inline const #^#CPP_NAME#$#* fromHandle(const #^#NAME#$#* from)\n"
+        "struct alignas(alignof(#^#COMMS_NAME#$#)) #^#NAME#$#_ {};\n\n"
+        "inline const #^#COMMS_NAME#$#* fromHandle(const #^#NAME#$#* from)\n"
         "{\n"
-        "    return reinterpret_cast<const #^#CPP_NAME#$#*>(from);\n"
+        "    return reinterpret_cast<const #^#COMMS_NAME#$#*>(from);\n"
         "}\n\n"
-        "inline #^#CPP_NAME#$#* fromHandle(#^#NAME#$#* from)\n"
+        "inline #^#COMMS_NAME#$#* fromHandle(#^#NAME#$#* from)\n"
         "{\n"
-        "    return reinterpret_cast<#^#CPP_NAME#$#*>(from);\n"
+        "    return reinterpret_cast<#^#COMMS_NAME#$#*>(from);\n"
         "}\n\n"
-        "inline const #^#NAME#$#* toHandle(const #^#CPP_NAME#$#* from)\n"
+        "inline const #^#NAME#$#* toHandle(const #^#COMMS_NAME#$#* from)\n"
         "{\n"
         "    return reinterpret_cast<const #^#NAME#$#*>(from);\n"
         "}\n\n"      
-        "inline #^#NAME#$#* toHandle(#^#CPP_NAME#$#* from)\n"
+        "inline #^#NAME#$#* toHandle(#^#COMMS_NAME#$#* from)\n"
         "{\n"
         "    return reinterpret_cast<#^#NAME#$#*>(from);\n"
         "}\n"           
@@ -253,14 +253,21 @@ bool CInterface::cWriteSourceCommsDefInternal() const
         cRelHeader(),
     };
 
+    GenStringsList fieldsCode;
+    for (auto* f : m_cFields) {
+        f->cAddCommsHeaderIncludes(includes);
+        fieldsCode.push_back(f->cCommsHeaderCode());
+    }
+
     comms::genPrepareIncludeStatement(includes);
 
     util::GenReplacementMap repl = {
         {"GENERATED", CGenerator::cFileGeneratedComment()},
         {"HEADER", cGenerator.cRelHeaderFor(*this)},
         {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
+        {"FIELDS", util::genStrListToString(fieldsCode, "\n", "\n")},
         {"SCOPE", comms::genScopeFor(*this, cGenerator)},
-        {"CPP_NAME", cStructCommsName()},
+        {"COMMS_NAME", cCommsTypeName()},
         {"NAME", cStructName()},
     };
     

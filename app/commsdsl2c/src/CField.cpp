@@ -98,7 +98,15 @@ bool CField::cWrite() const
 
     return 
         cWriteHeaderInternal() &&
-        cWriteSrcInternal();    
+        cWriteSrcInternal() &&
+        cWriteCommsHeaderInternal();    
+}
+
+std::string CField::cRelHeader() const
+{
+    assert(comms::genIsGlobalField(m_genField));
+    auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
+    return cGenerator.cRelHeaderFor(m_genField);
 }
 
 void CField::cAddHeaderIncludes(CIncludesList& includes) const
@@ -109,9 +117,18 @@ void CField::cAddHeaderIncludes(CIncludesList& includes) const
 
 void CField::cAddSourceIncludes(CIncludesList& includes) const
 {
+    if (comms::genIsGlobalField(m_genField) && m_genField.genIsReferenced()) {
+        includes.push_back(cRelCommsDefHeader());
+    }
+
+    return cAddSourceIncludesImpl(includes);
+}
+
+void CField::cAddCommsHeaderIncludes(CIncludesList& includes) const
+{
     auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
     auto* parent = m_genField.genGetParent();
-    assert(parent != nullptr);
+    assert(parent != nullptr);    
 
     if (parent->genElemType() != GenElem::GenType_Interface) {
         includes.push_back(CProtocolOptions::cRelHeaderPath(cGenerator));
@@ -119,14 +136,21 @@ void CField::cAddSourceIncludes(CIncludesList& includes) const
 
     if (comms::genIsGlobalField(m_genField) && m_genField.genIsReferenced()) {
         includes.push_back(comms::genRelHeaderPathFor(m_genField, cGenerator));
+        includes.push_back(cRelHeader());
     }
-    return cAddHeaderIncludesImpl(includes);
+    
+    return cAddCommsHeaderIncludesImpl(includes);
 }
 
 std::string CField::cStructName() const
 {
     auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
     return cGenerator.cStructNameFor(m_genField);
+}
+
+std::string CField::cCommsTypeName() const
+{
+    return cStructName() + strings::genCommsNameSuffixStr();
 }
 
 std::string CField::cHeaderCode() const
@@ -153,34 +177,50 @@ std::string CField::cHeaderCode() const
 std::string CField::cSourceCode() const
 {
     static const std::string Templ = 
-        "using #^#NAME#$#__cpp = ::#^#COMMS_TYPE#$#;\n"
-        "struct alignas(alignof(#^#NAME#$#__cpp)) #^#NAME#$#_ {};\n\n"
-        "namespace\n"
-        "{\n\n"
-        "const #^#NAME#$#__cpp* fromHandle(const #^#NAME#$#* field)\n"
-        "{\n"
-        "    return reinterpret_cast<const #^#NAME#$#__cpp*>(field);\n"
-        "}\n"
-        // "const #^#NAME#$#* toHandle(const #^#NAME#$#__cpp* field)\n"
-        // "{\n"
-        // "    return reinterpret_cast<const #^#NAME#$#*>(field);\n"
-        // "}\n"
-        "\n"        
-        "} // namespace\n\n"
         "#^#CODE#$#\n"
         "#^#LENGTH_FUNC#$#\n"
         "#^#NAME_FUNC#$#\n"
         ;
 
     util::GenReplacementMap repl = {
-        {"NAME", cStructName()},
         {"CODE", cSourceCodeImpl()},
         {"LENGTH_FUNC", cSourceLengthFunc()},
         {"NAME_FUNC", cSourceNameFunc()},
-        {"COMMS_TYPE", cCommsType()},
     };
     
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CField::cCommsHeaderCode() const
+{
+    static const std::string Templ = 
+        "using #^#COMMS_NAME#$# = ::#^#COMMS_TYPE#$#;\n"
+        "struct alignas(alignof(#^#COMMS_NAME#$#)) #^#NAME#$#_ {};\n\n"
+        "inline const #^#COMMS_NAME#$#* fromHandle(const #^#NAME#$#* from)\n"
+        "{\n"
+        "    return reinterpret_cast<const #^#COMMS_NAME#$#*>(from);\n"
+        "}\n\n"
+        "inline #^#COMMS_NAME#$#* fromHandle(#^#NAME#$#* from)\n"
+        "{\n"
+        "    return reinterpret_cast<#^#COMMS_NAME#$#*>(from);\n"
+        "}\n\n"        
+        "inline const #^#NAME#$#* toHandle(const #^#COMMS_NAME#$#* from)\n"
+        "{\n"
+        "    return reinterpret_cast<const #^#NAME#$#*>(from);\n"
+        "}\n\n"
+        "inline #^#NAME#$#* toHandle(#^#COMMS_NAME#$#* from)\n"
+        "{\n"
+        "    return reinterpret_cast<#^#NAME#$#*>(from);\n"
+        "}\n"        
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cStructName()},
+        {"COMMS_NAME", cCommsTypeName()},
+        {"COMMS_TYPE", cCommsType()},
+    };
+    
+    return util::genProcessTemplate(Templ, repl);        
 }
 
 std::string CField::cCommsType(bool appendOptions) const
@@ -237,11 +277,21 @@ void CField::cAddSourceFiles(GenStringsList& sources) const
     sources.push_back(cGenerator.cRelSourceFor(m_genField));
 }
 
+std::string CField::cRelCommsDefHeader() const
+{
+    auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
+    return cGenerator.cRelCommsHeaderFor(m_genField);
+}
+
 void CField::cAddHeaderIncludesImpl([[maybe_unused]] CIncludesList& includes) const
 {
 }
 
 void CField::cAddSourceIncludesImpl([[maybe_unused]] CIncludesList& includes) const
+{
+}
+
+void CField::cAddCommsHeaderIncludesImpl([[maybe_unused]] CIncludesList& includes) const
 {
 }
 
@@ -338,6 +388,43 @@ bool CField::cWriteSrcInternal() const
     return stream.good(); 
 }
 
+bool CField::cWriteCommsHeaderInternal() const
+{
+    auto& generator = CGenerator::cCast(m_genField.genGenerator());
+    auto filePath = generator.cAbsCommsHeaderFor(m_genField);
+    auto dirPath = util::genPathUp(filePath);
+    assert(!dirPath.empty());
+    if (!generator.genCreateDirectory(dirPath)) {
+        return false;
+    }       
+
+    auto& logger = generator.genLogger();
+    logger.genInfo("Generating " + filePath);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        logger.genError("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+
+    static const std::string Templ = 
+        "#^#GENERATED#$#\n\n"
+        "#pragma once\n\n"
+        "#^#INCLUDES#$#\n"
+        "#^#CODE#$#\n"
+    ;
+
+    util::GenReplacementMap repl = {
+        {"GENERATED", CGenerator::cFileGeneratedComment()},
+        {"INCLUDES", cCommsHeaderIncludesInternal()},
+        {"CODE", cCommsHeaderCode()},
+    };
+    
+    stream << util::genProcessTemplate(Templ, repl, true);
+    stream.flush();
+    return stream.good(); 
+}
+
 std::string CField::cHeaderIncludesInternal() const
 {
     CIncludesList includes;
@@ -424,6 +511,14 @@ std::string CField::cHandleBrief() const
         "/// @brief Definition of <b>\"" +
         util::genDisplayName(m_genField.genParseObj().parseDisplayName(), m_genField.genParseObj().parseName()) +
         "\"</b> field.";
+}
+
+std::string CField::cCommsHeaderIncludesInternal() const
+{
+    CIncludesList includes;
+    cAddCommsHeaderIncludes(includes);
+    comms::genPrepareIncludeStatement(includes);
+    return util::genStrListToString(includes, "\n", "\n");
 }
 
 

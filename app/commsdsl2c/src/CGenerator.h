@@ -53,7 +53,9 @@ public:
     std::string cRelHeaderFor(const commsdsl::gen::GenElem& elem) const;
     std::string cAbsHeaderFor(const commsdsl::gen::GenElem& elem) const;
     std::string cRelSourceFor(const commsdsl::gen::GenElem& elem) const;
-    std::string cAbsSourceFor(const commsdsl::gen::GenElem& elem) const;  
+    std::string cAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
+    std::string cRelCommsHeaderFor(const commsdsl::gen::GenElem& elem) const;  
+    std::string cAbsCommsHeaderFor(const commsdsl::gen::GenElem& elem) const;  
     
     std::string cInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const;
     std::string cInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const;

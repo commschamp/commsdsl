@@ -43,14 +43,19 @@ public:
     static CFieldsList cTransformFieldsList(const GenFieldsList& fields);
 
     bool cWrite() const;
+    std::string cRelHeader() const;
     void cAddHeaderIncludes(CIncludesList& includes) const;
     void cAddSourceIncludes(CIncludesList& includes) const;
+    void cAddCommsHeaderIncludes(CIncludesList& includes) const;
     std::string cStructName() const;
+    std::string cCommsTypeName() const;
     std::string cHeaderCode() const;
     std::string cSourceCode() const;
+    std::string cCommsHeaderCode() const;
     std::string cCommsType(bool appendOptions = true) const;
     bool cIsVersionOptional() const;
     void cAddSourceFiles(GenStringsList& sources) const;
+    std::string cRelCommsDefHeader() const;
 
     const GenField& cGenField() const
     {
@@ -60,12 +65,14 @@ public:
 protected:
     virtual void cAddHeaderIncludesImpl(CIncludesList& includes) const;
     virtual void cAddSourceIncludesImpl(CIncludesList& includes) const;
+    virtual void cAddCommsHeaderIncludesImpl(CIncludesList& includes) const;
     virtual std::string cHeaderCodeImpl() const;
     virtual std::string cSourceCodeImpl() const;
 
 private:
     bool cWriteHeaderInternal() const;
     bool cWriteSrcInternal() const;
+    bool cWriteCommsHeaderInternal() const;
     std::string cHeaderIncludesInternal() const;
     std::string cSourceIncludesInternal() const;
     std::string cHeaderLengthFunc() const;
@@ -73,6 +80,7 @@ private:
     std::string cHeaderNameFunc() const;
     std::string cSourceNameFunc() const;
     std::string cHandleBrief() const;
+    std::string cCommsHeaderIncludesInternal() const;
     
     GenField& m_genField;
 };

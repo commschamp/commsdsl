@@ -43,9 +43,11 @@ public:
     }
 
     std::string cRelHeader() const;
+    std::string cRelCommsDefHeader() const;
     void cAddSourceFiles(GenStringsList& sources) const;
     std::string cCommsType(bool appendOptions = true) const;
     std::string cStructName() const;
+    std::string cCommsTypeName() const;
 
 protected:
     virtual bool genPrepareImpl() override;    
@@ -56,6 +58,7 @@ private:
 
     bool cWriteHeaderInternal() const;
     bool cWriteSourceInternal() const;
+    bool cWriteCommsHeaderInternal() const;    
     
     std::string cHeaderIncludesInternal() const;
     std::string cHeaderFieldsInternal() const;
@@ -63,6 +66,9 @@ private:
     std::string cSourceIncludesInternal() const;
     std::string cSourceFieldsInternal() const;
     std::string cSourceCodeInternal() const;
+    std::string cCommsHeaderIncludesInternal() const;
+    std::string cCommsHeaderFieldsInternal() const;
+    std::string cCommsHeaderCodeInternal() const;
 
     CFieldsList m_cFields;        
 };

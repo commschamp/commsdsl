@@ -48,7 +48,7 @@ public:
     std::string cCommsType() const;
     bool cCodeGenerationAllowed() const;
     std::string cStructName() const;
-    std::string cStructCommsName() const;
+    std::string cCommsTypeName() const;
 
 protected:
     virtual bool genPrepareImpl() override;    
@@ -59,7 +59,7 @@ private:
 
     bool cWriteHeaderInternal() const;
     bool cWriteSourceInternal() const;    
-    bool cWriteSourceCommsDefInternal() const;    
+    bool cWriteCommsHeaderInternal() const;    
 
     std::string cHeaderIncludesInternal() const;
     std::string cHeaderFieldsInternal() const;

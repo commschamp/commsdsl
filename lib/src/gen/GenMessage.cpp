@@ -228,6 +228,14 @@ const GenGenerator& GenMessage::genGenerator() const
     return m_impl->genGenerator();
 }
 
+const GenNamespace* GenMessage::genParentNamespace() const
+{
+    auto* parent = genGetParent();
+    assert(parent != nullptr);
+    assert(parent->genElemType() == GenElem::GenType_Namespace);
+    return static_cast<const GenNamespace*>(parent);
+}
+
 GenElem::GenType GenMessage::genElemTypeImpl() const
 {
     return GenType_Message;

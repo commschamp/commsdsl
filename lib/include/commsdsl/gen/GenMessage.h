@@ -60,6 +60,8 @@ public:
     GenGenerator& genGenerator();
     const GenGenerator& genGenerator() const;
 
+    const GenNamespace* genParentNamespace() const;
+
 protected:    
     virtual GenType genElemTypeImpl() const override final;
     virtual bool genPrepareImpl();

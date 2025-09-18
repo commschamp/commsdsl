@@ -16,7 +16,7 @@
 #include "CMessage.h"
 
 #include "CGenerator.h"
-// #include "CInterface.h"
+#include "CInterface.h"
 #include "CNamespace.h"
 #include "CProtocolOptions.h"
 
@@ -48,6 +48,12 @@ std::string CMessage::cRelHeader() const
     return cGenerator.cRelHeaderFor(*this);
 }
 
+std::string CMessage::cRelCommsDefHeader() const
+{
+    auto& cGenerator = CGenerator::cCast(genGenerator());
+    return cGenerator.cRelCommsHeaderFor(*this);
+}
+
 void CMessage::cAddSourceFiles(GenStringsList& sources) const
 {
     if (!genIsReferenced()) {
@@ -74,6 +80,11 @@ std::string CMessage::cStructName() const
     return cGenerator.cStructNameFor(*this);
 }
 
+std::string CMessage::cCommsTypeName() const
+{
+    return cStructName() + strings::genCommsNameSuffixStr();
+}
+
 bool CMessage::genPrepareImpl()
 {
     if (!GenBase::genPrepareImpl()) {
@@ -88,10 +99,18 @@ bool CMessage::genPrepareImpl()
 
 bool CMessage::genWriteImpl() const
 {
+    auto* parentNs = CNamespace::cCast(genParentNamespace());
+    assert(parentNs != nullptr);
+    auto* interface = parentNs->cInterface();
+    if (interface == nullptr) {
+        return true;
+    }
+    
     assert(genIsReferenced());
     return 
         cWriteHeaderInternal() &&
-        cWriteSourceInternal();
+        cWriteSourceInternal() &&
+        cWriteCommsHeaderInternal();
 }
 
 bool CMessage::cWriteHeaderInternal() const
@@ -177,15 +196,56 @@ bool CMessage::cWriteSourceInternal() const
     return stream.good();   
 }
 
+bool CMessage::cWriteCommsHeaderInternal() const
+{
+    auto& cGenerator = CGenerator::cCast(genGenerator());
+    auto filePath = cGenerator.cAbsCommsHeaderFor(*this);
+    auto dirPath = util::genPathUp(filePath);
+    assert(!dirPath.empty());
+    if (!cGenerator.genCreateDirectory(dirPath)) {
+        return false;
+    }       
+
+    auto& logger = cGenerator.genLogger();
+    logger.genInfo("Generating " + filePath);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        logger.genError("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+
+    static const std::string Templ = 
+        "#^#GENERATED#$#\n"
+        "#pragma once\n\n"
+        "#^#INCLUDES#$#\n"
+        "#^#FIELDS#$#\n"
+        "#^#CODE#$#\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"GENERATED", CGenerator::cFileGeneratedComment()},
+        {"HEADER", cGenerator.cRelHeaderFor(*this)},
+        {"INCLUDES", cCommsHeaderIncludesInternal()},
+        {"FIELDS", cCommsHeaderFieldsInternal()},
+        {"CODE", cCommsHeaderCodeInternal()},
+    };
+    
+    stream << util::genProcessTemplate(Templ, repl, true);
+    stream.flush();
+    return stream.good();   
+}
+
 std::string CMessage::cHeaderIncludesInternal() const
 {
-    // auto& gen = CGenerator::cCast(genGenerator());
-    // TODO: interface
-    // auto* iFace = gen.cMainInterface();
-    // assert(iFace != nullptr);
-    // auto* parentNs = iFace->genParentNamespace();
-    
-    util::GenStringsList includes;
+    auto* parentNs = CNamespace::cCast(genParentNamespace());
+    assert(parentNs != nullptr);
+    auto* interface = parentNs->cInterface();
+    assert (interface != nullptr);
+
+    util::GenStringsList includes = {
+        interface->cRelHeader()
+    };
 
     for (auto* f : m_cFields) {
         f->cAddHeaderIncludes(includes);
@@ -225,12 +285,8 @@ std::string CMessage::cHeaderCodeInternal() const
 
 std::string CMessage::cSourceIncludesInternal() const
 {
-    auto& cGenerator = CGenerator::cCast(genGenerator());
-    // TODO: interface
-    
     util::GenStringsList includes = {
-        CProtocolOptions::cRelHeaderPath(cGenerator),
-        comms::genRelHeaderPathFor(*this, cGenerator),
+        cRelCommsDefHeader(),
     };
 
     for (auto* f : m_cFields) {
@@ -254,6 +310,81 @@ std::string CMessage::cSourceFieldsInternal() const
 std::string CMessage::cSourceCodeInternal() const
 {
     return std::string(); // TODO
+}
+
+std::string CMessage::cCommsHeaderIncludesInternal() const
+{
+    auto& cGenerator = CGenerator::cCast(genGenerator());
+    auto* parentNs = CNamespace::cCast(genParentNamespace());
+    assert(parentNs != nullptr);
+    auto* interface = parentNs->cInterface();
+    assert (interface != nullptr);
+
+    GenStringsList includes = {
+        "<stdint.h>",
+        "comms/options.h",
+        comms::genRelHeaderPathFor(*this, cGenerator),
+        cRelHeader(),
+        interface->cRelCommsDefHeader(),
+        CProtocolOptions::cRelHeaderPath(cGenerator),
+    };
+
+    for (auto* f : m_cFields) {
+        f->cAddCommsHeaderIncludes(includes);
+    }
+
+    comms::genPrepareIncludeStatement(includes);
+    return util::genStrListToString(includes, "\n", "\n");
+}
+
+std::string CMessage::cCommsHeaderFieldsInternal() const
+{
+    GenStringsList fieldsCode;
+    for (auto* f : m_cFields) {
+        fieldsCode.push_back(f->cCommsHeaderCode());
+    }
+
+    return util::genStrListToString(fieldsCode, "\n", "\n");
+}
+
+std::string CMessage::cCommsHeaderCodeInternal() const
+{
+    auto* parentNs = CNamespace::cCast(genParentNamespace());
+    assert(parentNs != nullptr);
+    auto* interface = parentNs->cInterface();
+    assert (interface != nullptr);
+
+    static const std::string Templ = 
+        "using #^#COMMS_NAME#$# = ::#^#COMMS_TYPE#$#<#^#INTERFACE#$#, #^#OPTS#$#>;\n"
+        "struct alignas(alignof(#^#COMMS_NAME#$#)) #^#NAME#$#_ {};\n\n"
+        "inline const #^#COMMS_NAME#$#* fromHandle(const #^#NAME#$#* from)\n"
+        "{\n"
+        "    return reinterpret_cast<const #^#COMMS_NAME#$#*>(from);\n"
+        "}\n\n"
+        "inline #^#COMMS_NAME#$#* fromHandle(#^#NAME#$#* from)\n"
+        "{\n"
+        "    return reinterpret_cast<#^#COMMS_NAME#$#*>(from);\n"
+        "}\n\n"
+        "inline const #^#NAME#$#* toHandle(const #^#COMMS_NAME#$#* from)\n"
+        "{\n"
+        "    return reinterpret_cast<const #^#NAME#$#*>(from);\n"
+        "}\n\n"      
+        "inline #^#NAME#$#* toHandle(#^#COMMS_NAME#$#* from)\n"
+        "{\n"
+        "    return reinterpret_cast<#^#NAME#$#*>(from);\n"
+        "}\n"      
+       ;
+
+    auto& cGenerator = CGenerator::cCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"COMMS_TYPE", comms::genScopeFor(*this, cGenerator)},
+        {"COMMS_NAME", cCommsTypeName()},
+        {"NAME", cStructName()},
+        {"INTERFACE", interface->cCommsTypeName()},
+        {"OPTS", CProtocolOptions::cClassName(cGenerator)},
+    };   
+    
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2c

@@ -85,6 +85,17 @@ std::string CGenerator::cAbsSourceFor(const commsdsl::gen::GenElem& elem) const
     return genGetOutputDir() + '/' + cRelSourceFor(elem);
 }
 
+std::string CGenerator::cRelCommsHeaderFor(const commsdsl::gen::GenElem& elem) const
+{
+    auto scope = comms::genScopeFor(elem, *this) + strings::genCommsNameSuffixStr();
+    return genGetTopNamespace() + '/' + util::genScopeToRelPath(scope) + strings::genCppHeaderSuffixStr();
+}
+
+std::string CGenerator::cAbsCommsHeaderFor(const commsdsl::gen::GenElem& elem) const
+{
+    return genGetOutputDir() + '/' + cRelCommsHeaderFor(elem);
+}
+
 std::string CGenerator::cInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const
 {
     return genGetCodeDir() + '/' + strings::genIncludeDirStr() + '/' + cRelHeaderFor(elem);
