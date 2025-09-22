@@ -372,17 +372,17 @@ const std::string& CField::cConversionSuffix() const
     auto* parent = m_genField.genGetParent();
     assert(parent != nullptr);    
 
-    if (parent->genElemType() != GenElem::GenType_Interface) {
+    if (parent->genElemType() == GenElem::GenType_Interface) {
         static const std::string Str = "InterfaceFieldHandle";
         return Str;
     }
 
-    if (parent->genElemType() != GenElem::GenType_Message) {
+    if (parent->genElemType() == GenElem::GenType_Message) {
         static const std::string Str = "MessageFieldHandle";
         return Str;
     }   
     
-    if (parent->genElemType() != GenElem::GenType_Message) {
+    if (parent->genElemType() == GenElem::GenType_Layer) {
         static const std::string Str = "LayerFieldHandle";
         return Str;
     }        

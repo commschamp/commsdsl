@@ -228,19 +228,19 @@ bool CInterface::cWriteCommsHeaderInternal() const
         // TODO: handling
         "    >;\n\n"
         "struct alignas(alignof(#^#COMMS_NAME#$#)) #^#NAME#$#_ {};\n\n"
-        "inline const #^#COMMS_NAME#$#* fromHandle(const #^#NAME#$#* from)\n"
+        "inline const #^#COMMS_NAME#$#* fromInterfaceHandle(const #^#NAME#$#* from)\n"
         "{\n"
         "    return reinterpret_cast<const #^#COMMS_NAME#$#*>(from);\n"
         "}\n\n"
-        "inline #^#COMMS_NAME#$#* fromHandle(#^#NAME#$#* from)\n"
+        "inline #^#COMMS_NAME#$#* fromInterfaceHandle(#^#NAME#$#* from)\n"
         "{\n"
         "    return reinterpret_cast<#^#COMMS_NAME#$#*>(from);\n"
         "}\n\n"
-        "inline const #^#NAME#$#* toHandle(const #^#COMMS_NAME#$#* from)\n"
+        "inline const #^#NAME#$#* toInterfaceHandle(const #^#COMMS_NAME#$#* from)\n"
         "{\n"
         "    return reinterpret_cast<const #^#NAME#$#*>(from);\n"
         "}\n\n"      
-        "inline #^#NAME#$#* toHandle(#^#COMMS_NAME#$#* from)\n"
+        "inline #^#NAME#$#* toInterfaceHandle(#^#COMMS_NAME#$#* from)\n"
         "{\n"
         "    return reinterpret_cast<#^#NAME#$#*>(from);\n"
         "}\n"           
@@ -300,15 +300,32 @@ std::string CInterface::cHeaderFieldsInternal() const
 
 std::string CInterface::cHeaderCodeInternal() const
 {
+    util::GenStringsList fieldsAcc;
+    for (auto* f : m_cFields) {
+        static const std::string AccTempl = 
+            "/// @brief Access to inner @ref #^#HANDLE#$# field.\n"
+            "#^#HANDLE#$#* #^#NAME#$#_transportField_#^#FIELD_ACC#$#(#^#NAME#$#* msg);\n"
+            ;
+
+        util::GenReplacementMap accRepl = {
+            {"HANDLE", f->cStructName()},
+            {"NAME", cStructName()},
+            {"FIELD_ACC", comms::genAccessName(f->cGenField().genName())}
+        };
+
+        fieldsAcc.push_back(util::genProcessTemplate(AccTempl, accRepl));
+    }
+
     static const std::string Templ = 
-        // TODO: fields
         "/// @brief Definition of common interface handle for all the messages.\n"
         "typedef struct #^#NAME#$#_ #^#NAME#$#;\n\n"
+        "#^#FIELDS_ACC#$#\n"
         // TODO: extra code
         ;
 
     util::GenReplacementMap repl = {
         {"NAME", cStructName()},
+        {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
     };
     
     return util::genProcessTemplate(Templ, repl);
@@ -342,7 +359,37 @@ std::string CInterface::cSourceFieldsInternal() const
 
 std::string CInterface::cSourceCodeInternal() const
 {
-    return std::string(); // TODO
+    util::GenStringsList fieldsAcc;
+    for (auto* f : m_cFields) {
+        static const std::string AccTempl = 
+            "#^#HANDLE#$#* #^#NAME#$#_field_#^#FIELD_ACC#$#(#^#NAME#$#* msg)\n"
+            "{\n"
+            "    return to#^#CONV_SUFFIX#$#(&(fromInterfaceHandle(msg)->transportField_#^#FIELD_ACC#$#()));\n"
+            "}\n"
+            ;
+
+        util::GenReplacementMap accRepl = {
+            {"HANDLE", f->cStructName()},
+            {"NAME", cStructName()},
+            {"FIELD_ACC", comms::genAccessName(f->cGenField().genName())},
+            {"CONV_SUFFIX", f->cConversionSuffix()},
+        };
+
+        fieldsAcc.push_back(util::genProcessTemplate(AccTempl, accRepl));
+    }
+
+    static const std::string Templ = 
+        "#^#FIELDS_ACC#$#\n"
+        // TODO: extra code
+        ;
+
+    auto parseObj = genParseObj();
+    util::GenReplacementMap repl = {
+        {"NAME", cStructName()},
+        {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
+    };
+    
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2c
