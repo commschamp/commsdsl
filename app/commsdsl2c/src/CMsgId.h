@@ -15,27 +15,28 @@
 
 #pragma once
 
-#include "commsdsl/gen/util.h"
-
 #include <string>
 
 namespace commsdsl2c
 {
 
 class CGenerator;
-class CCmake
+class CNamespace;
+
+class CMsgId
 {
 public:
-    using GenStringsList = commsdsl::gen::util::GenStringsList;
+    CMsgId(CGenerator& generator, const CNamespace& parent);
+    bool cWrite() const;
 
-    static bool cWrite(CGenerator& generator);
+    std::string cRelHeader() const;
+    std::string cName() const;
 
 private:
-    explicit CCmake(CGenerator& generator) : m_cGenerator(generator) {}
-
-    bool cWriteInternal() const;
-
+    std::string cIdsInternal() const;
+    
     CGenerator& m_cGenerator;
+    const CNamespace& m_parent;
 };
 
 } // namespace commsdsl2c

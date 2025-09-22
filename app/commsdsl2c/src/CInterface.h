@@ -21,10 +21,13 @@
 #include "commsdsl/gen/GenInterface.h"
 #include "commsdsl/gen/util.h"
 
+#include <string>
+
 namespace commsdsl2c
 {
 
 class CGenerator;
+class CMsgId;
 class CInterface final: public commsdsl::gen::GenInterface
 {
     using GenBase = commsdsl::gen::GenInterface;
@@ -49,6 +52,8 @@ public:
     bool cCodeGenerationAllowed() const;
     std::string cStructName() const;
     std::string cCommsTypeName() const;
+
+    const CMsgId* cMsgId() const;
 
 protected:
     virtual bool genPrepareImpl() override;    

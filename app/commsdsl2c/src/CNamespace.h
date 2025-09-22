@@ -17,6 +17,7 @@
 #pragma once
 
 #include "CField.h"
+#include "CMsgId.h"
 
 #include "commsdsl/gen/GenNamespace.h"
 #include "commsdsl/gen/util.h"
@@ -47,9 +48,17 @@ public:
     bool cIsSuitableInterface(const CInterface& iFace) const;
     void cAddSourceFiles(GenStringsList& sources) const;
     bool cCodeGenerationAllowed() const;
+    std::string cPrefixName() const;
+
+    const CMsgId* cMsgId() const;
+
+protected:
+    virtual bool genWriteImpl() const override;    
 
 private:
     const CInterface* cFindSuitableInterfaceInternal() const;    
+
+    CMsgId m_msgId;
 };
 
 } // namespace commsdsl2c

@@ -17,6 +17,7 @@
 
 #include "CGenerator.h"
 #include "CInterface.h"
+#include "CMsgId.h"
 #include "CNamespace.h"
 #include "CProtocolOptions.h"
 
@@ -242,9 +243,12 @@ std::string CMessage::cHeaderIncludesInternal() const
     assert(parentNs != nullptr);
     auto* interface = parentNs->cInterface();
     assert (interface != nullptr);
+    auto* msgId = interface->cMsgId();
+    assert(msgId != nullptr);
 
     util::GenStringsList includes = {
-        interface->cRelHeader()
+        interface->cRelHeader(),
+        msgId->cRelHeader(),
     };
 
     for (auto* f : m_cFields) {
@@ -290,20 +294,25 @@ std::string CMessage::cHeaderCodeInternal() const
         "#^#INTERFACE#$#* #^#NAME#$#_interface(#^#NAME#$#* msg);\n"
         "\n"
         "#^#FIELDS_ACC#$#\n"
+        "/// @brief Get message ID.\n"
+        "#^#MSG_ID#$# #^#NAME#$#_doGetId(const #^#NAME#$#* msg);\n"
         // TODO: extra code
         ;
 
     auto* parentNs = CNamespace::cCast(genParentNamespace());
     assert(parentNs != nullptr);
     auto* interface = parentNs->cInterface();
-    assert (interface != nullptr);        
+    assert (interface != nullptr);   
+    auto* msgId = interface->cMsgId();
+    assert(msgId != nullptr);     
 
     auto parseObj = genParseObj();
     util::GenReplacementMap repl = {
         {"NAME", cStructName()},
         {"DISP_NAME", util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName())},
         {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
-        {"INTERFACE", interface->cStructName()}
+        {"INTERFACE", interface->cStructName()},
+        {"MSG_ID", msgId->cName()},
     };
     
     return util::genProcessTemplate(Templ, repl);
@@ -357,7 +366,9 @@ std::string CMessage::cSourceCodeInternal() const
     auto* parentNs = CNamespace::cCast(genParentNamespace());
     assert(parentNs != nullptr);
     auto* interface = parentNs->cInterface();
-    assert (interface != nullptr);       
+    assert (interface != nullptr);  
+    auto* msgId = interface->cMsgId();
+    assert(msgId != nullptr);              
 
     static const std::string Templ = 
         "#^#INTERFACE#$#* #^#NAME#$#_interface(#^#NAME#$#* msg)\n"
@@ -366,6 +377,10 @@ std::string CMessage::cSourceCodeInternal() const
         "}\n"
         "\n"
         "#^#FIELDS_ACC#$#\n"
+        "#^#MSG_ID#$# #^#NAME#$#_doGetId(const #^#NAME#$#* msg)\n"
+        "{\n"
+        "    return static_cast<#^#MSG_ID#$#>(fromMessageHandle(msg)->doGetId());\n"
+        "}\n"
         // TODO: extra code
         ;
 
@@ -374,6 +389,7 @@ std::string CMessage::cSourceCodeInternal() const
         {"NAME", cStructName()},
         {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
         {"INTERFACE", interface->cStructName()},
+        {"MSG_ID", msgId->cName()},
     };
     
     return util::genProcessTemplate(Templ, repl);

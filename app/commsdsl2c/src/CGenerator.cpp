@@ -96,6 +96,16 @@ std::string CGenerator::cAbsCommsHeaderFor(const commsdsl::gen::GenElem& elem) c
     return genGetOutputDir() + '/' + cRelCommsHeaderFor(elem);
 }
 
+std::string CGenerator::cRelHeaderForNamespaceMember(const std::string& name, const CNamespace& parent)
+{
+    return genGetTopNamespace() + '/' + comms::genRelHeaderForNamespaceMember(name, *this, parent);
+}
+
+std::string CGenerator::cAbsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent)
+{
+    return genGetOutputDir() + '/' + strings::genIncludeDirStr() + '/' + cRelHeaderForNamespaceMember(name, parent);
+}
+
 std::string CGenerator::cInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const
 {
     return genGetCodeDir() + '/' + strings::genIncludeDirStr() + '/' + cRelHeaderFor(elem);

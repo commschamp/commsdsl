@@ -21,6 +21,8 @@
 #include "commsdsl/gen/GenMessage.h"
 #include "commsdsl/gen/util.h"
 
+#include <string>
+
 namespace commsdsl2c
 {
 

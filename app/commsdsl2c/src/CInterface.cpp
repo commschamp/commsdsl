@@ -17,6 +17,7 @@
 
 #include "CGenerator.h"
 #include "CNamespace.h"
+#include "CMsgId.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -85,6 +86,15 @@ std::string CInterface::cStructName() const
 std::string CInterface::cCommsTypeName() const
 {
     return cStructName() + strings::genCommsNameSuffixStr();
+}
+
+const CMsgId* CInterface::cMsgId() const
+{
+    auto parentNs = CNamespace::cCast(genParentNamespace());
+    assert(parentNs != nullptr);
+    auto* msgId = parentNs->cMsgId(); 
+    assert(msgId != nullptr);
+    return msgId;
 }
 
 bool CInterface::genPrepareImpl()
@@ -284,6 +294,10 @@ std::string CInterface::cHeaderIncludesInternal() const
         f->cAddHeaderIncludes(includes);
     }
 
+    auto* msgId = cMsgId(); 
+    assert(msgId != nullptr);
+    includes.push_back(msgId->cRelHeader());
+
     comms::genPrepareIncludeStatement(includes);
     return util::genStrListToString(includes, "\n", "\n");
 }
@@ -320,12 +334,18 @@ std::string CInterface::cHeaderCodeInternal() const
         "/// @brief Definition of common interface handle for all the messages.\n"
         "typedef struct #^#NAME#$#_ #^#NAME#$#;\n\n"
         "#^#FIELDS_ACC#$#\n"
+        "/// @brief Get message ID\n"
+        "#^#MSG_ID#$# #^#NAME#$#_getId(const #^#NAME#$#* msg);\n"
         // TODO: extra code
         ;
+
+    auto* msgId = cMsgId(); 
+    assert(msgId != nullptr);        
 
     util::GenReplacementMap repl = {
         {"NAME", cStructName()},
         {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
+        {"MSG_ID", msgId->cName()},
     };
     
     return util::genProcessTemplate(Templ, repl);
@@ -380,13 +400,21 @@ std::string CInterface::cSourceCodeInternal() const
 
     static const std::string Templ = 
         "#^#FIELDS_ACC#$#\n"
+        "#^#MSG_ID#$# #^#NAME#$#_getId(const #^#NAME#$#* msg)\n"
+        "{\n"
+        "    return static_cast<#^#MSG_ID#$#>(fromInterfaceHandle(msg)->getId());\n"
+        "}\n"
         // TODO: extra code
         ;
+
+    auto* msgId = cMsgId();         
+    assert(msgId != nullptr);
 
     auto parseObj = genParseObj();
     util::GenReplacementMap repl = {
         {"NAME", cStructName()},
         {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
+        {"MSG_ID", msgId->cName()},
     };
     
     return util::genProcessTemplate(Templ, repl);

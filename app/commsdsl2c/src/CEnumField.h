@@ -18,6 +18,9 @@
 #include "CField.h"
 
 #include "commsdsl/gen/GenEnumField.h"
+#include "commsdsl/gen/util.h"
+
+#include <string>
 
 namespace commsdsl2c
 {
@@ -31,16 +34,20 @@ class CEnumField final : public commsdsl::gen::GenEnumField, public CField
 public:
     using ParseField = commsdsl::parse::ParseField;
     using GenElem = commsdsl::gen::GenElem;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     CEnumField(CGenerator& generator, ParseField parseObj, GenElem* parent);
+
+    GenStringsList cEnumValues(const std::string& forcedPrefix = std::string()) const;
 
 protected:
     // GenBase overrides
     virtual bool genWriteImpl() const override;    
 
     // CBase overrides
-
+    virtual std::string cHeaderCodeImpl() const override;
 private:
+    std::string cHeaderEnumInternal() const;
 };
 
 } // namespace commsdsl2c

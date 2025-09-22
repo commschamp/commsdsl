@@ -18,10 +18,13 @@
 #include "commsdsl/gen/GenGenerator.h"
 #include "commsdsl/gen/util.h"
 
+#include <string>
+
 namespace commsdsl2c 
 {
 
 class CInterface;
+class CNamespace;
 class CGenerator final : public commsdsl::gen::GenGenerator
 {
     using Base = commsdsl::gen::GenGenerator;
@@ -56,6 +59,8 @@ public:
     std::string cAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
     std::string cRelCommsHeaderFor(const commsdsl::gen::GenElem& elem) const;  
     std::string cAbsCommsHeaderFor(const commsdsl::gen::GenElem& elem) const;  
+    std::string cRelHeaderForNamespaceMember(const std::string& name, const CNamespace& parent);
+    std::string cAbsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent);
     
     std::string cInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const;
     std::string cInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
