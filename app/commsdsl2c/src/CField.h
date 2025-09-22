@@ -47,12 +47,12 @@ public:
     void cAddHeaderIncludes(CIncludesList& includes) const;
     void cAddSourceIncludes(CIncludesList& includes) const;
     void cAddCommsHeaderIncludes(CIncludesList& includes) const;
-    std::string cStructName() const;
-    std::string cCommsTypeName() const;
+    std::string cStructName(bool forceOptional = false) const;
+    std::string cCommsTypeName(bool forceOptional = false) const;
     std::string cHeaderCode() const;
     std::string cSourceCode() const;
     std::string cCommsHeaderCode() const;
-    std::string cCommsType(bool appendOptions = true) const;
+    std::string cCommsType(bool appendOptions = true, bool forceOptional = false) const;
     bool cIsVersionOptional() const;
     void cAddSourceFiles(GenStringsList& sources) const;
     std::string cRelCommsDefHeader() const;
@@ -61,6 +61,8 @@ public:
     {
         return m_genField;
     }    
+
+    const std::string& cConversionSuffix() const;
 
 protected:
     virtual void cAddHeaderIncludesImpl(CIncludesList& includes) const;
@@ -75,12 +77,14 @@ private:
     bool cWriteCommsHeaderInternal() const;
     std::string cHeaderIncludesInternal() const;
     std::string cSourceIncludesInternal() const;
-    std::string cHeaderLengthFunc() const;
-    std::string cSourceLengthFunc() const;
-    std::string cHeaderNameFunc() const;
-    std::string cSourceNameFunc() const;
-    std::string cHandleBrief() const;
+    std::string cHeaderLengthFuncInternal(bool forcedOptional) const;
+    std::string cSourceLengthFuncInternal(bool forcedOptional) const;
+    std::string cHeaderNameFuncInternal(bool forcedOptional) const;
+    std::string cSourceNameFuncInternal(bool forcedOptional) const;
+    std::string cHandleBriefInternal(bool forcedOptional) const;
     std::string cCommsHeaderIncludesInternal() const;
+    std::string cHeaderOptionalCodeInternal() const;
+    std::string cSourceOptionalCodeInternal() const;
     
     GenField& m_genField;
 };

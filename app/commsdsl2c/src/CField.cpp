@@ -142,92 +142,171 @@ void CField::cAddCommsHeaderIncludes(CIncludesList& includes) const
     return cAddCommsHeaderIncludesImpl(includes);
 }
 
-std::string CField::cStructName() const
+std::string CField::cStructName(bool forceOptional) const
 {
     auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
-    return cGenerator.cStructNameFor(m_genField);
+    auto str = cGenerator.cStructNameFor(m_genField);
+    if (forceOptional) {
+        str += strings::genVersionOptionalFieldSuffixStr();
+    }
+    return str;
 }
 
-std::string CField::cCommsTypeName() const
+std::string CField::cCommsTypeName(bool forceOptional) const
 {
-    return cStructName() + strings::genCommsNameSuffixStr();
+    return cStructName(forceOptional) + strings::genCommsNameSuffixStr();
 }
 
 std::string CField::cHeaderCode() const
 {
-    static const std::string Templ = 
-        "#^#BRIEF#$#\n"
-        "typedef struct #^#NAME#$#_ #^#NAME#$#;\n\n"
-        "#^#CODE#$#\n"
-        "#^#LENGTH_FUNC#$#\n"
-        "#^#NAME_FUNC#$#\n"
-        ;
+    auto doCode = 
+        [this](bool forceOptional)
+        {
+            static const std::string Templ = 
+                "#^#BRIEF#$#\n"
+                "typedef struct #^#NAME#$##^#SUFFIX#$#_ #^#NAME#$##^#SUFFIX#$#;\n\n"
+                "#^#CODE#$#\n"
+                "#^#LENGTH_FUNC#$#\n"
+                "#^#NAME_FUNC#$#\n"
+                ;
 
-    util::GenReplacementMap repl = {
-        {"NAME", cStructName()},
-        {"CODE", cHeaderCodeImpl()},
-        {"BRIEF", cHandleBrief()},
-        {"LENGTH_FUNC", cHeaderLengthFunc()},
-        {"NAME_FUNC", cHeaderNameFunc()},
-    };
+            util::GenReplacementMap repl = {
+                {"NAME", cStructName()},
+                {"BRIEF", cHandleBriefInternal(forceOptional)},
+                {"LENGTH_FUNC", cHeaderLengthFuncInternal(forceOptional)},
+                {"NAME_FUNC", cHeaderNameFuncInternal(forceOptional)},
+            };
+
+            if (forceOptional) {
+                repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+            }
+
+            if (cIsVersionOptional() && (!forceOptional)) {
+                repl["CODE"] = cHeaderOptionalCodeInternal();
+            }     
+            else {
+                repl["CODE"] = cHeaderCodeImpl();
+            }       
+
+            return util::genProcessTemplate(Templ, repl);
+        };
+
+    if (!cIsVersionOptional()) {
+        return doCode(false);
+    }
+
+    static const std::string Templ = 
+        "#^#INNER#$#\n"
+        "#^#WRAP#$#\n";
     
+    util::GenReplacementMap repl = {
+        {"INNER", doCode(true)},
+        {"WRAP", doCode(false)},
+    };
+
     return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CField::cSourceCode() const
 {
-    static const std::string Templ = 
-        "#^#CODE#$#\n"
-        "#^#LENGTH_FUNC#$#\n"
-        "#^#NAME_FUNC#$#\n"
-        ;
+    auto doCode = 
+        [this](bool forceOptional)
+        {    
+            static const std::string Templ = 
+                "#^#CODE#$#\n"
+                "#^#LENGTH_FUNC#$#\n"
+                "#^#NAME_FUNC#$#\n"
+                ;
 
-    util::GenReplacementMap repl = {
-        {"CODE", cSourceCodeImpl()},
-        {"LENGTH_FUNC", cSourceLengthFunc()},
-        {"NAME_FUNC", cSourceNameFunc()},
-    };
+            util::GenReplacementMap repl = {
+                {"CODE", cSourceCodeImpl()},
+                {"LENGTH_FUNC", cSourceLengthFuncInternal(forceOptional)},
+                {"NAME_FUNC", cSourceNameFuncInternal(forceOptional)},
+            };
+
+            if (cIsVersionOptional() && (!forceOptional)) {
+                repl["CODE"] = cSourceOptionalCodeInternal();
+            }     
+            else {
+                repl["CODE"] = cSourceCodeImpl();
+            }             
+
+            return util::genProcessTemplate(Templ, repl);
+        };
+
+    if (!cIsVersionOptional()) {
+        return doCode(false);
+    }
+
+    static const std::string Templ = 
+        "#^#INNER#$#\n"
+        "#^#WRAP#$#\n";
     
-    return util::genProcessTemplate(Templ, repl);
+    util::GenReplacementMap repl = {
+        {"INNER", doCode(true)},
+        {"WRAP", doCode(false)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);        
 }
 
 std::string CField::cCommsHeaderCode() const
 {
-    static const std::string Templ = 
-        "using #^#COMMS_NAME#$# = ::#^#COMMS_TYPE#$#;\n"
-        "struct alignas(alignof(#^#COMMS_NAME#$#)) #^#NAME#$#_ {};\n\n"
-        "inline const #^#COMMS_NAME#$#* fromHandle(const #^#NAME#$#* from)\n"
-        "{\n"
-        "    return reinterpret_cast<const #^#COMMS_NAME#$#*>(from);\n"
-        "}\n\n"
-        "inline #^#COMMS_NAME#$#* fromHandle(#^#NAME#$#* from)\n"
-        "{\n"
-        "    return reinterpret_cast<#^#COMMS_NAME#$#*>(from);\n"
-        "}\n\n"        
-        "inline const #^#NAME#$#* toHandle(const #^#COMMS_NAME#$#* from)\n"
-        "{\n"
-        "    return reinterpret_cast<const #^#NAME#$#*>(from);\n"
-        "}\n\n"
-        "inline #^#NAME#$#* toHandle(#^#COMMS_NAME#$#* from)\n"
-        "{\n"
-        "    return reinterpret_cast<#^#NAME#$#*>(from);\n"
-        "}\n"        
-        ;
+    auto doCode = 
+        [this](bool forceOptional)
+        {    
+            static const std::string Templ = 
+                "using #^#COMMS_NAME#$# = ::#^#COMMS_TYPE#$#;\n"
+                "struct alignas(alignof(#^#COMMS_NAME#$#)) #^#NAME#$#_ {};\n\n"
+                "inline const #^#COMMS_NAME#$#* from#^#CONV_SUFFIX#$#(const #^#NAME#$#* from)\n"
+                "{\n"
+                "    return reinterpret_cast<const #^#COMMS_NAME#$#*>(from);\n"
+                "}\n\n"
+                "inline #^#COMMS_NAME#$#* from#^#CONV_SUFFIX#$#(#^#NAME#$#* from)\n"
+                "{\n"
+                "    return reinterpret_cast<#^#COMMS_NAME#$#*>(from);\n"
+                "}\n\n"        
+                "inline const #^#NAME#$#* to#^#CONV_SUFFIX#$#(const #^#COMMS_NAME#$#* from)\n"
+                "{\n"
+                "    return reinterpret_cast<const #^#NAME#$#*>(from);\n"
+                "}\n\n"
+                "inline #^#NAME#$#* to#^#CONV_SUFFIX#$#(#^#COMMS_NAME#$#* from)\n"
+                "{\n"
+                "    return reinterpret_cast<#^#NAME#$#*>(from);\n"
+                "}\n"        
+                ;
 
-    util::GenReplacementMap repl = {
-        {"NAME", cStructName()},
-        {"COMMS_NAME", cCommsTypeName()},
-        {"COMMS_TYPE", cCommsType()},
-    };
+            util::GenReplacementMap repl = {
+                {"NAME", cStructName(forceOptional)},
+                {"COMMS_NAME", cCommsTypeName(forceOptional)},
+                {"COMMS_TYPE", cCommsType(true, forceOptional)},
+                {"CONV_SUFFIX", cConversionSuffix()},
+            };
+
+            return util::genProcessTemplate(Templ, repl);   
+        };     
+
+    if (!cIsVersionOptional()) {
+        return doCode(false);
+    }
+
+    static const std::string Templ = 
+        "#^#INNER#$#\n"
+        "#^#WRAP#$#\n";
     
-    return util::genProcessTemplate(Templ, repl);        
+    util::GenReplacementMap repl = {
+        {"INNER", doCode(true)},
+        {"WRAP", doCode(false)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);    
 }
 
-std::string CField::cCommsType(bool appendOptions) const
+std::string CField::cCommsType(bool appendOptions, bool forceOptional) const
 {
     auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
     auto adjustType = 
-        [this, &cGenerator](const std::string& type, bool withOpts)
+        [this, &cGenerator, forceOptional](const std::string& type, bool withOpts)
         {
             auto str = type + strings::genFieldsSuffixStr();
             if (withOpts) {
@@ -235,6 +314,11 @@ std::string CField::cCommsType(bool appendOptions) const
             }
             str += "::";
             str += comms::genClassName(m_genField.genName());
+
+            if (forceOptional) {
+                str += strings::genVersionOptionalFieldSuffixStr();
+            }
+
             return str;
         };
         
@@ -281,6 +365,30 @@ std::string CField::cRelCommsDefHeader() const
 {
     auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
     return cGenerator.cRelCommsHeaderFor(m_genField);
+}
+
+const std::string& CField::cConversionSuffix() const
+{
+    auto* parent = m_genField.genGetParent();
+    assert(parent != nullptr);    
+
+    if (parent->genElemType() != GenElem::GenType_Interface) {
+        static const std::string Str = "InterfaceFieldHandle";
+        return Str;
+    }
+
+    if (parent->genElemType() != GenElem::GenType_Message) {
+        static const std::string Str = "MessageFieldHandle";
+        return Str;
+    }   
+    
+    if (parent->genElemType() != GenElem::GenType_Message) {
+        static const std::string Str = "LayerFieldHandle";
+        return Str;
+    }        
+
+    static const std::string Str = "FieldHandle";
+    return Str;    
 }
 
 void CField::cAddHeaderIncludesImpl([[maybe_unused]] CIncludesList& includes) const
@@ -441,69 +549,87 @@ std::string CField::cSourceIncludesInternal() const
     return util::genStrListToString(includes, "\n", "\n");
 }
 
-std::string CField::cHeaderLengthFunc() const
+std::string CField::cHeaderLengthFuncInternal(bool forcedOptional) const
 {
     static const std::string Templ = 
-        "/// @brief Retrieve serialization length of the @ref #^#NAME#$# field.\n"
-        "size_t #^#NAME#$#_length(const #^#NAME#$#* field);\n"
+        "/// @brief Retrieve serialization length of the @ref #^#NAME#$##^#SUFFIX#$# field.\n"
+        "size_t #^#NAME#$##^#SUFFIX#$#_length(const #^#NAME#$##^#SUFFIX#$#* field);\n"
         ;
 
     util::GenReplacementMap repl = {
         {"NAME", cStructName()},
     };
 
+    if (forcedOptional) {
+        repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+    }
+
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string CField::cSourceLengthFunc() const
+std::string CField::cSourceLengthFuncInternal(bool forcedOptional) const
 {
     static const std::string Templ = 
-        "size_t #^#NAME#$#_length(const #^#NAME#$#* field)\n"
+        "size_t #^#NAME#$##^#SUFFIX#$#_length(const #^#NAME#$##^#SUFFIX#$#* field)\n"
         "{\n"
-        "    return fromHandle(field)->length();\n"
+        "    return from#^#CONV_SUFFIX#$#(field)->length();\n"
         "}\n"
         ;
 
     util::GenReplacementMap repl = {
         {"NAME", cStructName()},
+        {"CONV_SUFFIX", cConversionSuffix()},
     };
+
+    if (forcedOptional) {
+        repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+    }    
 
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string CField::cHeaderNameFunc() const
+std::string CField::cHeaderNameFuncInternal(bool forcedOptional) const
 {
     static const std::string Templ = 
-        "/// @brief Retrieve name of the @ref #^#NAME#$# field.\n"
-        "const char* #^#NAME#$#_name(const #^#NAME#$#* field);\n"
+        "/// @brief Retrieve name of the @ref #^#NAME#$##^#SUFFIX#$# field.\n"
+        "const char* #^#NAME#$##^#SUFFIX#$#_name(const #^#NAME#$##^#SUFFIX#$#* field);\n"
         ;
 
     util::GenReplacementMap repl = {
         {"NAME", cStructName()},
     };
 
+    if (forcedOptional) {
+        repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+    }    
+
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string CField::cSourceNameFunc() const
+std::string CField::cSourceNameFuncInternal(bool forcedOptional) const
 {
     static const std::string Templ = 
-        "const char* #^#NAME#$#_name(const #^#NAME#$#* field)\n"
+        "const char* #^#NAME#$##^#SUFFIX#$#_name(const #^#NAME#$##^#SUFFX#$#* field)\n"
         "{\n"
-        "    return fromHandle(field)->name();\n"
+        "    return from#^#CONV_SUFFIX#$#(field)->name();\n"
         "}\n"
         ;
 
     util::GenReplacementMap repl = {
         {"NAME", cStructName()},
+        {"CONV_SUFFIX", cConversionSuffix()},
     };
+
+    if (forcedOptional) {
+        repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+    }       
 
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string CField::cHandleBrief() const
+std::string CField::cHandleBriefInternal(bool forcedOptional) const
 {
-    if (cIsVersionOptional()) {
+    if (forcedOptional) {
         return "/// @brief Inner field of @ref " + cStructName() + " optional.";
     }
 
@@ -521,5 +647,85 @@ std::string CField::cCommsHeaderIncludesInternal() const
     return util::genStrListToString(includes, "\n", "\n");
 }
 
+std::string CField::cHeaderOptionalCodeInternal() const
+{
+    static const std::string Templ = 
+        "/// @brief Obtain access to inner non-optional field.\n"
+        "#^#NAME#$##^#SUFFIX#$#* #^#NAME#$#_field(#^#NAME#$#* field);\n"
+        "\n"
+        "/// @brief Check the versional dependent field exists.\n"
+        "bool #^#NAME#$#_doesExist(const #^#NAME#$#* field);\n"
+        "\n"
+        "/// @brief Force the versional dependent field into existance\n"
+        "void #^#NAME#$#_setExists(#^#NAME#$#* field);\n"
+        "\n"
+        "/// @brief Check the versional dependent field is missing.\n"
+        "bool #^#NAME#$#_isMissing(const #^#NAME#$#* field);\n"
+        "\n"
+        "/// @brief Force the versional dependent field to be missing\n"
+        "void #^#NAME#$#_setMissing(#^#NAME#$#* field);\n"
+        "\n"
+        "/// @brief Check the versional dependent field is tentative.\n"
+        "bool #^#NAME#$#_isTentative(const #^#NAME#$#* field);\n"
+        "\n"
+        "/// @brief Force the versional dependent field to be tenative\n"
+        "void #^#NAME#$#_setTentative(#^#NAME#$#* field);\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cStructName()},
+        {"SUFFIX", strings::genVersionOptionalFieldSuffixStr()}
+    };
+
+    return util::genProcessTemplate(Templ, repl);        
+}
+
+std::string CField::cSourceOptionalCodeInternal() const
+{
+    static const std::string Templ = 
+        "#^#NAME#$##^#SUFFIX#$#* #^#NAME#$#_field(#^#NAME#$#* field)\n"
+        "{\n"
+        "    return to#^#CONV_SUFFIX#$#(&(from#^#CONV_SUFFIX#$#(field)->field()));\n"
+        "}\n"
+        "\n"
+        "bool #^#NAME#$#_doesExist(const #^#NAME#$#* field)\n"
+        "{\n"
+        "    return from#^#CONV_SUFFIX#$#(field)->doesExist();\n"
+        "}\n"        
+        "\n"
+        "void #^#NAME#$#_setExists(#^#NAME#$#* field)\n"
+        "{\n"
+        "    return from#^#CONV_SUFFIX#$#(field)->setExists();\n"
+        "}\n"         
+        "\n"
+        "bool #^#NAME#$#_isMissing(const #^#NAME#$#* field)\n"
+        "{\n"
+        "    return from#^#CONV_SUFFIX#$#(field)->isMissing();\n"
+        "}\n"        
+        "\n"
+        "void #^#NAME#$#_setMissing(#^#NAME#$#* field)\n"
+        "{\n"
+        "    return from#^#CONV_SUFFIX#$#(field)->setMissing();\n"
+        "}\n"         
+        "\n"
+        "bool #^#NAME#$#_isTenative(const #^#NAME#$#* field)\n"
+        "{\n"
+        "    return from#^#CONV_SUFFIX#$#(field)->isTentative();\n"
+        "}\n"        
+        "\n"
+        "void #^#NAME#$#_setTenative(#^#NAME#$#* field)\n"
+        "{\n"
+        "    return from#^#CONV_SUFFIX#$#(field)->setTentative();\n"
+        "}\n"  
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cStructName()},
+        {"SUFFIX", strings::genVersionOptionalFieldSuffixStr()},
+        {"CONV_SUFFIX", cConversionSuffix()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);        
+}
 
 } // namespace commsdsl2c
