@@ -77,15 +77,15 @@ bool CInterface::cCodeGenerationAllowed() const
     return parentNs->cIsSuitableInterface(*this);
 }
 
-std::string CInterface::cStructName() const
+std::string CInterface::cName() const
 {
     auto& cGenerator = CGenerator::cCast(genGenerator());
-    return cGenerator.cStructNameFor(*this);
+    return cGenerator.cNameFor(*this);
 }
 
 std::string CInterface::cCommsTypeName() const
 {
-    return cStructName() + strings::genCommsNameSuffixStr();
+    return cName() + strings::genCommsNameSuffixStr();
 }
 
 const CMsgId* CInterface::cMsgId() const
@@ -278,7 +278,7 @@ bool CInterface::cWriteCommsHeaderInternal() const
         {"FIELDS", util::genStrListToString(fieldsCode, "\n", "\n")},
         {"SCOPE", comms::genScopeFor(*this, cGenerator)},
         {"COMMS_NAME", cCommsTypeName()},
-        {"NAME", cStructName()},
+        {"NAME", cName()},
     };
     
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -322,8 +322,8 @@ std::string CInterface::cHeaderCodeInternal() const
             ;
 
         util::GenReplacementMap accRepl = {
-            {"HANDLE", f->cStructName()},
-            {"NAME", cStructName()},
+            {"HANDLE", f->cName()},
+            {"NAME", cName()},
             {"FIELD_ACC", comms::genAccessName(f->cGenField().genName())}
         };
 
@@ -343,7 +343,7 @@ std::string CInterface::cHeaderCodeInternal() const
     assert(msgId != nullptr);        
 
     util::GenReplacementMap repl = {
-        {"NAME", cStructName()},
+        {"NAME", cName()},
         {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
         {"MSG_ID", msgId->cName()},
     };
@@ -389,8 +389,8 @@ std::string CInterface::cSourceCodeInternal() const
             ;
 
         util::GenReplacementMap accRepl = {
-            {"HANDLE", f->cStructName()},
-            {"NAME", cStructName()},
+            {"HANDLE", f->cName()},
+            {"NAME", cName()},
             {"FIELD_ACC", comms::genAccessName(f->cGenField().genName())},
             {"CONV_SUFFIX", f->cConversionSuffix()},
         };
@@ -412,7 +412,7 @@ std::string CInterface::cSourceCodeInternal() const
 
     auto parseObj = genParseObj();
     util::GenReplacementMap repl = {
-        {"NAME", cStructName()},
+        {"NAME", cName()},
         {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
         {"MSG_ID", msgId->cName()},
     };

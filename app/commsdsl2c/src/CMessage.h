@@ -48,7 +48,7 @@ public:
     std::string cRelCommsDefHeader() const;
     void cAddSourceFiles(GenStringsList& sources) const;
     std::string cCommsType(bool appendOptions = true) const;
-    std::string cStructName() const;
+    std::string cName() const;
     std::string cCommsTypeName() const;
 
 protected:

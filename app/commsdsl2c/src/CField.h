@@ -47,7 +47,7 @@ public:
     void cAddHeaderIncludes(CIncludesList& includes) const;
     void cAddSourceIncludes(CIncludesList& includes) const;
     void cAddCommsHeaderIncludes(CIncludesList& includes) const;
-    std::string cStructName(bool forceOptional = false) const;
+    std::string cName(bool forceOptional = false) const;
     std::string cCommsTypeName(bool forceOptional = false) const;
     std::string cHeaderCode() const;
     std::string cSourceCode() const;

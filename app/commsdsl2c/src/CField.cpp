@@ -142,10 +142,10 @@ void CField::cAddCommsHeaderIncludes(CIncludesList& includes) const
     return cAddCommsHeaderIncludesImpl(includes);
 }
 
-std::string CField::cStructName(bool forceOptional) const
+std::string CField::cName(bool forceOptional) const
 {
     auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
-    auto str = cGenerator.cStructNameFor(m_genField);
+    auto str = cGenerator.cNameFor(m_genField);
     if (forceOptional) {
         str += strings::genVersionOptionalFieldSuffixStr();
     }
@@ -154,7 +154,7 @@ std::string CField::cStructName(bool forceOptional) const
 
 std::string CField::cCommsTypeName(bool forceOptional) const
 {
-    return cStructName(forceOptional) + strings::genCommsNameSuffixStr();
+    return cName(forceOptional) + strings::genCommsNameSuffixStr();
 }
 
 std::string CField::cHeaderCode() const
@@ -171,7 +171,7 @@ std::string CField::cHeaderCode() const
                 ;
 
             util::GenReplacementMap repl = {
-                {"NAME", cStructName()},
+                {"NAME", cName()},
                 {"BRIEF", cHandleBriefInternal(forceOptional)},
                 {"LENGTH_FUNC", cHeaderLengthFuncInternal(forceOptional)},
                 {"NAME_FUNC", cHeaderNameFuncInternal(forceOptional)},
@@ -277,7 +277,7 @@ std::string CField::cCommsHeaderCode() const
                 ;
 
             util::GenReplacementMap repl = {
-                {"NAME", cStructName(forceOptional)},
+                {"NAME", cName(forceOptional)},
                 {"COMMS_NAME", cCommsTypeName(forceOptional)},
                 {"COMMS_TYPE", cCommsType(true, forceOptional)},
                 {"CONV_SUFFIX", cConversionSuffix()},
@@ -557,7 +557,7 @@ std::string CField::cHeaderLengthFuncInternal(bool forcedOptional) const
         ;
 
     util::GenReplacementMap repl = {
-        {"NAME", cStructName()},
+        {"NAME", cName()},
     };
 
     if (forcedOptional) {
@@ -577,7 +577,7 @@ std::string CField::cSourceLengthFuncInternal(bool forcedOptional) const
         ;
 
     util::GenReplacementMap repl = {
-        {"NAME", cStructName()},
+        {"NAME", cName()},
         {"CONV_SUFFIX", cConversionSuffix()},
     };
 
@@ -596,7 +596,7 @@ std::string CField::cHeaderNameFuncInternal(bool forcedOptional) const
         ;
 
     util::GenReplacementMap repl = {
-        {"NAME", cStructName()},
+        {"NAME", cName()},
     };
 
     if (forcedOptional) {
@@ -616,7 +616,7 @@ std::string CField::cSourceNameFuncInternal(bool forcedOptional) const
         ;
 
     util::GenReplacementMap repl = {
-        {"NAME", cStructName()},
+        {"NAME", cName()},
         {"CONV_SUFFIX", cConversionSuffix()},
     };
 
@@ -630,7 +630,7 @@ std::string CField::cSourceNameFuncInternal(bool forcedOptional) const
 std::string CField::cHandleBriefInternal(bool forcedOptional) const
 {
     if (forcedOptional) {
-        return "/// @brief Inner field of @ref " + cStructName() + " optional.";
+        return "/// @brief Inner field of @ref " + cName() + " optional.";
     }
 
     return
@@ -673,7 +673,7 @@ std::string CField::cHeaderOptionalCodeInternal() const
         ;
 
     util::GenReplacementMap repl = {
-        {"NAME", cStructName()},
+        {"NAME", cName()},
         {"SUFFIX", strings::genVersionOptionalFieldSuffixStr()}
     };
 
@@ -720,7 +720,7 @@ std::string CField::cSourceOptionalCodeInternal() const
         ;
 
     util::GenReplacementMap repl = {
-        {"NAME", cStructName()},
+        {"NAME", cName()},
         {"SUFFIX", strings::genVersionOptionalFieldSuffixStr()},
         {"CONV_SUFFIX", cConversionSuffix()},
     };

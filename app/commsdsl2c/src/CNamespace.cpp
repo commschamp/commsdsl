@@ -144,7 +144,7 @@ bool CNamespace::cCodeGenerationAllowed() const
 std::string CNamespace::cPrefixName() const
 {
     auto& cGenerator = CGenerator::cCast(genGenerator());
-    return cGenerator.cStructNameFor(*this);
+    return cGenerator.cNameFor(*this);
 }
 
 const CMsgId* CNamespace::cMsgId() const

@@ -50,7 +50,7 @@ CEnumField::GenStringsList CEnumField::cEnumValues(const std::string& forcedPref
 
     auto prefix = forcedPrefix;
     if (prefix.empty()) {
-        prefix = cStructName() + ValueTypeStr + '_';
+        prefix = cName() + ValueTypeStr + '_';
     }
     
     auto& revValues = genSortedRevValues();
@@ -175,8 +175,8 @@ std::string CEnumField::cHeaderEnumInternal() const
         ; 
 
     util::GenReplacementMap repl = {
-        {"HANDLE", cStructName()},
-        {"NAME", cStructName() + ValueTypeStr},
+        {"HANDLE", cName()},
+        {"NAME", cName() + ValueTypeStr},
         {"VALUES", util::genStrListToString(cEnumValues(), "\n", "")},
     };
 

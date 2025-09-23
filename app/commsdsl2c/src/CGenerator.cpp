@@ -116,7 +116,7 @@ std::string CGenerator::cInputAbsSourceFor(const commsdsl::gen::GenElem& elem) c
     return genGetCodeDir() + '/' + cRelSourceFor(elem);
 }
 
-std::string CGenerator::cStructNameFor(const commsdsl::gen::GenElem& elem) const
+std::string CGenerator::cNameFor(const commsdsl::gen::GenElem& elem) const
 {
     return cNamesPrefix() + cScopeToName(comms::genScopeFor(elem, *this, false));
 }

@@ -75,15 +75,15 @@ std::string CMessage::cCommsType(bool appendOptions) const
     return str;
 }
 
-std::string CMessage::cStructName() const
+std::string CMessage::cName() const
 {
     auto& cGenerator = CGenerator::cCast(genGenerator());
-    return cGenerator.cStructNameFor(*this);
+    return cGenerator.cNameFor(*this);
 }
 
 std::string CMessage::cCommsTypeName() const
 {
-    return cStructName() + strings::genCommsNameSuffixStr();
+    return cName() + strings::genCommsNameSuffixStr();
 }
 
 bool CMessage::genPrepareImpl()
@@ -279,8 +279,8 @@ std::string CMessage::cHeaderCodeInternal() const
             ;
 
         util::GenReplacementMap accRepl = {
-            {"HANDLE", f->cStructName()},
-            {"NAME", cStructName()},
+            {"HANDLE", f->cName()},
+            {"NAME", cName()},
             {"FIELD_ACC", comms::genAccessName(f->cGenField().genName())}
         };
 
@@ -308,10 +308,10 @@ std::string CMessage::cHeaderCodeInternal() const
 
     auto parseObj = genParseObj();
     util::GenReplacementMap repl = {
-        {"NAME", cStructName()},
+        {"NAME", cName()},
         {"DISP_NAME", util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName())},
         {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
-        {"INTERFACE", interface->cStructName()},
+        {"INTERFACE", interface->cName()},
         {"MSG_ID", msgId->cName()},
     };
     
@@ -354,8 +354,8 @@ std::string CMessage::cSourceCodeInternal() const
             ;
 
         util::GenReplacementMap accRepl = {
-            {"HANDLE", f->cStructName()},
-            {"NAME", cStructName()},
+            {"HANDLE", f->cName()},
+            {"NAME", cName()},
             {"FIELD_ACC", comms::genAccessName(f->cGenField().genName())},
             {"CONV_SUFFIX", f->cConversionSuffix()},
         };
@@ -386,9 +386,9 @@ std::string CMessage::cSourceCodeInternal() const
 
     auto parseObj = genParseObj();
     util::GenReplacementMap repl = {
-        {"NAME", cStructName()},
+        {"NAME", cName()},
         {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
-        {"INTERFACE", interface->cStructName()},
+        {"INTERFACE", interface->cName()},
         {"MSG_ID", msgId->cName()},
     };
     
@@ -462,7 +462,7 @@ std::string CMessage::cCommsHeaderCodeInternal() const
     util::GenReplacementMap repl = {
         {"COMMS_TYPE", comms::genScopeFor(*this, cGenerator)},
         {"COMMS_NAME", cCommsTypeName()},
-        {"NAME", cStructName()},
+        {"NAME", cName()},
         {"INTERFACE", interface->cCommsTypeName()},
         {"OPTS", CProtocolOptions::cClassName(cGenerator)},
     };   

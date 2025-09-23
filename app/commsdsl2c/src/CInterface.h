@@ -50,7 +50,7 @@ public:
     void cAddSourceFiles(GenStringsList& sources) const;
     std::string cCommsType() const;
     bool cCodeGenerationAllowed() const;
-    std::string cStructName() const;
+    std::string cName() const;
     std::string cCommsTypeName() const;
 
     const CMsgId* cMsgId() const;

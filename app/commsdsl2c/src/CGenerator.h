@@ -65,7 +65,7 @@ public:
     std::string cInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const;
     std::string cInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
 
-    std::string cStructNameFor(const commsdsl::gen::GenElem& elem) const;
+    std::string cNameFor(const commsdsl::gen::GenElem& elem) const;
 
     static std::string cScopeToName(const std::string& scope);    
     static const std::string& cCppGuardBegin();
