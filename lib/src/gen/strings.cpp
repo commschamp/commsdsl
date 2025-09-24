@@ -589,6 +589,12 @@ const std::string& genCommsNameSuffixStr()
     return Str;    
 }
 
+const std::string& genValueTypeStr()
+{
+    static const std::string Str("ValueType");
+    return Str; 
+}
+
 char genSiblingRefPrefix()
 {
     return '$';

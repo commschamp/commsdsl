@@ -77,7 +77,7 @@ bool CCmake::cWriteInternal() const
         "endif ()\n\n"
         "if (\"${OPT_CMAKE_NAMESPACE_NAME}\" STREQUAL \"\")\n"
         "    set (OPT_CMAKE_NAMESPACE_NAME cc)\n"
-        "endif ()\n"
+        "endif ()\n\n"
         "if (OPT_FIND_COMMS)\n"
         "    find_package(LibComms REQUIRED)\n"
         "endif ()\n\n"

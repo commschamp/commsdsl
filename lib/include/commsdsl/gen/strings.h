@@ -121,6 +121,7 @@ const std::string& genBigStr();
 const std::string& genLittleStr();
 const std::string& genDescriptionStr();
 const std::string& genCommsNameSuffixStr();
+const std::string& genValueTypeStr();
 
 
 char genSiblingRefPrefix();

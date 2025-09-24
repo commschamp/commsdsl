@@ -131,6 +131,8 @@ const std::string& CGenerator::cCppGuardBegin()
     static const std::string Str = 
         "#ifdef __cplusplus\n"
         "extern \"C\" {\n"
+        "#else\n"
+        "#include <stdbool.h>\n"
         "#endif\n"
         ;
 
