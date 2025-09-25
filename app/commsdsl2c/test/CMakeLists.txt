@@ -22,9 +22,18 @@ set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
 file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
 
 foreach (name ${tests})
+    set (this_test_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}")
+
+    if (EXISTS ${this_test_dir}/${name}/disabled.txt)
+        continue ()
+    endif ()    
+
+    if (WIN32 AND (EXISTS ${this_test_dir}/${name}/win_disabled.txt))
+        continue ()
+    endif ()
+
     set (test_dir "${tests_path}/${name}")
     file (GLOB schema_files ${test_dir}/Schema*.xml)
-    set (this_test_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}")
     set (code_input_dir "${this_test_dir}/src")
     set (code_input_param)
     if (EXISTS "${code_input_dir}/")
