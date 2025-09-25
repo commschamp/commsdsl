@@ -20,6 +20,7 @@
 #include "CDataField.h"
 #include "CCmake.h"
 #include "CEnumField.h"
+#include "CErrorStatus.h"
 #include "CFloatField.h"
 // #include "CFrame.h"
 #include "CInterface.h"
@@ -96,14 +97,40 @@ std::string CGenerator::cAbsCommsHeaderFor(const commsdsl::gen::GenElem& elem) c
     return genGetOutputDir() + '/' + cRelCommsHeaderFor(elem);
 }
 
-std::string CGenerator::cRelHeaderForNamespaceMember(const std::string& name, const CNamespace& parent)
+std::string CGenerator::cRelHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const
 {
     return genGetTopNamespace() + '/' + comms::genRelHeaderForNamespaceMember(name, *this, parent);
 }
 
-std::string CGenerator::cAbsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent)
+std::string CGenerator::cAbsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const
 {
     return genGetOutputDir() + '/' + strings::genIncludeDirStr() + '/' + cRelHeaderForNamespaceMember(name, parent);
+}
+
+std::string CGenerator::cRelRootHeaderFor(const std::string& name) const
+{
+    return 
+        genGetTopNamespace() + '/' + 
+        genProtocolSchema().genMainNamespace() + '/' +
+        name + strings::genCppHeaderSuffixStr();    
+}
+
+std::string CGenerator::cAbsRootHeaderFor(const std::string& name) const
+{
+    return genGetOutputDir() + '/' + strings::genIncludeDirStr() + '/' + cRelRootHeaderFor(name);
+}
+
+std::string CGenerator::cRelRootSourceFor(const std::string& name) const
+{
+    return 
+        genGetTopNamespace() + '/' + 
+        genProtocolSchema().genMainNamespace() + '/' +
+        name + strings::genCppSourceSuffixStr();
+}
+
+std::string CGenerator::cAbsRootSourceFor(const std::string& name) const
+{
+    return genGetOutputDir() + '/' + cRelRootSourceFor(name);
 }
 
 std::string CGenerator::cInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const
@@ -177,6 +204,7 @@ bool CGenerator::genWriteImpl()
     assert(&genCurrentSchema() == &genProtocolSchema());
     return 
         CProtocolOptions::cWrite(*this) &&
+        CErrorStatus::cWrite(*this) &&
         CCmake::cWrite(*this) &&
         cWriteExtraFilesInternal();
 }

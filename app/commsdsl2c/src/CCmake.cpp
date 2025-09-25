@@ -15,6 +15,7 @@
 
 #include "CCmake.h"
 
+#include "CErrorStatus.h"
 #include "CGenerator.h"
 #include "CSchema.h"
 // #include "CVersion.h"
@@ -165,7 +166,9 @@ bool CCmake::cWriteInternal() const
         "#^#APPEND#$#\n"
         ;   
 
-    util::GenStringsList sources;
+    util::GenStringsList sources = {
+        CErrorStatus::cRelSourcePath(m_cGenerator)
+    };
     // TODO:
     // CVersion::cAddSourceFiles(m_cGenerator, sources);
 

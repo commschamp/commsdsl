@@ -310,7 +310,7 @@ std::string CField::cCommsType(bool appendOptions, bool forceOptional) const
         {
             auto str = type + strings::genFieldsSuffixStr();
             if (withOpts) {
-                str += '<' + CProtocolOptions::cClassName(cGenerator) + '>';
+                str += '<' + CProtocolOptions::cName(cGenerator) + '>';
             }
             str += "::";
             str += comms::genClassName(m_genField.genName());
@@ -341,7 +341,7 @@ std::string CField::cCommsType(bool appendOptions, bool forceOptional) const
     assert (parentType == GenElem::GenType::GenType_Namespace);
     auto str = comms::genScopeFor(m_genField, cGenerator);
     if (appendOptions) {
-        str += '<' + CProtocolOptions::cClassName(cGenerator) + '>';
+        str += '<' + CProtocolOptions::cName(cGenerator) + '>';
     }
     return str;
 }

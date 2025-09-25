@@ -5,6 +5,7 @@ set (
     CCmake.cpp
     CDataField.cpp
     CEnumField.cpp
+    CErrorStatus.cpp
     CFloatField.cpp
     CField.cpp
     CGenerator.cpp

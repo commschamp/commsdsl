@@ -70,7 +70,7 @@ std::string CMessage::cCommsType(bool appendOptions) const
     auto& cGenerator = CGenerator::cCast(genGenerator());
     auto str = comms::genScopeFor(*this, cGenerator);
     if (appendOptions) {
-        str += '<' + CProtocolOptions::cClassName(cGenerator) + '>';
+        str += '<' + CProtocolOptions::cName(cGenerator) + '>';
     }    
     return str;
 }
@@ -464,7 +464,7 @@ std::string CMessage::cCommsHeaderCodeInternal() const
         {"COMMS_NAME", cCommsTypeName()},
         {"NAME", cName()},
         {"INTERFACE", interface->cCommsTypeName()},
-        {"OPTS", CProtocolOptions::cClassName(cGenerator)},
+        {"OPTS", CProtocolOptions::cName(cGenerator)},
     };   
     
     return util::genProcessTemplate(Templ, repl);

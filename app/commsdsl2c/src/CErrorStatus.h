@@ -23,22 +23,23 @@ namespace commsdsl2c
 {
 
 class CGenerator;
-class CProtocolOptions
+class CErrorStatus
 {
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     static std::string cName(const CGenerator& generator);
     static std::string cRelHeaderPath(const CGenerator& generator);
+    static std::string cRelSourcePath(const CGenerator& generator);
+    static void cAddSourceFiles(const CGenerator& generator, GenStringsList& sources);
 
     static bool cWrite(CGenerator& generator);
 
 private:
-    explicit CProtocolOptions(CGenerator& generator);
+    explicit CErrorStatus(CGenerator& generator);
 
     bool cWriteHeaderInternal();
-    std::string cTypeDefInternal();
-    std::string cIncludesInternal();
+    bool cWriteSourceInternal();
 
     CGenerator& m_cGenerator;
 };

@@ -62,7 +62,7 @@ std::string cCodeInternal(const util::GenStringsList& opts, std::size_t idx)
 
 } // namespace 
   
-std::string CProtocolOptions::cClassName(const CGenerator& generator)
+std::string CProtocolOptions::cName(const CGenerator& generator)
 {
     return generator.cNamesPrefix() + "ProtocolOptions";
 }
@@ -73,7 +73,7 @@ std::string CProtocolOptions::cRelHeaderPath(const CGenerator& generator)
         generator.genGetTopNamespace() + '/' + 
         generator.genProtocolSchema().genMainNamespace() + '/' +
         strings::genOptionsNamespaceStr() + '/' +
-        cClassName(generator) + strings::genCppHeaderSuffixStr();
+        cName(generator) + strings::genCppHeaderSuffixStr();
 }
 
 bool CProtocolOptions::cWrite(CGenerator& generator)
@@ -137,7 +137,7 @@ std::string CProtocolOptions::cTypeDefInternal()
 
     auto& opts = m_cGenerator.cProtocolOptions();
     util::GenReplacementMap repl = {
-        {"OPT_TYPE", cClassName(m_cGenerator)},
+        {"OPT_TYPE", cName(m_cGenerator)},
         {"CODE", cCodeInternal(opts, opts.size() - 1U)},
     };
 
