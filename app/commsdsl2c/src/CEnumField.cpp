@@ -22,6 +22,8 @@
 #include "commsdsl/gen/util.h"
 
 #include <cassert>
+#include <limits>
+#include <string>
 
 namespace comms = commsdsl::gen::comms;
 namespace util = commsdsl::gen::util;
@@ -33,7 +35,53 @@ namespace commsdsl2c
 namespace 
 {
 
-const std::string ValueTypeStr("_ValueType");
+std::intmax_t cMaxLimitValStrInternal(commsdsl::parse::ParseIntField::ParseType value, std::size_t len)
+{
+    static const std::intmax_t TypeMap[] = {
+        /* Int8 */ std::numeric_limits<std::int8_t>::max(),
+        /* Uint8 */ std::numeric_limits<std::uint8_t>::max(),
+        /* Int16 */ std::numeric_limits<std::int16_t>::max(),
+        /* Uint16 */ std::numeric_limits<std::uint16_t>::max(),
+        /* Int32 */ std::numeric_limits<std::int32_t>::max(),
+        /* Uint32 */ std::numeric_limits<std::uint32_t>::max(),
+        /* Int64 */ std::numeric_limits<std::int32_t>::max(),
+        /* Uint64 */ static_cast<std::intmax_t>(std::numeric_limits<std::int32_t>::max()),
+        /* Intvar */ 0,
+        /* Uintvar */ 0
+    };
+
+    static const std::size_t TypeMapSize = std::extent<decltype(TypeMap)>::value;
+    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::parse::ParseIntField::ParseType::NumOfValues),
+            "Incorrect map");
+
+    std::size_t idx = static_cast<std::size_t>(value);
+    if (TypeMapSize <= idx) {
+        assert(false); // Should not happen
+        return 0;
+    }   
+    
+    auto& typeVal = TypeMap[idx];
+    if (typeVal != 0) {
+        return typeVal;
+    }
+
+    // Variable length
+    auto offset = idx - static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::ParseType::Intvar);
+    assert(offset < 2U);
+
+    if (len <= 2U) {
+        auto base = static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::ParseType::Int16);
+        return TypeMap[base + offset];
+    }
+
+    if (len <= 4U) {
+        auto base = static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::ParseType::Int32);
+        return TypeMap[base + offset];
+    }
+
+    auto base = static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::ParseType::Int64);
+    return TypeMap[base + offset];     
+}
 
 } // namespace 
     
@@ -50,7 +98,7 @@ CEnumField::GenStringsList CEnumField::cEnumValues(const std::string& forcedPref
 
     auto prefix = forcedPrefix;
     if (prefix.empty()) {
-        prefix = cName() + ValueTypeStr + '_';
+        prefix = cName() + '_' + strings::genValueTypeStr() + '_';
     }
     
     auto& revValues = genSortedRevValues();
@@ -139,6 +187,13 @@ CEnumField::GenStringsList CEnumField::cEnumValues(const std::string& forcedPref
 
         if (genHasValuesLimit()) {
             valuesStrings.push_back(createValueStrFunc(prefix + genValuesLimitStr(), revValues.back().first + 1, "Upper limit for defined values."));
+
+            auto parseObj = genEnumFieldParseObj();
+            valuesStrings.push_back(
+                createValueStrFunc(
+                    prefix + "TypeValuesLimit", 
+                    cMaxLimitValStrInternal(parseObj.parseType(), parseObj.parseMaxLength()),
+                    "Allow unknown values beyond @ref " + prefix + genValuesLimitStr()));            
         }
     }
 
@@ -154,29 +209,36 @@ std::string CEnumField::cHeaderCodeImpl() const
 {
     static const std::string Templ = 
         "#^#ENUM#$#\n"
+        "#^#FUNCS#$#\n"
         ; 
 
     util::GenReplacementMap repl = {
         {"ENUM", cHeaderEnumInternal()},
+        {"FUNCS", cHeaderCommonValueAccessFuncs()},
     };
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CEnumField::cSourceCodeImpl() const
+{
+    return cSourceCommonValueAccessFuncs();
 }
 
 std::string CEnumField::cHeaderEnumInternal() const
 {
     static const std::string Templ = 
         "/// @brief Values enumerator for\n"
-        "///     @ref #^#HANDLE#$# field.\n"
+        "///     @ref #^#NAME#$# field.\n"
         "typedef enum\n"
         "{\n"
         "    #^#VALUES#$#\n"
-        "} #^#NAME#$#;\n"   
+        "} #^#NAME#$#_#^#VALUE_TYPE#$#;\n"   
         ; 
 
     util::GenReplacementMap repl = {
-        {"HANDLE", cName()},
-        {"NAME", cName() + ValueTypeStr},
+        {"NAME", cName()},
+        {"VALUE_TYPE", strings::genValueTypeStr()},
         {"VALUES", util::genStrListToString(cEnumValues(), "\n", "")},
     };
 

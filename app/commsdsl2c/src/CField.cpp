@@ -412,6 +412,55 @@ std::string CField::cSourceCodeImpl() const
     return strings::genEmptyString();
 }
 
+std::string CField::cHeaderCommonValueAccessFuncs() const
+{
+    static const std::string Templ = 
+        "/// @brief Get value of the @ref #^#NAME#$# field.\n"
+        "#^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# #^#NAME#$##^#SUFFIX#$#_getValue(const #^#NAME#$##^#SUFFIX#$#* field);\n"
+        "\n"
+        "/// @brief Set value of the @ref #^#NAME#$# field.\n"
+        "void #^#NAME#$##^#SUFFIX#$#_setValue(#^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# value);\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cName()},
+        {"VALUE_TYPE", strings::genValueTypeStr()},
+    };
+
+    if (cIsVersionOptional()) {
+        repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CField::cSourceCommonValueAccessFuncs() const
+{
+    static const std::string Templ = 
+        "#^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# #^#NAME#$##^#SUFFIX#$#_getValue(const #^#NAME#$##^#SUFFIX#$#* field)\n"
+        "{\n"
+        "    return static_cast<#^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$#>(from#^#CONV_SUFFIX#$#(field)->getValue());\n"
+        "}\n"
+        "\n"
+        "void #^#NAME#$##^#SUFFIX#$#_setValue(#^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# value)\n"
+        "{\n"
+        "    from#^#CONV_SUFFIX#$#(field)->setValue(value);\n"
+        "}\n"        
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cName()},
+        {"VALUE_TYPE", strings::genValueTypeStr()},
+        {"CONV_SUFFIX", cConversionSuffix()}
+    };
+
+    if (cIsVersionOptional()) {
+        repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
 bool CField::cWriteHeaderInternal() const
 {
     auto& generator = CGenerator::cCast(m_genField.genGenerator());

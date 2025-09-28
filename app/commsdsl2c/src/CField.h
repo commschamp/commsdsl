@@ -71,6 +71,9 @@ protected:
     virtual std::string cHeaderCodeImpl() const;
     virtual std::string cSourceCodeImpl() const;
 
+    std::string cHeaderCommonValueAccessFuncs() const;
+    std::string cSourceCommonValueAccessFuncs() const;
+
 private:
     bool cWriteHeaderInternal() const;
     bool cWriteSrcInternal() const;

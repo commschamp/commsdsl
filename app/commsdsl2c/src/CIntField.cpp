@@ -75,7 +75,7 @@ std::string CIntField::cHeaderCodeImpl() const
 std::string CIntField::cSourceCodeImpl() const
 {
     util::GenReplacementMap repl = {
-        {"VALUE", cSourceValueCodeInternal()},
+        {"VALUE", cSourceCommonValueAccessFuncs()},
         {"SPECIALS", cSourceSpecialsCodeInternal()},
     };
 
@@ -95,51 +95,19 @@ std::string CIntField::cHeaderValueCodeInternal() const
         "/// @breif Inner value storage type of @ref #^#NAME#$#.\n"
         "typedef #^#TYPE#$# #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$#;\n"
         "\n"
-        "/// @brief Get value of the @ref #^#NAME#$# field.\n"
-        "#^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# #^#NAME#$##^#SUFFIX#$#_getValue(const #^#NAME#$##^#SUFFIX#$#* field);\n"
-        "\n"
-        "/// @brief Set value of the @ref #^#NAME#$# field.\n"
-        "void #^#NAME#$##^#SUFFIX#$#_setValue(#^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# value);\n"
+        "#^#FUNCS#$#\n"
         ;
 
     util::GenReplacementMap repl = {
         {"NAME", cName()},
         {"TYPE", cTypeInternal()},
         {"VALUE_TYPE", strings::genValueTypeStr()},
+        {"FUNCS", cHeaderCommonValueAccessFuncs()},
     };
 
     if (cIsVersionOptional()) {
         repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
     }
-
-    return util::genProcessTemplate(Templ, repl);
-}
-
-std::string CIntField::cSourceValueCodeInternal() const
-{
-    static const std::string Templ = 
-        "#^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# #^#NAME#$##^#SUFFIX#$#_getValue(const #^#NAME#$##^#SUFFIX#$#* field)\n"
-        "{\n"
-        "    return from#^#CONV_SUFFIX#$#(field)->getValue();\n"
-        "}\n"
-        "\n"
-        "void #^#NAME#$##^#SUFFIX#$#_setValue(#^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# value)\n"
-        "{\n"
-        "    from#^#CONV_SUFFIX#$#(field)->setValue(value);\n"
-        "}\n"        
-        ;
-
-    util::GenReplacementMap repl = {
-        {"NAME", cName()},
-        {"TYPE", cTypeInternal()},
-        {"VALUE_TYPE", strings::genValueTypeStr()},
-        {"CONV_SUFFIX", cConversionSuffix()}
-    };
-
-    if (cIsVersionOptional()) {
-        repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
-    }
-
 
     return util::genProcessTemplate(Templ, repl);
 }
