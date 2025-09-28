@@ -83,6 +83,10 @@ bool CErrorStatus::cWriteHeaderInternal()
 
     const std::string Templ =
         "#^#GENERATED#$#\n" 
+        "#pragma once\n"
+        "\n"
+        "#^#CPP_GUARD_BEGIN#$#\n"
+        "\n"
         "/// @brief Status report equivalent to the @b comms::ErrorStatus.\n"
         "typedef enum\n"
         "{\n"
@@ -98,11 +102,15 @@ bool CErrorStatus::cWriteHeaderInternal()
         "    #^#NAME#$#_NumOfErrorStatuses, ///< Number of supported error statuses, must be last.\n"
         "    #^#NAME#$#_ValuesLimit = 255 ///< Allow unknown values beyond @b #^#NAME#$#_NumOfErrorStatuses.\n"
         "} #^#NAME#$#;\n"
+        "\n"
+        "#^#CPP_GUARD_END#$#\n"
     ;
 
     util::GenReplacementMap repl = {
         {"GENERATED", CGenerator::cFileGeneratedComment()},
         {"NAME", cName(m_cGenerator)},
+        {"CPP_GUARD_BEGIN", CGenerator::cCppGuardBegin(false)},
+        {"CPP_GUARD_END", CGenerator::cCppGuardEnd()},           
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);

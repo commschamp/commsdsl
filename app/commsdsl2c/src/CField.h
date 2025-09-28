@@ -77,10 +77,8 @@ private:
     bool cWriteCommsHeaderInternal() const;
     std::string cHeaderIncludesInternal() const;
     std::string cSourceIncludesInternal() const;
-    std::string cHeaderLengthFuncInternal(bool forcedOptional) const;
-    std::string cSourceLengthFuncInternal(bool forcedOptional) const;
-    std::string cHeaderNameFuncInternal(bool forcedOptional) const;
-    std::string cSourceNameFuncInternal(bool forcedOptional) const;
+    std::string cHeaderCommonFuncsInternal(bool forcedOptional) const;
+    std::string cSourceCommonFuncsInternal(bool forcedOptional) const;
     std::string cHandleBriefInternal(bool forcedOptional) const;
     std::string cCommsHeaderIncludesInternal() const;
     std::string cHeaderOptionalCodeInternal() const;

@@ -72,7 +72,7 @@ public:
     std::string cNameFor(const commsdsl::gen::GenElem& elem) const;
 
     static std::string cScopeToName(const std::string& scope);    
-    static const std::string& cCppGuardBegin();
+    static const std::string& cCppGuardBegin(bool addBool = true);
     static const std::string& cCppGuardEnd();
 
     const std::string& cNamesPrefix() const;

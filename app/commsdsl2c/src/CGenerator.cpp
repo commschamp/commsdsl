@@ -153,17 +153,27 @@ std::string CGenerator::cScopeToName(const std::string& scope)
     return util::genStrReplace(scope, "::", "_");
 }
 
-const std::string& CGenerator::cCppGuardBegin()
+const std::string& CGenerator::cCppGuardBegin(bool addBool)
 {
+    if (addBool) {
+        static const std::string Str = 
+            "#ifdef __cplusplus\n"
+            "extern \"C\" {\n"
+            "#else\n"
+            "#include <stdbool.h>\n"
+            "#endif\n"
+            ;
+
+        return Str;
+    }
+
     static const std::string Str = 
         "#ifdef __cplusplus\n"
         "extern \"C\" {\n"
-        "#else\n"
-        "#include <stdbool.h>\n"
         "#endif\n"
         ;
 
-    return Str;
+    return Str;    
 }
 
 const std::string& CGenerator::cCppGuardEnd()
