@@ -233,7 +233,7 @@ std::string CEnumField::cHeaderEnumInternal() const
         "typedef enum\n"
         "{\n"
         "    #^#VALUES#$#\n"
-        "} #^#NAME#$#_#^#VALUE_TYPE#$#;\n"   
+        "} #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$#;\n"   
         ; 
 
     util::GenReplacementMap repl = {
@@ -241,6 +241,10 @@ std::string CEnumField::cHeaderEnumInternal() const
         {"VALUE_TYPE", strings::genValueTypeStr()},
         {"VALUES", util::genStrListToString(cEnumValues(), "\n", "")},
     };
+
+    if (cIsVersionOptional()) {
+        repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+    }    
 
     return util::genProcessTemplate(Templ, repl);
 }

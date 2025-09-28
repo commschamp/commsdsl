@@ -39,8 +39,14 @@ protected:
     virtual bool genWriteImpl() const override;    
 
     // CBase overrides
+    virtual std::string cHeaderCodeImpl() const override;
+    virtual std::string cSourceCodeImpl() const override;
 
 private:
+    std::string cTypeInternal() const;
+    std::string cHeaderValueCodeInternal() const;
+    std::string cHeaderSpecialsCodeInternal() const;
+    std::string cSourceSpecialsCodeInternal() const;      
 };
 
 } // namespace commsdsl2c

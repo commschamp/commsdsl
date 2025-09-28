@@ -46,7 +46,6 @@ protected:
 private:
     std::string cTypeInternal() const;
     std::string cHeaderValueCodeInternal() const;
-    std::string cSourceValueCodeInternal() const;
     std::string cHeaderSpecialsCodeInternal() const;
     std::string cSourceSpecialsCodeInternal() const;    
 };
