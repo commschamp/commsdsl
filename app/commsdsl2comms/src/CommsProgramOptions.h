@@ -28,7 +28,7 @@ class CommsProgramOptions : public commsdsl::gen::GenProgramOptions
 {
 public:
     using GenProgramOptions = commsdsl::gen::GenProgramOptions;
-    
+
     CommsProgramOptions();
 
     static const CommsProgramOptions& commsCast(const GenProgramOptions& options)

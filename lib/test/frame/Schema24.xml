@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema name="Schema24" endian="big" dslVersion="6">
     <frame name="Frame" displayName="Some Frame">
-        <id name="Id">        
+        <id name="Id">
             <int name="IdField" type="uint8" />
         </id>
         <payload name="Data" />

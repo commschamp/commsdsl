@@ -32,7 +32,7 @@ class GenDataFieldImpl;
 class COMMSDSL_API GenDataField : public GenField
 {
     using Base = GenField;
-    
+
 public:
     using ParseField = commsdsl::parse::ParseField;
     using ParseDataField = commsdsl::parse::ParseDataField;
@@ -44,12 +44,12 @@ public:
     const GenField* genExternalPrefixField() const;
 
     GenField* genMemberPrefixField();
-    const GenField* genMemberPrefixField() const;    
+    const GenField* genMemberPrefixField() const;
 
-protected:    
+protected:
     virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl() override;
-    
+
     ParseDataField genDataFieldParseObj() const;
 
 private:

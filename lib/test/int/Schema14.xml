@@ -2,14 +2,14 @@
 <schema name="Schema14"
         id="1"
         endian="little">
-        
+
     <ns name="ns1">
         <ns name="ns2">
             <fields>
                 <int name="Int1" type="int16" defaultValue="500" validMin="400" description="some desc" scaling="1/10" displayName="Int 1" endian="big"/>
             </fields>
         </ns>
-        
+
         <fields>
             <int reuse="ns1.ns2.Int1" type="uint16" defaultValue="400">
                 <name value="Int2" />

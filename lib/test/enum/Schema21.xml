@@ -12,7 +12,7 @@
             <enum name="Enum2" type="uint32">
                 <validValue name="V1" val="ns1.Enum1.V1"/>
                 <validValue name="V2" val="ns1.Enum1.V2" />
-            </enum>        
+            </enum>
         </fields>
     </ns>
 </schema>

@@ -37,7 +37,7 @@ private:
     bool emscriptenWriteSrcInternal() const;
     std::string emscriptenSpecConstantsInternal() const;
     std::string emscriptenProtConstantsInternal() const;
-    
+
     EmscriptenGenerator& m_emscriptenGenerator;
 };
 

@@ -33,7 +33,7 @@ class COMMSDSL_API GenProgramOptions
 {
 public:
     using GenStringsList = std::vector<std::string>;
-    
+
     GenProgramOptions();
     ~GenProgramOptions();
 

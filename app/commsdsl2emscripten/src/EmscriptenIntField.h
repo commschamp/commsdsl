@@ -36,7 +36,7 @@ public:
 
 protected:
     // GenBase overrides
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
     // EmscriptenBase overrides
     virtual std::string emscriptenHeaderValueAccImpl() const override;

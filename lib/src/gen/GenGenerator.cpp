@@ -57,7 +57,6 @@ namespace commsdsl
 namespace gen
 {
 
-
 class GenGeneratorImpl
 {
 public:
@@ -82,7 +81,7 @@ public:
     const GenLoggerPtr& genGetLogger() const
     {
         return m_logger;
-    }    
+    }
 
     void genSetLogger(GenLoggerPtr logger)
     {
@@ -127,9 +126,9 @@ public:
     unsigned genCurrentSchemaIdx() const
     {
         assert(m_currentSchema != nullptr);
-        auto iter = 
+        auto iter =
             std::find_if(
-                m_schemas.begin(), m_schemas.end(), 
+                m_schemas.begin(), m_schemas.end(),
                 [this](auto& sPtr)
                 {
                     return m_currentSchema == sPtr.get();
@@ -156,13 +155,12 @@ public:
     GenInterfacesAccessList genGetAllInterfaces() const
     {
         return genCurrentSchema().genGetAllInterfaces();
-    }    
+    }
 
     GenNamespace* genAddDefaultNamespace()
     {
         return genCurrentSchema().genAddDefaultNamespace();
     }
-    
 
     void genSetNamespaceOverride(const std::string& value)
     {
@@ -276,7 +274,7 @@ public:
         }
 
         return parsedRef.first->genGindMessage(parsedRef.second);
-    }  
+    }
 
     GenMessage* genGindMessage(const std::string& externalRef)
     {
@@ -305,7 +303,7 @@ public:
         if (externalRef.empty()) {
             return genCurrentSchema().genFindInterface(externalRef);
         }
-        
+
         assert(!externalRef.empty());
         auto parsedRef = genParseExternalRef(externalRef);
         if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
@@ -313,7 +311,7 @@ public:
         }
 
         return parsedRef.first->genFindInterface(parsedRef.second);
-    }                
+    }
 
     using CreateCompleteFunc = std::function<bool ()>;
     bool genPrepare(const GenFilesList& files, CreateCompleteFunc createCompleteCb = CreateCompleteFunc())
@@ -366,7 +364,7 @@ public:
 
         assert(!m_schemas.empty());
         auto& protocolSchemaPtr = m_schemas.back();
-        
+
         protocolSchemaPtr->genSetMinRemoteVersion(m_minRemoteVersion);
         if (0 <= m_forcedSchemaVersion) {
             protocolSchemaPtr->genForceSchemaVersion(static_cast<unsigned>(m_forcedSchemaVersion));
@@ -382,17 +380,17 @@ public:
             if (!s->genCreateAll()) {
                 m_logger->genError("Failed to genCreate elements inside schema \"" + s->genParseObj().parseName() + "\"");
                 return false;
-            }       
+            }
 
             if (m_allInterfacesReferencedByDefault) {
                 s->genSetAllInterfacesReferenced();
-            }                 
+            }
 
             if (m_allMessagesReferencedByDefault) {
                 s->genSetAllMessagesReferenced();
             }
-        }   
-        
+        }
+
         if (createCompleteCb && (!createCompleteCb())) {
             return false;
         }
@@ -402,15 +400,14 @@ public:
             if (!s->genPrepare()) {
                 m_logger->genError("Failed to prepare elements inside schema \"" + s->genParseObj().parseName() + "\"");
                 return false;
-            }            
-        }               
-
+            }
+        }
 
         if (m_logger->genHadWarning()) {
             m_logger->genError("Warning treated as error");
             return false;
-        }      
-        
+        }
+
         if (!genPrepareDefaultInterfaceInternal()) {
             return false;
         }
@@ -431,7 +428,7 @@ public:
 
     bool genWasDirectoryCreated(const std::string& path) const
     {
-        auto iter = 
+        auto iter =
             std::find(m_createdDirectories.begin(), m_createdDirectories.end(), path);
 
         return iter != m_createdDirectories.end();
@@ -459,7 +456,7 @@ public:
         for (auto& sPtr : m_schemas) {
             sPtr->genSetAllInterfacesReferenced();
         }
-    }    
+    }
 
     bool genGetAllMessagesReferencedByDefault() const
     {
@@ -501,7 +498,7 @@ private:
             restRef = externalRef.substr(dotPos + 1);
         }
 
-        auto iter = 
+        auto iter =
             std::find_if(
                 m_schemas.begin(), m_schemas.end(),
                 [&schemaName](auto& s)
@@ -522,15 +519,15 @@ private:
         if (!allInterfaces.empty()) {
             return true;
         }
-    
+
         auto* defaultNamespace = genAddDefaultNamespace();
         auto* interface = defaultNamespace->genAddDefaultInterface();
         if (interface == nullptr) {
             m_logger->genError("Failed to genCreate default interface");
             return false;
         }
-    
-        return true;        
+
+        return true;
     }
 
     GenGenerator& m_generator;
@@ -548,9 +545,9 @@ private:
     bool m_versionIndependentCodeForced = false;
     bool m_allMessagesReferencedByDefault = true;
     bool m_allInterfacesReferencedByDefault = true;
-}; 
+};
 
-GenGenerator::GenGenerator() : 
+GenGenerator::GenGenerator() :
     m_impl(std::make_unique<GenGeneratorImpl>(*this))
 {
 }
@@ -567,7 +564,7 @@ int GenGenerator::genExec(const GenProgramOptions& options)
     if (optsResult == commsdsl::gen::GenGenerator::OptsProcessResult_Failure) {
         return -1;
     }
-    
+
     auto files = options.genGetInputFiles();
     if (files.empty()) {
         genLogger().genError("No input files are provided");
@@ -581,7 +578,7 @@ int GenGenerator::genExec(const GenProgramOptions& options)
     if (!genWrite()) {
         return -2;
     }
-    
+
     return 0;
 }
 
@@ -668,12 +665,12 @@ GenField* GenGenerator::genFindField(const std::string& externalRef)
     do {
         if (field->genIsPrepared()) {
             break;
-        }    
+        }
 
         if (field->genPrepare()) {
             break;
         }
-         
+
         genLogger().genWarning("Failed to prepare field: " + field->genParseObj().parseExternalRef());
         field = nullptr;
     } while (false);
@@ -685,7 +682,7 @@ const GenMessage* GenGenerator::genGindMessage(const std::string& externalRef) c
     return m_impl->genGindMessage(externalRef);
 }
 
-GenMessage* GenGenerator::genGindMessage(const std::string& externalRef) 
+GenMessage* GenGenerator::genGindMessage(const std::string& externalRef)
 {
     auto* msg = m_impl->genGindMessage(externalRef);
     do {
@@ -810,7 +807,7 @@ GenGenerator::GenMessagesAccessList GenGenerator::genGetAllMessagesIdSortedFromA
 {
     auto result = genGetAllMessagesFromAllSchemas();
     genSortMessages(result);
-    return result;    
+    return result;
 }
 
 GenGenerator::GenFramesAccessList GenGenerator::genGetAllFramesFromAllSchemas() const
@@ -840,7 +837,7 @@ bool GenGenerator::genPrepare(const GenFilesList& files)
     // Make sure the logger is created
     [[maybe_unused]] auto& l = genLogger();
 
-    auto createCompleteFunc = 
+    auto createCompleteFunc =
         [this]()
         {
             return genCreateCompleteImpl();
@@ -863,7 +860,7 @@ bool GenGenerator::genWrite()
     if (!m_impl->genWrite()) {
         return false;
     }
-    
+
     return genWriteImpl();
 }
 
@@ -886,7 +883,7 @@ bool GenGenerator::genIsElementOptional(
 bool GenGenerator::genIsElementDeprecated(unsigned deprecatedSince) const
 {
     return genCurrentSchema().genIsElementDeprecated(deprecatedSince);
-} 
+}
 
 GenLogger& GenGenerator::genLogger()
 {
@@ -900,10 +897,10 @@ GenLogger& GenGenerator::genLogger()
         newLogger = GenGenerator::genCreateLoggerImpl();
         assert(newLogger);
     }
-    
+
     auto& logger = *newLogger;
     m_impl->genSetLogger(std::move(newLogger));
-    return logger;    
+    return logger;
 }
 
 const GenLogger& GenGenerator::genLogger() const
@@ -1158,7 +1155,7 @@ bool GenGenerator::genGetAllInterfacesReferencedByDefault() const
 void GenGenerator::genSetAllInterfacesReferencedByDefault(bool value)
 {
     m_impl->genSetAllInterfacesReferencedByDefault(value);
-}    
+}
 
 GenGenerator::OptsProcessResult GenGenerator::genProcessOptions(const GenProgramOptions& options)
 {
@@ -1169,13 +1166,13 @@ GenGenerator::OptsProcessResult GenGenerator::genProcessOptions(const GenProgram
     }
 
     if (options.genVersionRequested()) {
-        std::cout << 
-            commsdsl::versionMajor() << '.' << 
+        std::cout <<
+            commsdsl::versionMajor() << '.' <<
             commsdsl::versionMinor() << '.' <<
             commsdsl::versionPatch() << std::endl;
         return OptsProcessResult_EarlyExit;
-    }    
-    
+    }
+
     auto& logger = genLogger();
     if (options.genQuietRequested() && options.genDebugRequested()) {
         logger.genError("Cannot use both --quiet and --debug options at the same time");
@@ -1188,7 +1185,7 @@ GenGenerator::OptsProcessResult GenGenerator::genProcessOptions(const GenProgram
 
     if (options.genDebugRequested()) {
         logger.genSetMinLevel(commsdsl::parse::ParseErrorLevel_Debug);
-    }        
+    }
 
     if (options.genWarnAsErrRequested()) {
         logger.genSetWarnAsError();
@@ -1196,7 +1193,7 @@ GenGenerator::OptsProcessResult GenGenerator::genProcessOptions(const GenProgram
 
     if (options.genHasNamespaceOverride()) {
         genSetNamespaceOverride(options.genGetNamespace());
-    }    
+    }
 
     if (options.genHasForcedSchemaVersion()) {
         genForceSchemaVersion(options.genGetForcedSchemaVersion());
@@ -1204,9 +1201,9 @@ GenGenerator::OptsProcessResult GenGenerator::genProcessOptions(const GenProgram
 
     genSetOutputDir(options.genGetOutputDirectory());
     genSetCodeDir(options.genGetCodeInputDirectory());
-    genSetMultipleSchemasEnabled(options.genMultipleSchemasEnabled());    
+    genSetMultipleSchemasEnabled(options.genMultipleSchemasEnabled());
     genSetMinRemoteVersion(options.genGetMinRemoteVersion());
-    
+
     return genProcessOptionsImpl(options);
 }
 
@@ -1374,7 +1371,7 @@ bool GenGenerator::genCopyExtraSourceFiles(const std::vector<std::string>& reser
         if (!iter->is_regular_file()) {
             continue;
         }
-        
+
         auto srcPath = iter->path();
         auto ext = srcPath.extension().string();
 
@@ -1452,7 +1449,7 @@ bool GenGenerator::genCopyExtraSourceFiles(const std::vector<std::string>& reser
             genLogger().genInfo("Updated " + destStr + " to have proper main namespace.");
         }
     }
-    return true;    
+    return true;
 }
 
 } // namespace gen

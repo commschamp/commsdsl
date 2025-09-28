@@ -24,7 +24,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigPayloadLayer::SwigPayloadLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+SwigPayloadLayer::SwigPayloadLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     SwigBase(static_cast<GenBase&>(*this))
 {
@@ -32,7 +32,7 @@ SwigPayloadLayer::SwigPayloadLayer(SwigGenerator& generator, ParseLayer parseObj
 
 std::string SwigPayloadLayer::swigMemberFieldDeclImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "class #^#FIELD_TYPE#$#\n"
         "{\n"
         "public:\n"
@@ -52,7 +52,7 @@ std::string SwigPayloadLayer::swigMemberFieldDeclImpl() const
 
 void SwigPayloadLayer::swigAddCodeImpl(GenStringsList& list) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "class #^#FIELD_TYPE#$# : public #^#COMMS_SCOPE#$#::Field {};\n";
 
     util::GenReplacementMap repl = {

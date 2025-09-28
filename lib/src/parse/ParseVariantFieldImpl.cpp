@@ -124,7 +124,7 @@ bool ParseVariantFieldImpl::parseReplaceMembersImpl(ParseFieldsList& members)
 {
     for (auto& mem : members) {
         assert(mem);
-        auto iter = 
+        auto iter =
             std::find_if(
                 m_members.begin(), m_members.end(),
                 [&mem](auto& currMem)
@@ -337,12 +337,12 @@ bool ParseVariantFieldImpl::parseUpdateDefaultMember()
     }
 
     if (common::parseIsValidName(valueStr)) {
-        auto iter = 
+        auto iter =
             std::find_if(
                 m_members.begin(), m_members.end(),
                 [&valueStr](auto& m)
                 {
-                    return valueStr == m->parseName(); 
+                    return valueStr == m->parseName();
                 });
 
         if (iter == m_members.end()) {
@@ -350,7 +350,7 @@ bool ParseVariantFieldImpl::parseUpdateDefaultMember()
             return false;
         }
 
-        m_state.m_defaultIdx = 
+        m_state.m_defaultIdx =
             static_cast<decltype(m_state.m_defaultIdx)>(
                 std::distance(m_members.begin(), iter));
 
@@ -367,7 +367,7 @@ bool ParseVariantFieldImpl::parseUpdateDefaultMember()
             parseReportUnexpectedPropertyValue(propName, valueStr);
             return false;
         }
-        
+
         bool ok = false;
         val = common::parseStrToIntMax(valueStr, &ok);
         if (!ok) {
@@ -389,7 +389,7 @@ bool ParseVariantFieldImpl::parseUpdateDefaultMember()
     m_state.m_defaultIdx = static_cast<std::size_t>(val);
     return true;
 }
-    
+
 bool ParseVariantFieldImpl::parseUpdateIdxHidden()
 {
     parseCheckAndReportDeprecatedPropertyValue(common::parseDisplayIdxReadOnlyHiddenStr());

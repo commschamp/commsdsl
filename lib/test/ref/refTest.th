@@ -176,12 +176,12 @@ void RefTestSuite::test7()
 
     auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
     do {
-        TS_ASSERT_LESS_THAN_EQUALS(1U, namespaces.size());    
+        TS_ASSERT_LESS_THAN_EQUALS(1U, namespaces.size());
         auto& ns = namespaces[0];
         TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
         auto fields = ns.parseFields();
-        TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());    
+        TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());
 
         auto& f1 = fields[0];
         TS_ASSERT_EQUALS(f1.parseName(), "F1");
@@ -193,6 +193,4 @@ void RefTestSuite::test7()
         TS_ASSERT_EQUALS(refField.parseExternalRef(true), "@Schema7_1.ns1.F1");
     } while (false);
 }
-
-
 

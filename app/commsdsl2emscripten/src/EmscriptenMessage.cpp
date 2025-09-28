@@ -35,11 +35,10 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2emscripten
 {
 
-
 EmscriptenMessage::EmscriptenMessage(EmscriptenGenerator& generator, ParseMessage parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent)
 {
-}   
+}
 
 EmscriptenMessage::~EmscriptenMessage() = default;
 
@@ -54,7 +53,7 @@ void EmscriptenMessage::emscriptenAddSourceFiles(GenStringsList& sources) const
     if (!genIsReferenced()) {
         return;
     }
-    
+
     auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
     sources.push_back(gen.emscriptenRelSourceFor(*this));
 }
@@ -74,7 +73,7 @@ bool EmscriptenMessage::genPrepareImpl()
 bool EmscriptenMessage::genWriteImpl() const
 {
     assert(genIsReferenced());
-    return 
+    return
         emscriptenWriteHeaderInternal() &&
         emscriptenWriteSourceInternal();
 }
@@ -87,7 +86,7 @@ bool EmscriptenMessage::emscriptenWriteHeaderInternal() const
     assert(!dirPath.empty());
     if (!gen.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     auto& logger = gen.genLogger();
     logger.genInfo("Generating " + filePath);
@@ -98,7 +97,7 @@ bool EmscriptenMessage::emscriptenWriteHeaderInternal() const
         return false;
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n\n"
@@ -112,10 +111,10 @@ bool EmscriptenMessage::emscriptenWriteHeaderInternal() const
         {"FIELDS", emscriptenHeaderFieldsInternal()},
         {"DEF", emscriptenHeaderClassInternal()},
     };
-    
+
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
-    return stream.good();   
+    return stream.good();
 }
 
 bool EmscriptenMessage::emscriptenWriteSourceInternal() const
@@ -126,7 +125,7 @@ bool EmscriptenMessage::emscriptenWriteSourceInternal() const
     assert(!dirPath.empty());
     if (!gen.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     auto& logger = gen.genLogger();
     logger.genInfo("Generating " + filePath);
@@ -137,7 +136,7 @@ bool EmscriptenMessage::emscriptenWriteSourceInternal() const
         return false;
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#include \"#^#HEADER#$#\"\n\n"
         "#include <emscripten/bind.h>\n\n"
@@ -151,10 +150,10 @@ bool EmscriptenMessage::emscriptenWriteSourceInternal() const
         {"FIELDS", emscriptenSourceFieldsInternal()},
         {"CODE", emscriptenSourceCodeInternal()},
     };
-    
+
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
-    return stream.good();   
+    return stream.good();
 }
 
 std::string EmscriptenMessage::emscriptenHeaderIncludesInternal() const
@@ -163,7 +162,7 @@ std::string EmscriptenMessage::emscriptenHeaderIncludesInternal() const
     auto* iFace = gen.emscriptenMainInterface();
     assert(iFace != nullptr);
     auto* parentNs = iFace->genParentNamespace();
-    
+
     util::GenStringsList includes = {
         comms::genRelHeaderPathFor(*this, gen),
         iFace->emscriptenRelHeader(),
@@ -200,7 +199,7 @@ std::string EmscriptenMessage::emscriptenHeaderClassInternal() const
     auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
     util::GenStringsList fields;
     for (auto* f : m_emscriptenFields) {
-        static const std::string Templ = 
+        static const std::string Templ =
             "using Base::field_#^#NAME#$#;\n"
             "#^#FIELD_CLASS#$#* field_#^#NAME#$#_()\n"
             "{\n"
@@ -268,14 +267,14 @@ std::string EmscriptenMessage::emscriptenSourceCodeInternal() const
 
     util::GenStringsList fields;
     for (auto* f : m_emscriptenFields) {
-        static const std::string Templ = 
+        static const std::string Templ =
             ".function(\"field_#^#NAME#$#\", &#^#CLASS_NAME#$#::field_#^#NAME#$#_, emscripten::allow_raw_pointers())";
 
         repl["NAME"] = comms::genAccessName(f->emscriptenGenField().genParseObj().parseName());
         fields.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "EMSCRIPTEN_BINDINGS(#^#CLASS_NAME#$#) {\n"
         "    emscripten::class_<#^#CLASS_NAME#$#, emscripten::base<#^#INTERFACE#$#> >(\"#^#CLASS_NAME#$#\")\n"
         "        .constructor<>()\n"

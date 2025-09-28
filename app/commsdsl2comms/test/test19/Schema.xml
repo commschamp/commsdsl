@@ -14,24 +14,24 @@
         <int name="Timestamp" type="uint32" />
         <int name="Checksum" type="uint8" />
     </fields>
-    
+
     <interface name="Interface1">
         <int name="version" type="uint8" semanticType="version" />
-    </interface>     
-    
+    </interface>
+
     <interface name="Interface2">
         <int name="version" type="uint8" semanticType="version" />
-        <int name="timestamp" type="uint32" />        
-    </interface>     
-    
+        <int name="timestamp" type="uint32" />
+    </interface>
+
     <frame name="TestFrame1" >
         <sync name="Sync" field="Sync" />
         <size name="Size" field="Size" />
         <value name="Version" field="Version" interfaceFieldName="version" />
         <id name="Id" field="MsgId" />
         <payload name="Data" />
-    </frame>  
-    
+    </frame>
+
     <frame name="TestFrame2" >
         <sync name="Sync" field="Sync" />
         <size name="Size" field="Size" />
@@ -40,7 +40,7 @@
         <id name="Id" field="MsgId" />
         <payload name="Data" />
         <checksum name="Checksum" from="Size" field="Checksum" alg="sum" />
-    </frame>      
-    
+    </frame>
+
     <message name="Msg1" id="MsgId.M1" />
 </schema>

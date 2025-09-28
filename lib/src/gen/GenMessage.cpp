@@ -49,7 +49,7 @@ public:
     void genSetPrepared()
     {
         m_prepared = true;
-    }    
+    }
 
     bool genCreateAll()
     {
@@ -65,8 +65,8 @@ public:
             m_fields.push_back(std::move(ptr));
         }
 
-        return true;        
-    }    
+        return true;
+    }
 
     bool genPrepare()
     {
@@ -87,7 +87,7 @@ public:
                     f->genSetReferenced();
                 }
                 return result;
-            });        
+            });
     }
 
     bool genWrite() const
@@ -96,7 +96,7 @@ public:
             return true;
         }
 
-        bool result = 
+        bool result =
             std::all_of(
                 m_fields.begin(), m_fields.end(),
                 [](auto& fieldPtr) -> bool
@@ -144,7 +144,7 @@ private:
     GenFieldsList m_fields;
     bool m_prepared = false;
     bool m_referenced = false;
-}; 
+};
 
 GenMessage::GenMessage(GenGenerator& generator, ParseMessage parseObj, GenElem* parent) :
     Base(parent),

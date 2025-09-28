@@ -27,7 +27,7 @@ namespace commsdsl
 
 namespace parse
 {
-    
+
 class ParseFieldImpl;
 class COMMSDSL_API ParseField
 {

@@ -115,7 +115,6 @@ public:
         return m_extraChildren;
     }
 
-
 protected:
     ParseLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseLayerImpl(const ParseLayerImpl&) = delete;

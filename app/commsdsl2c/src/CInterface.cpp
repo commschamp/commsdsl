@@ -33,12 +33,10 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2c
 {
 
-
-
 CInterface::CInterface(CGenerator& generator, ParseInterface parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent)
 {
-}   
+}
 
 CInterface::~CInterface() = default;
 
@@ -59,9 +57,9 @@ void CInterface::cAddSourceFiles(GenStringsList& sources) const
     if (!cCodeGenerationAllowed()) {
         return;
     }
-    
+
     auto& cGenerator = CGenerator::cCast(genGenerator());
-    sources.push_back(cGenerator.cRelSourceFor(*this));    
+    sources.push_back(cGenerator.cRelSourceFor(*this));
 }
 
 std::string CInterface::cCommsType() const
@@ -92,7 +90,7 @@ const CMsgId* CInterface::cMsgId() const
 {
     auto parentNs = CNamespace::cCast(genParentNamespace());
     assert(parentNs != nullptr);
-    auto* msgId = parentNs->cMsgId(); 
+    auto* msgId = parentNs->cMsgId();
     assert(msgId != nullptr);
     return msgId;
 }
@@ -113,7 +111,7 @@ bool CInterface::genWriteImpl() const
         return true;
     }
 
-    return 
+    return
         cWriteHeaderInternal() &&
         cWriteSourceInternal() &&
         cWriteCommsHeaderInternal();
@@ -127,7 +125,7 @@ bool CInterface::cWriteHeaderInternal() const
     assert(!dirPath.empty());
     if (!cGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     auto& logger = cGenerator.genLogger();
     logger.genInfo("Generating " + filePath);
@@ -138,7 +136,7 @@ bool CInterface::cWriteHeaderInternal() const
         return false;
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n\n"
@@ -156,10 +154,10 @@ bool CInterface::cWriteHeaderInternal() const
         {"CPP_GUARD_BEGIN", CGenerator::cCppGuardBegin()},
         {"CPP_GUARD_END", CGenerator::cCppGuardEnd()},
     };
-    
+
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
-    return stream.good();   
+    return stream.good();
 }
 
 bool CInterface::cWriteSourceInternal() const
@@ -170,7 +168,7 @@ bool CInterface::cWriteSourceInternal() const
     assert(!dirPath.empty());
     if (!cGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     auto& logger = cGenerator.genLogger();
     logger.genInfo("Generating " + filePath);
@@ -181,7 +179,7 @@ bool CInterface::cWriteSourceInternal() const
         return false;
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#include \"#^#HEADER#$#\"\n\n"
         "#^#INCLUDES#$#\n"
@@ -196,10 +194,10 @@ bool CInterface::cWriteSourceInternal() const
         {"FIELDS", cSourceFieldsInternal()},
         {"CODE", cSourceCodeInternal()},
     };
-    
+
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
-    return stream.good();   
+    return stream.good();
 }
 
 bool CInterface::cWriteCommsHeaderInternal() const
@@ -210,7 +208,7 @@ bool CInterface::cWriteCommsHeaderInternal() const
     assert(!dirPath.empty());
     if (!cGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     auto& logger = cGenerator.genLogger();
     logger.genInfo("Generating " + filePath);
@@ -221,7 +219,7 @@ bool CInterface::cWriteCommsHeaderInternal() const
         return false;
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
@@ -249,11 +247,11 @@ bool CInterface::cWriteCommsHeaderInternal() const
         "inline const #^#NAME#$#* toInterfaceHandle(const #^#COMMS_NAME#$#* from)\n"
         "{\n"
         "    return reinterpret_cast<const #^#NAME#$#*>(from);\n"
-        "}\n\n"      
+        "}\n\n"
         "inline #^#NAME#$#* toInterfaceHandle(#^#COMMS_NAME#$#* from)\n"
         "{\n"
         "    return reinterpret_cast<#^#NAME#$#*>(from);\n"
-        "}\n"           
+        "}\n"
     ;
 
     GenStringsList includes = {
@@ -280,10 +278,10 @@ bool CInterface::cWriteCommsHeaderInternal() const
         {"COMMS_NAME", cCommsTypeName()},
         {"NAME", cName()},
     };
-    
+
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
-    return stream.good();   
+    return stream.good();
 }
 
 std::string CInterface::cHeaderIncludesInternal() const
@@ -294,7 +292,7 @@ std::string CInterface::cHeaderIncludesInternal() const
         f->cAddHeaderIncludes(includes);
     }
 
-    auto* msgId = cMsgId(); 
+    auto* msgId = cMsgId();
     assert(msgId != nullptr);
     includes.push_back(msgId->cRelHeader());
 
@@ -316,7 +314,7 @@ std::string CInterface::cHeaderCodeInternal() const
 {
     util::GenStringsList fieldsAcc;
     for (auto* f : m_cFields) {
-        static const std::string AccTempl = 
+        static const std::string AccTempl =
             "/// @brief Access to inner @ref #^#HANDLE#$# field.\n"
             "#^#HANDLE#$#* #^#NAME#$#_transportField_#^#FIELD_ACC#$#(#^#NAME#$#* msg);\n"
             ;
@@ -330,7 +328,7 @@ std::string CInterface::cHeaderCodeInternal() const
         fieldsAcc.push_back(util::genProcessTemplate(AccTempl, accRepl));
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Definition of common interface handle for all the messages.\n"
         "typedef struct #^#NAME#$#_ #^#NAME#$#;\n\n"
         "#^#FIELDS_ACC#$#\n"
@@ -339,22 +337,22 @@ std::string CInterface::cHeaderCodeInternal() const
         // TODO: extra code
         ;
 
-    auto* msgId = cMsgId(); 
-    assert(msgId != nullptr);        
+    auto* msgId = cMsgId();
+    assert(msgId != nullptr);
 
     util::GenReplacementMap repl = {
         {"NAME", cName()},
         {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
         {"MSG_ID", msgId->cName()},
     };
-    
+
     return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CInterface::cSourceIncludesInternal() const
 {
     // auto& cGenerator = CGenerator::cCast(genGenerator());
-    
+
     util::GenStringsList includes = {
         cRelCommsDefHeader(),
     };
@@ -381,7 +379,7 @@ std::string CInterface::cSourceCodeInternal() const
 {
     util::GenStringsList fieldsAcc;
     for (auto* f : m_cFields) {
-        static const std::string AccTempl = 
+        static const std::string AccTempl =
             "#^#HANDLE#$#* #^#NAME#$#_field_#^#FIELD_ACC#$#(#^#NAME#$#* msg)\n"
             "{\n"
             "    return to#^#CONV_SUFFIX#$#(&(fromInterfaceHandle(msg)->transportField_#^#FIELD_ACC#$#()));\n"
@@ -398,7 +396,7 @@ std::string CInterface::cSourceCodeInternal() const
         fieldsAcc.push_back(util::genProcessTemplate(AccTempl, accRepl));
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#FIELDS_ACC#$#\n"
         "#^#MSG_ID#$# #^#NAME#$#_getId(const #^#NAME#$#* msg)\n"
         "{\n"
@@ -407,7 +405,7 @@ std::string CInterface::cSourceCodeInternal() const
         // TODO: extra code
         ;
 
-    auto* msgId = cMsgId();         
+    auto* msgId = cMsgId();
     assert(msgId != nullptr);
 
     auto parseObj = genParseObj();
@@ -416,7 +414,7 @@ std::string CInterface::cSourceCodeInternal() const
         {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
         {"MSG_ID", msgId->cName()},
     };
-    
+
     return util::genProcessTemplate(Templ, repl);
 }
 

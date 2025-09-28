@@ -30,7 +30,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenOptionalField::EmscriptenOptionalField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+EmscriptenOptionalField::EmscriptenOptionalField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     EmscriptenBase(static_cast<GenBase&>(*this))
 {
@@ -38,15 +38,15 @@ EmscriptenOptionalField::EmscriptenOptionalField(EmscriptenGenerator& generator,
 
 const std::string& EmscriptenOptionalField::emscriptenHeaderCommonModeFuncs()
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "Mode getMode() const\n"
         "{\n"
         "    return Base::getMode();\n"
-        "}\n\n"        
+        "}\n\n"
         "void setMode(Mode val)\n"
         "{\n"
         "    Base::setMode(val);\n"
-        "}\n\n"        
+        "}\n\n"
         "bool isTentative() const\n"
         "{\n"
         "    return Base::isTentative();\n"
@@ -58,7 +58,7 @@ const std::string& EmscriptenOptionalField::emscriptenHeaderCommonModeFuncs()
         "bool doesExist() const\n"
         "{\n"
         "    return Base::doesExist();\n"
-        "}\n\n"        
+        "}\n\n"
         "void setExists()\n"
         "{\n"
         "    Base::setExists();\n"
@@ -66,11 +66,11 @@ const std::string& EmscriptenOptionalField::emscriptenHeaderCommonModeFuncs()
         "bool isMissing() const\n"
         "{\n"
         "    return Base::isMissing();\n"
-        "}\n\n"        
+        "}\n\n"
         "void setMissing()\n"
         "{\n"
         "    Base::setMissing();\n"
-        "}\n"; 
+        "}\n";
 
     return Templ;
 }
@@ -86,7 +86,7 @@ bool EmscriptenOptionalField::genPrepareImpl()
         emscriptenAddMember(memField);
         m_field = EmscriptenField::emscriptenCast(memField);
         return true;
-    }    
+    }
 
     m_field = EmscriptenField::emscriptenCast(genExternalField());
     assert(m_field != nullptr);
@@ -117,7 +117,7 @@ std::string EmscriptenOptionalField::emscriptenHeaderValueAccImpl() const
 
 std::string EmscriptenOptionalField::emscriptenHeaderExtraPublicFuncsImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#FIELD#$#* field()\n"
         "{\n"
         "    return static_cast<#^#FIELD#$#*>(#^#PTR#$#);\n"
@@ -128,7 +128,7 @@ std::string EmscriptenOptionalField::emscriptenHeaderExtraPublicFuncsImpl() cons
     util::GenReplacementMap repl = {
         {"FIELD", gen.emscriptenClassName(m_field->emscriptenGenField())},
         {"COMMON", emscriptenHeaderCommonModeFuncs()}
-    };     
+    };
 
     if (genMemberField() != nullptr) {
         repl["PTR"] = "&Base::field()";
@@ -147,7 +147,7 @@ std::string EmscriptenOptionalField::emscriptenSourceBindValueAccImpl() const
 
 std::string EmscriptenOptionalField::emscriptenSourceBindFuncsImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         ".function(\"field\", &#^#CLASS_NAME#$#::field, emscripten::allow_raw_pointers())\n"
         ".function(\"getMode\", &#^#CLASS_NAME#$#::getMode)\n"
         ".function(\"setMode\", &#^#CLASS_NAME#$#::setMode)\n"

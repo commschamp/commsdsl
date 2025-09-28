@@ -28,7 +28,7 @@ private:
     explicit CommsFieldBase(CommsGenerator& generator) : m_commsGenerator(generator) {}
 
     bool commsWriteInternal() const;
-    
+
 private:
     CommsGenerator& m_commsGenerator;
 };

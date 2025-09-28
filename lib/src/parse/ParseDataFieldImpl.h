@@ -35,7 +35,7 @@ class ParseDataFieldImpl final : public ParseFieldImpl
 public:
     using ParseValueType = ParseDataField::ParseValueType;
     using ParseValidValueInfo = ParseDataField::ParseValidValueInfo;
-    using ParseValidValuesList = ParseDataField::ParseValidValuesList;    
+    using ParseValidValuesList = ParseDataField::ParseValidValuesList;
 
     ParseDataFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseDataFieldImpl(const ParseDataFieldImpl& other);
@@ -93,11 +93,11 @@ private:
     bool parseUpdateDefaultValidValue();
     bool parseUpdateLength();
     bool parseUpdatePrefix();
-    bool parseUpdateValidValues();    
+    bool parseUpdateValidValues();
     bool parseCheckPrefixFromRef();
     bool parseCheckPrefixAsChild();
     bool parseCheckValidValueAsAttr(const ParsePropsMap& xmlAttrs);
-    bool parseCheckValidValueAsChild(::xmlNodePtr child);        
+    bool parseCheckValidValueAsChild(::xmlNodePtr child);
     const ParseFieldImpl* parseGetPrefixField() const;
 
     bool parseStrToValue(const std::string& str, ParseValueType& val) const;

@@ -20,7 +20,7 @@
 namespace commsdsl2emscripten
 {
 
-EmscriptenStringField::EmscriptenStringField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+EmscriptenStringField::EmscriptenStringField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     EmscriptenBase(static_cast<GenBase&>(*this))
 {

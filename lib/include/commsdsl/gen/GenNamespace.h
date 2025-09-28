@@ -59,7 +59,7 @@ public:
     static const GenNamespace& genCast(const GenElem& obj)
     {
         return static_cast<const GenNamespace&>(obj);
-    }    
+    }
 
     bool genCreateAll();
     bool genPrepare();
@@ -101,7 +101,7 @@ public:
     bool genHasAnyReferencedMessage() const;
     bool genHasAnyReferencedComponent() const;
 
-protected:    
+protected:
     virtual GenType genElemTypeImpl() const override final;
     virtual bool genPrepareImpl();
     virtual bool genWriteImpl() const;

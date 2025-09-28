@@ -35,10 +35,10 @@ public:
     void test24();
     void test25();
     void test26();
-    void test27();    
-    void test28();    
+    void test27();
+    void test28();
     void test29();
-    void test30();   
+    void test30();
     void test31();
     void test32();
     void test33();
@@ -945,7 +945,6 @@ void IntTestSuite::test9()
     } while (false);
 }
 
-
 void IntTestSuite::test10()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
@@ -1330,7 +1329,6 @@ void IntTestSuite::test21()
         TS_ASSERT_EQUALS(f.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
     }
 
-
     commsdsl::parse::ParseIntField intField1(fields[0]);
     commsdsl::parse::ParseIntField intField2(fields[1]);
     commsdsl::parse::ParseIntField intField3(fields[2]);
@@ -1514,23 +1512,23 @@ void IntTestSuite::test22()
 
     auto bOffset = kvOffset + kvCount;
     auto bCount = 3;
-    verifyUnitsFunc(bOffset, bCount, commsdsl::parse::ParseUnits::Bytes);    
+    verifyUnitsFunc(bOffset, bCount, commsdsl::parse::ParseUnits::Bytes);
 
     auto kbOffset = bOffset + bCount;
     auto kbCount = 3;
-    verifyUnitsFunc(kbOffset, kbCount, commsdsl::parse::ParseUnits::Kilobytes);      
+    verifyUnitsFunc(kbOffset, kbCount, commsdsl::parse::ParseUnits::Kilobytes);
 
     auto mbOffset = kbOffset + kbCount;
     auto mbCount = 3;
-    verifyUnitsFunc(mbOffset, mbCount, commsdsl::parse::ParseUnits::Megabytes);  
+    verifyUnitsFunc(mbOffset, mbCount, commsdsl::parse::ParseUnits::Megabytes);
 
     auto gbOffset = mbOffset + mbCount;
     auto gbCount = 3;
-    verifyUnitsFunc(gbOffset, gbCount, commsdsl::parse::ParseUnits::Gigabytes);  
+    verifyUnitsFunc(gbOffset, gbCount, commsdsl::parse::ParseUnits::Gigabytes);
 
     auto tbOffset = gbOffset + gbCount;
     auto tbCount = 3;
-    verifyUnitsFunc(tbOffset, tbCount, commsdsl::parse::ParseUnits::Terabytes);               
+    verifyUnitsFunc(tbOffset, tbCount, commsdsl::parse::ParseUnits::Terabytes);
 }
 
 void IntTestSuite::test23()
@@ -1598,7 +1596,7 @@ void IntTestSuite::test27()
 
     auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 4U);
-    
+
     auto& f = fields.back();
     TS_ASSERT_EQUALS(f.parseName(), "Int4");
     TS_ASSERT_EQUALS(f.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
@@ -1619,7 +1617,7 @@ void IntTestSuite::test28()
 
     auto fields = ns.parseFields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
-    
+
     auto& f = fields.back();
     TS_ASSERT_EQUALS(f.parseName(), "Int2");
     TS_ASSERT_EQUALS(f.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
@@ -1632,7 +1630,7 @@ void IntTestSuite::test28()
 void IntTestSuite::test29()
 {
     m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
-    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);    
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
 
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema29.xml");
@@ -1642,7 +1640,7 @@ void IntTestSuite::test29()
 void IntTestSuite::test30()
 {
     m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
-    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);    
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
 
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema30.xml");
@@ -1854,7 +1852,6 @@ void IntTestSuite::test41()
     TS_ASSERT(protocol);
 }
 
-
 void IntTestSuite::test42()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema42.xml");
@@ -1864,10 +1861,10 @@ void IntTestSuite::test42()
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.parseName().empty());    
+    TS_ASSERT(ns.parseName().empty());
 
     auto fields = ns.parseFields();
-    TS_ASSERT_EQUALS(fields.size(), 3U);    
+    TS_ASSERT_EQUALS(fields.size(), 3U);
 
     auto& f1 = fields[0];
     auto& f2 = fields[1];
@@ -1892,11 +1889,11 @@ void IntTestSuite::test43()
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
-    TS_ASSERT(ns.parseName().empty());    
+    TS_ASSERT(ns.parseName().empty());
 
     auto fields = ns.parseFields();
     do {
-        TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());    
+        TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());
 
         auto& f1 = fields[0];
         TS_ASSERT_EQUALS(f1.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
@@ -1910,7 +1907,7 @@ void IntTestSuite::test43()
     } while (false);
 
     do {
-        TS_ASSERT_LESS_THAN_EQUALS(2U, fields.size());    
+        TS_ASSERT_LESS_THAN_EQUALS(2U, fields.size());
 
         auto& f2 = fields[1];
         TS_ASSERT_EQUALS(f2.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
@@ -1920,5 +1917,5 @@ void IntTestSuite::test43()
         auto sp1Iter = specials.find("S1");
         TS_ASSERT(sp1Iter != specials.end());
         TS_ASSERT_EQUALS(sp1Iter->second.m_value, 1U);
-    } while (false);    
+    } while (false);
 }

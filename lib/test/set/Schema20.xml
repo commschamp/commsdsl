@@ -15,7 +15,7 @@
                 <bit name="B1" idx="1" />
             </set>
         </bitfield>
-        
+
         <set name="F2" type="uint8" defaultValue="F1.M1" reservedValue="F1.M1.B1">
             <bit name="B0" idx="0" defaultValue="F1.M2.B0"/>
             <bit name="B1" idx="1" defaultValue="F1.M2.B1"/>

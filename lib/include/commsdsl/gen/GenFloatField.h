@@ -46,10 +46,10 @@ public:
 
     const GenSpecialsList& genSpecialsSortedByValue() const;
 
-protected:    
+protected:
     virtual bool genPrepareImpl() override;
     virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
-    
+
     ParseFloatField genFloatFieldParseObj() const;
 
 private:

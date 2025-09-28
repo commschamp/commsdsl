@@ -69,7 +69,7 @@ EmscriptenGenerator::EmscriptenGenerator()
 {
     GenBase::genSetAllInterfacesReferencedByDefault(false);
     GenBase::genSetAllMessagesReferencedByDefault(false);
-}    
+}
 
 const std::string& EmscriptenGenerator::emscriptenFileGeneratedComment()
 {
@@ -82,21 +82,21 @@ const std::string& EmscriptenGenerator::emscriptenFileGeneratedComment()
 
 std::string EmscriptenGenerator::emscriptenClassName(const commsdsl::gen::GenElem& elem) const
 {
-    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U); 
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U);
     auto str = comms::genScopeFor(elem, *this, addMainNamespace);
     return emscriptenScopeToName(str);
 }
 
 std::string EmscriptenGenerator::emscriptenScopeNameForRoot(const std::string& name) const
 {
-    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U); 
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U);
     auto str = comms::genScopeForRoot(name, *this, addMainNamespace);
     return emscriptenScopeToName(str);
 }
 
 std::string EmscriptenGenerator::emscriptenScopeNameForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
 {
-    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U); 
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U);
     auto str = comms::genScopeForNamespaceMember(name, *this, parent, addMainNamespace);
     return emscriptenScopeToName(str);
 }
@@ -165,7 +165,7 @@ std::string EmscriptenGenerator::emscriptenProtocolRelHeaderForNamespaceMember(c
     genChooseProtocolSchema();
     auto str = emscriptenRelHeaderForNamespaceMember(name, parent);
     genChooseCurrentSchema(schemaIdx);
-    return str;    
+    return str;
 }
 
 std::string EmscriptenGenerator::emscriptenSchemaRelSourceForRoot(unsigned schemaIdx, const std::string& name) const
@@ -214,7 +214,7 @@ std::string EmscriptenGenerator::emscriptenScopeToName(const std::string& scope)
 
 bool EmscriptenGenerator::genCreateCompleteImpl()
 {
-    return 
+    return
         emscriptenReferenceRequestedInterfaceInternal() &&
         emscriptenReferenceRequestedMessagesInternal();
 }
@@ -228,7 +228,7 @@ bool EmscriptenGenerator::genPrepareImpl()
     if (m_forcedInterface.empty()) {
         return true;
     }
-    
+
     auto* iFace = genFindInterface(m_forcedInterface);
     if (iFace == nullptr) {
         genLogger().genError("The selected forced interface \"" + m_forcedInterface + "\" hasn't been found");
@@ -242,7 +242,7 @@ bool EmscriptenGenerator::genWriteImpl()
 {
     for (auto idx = 0U; idx < genSchemas().size(); ++idx) {
         genChooseCurrentSchema(idx);
-        bool result = 
+        bool result =
             EmscriptenVersion::emscriptenWrite(*this);
 
         if (!result) {
@@ -250,7 +250,7 @@ bool EmscriptenGenerator::genWriteImpl()
         }
     }
 
-    return 
+    return
         EmscriptenComms::emscriptenWrite(*this) &&
         EmscriptenDataBuf::emscriptenWrite(*this) &&
         EmscriptenProtocolOptions::emscriptenWrite(*this) &&
@@ -462,9 +462,9 @@ bool EmscriptenGenerator::emscriptenWriteExtraFilesInternal() const
         strings::genPrependFileSuffixStr(),
         strings::genBindFileSuffixStr(),
         strings::genSourcesFileSuffixStr(),
-    }; 
+    };
 
-    return genCopyExtraSourceFiles(ReservedExt);    
+    return genCopyExtraSourceFiles(ReservedExt);
 }
 
 bool EmscriptenGenerator::emscriptenReferenceRequestedInterfaceInternal()
@@ -487,7 +487,7 @@ bool EmscriptenGenerator::emscriptenReferenceRequestedMessagesInternal()
     if ((!m_messagesListFile.empty()) && (!m_forcedPlatform.empty())) {
         genLogger().genError("Cannot force platform messages together with explicit message list.");
         return false;
-    }    
+    }
 
     if (!m_messagesListFile.empty()) {
         return emscriptenProcessMessagesListFileInternal();
@@ -495,7 +495,7 @@ bool EmscriptenGenerator::emscriptenReferenceRequestedMessagesInternal()
 
     if (!m_forcedPlatform.empty()) {
         return emscriptenProcessForcedPlatformInternal();
-    }    
+    }
 
     return true;
 }
@@ -543,15 +543,15 @@ bool EmscriptenGenerator::emscriptenProcessForcedPlatformInternal()
         auto* emscriptenM = const_cast<EmscriptenMessage*>(EmscriptenMessage::emscriptenCast(m));
         auto& messagePlatforms = emscriptenM->genParseObj().parsePlatforms();
 
-        bool messageSupported = 
-            (messagePlatforms.empty()) || 
+        bool messageSupported =
+            (messagePlatforms.empty()) ||
             (std::find(messagePlatforms.begin(), messagePlatforms.end(), m_forcedPlatform) != messagePlatforms.end());
 
         if (messageSupported) {
             emscriptenM->genSetReferenced(true);
         }
     }
-    
+
     if (!validPlatform) {
         genLogger().genError("Unknown platform: \"" + m_forcedPlatform + "\".");
         return false;

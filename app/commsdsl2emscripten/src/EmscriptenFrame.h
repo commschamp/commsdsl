@@ -40,21 +40,20 @@ public:
     static const EmscriptenFrame* emscriptenCast(const commsdsl::gen::GenFrame* i)
     {
         return static_cast<const EmscriptenFrame*>(i);
-    }        
+    }
 
     void emscriptenAddSourceFiles(GenStringsList& sources) const;
     const EmscriptenNamespace* emscriptenFindInputNamespace() const;
 
-
-protected:    
+protected:
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
 private:
     using EmscriptenLayersList = std::vector<EmscriptenLayer*>;
 
     bool emscriptenWriteHeaderInternal() const;
-    bool emscriptenWriteSourceInternal() const;    
+    bool emscriptenWriteSourceInternal() const;
 
     std::string emscriptenHeaderIncludesInternal() const;
     std::string emscriptenHeaderLayersInternal() const;

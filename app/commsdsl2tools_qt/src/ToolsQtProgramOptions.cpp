@@ -33,14 +33,13 @@ namespace
 const std::string ProtocolStr("protocol");
 const std::string ForceMainNamespaceInOptionsStr("force-main-ns-in-options");
 
-
 } // namespace
 
 ToolsQtProgramOptions::ToolsQtProgramOptions()
 {
     genAddCommonOptions();
     genRemoveMinRemoteVersionOptions()
-    (ProtocolStr, 
+    (ProtocolStr,
         "Protocol information for plugin generation. Exepected to be in the following format:\n"
         "\"frame_id:interface_id:protocol_name:description:plugin_id\".\nUse comma separation for multiple plugins. If not provided, "
         "one frame and one interface from the schema will be chosen and code for only one protocol "
@@ -51,7 +50,7 @@ ToolsQtProgramOptions::ToolsQtProgramOptions()
         "  * description - Description of the plugin.\n"
         "  * plugin_id - ID of the plugin to be used in the saved configuration file. When empty or "
         "omitted same as \"name\" value is assumed.\n"
-        , true)    
+        , true)
     (ForceMainNamespaceInOptionsStr, "Force having main namespace struct in generated options.")
     ;
 }
@@ -92,6 +91,5 @@ bool ToolsQtProgramOptions::toolsIsMainNamespaceInOptionsForced() const
 {
     return genIsOptUsed(ForceMainNamespaceInOptionsStr);
 }
-
 
 } // namespace commsdsl2tools_qt

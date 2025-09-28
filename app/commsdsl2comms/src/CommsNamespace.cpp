@@ -32,28 +32,27 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-namespace 
+namespace
 {
 
 const std::string& commsOptsTemplInternal(bool defaultNs)
 {
     if (defaultNs) {
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#BODY#$#\n";
         return Templ;
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Extra options for namespace.\n"
         "struct #^#NAME#$##^#EXT#$#\n"
         "{\n"
         "    #^#BODY#$#\n"
-        "}; // struct #^#NAME#$#\n";  
+        "}; // struct #^#NAME#$#\n";
     return Templ;
 }
 
-} // namespace 
-
+} // namespace
 
 CommsNamespace::CommsNamespace(CommsGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
@@ -62,13 +61,13 @@ CommsNamespace::CommsNamespace(CommsGenerator& generator, ParseNamespace parseOb
     m_input(generator, *this),
     m_msgId(generator, *this)
 {
-}   
+}
 
 CommsNamespace::~CommsNamespace() = default;
 
 std::string CommsNamespace::commsDefaultOptions() const
 {
-    auto body = 
+    auto body =
         commsOptionsInternal(
             &CommsNamespace::commsDefaultOptions,
             &CommsField::commsDefaultOptions,
@@ -87,7 +86,7 @@ std::string CommsNamespace::commsDefaultOptions() const
 
 std::string CommsNamespace::commsClientDefaultOptions() const
 {
-    auto body = 
+    auto body =
         commsOptionsInternal(
             &CommsNamespace::commsClientDefaultOptions,
             nullptr,
@@ -107,19 +106,19 @@ std::string CommsNamespace::commsClientDefaultOptions() const
     };
 
     auto& commsGen = static_cast<const CommsGenerator&>(genGenerator());
-    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();
     auto thisNsScope = comms::genScopeFor(*this, genGenerator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
         repl["EXT"] = ": public TBase::" + thisNsScope;
     }
-        
+
     return util::genProcessTemplate(commsOptsTemplInternal(nsName.empty()), repl);
 }
 
 std::string CommsNamespace::commsServerDefaultOptions() const
 {
-    auto body = 
+    auto body =
         commsOptionsInternal(
             &CommsNamespace::commsServerDefaultOptions,
             nullptr,
@@ -139,7 +138,7 @@ std::string CommsNamespace::commsServerDefaultOptions() const
     };
 
     auto& commsGen = static_cast<const CommsGenerator&>(genGenerator());
-    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();
     auto thisNsScope = comms::genScopeFor(*this, genGenerator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
@@ -151,7 +150,7 @@ std::string CommsNamespace::commsServerDefaultOptions() const
 
 std::string CommsNamespace::commsDataViewDefaultOptions() const
 {
-    auto body = 
+    auto body =
         commsOptionsInternal(
             &CommsNamespace::commsDataViewDefaultOptions,
             &CommsField::commsDataViewDefaultOptions,
@@ -171,7 +170,7 @@ std::string CommsNamespace::commsDataViewDefaultOptions() const
     };
 
     auto& commsGen = static_cast<const CommsGenerator&>(genGenerator());
-    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();
     auto thisNsScope = comms::genScopeFor(*this, genGenerator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
@@ -183,7 +182,7 @@ std::string CommsNamespace::commsDataViewDefaultOptions() const
 
 std::string CommsNamespace::commsBareMetalDefaultOptions() const
 {
-    auto body = 
+    auto body =
         commsOptionsInternal(
             &CommsNamespace::commsBareMetalDefaultOptions,
             &CommsField::commsBareMetalDefaultOptions,
@@ -203,7 +202,7 @@ std::string CommsNamespace::commsBareMetalDefaultOptions() const
     };
 
     auto& commsGen = static_cast<const CommsGenerator&>(genGenerator());
-    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();
     auto thisNsScope = comms::genScopeFor(*this, genGenerator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
@@ -215,7 +214,7 @@ std::string CommsNamespace::commsBareMetalDefaultOptions() const
 
 std::string CommsNamespace::commsMsgFactoryDefaultOptions() const
 {
-    auto body = 
+    auto body =
         commsOptionsInternal(
             &CommsNamespace::commsMsgFactoryDefaultOptions,
             nullptr,
@@ -235,7 +234,7 @@ std::string CommsNamespace::commsMsgFactoryDefaultOptions() const
     };
 
     auto& commsGen = static_cast<const CommsGenerator&>(genGenerator());
-    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();
     auto thisNsScope = comms::genScopeFor(*this, genGenerator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
@@ -247,13 +246,13 @@ std::string CommsNamespace::commsMsgFactoryDefaultOptions() const
 
 bool CommsNamespace::commsHasReferencedMsgId() const
 {
-    return 
+    return
         std::any_of(
             m_commsFields.begin(), m_commsFields.end(),
             [](auto* f)
             {
-                return 
-                    (f->commsGenField().genIsReferenced()) && 
+                return
+                    (f->commsGenField().genIsReferenced()) &&
                     (f->commsGenField().genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::MessageId);
             });
 }
@@ -261,12 +260,12 @@ bool CommsNamespace::commsHasReferencedMsgId() const
 bool CommsNamespace::commsHasAnyGeneratedCode() const
 {
     if ((!genFrames().empty()) ||
-        (!genMessages().empty()) || 
+        (!genMessages().empty()) ||
         (!genInterfaces().empty())) {
         return true;
     }
 
-    bool hasReferencedFields = 
+    bool hasReferencedFields =
         std::any_of(
             m_commsFields.begin(), m_commsFields.end(),
             [](auto* f)
@@ -274,13 +273,12 @@ bool CommsNamespace::commsHasAnyGeneratedCode() const
                 return f->commsGenField().genIsReferenced();
             });
 
-
     if (hasReferencedFields) {
         return true;
     }
 
     auto& allNs = genNamespaces();
-    return 
+    return
         std::any_of(
             allNs.begin(), allNs.end(),
             [](auto& nsPtr)
@@ -297,7 +295,7 @@ bool CommsNamespace::commsHasAnyField() const
     }
 
     auto& allMsgs = genMessages();
-    bool hasFieldInMessage = 
+    bool hasFieldInMessage =
         std::any_of(
             allMsgs.begin(), allMsgs.end(),
             [](auto& msgPtr)
@@ -311,7 +309,7 @@ bool CommsNamespace::commsHasAnyField() const
     }
 
     auto& allInterfaces = genInterfaces();
-    bool hasFieldInInterface = 
+    bool hasFieldInInterface =
         std::any_of(
             allInterfaces.begin(), allInterfaces.end(),
             [](auto& interfacePtr)
@@ -322,9 +320,9 @@ bool CommsNamespace::commsHasAnyField() const
 
     if (hasFieldInInterface) {
         return true;
-    }    
+    }
 
-    bool hasReferencedFields = 
+    bool hasReferencedFields =
         std::any_of(
             m_commsFields.begin(), m_commsFields.end(),
             [](auto* f)
@@ -337,13 +335,13 @@ bool CommsNamespace::commsHasAnyField() const
     }
 
     auto& allNs = genNamespaces();
-    return 
+    return
         std::any_of(
             allNs.begin(), allNs.end(),
             [](auto& nsPtr)
             {
                 return static_cast<const CommsNamespace*>(nsPtr.get())->commsHasAnyField();
-            });    
+            });
 }
 
 const CommsField* CommsNamespace::commsFindValidInterfaceReferencedField(const std::string& refStr) const
@@ -372,7 +370,7 @@ std::string CommsNamespace::commsMsgFactoryAliasType() const
     auto result = util::genStrReplace(comms::genScopeFor(*this, genGenerator(), false, true), "::" , "_");
     if (!genName().empty()) {
         result += "_";
-    }    
+    }
     result += strings::genMsgFactorySuffixStr();
     return result;
 }
@@ -384,7 +382,7 @@ std::string CommsNamespace::commsMsgFactoryAliasDef(const std::string& namePrefi
         return std::string();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "using #^#TYPE#$# =\n"
         "    #^#SCOPE#$##^#TYPE_SUFFIX#$#;\n"
     ;
@@ -421,17 +419,17 @@ bool CommsNamespace::genPrepareImpl()
 
 bool CommsNamespace::genWriteImpl() const
 {
-    if ((commsHasMsgId()) && 
+    if ((commsHasMsgId()) &&
         (!m_msgId.commsWrite())) {
         return false;
     }
-    
+
     if ((!genHasFramesRecursive()) ||
         (!genHasMessagesRecursive())) {
         return true;
     }
 
-    return 
+    return
         m_dispatch.commsWrite() &&
         m_factory.commsWrite() &&
         m_input.commsWrite();
@@ -445,7 +443,7 @@ std::string CommsNamespace::commsOptionsInternal(
     bool hasBase) const
 {
     util::GenStringsList elems;
-    auto addStrFunc = 
+    auto addStrFunc =
         [&elems](std::string&& str)
         {
             if (!str.empty()) {
@@ -458,14 +456,14 @@ std::string CommsNamespace::commsOptionsInternal(
         addStrFunc((static_cast<const CommsNamespace*>(nsPtr.get())->*nsOptsFunc)());
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Extra options for #^#DESC#$#.\n"
         "struct #^#NAME#$##^#EXT#$#\n"
         "{\n"
         "    #^#BODY#$#\n"
         "}; // struct #^#NAME#$#\n";
 
-    auto addSubElemFunc = 
+    auto addSubElemFunc =
         [](std::string&& str, util::GenStringsList& list)
         {
             if (!str.empty()) {
@@ -474,7 +472,7 @@ std::string CommsNamespace::commsOptionsInternal(
         };
 
     auto& commsGen = static_cast<const CommsGenerator&>(genGenerator());
-    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();
     auto thisNsScope = comms::genScopeFor(*this, genGenerator(), hasMainNs);
     if (!thisNsScope.empty()) {
         thisNsScope.append("::");
@@ -528,7 +526,7 @@ std::string CommsNamespace::commsOptionsInternal(
         for (auto& framePtr : genFrames()) {
             assert(framePtr);
             addSubElemFunc((static_cast<const CommsFrame*>(framePtr.get())->*frameOptsFunc)(), frameElems);
-        } 
+        }
 
         if (!frameElems.empty()) {
             util::GenReplacementMap repl {
@@ -547,6 +545,5 @@ std::string CommsNamespace::commsOptionsInternal(
 
     return util::genStrListToString(elems, "\n", "");
 }
-
 
 } // namespace commsdsl2comms

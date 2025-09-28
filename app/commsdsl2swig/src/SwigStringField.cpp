@@ -30,7 +30,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigStringField::SwigStringField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+SwigStringField::SwigStringField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     SwigBase(static_cast<GenBase&>(*this))
 {
@@ -43,7 +43,7 @@ bool SwigStringField::genWriteImpl() const
 
 std::string SwigStringField::swigValueTypeDeclImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "using ValueType = std::string;\n";
 
     return Templ;
@@ -51,10 +51,9 @@ std::string SwigStringField::swigValueTypeDeclImpl() const
 
 std::string SwigStringField::swigValueAccDeclImpl() const
 {
-    return 
-        "ValueType& value();\n" + 
+    return
+        "ValueType& value();\n" +
         SwigBase::swigValueAccDeclImpl();
 }
-
 
 } // namespace commsdsl2swig

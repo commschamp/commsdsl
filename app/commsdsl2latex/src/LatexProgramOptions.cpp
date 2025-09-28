@@ -28,9 +28,9 @@ const std::string LatexCodeInjectCommentsStr("code-inject-comments");
 LatexProgramOptions::LatexProgramOptions()
 {
     genAddCommonOptions()
-    (LatexCodeInjectCommentsStr, 
+    (LatexCodeInjectCommentsStr,
         "Show code injection comments in the generated TEX files. "
-        "They serve as guidance of what can be injected and where")    
+        "They serve as guidance of what can be injected and where")
     ;
 }
 

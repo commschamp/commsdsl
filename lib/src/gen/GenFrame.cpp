@@ -65,7 +65,7 @@ public:
 
     bool genWrite() const
     {
-        bool result = 
+        bool result =
             std::all_of(
                 m_layers.begin(), m_layers.end(),
                 [](auto& layerPtr) -> bool
@@ -99,14 +99,14 @@ public:
     GenGenerator& genGenerator()
     {
         return m_generator;
-    }    
+    }
 
 private:
     GenGenerator& m_generator;
     ParseFrame m_dslObj;
     GenElem* m_parent = nullptr;
     GenLayersList m_layers;
-}; 
+};
 
 GenFrame::GenFrame(GenGenerator& generator, ParseFrame parseObj, GenElem* parent) :
     Base(parent),
@@ -181,9 +181,9 @@ GenFrame::GenLayersAccessList GenFrame::getCommsOrderOfLayers(bool& success) con
             // reordering is complete
             break;
         }
-    }   
+    }
 
-    return result;    
+    return result;
 }
 
 const GenNamespace* GenFrame::genParentNamespace() const

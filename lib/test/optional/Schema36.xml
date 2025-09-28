@@ -16,7 +16,7 @@
             <int name="M0" type="uint8" />
             <int name="M1" type="uint8" />
         </bundle>
-    </interface>    
+    </interface>
 
     <message name="Msg1" id="1">
         <optional name="O1" cond="%Flags.B0">
@@ -25,7 +25,7 @@
 
         <optional name="O2" cond="!%Flags.B1">
             <int name="ActO2" type="uint8" />
-        </optional>   
+        </optional>
     </message>
 
     <message name="Msg2" id="2">
@@ -34,7 +34,7 @@
         </optional>
         <optional name="O2" cond="%Bundle.M0 &lt; %Bundle.M1">
             <int name="ActO1" type="uint8" />
-        </optional>        
+        </optional>
     </message>
 
 </schema>

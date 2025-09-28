@@ -166,7 +166,7 @@ bool ParseBundleFieldImpl::parseReuseImpl(const ParseFieldImpl& other)
 
     if (castedOther.m_validCond) {
         m_validCond = castedOther.m_validCond->parseClone();
-    }     
+    }
 
     return true;
 }
@@ -185,7 +185,7 @@ bool ParseBundleFieldImpl::parseReplaceMembersImpl(ParseFieldsList& members)
 {
     for (auto& mem : members) {
         assert(mem);
-        auto iter = 
+        auto iter =
             std::find_if(
                 m_members.begin(), m_members.end(),
                 [&mem](auto& currMem)
@@ -259,7 +259,7 @@ bool ParseBundleFieldImpl::parseStrToDataImpl(const std::string& ref, std::vecto
 bool ParseBundleFieldImpl::parseVerifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, ParseSemanticType type) const
 {
     if ((type == ParseSemanticType::Length) &&
-        (parseProtocol().parseIsSemanticTypeLengthSupported()) && 
+        (parseProtocol().parseIsSemanticTypeLengthSupported()) &&
         (parseProtocol().parseIsNonIntSemanticTypeLengthSupported())) {
         return true;
     }
@@ -507,7 +507,6 @@ bool ParseBundleFieldImpl::parseUpdateMultiValidCond()
     return parseUpdateMultiCondInternal(common::parseValidCondStr(), m_validCond);
 }
 
-
 bool ParseBundleFieldImpl::parseCopyValidCond()
 {
     auto& prop = common::parseCopyValidCondFromStr();
@@ -522,41 +521,41 @@ bool ParseBundleFieldImpl::parseCopyValidCond()
 
     if (!parseProtocol().parseIsPropertySupported(prop)) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                parseProtocol().parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << prop << "\" is not supported for dslVersion=" <<
+                parseProtocol().parseCurrSchema().parseDslVersion() << ".";
         return true;
-    }  
+    }
 
     auto* field = parseProtocol().parseFindField(copySrc);
     if (field == nullptr) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Field referenced by \"" << prop << "\" property (" + copySrc + ") is not found.";
-        return false;        
-    }     
+        return false;
+    }
 
     if (field->parseKind() != parseKind()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Cannot reference field of other cond in property \"" << prop << "\".";
         return false;
-    }      
+    }
 
     if (m_validCond) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "Cannot use \"" << prop << "\" property when the validity condition is copied from other field by other means";        
+            "Cannot use \"" << prop << "\" property when the validity condition is copied from other field by other means";
         return false;
     }
 
     auto* otherBundle = static_cast<const ParseBundleFieldImpl*>(field);
     if (!otherBundle->m_validCond) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "Field referenced by the \"" << prop << "\" property (" << copySrc << ") does not specify any validity conditions";        
+            "Field referenced by the \"" << prop << "\" property (" << copySrc << ") does not specify any validity conditions";
         return true;
     }
 
     m_validCond = otherBundle->m_validCond->parseClone();
     if (!m_validCond->parseVerify(m_members, parseGetNode(), parseProtocol())) {
         return false;
-    }   
+    }
 
     return true;
 }
@@ -574,10 +573,10 @@ bool ParseBundleFieldImpl::parseUpdateSingleCondInternal(const std::string& prop
 
     if (!parseProtocol().parseIsValidCondSupportedInCompositeFields()) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The property \"" << prop << "\" is not supported for <bundle> field in dslVersion=" << 
-                parseProtocol().parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << prop << "\" is not supported for <bundle> field in dslVersion=" <<
+                parseProtocol().parseCurrSchema().parseDslVersion() << ".";
         return true;
-    }          
+    }
 
     auto newCond = std::make_unique<ParseOptCondExprImpl>();
     if (!newCond->parse(iter->second, parseGetNode(), parseProtocol())) {
@@ -586,16 +585,16 @@ bool ParseBundleFieldImpl::parseUpdateSingleCondInternal(const std::string& prop
 
     if (newCond->parseHasInterfaceReference()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The condition \"" << prop << "\" in fields cannot reference interface fields.";           
+            "The condition \"" << prop << "\" in fields cannot reference interface fields.";
         return false;
     }
 
     if (!newCond->parseVerify(m_members, parseGetNode(), parseProtocol())) {
         return false;
-    }   
+    }
 
     cond = std::move(newCond);
-    return true; 
+    return true;
 }
 
 bool ParseBundleFieldImpl::parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond)
@@ -607,14 +606,14 @@ bool ParseBundleFieldImpl::parseUpdateMultiCondInternal(const std::string& prop,
 
     if (!parseProtocol().parseIsValidCondSupportedInCompositeFields()) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The property \"" << prop << "\" is not supported for <bundle> field in dslVersion=" << 
-                parseProtocol().parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << prop << "\" is not supported for <bundle> field in dslVersion=" <<
+                parseProtocol().parseCurrSchema().parseDslVersion() << ".";
         return true;
-    }      
+    }
 
     if (condNodes.size() > 1U) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "Cannot use more that one child to the \"" << prop << "\" element.";        
+            "Cannot use more that one child to the \"" << prop << "\" element.";
         return false;
     }
 
@@ -626,9 +625,9 @@ bool ParseBundleFieldImpl::parseUpdateMultiCondInternal(const std::string& prop,
     auto condChildren = ParseXmlWrap::parseGetChildren(condNodes.front(), ElemNames);
     if (condChildren.size() != condNodes.size()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "Only single \"" << common::parseAndStr() << "\" or \"" << common::parseOrStr() << "\" child of the \"" << prop << "\" element is supported.";           
+            "Only single \"" << common::parseAndStr() << "\" or \"" << common::parseOrStr() << "\" child of the \"" << prop << "\" element is supported.";
         return false;
-    }    
+    }
 
     auto iter = parseProps().find(prop);
     if (iter != parseProps().end()) {
@@ -636,7 +635,7 @@ bool ParseBundleFieldImpl::parseUpdateMultiCondInternal(const std::string& prop,
             "Only single \"" << prop << "\" property is supported";
 
         return false;
-    }    
+    }
 
     auto newCond = std::make_unique<ParseOptCondListImpl>();
     newCond->parseOverrideCondStr(prop);
@@ -646,13 +645,13 @@ bool ParseBundleFieldImpl::parseUpdateMultiCondInternal(const std::string& prop,
 
     if (newCond->parseHasInterfaceReference()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(condNodes.front()) <<
-            "The condition \"" << prop << "\" in fields cannot reference interface fields.";           
+            "The condition \"" << prop << "\" in fields cannot reference interface fields.";
         return false;
-    }    
+    }
 
     if (!newCond->parseVerify(m_members, condChildren.front(), parseProtocol())) {
         return false;
-    }    
+    }
 
     cond = std::move(newCond);
     return true;

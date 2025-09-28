@@ -42,7 +42,7 @@ private:
     std::string swigTypeInternal() const;
     std::string swigIdsInternal() const;
     std::string swigCodeInternal() const;
-    
+
     SwigGenerator& m_swigGenerator;
     const SwigNamespace& m_parent;
 };

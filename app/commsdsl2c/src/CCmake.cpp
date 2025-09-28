@@ -47,16 +47,16 @@ bool CCmake::cWriteInternal() const
     assert(!dirPath.empty());
     if (!m_cGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     m_cGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
         m_cGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }     
+    }
 
-    const std::string Templ = 
+    const std::string Templ =
         "cmake_minimum_required (VERSION 3.12)\n"
         "project (#^#PROJ_NAME#$#_c)\n\n"
         "option (OPT_FIND_COMMS \"Use find_package to find COMMS headers-only library.\" ON)\n"
@@ -108,16 +108,16 @@ bool CCmake::cWriteInternal() const
         "        endif ()\n"
         "        if (OPT_WARN_AS_ERR)\n"
         "            list (APPEND extra_flags_list \"-Werror\")\n"
-        "         endif ()\n\n"    
+        "         endif ()\n\n"
         "         string(REPLACE \";\" \" \" extra_flags \"${extra_flags_list}\")\n"
-        "         set (CMAKE_CXX_FLAGS \"${CMAKE_CXX_FLAGS} ${extra_flags}\")\n"    
+        "         set (CMAKE_CXX_FLAGS \"${CMAKE_CXX_FLAGS} ${extra_flags}\")\n"
         "    elseif (MSVC)\n"
         "        add_definitions(\"/wd4503\" \"-D_SCL_SECURE_NO_WARNINGS\")\n\n"
         "        if (OPT_WARN_AS_ERR)\n"
         "            add_definitions(\"/WX\")\n"
         "         endif ()\n"
         "    endif ()\n"
-        "endif ()\n\n"        
+        "endif ()\n\n"
         "if (OPT_USE_CCACHE)\n"
         "    if (\"${OPT_CCACHE_EXECUTABLE}\" STREQUAL \"\")\n"
         "        find_program(ccache_exe ccache REQUIRED)\n"
@@ -148,8 +148,8 @@ bool CCmake::cWriteInternal() const
         "endif ()\n\n"
         "if (TARGET cc::comms)\n"
         "    target_link_libraries(${PROJECT_NAME} PRIVATE cc::comms)\n"
-        "endif ()\n\n"   
-        "include (GNUInstallDirs)\n"     
+        "endif ()\n\n"
+        "include (GNUInstallDirs)\n"
         "install(\n"
         "    TARGETS ${PROJECT_NAME}\n"
         "    DESTINATION ${CMAKE_INSTALL_LIBDIR}\n"
@@ -164,7 +164,7 @@ bool CCmake::cWriteInternal() const
         "    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}\n"
         ")\n"
         "#^#APPEND#$#\n"
-        ;   
+        ;
 
     util::GenStringsList sources = {
         CErrorStatus::cRelSourcePath(m_cGenerator)

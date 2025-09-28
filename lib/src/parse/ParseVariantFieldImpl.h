@@ -21,7 +21,6 @@
 #include <cstdint>
 #include <limits>
 
-
 namespace commsdsl
 {
 

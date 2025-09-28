@@ -7,12 +7,12 @@
         <bundle name="B1">
             <int name="F1" type="uint32" />
             <int name="F2" type="uint16" />
-        </bundle>    
+        </bundle>
     </fields>
     <interface name="Interface">
         <description>
             This is very very very very very very very very very very very very very very
-            long long long long long long long long long long long long long long long 
+            long long long long long long long long long long long long long long long
             description
         </description>
         <fields>
@@ -33,7 +33,7 @@
         <fields>
             <int name="F3" type="uint32" />
         </fields>
-    </message>    
+    </message>
     <frame name="Frame">
         <id name="ID">
             <field>

@@ -9,7 +9,7 @@
                 <validRange value="[0, S1]" />
                 <special name="S1" val="1000" >
                     <description>
-                        Some 
+                        Some
                         description
                     </description>
                 </special>
@@ -18,5 +18,5 @@
                 <validCheckVersion value="True" />
             </int>
         </fields>
-           
+
 </schema>

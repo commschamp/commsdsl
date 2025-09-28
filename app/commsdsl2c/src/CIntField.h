@@ -36,7 +36,7 @@ public:
 
 protected:
     // GenBase overrides
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
     // CBase overrides
     virtual void cAddHeaderIncludesImpl(CIncludesList& includes) const override;
@@ -47,7 +47,7 @@ private:
     std::string cTypeInternal() const;
     std::string cHeaderValueCodeInternal() const;
     std::string cHeaderSpecialsCodeInternal() const;
-    std::string cSourceSpecialsCodeInternal() const;    
+    std::string cSourceSpecialsCodeInternal() const;
 };
 
 } // namespace commsdsl2c

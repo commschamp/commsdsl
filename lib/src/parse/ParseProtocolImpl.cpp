@@ -408,7 +408,7 @@ bool ParseProtocolImpl::parseIsExistsCheckInConditionalsSupported() const
     return parseIsFeatureSupported(6U);
 }
 
-bool ParseProtocolImpl::parseIsValidValueInStringAndDataSupported() const 
+bool ParseProtocolImpl::parseIsValidValueInStringAndDataSupported() const
 {
     return parseIsFeatureSupported(7U);
 }
@@ -531,11 +531,11 @@ bool ParseProtocolImpl::parseValidateSchema(::xmlNodePtr node)
         parseLogError() << ParseXmlWrap::parseLogPrefix(schema->parseGetNode()) <<
             "First schema definition must define \"" << common::parseNameStr() << "\" property.";
         return false;
-    }    
+    }
 
-    auto schemaIter = 
+    auto schemaIter =
         std::find_if(
-            m_schemas.begin(), m_schemas.end(), 
+            m_schemas.begin(), m_schemas.end(),
             [&schemaName](auto& s)
             {
                 return schemaName == s->parseName();
@@ -557,8 +557,8 @@ bool ParseProtocolImpl::parseValidateSchema(::xmlNodePtr node)
 
         m_schemas.push_back(std::move(schema));
         m_currSchema = m_schemas.back().get();
-        return true;        
-    } 
+        return true;
+    }
 
     m_currSchema = schemaIter->get();
 
@@ -753,7 +753,7 @@ bool ParseProtocolImpl::parseValidateNamespaces(::xmlNodePtr root)
 
 bool ParseProtocolImpl::parseValidateAllMessages()
 {
-    return 
+    return
         std::all_of(
             m_schemas.begin(), m_schemas.end(),
             [](auto& s)
@@ -770,7 +770,6 @@ bool ParseProtocolImpl::parseStrToValue(const std::string& ref, bool checkRef, P
             break;
         }
 
-
         if (!common::parseIsValidRefName(ref)) {
             return false;
         }
@@ -782,7 +781,7 @@ bool ParseProtocolImpl::parseStrToValue(const std::string& ref, bool checkRef, P
         return false;
     }
 
-    auto& namespaces = parsedRef.first->parseNamespaces();    
+    auto& namespaces = parsedRef.first->parseNamespaces();
 
     auto redirectToGlobalNs =
         [&func, &parsedRef, &namespaces]() -> bool
@@ -826,7 +825,7 @@ std::pair<const ParseSchemaImpl*, std::string> ParseProtocolImpl::parseExternalR
 
     std::string schemaName = externalRef.substr(1, dotPos - 1);
     auto restRef = externalRef.substr(dotPos + 1);
-    auto iter = 
+    auto iter =
         std::find_if(
             m_schemas.begin(), m_schemas.end(),
             [&schemaName](auto& s)

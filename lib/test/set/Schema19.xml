@@ -9,7 +9,7 @@
             <bit name="B0" idx="0" defaultValue="true"/>
             <bit name="B1" idx="1" />
         </set>
-        
+
         <set name="S2" type="uint8" defaultValue="S1" reservedValue="S1.B1">
             <bit name="B0" idx="0" defaultValue="S1.B0"/>
             <bit name="B1" idx="1" defaultValue="S1.B1"/>

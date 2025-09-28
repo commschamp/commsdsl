@@ -33,7 +33,7 @@ void TestSuite::test1()
 {
     static const std::uint8_t Buf[] =
     {
-        1, 5, 
+        1, 5,
         1, 4, 1, 4,
         1, 2, 3, 4,
         5, 6, 7, 8,
@@ -67,8 +67,8 @@ void TestSuite::test2()
     do {
         static const std::uint8_t Buf[] =
         {
-            2, 5, 
-            1, 4, 
+            2, 5,
+            1, 4,
             1, 2, 3, 4,
             5, 6, 7, 8,
             1, 4,
@@ -111,8 +111,8 @@ void TestSuite::test2()
     do {
         static const std::uint8_t Buf[] =
         {
-            2, 1, 
-            1, 4, 
+            2, 1,
+            1, 4,
             1, 2, 3, 4,
         };
         static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
@@ -134,7 +134,7 @@ void TestSuite::test2()
         TS_ASSERT_EQUALS(l1.value()[0].value(), 0x01020304);
         TS_ASSERT(l2.isMissing());
         TS_ASSERT(l3.isMissing());
-    } while (false);    
+    } while (false);
 }
 
 void TestSuite::test3()
@@ -172,7 +172,7 @@ void TestSuite::test3()
     TS_ASSERT(msgPtr);
     TS_ASSERT_EQUALS(msgPtr->getId(), test25::MsgId_M1);
     auto* inMsg = static_cast<Msg1*>(msgPtr.get());
-    TS_ASSERT_EQUALS(msg.fields(), inMsg->fields());    
+    TS_ASSERT_EQUALS(msg.fields(), inMsg->fields());
 }
 
 void TestSuite::test4()
@@ -203,6 +203,6 @@ void TestSuite::test4()
     TS_ASSERT(msgPtr);
     TS_ASSERT_EQUALS(msgPtr->getId(), test25::MsgId_M3);
     auto* inMsg = static_cast<Msg3*>(msgPtr.get());
-    TS_ASSERT_EQUALS(msg.fields(), inMsg->fields());    
+    TS_ASSERT_EQUALS(msg.fields(), inMsg->fields());
 }
 

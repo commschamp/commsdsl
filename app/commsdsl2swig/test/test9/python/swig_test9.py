@@ -20,7 +20,7 @@ class MsgHandler(test9.MsgHandler):
         sys.exit("shouldn't happen")
 
 class TestProtocol(unittest.TestCase):
-    def setUp(self): 
+    def setUp(self):
         self.msg1 = None
 
     def test_1(self):
@@ -43,5 +43,4 @@ class TestProtocol(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
 

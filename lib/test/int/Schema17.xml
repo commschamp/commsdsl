@@ -9,8 +9,8 @@
                 <special name="S1" val="1000" />
             </int>
         </fields>
-    </ns> 
-           
+    </ns>
+
     <ns name="ns1">
         <fields>
             <int reuse="ns2.Int1" type="uint8" defaultValue="100" />

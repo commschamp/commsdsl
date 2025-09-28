@@ -47,9 +47,8 @@ public:
     std::string toolsFactoryRelHeaderPath(const commsdsl::gen::GenInterface& iFace) const;
     std::string toolsFactoryClassScope(const commsdsl::gen::GenInterface& iFace) const;
 
-
 protected:
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
 private:
     ToolsQtMsgFactory m_factory;

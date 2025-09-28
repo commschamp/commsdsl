@@ -26,7 +26,7 @@ ToolsQtPayloadLayer::ToolsQtPayloadLayer(ToolsQtGenerator& generator, ParseLayer
 {
 }
 
-bool ToolsQtPayloadLayer::genPrepareImpl() 
+bool ToolsQtPayloadLayer::genPrepareImpl()
 {
     return GenBase::genPrepareImpl() && ToolsBase::toolsPrepare();
 }

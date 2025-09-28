@@ -34,7 +34,7 @@ public:
 
 private:
     std::string cIdsInternal() const;
-    
+
     CGenerator& m_cGenerator;
     const CNamespace& m_parent;
 };

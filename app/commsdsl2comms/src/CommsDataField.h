@@ -37,7 +37,7 @@ public:
 protected:
     // GenBase overrides
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
     // CommsBase overrides
     virtual CommsIncludesList commsCommonIncludesImpl() const override;
@@ -54,7 +54,7 @@ protected:
     virtual std::string commsMembersCustomizationOptionsBodyImpl(CommsFieldOptsFunc fieldOptsFunc) const override;
     virtual GenStringsList commsExtraDataViewDefaultOptionsImpl() const override;
     virtual GenStringsList commsExtraBareMetalDefaultOptionsImpl() const override;
-    virtual std::size_t commsMaxLengthImpl() const override; 
+    virtual std::size_t commsMaxLengthImpl() const override;
     virtual std::string commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
 
 private:

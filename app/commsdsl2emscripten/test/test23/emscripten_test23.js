@@ -15,11 +15,11 @@ function allocHandler(instance)
         handle_message_Msg3: function(msg) {
             this.clean_Msg3();
             this.msg3 = new instance.message_Msg3(msg);
-        },        
+        },
         handle_message_Msg4: function(msg) {
             this.clean_Msg4();
             this.msg4 = new instance.message_Msg4(msg);
-        },        
+        },
         handle_Message: function(msg) {
             assert(false); /* should not happen */
         },
@@ -32,24 +32,24 @@ function allocHandler(instance)
             if (this.msg2) {
                 this.msg2.delete();
             }
-        },   
+        },
         clean_Msg3: function() {
             if (this.msg3) {
                 this.msg3.delete();
             }
-        },  
+        },
         clean_Msg4: function() {
             if (this.msg4) {
                 this.msg4.delete();
             }
-        },                         
+        },
         clean: function() {
             this.clean_Msg1();
             this.clean_Msg2();
             this.clean_Msg3();
             this.clean_Msg4();
-        } 
-    });    
+        }
+    });
 
     return new DerivedHandler;
 }

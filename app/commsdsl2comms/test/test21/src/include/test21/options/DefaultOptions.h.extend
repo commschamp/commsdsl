@@ -2,4 +2,3 @@
 /// @brief New default options
 using DefaultOptions = DefaultOptionsOrig;
 
-

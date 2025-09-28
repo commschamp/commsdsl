@@ -228,7 +228,7 @@ void BundleTestSuite::test8()
         TS_ASSERT_EQUALS(mem1.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
         TS_ASSERT_EQUALS(mem2.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
         TS_ASSERT_EQUALS(mem3.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
-        
+
         commsdsl::parse::ParseIntField intField(mem2);
         TS_ASSERT_EQUALS(intField.parseSemanticType(), commsdsl::parse::ParseField::ParseSemanticType::Length);
     } while (false);
@@ -249,11 +249,11 @@ void BundleTestSuite::test8()
         TS_ASSERT_EQUALS(mem1.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
         TS_ASSERT_EQUALS(mem2.parseKind(), commsdsl::parse::ParseField::ParseKind::Bundle);
         TS_ASSERT_EQUALS(mem3.parseKind(), commsdsl::parse::ParseField::ParseKind::String);
-        
+
         commsdsl::parse::ParseBundleField lengthField(mem2);
         TS_ASSERT_EQUALS(lengthField.parseSemanticType(), commsdsl::parse::ParseField::ParseSemanticType::Length);
         TS_ASSERT_EQUALS(lengthField.parseValueOverride(), commsdsl::parse::ParseOverrideType_Replace);
-    } while (false);    
+    } while (false);
 }
 
 void BundleTestSuite::test9()
@@ -299,9 +299,9 @@ void BundleTestSuite::test11()
         TS_ASSERT_EQUALS(mem1.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
         TS_ASSERT_EQUALS(mem2.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
         TS_ASSERT_EQUALS(mem3.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
-    
+
         commsdsl::parse::ParseIntField lengthField(mem2);
-        TS_ASSERT_EQUALS(lengthField.parseSemanticType(), commsdsl::parse::ParseField::ParseSemanticType::Length);    
+        TS_ASSERT_EQUALS(lengthField.parseSemanticType(), commsdsl::parse::ParseField::ParseSemanticType::Length);
 
         commsdsl::parse::ParseIntField valueField(mem3);
         TS_ASSERT(valueField.parseAvailableLengthLimit());
@@ -322,13 +322,13 @@ void BundleTestSuite::test11()
         TS_ASSERT_EQUALS(mem1.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
         TS_ASSERT_EQUALS(mem2.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
         TS_ASSERT_EQUALS(mem3.parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
-    
+
         commsdsl::parse::ParseIntField lengthField(mem2);
-        TS_ASSERT_EQUALS(lengthField.parseSemanticType(), commsdsl::parse::ParseField::ParseSemanticType::Length);    
+        TS_ASSERT_EQUALS(lengthField.parseSemanticType(), commsdsl::parse::ParseField::ParseSemanticType::Length);
 
         commsdsl::parse::ParseEnumField valueField(mem3);
         TS_ASSERT(valueField.parseAvailableLengthLimit());
-    } while (false);    
+    } while (false);
 
     do {
         TS_ASSERT(3U <= fields.size());
@@ -345,15 +345,14 @@ void BundleTestSuite::test11()
         TS_ASSERT_EQUALS(mem1.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
         TS_ASSERT_EQUALS(mem2.parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
         TS_ASSERT_EQUALS(mem3.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
-    
+
         commsdsl::parse::ParseIntField lengthField(mem2);
-        TS_ASSERT_EQUALS(lengthField.parseSemanticType(), commsdsl::parse::ParseField::ParseSemanticType::Length);    
+        TS_ASSERT_EQUALS(lengthField.parseSemanticType(), commsdsl::parse::ParseField::ParseSemanticType::Length);
 
         commsdsl::parse::ParseSetField valueField(mem3);
         TS_ASSERT(valueField.parseAvailableLengthLimit());
-    } while (false);        
+    } while (false);
 }
-
 
 void BundleTestSuite::test12()
 {
@@ -374,7 +373,7 @@ void BundleTestSuite::test12()
         TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Bundle);
 
         commsdsl::parse::ParseBundleField bundleField(field);
-        TS_ASSERT(!bundleField.parseValidCond().parseValid());        
+        TS_ASSERT(!bundleField.parseValidCond().parseValid());
         auto members = bundleField.parseMembers();
         TS_ASSERT_EQUALS(members.size(), 3U);
         auto& mem1 = members[0];
@@ -385,11 +384,11 @@ void BundleTestSuite::test12()
         TS_ASSERT_EQUALS(mem3.parseKind(), commsdsl::parse::ParseField::ParseKind::String);
 
         commsdsl::parse::ParseIntField typeField(mem1);
-        TS_ASSERT_EQUALS(typeField.parseDefaultValue(), 2);    
-    
+        TS_ASSERT_EQUALS(typeField.parseDefaultValue(), 2);
+
         commsdsl::parse::ParseIntField lengthField(mem2);
-        TS_ASSERT_EQUALS(lengthField.parseSemanticType(), commsdsl::parse::ParseField::ParseSemanticType::Length);    
-    } while (false);    
+        TS_ASSERT_EQUALS(lengthField.parseSemanticType(), commsdsl::parse::ParseField::ParseSemanticType::Length);
+    } while (false);
 }
 
 void BundleTestSuite::test13()
@@ -457,7 +456,7 @@ void BundleTestSuite::test15()
         auto validCond = bundleField.parseValidCond();
         TS_ASSERT(validCond.parseValid());
         TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);
-    }    
+    }
 
     {
         TS_ASSERT_LESS_THAN_EQUALS(3U, fields.size());
@@ -470,6 +469,6 @@ void BundleTestSuite::test15()
         auto validCond = bundleField.parseValidCond();
         TS_ASSERT(validCond.parseValid());
         TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::Expr);
-    }      
+    }
 }
 

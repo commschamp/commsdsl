@@ -40,8 +40,8 @@ private:
 
     bool swigWriteInternal() const;
     std::string swigClassDeclInternal() const;
-    
-    SwigGenerator& m_swigGenerator;    
+
+    SwigGenerator& m_swigGenerator;
 };
 
 } // namespace commsdsl2swig

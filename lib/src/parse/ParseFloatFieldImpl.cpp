@@ -120,7 +120,6 @@ bool ParseFloatFieldImpl::parseHasNonUniqueSpecials() const
         return false;
     }
 
-
     std::vector<double> specValues;
     specValues.reserve(m_state.m_specials.size());
 

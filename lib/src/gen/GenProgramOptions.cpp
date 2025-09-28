@@ -46,7 +46,7 @@ const std::string GenMinRemoteVerStr("min-remote-version");
 const std::string GenFullMinRemoteVerStr("m," + GenMinRemoteVerStr);
 const std::string GenForceVerStr("force-schema-version");
 
-}    
+}
 
 class GenProgramOptionsImpl
 {
@@ -71,7 +71,7 @@ public:
                 m_opts.begin(), m_opts.end(),
                 [&tokens](auto& oPtr)
                 {
-                    return 
+                    return
                         std::any_of(
                             tokens.begin(), tokens.end(),
                             [&oPtr](auto& t)
@@ -98,7 +98,7 @@ public:
                 assert(false); // Should not happen
                 continue;
             }
-            
+
             if (opt != nullptr) {
                 assert(opt->m_hasParam);
                 opt->m_value = std::move(nextStr);
@@ -116,7 +116,7 @@ public:
                 continue;
             }
 
-            auto processOptFunc = 
+            auto processOptFunc =
                 [this, &opt, &nextStr](const std::string& optStr, OptInfosMap& map)
                 {
                     auto iter = map.find(optStr);
@@ -213,7 +213,6 @@ public:
                 right += Ind;
             }
 
-            
             right += util::genStrReplace(util::genStrMakeMultiline(optPtr->m_desc, 60), "\n", Ind);
             opts.push_back(left + right);
         }
@@ -225,7 +224,7 @@ public:
         util::GenReplacementMap repl = {
             std::make_pair("OPTS_LIST", util::genStrListToString(opts, "\n"))
         };
-        
+
         return util::genProcessTemplate(Templ, repl);
     }
 
@@ -254,7 +253,7 @@ private:
 
         for (auto idx = 0U; idx < tokens.size(); ++idx) {
             auto& t = tokens[idx];
-            
+
             assert(!t.empty());
             if ((idx == 0) && (t.size() == 1)) {
                 opt->m_shortOpt = t;
@@ -266,7 +265,7 @@ private:
             }
 
             opt->m_longOpt = t;
-        }   
+        }
 
         m_opts.push_back(std::move(opt));
     }
@@ -322,7 +321,7 @@ private:
         }
 
         return optInfo->m_value;
-    }    
+    }
 
     OptInfosList m_opts;
     OptInfosMap m_shortOpts;
@@ -330,36 +329,35 @@ private:
     GenStringsList m_args;
     std::string m_app;
 };
-    
-GenProgramOptions::GenProgramOptions() : 
+
+GenProgramOptions::GenProgramOptions() :
     m_impl(std::make_unique<GenProgramOptionsImpl>())
 {
 }
- 
-GenProgramOptions::~GenProgramOptions() = default;
 
+GenProgramOptions::~GenProgramOptions() = default;
 
 GenProgramOptions& GenProgramOptions::genAddCommonOptions()
 {
-    return 
+    return
         (*this)
             (GenFullHelpOptStr, "Show this help")
             (GenVersionOptStr, "Print version string and exit.")
             (GenFullQuietStr, "Quiet, show only warnings and errors.")
             (GenFullDebugStr, "Show debug logging.")
-            (GenFullWarnAsErrStr, "Treat warnings as errors.")            
-            (GenFullOutputDirStr, "Output directory path. When not provided current is used.", true)        
-            (GenFullInputFilesListStr, "File containing list of input files.", true)        
+            (GenFullWarnAsErrStr, "Treat warnings as errors.")
+            (GenFullOutputDirStr, "Output directory path. When not provided current is used.", true)
+            (GenFullInputFilesListStr, "File containing list of input files.", true)
             (GenFullInputFilesPrefixStr, "Prefix for the values from the list file.", true)
             (GenFullCodeInputDirStr, "Directory with code updates.", true)
             (GenFullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")
-            (GenFullNamespaceStr, 
+            (GenFullNamespaceStr,
                 "Force main namespace change. Defaults to schema name. "
                 "In case of having multiple schemas the renaming happends to the last protocol one. "
                 "Renaming of non-protocol or multiple schemas is allowed using <orig_name>:<new_name> comma separated pairs.",
-                true) 
+                true)
             (GenFullMinRemoteVerStr, "Set minimal supported remote version. Defaults to 0.", true)
-            (GenForceVerStr, 
+            (GenForceVerStr,
                 "Force schema version. Must not be greater than version specified in schema file.", true)
 
             ;
@@ -451,12 +449,12 @@ GenProgramOptions::GenStringsList GenProgramOptions::genGetInputFiles() const
         if (fileName.empty()) {
             break;
         }
-        
+
         std::ifstream stream(fileName);
         if (!stream) {
             break;
         }
-        
+
         std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
 
         result = util::genStrSplitByAnyChar(contents, "\r\n");
@@ -514,7 +512,6 @@ unsigned GenProgramOptions::genGetForcedSchemaVersion() const
 {
     return commsdsl::gen::util::genStrToUnsigned(genValue(GenForceVerStr));
 }
-
 
 } // namespace gen
 

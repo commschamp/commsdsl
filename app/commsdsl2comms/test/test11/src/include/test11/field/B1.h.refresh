@@ -1,5 +1,5 @@
 /// @brief Custom refresh operation
-bool refresh() 
+bool refresh()
 {
     if (valid()) {
         return false;

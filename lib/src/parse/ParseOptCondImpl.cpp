@@ -55,7 +55,6 @@ void parseDiscardNonSizeReferences(ParseFieldImpl::ParseFieldRefInfosList& infos
         infos.end());
 }
 
-
 void parseDiscardNonFieldReferences(ParseFieldImpl::ParseFieldRefInfosList& infos)
 {
     infos.erase(
@@ -99,13 +98,13 @@ ParseOptCondExprImpl::ParseOperandInfo parseDperandInfoInternal(const std::strin
             result.m_mode = ParseOptCondExprImpl::ParseAccMode::Size;
             ++restPos;
             break;
-        }   
+        }
 
         if (val[restPos] == '?') {
             result.m_mode = ParseOptCondExprImpl::ParseAccMode::Exists;
             ++restPos;
             break;
-        }             
+        }
 
     } while (false);
 
@@ -172,7 +171,7 @@ bool ParseOptCondExprImpl::parseVerifyImpl(const ParseOptCondImpl::ParseFieldsLi
 
 bool ParseOptCondExprImpl::parseHasInterfaceReferenceImpl() const
 {
-    return 
+    return
         ((!m_left.empty()) && (m_left[0] == IfaceDeref)) ||
         ((!m_right.empty()) && (m_right[0] == IfaceDeref));
 }
@@ -246,7 +245,7 @@ bool ParseOptCondExprImpl::parseCheckComparison(const std::string& expr, const s
         if (!protocol.parseIsInterfaceFieldReferenceSupported()) {
             parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
                 "References to the interface fields are not supported in the selected " << common::parseDslVersionStr() << ".";
-            return false;            
+            return false;
         }
         return true;
     }
@@ -281,11 +280,11 @@ bool ParseOptCondExprImpl::parseCheckBool(const std::string& expr, ::xmlNodePtr 
         if (!protocol.parseIsInterfaceFieldReferenceSupported()) {
             parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
                 "References to the interface fields are not supported in the selected " << common::parseDslVersionStr() << ".";
-            return false;            
-        }        
+            return false;
+        }
         m_right = expr;
         return true;
-    }    
+    }
 
     if (expr[0] != '!') {
         reportInvalidExprFunc();
@@ -307,15 +306,15 @@ bool ParseOptCondExprImpl::parseCheckBool(const std::string& expr, ::xmlNodePtr 
             if (!protocol.parseIsInterfaceFieldReferenceSupported()) {
                 parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
                     "References to the interface fields are not supported in the selected " << common::parseDslVersionStr() << ".";
-                return false;            
-            }        
+                return false;
+            }
             break;
-        }          
+        }
 
         parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
             "Invalid \"" << parseCondStr() << "\" expression, "
             "the check must dereference other field.";
-        return false;        
+        return false;
 
     } while (false);
 
@@ -341,7 +340,7 @@ bool ParseOptCondExprImpl::parseVerifySiblingSingleElementCheck(const ParseOptCo
     assert(m_right[0] == Deref);
 
     auto& logger = protocol.parseLogger();
-    auto reportInvalidSiblingRef = 
+    auto reportInvalidSiblingRef =
         [node, &logger](const std::string& refStr)
         {
             parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
@@ -381,13 +380,13 @@ bool ParseOptCondExprImpl::parseVerifyInterfaceBitCheck(::xmlNodePtr node, const
 
     auto& schema = protocol.parseCurrSchema();
     auto foundFields = schema.parseProcessInterfaceFieldRef(m_right.substr(1));
-    auto hasValidRef = 
+    auto hasValidRef =
         std::any_of(
             foundFields.begin(), foundFields.end(),
             [](auto& info)
             {
                 assert(info.m_field != nullptr);
-                return 
+                return
                     (info.m_refType == ParseFieldImpl::FieldRefType_InnerValue) &&
                     (info.m_field->parseKind() == ParseFieldImpl::ParseKind::Set);
             });
@@ -422,7 +421,7 @@ bool ParseOptCondExprImpl::parseVerifySiblingComparison(const ParseOptCondImpl::
     assert(m_left[0] == Deref);
 
     auto& logger = protocol.parseLogger();
-    auto reportInvalidSiblingRef = 
+    auto reportInvalidSiblingRef =
         [node, &logger](const std::string& refStr)
         {
             parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
@@ -434,14 +433,14 @@ bool ParseOptCondExprImpl::parseVerifySiblingComparison(const ParseOptCondImpl::
     if (leftInfo.m_field == nullptr) {
         reportInvalidSiblingRef(m_left);
         return false;
-    } 
+    }
 
     if (leftInfo.m_refType == ParseFieldImpl::FieldRefType_Size) {
         if (!protocol.parseIsSizeCompInConditionalsSupported()) {
             parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
                 "The size comparison check in the optional condition is not supported for the selected DSL version.";
             return false;
-        }   
+        }
 
         return parseVerifyValidSizeValueComparison();
     }
@@ -454,11 +453,11 @@ bool ParseOptCondExprImpl::parseVerifySiblingComparison(const ParseOptCondImpl::
     if (m_right[0] == Deref) {
         auto rightInfo = ParseFieldImpl::parseProcessSiblingRef(fields, m_right.substr(1));
 
-        if ((rightInfo.m_field == nullptr) || 
+        if ((rightInfo.m_field == nullptr) ||
             (rightInfo.m_refType != ParseFieldImpl::FieldRefType_Field)) {
             reportInvalidSiblingRef(m_right);
             return false;
-        }         
+        }
 
         if (!leftInfo.m_field->parseIsComparableToField(*rightInfo.m_field)) {
             parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
@@ -476,9 +475,9 @@ bool ParseOptCondExprImpl::parseVerifySiblingComparison(const ParseOptCondImpl::
 
         if (rightFields.empty()) {
             parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
-                "The \"" << m_right << "\" is not valid field dereference expression for this condition.";        
+                "The \"" << m_right << "\" is not valid field dereference expression for this condition.";
             return false;
-        }        
+        }
 
         for (auto& fieldInfo : rightFields) {
             assert(fieldInfo.m_field != nullptr);
@@ -489,10 +488,10 @@ bool ParseOptCondExprImpl::parseVerifySiblingComparison(const ParseOptCondImpl::
 
         parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
             "The \"" << m_right << "\" string is expected to dereference existing field in any \"" <<
-            common::parseInterfaceStr() << "\"";            
+            common::parseInterfaceStr() << "\"";
 
         return false;
-    }    
+    }
 
     if (!leftInfo.m_field->parseIsComparableToValue(m_right)) {
         parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
@@ -521,8 +520,8 @@ bool ParseOptCondExprImpl::parseVerifyInterfaceComparison(const ParseFieldsList&
             parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
                 "The size comparison check in the optional condition is not supported for the selected DSL version.";
             return false;
-        }  
-                
+        }
+
         return parseVerifyValidSizeValueComparison();
     }
 
@@ -530,27 +529,27 @@ bool ParseOptCondExprImpl::parseVerifyInterfaceComparison(const ParseFieldsList&
 
     if (leftFields.empty()) {
         parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
-            "The \"" << m_left << "\" is not valid field dereference expression for this condition.";        
+            "The \"" << m_left << "\" is not valid field dereference expression for this condition.";
         return false;
     }
 
     auto& leftInfo = leftFields.front();
     if (leftInfo.m_refType != ParseFieldImpl::FieldRefType_Field) {
             parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
-                "The \"" << m_left << "\" string is expected to dereference existing interface field.";        
+                "The \"" << m_left << "\" string is expected to dereference existing interface field.";
         return false;
-    }    
+    }
 
     if (m_right[0] == Deref) {
         auto rightInfo = ParseFieldImpl::parseProcessSiblingRef(fields, m_right.substr(1));
-        if ((rightInfo.m_field == nullptr) || 
+        if ((rightInfo.m_field == nullptr) ||
             (rightInfo.m_refType != ParseFieldImpl::FieldRefType_Field)) {
             parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
                 "The \"" << m_right << "\" string is expected to dereference existing sibling field.";
             return false;
-        }    
+        }
 
-        bool hasComparable = 
+        bool hasComparable =
             std::any_of(
                 leftFields.begin(), leftFields.end(),
                 [rightInfo](auto& fieldInfo)
@@ -573,11 +572,11 @@ bool ParseOptCondExprImpl::parseVerifyInterfaceComparison(const ParseFieldsList&
 
         if (rightFields.empty()) {
             parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
-                "The \"" << m_right << "\" is not valid field dereference expression for this condition.";        
+                "The \"" << m_right << "\" is not valid field dereference expression for this condition.";
             return false;
-        }             
+        }
 
-        bool hasComparable = 
+        bool hasComparable =
             std::any_of(
                 leftFields.begin(), leftFields.end(),
                 [&rightFields](auto& leftFieldInfo)
@@ -590,25 +589,25 @@ bool ParseOptCondExprImpl::parseVerifyInterfaceComparison(const ParseFieldsList&
                             assert(rightFieldInfo.m_field != nullptr);
                             return leftFieldInfo.m_field->parseIsComparableToField(*rightFieldInfo.m_field);
                         });
-                });  
+                });
 
         if (!hasComparable) {
             parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
                 "Two dereferenced fields \"" << m_left << "\" and \"" << m_right << "\" cannot be compared.";
             return false;
-        }    
+        }
 
         return true;
     }
 
-    bool hasComparable = 
+    bool hasComparable =
         std::any_of(
             leftFields.begin(), leftFields.end(),
             [this](auto& fieldInfo)
             {
                 assert(fieldInfo.m_field != nullptr);
                 return fieldInfo.m_field->parseIsComparableToValue(m_right);
-            });    
+            });
 
     if (!hasComparable) {
         parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
@@ -616,7 +615,7 @@ bool ParseOptCondExprImpl::parseVerifyInterfaceComparison(const ParseFieldsList&
         return false;
     }
 
-    return true;    
+    return true;
 }
 
 bool ParseOptCondExprImpl::parseVerifyValidSizeValueComparison() const

@@ -26,7 +26,7 @@ ToolsQtCustomLayer::ToolsQtCustomLayer(ToolsQtGenerator& generator, ParseLayer p
 {
 }
 
-bool ToolsQtCustomLayer::genPrepareImpl() 
+bool ToolsQtCustomLayer::genPrepareImpl()
 {
     return GenBase::genPrepareImpl() && ToolsBase::toolsPrepare();
 }

@@ -18,7 +18,7 @@
 
         <optional name="O2" cond="!%Flags.B1">
             <int name="ActO2" type="uint8" />
-        </optional>   
+        </optional>
     </message>
 
 </schema>

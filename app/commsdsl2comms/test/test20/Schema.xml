@@ -8,7 +8,7 @@
         <int name="Int1" type="uint32" scaling="1/10" displayDecimals="1" />
         <int name="Int2" type="uint32" scaling="1/100" units="mm" displayDecimals="2" />
     </fields>
-    
+
     <message name="Msg1" id="MsgId.M1">
         <int reuse="Int1" name="f1" />
         <ref name="f2" field="Int1" />
@@ -21,9 +21,9 @@
     <message name="Msg2" id="MsgId.M2">
         <ref name="F1" field="Int2" />
     </message>
-    
+
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>       
+    </frame>
 </schema>

@@ -47,7 +47,7 @@ public:
 
     ParseStringField genStringFieldParseObj() const;
 
-protected:    
+protected:
     virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl() override;
 

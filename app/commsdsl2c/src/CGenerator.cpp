@@ -109,10 +109,10 @@ std::string CGenerator::cAbsHeaderForNamespaceMember(const std::string& name, co
 
 std::string CGenerator::cRelRootHeaderFor(const std::string& name) const
 {
-    return 
-        genGetTopNamespace() + '/' + 
+    return
+        genGetTopNamespace() + '/' +
         genProtocolSchema().genMainNamespace() + '/' +
-        name + strings::genCppHeaderSuffixStr();    
+        name + strings::genCppHeaderSuffixStr();
 }
 
 std::string CGenerator::cAbsRootHeaderFor(const std::string& name) const
@@ -122,8 +122,8 @@ std::string CGenerator::cAbsRootHeaderFor(const std::string& name) const
 
 std::string CGenerator::cRelRootSourceFor(const std::string& name) const
 {
-    return 
-        genGetTopNamespace() + '/' + 
+    return
+        genGetTopNamespace() + '/' +
         genProtocolSchema().genMainNamespace() + '/' +
         name + strings::genCppSourceSuffixStr();
 }
@@ -156,7 +156,7 @@ std::string CGenerator::cScopeToName(const std::string& scope)
 const std::string& CGenerator::cCppGuardBegin(bool addBool)
 {
     if (addBool) {
-        static const std::string Str = 
+        static const std::string Str =
             "#ifdef __cplusplus\n"
             "extern \"C\" {\n"
             "#else\n"
@@ -167,18 +167,18 @@ const std::string& CGenerator::cCppGuardBegin(bool addBool)
         return Str;
     }
 
-    static const std::string Str = 
+    static const std::string Str =
         "#ifdef __cplusplus\n"
         "extern \"C\" {\n"
         "#endif\n"
         ;
 
-    return Str;    
+    return Str;
 }
 
 const std::string& CGenerator::cCppGuardEnd()
 {
-    static const std::string Str = 
+    static const std::string Str =
         "#ifdef __cplusplus\n"
         "}\n"
         "#endif\n"
@@ -204,7 +204,7 @@ const CInterface* CGenerator::cForcedInterface() const
 
 bool CGenerator::genPrepareImpl()
 {
-    return 
+    return
         cPrepareNamesPrefixInternal() &&
         cPrepareCommsOptionsInternal();
 }
@@ -212,7 +212,7 @@ bool CGenerator::genPrepareImpl()
 bool CGenerator::genWriteImpl()
 {
     assert(&genCurrentSchema() == &genProtocolSchema());
-    return 
+    return
         CProtocolOptions::cWrite(*this) &&
         CErrorStatus::cWrite(*this) &&
         CCmake::cWrite(*this) &&
@@ -318,7 +318,7 @@ CGenerator::OptsProcessResult CGenerator::genProcessOptionsImpl(const GenProgram
 bool CGenerator::cWriteExtraFilesInternal() const
 {
     const std::vector<std::string> ReservedExt = {
-    }; 
+    };
 
     return genCopyExtraSourceFiles(ReservedExt);
 }
@@ -386,7 +386,7 @@ bool CGenerator::cPrepareCommsOptionsInternal()
             {
                 return str.empty();
             }),
-        m_commsOptions.end());    
+        m_commsOptions.end());
 
     return true;
 }

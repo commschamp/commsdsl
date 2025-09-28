@@ -29,7 +29,7 @@ public:
 
     TEST23_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
     using Frame = test23::frame::Frame<Interface>;
-    
+
 };
 
 void TestSuite::test1()
@@ -216,7 +216,7 @@ void TestSuite::test4()
         TS_ASSERT(msg->field_b1().field_data3().doesExist());
         TS_ASSERT_EQUALS(msg->field_b1().field_len2().value(), 0U);
     } while (false);
-    
+
 }
 
 void TestSuite::test5()

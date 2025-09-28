@@ -24,12 +24,12 @@ function allocHandler(instance)
             if (this.msg2) {
                 this.msg2.delete();
             }
-        },        
+        },
         clean: function() {
             this.clean_Msg1();
             this.clean_Msg2();
-        } 
-    });    
+        }
+    });
     return new DerivedHandler;
 }
 
@@ -47,7 +47,7 @@ function test1(instance) {
         f1Vec.at(0).setValue(1);
         f1Vec.at(1).setValue(2);
         // The rest are defaulted
-        
+
         var f2Vec = msg1.field_f2().ref().value();
         f2Vec.resize(3);
         f2Vec.at(0).setValue(0x3);
@@ -58,13 +58,13 @@ function test1(instance) {
         f3Vec.resize(2);
         f3Vec.at(0).setValue(0x6);
         f3Vec.at(1).setValue(0x7);
-        
+
         assert(msg1.field_f4().doesExist());
         var f4Vec = msg1.field_f4().field().value();
         f4Vec.resize(2);
         f4Vec.at(0).setValue(0x8);
-        f4Vec.at(1).setValue(0x9);          
-        
+        f4Vec.at(1).setValue(0x9);
+
         var es = frame.writeMessage(msg1, buf);
         console.log("Output buf: " + instance.dataBufMemoryView(buf));
         assert(es == instance.comms_ErrorStatus.Success);

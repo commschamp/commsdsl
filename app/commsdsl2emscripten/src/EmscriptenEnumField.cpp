@@ -31,7 +31,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenEnumField::EmscriptenEnumField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+EmscriptenEnumField::EmscriptenEnumField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     EmscriptenBase(static_cast<GenBase&>(*this))
 {
@@ -41,24 +41,24 @@ std::string EmscriptenEnumField::emscriptenBindValues(const EmscriptenNamespace*
 {
     GenStringsList result;
 
-    auto addValueBind = 
+    auto addValueBind =
         [this, &result, forcedParent](const std::string& name)
         {
-            if ((forcedParent != nullptr) && 
+            if ((forcedParent != nullptr) &&
                 (genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::MessageId)) {
-                static const std::string Templ = 
+                static const std::string Templ =
                     ".value(\"#^#NAME#$#\", #^#SCOPE#$#_#^#NAME#$#)";
 
                 util::GenReplacementMap repl = {
                     {"NAME", name},
                     {"SCOPE", comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), genGenerator(), *forcedParent)}
-                };                    
+                };
 
                 result.push_back(util::genProcessTemplate(Templ, repl));
                 return;
             }
 
-            static const std::string Templ = 
+            static const std::string Templ =
                 ".value(\"#^#NAME#$#\", #^#CLASS_NAME#$#::ValueType::#^#NAME#$#)";
 
             util::GenReplacementMap repl = {
@@ -114,11 +114,11 @@ std::string EmscriptenEnumField::emscriptenHeaderValueAccImpl() const
 
 std::string EmscriptenEnumField::emscriptenHeaderExtraPublicFuncsImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "static std::string valueNameOf(ValueType val)\n"
         "{\n"
         "    return std::string(Base::valueNameOf(val));\n"
-        "}\n\n"        
+        "}\n\n"
         "std::string valueName() const\n"
         "{\n"
         "    return std::string(Base::valueName());\n"
@@ -126,20 +126,20 @@ std::string EmscriptenEnumField::emscriptenHeaderExtraPublicFuncsImpl() const
         "static typename std::underlying_type<ValueType>::type asConstant(ValueType val)\n"
         "{\n"
         "    return static_cast<typename std::underlying_type<ValueType>::type>(val);\n"
-        "}\n\n"    
+        "}\n\n"
         "typename std::underlying_type<ValueType>::type getValueConstant() const\n"
         "{\n"
         "    return asConstant(getValue());\n"
-        "}\n"  
-        ;      
+        "}\n"
+        ;
 
     if (emscriptenGenField().genParseObj().parseIsFixedValue()) {
         return Templ;
     }
 
-    static const std::string SetTempl = 
+    static const std::string SetTempl =
         "\n"
-        "void setValueConstant(typename std::underlying_type<ValueType>::type val)\n"               
+        "void setValueConstant(typename std::underlying_type<ValueType>::type val)\n"
         "{\n"
         "    return setValue(static_cast<ValueType>(val));\n"
         "}\n";
@@ -149,7 +149,7 @@ std::string EmscriptenEnumField::emscriptenHeaderExtraPublicFuncsImpl() const
 
 std::string EmscriptenEnumField::emscriptenSourceBindFuncsImpl() const
 {
-    std::string templ = 
+    std::string templ =
         ".class_function(\"valueNameOf\", &#^#CLASS_NAME#$#::valueNameOf)\n"
         ".function(\"valueName\", &#^#CLASS_NAME#$#::valueName)\n"
         ".class_function(\"asConstant\", &#^#CLASS_NAME#$#::asConstant)\n"
@@ -157,16 +157,16 @@ std::string EmscriptenEnumField::emscriptenSourceBindFuncsImpl() const
         ;
 
     if (!emscriptenGenField().genParseObj().parseIsFixedValue()) {
-        templ += 
+        templ +=
             "\n"
             ".function(\"setValueConstant\", &#^#CLASS_NAME#$#::setValueConstant)"
             ;
-    }        
+    }
 
     util::GenReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}
     };
-    
+
     return util::genProcessTemplate(templ, repl);
 }
 
@@ -184,11 +184,11 @@ std::string EmscriptenEnumField::emscriptenSourceBindExtraImpl() const
         auto allMsgIdFields = parentNs->genFindMessageIdFields();
         if (allMsgIdFields.size() == 1U) {
             // The bindings for MsgId are created separately
-            return strings::genEmptyString();  
+            return strings::genEmptyString();
         }
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "emscripten::enum_<#^#CLASS_NAME#$#::ValueType>(\"#^#CLASS_NAME#$#_ValueType\")\n"
         "    #^#VALUES#$#\n"
         "   ;\n";
@@ -214,7 +214,7 @@ bool EmscriptenEnumField::emscriptenCanProvideValuesInternal() const
 
     if (type == commsdsl::parse::ParseIntField::ParseType::Uint64) {
         return false;
-    }   
+    }
 
     if ((type == commsdsl::parse::ParseIntField::ParseType::Intvar) &&
         (genParseObj().parseMinLength() > sizeof(std::int32_t))) {

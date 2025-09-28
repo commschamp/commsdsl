@@ -40,9 +40,9 @@ public:
     GenChecksumLayer(GenGenerator& generator, ParseLayer dslObj, GenElem* parent = nullptr);
     virtual ~GenChecksumLayer();
 
-protected:    
+protected:
     virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const override final;
-    
+
     ParseChecksumLayer checksumDslObj() const;
 };
 

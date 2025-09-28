@@ -54,7 +54,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2latex
 {
 
-namespace 
+namespace
 {
 
 int latexSectionElemIndexInternal(const commsdsl::gen::GenElem& elem)
@@ -114,7 +114,7 @@ static const std::string& latexLabelPrefix(commsdsl::gen::GenElem::GenType type)
         /* GenType_Interface */ "iface_",
         /* GenType_Frame */ "frame_",
         /* GenType_Layer */ "layer_",
-        /* GenType_Schema */ "schema_",        
+        /* GenType_Schema */ "schema_",
     };
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == commsdsl::gen::GenElem::GenType_NumOfValues);
@@ -128,8 +128,7 @@ static const std::string& latexLabelPrefix(commsdsl::gen::GenElem::GenType type)
     return Map[idx];
 }
 
-} // namespace 
-    
+} // namespace
 
 const std::string& LatexGenerator::latexFileGeneratedComment()
 {
@@ -263,7 +262,7 @@ std::string LatexGenerator::latexInputCodePathForFile(const std::string& name) c
 bool LatexGenerator::genWriteImpl()
 {
     assert(&genCurrentSchema() == &genProtocolSchema());
-    return 
+    return
         Latex::latexWrite(*this) &&
         LatexCmake::latexWrite(*this) &&
         latexWriteExtraFilesInternal();
@@ -375,7 +374,7 @@ bool LatexGenerator::latexWriteExtraFilesInternal() const
         strings::genHtmlFileSuffixStr(),
         strings::genHtmlAppendFileSuffixStr(),
         strings::genHtmlCmdAppendFileSuffixStr(),
-    }; 
+    };
 
     return genCopyExtraSourceFiles(ReservedExt);
 }

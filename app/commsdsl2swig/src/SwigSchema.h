@@ -38,10 +38,10 @@ public:
     virtual ~SwigSchema();
 
     bool swigHasAnyMessage() const;
-    bool swigHasReferencedMsgId() const;   
+    bool swigHasReferencedMsgId() const;
 
-    void swigAddCodeIncludes(GenStringsList& list) const; 
-    void swigAddCode(GenStringsList& list) const; 
+    void swigAddCodeIncludes(GenStringsList& list) const;
+    void swigAddCode(GenStringsList& list) const;
     void swigAddDef(GenStringsList& list) const;
 
     static const SwigSchema* swigCast(const commsdsl::gen::GenSchema* schema)

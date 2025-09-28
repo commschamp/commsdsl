@@ -35,13 +35,13 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-namespace 
+namespace
 {
 
 auto commsGetFileName(const std::string& desc = std::string())
 {
     return "Dispatch" + desc + "Message";
-}    
+}
 
 bool commsWriteFileInternal(
     const std::string& name,
@@ -56,13 +56,13 @@ bool commsWriteFileInternal(
     assert(!dirPath.empty());
     if (!generator.genCreateDirectory(dirPath)) {
         return false;
-    }      
+    }
 
     std::ofstream stream(filePath);
     if (!stream) {
         generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }    
+    }
 
     stream << data;
     stream.flush();
@@ -71,7 +71,7 @@ bool commsWriteFileInternal(
 
 const std::string& commsDispatchTempl()
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#GENERATED#$#\n"
         "/// @file\n"
         "/// @brief Contains dispatch to handling function(s) for #^#DESC#$# input messages.\n\n"
@@ -93,7 +93,7 @@ util::GenReplacementMap commsInitialRepl(const CommsGenerator& generator, const 
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"DISPATCH_NAMESPACE", strings::genCispatchNamespaceStr()},
         {"NS_BEGIN", comms::genNamespaceBeginFor(elem, generator)},
-        {"NS_END", comms::genNamespaceEndFor(elem, generator)},        
+        {"NS_END", comms::genNamespaceEndFor(elem, generator)},
     };
     return repl;
 }
@@ -196,7 +196,7 @@ const std::string& commsSingleMessagePerIdTempl()
         "{\n"
         "    return dispatch#^#NAME#$#Message<#^#DEFAULT_OPTIONS#$#>(id, idx, msg, handler);\n"
         "}\n\n"
-        "#^#DISPATCHER#$#\n"; 
+        "#^#DISPATCHER#$#\n";
     return Templ;
 }
 
@@ -294,12 +294,12 @@ const std::string& commsMultipleMessagesPerIdTempl()
         "{\n"
         "    return dispatch#^#NAME#$#Message<#^#DEFAULT_OPTIONS#$#>(id, msg, handler);\n"
         "}\n\n"
-        "#^#DISPATCHER#$#\n"; 
+        "#^#DISPATCHER#$#\n";
     return Templ;
 }
 
-} // namespace 
-    
+} // namespace
+
 CommsDispatch::CommsDispatch(CommsGenerator& generator, const CommsNamespace& parent) :
     m_commsGenerator(generator),
     m_commsParent(parent)
@@ -323,7 +323,7 @@ bool CommsDispatch::commsWrite() const
 
 bool CommsDispatch::commsWriteDispatchInternal() const
 {
-    auto checkFunc = 
+    auto checkFunc =
         [](const commsdsl::gen::GenMessage& msg) noexcept
         {
             static_cast<void>(msg);
@@ -336,13 +336,13 @@ bool CommsDispatch::commsWriteDispatchInternal() const
         {"INCLUDES", commsIncludesInternal("All")},
         {"CODE", commsDispatchCodeInternal(std::string(), std::move(checkFunc))}
     });
-    
+
     return commsWriteFileInternal(commsGetFileName(), m_commsGenerator, m_commsParent, util::genProcessTemplate(commsDispatchTempl(), repl, true));
 }
 
 bool CommsDispatch::commsWriteClientDispatchInternal() const
 {
-    auto checkFunc = 
+    auto checkFunc =
         [](const commsdsl::gen::GenMessage& msg) noexcept
         {
             return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Client;
@@ -361,7 +361,7 @@ bool CommsDispatch::commsWriteClientDispatchInternal() const
 
 bool CommsDispatch::commsWriteServerDispatchInternal() const
 {
-    auto checkFunc = 
+    auto checkFunc =
         [](const commsdsl::gen::GenMessage& msg) noexcept
         {
             return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Server;
@@ -383,7 +383,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
     auto& platforms = m_commsGenerator.genCurrentSchema().platformNames();
     for (auto& p : platforms) {
 
-        auto platformCheckFunc = 
+        auto platformCheckFunc =
             [&p](const commsdsl::gen::GenMessage& msg)
             {
                 auto& msgPlatforms = msg.genParseObj().parsePlatforms();
@@ -395,7 +395,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
             };
 
         do {
-            auto allCheckFunc = 
+            auto allCheckFunc =
                 [&platformCheckFunc](const commsdsl::gen::GenMessage& msg)
                 {
                     return platformCheckFunc(msg);
@@ -409,23 +409,23 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 {"CODE", commsDispatchCodeInternal(inputPrefix, std::move(allCheckFunc))}
             });
 
-            bool result = 
+            bool result =
                 commsWriteFileInternal(
-                    commsGetFileName(inputPrefix), 
-                    m_commsGenerator, 
-                    m_commsParent, 
+                    commsGetFileName(inputPrefix),
+                    m_commsGenerator,
+                    m_commsParent,
                     util::genProcessTemplate(commsDispatchTempl(), repl, true));
-                    
+
             if (!result) {
                 return false;
             }
         } while (false);
 
         do {
-            auto clientCheckFunc = 
+            auto clientCheckFunc =
                 [&platformCheckFunc](const commsdsl::gen::GenMessage& msg)
                 {
-                    return 
+                    return
                         platformCheckFunc(msg) &&
                         (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Client);
                 };
@@ -438,11 +438,11 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 {"CODE", commsDispatchCodeInternal(inputPrefix, std::move(clientCheckFunc))}
             });
 
-            bool result = 
+            bool result =
                 commsWriteFileInternal(
-                    commsGetFileName(inputPrefix), 
-                    m_commsGenerator, 
-                    m_commsParent, 
+                    commsGetFileName(inputPrefix),
+                    m_commsGenerator,
+                    m_commsParent,
                     util::genProcessTemplate(commsDispatchTempl(), repl, true));
 
             if (!result) {
@@ -451,10 +451,10 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
         } while (false);
 
         do {
-            auto serverCheckFunc = 
+            auto serverCheckFunc =
                 [&platformCheckFunc](const commsdsl::gen::GenMessage& msg)
                 {
-                    return 
+                    return
                         platformCheckFunc(msg) &&
                         (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Server);
                 };
@@ -467,18 +467,18 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 {"CODE", commsDispatchCodeInternal(inputPrefix, std::move(serverCheckFunc))}
             });
 
-            bool result = 
+            bool result =
                 commsWriteFileInternal(
-                    commsGetFileName(inputPrefix), 
-                    m_commsGenerator, 
-                    m_commsParent, 
+                    commsGetFileName(inputPrefix),
+                    m_commsGenerator,
+                    m_commsParent,
                     util::genProcessTemplate(commsDispatchTempl(), repl, true));
 
             if (!result) {
                 return false;
             }
 
-        } while (false);        
+        } while (false);
     }
 
     return true;
@@ -489,14 +489,14 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
     auto& extraBundles = m_commsGenerator.commsExtraMessageBundles();
     for (auto& b : extraBundles) {
 
-        auto bundleCheckFunc = 
+        auto bundleCheckFunc =
             [&b](const commsdsl::gen::GenMessage& msg)
             {
                 return std::find(b.second.begin(), b.second.end(), &msg) != b.second.end();
             };
 
         do {
-            auto allCheckFunc = 
+            auto allCheckFunc =
                 [&bundleCheckFunc](const commsdsl::gen::GenMessage& msg)
                 {
                     return bundleCheckFunc(msg);
@@ -510,23 +510,23 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 {"CODE", commsDispatchCodeInternal(inputPrefix, std::move(allCheckFunc))}
             });
 
-            bool result = 
+            bool result =
                 commsWriteFileInternal(
-                    commsGetFileName(inputPrefix), 
-                    m_commsGenerator, 
-                    m_commsParent, 
+                    commsGetFileName(inputPrefix),
+                    m_commsGenerator,
+                    m_commsParent,
                     util::genProcessTemplate(commsDispatchTempl(), repl, true));
-                    
+
             if (!result) {
                 return false;
             }
         } while (false);
 
         do {
-            auto clientCheckFunc = 
+            auto clientCheckFunc =
                 [&bundleCheckFunc](const commsdsl::gen::GenMessage& msg)
                 {
-                    return 
+                    return
                         bundleCheckFunc(msg) &&
                         (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Client);
                 };
@@ -539,11 +539,11 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 {"CODE", commsDispatchCodeInternal(inputPrefix, std::move(clientCheckFunc))}
             });
 
-            bool result = 
+            bool result =
                 commsWriteFileInternal(
-                    commsGetFileName(inputPrefix), 
-                    m_commsGenerator, 
-                    m_commsParent, 
+                    commsGetFileName(inputPrefix),
+                    m_commsGenerator,
+                    m_commsParent,
                     util::genProcessTemplate(commsDispatchTempl(), repl, true));
 
             if (!result) {
@@ -552,10 +552,10 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
         } while (false);
 
         do {
-            auto serverCheckFunc = 
+            auto serverCheckFunc =
                 [&bundleCheckFunc](const commsdsl::gen::GenMessage& msg)
                 {
-                    return 
+                    return
                         bundleCheckFunc(msg) &&
                         (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Server);
                 };
@@ -568,18 +568,18 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 {"CODE", commsDispatchCodeInternal(inputPrefix, std::move(serverCheckFunc))}
             });
 
-            bool result = 
+            bool result =
                 commsWriteFileInternal(
-                    commsGetFileName(inputPrefix), 
-                    m_commsGenerator, 
-                    m_commsParent, 
+                    commsGetFileName(inputPrefix),
+                    m_commsGenerator,
+                    m_commsParent,
                     util::genProcessTemplate(commsDispatchTempl(), repl, true));
 
             if (!result) {
                 return false;
             }
 
-        } while (false);        
+        } while (false);
     }
 
     return true;
@@ -688,7 +688,6 @@ std::string CommsDispatch::commsCasesCodeInternal(const CommsMessagesMap& map) c
             "    break;\n"
             "}";
 
-
         util::GenReplacementMap repl = {
             {"MSG_ID", idStr},
             {"IDX_CASES", util::genStrListToString(offsetCases, "\n", "")},
@@ -773,6 +772,5 @@ std::string CommsDispatch::commsMsgDispatcherCodeInternal(const std::string& inp
     };
     return util::genProcessTemplate(Templ, repl);
 }
-
 
 } // namespace commsdsl2comms

@@ -39,7 +39,7 @@ public:
     virtual ~CField();
 
     static const CField* cCast(const commsdsl::gen::GenField* field);
-    static CField* cCast(commsdsl::gen::GenField* field);    
+    static CField* cCast(commsdsl::gen::GenField* field);
     static CFieldsList cTransformFieldsList(const GenFieldsList& fields);
 
     bool cWrite() const;
@@ -60,7 +60,7 @@ public:
     const GenField& cGenField() const
     {
         return m_genField;
-    }    
+    }
 
     const std::string& cConversionSuffix() const;
 
@@ -86,7 +86,7 @@ private:
     std::string cCommsHeaderIncludesInternal() const;
     std::string cHeaderOptionalCodeInternal() const;
     std::string cSourceOptionalCodeInternal() const;
-    
+
     GenField& m_genField;
 };
 

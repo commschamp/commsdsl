@@ -36,13 +36,13 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2c
 {
 
-namespace 
+namespace
 {
 
 using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
 
-} // namespace 
-    
+} // namespace
+
 CMsgId::CMsgId(CGenerator& generator, const CNamespace& parent) :
     m_cGenerator(generator),
     m_parent(parent)
@@ -77,7 +77,7 @@ bool CMsgId::cWrite() const
         return false;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "#^#CPP_GUARD_BEGIN#$#\n\n"
@@ -93,7 +93,7 @@ bool CMsgId::cWrite() const
         {"GENERATED", CGenerator::cFileGeneratedComment()},
         {"IDS", cIdsInternal()},
         {"CPP_GUARD_BEGIN", CGenerator::cCppGuardBegin()},
-        {"CPP_GUARD_END", CGenerator::cCppGuardEnd()},       
+        {"CPP_GUARD_END", CGenerator::cCppGuardEnd()},
         {"NAME", cName()},
     };
 
@@ -103,8 +103,8 @@ bool CMsgId::cWrite() const
         m_cGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
 std::string CMsgId::cIdsInternal() const
@@ -115,7 +115,7 @@ std::string CMsgId::cIdsInternal() const
         allMsgIdFields = m_cGenerator.genCurrentSchema().genGetAllMessageIdFields();
     }
 
-    if (allMsgIdFields.size() == 1U) {    
+    if (allMsgIdFields.size() == 1U) {
         auto* msgIdField = allMsgIdFields.front();
         assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Enum);
         auto* castedMsgIdField = static_cast<const CEnumField*>(msgIdField);

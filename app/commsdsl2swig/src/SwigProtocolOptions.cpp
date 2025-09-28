@@ -34,7 +34,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-namespace 
+namespace
 {
 
 std::string swigCodeInternal(const SwigGenerator& generator, std::size_t idx)
@@ -59,9 +59,9 @@ std::string swigCodeInternal(const SwigGenerator& generator, std::size_t idx)
     auto nextScope = swigCodeInternal(generator, idx - 1U);
     if (nextScope.empty()) {
         return scope;
-    }    
+    }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#SCOPE#$#T<\n"
         "    #^#NEXT#$#\n"
         ">";
@@ -70,11 +70,11 @@ std::string swigCodeInternal(const SwigGenerator& generator, std::size_t idx)
         {"SCOPE", std::move(scope)},
         {"NEXT", std::move(nextScope)}
     };
-    
+
     return util::genProcessTemplate(Templ, repl);
 }
 
-} // namespace 
+} // namespace
 
 void SwigProtocolOptions::swigAddCodeIncludes(SwigGenerator& generator, GenStringsList& list)
 {
@@ -90,13 +90,12 @@ void SwigProtocolOptions::swigAddCodeIncludes(SwigGenerator& generator, GenStrin
         generator.genChooseCurrentSchema(idx);
         if (!generator.genCurrentSchema().genHasAnyReferencedComponent()) {
             continue;
-        }        
+        }
         list.push_back(comms::genRelHeaderForOptions(strings::genDefaultOptionsClassStr(), generator));
     }
 
     generator.genChooseProtocolSchema();
 }
-    
 
 void SwigProtocolOptions::swigAddCode(const SwigGenerator& generator, GenStringsList& list)
 {
@@ -106,7 +105,7 @@ void SwigProtocolOptions::swigAddCode(const SwigGenerator& generator, GenStrings
 
     assert(generator.genIsCurrentProtocolSchema());
 
-    const std::string Templ = 
+    const std::string Templ =
         "using #^#OPT_TYPE#$# =\n"
         "    #^#MSG_FACT_OPTS#$#T<\n"
         "        #^#CODE#$#\n"

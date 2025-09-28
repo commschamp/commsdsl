@@ -18,6 +18,6 @@
                 <int name="field2" type="uint32" />
             </fields>
             <copyFieldsFrom>Msg1</copyFieldsFrom>
-        </message>    
+        </message>
     </messages>
 </schema>

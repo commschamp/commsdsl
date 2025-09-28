@@ -98,7 +98,7 @@ protected:
     virtual std::size_t parseMinLengthImpl() const override;
     virtual std::size_t parseBitLengthImpl() const override;
     virtual bool parseIsComparableToValueImpl(const std::string& val) const override;
-    virtual bool parseIsComparableToFieldImpl(const ParseFieldImpl& field) const override;    
+    virtual bool parseIsComparableToFieldImpl(const ParseFieldImpl& field) const override;
     virtual bool parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
     virtual bool parseStrToBoolImpl(const std::string& ref, bool& val) const override;
     virtual bool parseValidateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override;

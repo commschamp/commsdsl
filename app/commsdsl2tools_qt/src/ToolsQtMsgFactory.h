@@ -34,7 +34,7 @@ public:
     ToolsQtMsgFactory(const ToolsQtGenerator& generator, const ToolsQtNamespace& parent);
     bool toolsWrite() const;
     std::string toolsRelHeaderPath(const commsdsl::gen::GenInterface& iFace) const;
-    GenStringsList toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const; 
+    GenStringsList toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const;
     std::string toolsClassScope(const commsdsl::gen::GenInterface& iFace) const;
 
 private:

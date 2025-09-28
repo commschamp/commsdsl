@@ -30,15 +30,14 @@ namespace commsdsl2latex
 
 LatexStringField::LatexStringField(LatexGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
-    LatexBase(static_cast<GenBase&>(*this)) 
+    LatexBase(static_cast<GenBase&>(*this))
 {
-}   
+}
 
 bool LatexStringField::genWriteImpl() const
 {
     return latexWrite();
 }
-
 
 std::string LatexStringField::latexInfoDetailsImpl() const
 {
@@ -90,14 +89,14 @@ std::string LatexStringField::latexInfoDetailsImpl() const
         }
 
         list.push_back("\\textbf{Detached Length Prefix} & \\nameref{" + sibling->latexRefLabelId() + "}");
-    } while (false);    
+    } while (false);
 
     do {
         if (!parseObj.parseHasZeroTermSuffix()) {
             break;
         }
         list.push_back("\\textbf{Zero Termination Suffix} & YES");
-    } while (false);    
+    } while (false);
 
     if (list.empty()) {
         return strings::genEmptyString();

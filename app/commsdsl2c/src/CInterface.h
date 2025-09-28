@@ -56,24 +56,24 @@ public:
     const CMsgId* cMsgId() const;
 
 protected:
-    virtual bool genPrepareImpl() override;    
-    virtual bool genWriteImpl() const override;        
+    virtual bool genPrepareImpl() override;
+    virtual bool genWriteImpl() const override;
 
 private:
     using CFieldsList = CField::CFieldsList;
 
     bool cWriteHeaderInternal() const;
-    bool cWriteSourceInternal() const;    
-    bool cWriteCommsHeaderInternal() const;    
+    bool cWriteSourceInternal() const;
+    bool cWriteCommsHeaderInternal() const;
 
     std::string cHeaderIncludesInternal() const;
     std::string cHeaderFieldsInternal() const;
     std::string cHeaderCodeInternal() const;
     std::string cSourceIncludesInternal() const;
     std::string cSourceFieldsInternal() const;
-    std::string cSourceCodeInternal() const;    
+    std::string cSourceCodeInternal() const;
 
-    CFieldsList m_cFields;        
+    CFieldsList m_cFields;
 };
 
 } // namespace commsdsl2c

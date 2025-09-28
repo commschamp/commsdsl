@@ -29,7 +29,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2latex
 {
 
-namespace 
+namespace
 {
 
 const std::string& latexCodeInjectPrefix()
@@ -38,8 +38,7 @@ const std::string& latexCodeInjectPrefix()
     return Str;
 }
 
-} // namespace 
-    
+} // namespace
 
 bool LatexCmake::latexWrite(LatexGenerator& generator)
 {
@@ -58,7 +57,7 @@ bool LatexCmake::latexWriteInternal()
         return false;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "cmake_minimum_required (VERSION 3.10)\n"
         "project (\"#^#PROJ_NAME#$#_latex\" NONE)\n\n"
         "set (MAIN_FILE \"${CMAKE_CURRENT_SOURCE_DIR}/#^#TEX_FILE#$#\")\n\n"
@@ -86,7 +85,6 @@ bool LatexCmake::latexWriteInternal()
         return false;
     }
 
-
     return true;
 }
 
@@ -98,7 +96,7 @@ std::string LatexCmake::latexSectionPdf() const
         return replaceContents;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#REPLACE_COMMENT#$#\n"
         "# PDF Generation\n"
         "find_program (PDFLATEX_EXE \"pdflatex\")\n"
@@ -107,10 +105,10 @@ std::string LatexCmake::latexSectionPdf() const
         "    # Run generation twice for table of contents\n"
         "    add_custom_target(\"pdf\"\n"
         "        COMMAND ${CMAKE_COMMAND} -E env TEXINPUTS=\"${CMAKE_CURRENT_SOURCE_DIR}:\" -- ${PDFLATEX_EXE} -file-line-error -output-directory ${CMAKE_CURRENT_BINARY_DIR}/pdf ${MAIN_FILE}\n"
-        "        COMMAND ${CMAKE_COMMAND} -E env TEXINPUTS=\"${CMAKE_CURRENT_SOURCE_DIR}:\" -- ${PDFLATEX_EXE} -file-line-error -output-directory ${CMAKE_CURRENT_BINARY_DIR}/pdf ${MAIN_FILE}\n"        
+        "        COMMAND ${CMAKE_COMMAND} -E env TEXINPUTS=\"${CMAKE_CURRENT_SOURCE_DIR}:\" -- ${PDFLATEX_EXE} -file-line-error -output-directory ${CMAKE_CURRENT_BINARY_DIR}/pdf ${MAIN_FILE}\n"
         "        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_INSTALL_PREFIX}/pdf\n"
         "        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/pdf/#^#FILE_BASE#$#.pdf ${CMAKE_INSTALL_PREFIX}/pdf/\n"
-        "        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/pdf)\n"        
+        "        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/pdf)\n"
         "    add_dependencies(\"all_artifacts\" \"pdf\")\n"
         "    #^#APPEND#$#\n"
         "endif()\n";
@@ -140,7 +138,7 @@ std::string LatexCmake::latexSectionHtml() const
         return replaceContents;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#REPLACE_COMMENT#$#\n"
         "# HTML Generation\n"
         "find_program (HTLATEX_EXE \"htlatex\")\n"
@@ -155,7 +153,7 @@ std::string LatexCmake::latexSectionHtml() const
         "        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/html/#^#FILE_BASE#$#.html ${CMAKE_INSTALL_PREFIX}/html/\n"
         "        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/html/#^#FILE_BASE#$#.css ${CMAKE_INSTALL_PREFIX}/html/\n"
         "        #^#CMD_APPEND#$#\n"
-        "        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html)\n"        
+        "        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html)\n"
         "    add_dependencies(\"all_artifacts\" \"html\")\n"
         "    #^#APPEND#$#\n"
         "endif()\n";
@@ -178,7 +176,7 @@ std::string LatexCmake::latexSectionHtml() const
 
         if (repl["CMD_APPEND"].empty()) {
             repl["CMD_APPEND"] = latexCodeInjectPrefix() + "Use \"" + cmdAppendFileName + "\" file to append to default HTML generation commands.";
-        }        
+        }
     }
 
     return util::genProcessTemplate(Templ, repl);

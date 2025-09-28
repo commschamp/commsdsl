@@ -15,7 +15,6 @@
 
 #pragma once
 
-
 #include "commsdsl/CommsdslApi.h"
 #include "commsdsl/parse/ParseAlias.h"
 #include "commsdsl/parse/ParseField.h"
@@ -76,7 +75,7 @@ public:
     ParseOverrideType parseRefreshOverride() const;
     ParseOverrideType parseLengthOverride() const;
     ParseOverrideType parseValidOverride() const;
-    ParseOverrideType parseNameOverride() const;    
+    ParseOverrideType parseNameOverride() const;
     const std::string& parseCopyCodeFrom() const;
     ParseOptCond parseConstruct() const;
     ParseOptCond parseReadCond() const;

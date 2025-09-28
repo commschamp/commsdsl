@@ -41,7 +41,6 @@ void SwigAllMessages::swigAddCode(const SwigGenerator& generator, GenStringsList
     assert(iFace != nullptr);
     auto interfaceClassName = generator.swigClassName(*iFace);
 
-
     for (auto* m : allMessages) {
         if (!m->genIsReferenced()) {
             continue;
@@ -49,7 +48,7 @@ void SwigAllMessages::swigAddCode(const SwigGenerator& generator, GenStringsList
         msgList.push_back(generator.swigClassName(*m));
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "using #^#NAME#$# =\n"
         "    std::tuple<\n"
         "        #^#MESSAGES#$#\n"

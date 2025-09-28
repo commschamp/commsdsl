@@ -10,7 +10,7 @@
             <int name="ParseType" type="uint8" defaultValidValue="1" failOnInvalid="true" />
             <int name="Length" type="uint8" semanticType="length" />
             <int name="Value" type="uint32" availableLengthLimit="true" />
-        </bundle>  
+        </bundle>
 
         <bundle name="B2">
             <int name="ParseType" type="uint8" defaultValidValue="1" failOnInvalid="true" />
@@ -20,7 +20,7 @@
                 <validValue name="V2" val="0xffff" />
                 <validValue name="V3" val="0xffffff" />
             </enum>
-        </bundle>                 
+        </bundle>
 
         <bundle name="B3">
             <int name="ParseType" type="uint8" defaultValidValue="1" failOnInvalid="true" />
@@ -32,7 +32,7 @@
                 <bit name="B24" idx="24" />
                 <bit name="B31" idx="31" />
             </set>
-        </bundle>                 
+        </bundle>
 
     </fields>
 </schema>

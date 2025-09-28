@@ -38,12 +38,10 @@ class TestProtocol(unittest.TestCase):
 
         h = MsgHandler(self)
         frame.processInputData(buf, h)
-                
+
         self.assertTrue(test14.eq_message_Msg1(self.msg1, m))
         self.assertEqual(self.msg1.field_f1().ref().getValue(), "bla")
 
-
 if __name__ == '__main__':
     unittest.main()
-
 

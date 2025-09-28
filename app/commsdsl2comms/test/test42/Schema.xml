@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema name="test42" endian="big" dslVersion="3">
     <description>
-        This is regression testing schema. The MsgId enum 
-        doesn't use sematicType to indicate message ID, as the 
-        result MsgId.h file contained enum without underlying type, 
-        which in turn caused the undefined behavior sanitizer to 
+        This is regression testing schema. The MsgId enum
+        doesn't use sematicType to indicate message ID, as the
+        result MsgId.h file contained enum without underlying type,
+        which in turn caused the undefined behavior sanitizer to
         report an error when assigning out-of-rage value such as 68.
-        After the fix the MsgId enum should specified unsigned as 
+        After the fix the MsgId enum should specified unsigned as
         its underlying type
     </description>
     <fields>
@@ -15,17 +15,17 @@
             <validValue name="Msg2" val="38" />
         </enum>
     </fields>
-    
+
 	<frame name="Frame">
         <id name="Id" field="MsgId" />
         <payload name="Data" />
-    </frame>      
-    
+    </frame>
+
     <message name="Msg1" id="MsgId.Msg1">
         <int name="F1" type="uint8" />
     </message>
 
     <message name="Msg2" id="MsgId.Msg2">
         <int name="F1" type="uint16" />
-    </message>    
+    </message>
 </schema>

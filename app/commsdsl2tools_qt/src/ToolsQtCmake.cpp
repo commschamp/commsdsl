@@ -31,14 +31,13 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2tools_qt
 {
 
-namespace 
+namespace
 {
 
 using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
 using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-} // namespace 
-    
+} // namespace
 
 bool ToolsQtCmake::toolsWrite(ToolsQtGenerator& generator)
 {
@@ -48,9 +47,9 @@ bool ToolsQtCmake::toolsWrite(ToolsQtGenerator& generator)
 
 bool ToolsQtCmake::toolsWriteInternal() const
 {
-    auto filePath = 
+    auto filePath =
         util::genPathAddElem(
-            m_toolsGenerator.genGetOutputDir(), strings::genCmakeListsFileStr());    
+            m_toolsGenerator.genGetOutputDir(), strings::genCmakeListsFileStr());
 
     m_toolsGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
@@ -96,10 +95,10 @@ bool ToolsQtCmake::toolsWriteInternal() const
         "    if (NOT \"${OPT_CCACHE_EXECUTABLE}\" STREQUAL \"\")\n"
         "        list(APPEND extra_opts CCACHE_EXECUTABLE \"${OPT_CCACHE_EXECUTABLE}\")\n"
         "    endif()\n"
-        "endif()\n\n"   
+        "endif()\n\n"
         "if (OPT_WITH_DEFAULT_SANITIZERS)\n"
         "    list(APPEND extra_opts DEFAULT_SANITIZERS)\n"
-        "endif()\n\n"          
+        "endif()\n\n"
         "include(${LibComms_DIR}/CC_Compile.cmake)\n"
         "cc_compile(${extra_opts})\n"
         "cc_msvc_force_warn_opt(/W4)\n\n"
@@ -125,7 +124,7 @@ bool ToolsQtCmake::toolsWriteInternal() const
         "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Protocol_${protocol}.cpp\n"
         "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Plugin_${protocol}.cpp\n"
         "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Plugin_${protocol}.h\n"
-        "        #^#EXTRA_SOURCES#$#\n"        
+        "        #^#EXTRA_SOURCES#$#\n"
         "    )\n\n"
         "    set(extra_link_opts)\n"
         "    if ((NOT OPT_WITH_DEFAULT_SANITIZERS) AND\n"
@@ -185,13 +184,13 @@ bool ToolsQtCmake::toolsWriteInternal() const
         m_toolsGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
 std::string ToolsQtCmake::toolsPerInterfaceFuncsInternal() const
 {
-    const std::string Templ = 
+    const std::string Templ =
         "function (cc_plugin_#^#INTERFACE#$#)\n"
         "    set (name ${INTERFACE_LIB_PREFIX}_#^#INTERFACE#$#)\n"
         "    set (src\n"
@@ -222,7 +221,7 @@ std::string ToolsQtCmake::toolsPerInterfaceFuncsInternal() const
             {"MAIN_NS", m_toolsGenerator.genProtocolSchema().genMainNamespace()},
             {"INTERFACE", iFaceName},
             {"INTERFACE_PATH", iFacePath},
-        };        
+        };
 
         result.push_back(util::genProcessTemplate(Templ, repl));
     }
@@ -244,7 +243,7 @@ std::string ToolsQtCmake::toolsPerInterfaceCallsInternal() const
 
         util::GenReplacementMap repl = {
             {"INTERFACE", iFaceName},
-        };        
+        };
 
         result.push_back(util::genProcessTemplate(Templ, repl));
     }

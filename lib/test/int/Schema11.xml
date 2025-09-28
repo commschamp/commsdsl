@@ -2,7 +2,7 @@
 <schema name="Schema11"
         id="1"
         endian="little">
-        
+
     <fields>
         <int name="Int1" type="int8" defaultValue="val1" nonUniqueSpecialsAllowed="true">
             <special name="val1" val="100" displayName="Value 1"/>

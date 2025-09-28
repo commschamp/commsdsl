@@ -33,7 +33,6 @@ namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
 
-
 namespace commsdsl2swig
 {
 
@@ -50,7 +49,7 @@ const SwigField* SwigField::swigCast(const commsdsl::gen::GenField* field)
         return nullptr;
     }
 
-    auto* swigField = dynamic_cast<const SwigField*>(field);    
+    auto* swigField = dynamic_cast<const SwigField*>(field);
     assert(swigField != nullptr);
     return swigField;
 }
@@ -67,7 +66,7 @@ SwigField::SwigFieldsList SwigField::swigTransformFieldsList(const commsdsl::gen
     for (auto& fPtr : fields) {
         assert(fPtr);
 
-        auto* swigField = 
+        auto* swigField =
             const_cast<SwigField*>(
                 dynamic_cast<const SwigField*>(fPtr.get()));
 
@@ -75,7 +74,7 @@ SwigField::SwigFieldsList SwigField::swigTransformFieldsList(const commsdsl::gen
         result.push_back(swigField);
     }
 
-    return result;    
+    return result;
 }
 
 std::string SwigField::swigRelHeaderPath() const
@@ -90,7 +89,7 @@ bool SwigField::swigIsVersionOptional() const
 
 std::string SwigField::swigClassDecl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#MEMBERS#$#\n"
         "#^#DEF#$#\n"
         "#^#OPTIONAL#$#\n"
@@ -119,7 +118,7 @@ void SwigField::swigAddCodeIncludes(GenStringsList& list) const
 {
     if (!comms::genIsGlobalField(m_genField)) {
         // Skip write for non-global fields,
-        // The code generation will be driven by other means        
+        // The code generation will be driven by other means
         return;
     }
 
@@ -184,7 +183,7 @@ bool SwigField::swigWrite() const
 {
     if (!comms::genIsGlobalField(m_genField)) {
         // Skip write for non-global fields,
-        // The code generation will be driven by other means        
+        // The code generation will be driven by other means
         return true;
     }
 
@@ -199,7 +198,7 @@ bool SwigField::swigWrite() const
     assert(!dirPath.empty());
     if (!generator.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     auto& logger = generator.genLogger();
     logger.genInfo("Generating " + filePath);
@@ -210,7 +209,7 @@ bool SwigField::swigWrite() const
         return false;
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "#^#DEF#$#\n"
@@ -220,10 +219,10 @@ bool SwigField::swigWrite() const
         {"GENERATED", SwigGenerator::swigFileGeneratedComment()},
         {"DEF", swigClassDecl()},
     };
-    
+
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
-    return stream.good();    
+    return stream.good();
 }
 
 std::string SwigField::swigMembersDeclImpl() const
@@ -238,7 +237,7 @@ std::string SwigField::swigValueTypeDeclImpl() const
 
 std::string SwigField::swigValueAccDeclImpl() const
 {
-    std::string result = 
+    std::string result =
         "const ValueType& getValue() const;\n";
 
     if (!m_genField.genParseObj().parseIsFixedValue()) {
@@ -260,7 +259,7 @@ std::string SwigField::swigExtraPublicFuncsCodeImpl() const
 
 std::string SwigField::swigPublicDeclImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#VALUE_TYPE#$#\n"
         "#^#VALUE_ACC#$#\n"
         "#^#COMMON_FUNCS#$#\n"
@@ -272,7 +271,7 @@ std::string SwigField::swigPublicDeclImpl() const
         {"VALUE_ACC", swigValueAccDeclImpl()},
         {"COMMON_FUNCS", swigCommonPublicFuncsDecl()},
         {"EXTRA", swigExtraPublicFuncsDeclImpl()},
-    };            
+    };
 
     return util::genProcessTemplate(Templ, repl);
 }
@@ -287,7 +286,7 @@ void SwigField::swigAddMembersCodeImpl([[maybe_unused]] GenStringsList& list) co
 
 std::string SwigField::swigCommonPublicFuncsDecl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "static const char* name();\n"
         "#^#ERR_STATUS#$# read(const #^#DATA_BUF#$#& buf);\n"
         "#^#ERR_STATUS#$# write(#^#DATA_BUF#$#& buf) const;\n"
@@ -308,7 +307,7 @@ std::string SwigField::swigCommonPublicFuncsDecl() const
 
 std::string SwigField::swigCommonPublicFuncsCode() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "using Base::read;\n"
         "#^#ERR_STATUS#$# read(const #^#DATA_BUF#$#& buf)\n"
         "{\n"
@@ -334,7 +333,7 @@ std::string SwigField::swigCommonPublicFuncsCode() const
 
 std::string SwigField::swigSemanticTypeLengthValueAccDecl() const
 {
-    std::string templ = 
+    std::string templ =
         "#^#SIZE_T#$# getValue() const;\n"
         ;
 
@@ -351,19 +350,19 @@ std::string SwigField::swigSemanticTypeLengthValueAccDecl() const
 
 std::string SwigField::swigSemanticTypeLengthValueAccCode() const
 {
-    std::string templ = 
+    std::string templ =
         "#^#SIZE_T#$# getValue() const\n"
         "{\n"
         "    return static_cast<#^#SIZE_T#$#>(Base::getValue());\n"
         "}\n";
 
     if (!m_genField.genParseObj().parseIsFixedValue()) {
-        templ += 
+        templ +=
             "\n"
             "void setValue(#^#SIZE_T#$# val)\n"
             "{\n"
             "    Base::setValue(val);\n"
-            "}\n";        
+            "}\n";
     }
 
     util::GenReplacementMap repl = {
@@ -375,7 +374,7 @@ std::string SwigField::swigSemanticTypeLengthValueAccCode() const
 
 std::string SwigField::swigClassDeclInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "class #^#CLASS_NAME#$##^#SUFFIX#$#\n"
         "{\n"
         "public:\n"
@@ -401,7 +400,7 @@ std::string SwigField::swigClassDeclInternal() const
     }
 
     if (comms::genIsGlobalField(m_genField)) {
-        repl["CUSTOM"] = 
+        repl["CUSTOM"] =
             util::genReadFileContents(generator.swigInputCodePathFor(m_genField) + strings::genPublicFileSuffixStr());
     }
 
@@ -426,7 +425,7 @@ std::string SwigField::swigOptionalDeclInternal() const
         "bool operator==(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second);\n\n"
         "// Order comparison operator is renamed as \"lt_#^#CLASS_NAME#$#\"() function by SWIG\n"
         "bool operator<(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second);\n"
-        ;     
+        ;
 
     auto& gen = SwigGenerator::swigCast(m_genField.genGenerator());
     auto className = gen.swigClassName(m_genField);
@@ -449,7 +448,7 @@ std::string SwigField::swigClassCodeInternal() const
     std::string extraFuncs = swigExtraPublicFuncsCodeImpl();
 
     if (!protectedCode.empty()) {
-        static const std::string TemplTmp = 
+        static const std::string TemplTmp =
             "protected:\n"
             "    #^#CODE#$#\n";
 
@@ -461,7 +460,7 @@ std::string SwigField::swigClassCodeInternal() const
     }
 
     if (!privateCode.empty()) {
-        static const std::string TemplTmp = 
+        static const std::string TemplTmp =
             "private:\n"
             "    #^#CODE#$#\n";
 
@@ -470,9 +469,9 @@ std::string SwigField::swigClassCodeInternal() const
         };
 
         privateCode = util::genProcessTemplate(TemplTmp, replTmp);
-    }    
+    }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "class #^#CLASS_NAME#$##^#SUFFIX#$# : public #^#COMMS_CLASS#$##^#SUFFIX#$#\n"
         "{\n"
         "    using Base = #^#COMMS_CLASS#$##^#SUFFIX#$#;\n"
@@ -490,7 +489,7 @@ std::string SwigField::swigClassCodeInternal() const
         "bool operator<(const #^#CLASS_NAME#$##^#SUFFIX#$#& first, const #^#CLASS_NAME#$##^#SUFFIX#$#& second)\n"
         "{\n"
         "    return static_cast<const #^#COMMS_CLASS#$##^#SUFFIX#$#&>(first) < static_cast<const #^#COMMS_CLASS#$##^#SUFFIX#$#&>(second);\n"
-        "}\n"        
+        "}\n"
         ;
 
     util::GenReplacementMap repl = {
@@ -510,7 +509,7 @@ std::string SwigField::swigClassCodeInternal() const
     repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
     repl["FIELD"] = util::genProcessTemplate(Templ, repl);
 
-    static const std::string OptTempl = 
+    static const std::string OptTempl =
         "#^#FIELD#$#\n"
         "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#\n"
         "{\n"
@@ -524,7 +523,7 @@ std::string SwigField::swigClassCodeInternal() const
 
 std::string SwigField::swigComparisonRenameInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "%rename(eq_#^#CLASS_NAME#$##^#SUFFIX#$#) operator==(const #^#CLASS_NAME#$##^#SUFFIX#$#&, const #^#CLASS_NAME#$##^#SUFFIX#$#&);\n"
         "%rename(lt_#^#CLASS_NAME#$##^#SUFFIX#$#) operator<(const #^#CLASS_NAME#$##^#SUFFIX#$#&, const #^#CLASS_NAME#$##^#SUFFIX#$#&);";
 
@@ -534,7 +533,7 @@ std::string SwigField::swigComparisonRenameInternal() const
 
     if (!swigIsVersionOptional()) {
         return util::genProcessTemplate(Templ, repl);
-    }    
+    }
 
     auto noSuffix = util::genProcessTemplate(Templ, repl);
     repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
@@ -547,13 +546,13 @@ void SwigField::swigAddVectorTemplateInternal(GenStringsList& list) const
         return;
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "%template(#^#CLASS_NAME#$#_Vector) std::vector<#^#CLASS_NAME#$#>;";
 
     auto& gen = SwigGenerator::swigCast(m_genField.genGenerator());
     util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(m_genField)},
-    };    
+    };
 
     list.push_back(util::genProcessTemplate(Templ, repl));
 }

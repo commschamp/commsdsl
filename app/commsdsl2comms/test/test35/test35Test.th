@@ -57,7 +57,6 @@ void TestSuite::test1()
     TS_ASSERT_EQUALS(comsumed, Buf1Size);
     TS_ASSERT(handler.getMsg2HasField());
 
-
     static const std::uint8_t Buf2[] = {
         0x2, 0x1, 1, 0x1, 0x2
     };

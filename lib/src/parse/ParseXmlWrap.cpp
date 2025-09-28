@@ -80,7 +80,7 @@ ParseXmlWrap::ParseNodesList ParseXmlWrap::parseGetChildren(::xmlNodePtr node, c
                 if (props.find(ValueAttr) != props.end()) {
                     // Skip one with the value attribute
                     break;
-                }            
+                }
             }
 
             std::string elemName(reinterpret_cast<const char*>(cur->name));
@@ -163,7 +163,6 @@ bool ParseXmlWrap::parseNodeValue(
     value = std::move(text);
     return true;
 }
-
 
 bool ParseXmlWrap::parseChildrenAsProps(
     ::xmlNodePtr node,
@@ -355,7 +354,6 @@ bool ParseXmlWrap::parseCheckVersions(
             "be greater than " << parentDeprecated << ".";
         return false;
     }
-
 
     if (deprecatedSince <= sinceVersion) {
         parseLogError(protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(node) <<

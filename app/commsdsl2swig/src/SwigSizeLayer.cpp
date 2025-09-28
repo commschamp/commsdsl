@@ -20,7 +20,7 @@
 namespace commsdsl2swig
 {
 
-SwigSizeLayer::SwigSizeLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+SwigSizeLayer::SwigSizeLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     SwigBase(static_cast<GenBase&>(*this))
 {

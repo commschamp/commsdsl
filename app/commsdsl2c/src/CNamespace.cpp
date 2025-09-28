@@ -35,7 +35,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2c
 {
 
-namespace 
+namespace
 {
 
 template <typename TElem, typename TList>
@@ -44,17 +44,16 @@ void cAddSourceFilesInternal(const TList& list, util::GenStringsList& sources)
     for (auto& elemPtr : list) {
         auto* elem = TElem::cCast(elemPtr.get());
         elem->cAddSourceFiles(sources);
-    }    
+    }
 }
 
-} // namespace 
-    
+} // namespace
 
 CNamespace::CNamespace(CGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     m_msgId(generator, *this)
 {
-}   
+}
 
 CNamespace::~CNamespace() = default;
 
@@ -77,9 +76,9 @@ const CInterface* CNamespace::cInterface() const
 bool CNamespace::cIsSuitableInterface(const CInterface& iFace) const
 {
     auto& thisNsInterfaces = genInterfaces();
-    auto iter = 
+    auto iter =
         std::find_if(
-            thisNsInterfaces.begin(), thisNsInterfaces.end(), 
+            thisNsInterfaces.begin(), thisNsInterfaces.end(),
             [&iFace](auto& iFacePtr)
             {
                 return &iFace == iFacePtr.get();
@@ -92,11 +91,11 @@ bool CNamespace::cIsSuitableInterface(const CInterface& iFace) const
     auto* parent = genGetParent();
     if (parent->genElemType() == GenElem::GenType_Namespace) {
         return CNamespace::cCast(static_cast<const GenNamespace*>(parent))->cIsSuitableInterface(iFace);
-    }    
+    }
 
     auto& cGenerator = CGenerator::cCast(genGenerator());
     auto allNamespaces = cGenerator.genGetAllNamespaces();
-    auto nsIter = 
+    auto nsIter =
         std::find_if(
             allNamespaces.begin(), allNamespaces.end(),
             [](auto* ns)
@@ -128,11 +127,11 @@ void CNamespace::cAddSourceFiles(GenStringsList& sources) const
 
     auto* iFace = cInterface();
     iFace->cAddSourceFiles(sources);
-    
+
     // if (!genInterfaces().empty()) {
     //     m_msgId.cAddSourceFiles(sources);
     //     m_handler.cAddSourceFiles(sources);
-    // }    
+    // }
 }
 
 bool CNamespace::cCodeGenerationAllowed() const
@@ -156,13 +155,13 @@ const CMsgId* CNamespace::cMsgId() const
     return &m_msgId;
 }
 
-bool CNamespace::genWriteImpl() const 
+bool CNamespace::genWriteImpl() const
 {
     if (!cCodeGenerationAllowed()) {
         return true;
     }
 
-    return 
+    return
         m_msgId.cWrite();
 }
 
@@ -180,7 +179,7 @@ const CInterface* CNamespace::cFindSuitableInterfaceInternal() const
 
     auto& cGenerator = CGenerator::cCast(genGenerator());
     auto allNamespaces = cGenerator.genGetAllNamespaces();
-    auto iter = 
+    auto iter =
         std::find_if(
             allNamespaces.begin(), allNamespaces.end(),
             [](auto* ns)

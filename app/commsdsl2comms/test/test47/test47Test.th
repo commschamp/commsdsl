@@ -59,7 +59,7 @@ public:
         void handle(Interface&)
         {
             TS_ASSERT(false); // Shouldn't be called
-        }        
+        }
 
         unsigned m_msg1 = 0U;
         unsigned m_msg2 = 0U;
@@ -67,22 +67,20 @@ public:
         unsigned m_msg4 = 0U;
     };
 
-
-    using Plat1Frame = test47::frame::Frame<Interface, test47::input::Plat1Messages<Interface> >;    
-    using Plat2Frame = test47::frame::Frame<Interface, test47::input::Plat2Messages<Interface> >;    
-    using Bundle1Frame = test47::frame::Frame<Interface, test47::input::Bundle1Messages<Interface> >;    
-    using Bundle2Frame = test47::frame::Frame<Interface, test47::input::Bundle2Messages<Interface> >;    
+    using Plat1Frame = test47::frame::Frame<Interface, test47::input::Plat1Messages<Interface> >;
+    using Plat2Frame = test47::frame::Frame<Interface, test47::input::Plat2Messages<Interface> >;
+    using Bundle1Frame = test47::frame::Frame<Interface, test47::input::Bundle1Messages<Interface> >;
+    using Bundle2Frame = test47::frame::Frame<Interface, test47::input::Bundle2Messages<Interface> >;
 };
 
 void TestSuite::test1()
 {
-    static const std::uint8_t Buf1[] = 
+    static const std::uint8_t Buf1[] =
     {
-        3, 
+        3,
     };
     static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
 
-    
     Plat1Frame frame;
     Plat1Frame::MsgPtr msgPtr;
 
@@ -99,13 +97,12 @@ void TestSuite::test1()
 
 void TestSuite::test2()
 {
-    static const std::uint8_t Buf1[] = 
+    static const std::uint8_t Buf1[] =
     {
-        3, 
+        3,
     };
     static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
 
-    
     Plat2Frame frame;
     Plat2Frame::MsgPtr msgPtr;
 
@@ -117,13 +114,12 @@ void TestSuite::test2()
 
 void TestSuite::test3()
 {
-    static const std::uint8_t Buf1[] = 
+    static const std::uint8_t Buf1[] =
     {
-        1, 
+        1,
     };
     static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
 
-    
     Bundle1Frame frame;
     Bundle1Frame::MsgPtr msgPtr;
 
@@ -135,5 +131,5 @@ void TestSuite::test3()
 
     Handler handler;
     test47::dispatch::dispatchBundle1MessageDefaultOptions(msgPtr->getId(), *msgPtr, handler);
-    TS_ASSERT_EQUALS(handler.m_msg1, 1U);    
+    TS_ASSERT_EQUALS(handler.m_msg1, 1U);
 }

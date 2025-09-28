@@ -39,7 +39,7 @@
 
         <message name="Msg2" id="sub2.MsgId.M2">
             <int name="F1" type="uint32" />
-        </message>        
+        </message>
 
         <frame name="Frame">
             <size name="Size">
@@ -49,7 +49,7 @@
             <payload name="Data" />
         </frame>
 
-        <interface name="Interface" />        
-    </ns>    
-    
+        <interface name="Interface" />
+    </ns>
+
 </schema>

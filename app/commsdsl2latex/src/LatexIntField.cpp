@@ -31,9 +31,9 @@ namespace commsdsl2latex
 
 LatexIntField::LatexIntField(LatexGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
-    LatexBase(static_cast<GenBase&>(*this)) 
+    LatexBase(static_cast<GenBase&>(*this))
 {
-}   
+}
 
 bool LatexIntField::genWriteImpl() const
 {
@@ -44,7 +44,7 @@ std::string LatexIntField::latexInfoDetailsImpl() const
 {
     GenStringsList list;
     auto parseObj = genIntFieldParseObj();
-    
+
     list.push_back(latexSignedInfo(parseObj.parseType()));
     list.push_back(latexEndianInfo(parseObj.parseEndian()));
 
@@ -75,12 +75,12 @@ std::string LatexIntField::latexInfoDetailsImpl() const
                 continue;
             }
 
-            // auto valToString = 
+            // auto valToString =
             //     [unsignedType](std::intmax_t val)
             //     {
             //         if (unsignedType) {
             //             return std::to_string(static_cast<std::uintmax_t>(val));
-            //         } 
+            //         }
 
             //         return std::to_string(val);
             //     };
@@ -111,7 +111,7 @@ std::string LatexIntField::latexInfoDetailsImpl() const
 std::string LatexIntField::latexExtraDetailsImpl() const
 {
     auto parseObj = genIntFieldParseObj();
-    auto& specials = parseObj.parseSpecialValues();    
+    auto& specials = parseObj.parseSpecialValues();
 
     struct SpecialInfo
     {
@@ -162,14 +162,14 @@ std::string LatexIntField::latexExtraDetailsImpl() const
         lines.push_back(std::move(l));
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "\\subsubparagraph{Special Values}\n"
         "\\label{#^#LABEL#$#}\n\n"
         "\\fbox{%\n"
         "\\begin{tabular}{l|l|p{7cm}}\n"
         "\\textbf{Value} & \\textbf{Name}& \\textbf{Description}\\\\\n"
         "\\hline\n"
-        "\\hline\n"        
+        "\\hline\n"
         "#^#LINES#$#\n"
         "\\end{tabular}\n"
         "}\n"

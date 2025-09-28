@@ -87,7 +87,7 @@ public:
     bool parseAvailableLengthLimit() const
     {
         return m_state.m_availableLengthLimit;
-    }    
+    }
 
 protected:
     virtual ParseKind parseKindImpl() const override;

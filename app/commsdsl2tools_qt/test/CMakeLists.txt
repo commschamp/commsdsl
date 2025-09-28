@@ -1,6 +1,6 @@
 if ((NOT BUILD_TESTING) OR (NOT COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS))
     return ()
-endif () 
+endif ()
 
 find_package(LibComms REQUIRED)
 
@@ -50,7 +50,7 @@ foreach (name ${tests})
     set (code_input_param)
     if (EXISTS "${code_input_dir}/")
         set (code_input_param -c ${code_input_dir})
-    endif()    
+    endif()
 
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
     add_custom_target(${output_tgt} ALL
@@ -69,10 +69,10 @@ foreach (name ${tests})
         COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
 
     execute_process (
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}")          
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}")
 
     execute_process (
-        COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/dummy.txt")        
+        COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/dummy.txt")
 
     set (prot_tgt "commsdsl2comms.${name}_build_tgt")
     set (prot_install_dir "${PROJECT_BINARY_DIR}/app/commsdsl2comms/test/${name}_install")
@@ -90,18 +90,18 @@ foreach (name ${tests})
         CMAKE_GENERATOR_PLATFORM ${CMAKE_GENERATOR_PLATFORM}
         CMAKE_GENERATOR_TOOLSET ${CMAKE_GENERATOR_TOOLSET}
         LIST_SEPARATOR |
-        CMAKE_ARGS 
+        CMAKE_ARGS
             -DCMAKE_C_COMPILER=${COMMSDSL_TESTS_C_COMPILER} -DCMAKE_CXX_COMPILER=${COMMSDSL_TESTS_CXX_COMPILER}
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_EXE_LINKER_FLAGS=${CMAKE_EXE_LINKER_FLAGS}
             -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
             -DCMAKE_INSTALL_PREFIX=${install_dir}
             -DCMAKE_PREFIX_PATH=${build_prefix_path_str}
-            -DOPT_WARN_AS_ERR=ON 
+            -DOPT_WARN_AS_ERR=ON
             -DOPT_USE_CCACHE=${COMMSDSL_USE_CCACHE}
             -DOPT_CCACHE_EXECUTABLE=${COMMSDSL_CCACHE_EXECUTABLE}
             -DOPT_QT_MAJOR_VERSION=${COMMSDSL_TESTS_QT_VERSION}
-    )    
+    )
 
-    add_dependencies(${APP_NAME}.all_tests ${build_tgt})     
+    add_dependencies(${APP_NAME}.all_tests ${build_tgt})
 endforeach ()

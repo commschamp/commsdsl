@@ -37,13 +37,13 @@ public:
 protected:
     // GenBase overrides
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
     // EmscriptenBase overrides
     virtual void emscriptenHeaderAddExtraIncludesImpl(GenStringsList& incs) const override;
     virtual std::string emscriptenHeaderValueAccImpl() const override;
     virtual std::string emscriptenSourceBindValueAccImpl() const override;
-    
+
 private:
     EmscriptenField* m_element = nullptr;
 };

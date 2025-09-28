@@ -58,18 +58,18 @@ std::string CommsPayloadLayer::commsDefBaseTypeImpl([[maybe_unused]] const std::
         "comms::frame::MsgDataLayer<\n"
         "    comms::option::def::FieldType<typename #^#CLASS_NAME#$##^#SUFFIX#$#::Field>\n"
         ">";
-    
+
     util::GenReplacementMap repl {
         {"SUFFIX", strings::genMembersSuffixStr()},
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
     };
 
-    return util::genProcessTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsPayloadLayer::commsCustomDefMembersCodeImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Scope for field(s) of @ref #^#CLASS_NAME#$# layer.\n"
         "struct #^#CLASS_NAME#$##^#SUFFIX#$#\n"
         "{\n"
@@ -98,14 +98,14 @@ std::string CommsPayloadLayer::commsCustomDefMembersCodeImpl() const
         {"OPTS", "typename TOpt::" + comms::genScopeFor(*this, gen, gen.commsHasMainNamespaceInOptions(), true) + strings::genMembersSuffixStr() + "::Field"},
         {"NAME", genParseObj().parseName()},
         {"SCOPE", comms::genScopeFor(*this, gen)}
-    };     
+    };
 
     return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsPayloadLayer::commsCustomFieldOptsImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Extra options for @ref\n"
         "///     #^#SCOPE#$##^#SUFFIX#$#::Field field.\n"
         "struct #^#CLASS_NAME#$##^#SUFFIX#$#\n"
@@ -117,14 +117,14 @@ std::string CommsPayloadLayer::commsCustomFieldOptsImpl() const
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
         {"SUFFIX", strings::genMembersSuffixStr()},
         {"SCOPE", comms::genScopeFor(*this, genGenerator())}
-    };     
+    };
 
-    return util::genProcessTemplate(Templ, repl);        
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsPayloadLayer::commsCustomFieldDataViewOptsImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Extra options for @ref\n"
         "///     #^#SCOPE#$##^#SUFFIX#$#::Field field.\n"
         "struct #^#CLASS_NAME#$##^#SUFFIX#$# : public TBase::#^#OPT_SCOPE#$##^#SUFFIX#$#\n"
@@ -141,14 +141,14 @@ std::string CommsPayloadLayer::commsCustomFieldDataViewOptsImpl() const
         {"SUFFIX", strings::genMembersSuffixStr()},
         {"SCOPE", comms::genScopeFor(*this, genGenerator())},
         {"OPT_SCOPE", comms::genScopeFor(*this, genGenerator(), false, true)}
-    };     
+    };
 
-    return util::genProcessTemplate(Templ, repl);  
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsPayloadLayer::commsCustomFieldBareMetalOptsImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Extra options for @ref\n"
         "///     #^#SCOPE#$##^#SUFFIX#$#::Field field.\n"
         "struct #^#CLASS_NAME#$##^#SUFFIX#$# : public TBase::#^#OPT_SCOPE#$##^#SUFFIX#$#\n"
@@ -165,9 +165,9 @@ std::string CommsPayloadLayer::commsCustomFieldBareMetalOptsImpl() const
         {"SUFFIX", strings::genMembersSuffixStr()},
         {"SCOPE", comms::genScopeFor(*this, genGenerator())},
         {"OPT_SCOPE", comms::genScopeFor(*this, genGenerator(), false, true)}
-    };     
+    };
 
-    return util::genProcessTemplate(Templ, repl);  
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2comms

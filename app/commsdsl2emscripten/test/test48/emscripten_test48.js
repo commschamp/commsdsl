@@ -27,7 +27,7 @@ function allocHandler(instance)
         handle_message_Msg6: function(msg) {
             this.clean_Msg6();
             this.msg6 = new instance.message_Msg6(msg);
-        },        
+        },
         handle_Message: function(msg) {
             assert(false); /* should not happen */
         },
@@ -40,17 +40,17 @@ function allocHandler(instance)
             if (this.msg2) {
                 this.msg2.delete();
             }
-        },   
+        },
         clean_Msg3: function() {
             if (this.msg3) {
                 this.msg3.delete();
             }
-        }, 
+        },
         clean_Msg4: function() {
             if (this.msg4) {
                 this.msg4.delete();
             }
-        },    
+        },
         clean_Msg5: function() {
             if (this.msg5) {
                 this.msg5.delete();
@@ -60,7 +60,7 @@ function allocHandler(instance)
             if (this.msg6) {
                 this.msg6.delete();
             }
-        },               
+        },
         clean: function() {
             this.clean_Msg1();
             this.clean_Msg2();
@@ -68,8 +68,8 @@ function allocHandler(instance)
             this.clean_Msg4();
             this.clean_Msg5();
             this.clean_Msg6();
-        } 
-    });    
+        }
+    });
 
     return new DerivedHandler;
 }
@@ -113,7 +113,7 @@ function test2(instance) {
         assert(f.getValue() == 300);
         assert(f.field_short().getValue() == 0xff);
         assert(f.field_long().doesExist());
-        assert(f.field_long().field().getValue() == 300);        
+        assert(f.field_long().field().getValue() == 300);
     }
     finally {
         f.delete();

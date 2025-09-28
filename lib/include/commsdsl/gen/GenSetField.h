@@ -39,7 +39,7 @@ public:
     GenSetField(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
     virtual ~GenSetField();
 
-protected:    
+protected:
     ParseSetField genSetFieldParseObj() const;
 };
 

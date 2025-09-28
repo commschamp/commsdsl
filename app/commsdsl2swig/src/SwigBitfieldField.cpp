@@ -27,11 +27,10 @@ namespace comms = commsdsl::gen::comms;
 namespace util = commsdsl::gen::util;
 namespace strings = commsdsl::gen::strings;
 
-
 namespace commsdsl2swig
 {
 
-SwigBitfieldField::SwigBitfieldField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+SwigBitfieldField::SwigBitfieldField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     SwigBase(static_cast<GenBase&>(*this))
 {
@@ -39,7 +38,7 @@ SwigBitfieldField::SwigBitfieldField(SwigGenerator& generator, ParseField parseO
 
 bool SwigBitfieldField::genPrepareImpl()
 {
-    return 
+    return
         GenBase::genPrepareImpl() &&
         swigPrepareInternal();
 }
@@ -83,7 +82,7 @@ std::string SwigBitfieldField::swigExtraPublicFuncsDeclImpl() const
 
     auto& gen = SwigGenerator::swigCast(genGenerator());
     for (auto* m : m_swigMembers) {
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#();\n"
         ;
 
@@ -105,7 +104,7 @@ std::string SwigBitfieldField::swigExtraPublicFuncsCodeImpl() const
 
     auto& gen = SwigGenerator::swigCast(genGenerator());
     for (auto* m : m_swigMembers) {
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#()\n"
             "{\n"
             "    return static_cast<#^#CLASS_NAME#$#&>(Base::field_#^#ACC_NAME#$#());\n"
@@ -129,7 +128,7 @@ std::string SwigBitfieldField::swigExtraPublicFuncsCodeImpl() const
         valueAccCode = swigSemanticTypeLengthValueAccCode();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#VALUE_ACC#$#\n"
         "#^#MEM_ACC#$#\n";
 
@@ -145,14 +144,14 @@ void SwigBitfieldField::swigAddDefImpl(GenStringsList& list) const
 {
     for (auto* m : m_swigMembers) {
         m->swigAddDef(list);
-    }    
+    }
 }
 
 void SwigBitfieldField::swigAddMembersCodeImpl(GenStringsList& list) const
 {
     for (auto* m : m_swigMembers) {
         m->swigAddCode(list);
-    }    
+    }
 }
 
 } // namespace commsdsl2swig

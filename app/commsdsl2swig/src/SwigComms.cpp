@@ -29,14 +29,13 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-namespace 
+namespace
 {
 
 const std::string ErrorStatusClass("comms_ErrorStatus");
 const std::string OptionalModeClass("comms_field_OptionalMode");
 
-} // namespace 
-    
+} // namespace
 
 bool SwigComms::swigWrite(SwigGenerator& generator)
 {
@@ -57,7 +56,7 @@ void SwigComms::swigAddDef(GenStringsList& list)
 
 void SwigComms::swigAddCode(const SwigGenerator& generator, GenStringsList& list)
 {
-    const std::string Templ = 
+    const std::string Templ =
         "using #^#ERR_STATUS#$# = comms::ErrorStatus;\n"
         "using #^#OPT_MODE#$# = comms::field::OptionalMode;\n";
 
@@ -81,23 +80,23 @@ std::string SwigComms::swigOptionalModeClassName(const SwigGenerator& generator)
 
 bool SwigComms::swigWriteInternal() const
 {
-    auto& schema = m_swigGenerator.genProtocolSchema();        
+    auto& schema = m_swigGenerator.genProtocolSchema();
     auto swigName = schema.genMainNamespace() + ".i";
     auto filePath = util::genPathAddElem(m_swigGenerator.genGetOutputDir(), swigRelHeader());
     auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
     if (!m_swigGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     m_swigGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
         m_swigGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }     
+    }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "enum class #^#ERR_STATUS#$#\n"
@@ -120,7 +119,7 @@ bool SwigComms::swigWriteInternal() const
         "    Missing,\n"
         "    NumOfModes\n"
         "};\n"
-        ;      
+        ;
 
     util::GenReplacementMap repl = {
         {"GENERATED", SwigGenerator::swigFileGeneratedComment()},

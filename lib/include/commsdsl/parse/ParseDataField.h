@@ -41,7 +41,7 @@ public:
         unsigned m_deprecatedSince = ParseProtocol::parseNotYetDeprecated();
     };
 
-    using ParseValidValuesList = std::vector<ParseValidValueInfo>;    
+    using ParseValidValuesList = std::vector<ParseValidValueInfo>;
 
     explicit ParseDataField(const ParseDataFieldImpl* impl);
     explicit ParseDataField(ParseField field);

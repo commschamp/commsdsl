@@ -32,7 +32,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2c
 {
 
-namespace 
+namespace
 {
 
 std::intmax_t cMaxLimitValStrInternal(commsdsl::parse::ParseIntField::ParseType value, std::size_t len)
@@ -58,8 +58,8 @@ std::intmax_t cMaxLimitValStrInternal(commsdsl::parse::ParseIntField::ParseType 
     if (TypeMapSize <= idx) {
         assert(false); // Should not happen
         return 0;
-    }   
-    
+    }
+
     auto& typeVal = TypeMap[idx];
     if (typeVal != 0) {
         return typeVal;
@@ -80,13 +80,12 @@ std::intmax_t cMaxLimitValStrInternal(commsdsl::parse::ParseIntField::ParseType 
     }
 
     auto base = static_cast<decltype(idx)>(commsdsl::parse::ParseIntField::ParseType::Int64);
-    return TypeMap[base + offset];     
+    return TypeMap[base + offset];
 }
 
-} // namespace 
-    
+} // namespace
 
-CEnumField::CEnumField(CGenerator& generator, ParseField parseObj, GenElem* parent) : 
+CEnumField::CEnumField(CGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     CBase(static_cast<GenBase&>(*this))
 {
@@ -100,7 +99,7 @@ CEnumField::GenStringsList CEnumField::cEnumValues(const std::string& forcedPref
     if (prefix.empty()) {
         prefix = cName() + '_' + strings::genValueTypeStr() + '_';
     }
-    
+
     auto& revValues = genSortedRevValues();
     GenStringsList valuesStrings;
     valuesStrings.reserve(revValues.size() + 3);
@@ -127,7 +126,6 @@ CEnumField::GenStringsList CEnumField::cEnumValues(const std::string& forcedPref
 
         static const std::string Templ =
             "#^#NAME#$# = #^#VALUE#$#, ";
-
 
         std::string valStr = genValueToString(v.first);
         std::string docStr;
@@ -191,13 +189,13 @@ CEnumField::GenStringsList CEnumField::cEnumValues(const std::string& forcedPref
             auto parseObj = genEnumFieldParseObj();
             valuesStrings.push_back(
                 createValueStrFunc(
-                    prefix + "TypeValuesLimit", 
+                    prefix + "TypeValuesLimit",
                     cMaxLimitValStrInternal(parseObj.parseType(), parseObj.parseMaxLength()),
-                    "Allow unknown values beyond @ref " + prefix + genValuesLimitStr()));            
+                    "Allow unknown values beyond @ref " + prefix + genValuesLimitStr()));
         }
     }
 
-    return valuesStrings;     
+    return valuesStrings;
 }
 
 bool CEnumField::genWriteImpl() const
@@ -207,10 +205,10 @@ bool CEnumField::genWriteImpl() const
 
 std::string CEnumField::cHeaderCodeImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#ENUM#$#\n"
         "#^#FUNCS#$#\n"
-        ; 
+        ;
 
     util::GenReplacementMap repl = {
         {"ENUM", cHeaderEnumInternal()},
@@ -227,14 +225,14 @@ std::string CEnumField::cSourceCodeImpl() const
 
 std::string CEnumField::cHeaderEnumInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Values enumerator for\n"
         "///     @ref #^#NAME#$# field.\n"
         "typedef enum\n"
         "{\n"
         "    #^#VALUES#$#\n"
-        "} #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$#;\n"   
-        ; 
+        "} #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$#;\n"
+        ;
 
     util::GenReplacementMap repl = {
         {"NAME", cName()},
@@ -244,7 +242,7 @@ std::string CEnumField::cHeaderEnumInternal() const
 
     if (cIsVersionOptional()) {
         repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
-    }    
+    }
 
     return util::genProcessTemplate(Templ, repl);
 }

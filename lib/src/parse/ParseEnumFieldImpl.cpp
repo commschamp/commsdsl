@@ -37,7 +37,7 @@ namespace
 
 const std::size_t ParseBitsInByte =
         std::numeric_limits<std::uint8_t>::digits;
-static_assert(ParseBitsInByte == 8U, "Invalid assumption");    
+static_assert(ParseBitsInByte == 8U, "Invalid assumption");
 
 } // namespace
 
@@ -376,7 +376,7 @@ bool ParseEnumFieldImpl::parseUpdateBitLength()
     if (!ok) {
         parseReportUnexpectedPropertyValue(common::parseBitLengthStr(), valStr);
         return false;
-    }    
+    }
 
     if (!parseValidateBitLengthValue(m_state.m_bitLength)) {
         return false;
@@ -632,7 +632,7 @@ bool ParseEnumFieldImpl::parseUpdateHexAssign()
     auto& valueStr = common::parseGetStringProp(parseProps(), common::parseHexAssignStr());
     if (valueStr.empty()) {
         return true;
-    }    
+    }
 
     if (!ParseIntFieldImpl::parseIsTypeUnsigned(m_state.m_type)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
@@ -686,7 +686,6 @@ bool ParseEnumFieldImpl::parseStrToValue(
         return true;
     }
 
-
     bool ok = false;
     if (ParseIntFieldImpl::parseIsBigUnsigned(m_state.m_type)) {
         val = static_cast<std::intmax_t>(common::parseStrToUintMax(str, &ok));
@@ -696,7 +695,6 @@ bool ParseEnumFieldImpl::parseStrToValue(
     }
     return ok;
 }
-
 
 } // namespace parse
 

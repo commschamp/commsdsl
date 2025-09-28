@@ -49,7 +49,7 @@
                 <construct value="%Flags.M2 = 1" />
             </and>
         </construct>
-    </message>    
+    </message>
 
     <message name="Msg4" id="MsgId.Msg4" reuse="Msg3" constructAsValidCond="true">
         <construct value="%Flags.M3 = 1" />

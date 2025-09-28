@@ -52,7 +52,7 @@ public:
     std::string cCommsTypeName() const;
 
 protected:
-    virtual bool genPrepareImpl() override;    
+    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;
 
 private:
@@ -60,8 +60,8 @@ private:
 
     bool cWriteHeaderInternal() const;
     bool cWriteSourceInternal() const;
-    bool cWriteCommsHeaderInternal() const;    
-    
+    bool cWriteCommsHeaderInternal() const;
+
     std::string cHeaderIncludesInternal() const;
     std::string cHeaderFieldsInternal() const;
     std::string cHeaderCodeInternal() const;
@@ -72,7 +72,7 @@ private:
     std::string cCommsHeaderFieldsInternal() const;
     std::string cCommsHeaderCodeInternal() const;
 
-    CFieldsList m_cFields;        
+    CFieldsList m_cFields;
 };
 
 } // namespace commsdsl2c

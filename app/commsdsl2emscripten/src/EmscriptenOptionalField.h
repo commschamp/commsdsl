@@ -39,7 +39,7 @@ public:
 protected:
     // GenBase overrides
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
     // EmscriptenBase overrides
     virtual void emscriptenHeaderAddExtraIncludesImpl(GenStringsList& incs) const override;
@@ -49,7 +49,7 @@ protected:
     virtual std::string emscriptenSourceBindFuncsImpl() const override;
 
 private:
-    const EmscriptenField* m_field = nullptr;    
+    const EmscriptenField* m_field = nullptr;
 };
 
 } // namespace commsdsl2emscripten

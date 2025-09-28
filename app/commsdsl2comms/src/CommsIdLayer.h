@@ -35,12 +35,12 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
-    
+
     // CommsBase overrides
     virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
     virtual bool commsDefHasInputMessagesImpl() const override;
-    virtual bool commsIsCustomizableImpl() const override;    
+    virtual bool commsIsCustomizableImpl() const override;
     virtual GenStringsList commsExtraBareMetalDefaultOptionsImpl() const override;
     virtual GenStringsList commsExtraMsgFactoryDefaultOptionsImpl() const override;
 };

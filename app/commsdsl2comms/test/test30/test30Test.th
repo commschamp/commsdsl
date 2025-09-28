@@ -31,9 +31,9 @@ public:
 
 void TestSuite::test1()
 {
-    static const std::uint8_t Buf[] = 
+    static const std::uint8_t Buf[] =
     {
-        1, 
+        1,
         8,
         5, (std::uint8_t)'h', (std::uint8_t)'e', (std::uint8_t)'l', (std::uint8_t)'l', (std::uint8_t)'o',
         0x1, 0x2,
@@ -54,9 +54,9 @@ void TestSuite::test1()
     TS_ASSERT_EQUALS(msg->field_f1().field_length().value(), 8U);
     TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
 
-    static const std::uint8_t ExpBuf[] = 
+    static const std::uint8_t ExpBuf[] =
     {
-        1, 
+        1,
         6,
         5, (std::uint8_t)'h', (std::uint8_t)'e', (std::uint8_t)'l', (std::uint8_t)'l', (std::uint8_t)'o',
         0xab, 0xcd
@@ -76,9 +76,9 @@ void TestSuite::test1()
 
 void TestSuite::test2()
 {
-    static const std::uint8_t Buf[] = 
+    static const std::uint8_t Buf[] =
     {
-        2, 
+        2,
         8,
         5, (std::uint8_t)'h', (std::uint8_t)'e', (std::uint8_t)'l', (std::uint8_t)'l', (std::uint8_t)'o',
         0x1, 0x2,
@@ -99,9 +99,9 @@ void TestSuite::test2()
     TS_ASSERT_EQUALS(msg->field_f1().field_length().value(), 8U);
     TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
 
-    static const std::uint8_t ExpBuf[] = 
+    static const std::uint8_t ExpBuf[] =
     {
-        2, 
+        2,
         6,
         5, (std::uint8_t)'h', (std::uint8_t)'e', (std::uint8_t)'l', (std::uint8_t)'l', (std::uint8_t)'o',
         0xab, 0xcd

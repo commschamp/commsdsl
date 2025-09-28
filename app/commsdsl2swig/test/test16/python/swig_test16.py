@@ -18,7 +18,7 @@ class MsgHandler(test16.MsgHandler):
     def handle_message_Msg2(self, msg):
         self.msg2 = True
         if (self.testObj is not None):
-            self.testObj.msg2 = test16.message_Msg2(msg)            
+            self.testObj.msg2 = test16.message_Msg2(msg)
 
     def handle_Message(self, msg):
         sys.exit("shouldn't happen")
@@ -49,7 +49,7 @@ class TestProtocol(unittest.TestCase):
         f4Vec = m.field_f4().field().value()
         f4Vec.resize(2)
         f4Vec[0].setValue(0x8888)
-        f4Vec[1].setValue(0x9999)        
+        f4Vec[1].setValue(0x9999)
 
         m.refresh() # Just in case
 
@@ -64,8 +64,6 @@ class TestProtocol(unittest.TestCase):
         self.assertTrue(h.msg1)
         self.assertTrue(test16.eq_message_Msg1(self.msg1, m))
 
-
 if __name__ == '__main__':
     unittest.main()
-
 

@@ -17,7 +17,7 @@
 
 #include "commsdsl/gen/GenGenerator.h"
 
-namespace commsdsl2test 
+namespace commsdsl2test
 {
 
 class TestGenerator final : public commsdsl::gen::GenGenerator
@@ -26,7 +26,7 @@ public:
     static const std::string& testFileGeneratedComment();
 
 protected:
-    virtual bool genWriteImpl() override;    
+    virtual bool genWriteImpl() override;
 
 private:
     bool testWriteExtraFilesInternal() const;

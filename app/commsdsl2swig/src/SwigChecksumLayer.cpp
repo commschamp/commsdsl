@@ -20,7 +20,7 @@
 namespace commsdsl2swig
 {
 
-SwigChecksumLayer::SwigChecksumLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+SwigChecksumLayer::SwigChecksumLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     SwigBase(static_cast<GenBase&>(*this))
 {

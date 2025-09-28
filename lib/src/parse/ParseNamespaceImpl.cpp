@@ -214,7 +214,7 @@ ParseNamespaceImpl::ParseMessagesList ParseNamespaceImpl::parseMessagesList() co
         result.begin(), result.end(),
         [](auto& e1, auto& e2) {
             return e1.parseName() < e2.parseName();
-        });    
+        });
     return result;
 }
 
@@ -231,7 +231,7 @@ ParseNamespaceImpl::ParseInterfacesList ParseNamespaceImpl::parseInterfacesList(
         result.begin(), result.end(),
         [](auto& e1, auto& e2) {
             return e1.parseName() < e2.parseName();
-        });    
+        });
     return result;
 }
 
@@ -248,7 +248,7 @@ ParseNamespaceImpl::ParseFramesList ParseNamespaceImpl::parseFramesList() const
         result.begin(), result.end(),
         [](auto& e1, auto& e2) {
             return e1.parseName() < e2.parseName();
-        });    
+        });
     return result;
 }
 
@@ -469,7 +469,7 @@ bool ParseNamespaceImpl::parseValidateAllMessages(bool allowNonUniquIds)
             }
 
             return msg1.parseOrder() < msg2.parseOrder();
-        });    
+        });
 
     if (allMsgs.empty()) {
         return true;
@@ -747,11 +747,11 @@ bool ParseNamespaceImpl::parseUpdateDisplayName()
 
     if ((!m_displayName.empty()) && (!m_protocol.parseIsNamespaceDisplayNameSupported())) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The property \"" << propName << "\" of namespace is not supported for dslVersion=" << 
-                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << propName << "\" of namespace is not supported for dslVersion=" <<
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";
         m_displayName.clear();
     }
-    
+
     return true;
 }
 
@@ -800,7 +800,6 @@ ParseLogWrapper ParseNamespaceImpl::parseLogInfo() const
 {
     return commsdsl::parse::parseLogInfo(m_protocol.parseLogger());
 }
-
 
 } // namespace parse
 

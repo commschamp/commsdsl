@@ -16,7 +16,7 @@
             <validValue name="Val2" val="1" />
             <validValue name="Val3" val="0xfffe" />
             <validValue name="Val4" val="0xffff" />
-        </enum>        
+        </enum>
     </fields>
 
     <message name="Msg1" id="MsgId.M1">

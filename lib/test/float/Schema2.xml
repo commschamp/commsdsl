@@ -13,7 +13,7 @@
                 <validValue value="inf" />
                 <validValue value="Nan" />
                 <endian>Big</endian>
-            </float>        
+            </float>
         </fields>
     </ns>
 </schema>

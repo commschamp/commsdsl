@@ -33,7 +33,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-namespace 
+namespace
 {
 
 std::string emscriptenCodeInternal(EmscriptenGenerator& generator, std::size_t idx)
@@ -60,7 +60,7 @@ std::string emscriptenCodeInternal(EmscriptenGenerator& generator, std::size_t i
         return scope;
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#SCOPE#$#T<\n"
         "    #^#NEXT#$#\n"
         ">";
@@ -69,12 +69,12 @@ std::string emscriptenCodeInternal(EmscriptenGenerator& generator, std::size_t i
         {"SCOPE", std::move(scope)},
         {"NEXT", std::move(nextScope)}
     };
-    
+
     return util::genProcessTemplate(Templ, repl);
 }
 
-} // namespace 
-  
+} // namespace
+
 std::string EmscriptenProtocolOptions::emscriptenClassName(const EmscriptenGenerator& generator)
 {
     if (!emscriptenIsDefined(generator)) {
@@ -113,7 +113,7 @@ bool EmscriptenProtocolOptions::emscriptenWrite(EmscriptenGenerator& generator)
 EmscriptenProtocolOptions::EmscriptenProtocolOptions(EmscriptenGenerator& generator) :
     m_emscriptenGenerator(generator)
 {
-}    
+}
 
 bool EmscriptenProtocolOptions::emscriptenWriteHeaderInternal()
 {
@@ -134,7 +134,7 @@ bool EmscriptenProtocolOptions::emscriptenWriteHeaderInternal()
     }
 
     const std::string Templ =
-        "#^#GENERATED#$#\n" 
+        "#^#GENERATED#$#\n"
         "#^#INCLUDES#$#\n"
         "#^#DEF#$#\n"
     ;
@@ -151,15 +151,15 @@ bool EmscriptenProtocolOptions::emscriptenWriteHeaderInternal()
         m_emscriptenGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
 std::string EmscriptenProtocolOptions::emscriptenTypeDefInternal()
 {
     assert(m_emscriptenGenerator.genIsCurrentProtocolSchema());
 
-    const std::string Templ = 
+    const std::string Templ =
         "using #^#OPT_TYPE#$# =\n"
         "    #^#MSG_FACT_OPTS#$#T<\n"
         "        #^#CODE#$#\n"

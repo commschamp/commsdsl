@@ -54,7 +54,7 @@ void CErrorStatus::cAddSourceFiles(const CGenerator& generator, GenStringsList& 
 bool CErrorStatus::cWrite(CGenerator& generator)
 {
     CErrorStatus obj(generator);
-    return 
+    return
         obj.cWriteHeaderInternal() &&
         obj.cWriteSourceInternal();
 }
@@ -62,7 +62,7 @@ bool CErrorStatus::cWrite(CGenerator& generator)
 CErrorStatus::CErrorStatus(CGenerator& generator) :
     m_cGenerator(generator)
 {
-}    
+}
 
 bool CErrorStatus::cWriteHeaderInternal()
 {
@@ -82,7 +82,7 @@ bool CErrorStatus::cWriteHeaderInternal()
     }
 
     const std::string Templ =
-        "#^#GENERATED#$#\n" 
+        "#^#GENERATED#$#\n"
         "#pragma once\n"
         "\n"
         "#^#CPP_GUARD_BEGIN#$#\n"
@@ -110,7 +110,7 @@ bool CErrorStatus::cWriteHeaderInternal()
         {"GENERATED", CGenerator::cFileGeneratedComment()},
         {"NAME", cName(m_cGenerator)},
         {"CPP_GUARD_BEGIN", CGenerator::cCppGuardBegin(false)},
-        {"CPP_GUARD_END", CGenerator::cCppGuardEnd()},           
+        {"CPP_GUARD_END", CGenerator::cCppGuardEnd()},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -119,8 +119,8 @@ bool CErrorStatus::cWriteHeaderInternal()
         m_cGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
 bool CErrorStatus::cWriteSourceInternal()
@@ -141,7 +141,7 @@ bool CErrorStatus::cWriteSourceInternal()
     }
 
     const std::string Templ =
-        "#^#GENERATED#$#\n" 
+        "#^#GENERATED#$#\n"
         "#include \"#^#HEADER#$#\"\n\n"
         "#include \"comms/ErrorStatus.h\"\n\n"
         "namespace\n"
@@ -178,8 +178,8 @@ bool CErrorStatus::cWriteSourceInternal()
         m_cGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
 } // namespace commsdsl2c

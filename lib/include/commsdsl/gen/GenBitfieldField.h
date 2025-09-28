@@ -42,7 +42,7 @@ public:
 
     const GenFieldsList& genMembers() const;
 
-protected:    
+protected:
     virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl() override;
     virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;

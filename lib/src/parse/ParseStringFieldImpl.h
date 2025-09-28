@@ -109,7 +109,7 @@ private:
     bool parseCheckPrefixFromRef();
     bool parseCheckPrefixAsChild();
     bool parseCheckValidValueAsAttr(const ParsePropsMap& xmlAttrs);
-    bool parseCheckValidValueAsChild(::xmlNodePtr child);    
+    bool parseCheckValidValueAsChild(::xmlNodePtr child);
     const ParseFieldImpl* parseGetPrefixField() const;
     bool parseStrToValue(const std::string& str, std::string& val) const;
 

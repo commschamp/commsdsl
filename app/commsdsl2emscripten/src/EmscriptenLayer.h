@@ -62,13 +62,13 @@ protected:
 
     std::string emscriptenTemplateScope() const;
 
-private:    
+private:
     std::string emscriptenHeaderFieldDefInternal() const;
     std::string emscriptenHeaderClassDefInternal() const;
     std::string emscriptenFieldClassNameInternal() const;
     std::string emscriptenSourceFieldBindInternal() const;
     std::string emscriptenSourceCodeInternal() const;
-    
+
 private:
     commsdsl::gen::GenLayer& m_genLayer;
 };

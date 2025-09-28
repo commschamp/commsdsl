@@ -11,7 +11,7 @@
 
         <ref field="@ext1.S1" />
     </fields>
-    
+
     <message name="Msg1" id="MsgId.M1">
         <ref field="@ext1.I1" name="F1" />
         <ref field="S1" name="F2"/>
@@ -32,10 +32,10 @@
     <message name="Msg2" id="MsgId.M2">
         <int name="F1" reuse="@ext2.I1" />
         <string name="F2" reuse="@ext2.S1" />
-    </message>    
+    </message>
 
     <frame name="Frame">
         <id name="Id" field="MsgId" />
         <payload name="Data" />
-    </frame>     
+    </frame>
 </schema>

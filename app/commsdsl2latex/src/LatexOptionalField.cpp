@@ -28,9 +28,9 @@ namespace commsdsl2latex
 
 LatexOptionalField::LatexOptionalField(LatexGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
-    LatexBase(static_cast<GenBase&>(*this)) 
+    LatexBase(static_cast<GenBase&>(*this))
 {
-}   
+}
 
 bool LatexOptionalField::latexIsPassThroughToMember() const
 {
@@ -89,19 +89,18 @@ std::string LatexOptionalField::latexInfoDetailsImpl() const
     auto* actField = genMemberField();
     if (actField == nullptr) {
         actField = genExternalField();
-    }    
+    }
 
     assert(actField != nullptr);
     return ("\\textbf{Same As} & \\nameref{" + LatexField::latexCast(actField)->latexRefLabelId() + "}");
 }
-
 
 std::string LatexOptionalField::latexExtraDetailsImpl() const
 {
     if (latexIsPassThroughToMember()) {
         assert(false); // Should not be called
         return strings::genEmptyString();
-    }    
+    }
 
     auto* memField = genMemberField();
     if (memField != nullptr) {
@@ -116,7 +115,7 @@ const std::string& LatexOptionalField::latexFieldKindImpl() const
     auto* actField = genMemberField();
     if (actField == nullptr) {
         actField = genExternalField();
-    }    
+    }
 
     assert(actField != nullptr);
     return LatexField::latexCast(actField)->latexFieldKind();

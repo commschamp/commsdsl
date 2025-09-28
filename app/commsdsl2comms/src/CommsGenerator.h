@@ -17,7 +17,7 @@
 
 #include "commsdsl/gen/GenGenerator.h"
 
-namespace commsdsl2comms 
+namespace commsdsl2comms
 {
 
 class CommsGenerator final : public commsdsl::gen::GenGenerator
@@ -43,7 +43,7 @@ public:
         Limited,
         None,
         NumOfValues
-    };    
+    };
 
     static const CommsGenerator& commsCast(const commsdsl::gen::GenGenerator& ref)
     {
@@ -97,15 +97,15 @@ protected:
     virtual GenLayerPtr genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
     virtual GenLayerPtr genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
 
-    virtual bool genWriteImpl() override;    
+    virtual bool genWriteImpl() override;
     virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
 
 private:
     bool commsPrepareExtraMessageBundlesInternal();
     bool commsWriteExtraFilesInternal() const;
-    
+
     static const CommsCustomizationLevel DefaultCustomizationLevel = CommsCustomizationLevel::Limited;
-    CommsCustomizationLevel m_customizationLevel = DefaultCustomizationLevel;    
+    CommsCustomizationLevel m_customizationLevel = DefaultCustomizationLevel;
     std::string m_protocolVersion;
     std::vector<std::string> m_extraInputBundles;
     CommsExtraMessageBundlesList m_commsExtraMessageBundles;

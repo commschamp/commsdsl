@@ -38,7 +38,7 @@ namespace
 
 const std::size_t BitsInByte =
         std::numeric_limits<std::uint8_t>::digits;
-static_assert(BitsInByte == 8U, "Invalid assumption");    
+static_assert(BitsInByte == 8U, "Invalid assumption");
 
 static_assert(
     static_cast<std::intmax_t>(std::numeric_limits<std::uintmax_t>::max()) == -1,
@@ -47,7 +47,6 @@ static_assert(
 static_assert(
     static_cast<std::uintmax_t>(std::intmax_t(-1)) == std::numeric_limits<std::uintmax_t>::max(),
     "The code expects 2's compliment negative integers representation.");
-
 
 template <typename T>
 constexpr std::intmax_t parseMinValueForType()
@@ -314,7 +313,6 @@ ParseFieldImpl::ParseKind ParseIntFieldImpl::parseKindImpl() const
 {
     return ParseKind::Int;
 }
-
 
 ParseFieldImpl::ParsePtr ParseIntFieldImpl::parseCloneImpl() const
 {
@@ -600,7 +598,6 @@ bool ParseIntFieldImpl::parseUpdateLength()
 
     m_state.m_length = newLength;
 
-
     assert(0U < maxLength);
 
     if (maxLength < m_state.m_length) {
@@ -785,8 +782,8 @@ bool ParseIntFieldImpl::parseUpdateDefaultValidValue()
     }
 
     if (!parseProtocol().parseIsPropertySupported(prop)) {
-        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) << 
-            "Property \"" << prop << "\" is not supported for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion() << ", ignoring...";        
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "Property \"" << prop << "\" is not supported for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion() << ", ignoring...";
         return true;
     }
 
@@ -799,7 +796,7 @@ bool ParseIntFieldImpl::parseUpdateDefaultValidValue()
     info.m_min = m_state.m_defaultValue;
     info.m_max = m_state.m_defaultValue;
     info.m_sinceVersion = parseGetSinceVersion();
-    info.m_deprecatedSince = parseGetDeprecated();    
+    info.m_deprecatedSince = parseGetDeprecated();
     m_state.m_validRanges.push_back(info);
     return true;
 }
@@ -1707,7 +1704,6 @@ bool ParseIntFieldImpl::parseUpdateDefaultValueInternal(const std::string& value
 
     return checkValueFunc(val);
 }
-
 
 } // namespace parse
 

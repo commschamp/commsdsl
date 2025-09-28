@@ -41,7 +41,6 @@ const ParseXmlWrap::ParseNamesList& parseFrameSupportedTypes()
     return Names;
 }
 
-
 } // namespace
 
 ParseFrameImpl::ParseFrameImpl(::xmlNodePtr node, ParseProtocolImpl& protocol)
@@ -209,8 +208,8 @@ bool ParseFrameImpl::parseUpdateDisplayName()
 
     if ((!parseDisplayName().empty()) && (!m_protocol.parseIsFrameDisplayNameSupported())) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The property \"" << propName << "\" of frame is not supported for dslVersion=" << 
-                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << propName << "\" of frame is not supported for dslVersion=" <<
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";
         m_displayName = &common::parseEmptyString();
     }
     return true;
@@ -343,7 +342,6 @@ bool ParseFrameImpl::parseUpdateExtraChildren()
     m_extraChildren = ParseXmlWrap::parseGetExtraChildren(m_node, ChildrenNames, m_protocol);
     return true;
 }
-
 
 } // namespace parse
 

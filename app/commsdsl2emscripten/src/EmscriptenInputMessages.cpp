@@ -32,12 +32,12 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2emscripten
 {
 
-namespace 
+namespace
 {
 
 const std::string EmscriptenFwdSuffix("Fwd");
 
-} // namespace 
+} // namespace
 
 EmscriptenInputMessages::EmscriptenInputMessages(EmscriptenGenerator& generator, const EmscriptenNamespace& parent) :
     m_emscriptenGenerator(generator),
@@ -47,8 +47,8 @@ EmscriptenInputMessages::EmscriptenInputMessages(EmscriptenGenerator& generator,
 
 bool EmscriptenInputMessages::emscriptenWrite() const
 {
-    return 
-        emscriptenWriteHeaderInternal() && 
+    return
+        emscriptenWriteHeaderInternal() &&
         emscriptenWriteHeaderFwdInternal();
 }
 
@@ -74,14 +74,14 @@ bool EmscriptenInputMessages::emscriptenWriteHeaderInternal() const
     assert(!dirPath.empty());
     if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     m_emscriptenGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
         m_emscriptenGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }     
+    }
 
     util::GenStringsList includes = {
         "<tuple>"
@@ -104,7 +104,7 @@ bool EmscriptenInputMessages::emscriptenWriteHeaderInternal() const
 
     comms::genPrepareIncludeStatement(includes);
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#GENERATED#$#\n\n"
         "#^#INCLUDES#$#\n"
         "using #^#CLASS_NAME#$# =\n"
@@ -138,14 +138,14 @@ bool EmscriptenInputMessages::emscriptenWriteHeaderFwdInternal() const
     assert(!dirPath.empty());
     if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     m_emscriptenGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
         m_emscriptenGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }     
+    }
 
     util::GenStringsList msgs;
 
@@ -161,7 +161,7 @@ bool EmscriptenInputMessages::emscriptenWriteHeaderFwdInternal() const
         msgs.push_back("class " + m_emscriptenGenerator.emscriptenClassName(*castMsg) + ";");
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#GENERATED#$#\n\n"
         "#^#MSGS#$#\n"
         ;
@@ -181,6 +181,5 @@ bool EmscriptenInputMessages::emscriptenWriteHeaderFwdInternal() const
 
     return true;
 }
-
 
 } // namespace commsdsl2emscripten

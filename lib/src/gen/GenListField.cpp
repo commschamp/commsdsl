@@ -21,7 +21,6 @@
 
 #include <cassert>
 
-
 namespace commsdsl
 {
 
@@ -33,7 +32,7 @@ class GenListFieldImpl
 public:
     using ParseListField = GenListField::ParseListField;
 
-    GenListFieldImpl(GenGenerator& generator, ParseListField parseObj, GenElem* parent): 
+    GenListFieldImpl(GenGenerator& generator, ParseListField parseObj, GenElem* parent):
         m_generator(generator),
         m_parseObj(parseObj),
         m_parent(parent)
@@ -80,7 +79,7 @@ public:
                 return false;
             }
 
-        } while (false);   
+        } while (false);
 
         do {
             if (!m_parseObj.parseHasLengthPrefixField()) {
@@ -105,8 +104,8 @@ public:
                 (comms::genClassName(m_memberElementField->genName()) == comms::genClassName(m_memberLengthPrefixField->genName()))) {
                 m_generator.genLogger().genError("Length prefix and element fields of \"" + m_parseObj.parseName() + "\" list must have different names.");
                 return false;
-            }            
-        } while (false);  
+            }
+        } while (false);
 
         do {
             if (!m_parseObj.parseHasElemLengthPrefixField()) {
@@ -129,21 +128,21 @@ public:
                 (comms::genClassName(m_memberElementField->genName()) == comms::genClassName(m_memberElemLengthPrefixField->genName()))) {
                 m_generator.genLogger().genError("Element length prefix and element fields of \"" + m_parseObj.parseName() + "\" list must have different names.");
                 return false;
-            }  
+            }
 
             if ((m_memberCountPrefixField) &&
                 (comms::genClassName(m_memberCountPrefixField->genName()) == comms::genClassName(m_memberElemLengthPrefixField->genName()))) {
                 m_generator.genLogger().genError("Element length prefix and count prefix fields of \"" + m_parseObj.parseName() + "\" list must have different names.");
                 return false;
-            } 
+            }
 
             if ((m_memberLengthPrefixField) &&
                 (comms::genClassName(m_memberLengthPrefixField->genName()) == comms::genClassName(m_memberElemLengthPrefixField->genName()))) {
                 m_generator.genLogger().genError("Element length prefix and list length prefix fields of \"" + m_parseObj.parseName() + "\" list must have different names.");
                 return false;
-            }                                
+            }
 
-        } while (false);   
+        } while (false);
 
         do {
             if (!m_parseObj.parseHasTermSuffixField()) {
@@ -170,8 +169,8 @@ public:
                 (comms::genClassName(m_memberElementField->genName()) == comms::genClassName(m_memberTermSuffixField->genName()))) {
                 m_generator.genLogger().genError("Termination suffix and element fields of \"" + m_parseObj.parseName() + "\" list must have different names.");
                 return false;
-            }            
-        } while (false);                          
+            }
+        } while (false);
 
         return true;
     }
@@ -234,7 +233,7 @@ public:
     const GenField* genMemberLengthPrefixField() const
     {
         return m_memberLengthPrefixField.get();
-    } 
+    }
 
     GenField* genExternalElemLengthPrefixField()
     {
@@ -254,7 +253,7 @@ public:
     const GenField* genMemberElemLengthPrefixField() const
     {
         return m_memberElemLengthPrefixField.get();
-    }     
+    }
 
     GenField* genExternalTermSuffixField()
     {
@@ -264,7 +263,7 @@ public:
     const GenField* genExternalTermSuffixField() const
     {
         return m_externalTermSuffixField;
-    }             
+    }
 
     GenField* genMemberTermSuffixField()
     {
@@ -274,7 +273,7 @@ public:
     const GenField* genMemberTermSuffixField() const
     {
         return m_memberTermSuffixField.get();
-    }   
+    }
 
     void genSetReferenced()
     {
@@ -283,11 +282,11 @@ public:
         GenField::genSetFieldReferencedIfExists(m_externalCountPrefixField);
         GenField::genSetFieldReferencedIfExists(m_memberCountPrefixField.get());
         GenField::genSetFieldReferencedIfExists(m_externalLengthPrefixField);
-        GenField::genSetFieldReferencedIfExists(m_memberLengthPrefixField.get());    
+        GenField::genSetFieldReferencedIfExists(m_memberLengthPrefixField.get());
         GenField::genSetFieldReferencedIfExists(m_externalElemLengthPrefixField);
-        GenField::genSetFieldReferencedIfExists(m_memberElemLengthPrefixField.get());   
+        GenField::genSetFieldReferencedIfExists(m_memberElemLengthPrefixField.get());
         GenField::genSetFieldReferencedIfExists(m_externalTermSuffixField);
-        GenField::genSetFieldReferencedIfExists(m_memberTermSuffixField.get());                     
+        GenField::genSetFieldReferencedIfExists(m_memberTermSuffixField.get());
     }
 
 private:
@@ -297,14 +296,14 @@ private:
     GenField* m_externalElementField = nullptr;
     GenFieldPtr m_memberElementField;
     GenField* m_externalCountPrefixField = nullptr;
-    GenFieldPtr m_memberCountPrefixField;    
+    GenFieldPtr m_memberCountPrefixField;
     GenField* m_externalLengthPrefixField = nullptr;
-    GenFieldPtr m_memberLengthPrefixField;   
+    GenFieldPtr m_memberLengthPrefixField;
     GenField* m_externalElemLengthPrefixField = nullptr;
-    GenFieldPtr m_memberElemLengthPrefixField;        
+    GenFieldPtr m_memberElemLengthPrefixField;
     GenField* m_externalTermSuffixField = nullptr;
     GenFieldPtr m_memberTermSuffixField = nullptr;
-};    
+};
 
 GenListField::GenListField(GenGenerator& generator, ParseField parseObj, GenElem* parent) :
     Base(generator, parseObj, parent),
@@ -373,7 +372,7 @@ GenField* GenListField::genMemberLengthPrefixField()
 const GenField* GenListField::genMemberLengthPrefixField() const
 {
     return m_impl->genMemberLengthPrefixField();
-} 
+}
 
 GenField* GenListField::genExternalElemLengthPrefixField()
 {

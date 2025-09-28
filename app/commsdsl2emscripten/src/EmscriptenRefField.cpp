@@ -30,7 +30,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenRefField::EmscriptenRefField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+EmscriptenRefField::EmscriptenRefField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     EmscriptenBase(static_cast<GenBase&>(*this))
 {
@@ -55,7 +55,7 @@ std::string EmscriptenRefField::emscriptenHeaderValueAccImpl() const
 
 std::string EmscriptenRefField::emscriptenHeaderExtraPublicFuncsImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#REF_FIELD#$#* ref()\n"
         "{\n"
         "    return\n"
@@ -82,7 +82,7 @@ std::string EmscriptenRefField::emscriptenSourceBindValueAccImpl() const
 
 std::string EmscriptenRefField::emscriptenSourceBindFuncsImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         ".function(\"ref\", &#^#CLASS_NAME#$#::ref, emscripten::allow_raw_pointers())";
 
     util::GenReplacementMap repl = {
@@ -91,6 +91,5 @@ std::string EmscriptenRefField::emscriptenSourceBindFuncsImpl() const
 
     return util::genProcessTemplate(Templ, repl);
 }
-
 
 } // namespace commsdsl2emscripten

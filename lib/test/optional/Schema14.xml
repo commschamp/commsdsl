@@ -5,7 +5,7 @@
     <fields>
         <int name="I1" type="uint8">
             <special name="S1" val="5" />
-        </int>    
+        </int>
         <bundle name="Bundle1">
             <ref name="Mem1" field="I1" />
             <optional name= "Opt1">

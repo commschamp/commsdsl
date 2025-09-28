@@ -43,104 +43,104 @@ std::string genAccessName(const std::string& name);
 std::string genFullNameFor(const GenElem& elem);
 
 std::string genScopeFor(
-    const GenElem& elem, 
-    const GenGenerator& generator, 
-    bool addMainNamespace = true, 
+    const GenElem& elem,
+    const GenGenerator& generator,
+    bool addMainNamespace = true,
     bool addElement = true);
 
 std::string genCommonScopeFor(
-    const GenElem& elem, 
-    const GenGenerator& generator, 
-    bool addMainNamespace = true, 
-    bool addElement = true);    
+    const GenElem& elem,
+    const GenGenerator& generator,
+    bool addMainNamespace = true,
+    bool addElement = true);
 
 std::string genScopeForOptions(
-    const std::string& name, 
-    const GenGenerator& generator, 
-    bool addMainNamespace = true, 
-    bool addElement = true);  
+    const std::string& name,
+    const GenGenerator& generator,
+    bool addMainNamespace = true,
+    bool addElement = true);
 
 std::string genScopeForInput(
-    const std::string& name, 
-    const GenGenerator& generator, 
+    const std::string& name,
+    const GenGenerator& generator,
     const GenNamespace& ns,
-    bool addMainNamespace = true, 
-    bool addElement = true);  
+    bool addMainNamespace = true,
+    bool addElement = true);
 
 std::string genScopeForFactory(
-    const std::string& name, 
-    const GenGenerator& generator, 
+    const std::string& name,
+    const GenGenerator& generator,
     const GenNamespace& ns,
-    bool addMainNamespace = true, 
-    bool addElement = true);      
+    bool addMainNamespace = true,
+    bool addElement = true);
 
 std::string genScopeForDispatch(
-    const std::string& name, 
-    const GenGenerator& generator, 
+    const std::string& name,
+    const GenGenerator& generator,
     const GenNamespace& ns,
-    bool addMainNamespace = true, 
-    bool addElement = true);    
+    bool addMainNamespace = true,
+    bool addElement = true);
 
 std::string genScopeForMsgId(
-    const std::string& name, 
-    const GenGenerator& generator, 
+    const std::string& name,
+    const GenGenerator& generator,
     const GenNamespace& ns,
-    bool addMainNamespace = true, 
-    bool addElement = true);     
+    bool addMainNamespace = true,
+    bool addElement = true);
 
 std::string genScopeForNamespaceMember(
-    const std::string& name, 
-    const GenGenerator& generator, 
+    const std::string& name,
+    const GenGenerator& generator,
     const GenNamespace& ns,
-    bool addMainNamespace = true, 
-    bool addElement = true);      
+    bool addMainNamespace = true,
+    bool addElement = true);
 
 std::string genScopeForRoot(
-    const std::string& name, 
-    const GenGenerator& generator, 
-    bool addMainNamespace = true, 
+    const std::string& name,
+    const GenGenerator& generator,
+    bool addMainNamespace = true,
     bool addElement = true);
 
 std::string genScopeForChecksum(
-    const std::string& name, 
-    const GenGenerator& generator, 
-    bool addMainNamespace = true, 
-    bool addElement = true);    
+    const std::string& name,
+    const GenGenerator& generator,
+    bool addMainNamespace = true,
+    bool addElement = true);
 
 std::string genScopeForCustomLayer(
-    const GenElem& elem, 
-    const GenGenerator& generator, 
-    bool addMainNamespace = true, 
-    bool addElement = true);      
+    const GenElem& elem,
+    const GenGenerator& generator,
+    bool addMainNamespace = true,
+    bool addElement = true);
 
 std::string genRelHeaderPathFor(const GenElem& elem, const GenGenerator& generator, bool addMainNamespace = true);
 std::string genRelSourcePathFor(const GenElem& elem, const GenGenerator& generator, bool addMainNamespace = true);
 std::string genRelCommonHeaderPathFor(const GenElem& elem, const GenGenerator& generator);
-std::string genRelHeaderPathForField(const std::string& name, const GenGenerator& generator); 
-std::string genRelHeaderForOptions(const std::string& name, const GenGenerator& generator, bool addMainNamespace = true); 
-std::string genRelHeaderForDispatch(const std::string& name, const GenGenerator& generator, const GenNamespace& ns); 
+std::string genRelHeaderPathForField(const std::string& name, const GenGenerator& generator);
+std::string genRelHeaderForOptions(const std::string& name, const GenGenerator& generator, bool addMainNamespace = true);
+std::string genRelHeaderForDispatch(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
 std::string genRelHeaderForFactory(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
 std::string genRelHeaderForMsgId(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
 std::string genRelHeaderForNamespaceMember(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
 std::string genRelSourceForNamespaceMember(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
-std::string genRelHeaderForLayer(const std::string& name, const GenGenerator& generator); 
-std::string genRelHeaderForChecksum(const std::string& name, const GenGenerator& generator); 
-std::string genRelHeaderForInput(const std::string& name, const GenGenerator& generator, const GenNamespace& ns, bool addMainNamespace = true); 
-std::string genRelHeaderForRoot(const std::string& name, const GenGenerator& generator, bool addMainNamespace = true); 
-std::string genRelSourceForRoot(const std::string& name, const GenGenerator& generator, bool addMainNamespace = true); 
+std::string genRelHeaderForLayer(const std::string& name, const GenGenerator& generator);
+std::string genRelHeaderForChecksum(const std::string& name, const GenGenerator& generator);
+std::string genRelHeaderForInput(const std::string& name, const GenGenerator& generator, const GenNamespace& ns, bool addMainNamespace = true);
+std::string genRelHeaderForRoot(const std::string& name, const GenGenerator& generator, bool addMainNamespace = true);
+std::string genRelSourceForRoot(const std::string& name, const GenGenerator& generator, bool addMainNamespace = true);
 
 std::string genHeaderPathFor(const GenElem& elem, const GenGenerator& generator);
 std::string genSourcePathFor(const GenElem& elem, const GenGenerator& generator);
-std::string genHeaderPathForField(const std::string& name, const GenGenerator& generator); 
-std::string genHeaderPathForInput(const std::string& name, const GenGenerator& generator, const GenNamespace& ns); 
-std::string genHeaderPathForOptions(const std::string& name, const GenGenerator& generator); 
-std::string genHeaderPathForDispatch(const std::string& name, const GenGenerator& generator, const GenNamespace& ns); 
-std::string genHeaderPathForFactory(const std::string& name, const GenGenerator& generator, const GenNamespace& ns); 
-std::string genHeaderPathForMsgId(const std::string& name, const GenGenerator& generator, const GenNamespace& ns); 
+std::string genHeaderPathForField(const std::string& name, const GenGenerator& generator);
+std::string genHeaderPathForInput(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
+std::string genHeaderPathForOptions(const std::string& name, const GenGenerator& generator);
+std::string genHeaderPathForDispatch(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
+std::string genHeaderPathForFactory(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
+std::string genHeaderPathForMsgId(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
 std::string genCommonHeaderPathFor(const GenElem& elem, const GenGenerator& generator);
 std::string genHeaderPathRoot(const std::string& name, const GenGenerator& generator);
 std::string genSourcePathRoot(const std::string& name, const GenGenerator& generator);
-std::string genPathForDoc(const std::string& name, const GenGenerator& generator); 
+std::string genPathForDoc(const std::string& name, const GenGenerator& generator);
 
 std::string genInputCodePathFor(const GenElem& elem, const GenGenerator& generator);
 std::string genInputCodePathForRoot(const std::string& name, const GenGenerator& generator);
@@ -150,14 +150,14 @@ std::string genInputCodePathForInput(const std::string& name, const GenGenerator
 std::string genInputCodePathForFactory(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
 
 std::string genNamespaceBeginFor(
-    const GenElem& elem, 
-    const GenGenerator& generator);           
+    const GenElem& elem,
+    const GenGenerator& generator);
 
 std::string genNamespaceEndFor(
-    const GenElem& elem, 
-    const GenGenerator& generator);     
+    const GenElem& elem,
+    const GenGenerator& generator);
 
-void genPrepareIncludeStatement(std::vector<std::string>& includes); 
+void genPrepareIncludeStatement(std::vector<std::string>& includes);
 
 const std::string& genCppIntTypeFor(commsdsl::parse::ParseIntField::ParseType value, std::size_t len);
 std::string genCppIntChangedSignTypeFor(commsdsl::parse::ParseIntField::ParseType value, std::size_t len);

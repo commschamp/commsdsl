@@ -1,6 +1,6 @@
 if ((NOT BUILD_TESTING) OR (NOT COMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN_TESTS))
     return ()
-endif () 
+endif ()
 
 set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2comms/test)
 set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
@@ -44,7 +44,7 @@ foreach (name ${tests})
     set (code_input_param)
     if (EXISTS "${code_input_dir}/")
         set (code_input_param -c ${code_input_dir})
-    endif()    
+    endif()
 
     set (output_dir ${CMAKE_CURRENT_BINARY_DIR}/${name})
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
@@ -58,22 +58,22 @@ foreach (name ${tests})
 
     if ("${CMAKE_VERSION}" VERSION_GREATER_EQUAL 3.15)
         set_target_properties(${output_tgt} PROPERTIES ADDITIONAL_CLEAN_FILES "${output_dir}.tmp;${output_dir}")
-    endif ()            
+    endif ()
 
-    add_dependencies(${APP_NAME}.all_tests ${output_tgt})         
+    add_dependencies(${APP_NAME}.all_tests ${output_tgt})
 
     set (build_tgt ${APP_NAME}.${name}_build_tgt)
     set (build_dir ${output_dir}_build)
     set (install_dir ${build_dir}/install)
     set (prot_include_dir "${PROJECT_BINARY_DIR}/app/commsdsl2comms/test/${name}_install/include")
     set (extra_includes_path ${prot_include_dir} ${comms_include_dirs})
-    string (REPLACE ";" "|" extra_includes_path_str "${extra_includes_path}")    
+    string (REPLACE ";" "|" extra_includes_path_str "${extra_includes_path}")
 
     execute_process (
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}")          
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}")
 
     execute_process (
-        COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/dummy.txt")        
+        COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/dummy.txt")
 
     ExternalProject_Add(
         ${build_tgt}
@@ -87,23 +87,23 @@ foreach (name ${tests})
         CMAKE_GENERATOR_PLATFORM ${CMAKE_GENERATOR_PLATFORM}
         CMAKE_GENERATOR_TOOLSET ${CMAKE_GENERATOR_TOOLSET}
         LIST_SEPARATOR |
-        CMAKE_ARGS 
+        CMAKE_ARGS
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_INSTALL_PREFIX=${install_dir}
             -DOPT_MODULARIZE=ON
             -DOPT_EXTRA_INCLUDE_DIRS=${extra_includes_path_str}
             -DOPT_USE_CCACHE=${COMMSDSL_USE_CCACHE}
-            -DOPT_CCACHE_EXECUTABLE=${COMMSDSL_CCACHE_EXECUTABLE}            
-    )     
+            -DOPT_CCACHE_EXECUTABLE=${COMMSDSL_CCACHE_EXECUTABLE}
+    )
 
-    add_dependencies(${APP_NAME}.all_tests ${build_tgt})     
+    add_dependencies(${APP_NAME}.all_tests ${build_tgt})
 
     if (EXISTS ${this_test_dir}/emscripten_${name}.js)
         add_test(
             NAME ${APP_NAME}.${name}
             COMMAND ${NODE_EXECUTABLE} ${extra_node_params} ${this_test_dir}/emscripten_${name}.js
             WORKING_DIRECTORY ${build_dir}
-        )    
+        )
 
         set_property(TEST ${APP_NAME}.${name} PROPERTY ENVIRONMENT "NODE_PATH=${install_dir}/js")
     endif ()

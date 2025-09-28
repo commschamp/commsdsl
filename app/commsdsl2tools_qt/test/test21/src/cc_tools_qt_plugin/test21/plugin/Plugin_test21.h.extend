@@ -10,5 +10,5 @@ public:
     virtual ~Plugin_test21();
 
 protected:
-    virtual ListOfGuiActions createGuiActionsImpl() override;    
+    virtual ListOfGuiActions createGuiActionsImpl() override;
 };

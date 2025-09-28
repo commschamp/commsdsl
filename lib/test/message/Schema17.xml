@@ -6,7 +6,7 @@
     <platform name="p1" />
     <platform name="p2" />
     <platform name="p3" />
-    
+
     <ns name="ns1">
         <fields>
             <enum name="MsgId" type="uint8">

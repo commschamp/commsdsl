@@ -63,7 +63,7 @@ public:
     const std::string& parseDisplayName() const
     {
         return m_displayName;
-    }    
+    }
 
     const std::string& parseDescription() const
     {
@@ -120,13 +120,13 @@ public:
         return m_namespaces;
     }
 
-    ParseNamespacesList parseNamespacesList() const;    
+    ParseNamespacesList parseNamespacesList() const;
 
     const ParseFieldImpl* parseFindField(const std::string& ref, bool checkRef = true) const;
 
     const ParseMessageImpl* parseFindMessage(const std::string& ref, bool checkRef = true) const;
 
-    const ParseInterfaceImpl* parseFindInterface(const std::string& ref, bool checkRef = true) const;    
+    const ParseInterfaceImpl* parseFindInterface(const std::string& ref, bool checkRef = true) const;
 
     const ParsePlatformsList& parsePlatforms() const
     {
@@ -149,7 +149,7 @@ public:
     ParseFieldRefInfosList parseProcessInterfaceFieldRef(const std::string& refStr) const;
 
 protected:
-    virtual ParseObjKind parseObjKindImpl() const override;    
+    virtual ParseObjKind parseObjKindImpl() const override;
 
 private:
 

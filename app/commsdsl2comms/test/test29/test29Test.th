@@ -12,7 +12,7 @@ class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
-    void test2();    
+    void test2();
     void test3();
 
     using Interface =
@@ -35,32 +35,32 @@ public:
 
     TEST29_ALIASES_FOR_ALL_MESSAGES(DV_,,Interface, DV_Options);
     using DV_AllMessages = test29::input::AllMessages<Interface, DV_Options>;
-    using DV_Frame = test29::frame::Frame<Interface, DV_AllMessages, DV_Options>;    
+    using DV_Frame = test29::frame::Frame<Interface, DV_AllMessages, DV_Options>;
 
-#if COMMS_HAS_CPP17_STRING_VIEW 
+#if COMMS_HAS_CPP17_STRING_VIEW
     static_assert(std::is_same<DV_Msg1::Field_f1::ValueType, std::string_view>::value, "Unexpected type");
     static_assert(std::is_same<DV_Msg2::Field_f1::ValueType, std::string_view>::value, "Unexpected type");
 #else
     static_assert(std::is_same<DV_Msg1::Field_f1::ValueType, comms::util::StringView>::value, "Unexpected type");
     static_assert(std::is_same<DV_Msg2::Field_f1::ValueType, comms::util::StringView>::value, "Unexpected type");
-#endif    
+#endif
 
-#if COMMS_HAS_CPP20_SPAN 
+#if COMMS_HAS_CPP20_SPAN
     static_assert(std::is_same<DV_Msg1::Field_f2::ValueType, std::span<std::uint8_t> >::value, "Unexpected type");
     static_assert(std::is_same<DV_Msg2::Field_f2::ValueType, std::span<std::uint8_t> >::value, "Unexpected type");
 #else
     static_assert(std::is_same<DV_Msg1::Field_f2::ValueType, comms::util::ArrayView<std::uint8_t> >::value, "Unexpected type");
     static_assert(std::is_same<DV_Msg2::Field_f2::ValueType, comms::util::ArrayView<std::uint8_t> >::value, "Unexpected type");
-#endif  
+#endif
 };
 
 void TestSuite::test1()
 {
-    static const std::uint8_t Buf1[] = 
+    static const std::uint8_t Buf1[] =
     {
-        1, 
+        1,
         (std::uint8_t)'h', (std::uint8_t)'e', (std::uint8_t)'l', (std::uint8_t)'l', (std::uint8_t)'o',
-        0xb, 0xc, 0xd, 
+        0xb, 0xc, 0xd,
         0xaa, 0xaa, 0xbb, 0xbb
     };
     static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
@@ -79,19 +79,19 @@ void TestSuite::test1()
     TS_ASSERT_EQUALS(msg->field_f2().value()[1], 0xc);
     TS_ASSERT_EQUALS(msg->field_f2().value()[2], 0xd);
     TS_ASSERT_EQUALS(msg->field_f3().value()[0].value(), 0xaaaa);
-    TS_ASSERT_EQUALS(msg->field_f3().value()[1].value(), 0xbbbb);    
-    
+    TS_ASSERT_EQUALS(msg->field_f3().value()[1].value(), 0xbbbb);
+
     auto msg2 = frame.createMsg(test29::MsgId_M2);
     TS_ASSERT(msg2 == nullptr);
 }
 
 void TestSuite::test2()
 {
-    static const std::uint8_t Buf1[] = 
+    static const std::uint8_t Buf1[] =
     {
-        2, 
+        2,
         5, (std::uint8_t)'h', (std::uint8_t)'e', (std::uint8_t)'l', (std::uint8_t)'l', (std::uint8_t)'o',
-        3, 0xb, 0xc, 0xd, 
+        3, 0xb, 0xc, 0xd,
         2, 0xaa, 0xaa, 0xbb, 0xbb
     };
     static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
@@ -111,19 +111,19 @@ void TestSuite::test2()
     TS_ASSERT_EQUALS(msg->field_f2().value()[1], 0xc);
     TS_ASSERT_EQUALS(msg->field_f2().value()[2], 0xd);
     TS_ASSERT_EQUALS(msg->field_f3().value()[0].value(), 0xaaaa);
-    TS_ASSERT_EQUALS(msg->field_f3().value()[1].value(), 0xbbbb);    
-    
+    TS_ASSERT_EQUALS(msg->field_f3().value()[1].value(), 0xbbbb);
+
     auto msg2 = frame.createMsg(test29::MsgId_M1);
     TS_ASSERT(msg2 == nullptr);
 }
 
 void TestSuite::test3()
 {
-    static const std::uint8_t Buf1[] = 
+    static const std::uint8_t Buf1[] =
     {
-        1, 
+        1,
         (std::uint8_t)'h', (std::uint8_t)'e', (std::uint8_t)'l', (std::uint8_t)'l', (std::uint8_t)'o',
-        0xb, 0xc, 0xd, 
+        0xb, 0xc, 0xd,
         0xaa, 0xaa, 0xbb, 0xbb
     };
     static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
@@ -144,7 +144,7 @@ void TestSuite::test3()
     TS_ASSERT_EQUALS(msg->field_f2().value()[2], 0xd);
     TS_ASSERT_EQUALS(&(*msg->field_f2().value().begin()), static_cast<const void*>(&Buf1[6])); // view on orig buffer
     TS_ASSERT_EQUALS(msg->field_f3().value()[0].value(), 0xaaaa);
-    TS_ASSERT_EQUALS(msg->field_f3().value()[1].value(), 0xbbbb);    
+    TS_ASSERT_EQUALS(msg->field_f3().value()[1].value(), 0xbbbb);
 
     DV_Msg2 msg2;
     comms::util::assign(msg2.field_f1().value(), msg->field_f1().value().begin(), msg->field_f1().value().end());

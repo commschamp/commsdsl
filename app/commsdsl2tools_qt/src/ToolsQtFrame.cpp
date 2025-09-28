@@ -38,7 +38,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2tools_qt
 {
 
-namespace 
+namespace
 {
 
 const std::string ToolsProtTransportMsgSuffix("ProtTransportMessage");
@@ -53,7 +53,7 @@ ToolsQtFrame::ToolsQtLayersList toolsTransformLayersList(const commsdsl::gen::Ge
         [](auto& lPtr)
         {
             assert(lPtr);
-            auto* toolsLayer = 
+            auto* toolsLayer =
                 const_cast<ToolsQtLayer*>(
                     dynamic_cast<const ToolsQtLayer*>(lPtr.get()));
 
@@ -64,8 +64,7 @@ ToolsQtFrame::ToolsQtLayersList toolsTransformLayersList(const commsdsl::gen::Ge
     return result;
 }
 
-} // namespace 
-    
+} // namespace
 
 ToolsQtFrame::ToolsQtFrame(ToolsQtGenerator& generator, ParseFrame parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent)
@@ -91,7 +90,7 @@ ToolsQtFrame::GenStringsList ToolsQtFrame::toolsSourceFiles(const commsdsl::gen:
         return GenStringsList();
     }
 
-    return 
+    return
         GenStringsList{
             toolsRelPathInternal(iFace) + strings::genTransportMessageSuffixStr() + strings::genCppSourceSuffixStr(),
             toolsRelPathInternal(iFace) + strings::genCppSourceSuffixStr(),
@@ -101,7 +100,7 @@ ToolsQtFrame::GenStringsList ToolsQtFrame::toolsSourceFiles(const commsdsl::gen:
 std::string ToolsQtFrame::toolsClassScope(const commsdsl::gen::GenInterface& iFace) const
 {
     auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
-    return gen.toolsScopePrefixForInterface(iFace) + comms::genScopeFor(*this, gen);    
+    return gen.toolsScopePrefixForInterface(iFace) + comms::genScopeFor(*this, gen);
 }
 
 bool ToolsQtFrame::genPrepareImpl()
@@ -124,7 +123,7 @@ bool ToolsQtFrame::genWriteImpl() const
         return true;
     }
 
-    return 
+    return
         toolsWriteProtTransportMsgHeaderInternal() &&
         toolsWriteTransportMsgHeaderInternal() &&
         toolsWriteTransportMsgSrcInternal() &&
@@ -152,13 +151,13 @@ bool ToolsQtFrame::toolsWriteProtTransportMsgHeaderInternal() const
         assert(!dirPath.empty());
         if (!gen.genCreateDirectory(dirPath)) {
             return false;
-        }     
+        }
 
         std::ofstream stream(filePath);
         if (!stream) {
             logger.genError("Failed to open \"" + filePath + "\" for writing.");
             return false;
-        }  
+        }
 
         util::GenStringsList includes = {
             "<tuple>",
@@ -168,7 +167,7 @@ bool ToolsQtFrame::toolsWriteProtTransportMsgHeaderInternal() const
 
         comms::genPrepareIncludeStatement(includes);
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#GENERATED#$#\n"
             "\n"
             "#pragma once\n\n"
@@ -232,7 +231,7 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
             return false;
         }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#GENERATED#$#\n"
             "\n"
             "#pragma once\n\n"
@@ -297,7 +296,7 @@ bool ToolsQtFrame::toolsWriteSrcInternal() const
             return false;
         }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#GENERATED#$#\n"
             "\n"
             "#include \"#^#CLASS_NAME#$#.h\"\n\n"
@@ -365,7 +364,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
             return false;
         }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#GENERATED#$#\n"
             "\n"
             "#pragma once\n\n"
@@ -387,7 +386,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
             {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*info.first)},
             {"DEF", toolsTransportMsgHeaderDefInternal()},
         };
-        
+
         stream << util::genProcessTemplate(Templ, repl, true);
         stream.flush();
         if (!stream.good()) {
@@ -421,7 +420,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
             return false;
         }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#GENERATED#$#\n"
             "\n"
             "#include \"#^#CLASS_NAME#$##^#SUFFIX#$#.h\"\n\n"
@@ -461,10 +460,9 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
             return false;
         }
     }
-    
+
     return true;
 }
-
 
 unsigned ToolsQtFrame::toolsCalcBackPayloadOffsetInternal() const
 {
@@ -494,7 +492,7 @@ std::string ToolsQtFrame::toolsRelPathInternal(const commsdsl::gen::GenInterface
 
 std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::GenInterface& iFace) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "template <typename TOpt>\n"
         "struct #^#CLASS_NAME#$##^#SUFFIX#$##^#FIELDS_SUFFIX#$#\n"
         "{\n"
@@ -537,7 +535,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::
             continue;
         }
 
-        fields.push_back(lScope + "::Field");  
+        fields.push_back(lScope + "::Field");
     }
 
     util::GenReplacementMap repl = {
@@ -549,7 +547,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::
         {"READ_FUNC", toolsProtTransportMsgReadFuncInternal(iFace)},
     };
 
-    static const std::string BaseTempl = 
+    static const std::string BaseTempl =
         "cc_tools_qt::ToolsTransportProtMessageBase<\n"
         "    TMsgBase,\n"
         "    typename #^#CLASS_NAME#$##^#SUFFIX#$##^#FIELDS_SUFFIX#$#<TOpt>::All,\n"
@@ -596,7 +594,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::
             break;
         }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "template <typename TIter>\n"
             "comms::ErrorStatus doRead(TIter& iter, std::size_t len)\n"
             "{\n"
@@ -614,7 +612,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::
             {"IDX", util::genNumToString(readUntilIdx)},
         };
 
-        readCode = util::genProcessTemplate(Templ, repl);  
+        readCode = util::genProcessTemplate(Templ, repl);
     } while (false);
 
     return readCode;
@@ -622,7 +620,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::
 
 std::string ToolsQtFrame::toolsTransportMsgHeaderDefInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "class #^#CLASS_NAME#$#Impl;\n"
         "class #^#CLASS_NAME#$# : public cc_tools_qt::ToolsMessage\n"
         "{\n"
@@ -654,7 +652,7 @@ std::string ToolsQtFrame::toolsTransportMsgHeaderDefInternal() const
         "    using ImplPtr = std::unique_ptr<#^#CLASS_NAME#$#Impl>;\n\n"
         "    #^#CLASS_NAME#$#(ImplPtr&& impl);\n\n"
         "    ImplPtr m_pImpl;\n"
-        "};";    
+        "};";
 
     util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName()) + strings::genTransportMessageSuffixStr()},
@@ -665,7 +663,7 @@ std::string ToolsQtFrame::toolsTransportMsgHeaderDefInternal() const
 
 std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::GenInterface& iFace) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "class #^#CLASS_NAME#$#Impl : public\n"
         "    cc_tools_qt::ToolsTransportMessageBase<\n"
         "        #^#INTERFACE#$#,\n"
@@ -702,7 +700,7 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::G
         "bool #^#CLASS_NAME#$#::refreshMsgImpl()\n"
         "{\n"
         "    return m_pImpl->refreshMsg();\n"
-        "}\n\n"        
+        "}\n\n"
         "qlonglong #^#CLASS_NAME#$#::numericIdImpl() const\n"
         "{\n"
         "    return m_pImpl->numericId();\n"
@@ -730,37 +728,37 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::G
         "#^#CLASS_NAME#$#::DataSeq #^#CLASS_NAME#$#::encodeDataImpl() const\n"
         "{\n"
         "    return m_pImpl->encodeData();\n"
-        "}\n\n"    
+        "}\n\n"
         "bool #^#CLASS_NAME#$#::decodeDataImpl(const DataSeq& data)\n"
         "{\n"
         "    return m_pImpl->decodeData(data);\n"
-        "}\n\n"    
+        "}\n\n"
         "#^#CLASS_NAME#$#::Ptr #^#CLASS_NAME#$#::cloneImpl() const\n"
         "{\n"
         "    ImplPtr impl(static_cast<#^#CLASS_NAME#$#Impl*>(m_pImpl->clone().release()));\n"
         "    return Ptr(new #^#CLASS_NAME#$#(std::move(impl)));\n"
-        "}\n\n" 
+        "}\n\n"
         "void #^#CLASS_NAME#$#::assignProtMessageImpl(void* protMsg)\n"
         "{\n"
         "    m_pImpl->assignProtMessage(protMsg);\n"
-        "}\n\n"   
+        "}\n\n"
         "#^#CLASS_NAME#$#::DataSeq #^#CLASS_NAME#$#::encodeFramedImpl(cc_tools_qt::ToolsFrame& frame) const\n"
         "{\n"
         "    return m_pImpl->encodeFramed(frame);\n"
-        "}\n\n"     
+        "}\n\n"
         "#^#CLASS_NAME#$#::FieldsList #^#CLASS_NAME#$#::transportFieldsImpl()\n"
         "{\n"
         "    return m_pImpl->transportFields();\n"
-        "}\n\n"     
+        "}\n\n"
         "#^#CLASS_NAME#$#::FieldsList #^#CLASS_NAME#$#::payloadFieldsImpl()\n"
         "{\n"
         "    return m_pImpl->payloadFields();\n"
-        "}\n\n" 
+        "}\n\n"
         "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#(ImplPtr&& impl) :\n"
         "    m_pImpl(std::move(impl))\n"
         "{\n"
         "}\n\n"
-        ;    
+        ;
 
     auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
 
@@ -770,7 +768,7 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::G
         {"INTERFACE", ToolsQtInterface::toolsCast(iFace).toolsClassScope()},
     };
 
-    auto idLayerIter = 
+    auto idLayerIter =
         std::find_if(
             m_toolsLayers.begin(), m_toolsLayers.end(),
             [](auto* l)
@@ -791,19 +789,19 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::G
 
     if (idLayerIter != m_toolsLayers.end()) {
         auto idName = comms::genAccessName((*idLayerIter)->toolsGenLayer().genParseObj().parseName());
-        repl["ID_FUNC"] = 
+        repl["ID_FUNC"] =
             "virtual qlonglong numericIdImpl() const override\n"
             "{\n"
             "    return static_cast<qlonglong>(msg().field_" + idName + "().getValue());\n"
             "}\n";
     }
 
-    return util::genProcessTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string ToolsQtFrame::toolsFrameHeaderDefInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "class #^#CLASS_NAME#$#Impl;\n"
         "class #^#CLASS_NAME#$# : public cc_tools_qt::ToolsFrame\n"
         "{\n"
@@ -835,7 +833,7 @@ std::string ToolsQtFrame::toolsFrameHeaderDefInternal() const
 
 std::string ToolsQtFrame::toolsFrameSrcDefInternal(const commsdsl::gen::GenInterface& iFace) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "namespace\n"
         "{\n"
         "using Prot#^#CLASS_NAME#$# =\n"
@@ -849,7 +847,7 @@ std::string ToolsQtFrame::toolsFrameSrcDefInternal(const commsdsl::gen::GenInter
         "class #^#CLASS_NAME#$#Impl : public\n"
         "   cc_tools_qt::ToolsFrameBase<\n"
         "       #^#INTERFACE#$#,\n"
-        "       Prot#^#CLASS_NAME#$#,\n" 
+        "       Prot#^#CLASS_NAME#$#,\n"
         "       #^#MSG_FACTORY#$#,\n"
         "       #^#TRANSPORT_MSG#$#\n"
         "   >\n"
@@ -884,15 +882,15 @@ std::string ToolsQtFrame::toolsFrameSrcDefInternal(const commsdsl::gen::GenInter
         "cc_tools_qt::ToolsMessagesList #^#CLASS_NAME#$#::createAllMessagesImpl()\n"
         "{\n"
         "    return m_pImpl->createAllMessages();\n"
-        "}\n\n"        
+        "}\n\n"
         "cc_tools_qt::ToolsMessagePtr #^#CLASS_NAME#$#::createMessageImpl(const QString& idAsString, unsigned idx)\n"
         "{\n"
         "    return m_pImpl->createMessage(idAsString, idx);\n"
-        "}\n\n" 
-        "#^#CLASS_NAME#$#::DataSeq #^#CLASS_NAME#$#::writeProtMsgImpl(const void* protInterface)\n"         
+        "}\n\n"
+        "#^#CLASS_NAME#$#::DataSeq #^#CLASS_NAME#$#::writeProtMsgImpl(const void* protInterface)\n"
         "{\n"
         "    return m_pImpl->writeProtMsg(protInterface);\n"
-        "}\n\n" 
+        "}\n\n"
         ;
 
     auto& gen = ToolsQtGenerator::toolsCast(genGenerator());

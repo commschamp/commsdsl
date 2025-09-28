@@ -39,7 +39,7 @@ public:
         {
             static_cast<void>(msg);
             ++m_msg2Received;
-        }        
+        }
 
         void handle(Interface& msg)
         {
@@ -71,7 +71,7 @@ void TestSuite::test1()
 
     TS_ASSERT_EQUALS(handler.m_msg1Received, 1U);
     TS_ASSERT_EQUALS(handler.m_msg2Received, 0U);
-    TS_ASSERT_EQUALS(handler.m_unrecognizedReceived, 0U); 
+    TS_ASSERT_EQUALS(handler.m_unrecognizedReceived, 0U);
 }
 
 void TestSuite::test2()
@@ -91,5 +91,5 @@ void TestSuite::test2()
 
     TS_ASSERT_EQUALS(handler.m_msg1Received, 0U);
     TS_ASSERT_EQUALS(handler.m_msg2Received, 1U);
-    TS_ASSERT_EQUALS(handler.m_unrecognizedReceived, 0U); 
+    TS_ASSERT_EQUALS(handler.m_unrecognizedReceived, 0U);
 }

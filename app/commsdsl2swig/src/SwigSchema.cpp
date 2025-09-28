@@ -31,11 +31,10 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-
 SwigSchema::SwigSchema(SwigGenerator& generator, ParseSchema parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent)
 {
-}   
+}
 
 SwigSchema::~SwigSchema() = default;
 

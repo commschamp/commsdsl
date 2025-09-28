@@ -30,7 +30,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2c
 {
 
-CVariantField::CVariantField(CGenerator& generator, ParseField parseObj, GenElem* parent) : 
+CVariantField::CVariantField(CGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     CBase(static_cast<GenBase&>(*this))
 {

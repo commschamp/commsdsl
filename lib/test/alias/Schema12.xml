@@ -8,7 +8,7 @@
                     <int name="M1" type="uint8" bitLength="4"/>
                     <int name="M2" type="uint8" bitLength="4"/>
                 </bitfield>
-                
+
             </members>
             <alias name="A1" field="$F1" />
             <alias name="A2" field="$F2.M1." />

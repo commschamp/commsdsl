@@ -30,7 +30,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigIntField::SwigIntField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+SwigIntField::SwigIntField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     SwigBase(static_cast<GenBase&>(*this))
 {
@@ -43,7 +43,7 @@ bool SwigIntField::genWriteImpl() const
 
 std::string SwigIntField::swigValueTypeDeclImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "using ValueType = #^#TYPE#$#;\n";
 
     auto obj = genIntFieldParseObj();
@@ -56,7 +56,7 @@ std::string SwigIntField::swigValueTypeDeclImpl() const
 
 std::string SwigIntField::swigExtraPublicFuncsDeclImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "static bool hasSpecials();\n"
         "#^#SCPECIALS#$#\n"
         "#^#DISPLAY_DECIMALS#$#\n"
@@ -101,7 +101,7 @@ std::string SwigIntField::swigSpecialsDeclInternal() const
         };
 
         specialsList.push_back(util::genProcessTemplate(Templ, repl));
-    }    
+    }
 
     return util::genStrListToString(specialsList, "", "");
 }
@@ -147,13 +147,13 @@ std::string SwigIntField::swigScaledFuncsCodeInternal() const
     if ((num == 1) && (denom == 1)) {
         return strings::genEmptyString();
     }
-        
-    static const std::string Templ = 
+
+    static const std::string Templ =
         "double getScaled() const { return Base::getScaled<double>(); }\n"
         "void setScaled(double val) {Base::setScaled(val); }\n"
     ;
 
-    return Templ;        
+    return Templ;
 }
 
 } // namespace commsdsl2swig

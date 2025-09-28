@@ -111,17 +111,17 @@ public:
     bool parseIsFixedValue() const
     {
         return m_state.m_fixedValue;
-    }    
+    }
 
     bool parseIsCustomizable() const
     {
         return m_state.m_customizable;
-    }    
+    }
 
     bool parseIsFailOnInvalid() const
     {
         return m_state.m_failOnInvalid;
-    }    
+    }
 
     bool parseIsForceGen() const
     {
@@ -131,7 +131,7 @@ public:
     ParseOverrideType parseValueOverride() const
     {
         return m_state.m_valueOverride;
-    }    
+    }
 
     ParseOverrideType parseReadOverride() const
     {
@@ -141,7 +141,7 @@ public:
     ParseOverrideType parseWriteOverride() const
     {
         return m_state.m_writeOverride;
-    }    
+    }
 
     ParseOverrideType parseRefreshOverride() const
     {
@@ -161,7 +161,7 @@ public:
     ParseOverrideType parseNameOverride() const
     {
         return m_state.m_nameOverride;
-    }    
+    }
 
     const std::string& parseCopyCodeFrom() const
     {

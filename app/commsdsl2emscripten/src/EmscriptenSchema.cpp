@@ -24,7 +24,7 @@ namespace commsdsl2emscripten
 EmscriptenSchema::EmscriptenSchema(EmscriptenGenerator& generator, ParseSchema parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent)
 {
-}   
+}
 
 EmscriptenSchema::~EmscriptenSchema() = default;
 
@@ -35,6 +35,5 @@ void EmscriptenSchema::emscriptenAddSourceFiles(GenStringsList& sources) const
         n->emscriptenAddSourceFiles(sources);
     }
 }
-
 
 } // namespace commsdsl2emscripten

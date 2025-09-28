@@ -72,7 +72,7 @@ bool Latex::latexWriteInternal()
             break;
         }
 
-        const std::string Templ = 
+        const std::string Templ =
             "#^#GEN_COMMENT#$#\n"
             "#^#REPLACE_COMMENT#$#\n"
             "#^#DOCUMENT#$#\n"
@@ -96,13 +96,13 @@ bool Latex::latexWriteInternal()
         };
 
         if (m_latexGenerator.latexHasCodeInjectionComments()) {
-            repl["REPLACE_COMMENT"] = 
+            repl["REPLACE_COMMENT"] =
                 m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
-        };        
+        };
 
         auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
         stream << str;
-    } while (false); 
+    } while (false);
 
     stream.flush();
     if (!stream.good()) {
@@ -134,7 +134,7 @@ bool Latex::latexWriteCfgInternal()
             break;
         }
 
-        const std::string Templ = 
+        const std::string Templ =
             "#^#GEN_COMMENT#$#\n"
             "#^#REPLACE_COMMENT#$#\n"
             "\\Preamble{xhtml}\n"
@@ -148,13 +148,13 @@ bool Latex::latexWriteCfgInternal()
         };
 
         if (m_latexGenerator.latexHasCodeInjectionComments()) {
-            repl["REPLACE_COMMENT"] = 
+            repl["REPLACE_COMMENT"] =
                 m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
-        };        
+        };
 
         auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
         stream << str;
-    } while (false); 
+    } while (false);
 
     stream.flush();
     if (!stream.good()) {
@@ -173,14 +173,14 @@ std::string Latex::latexDocumentInternal() const
         return replaceContents;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#REPLACE_COMMENT#$#\n"
         "\\documentclass{article}\n"
     ;
 
     util::GenReplacementMap repl;
     if (m_latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] = 
+        repl["REPLACE_COMMENT"] =
             m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace document class definition with \"" + replaceFileName + "\".";
     };
 
@@ -195,7 +195,7 @@ std::string Latex::latexPackageInternal() const
         return replaceContents;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#REPLACE_COMMENT#$#\n"
         "\\usepackage[T1]{fontenc}\n"
         "\\usepackage[colorlinks]{hyperref}\n"
@@ -216,7 +216,7 @@ std::string Latex::latexPackageInternal() const
     };
 
     if (m_latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] = 
+        repl["REPLACE_COMMENT"] =
             m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace packages definition with \"" + replaceFileName + "\".";
 
         if (repl["APPEND"].empty()) {
@@ -235,7 +235,7 @@ std::string Latex::latexMacroInternal() const
         return replaceContents;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#REPLACE_COMMENT#$#\n"
         "% Counter for internal anchors\n"
         "\\newcounter{dummyctr}\n\n"
@@ -258,7 +258,7 @@ std::string Latex::latexMacroInternal() const
     };
 
     if (m_latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] = 
+        repl["REPLACE_COMMENT"] =
             m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace macros definition with \"" + replaceFileName + "\".";
 
         if (repl["APPEND"].empty()) {
@@ -277,12 +277,12 @@ std::string Latex::latexContentsInternal() const
         return replaceContents;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#REPLACE_COMMENT#$#\n"
         "#^#PREPEND#$#\n"
         "#^#INPUTS#$#\n"
         "#^#APPEND#$#\n"
-    ;    
+    ;
 
     util::GenStringsList schemaInputs;
     auto& schemas = m_latexGenerator.genSchemas();
@@ -298,10 +298,10 @@ std::string Latex::latexContentsInternal() const
         {"PREPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(prependFileName))},
         {"APPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(appendFileName))},
         {"INPUTS", util::genStrListToString(schemaInputs, "\n", "")},
-    }; 
-    
+    };
+
     if (m_latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] = 
+        repl["REPLACE_COMMENT"] =
             m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace document content with \"" + replaceFileName + "\".";
 
         if (repl["PREPEND"].empty()) {
@@ -310,8 +310,8 @@ std::string Latex::latexContentsInternal() const
         if (repl["APPEND"].empty()) {
             repl["APPEND"] = m_latexGenerator.latexCodeInjectCommentPrefix() + "Append generated content with \"" + appendFileName + "\".";
         }
-    }; 
-    
+    };
+
     return util::genProcessTemplate(Templ, repl);
 }
 
@@ -323,12 +323,12 @@ std::string Latex::latexTitleInternal() const
         return replaceContents;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#REPLACE_COMMENT#$#\n"
         "\\title{#^#TITLE#$#}\n"
         "\\date{\\today}\n"
         "#^#APPEND#$#\n"
-    ;    
+    ;
 
     auto& protSchema = m_latexGenerator.genProtocolSchema();
     auto title = protSchema.genParseObj().parseDisplayName();
@@ -340,17 +340,17 @@ std::string Latex::latexTitleInternal() const
     util::GenReplacementMap repl = {
         {"TITLE", std::move(title)},
         {"APPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(appendFileName))},
-    }; 
+    };
 
     if (m_latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] = 
+        repl["REPLACE_COMMENT"] =
             m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace title (whole section) with \"" + replaceFileName + "\".";
 
         if (repl["APPEND"].empty()) {
             repl["APPEND"] = m_latexGenerator.latexCodeInjectCommentPrefix() + "Append to title info with \"" + appendFileName + "\".";
         }
     };
-    
+
     return util::genProcessTemplate(Templ, repl);
 }
 

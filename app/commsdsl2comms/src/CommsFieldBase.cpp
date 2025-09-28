@@ -61,7 +61,7 @@ bool CommsFieldBase::commsWriteInternal() const
         return false;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#GENERATED#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of base class of all the fields.\n\n"
@@ -82,7 +82,7 @@ bool CommsFieldBase::commsWriteInternal() const
         "        #^#OPTIONS#$#\n"
         "    >;\n\n"
         "} // namespace field\n\n"
-        "} // namespace #^#PROT_NAMESPACE#$#\n\n";    
+        "} // namespace #^#PROT_NAMESPACE#$#\n\n";
 
     util::GenStringsList options;
     options.push_back(comms::genParseEndianToOpt(m_commsGenerator.genCurrentSchema().genSchemaEndian()));
@@ -92,8 +92,8 @@ bool CommsFieldBase::commsWriteInternal() const
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", m_commsGenerator.genCurrentSchema().genMainNamespace()},
         {"OPTIONS", util::genStrListToString(options, ",\n", "")},
-    };        
-    
+    };
+
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
 
@@ -101,8 +101,8 @@ bool CommsFieldBase::commsWriteInternal() const
         m_commsGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
 } // namespace commsdsl2comms

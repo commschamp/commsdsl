@@ -8,6 +8,6 @@
         <data name="Data50">
             <!-- Invalid use of lengthPrefix child -->
             <lengthPrefix reuse="DataLength" validMax="50" />
-        </data>    
+        </data>
     </fields>
 </schema>

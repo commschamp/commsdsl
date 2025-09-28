@@ -51,7 +51,7 @@ CommsCustomLayer::CommsIncludesList CommsCustomLayer::commsDefIncludesImpl() con
 
 std::string CommsCustomLayer::commsDefBaseTypeImpl(const std::string& prevName) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#CUSTOM_LAYER_TYPE#$#<\n"
         "    #^#FIELD_TYPE#$#,\n"
         "    #^#ID_TEMPLATE_PARAMS#$#\n"
@@ -93,7 +93,7 @@ CommsCustomLayer::GenStringsList CommsCustomLayer::commsExtraBareMetalDefaultOpt
         return
             GenStringsList{
                 "comms::option::app::InPlaceAllocation"
-            };    
+            };
     }
 
     return CommsBase::commsExtraBareMetalDefaultOptionsImpl();
@@ -105,11 +105,10 @@ CommsCustomLayer::GenStringsList CommsCustomLayer::commsExtraMsgFactoryDefaultOp
         return
             GenStringsList{
                 "comms::option::app::MsgFactoryTempl<" + commsMsgFactoryAliasInOptions(genGetParent()) + ">"
-            };    
+            };
     }
 
     return CommsBase::commsExtraMsgFactoryDefaultOptionsImpl();
 }
-
 
 } // namespace commsdsl2comms

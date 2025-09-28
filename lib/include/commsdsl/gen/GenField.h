@@ -55,11 +55,11 @@ public:
         const GenField* m_field = nullptr;
         std::string m_valueName;
         GenFieldRefType m_refType = FieldRefType_Invalid;
-    };    
+    };
 
     virtual ~GenField();
 
-    static GenPtr genCreate(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);    
+    static GenPtr genCreate(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
 
     const std::string& genDisplayName() const;
 
@@ -67,7 +67,7 @@ public:
     bool genPrepare();
     bool genWrite() const;
 
-    const ParseField& genParseObj() const;    
+    const ParseField& genParseObj() const;
 
     GenGenerator& genGenerator();
     const GenGenerator& genGenerator() const;
@@ -84,7 +84,7 @@ public:
 
     const GenNamespace* genParentNamespace() const;
 
-protected:    
+protected:
     GenField(GenGenerator& generator, const ParseField& parseObj, GenElem* parent = nullptr);
 
     virtual GenType genElemTypeImpl() const override final;
@@ -92,7 +92,6 @@ protected:
     virtual bool genWriteImpl() const;
     virtual void genSetReferencedImpl();
     virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const;
-
 
 private:
     std::unique_ptr<GenFieldImpl> m_impl;

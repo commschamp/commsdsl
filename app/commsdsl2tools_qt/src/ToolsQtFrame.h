@@ -50,7 +50,7 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
 private:
     bool toolsWriteProtTransportMsgHeaderInternal() const;

@@ -29,7 +29,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigOptionalField::SwigOptionalField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+SwigOptionalField::SwigOptionalField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     SwigBase(static_cast<GenBase&>(*this))
 {
@@ -37,7 +37,7 @@ SwigOptionalField::SwigOptionalField(SwigGenerator& generator, ParseField parseO
 
 std::string SwigOptionalField::swigDeclFuncs(const SwigGenerator& generator, const std::string& fieldType)
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "using Field = #^#FIELD_TYPE#$#;\n"
         "using Mode = #^#OPT_MODE#$#;\n\n"
         "Field& field();\n\n"
@@ -74,7 +74,6 @@ std::string SwigOptionalField::swigMembersDeclImpl() const
 
     return mem->swigClassDecl();
 }
-
 
 std::string SwigOptionalField::swigValueTypeDeclImpl() const
 {

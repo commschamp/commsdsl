@@ -10,6 +10,6 @@
         </fields>
         <alias name="A1" field="$F1" />
     </interface>
-    
+
     <interface name="I2" reuse="I1" reuseAliases="false" />
 </schema>

@@ -21,7 +21,6 @@
 #include <string>
 #include <vector>
 
-
 namespace commsdsl2emscripten
 {
 

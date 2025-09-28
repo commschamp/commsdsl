@@ -11,6 +11,6 @@
 
         <string name="String2" reuse="String1">
             <validValue value="bla4" />
-        </string>        
+        </string>
     </fields>
 </schema>

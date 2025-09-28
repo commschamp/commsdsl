@@ -21,7 +21,7 @@
 
 #include <string>
 
-namespace commsdsl2emscripten 
+namespace commsdsl2emscripten
 {
 
 class EmscriptenInterface;
@@ -30,7 +30,7 @@ class EmscriptenNamespace;
 class EmscriptenGenerator final : public commsdsl::gen::GenGenerator
 {
     using GenBase = commsdsl::gen::GenGenerator;
-    
+
 public:
     using GenElem = commsdsl::gen::GenElem;
     using GenFieldPtr = commsdsl::gen::GenFieldPtr;
@@ -43,7 +43,7 @@ public:
     using GenProgramOptions = commsdsl::gen::GenProgramOptions;
 
     EmscriptenGenerator();
-    
+
     static const std::string& emscriptenFileGeneratedComment();
 
     static EmscriptenGenerator& emscriptenCast(commsdsl::gen::GenGenerator& generator)
@@ -54,8 +54,8 @@ public:
     static const EmscriptenGenerator& emscriptenCast(const commsdsl::gen::GenGenerator& generator)
     {
         return static_cast<const EmscriptenGenerator&>(generator);
-    }    
-    
+    }
+
     std::string emscriptenClassName(const commsdsl::gen::GenElem& elem) const;
     std::string emscriptenScopeNameForRoot(const std::string& name) const;
     std::string emscriptenScopeNameForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
@@ -70,7 +70,7 @@ public:
     std::string emscriptenRelSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
     std::string emscriptenAbsSourceForRoot(const std::string& name) const;
     std::string emscriptenAbsSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
-    
+
     std::string emscriptenProtocolRelHeaderForRoot(const std::string& name) const;
     std::string emscriptenProtocolRelHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
     std::string emscriptenSchemaRelSourceForRoot(unsigned schemaIdx, const std::string& name) const;
@@ -99,7 +99,7 @@ public:
 protected:
     virtual bool genCreateCompleteImpl() override;
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() override;    
+    virtual bool genWriteImpl() override;
 
     virtual GenSchemaPtr genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, commsdsl::gen::GenElem* parent) override;
     virtual GenNamespacePtr genCreateNamespaceImpl(commsdsl::parse::ParseNamespace parseObj, commsdsl::gen::GenElem* parent) override;
@@ -118,7 +118,7 @@ protected:
     virtual GenFieldPtr genCreateListFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
     virtual GenFieldPtr genCreateRefFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
     virtual GenFieldPtr genCreateOptionalFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateVariantFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;    
+    virtual GenFieldPtr genCreateVariantFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
 
     virtual GenLayerPtr genCreateCustomLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
     virtual GenLayerPtr genCreateSyncLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;

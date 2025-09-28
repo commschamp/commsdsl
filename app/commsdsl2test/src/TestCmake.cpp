@@ -27,17 +27,15 @@
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
 
-
 namespace commsdsl2test
 {
 
-namespace 
+namespace
 {
 
 using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
 
-} // namespace 
-    
+} // namespace
 
 bool TestCmake::testWrite(TestGenerator& generator)
 {
@@ -47,9 +45,9 @@ bool TestCmake::testWrite(TestGenerator& generator)
 
 bool TestCmake::testWriteInternal() const
 {
-    auto filePath = 
+    auto filePath =
         commsdsl::gen::util::genPathAddElem(
-            m_testGenerator.genGetOutputDir(), commsdsl::gen::strings::genCmakeListsFileStr());    
+            m_testGenerator.genGetOutputDir(), commsdsl::gen::strings::genCmakeListsFileStr());
 
     m_testGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
@@ -108,7 +106,7 @@ bool TestCmake::testWriteInternal() const
         "# Other parameters:\n"
         "# OPT_TEST_RENAME - Rename the final test application.\n"
         "# OPT_TEST_OPTIONS - Class name of the options for test applications,\n"
-        "#       defaults to #^#OPTIONS_SCOPE#$#.\n"        
+        "#       defaults to #^#OPTIONS_SCOPE#$#.\n"
         "# OPT_TEST_INTERFACE - Class name of the interface for test applications,\n"
         "#       defaults to #^#INTERFACE_SCOPE#$#.\n"
         "# OPT_TEST_FRAME - Class name of the frame for test applications,\n"
@@ -137,19 +135,19 @@ bool TestCmake::testWriteInternal() const
         "    endif ()\n\n"
         "    if (NOT \"${OPT_TEST_INTERFACE_HEADER}\" STREQUAL \"\")\n"
         "        list (APPEND extra_defs -DINTERFACE_HEADER=${OPT_TEST_INTERFACE_HEADER})\n"
-        "    endif ()\n\n"        
+        "    endif ()\n\n"
         "    if (NOT \"${OPT_TEST_FRAME}\" STREQUAL \"\")\n"
         "        list (APPEND extra_defs -DFRAME=${OPT_TEST_FRAME})\n"
         "    endif ()\n\n"
         "    if (NOT \"${OPT_TEST_FRAME_HEADER}\" STREQUAL \"\")\n"
         "        list (APPEND extra_defs -DFRAME_HEADER=${OPT_TEST_FRAME_HEADER})\n"
-        "    endif ()\n\n"        
+        "    endif ()\n\n"
         "    if (NOT \"${OPT_TEST_OPTIONS}\" STREQUAL \"\")\n"
         "        list (APPEND extra_defs -DOPTIONS=${OPT_TEST_OPTIONS})\n"
         "    endif ()\n\n"
         "    if (NOT \"${OPT_TEST_OPTIONS_HEADER}\" STREQUAL \"\")\n"
         "        list (APPEND extra_defs -DOPTIONS_HEADER=${OPT_TEST_OPTIONS_HEADER})\n"
-        "    endif ()\n\n"        
+        "    endif ()\n\n"
         "    if (NOT \"${OPT_TEST_INPUT_MESSAGES}\" STREQUAL \"\")\n"
         "        list (APPEND extra_defs -DINPUT_MESSAGES=${OPT_TEST_INPUT_MESSAGES})\n"
         "    endif ()\n\n"
@@ -170,7 +168,7 @@ bool TestCmake::testWriteInternal() const
         "    )\n\n"
         "    if (TARGET ${CC_EXTERNAL_TGT})\n"
         "        add_dependencies(${name} ${CC_EXTERNAL_TGT})\n"
-        "    endif ()\n\n"        
+        "    endif ()\n\n"
         "    target_compile_options(${name} PRIVATE\n"
         "        $<$<CXX_COMPILER_ID:MSVC>:/wd4996 /bigobj>\n"
         "        $<$<CXX_COMPILER_ID:GNU>:-Wno-unused-function -ftemplate-depth=2048 -fconstexpr-depth=4096>\n"
@@ -189,10 +187,10 @@ bool TestCmake::testWriteInternal() const
         "    if (NOT \"${OPT_CCACHE_EXECUTABLE}\" STREQUAL \"\")\n"
         "        list(APPEND extra_opts CCACHE_EXECUTABLE \"${OPT_CCACHE_EXECUTABLE}\")\n"
         "    endif()\n"
-        "endif()\n\n" 
+        "endif()\n\n"
         "if (OPT_WITH_DEFAULT_SANITIZERS)\n"
         "    list(APPEND extra_opts DEFAULT_SANITIZERS)\n"
-        "endif()\n\n" 
+        "endif()\n\n"
         "include(${LibComms_DIR}/CC_Compile.cmake)\n"
         "cc_compile(${extra_opts})\n"
         "cc_msvc_force_warn_opt(/W4)\n\n"
@@ -221,8 +219,8 @@ bool TestCmake::testWriteInternal() const
         m_testGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
 } // namespace commsdsl2test

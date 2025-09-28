@@ -21,11 +21,11 @@
 #include <string>
 #include <vector>
 
-namespace commsdsl  
+namespace commsdsl
 {
 
 namespace gen
-{  
+{
 
 namespace util
 {

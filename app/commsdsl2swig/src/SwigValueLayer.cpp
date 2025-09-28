@@ -32,7 +32,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigValueLayer::SwigValueLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+SwigValueLayer::SwigValueLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     SwigBase(static_cast<GenBase&>(*this))
 {
@@ -45,7 +45,7 @@ std::string SwigValueLayer::swigDeclFuncsImpl() const
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "Field& pseudoField();\n";
 
     return Templ;
@@ -58,7 +58,7 @@ std::string SwigValueLayer::swigCodeFuncsImpl() const
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "Field& pseudoField() { return reinterpret_cast<Field&>(Base::pseudoField()); }\n";
 
     return Templ;

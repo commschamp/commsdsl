@@ -24,11 +24,11 @@ public:
             comms::option::app::ValidCheckInterface,
             comms::option::app::NameInterface,
             comms::option::app::RefreshInterface
-        >;    
+        >;
 
-    using DataViewProtOptions = test15::options::DataViewDefaultOptions;        
+    using DataViewProtOptions = test15::options::DataViewDefaultOptions;
 
-    TEST15_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface1)        
+    TEST15_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface1)
     TEST15_ALIASES_FOR_ALL_MESSAGES(DataView,,Interface1, DataViewProtOptions);
 };
 
@@ -42,14 +42,13 @@ void TestSuite::test1()
 
 void TestSuite::test2()
 {
-    using Frame = 
+    using Frame =
         test15::frame::Frame<
             Interface1,
             test15::input::AllMessages<Interface1>,
             DataViewProtOptions
         >;
 
-    
     DataViewMsg1 msg;
 
     using DataVec = std::vector<std::uint8_t>;
@@ -89,7 +88,7 @@ void TestSuite::test3()
 
     DataVec data3({0x01, 0x02, 0x09});
     comms::util::assign(msg.field_f1().value(), data3.begin(), data3.end());
-    TS_ASSERT(!msg.field_f1().valid());    
+    TS_ASSERT(!msg.field_f1().valid());
 }
 
 void TestSuite::test4()
@@ -101,7 +100,7 @@ void TestSuite::test4()
     TS_ASSERT(msg.valid());
     DataVec data({0x01, 0x02, 0x09});
     comms::util::assign(msg.field_f2().value(), data.begin(), data.end());
-    TS_ASSERT(!msg.valid());    
+    TS_ASSERT(!msg.valid());
 
     std::vector<std::uint8_t> outBuf;
     auto writeIter = std::back_inserter(outBuf);
@@ -110,7 +109,7 @@ void TestSuite::test4()
 
     auto readIter = outBuf.data();
     es = msg.doRead(readIter, outBuf.size());
-    TS_ASSERT_EQUALS(es, comms::ErrorStatus::InvalidMsgData);    
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::InvalidMsgData);
 }
 
 void TestSuite::test5()
@@ -125,7 +124,7 @@ void TestSuite::test5()
 
     comms::util::assign(msg.field_f1().value(), Data1.begin(), Data1.end());
 
-    using Frame = 
+    using Frame =
         test15::frame::Frame<
             Interface1,
             test15::input::AllMessages<Interface1>,

@@ -28,7 +28,7 @@ class ParseChecksumLayerImpl final : public ParseLayerImpl
     using Base = ParseLayerImpl;
 public:
     using ParseAlg = ParseChecksumLayer::ParseAlg;
-    
+
     ParseChecksumLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
 
     ParseAlg parseAlg() const

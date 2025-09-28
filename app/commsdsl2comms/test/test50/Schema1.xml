@@ -4,7 +4,7 @@
         Testing multiple schemas
     </description>
     <fields>
-        <int name="I1" type="uint8">        
+        <int name="I1" type="uint8">
             <special name="S1" val="0xaa" />
         </int>
 

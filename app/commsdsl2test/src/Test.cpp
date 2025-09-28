@@ -32,13 +32,12 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2test
 {
 
-namespace 
+namespace
 {
 
 using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
 
-} // namespace 
-    
+} // namespace
 
 bool Test::testWrite(TestGenerator& generator)
 {
@@ -48,7 +47,7 @@ bool Test::testWrite(TestGenerator& generator)
 
 bool Test::testWriteInputTest() const
 {
-    auto testName = 
+    auto testName =
         m_testGenerator.genCurrentSchema().genMainNamespace() + '_' + "input_test.cpp";
 
     auto filePath = util::genPathAddElem(m_testGenerator.genGetOutputDir(), testName);
@@ -63,7 +62,7 @@ bool Test::testWriteInputTest() const
     GenReplacementMap repl = {
         std::make_pair("GEN_COMMENT", m_testGenerator.testFileGeneratedComment()),
     };
-    
+
     std::string idType;
     auto allMsgIds = m_testGenerator.genCurrentSchema().genGetAllMessageIdFields();
     const commsdsl::gen::GenField* idField = nullptr;
@@ -101,7 +100,7 @@ bool Test::testWriteInputTest() const
 
     repl.insert(std::make_pair("ID_TYPE", idType));
 
-    static const std::string Template = 
+    static const std::string Template =
         "#^#GEN_COMMENT#$#\n"
         "#include <iostream>\n"
         "#include <fstream>\n"
@@ -396,7 +395,7 @@ bool Test::testWriteInputTest() const
         "            static constexpr bool Should_not_happen = false;\n"
         "            static_cast<void>(Should_not_happen);\n"
         "            assert(!Should_not_happen);\n"
-        "            exit(-1);\n"            
+        "            exit(-1);\n"
         "        }\n"
         "    }\n\n"
         "    // Handle unexpected messages\n"

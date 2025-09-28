@@ -30,7 +30,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenListField::EmscriptenListField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+EmscriptenListField::EmscriptenListField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     EmscriptenBase(static_cast<GenBase&>(*this))
 {
@@ -74,7 +74,7 @@ void EmscriptenListField::emscriptenHeaderAddExtraIncludesImpl(GenStringsList& i
 
 std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
 {
-    std::string templ = 
+    std::string templ =
         "using ValueType = std::vector<#^#ELEMENT#$#>;\n\n"
         "ValueType* value()\n"
         "{\n"
@@ -84,17 +84,17 @@ std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
         "{\n"
         "    return reinterpret_cast<const ValueType*>(&Base::getValue());\n"
         "}\n"
-        ;   
+        ;
 
     if (!emscriptenGenField().genParseObj().parseIsFixedValue()) {
-        templ += 
+        templ +=
             "\n"
             "void setValue(const ValueType& val)\n"
             "{\n"
             "    Base::setValue(*reinterpret_cast<const Base::ValueType*>(&val));\n"
             "}\n"
-            ;              
-    }             
+            ;
+    }
 
     assert(m_element != nullptr);
     auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
@@ -108,7 +108,7 @@ std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
 
 std::string EmscriptenListField::emscriptenSourceBindValueAccImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#STORAGE#$#\n"
         "#^#ACC#$#";
 
@@ -119,6 +119,5 @@ std::string EmscriptenListField::emscriptenSourceBindValueAccImpl() const
 
     return util::genProcessTemplate(Templ, repl);
 }
-
 
 } // namespace commsdsl2emscripten

@@ -31,8 +31,8 @@ namespace
 {
 const std::size_t BitsInByte =
         std::numeric_limits<std::uint8_t>::digits;
-static_assert(BitsInByte == 8U, "Invalid assumption");  
-} // namespace  
+static_assert(BitsInByte == 8U, "Invalid assumption");
+} // namespace
 
 ParseRefFieldImpl::ParseRefFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol)
   : Base(node, protocol)
@@ -242,14 +242,14 @@ bool ParseRefFieldImpl::parseUpdateBitLength()
 
         assert(m_state.m_bitLength <= maxBitLength);
         return true;
-    }    
+    }
 
     if (!parseIsBitfieldMember()) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix((parseGetNode())) <<
                         "The property \"" << common::parseBitLengthStr() << "\" is "
                         "applicable only to the members of \"" << common::parseBitparseFieldStr() << "\"";
         return true;
-    }    
+    }
 
     bool ok = false;
     m_state.m_bitLength = common::parseStrToUnsigned(valStr, &ok);
@@ -277,7 +277,6 @@ bool ParseRefFieldImpl::parseStrToValue(
     assert(m_field != nullptr);
     return forwardFunc(*m_field, ref);
 }
-
 
 } // namespace parse
 

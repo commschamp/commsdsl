@@ -35,7 +35,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2emscripten
 {
 
-namespace 
+namespace
 {
 
 template <typename TElem, typename TList>
@@ -44,11 +44,10 @@ void emscriptenAddSourceFilesInternal(const TList& list, util::GenStringsList& s
     for (auto& elemPtr : list) {
         auto* elem = TElem::emscriptenCast(elemPtr.get());
         elem->emscriptenAddSourceFiles(sources);
-    }    
+    }
 }
 
-} // namespace 
-    
+} // namespace
 
 EmscriptenNamespace::EmscriptenNamespace(EmscriptenGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
@@ -56,7 +55,7 @@ EmscriptenNamespace::EmscriptenNamespace(EmscriptenGenerator& generator, ParseNa
     m_handler(generator, *this),
     m_input(generator, *this)
 {
-}   
+}
 
 EmscriptenNamespace::~EmscriptenNamespace() = default;
 
@@ -71,7 +70,7 @@ void EmscriptenNamespace::emscriptenAddSourceFiles(GenStringsList& sources) cons
     if (!genInterfaces().empty()) {
         m_msgId.emscriptenAddSourceFiles(sources);
         m_handler.emscriptenAddSourceFiles(sources);
-    }    
+    }
 }
 
 void EmscriptenNamespace::emscriptenAddCommsMessageIncludes(GenStringsList& includes) const
@@ -140,7 +139,7 @@ bool EmscriptenNamespace::emscriptenHasInput() const
 bool EmscriptenNamespace::genWriteImpl() const
 {
     if (!genInterfaces().empty()) {
-        if ((!m_msgId.emscriptenWrite()) || 
+        if ((!m_msgId.emscriptenWrite()) ||
             (!m_handler.emscriptenWrite())) {
             return false;
         }
@@ -150,10 +149,9 @@ bool EmscriptenNamespace::genWriteImpl() const
         if (!m_input.emscriptenWrite()) {
             return false;
         }
-    }    
+    }
 
     return true;
 }
-
 
 } // namespace commsdsl2emscripten

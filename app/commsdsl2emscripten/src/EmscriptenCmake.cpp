@@ -48,16 +48,16 @@ bool EmscriptenCmake::emscriptenWriteInternal() const
     assert(!dirPath.empty());
     if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     m_emscriptenGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
         m_emscriptenGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }     
+    }
 
-    const std::string Templ = 
+    const std::string Templ =
         "cmake_minimum_required (VERSION 3.12)\n"
         "project (#^#PROJ_NAME#$#_emscripten)\n\n"
         "option (OPT_MODULARIZE \"Force usage of -sMODULARIZE as linker parameter.\" OFF)\n"
@@ -74,13 +74,13 @@ bool EmscriptenCmake::emscriptenWriteInternal() const
         "######################################################################\n\n"
         "if (NOT EMSCRIPTEN)\n"
         "    message (FATAL_ERROR \"Expected to be wrapped in emcmake\")\n"
-        "endif ()\n\n"        
+        "endif ()\n\n"
         "if (\"${OPT_PROTOCOL_NAME}\" STREQUAL \"\")\n"
         "    set (OPT_PROTOCOL_NAME #^#PROJ_NAME#$#)\n"
         "endif ()\n\n"
         "if (\"${OPT_INSTALL_DIR}\" STREQUAL \"\")\n"
         "    set (OPT_INSTALL_DIR js)\n"
-        "endif ()\n\n"   
+        "endif ()\n\n"
         "if (OPT_FIND_COMMS)\n"
         "    find_package(LibComms REQUIRED)\n"
         "endif ()\n\n"
@@ -116,13 +116,13 @@ bool EmscriptenCmake::emscriptenWriteInternal() const
         "endif ()\n\n"
         "if (TARGET cc::comms)\n"
         "    target_link_libraries(${PROJECT_NAME} PRIVATE cc::comms)\n"
-        "endif ()\n\n"        
+        "endif ()\n\n"
         "install(FILES\n"
         "    \"$<TARGET_FILE_DIR:${PROJECT_NAME}>/${PROJECT_NAME}.js\"\n"
         "    \"$<TARGET_FILE_DIR:${PROJECT_NAME}>/${PROJECT_NAME}.wasm\"\n"
-        "    DESTINATION ${CMAKE_INSTALL_PREFIX}/${OPT_INSTALL_DIR})\n" 
+        "    DESTINATION ${CMAKE_INSTALL_PREFIX}/${OPT_INSTALL_DIR})\n"
         "#^#APPEND#$#\n"
-        ;   
+        ;
 
     util::GenStringsList sources;
     EmscriptenComms::emscriptenAddSourceFiles(m_emscriptenGenerator, sources);

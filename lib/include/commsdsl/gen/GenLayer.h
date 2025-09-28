@@ -34,7 +34,7 @@ class GenLayerImpl;
 class COMMSDSL_API GenLayer : public GenElem
 {
     using Base = GenElem;
-    
+
 public:
     using ParseLayer = commsdsl::parse::ParseLayer;
 
@@ -43,7 +43,7 @@ public:
 
     virtual ~GenLayer();
 
-    static GenPtr genCreate(GenGenerator& generator, ParseLayer parseObj, GenElem* parent = nullptr);    
+    static GenPtr genCreate(GenGenerator& generator, ParseLayer parseObj, GenElem* parent = nullptr);
 
     bool genPrepare();
     bool genWrite() const;
@@ -56,21 +56,20 @@ public:
     const GenField* genMemberField() const;
 
     GenGenerator& genGenerator();
-    const GenGenerator& genGenerator() const;    
+    const GenGenerator& genGenerator() const;
 
     // return true if re-order happened, false otherwise
     bool genForceCommsOrder(GenLayersAccessList& layers, bool& success) const;
 
     std::string genTemplateScopeOfComms(const std::string& iFaceStr, const std::string& allMessagesStr, const std::string& protOptionsStr) const;
 
-protected:    
+protected:
     GenLayer(GenGenerator& generator, const ParseLayer& parseObj, GenElem* parent = nullptr);
 
     virtual GenType genElemTypeImpl() const override final;
     virtual bool genPrepareImpl();
     virtual bool genWriteImpl() const;
     virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const;
-
 
 private:
     std::unique_ptr<GenLayerImpl> m_impl;

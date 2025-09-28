@@ -35,7 +35,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-namespace 
+namespace
 {
 
 const std::string CommsMsgFactoryOptionsSuffix("MsgFactoryDefaultOptions");
@@ -63,7 +63,7 @@ std::string commsOptionsBodyInternal(
         return util::genStrListToString(opts, "\n", "");
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "struct #^#NS#$##^#EXT#$#\n"
         "{\n"
         "    #^#BODY#$#\n"
@@ -93,13 +93,13 @@ bool commsWriteFileInternal(
     assert(!dirPath.empty());
     if (!generator.genCreateDirectory(dirPath)) {
         return false;
-    }      
+    }
 
     std::ofstream stream(filePath);
     if (!stream) {
         generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }    
+    }
 
     stream << data;
     stream.flush();
@@ -108,7 +108,7 @@ bool commsWriteFileInternal(
 
 const std::string& commsExtOptionsTempl()
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#GENERATED#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of protocol #^#DESC#$# default options.\n\n"
@@ -147,7 +147,7 @@ util::GenReplacementMap commsExtInitialRepl(CommsGenerator& generator)
 
 const std::string& commsMsgFactoryOptionsTempl()
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#GENERATED#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of protocol #^#DESC#$# message factory options.\n\n"
@@ -175,9 +175,7 @@ const std::string& commsMsgFactoryOptionsTempl()
     return Templ;
 }
 
-
-} // namespace 
-    
+} // namespace
 
 bool CommsDefaultOptions::commsWrite(CommsGenerator& generator)
 {
@@ -203,7 +201,7 @@ bool CommsDefaultOptions::commsWriteInternal() const
 
 bool CommsDefaultOptions::commsWriteDefaultOptionsInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#GENERATED#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of protocol default options.\n\n"
@@ -308,7 +306,7 @@ bool CommsDefaultOptions::commsWriteDataViewDefaultOptionsInternal() const
 
 bool CommsDefaultOptions::commsWriteBareMetalDefaultOptionsInternal() const
 {
-    std::string extra = 
+    std::string extra =
         "#ifndef DEFAULT_SEQ_FIXED_STORAGE_SIZE\n"
         "/// @brief Define default fixed size for various sequence fields\n"
         "/// @details May be defined during compile time to change the default value.\n"
@@ -340,7 +338,7 @@ bool CommsDefaultOptions::commsWriteMsgFactoryDefaultOptionsInternal() const
         return true;
     }
 
-    return 
+    return
         commsWriteAllMessagesDynMemMsgFactoryOptionsInternal() &&
         commsWriteClientInputMessagesDynMemMsgFactoryOptionsInternal() &&
         commsWriteServerInputMessagesDynMemMsgFactoryOptionsInternal() &&
@@ -350,7 +348,7 @@ bool CommsDefaultOptions::commsWriteMsgFactoryDefaultOptionsInternal() const
 
 bool CommsDefaultOptions::commsWriteAllMessagesDynMemMsgFactoryOptionsInternal() const
 {
-    return 
+    return
         commsWriteSingleMsgFactoryDefaultOptionsInternal(
             "AllMessagesDynMem",
             "all",
@@ -360,7 +358,7 @@ bool CommsDefaultOptions::commsWriteAllMessagesDynMemMsgFactoryOptionsInternal()
 
 bool CommsDefaultOptions::commsWriteClientInputMessagesDynMemMsgFactoryOptionsInternal() const
 {
-    return 
+    return
         commsWriteSingleMsgFactoryDefaultOptionsInternal(
             "ClientInputMessagesDynMem",
             "client input",
@@ -370,7 +368,7 @@ bool CommsDefaultOptions::commsWriteClientInputMessagesDynMemMsgFactoryOptionsIn
 
 bool CommsDefaultOptions::commsWriteServerInputMessagesDynMemMsgFactoryOptionsInternal() const
 {
-    return 
+    return
         commsWriteSingleMsgFactoryDefaultOptionsInternal(
             "ServerInputMessagesDynMem",
             "server input",
@@ -382,7 +380,7 @@ bool CommsDefaultOptions::commsWritePlatformSpecificDynMemMsgFactoryOptionsInter
 {
     auto& platforms = m_commsGenerator.genCurrentSchema().platformNames();
     for (auto& p : platforms) {
-        bool result = 
+        bool result =
             commsWriteSingleMsgFactoryDefaultOptionsInternal(
                 comms::genClassName(p) + "MessagesDynMem",
                 "all \"" + p + "\" platform scpecific",
@@ -393,28 +391,28 @@ bool CommsDefaultOptions::commsWritePlatformSpecificDynMemMsgFactoryOptionsInter
             return false;
         }
 
-        result = 
+        result =
             commsWriteSingleMsgFactoryDefaultOptionsInternal(
                 comms::genClassName(p) + "ClientInputMessagesDynMem",
                 "client input \"" + p + "\" platform scpecific",
                 "dynamic memory"
-            );       
+            );
 
         if (!result) {
             return false;
-        }             
-       
-        result = 
+        }
+
+        result =
             commsWriteSingleMsgFactoryDefaultOptionsInternal(
                 comms::genClassName(p) + "ServerInputMessagesDynMem",
                 "server input \"" + p + "\" platform scpecific",
                 "dynamic memory"
-            );       
+            );
 
         if (!result) {
             return false;
-        }        
-    };        
+        }
+    };
 
     return true;
 }
@@ -422,8 +420,8 @@ bool CommsDefaultOptions::commsWritePlatformSpecificDynMemMsgFactoryOptionsInter
 bool CommsDefaultOptions::commsWriteExtraBundlesDynMemMsgFactoryOptionsInternal() const
 {
     auto& extraBundles = m_commsGenerator.commsExtraMessageBundles();
-    for (auto& b : extraBundles) {        
-        bool result = 
+    for (auto& b : extraBundles) {
+        bool result =
             commsWriteSingleMsgFactoryDefaultOptionsInternal(
                 comms::genClassName(b.first) + "MessagesDynMem",
                 "all \"" + b.first + "\" bundle scpecific",
@@ -434,34 +432,34 @@ bool CommsDefaultOptions::commsWriteExtraBundlesDynMemMsgFactoryOptionsInternal(
             return false;
         }
 
-        result = 
+        result =
             commsWriteSingleMsgFactoryDefaultOptionsInternal(
                 comms::genClassName(b.first) + "ClientInputMessagesDynMem",
                 "client input \"" + b.first + "\" bundle scpecific",
                 "dynamic memory"
-            );       
+            );
 
         if (!result) {
             return false;
-        }             
-       
-        result = 
+        }
+
+        result =
             commsWriteSingleMsgFactoryDefaultOptionsInternal(
                 comms::genClassName(b.first) + "ServerInputMessagesDynMem",
                 "server input \"" + b.first + "\" bundle scpecific",
                 "dynamic memory"
-            );       
+            );
 
         if (!result) {
             return false;
-        }        
-    };        
+        }
+    };
 
     return true;
 }
 
 bool CommsDefaultOptions::commsWriteSingleMsgFactoryDefaultOptionsInternal(
-    const std::string& prefix, 
+    const std::string& prefix,
     const std::string& messagesDesc,
     const std::string& allocDesc) const
 {
@@ -480,7 +478,7 @@ bool CommsDefaultOptions::commsWriteSingleMsgFactoryDefaultOptionsInternal(
             continue;
         }
 
-        static const std::string AliasTempl = 
+        static const std::string AliasTempl =
             "/// @brief Alias to actual message factory class.\n"
             "/// @details Exposes the same template parameters as @b comms::MsgFactory.\n"
             "template <typename TInterface, typename TAllMessages, typename... TOptions>\n"

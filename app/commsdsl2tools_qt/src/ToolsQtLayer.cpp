@@ -45,7 +45,7 @@ bool ToolsQtLayer::toolsPrepare()
 
 unsigned ToolsQtLayer::toolsMinFieldLength() const
 {
-    auto calcFunc = 
+    auto calcFunc =
         [](const commsdsl::gen::GenField& f)
         {
             return static_cast<unsigned>(f.genParseObj().parseMinLength());
@@ -59,7 +59,7 @@ unsigned ToolsQtLayer::toolsMinFieldLength() const
     auto* memberField = m_genLayer.genMemberField();
     if (memberField !=  nullptr) {
         return calcFunc(*memberField);
-    }    
+    }
 
     assert(false); // should not happen;
     return 0U;

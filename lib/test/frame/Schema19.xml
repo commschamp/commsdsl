@@ -7,7 +7,7 @@
                 <validValue name="M2" val="2" />
             </enum>
         </fields>
-        
+
         <frame name="Generic">
             <custom name="Header">
                 <field>
@@ -16,7 +16,7 @@
                         <int name="SomeField" type="uint32" />
                     </bundle>
                 </field>
-            </custom>        
+            </custom>
             <payload name="Data" />
         </frame>
     </ns>

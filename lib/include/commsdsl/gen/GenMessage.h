@@ -39,7 +39,7 @@ class COMMSDSL_API GenMessage : public GenElem
 
 public:
     using ParseMessage = commsdsl::parse::ParseMessage;
-    
+
     using GenPtr = std::unique_ptr<GenMessage>;
     using GenFieldsList = GenField::GenFieldsList;
 
@@ -62,7 +62,7 @@ public:
 
     const GenNamespace* genParentNamespace() const;
 
-protected:    
+protected:
     virtual GenType genElemTypeImpl() const override final;
     virtual bool genPrepareImpl();
     virtual bool genWriteImpl() const;

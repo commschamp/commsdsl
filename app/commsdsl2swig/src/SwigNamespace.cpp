@@ -34,12 +34,11 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-
 SwigNamespace::SwigNamespace(SwigGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     m_msgId(generator, *this)
 {
-}   
+}
 
 SwigNamespace::~SwigNamespace() = default;
 
@@ -59,16 +58,16 @@ void SwigNamespace::swigAddCodeIncludes(GenStringsList& list) const
 
     if (!genInterfaces().empty()) {
         m_msgId.swigAddCodeIncludes(list);
-    }    
+    }
 
     for (auto& m : genMessages()) {
         SwigMessage::swigCast(m.get())->swigAddCodeIncludes(list);
-    }   
+    }
 
     for (auto& f : genFrames()) {
         SwigFrame::swigCast(f.get())->swigAddCodeIncludes(list);
-    }    
-    
+    }
+
 }
 
 void SwigNamespace::swigAddCode(GenStringsList& list) const
@@ -83,15 +82,15 @@ void SwigNamespace::swigAddCode(GenStringsList& list) const
 
     for (auto& m : genMessages()) {
         SwigMessage::swigCast(m.get())->swigAddCode(list);
-    }   
+    }
 
     // for (auto& f : genFrames()) {
     //     SwigFrame::swigCast(f.get())->swigAddCode(list);
-    // }    
+    // }
 
     for (auto& ns : genNamespaces()) {
         SwigNamespace::swigCast(ns.get())->swigAddCode(list);
-    }    
+    }
 }
 
 void SwigNamespace::swigAddDef(GenStringsList& list) const
@@ -110,15 +109,15 @@ void SwigNamespace::swigAddDef(GenStringsList& list) const
 
     for (auto& m : genMessages()) {
         SwigMessage::swigCast(m.get())->swigAddDef(list);
-    }   
+    }
 
     // for (auto& f : genFrames()) {
     //     SwigFrame::swigCast(f.get())->swigAddDef(list);
-    // } 
+    // }
 
     for (auto& ns : genNamespaces()) {
         SwigNamespace::swigCast(ns.get())->swigAddDef(list);
-    }    
+    }
 }
 
 std::string SwigNamespace::swigMsgIdClassName() const
@@ -145,6 +144,5 @@ bool SwigNamespace::genWriteImpl() const
 
     return m_msgId.swigWrite();
 }
-
 
 } // namespace commsdsl2swig

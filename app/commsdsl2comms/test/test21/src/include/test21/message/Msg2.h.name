@@ -1,4 +1,4 @@
-/// @brief Custom Name 
+/// @brief Custom Name
 static const char* doName()
 {
     return doNameOrig();

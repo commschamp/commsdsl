@@ -15,10 +15,8 @@ class MsgHandler(test5.MsgHandler):
         if (self.msgFunc is not None):
             self.msgFunc(msg)
 
-
     def handle_Message(self, msg):
         sys.exit("shouldn't happen")
-
 
 class TestProtocol(unittest.TestCase):
     def test_1(self):
@@ -59,5 +57,4 @@ class TestProtocol(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
 

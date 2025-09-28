@@ -187,7 +187,7 @@ void AliasTestSuite::test8()
         TS_ASSERT_EQUALS(a0.parseFieldName(), "F1");
         TS_ASSERT_EQUALS(a1.parseName(), "A2");
         TS_ASSERT_EQUALS(a1.parseFieldName(), "F2");
-    } while (false);    
+    } while (false);
 }
 
 void AliasTestSuite::test9()

@@ -69,7 +69,7 @@ public:
         for (auto& m : m_members) {
             m->genSetReferenced();
         }
-    }    
+    }
 
 private:
     GenGenerator& m_generator;
@@ -107,7 +107,7 @@ GenVariantField::GenFieldRefInfo GenVariantField::genProcessInnerRefImpl(const s
     auto& memFields = genMembers();
     if (!memFields.empty()) {
         return genProcessMemberRef(memFields, refStr);
-    }    
+    }
 
     return Base::genProcessInnerRefImpl(refStr);
 }

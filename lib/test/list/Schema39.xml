@@ -7,6 +7,6 @@
         <int name="Elem" type="uint32"/>
         <list name="List50" countPrefix="Count">
             <element value="Elem" />
-        </list>    
+        </list>
     </fields>
 </schema>

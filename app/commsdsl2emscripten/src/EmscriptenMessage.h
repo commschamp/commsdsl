@@ -46,7 +46,7 @@ public:
     void emscriptenAddSourceFiles(GenStringsList& sources) const;
 
 protected:
-    virtual bool genPrepareImpl() override;    
+    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;
 
 private:
@@ -54,14 +54,14 @@ private:
 
     bool emscriptenWriteHeaderInternal() const;
     bool emscriptenWriteSourceInternal() const;
-    
+
     std::string emscriptenHeaderIncludesInternal() const;
     std::string emscriptenHeaderFieldsInternal() const;
     std::string emscriptenHeaderClassInternal() const;
     std::string emscriptenSourceFieldsInternal() const;
     std::string emscriptenSourceCodeInternal() const;
 
-    EmscriptenFieldsList m_emscriptenFields;        
+    EmscriptenFieldsList m_emscriptenFields;
 };
 
 } // namespace commsdsl2emscripten

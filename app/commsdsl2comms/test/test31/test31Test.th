@@ -28,9 +28,9 @@ public:
 
 void TestSuite::test1()
 {
-    static const std::uint8_t Buf[] = 
+    static const std::uint8_t Buf[] =
     {
-        1, 0x11 
+        1, 0x11
     };
     static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
 

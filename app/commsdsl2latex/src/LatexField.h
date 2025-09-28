@@ -56,7 +56,7 @@ public:
     const GenField& latexGenField() const
     {
         return m_genField;
-    }    
+    }
 
     const std::string& latexFieldKind() const
     {

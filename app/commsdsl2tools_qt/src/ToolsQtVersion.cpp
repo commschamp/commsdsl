@@ -54,7 +54,7 @@ bool ToolsQtVersion::toolsWriteInternal() const
         return false;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "#include \"cc_tools_qt/version.h\"\n\n"
@@ -62,13 +62,12 @@ bool ToolsQtVersion::toolsWriteInternal() const
         "    \"The version of cc_tools_qt library is too old\");\n\n"
         "#^#APPEND#$#\n";
 
-
     util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOOLS_QT_MIN", util::genStrReplace(ToolsQtGenerator::toolsMinCcToolsQtVersion(), ".", ", ")},
         {"APPEND", util::genReadFileContents(m_toolsGenerator.genGetCodeDir() + '/' + toolsRelHeaderPath(m_toolsGenerator) + strings::genAppendFileSuffixStr())},
-    };        
-    
+    };
+
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
 
@@ -76,8 +75,8 @@ bool ToolsQtVersion::toolsWriteInternal() const
         m_toolsGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
 } // namespace commsdsl2tools_qt

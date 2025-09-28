@@ -4,6 +4,6 @@
         endian="big">
     <fields>
         <int name="F1" type="uint8" />
-        <string name="F3" lengthPrefix="$F1" />        
+        <string name="F3" lengthPrefix="$F1" />
     </fields>
 </schema>

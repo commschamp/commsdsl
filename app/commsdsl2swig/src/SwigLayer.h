@@ -29,7 +29,7 @@ class SwigLayer
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
     using SwigLayersList = std::vector<SwigLayer*>;
-    
+
     explicit SwigLayer(commsdsl::gen::GenLayer& layer);
     virtual ~SwigLayer();
 
@@ -54,15 +54,15 @@ public:
     std::string swigFieldAccName() const;
 
 protected:
-    virtual std::string swigDeclFuncsImpl() const;    
-    virtual std::string swigCodeFuncsImpl() const;    
+    virtual std::string swigDeclFuncsImpl() const;
+    virtual std::string swigCodeFuncsImpl() const;
     virtual bool swigIsMainInterfaceSupportedImpl() const;
     virtual std::string swigMemberFieldDeclImpl() const;
     virtual void swigAddCodeImpl(GenStringsList& list) const;
     virtual std::string swigFieldTypeImpl() const;
 
     std::string swigTemplateScope() const;
-    
+
 private:
     commsdsl::gen::GenLayer& m_genLayer;
 };

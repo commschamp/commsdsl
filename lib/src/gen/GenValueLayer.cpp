@@ -44,13 +44,13 @@ bool GenValueLayer::genIsInterfaceSupported(const GenInterface* iFace) const
         return true;
     }
 
-    return 
+    return
         std::any_of(
             supportedInterfaces.begin(), supportedInterfaces.end(),
             [this, iFace](auto& i)
             {
                 return genGenerator().genFindInterface(i.parseExternalRef()) == iFace;
-            });  
+            });
 }
 
 GenValueLayer::ParseValueLayer GenValueLayer::genValueLayerParseObj() const

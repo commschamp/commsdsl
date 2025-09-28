@@ -36,14 +36,14 @@ namespace gen
 namespace util
 {
 
-namespace 
+namespace
 {
 
 static const char GenPathSep = '/';
 
 #ifdef WIN32
 static const char GenWinPathSep = '\\';
-#endif 
+#endif
 
 bool genIsPathSep(char ch)
 {
@@ -55,7 +55,7 @@ bool genIsPathSep(char ch)
     if (ch == GenWinPathSep) {
         return true;
     }
-#endif    
+#endif
 
     return false;
 }
@@ -77,7 +77,7 @@ void genCleanSpaces(std::string& code)
 
                 if (ch != ' ') {
                     processedCount = idx + 1U;
-                    removeChar = false;                    
+                    removeChar = false;
                     return removeChar;
                 }
 
@@ -89,7 +89,7 @@ void genCleanSpaces(std::string& code)
                 }
 
                 processedCount = endLinePos;
-                auto notSpacePos = code.find_first_not_of(" \t", idx + 1);                
+                auto notSpacePos = code.find_first_not_of(" \t", idx + 1);
                 removeChar = (endLinePos <= notSpacePos);
                 return removeChar;
             }),
@@ -108,7 +108,7 @@ void genCleanExtraNewLines(std::string& code)
                     return false;
                 }
 
-                auto notEndlPos = code.find_first_not_of("\n", idx);   
+                auto notEndlPos = code.find_first_not_of("\n", idx);
                 if (code.size() <= notEndlPos) {
                     return idx < (code.size() - 1U);
                 }
@@ -147,7 +147,7 @@ void genCleanNewLinesBeforeCloseBracket(std::string& code)
                 assert(idx < nextLinePos);
 
                 auto newLinesCount = (nextLinePos - idx);
-                
+
                 assert (newLinesCount <= 2U);
                 if (newLinesCount <= 1U) {
                     return false;
@@ -157,14 +157,14 @@ void genCleanNewLinesBeforeCloseBracket(std::string& code)
                 if (code.size() <= nonSpacePos) {
                     processedCount = code.size();
                     return false;
-                }    
+                }
 
                 assert(idx < nonSpacePos);
 
                 processedCount = nonSpacePos;
                 if (code[nonSpacePos] != '}') {
                     return false;
-                }           
+                }
 
                 // Check the closing namespace
                 static const std::string NamespaceClose("} // namespace");
@@ -174,9 +174,9 @@ void genCleanNewLinesBeforeCloseBracket(std::string& code)
                     return false;
                 }
 
-                return true;           
+                return true;
             }),
-        code.end());    
+        code.end());
 }
 
 void genDoTidyCode(std::string& code)
@@ -186,7 +186,7 @@ void genDoTidyCode(std::string& code)
     genCleanNewLinesBeforeCloseBracket(code);
 }
 
-} // namespace 
+} // namespace
 
 std::string genStrReplace(const std::string& str, const std::string& what, const std::string& with)
 {
@@ -204,7 +204,7 @@ std::string genStrReplace(const std::string& str, const std::string& what, const
         pos = nextPos + what.size();
     }
     return result;
-}    
+}
 
 std::string genStrToName(const std::string& value)
 {
@@ -215,7 +215,7 @@ std::string genStrToName(const std::string& value)
 }
 
 std::vector<std::string> genStrSplitByAnyChar(
-    const std::string& str, 
+    const std::string& str,
     const std::string& splitChars,
     bool compressed)
 {
@@ -241,7 +241,7 @@ std::vector<std::string> genStrSplitByAnyChar(
 }
 
 std::vector<std::string> genStrSplit(
-    const std::string& str, 
+    const std::string& str,
     const std::string& sep,
     bool compressed)
 {
@@ -308,7 +308,7 @@ std::string genStrToUpper(const std::string& str)
         [](char ch)
         {
             return static_cast<char>(std::toupper(ch));
-        });  
+        });
     return result;
 }
 
@@ -321,7 +321,7 @@ std::string genStrToLower(const std::string& str)
         [](char ch)
         {
             return static_cast<char>(std::tolower(ch));
-        });  
+        });
     return result;
 }
 
@@ -361,7 +361,7 @@ std::string genNumToString(std::uintmax_t value, unsigned hexWidth)
         if ((0U < hexWidth) && (value <= std::numeric_limits<std::uint32_t>::max())) {
             stream << "U";
             break;
-        }        
+        }
 
         stream << "ULL";
     } while (false);
@@ -391,7 +391,7 @@ std::string genNumToStringWithHexComment(std::intmax_t value)
     std::stringstream stream;
     if (0 <= value) {
         stream << std::hex << "0x" << value;
-    }  
+    }
     else {
         stream << std::hex << "-0x" << -value;
     }
@@ -399,8 +399,8 @@ std::string genNumToStringWithHexComment(std::intmax_t value)
     if ((std::numeric_limits<std::int32_t>::min() <= value) &&
         (value <= std::numeric_limits<std::int32_t>::max())) {
         return genNumToString(value) + " /* " + stream.str() + " */";
-    }  
-    
+    }
+
     if (value < 0) {
         stream << "LL";
         return stream.str();
@@ -453,8 +453,8 @@ std::string genPathUp(const std::string& path)
         sepPos = path.rfind(GenWinPathSep);
         if (sepPos != std::string::npos) {
             break;
-        }        
-#endif     
+        }
+#endif
 
         return strings::genEmptyString();
     } while (false);
@@ -502,7 +502,7 @@ std::string genProcessTemplate(const std::string& templ, const GenReplacementMap
         auto suffixPos = templ.find(Suffix, prefixPos + Prefix.size());
         if (suffixPos == std::string::npos) {
             [[maybe_unused]] static constexpr bool Incorrect_template = false;
-            assert(Incorrect_template);            
+            assert(Incorrect_template);
             templPos = templ.size();
             break;
         }
@@ -543,7 +543,7 @@ std::string genProcessTemplate(const std::string& templ, const GenReplacementMap
             auto nextNewLinePos = templ.find_first_of('\n', suffixPos + Suffix.size());
             if (nextNewLinePos == std::string::npos) {
                 [[maybe_unused]] static constexpr bool Incorrect_template = false;
-                assert(Incorrect_template);  
+                assert(Incorrect_template);
                 break;
             }
 
@@ -647,13 +647,13 @@ std::string genStrMakeMultiline(const std::string& value, unsigned len, bool dro
                 }
                 result.push_back('\n');
                 pos = newPos + 1;
-            };        
+            };
 
         auto newLinePos = value.find_last_of("\n", nextPos);
         if ((newLinePos != std::string::npos) && (pos <= newLinePos)) {
             insertFunc(newLinePos);
             continue;
-        }        
+        }
 
         static const std::string WhiteSpace(" \t");
         auto prePos = value.find_last_of(WhiteSpace, nextPos);
@@ -705,7 +705,7 @@ std::string genReadFileContents(const std::string& filePath)
     if (stream) {
         result.assign(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
     }
-    
+
     return result;
 }
 

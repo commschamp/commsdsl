@@ -118,7 +118,7 @@ std::string ParseInterfaceImpl::parseExternalRef(bool schemaRef) const
 
     auto& ns = static_cast<const ParseNamespaceImpl&>(*parseGetParent());
     auto nsRef = ns.parseExternalRef(schemaRef);
-    
+
     if (nsRef.empty()) {
         return parseName();
     }
@@ -158,7 +158,7 @@ ParseInterfaceImpl::ParseFieldRefInfo ParseInterfaceImpl::processInnerFieldRef(c
     if ((!refStr.empty()) && ((refStr[0] == '#') || (refStr[0] == '?'))) {
         auto info = processInnerFieldRef(refStr.substr(1));
         do {
-            if ((info.m_field == nullptr) || 
+            if ((info.m_field == nullptr) ||
                 (info.m_refType != ParseFieldRefType::FieldRefType_Field)) {
                 info = ParseFieldRefInfo();
                 break;
@@ -183,7 +183,7 @@ ParseInterfaceImpl::ParseFieldRefInfo ParseInterfaceImpl::processInnerFieldRef(c
 
     auto dotPos = refStr.find_first_of(".");
     const auto fieldName = refStr.substr(0, dotPos);
-    auto iter = 
+    auto iter =
         std::find_if(
             m_state.m_fields.begin(), m_state.m_fields.end(),
             [&fieldName](auto& fieldPtr)
@@ -242,7 +242,7 @@ bool ParseInterfaceImpl::parseValidateAndUpdateBoolPropValue(const std::string& 
 
     if (!m_protocol.parseIsPropertySupported(propName)) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "Property \"" << common::parseAvailableLengthLimitStr() << "\" is not available for dslVersion= " << m_protocol.parseCurrSchema().parseDslVersion();                
+            "Property \"" << common::parseAvailableLengthLimitStr() << "\" is not available for dslVersion= " << m_protocol.parseCurrSchema().parseDslVersion();
         return true;
     }
 
@@ -345,7 +345,7 @@ bool ParseInterfaceImpl::parseCheckReuse()
         }
 
         m_state.m_aliases.clear();
-    } while (false);     
+    } while (false);
 
     do {
         auto& codeProp = common::parseReuseCodeStr();
@@ -357,7 +357,7 @@ bool ParseInterfaceImpl::parseCheckReuse()
         auto codeIter = m_props.find(codeProp);
         if (codeIter == m_props.end()) {
             break;
-        }  
+        }
 
         bool copyCode = false;
         if (!parseValidateAndUpdateBoolPropValue(codeProp, copyCode)) {
@@ -368,8 +368,8 @@ bool ParseInterfaceImpl::parseCheckReuse()
             break;
         }
 
-        m_state.m_copyCodeFrom = valueStr; 
-    } while (false);    
+        m_state.m_copyCodeFrom = valueStr;
+    } while (false);
     return true;
 }
 
@@ -409,7 +409,7 @@ bool ParseInterfaceImpl::parseCopyFields()
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Copying fields from multiple sources using various properties is not supported";
         return false;
-    }    
+    }
 
     do {
         m_copyFieldsFromInterface = m_protocol.parseFindInterface(iter->second);
@@ -421,7 +421,7 @@ bool ParseInterfaceImpl::parseCopyFields()
         if (!m_protocol.parseIsCopyFieldsFromBundleSupported()) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                 "Invalid reference to other interface \"" << iter->second << "\".";
-            return false;            
+            return false;
         }
 
         auto* copyFromField = m_protocol.parseFindField(iter->second);
@@ -429,7 +429,7 @@ bool ParseInterfaceImpl::parseCopyFields()
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                 "Invalid reference to other interface or bundle \"" << iter->second << "\".";
             return false;
-        }        
+        }
 
         m_copyFieldsFromBundle = static_cast<const ParseBundleFieldImpl*>(copyFromField);
         parseCloneFieldsFrom(*m_copyFieldsFromBundle);
@@ -564,7 +564,7 @@ bool ParseInterfaceImpl::parseCopyAliases()
     }
     else if (m_copyFieldsFromBundle != nullptr) {
         parseCloneAliasesFrom(*m_copyFieldsFromBundle);
-    }    
+    }
     else {
         return true;
     }
@@ -676,7 +676,6 @@ bool ParseInterfaceImpl::parseUpdateExtraChildren()
     m_extraChildren = ParseXmlWrap::parseGetExtraChildren(m_node, ChildrenNames, m_protocol);
     return true;
 }
-
 
 } // namespace parse
 

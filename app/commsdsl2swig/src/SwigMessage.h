@@ -38,16 +38,16 @@ public:
     virtual ~SwigMessage();
 
     void swigAddCodeIncludes(GenStringsList& list) const;
-    void swigAddCode(GenStringsList& list) const; 
+    void swigAddCode(GenStringsList& list) const;
     void swigAddDef(GenStringsList& list) const;
 
     static const SwigMessage* swigCast(const commsdsl::gen::GenMessage* i)
     {
         return static_cast<const SwigMessage*>(i);
-    }    
+    }
 
 protected:
-    virtual bool genPrepareImpl() override;    
+    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;
 
 private:
@@ -58,7 +58,7 @@ private:
     std::string swigFieldsAccDeclInternal() const;
     std::string swigFieldsAccCodeInternal() const;
 
-    SwigFieldsList m_swigFields;    
+    SwigFieldsList m_swigFields;
 };
 
 } // namespace commsdsl2swig

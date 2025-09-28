@@ -35,7 +35,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2latex
 {
 
-namespace 
+namespace
 {
 
 const std::string& latexSenderStr(LatexMessage::ParseMessage::ParseSender sender)
@@ -53,8 +53,7 @@ const std::string& latexSenderStr(LatexMessage::ParseMessage::ParseSender sender
     return Map[idx];
 }
 
-} // namespace 
-    
+} // namespace
 
 LatexMessage::LatexMessage(LatexGenerator& generator, ParseMessage parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent)
@@ -99,7 +98,7 @@ bool LatexMessage::genWriteImpl() const
     assert(!dirPath.empty());
     if (!latexGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }    
+    }
 
     latexGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
@@ -116,7 +115,7 @@ bool LatexMessage::genWriteImpl() const
             break;
         }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#GENERATED#$#\n"
             "#^#REPLACE_COMMENT#$#\n"
             "#^#SECTION#$#"
@@ -143,23 +142,23 @@ bool LatexMessage::genWriteImpl() const
 
         LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);
         if (repl["DESCRIPTION"].empty()) {
-            repl["DESCRIPTION"] = 
-                LatexGenerator::latexSchemaCommentPrefix() + 
+            repl["DESCRIPTION"] =
+                LatexGenerator::latexSchemaCommentPrefix() +
                     "Use \"" + strings::genDescriptionStr() + "\" DSL element property to introduce description";
-        }        
+        }
 
         if (latexGenerator.latexHasCodeInjectionComments()) {
-            repl["REPLACE_COMMENT"] = 
+            repl["REPLACE_COMMENT"] =
                 latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
 
             if (repl["PREPEND"].empty()) {
                 repl["PREPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Prepend to details with \"" + prependFileName + "\".";
-            } 
+            }
 
             if (repl["APPEND"].empty()) {
                 repl["APPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Append to file with \"" + appendFileName + "\".";
-            }                
-        };         
+            }
+        };
 
         stream << util::genProcessTemplate(Templ, repl, true) << std::endl;
     } while (false);
@@ -175,7 +174,7 @@ bool LatexMessage::genWriteImpl() const
 
 std::string LatexMessage::latexSection() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#REPLACE_COMMENT#$#\n"
         "#^#SECTION#$#{#^#TITLE#$#}\n"
         ;
@@ -192,16 +191,16 @@ std::string LatexMessage::latexSection() const
     }
 
     if (latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] = 
+        repl["REPLACE_COMMENT"] =
             latexGenerator.latexCodeInjectCommentPrefix() + "Replace the title value with contents of \"" + titleFileName + "\".";
-    };      
+    };
 
     return util::genProcessTemplate(Templ, repl);
 }
 
 std::string LatexMessage::latexInfoDetails() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "\\subsubparagraph{Details}\n"
         "\\label{#^#LABEL#$#}\n\n"
         "\\fbox{%\n"
@@ -222,13 +221,13 @@ std::string LatexMessage::latexInfoDetails() const
 
     do{
         lines.push_back("\\textbf{Sent By} & " + latexSenderStr(parseObj.parseSender()));
-    } while (false);  
-    
+    } while (false);
+
     do {
         auto minLength = parseObj.parseMinLength();
         auto maxLength = parseObj.parseMaxLength();
         if (minLength == maxLength) {
-            lines.push_back("\\textbf{Fixed Length} & " + std::to_string(minLength) + " Bytes");    
+            lines.push_back("\\textbf{Fixed Length} & " + std::to_string(minLength) + " Bytes");
             break;
         }
 
@@ -256,8 +255,8 @@ std::string LatexMessage::latexInfoDetails() const
         }
 
         lines.push_back("\\textbf{Deprecated In Version} &" + LatexGenerator::latexIntegralToStr(deprecatedSince));
-    } while (false);    
-    
+    } while (false);
+
     util::GenReplacementMap repl = {
         {"LABEL", LatexGenerator::latexLabelId(*this) + "_details"},
         {"LINES", util::genStrListToString(lines, " \\\\\\hline\n", " \\\\\n")},
@@ -272,19 +271,19 @@ std::string LatexMessage::latexFields() const
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "\\subsubparagraph{Member Fields}\n"
         "\\label{#^#LABEL#$#}\n\n"
         "#^#DETAILS#$#\n"
         "\n"
-        ;    
+        ;
 
     util::GenReplacementMap repl = {
         {"LABEL", LatexGenerator::latexLabelId(*this) + "_fields"},
         {"DETAILS", LatexField::latexMembersDetails(m_latexFields)},
     };
 
-    return util::genProcessTemplate(Templ, repl);        
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2latex

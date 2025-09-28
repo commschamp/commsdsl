@@ -8,10 +8,10 @@
             </enum>
             <int name="Sync" type="uint16" defaultValue="0xabcd" validValue="0xabcd" />
         </fields>
-    
+
         <frame name="Generic">
             <sync name="Sync" field="ns1.Sync" />
-            <id name="Id" field="ns1.MsgId"/>        
+            <id name="Id" field="ns1.MsgId"/>
             <size name="Size">
                 <field>
                     <int type="uintvar" name="Size" />

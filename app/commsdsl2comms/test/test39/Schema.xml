@@ -5,15 +5,15 @@
             <validValue name="M1" val="1" />
         </enum>
     </fields>
-    
+
 	<frame name="Frame">
         <size name="Size">
             <int name="Size" type="uint16" />
         </size>
         <id name="Id" field="MsgId" />
         <payload name="Data" />
-    </frame>      
-    
+    </frame>
+
     <message name="Msg1" id="MsgId.M1">
         <fields>
             <int name="F1" type="uint8" />

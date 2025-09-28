@@ -7,6 +7,6 @@
         <string name="String" lengthPrefix="StringLength" />
         <string name="String50">
             <lengthPrefix reuse="StringLength" />
-        </string>    
+        </string>
     </fields>
 </schema>

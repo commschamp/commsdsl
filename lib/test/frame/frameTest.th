@@ -162,7 +162,6 @@ void FrameTestSuite::test6()
     auto f1 = l1.parseField();
     TS_ASSERT(f1.parseExternalRef().empty());
 
-
     TS_ASSERT_EQUALS(l2.parseKind(), commsdsl::parse::ParseLayer::ParseKind::Id);
     TS_ASSERT_EQUALS(l2.parseName(), "Id");
     TS_ASSERT(l2.parseHasField());
@@ -598,8 +597,8 @@ void FrameTestSuite::test23()
     TS_ASSERT_EQUALS(f1.parseDisplayName(), "Some Frame");
 
     auto layers = f1.parseLayers();
-    TS_ASSERT_EQUALS(layers.size(), 2U);  
-    
+    TS_ASSERT_EQUALS(layers.size(), 2U);
+
     auto& l1 = layers[0];
     TS_ASSERT_EQUALS(l1.parseDisplayName(), "ID Layer");
 }

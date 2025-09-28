@@ -37,8 +37,8 @@ public:
     explicit SwigInterface(SwigGenerator& generator, ParseInterface parseObj, GenElem* parent);
     virtual ~SwigInterface();
 
-    void swigAddCodeIncludes(GenStringsList& list) const; 
-    void swigAddCode(GenStringsList& list) const; 
+    void swigAddCodeIncludes(GenStringsList& list) const;
+    void swigAddCode(GenStringsList& list) const;
     void swigAddDef(GenStringsList& list) const;
 
     static const SwigInterface* swigCast(const commsdsl::gen::GenInterface* i)
@@ -47,7 +47,7 @@ public:
     }
 
 protected:
-    virtual bool genPrepareImpl() override;    
+    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;
 
 private:
@@ -55,11 +55,11 @@ private:
 
     std::string swigFieldDeclsInternal() const;
     std::string swigClassDeclInternal() const;
-    std::string swigFieldsAccDeclInternal() const;    
+    std::string swigFieldsAccDeclInternal() const;
     std::string swigFieldsAccCodeInternal() const;
     std::string swigCommonCodeInternal() const;
 
-    SwigFieldsList m_swigFields;        
+    SwigFieldsList m_swigFields;
 };
 
 } // namespace commsdsl2swig

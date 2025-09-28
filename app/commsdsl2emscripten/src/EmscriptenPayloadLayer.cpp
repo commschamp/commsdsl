@@ -31,15 +31,14 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-namespace 
+namespace
 {
 
 const std::string EmscriptenFieldClassNameSuffix("Field");
 
-} // namespace 
-    
+} // namespace
 
-EmscriptenPayloadLayer::EmscriptenPayloadLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+EmscriptenPayloadLayer::EmscriptenPayloadLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     EmscriptenBase(static_cast<GenBase&>(*this))
 {
@@ -47,7 +46,7 @@ EmscriptenPayloadLayer::EmscriptenPayloadLayer(EmscriptenGenerator& generator, P
 
 std::string EmscriptenPayloadLayer::emscriptenHeaderFieldDefImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "class #^#CLASS_NAME#$# : public #^#COMMS_SCOPE#$#::Field\n"
         "{\n"
         "    using Base = #^#COMMS_SCOPE#$#::Field;\n"
@@ -103,6 +102,5 @@ std::string EmscriptenPayloadLayer::emscriptenSourceFieldBindImpl() const
 
     return util::genProcessTemplate(Templ, repl);
 }
-
 
 } // namespace commsdsl2emscripten

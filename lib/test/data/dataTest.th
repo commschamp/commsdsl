@@ -460,7 +460,6 @@ void DataTestSuite::test22()
     TS_ASSERT_EQUALS(dataField.parseDefaultValue(), expDefaultValue);
 }
 
-
 void DataTestSuite::test23()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
@@ -489,10 +488,10 @@ void DataTestSuite::test23()
         TS_ASSERT_EQUALS(validValues[0].m_deprecatedSince, 4);
         TS_ASSERT_EQUALS(validValues[1].m_value, ValueType({0x03, 0x04}));
         TS_ASSERT_EQUALS(validValues[1].m_sinceVersion, 3);
-        TS_ASSERT_EQUALS(validValues[1].m_deprecatedSince, protocol->parseNotYetDeprecated());    
+        TS_ASSERT_EQUALS(validValues[1].m_deprecatedSince, protocol->parseNotYetDeprecated());
         TS_ASSERT_EQUALS(validValues[2].m_value, ValueType({0x05, 0x06}));
         TS_ASSERT_EQUALS(validValues[2].m_sinceVersion, 0);
-        TS_ASSERT_EQUALS(validValues[2].m_deprecatedSince, protocol->parseNotYetDeprecated());        
+        TS_ASSERT_EQUALS(validValues[2].m_deprecatedSince, protocol->parseNotYetDeprecated());
     }
 
     {
@@ -511,12 +510,12 @@ void DataTestSuite::test23()
         TS_ASSERT_EQUALS(validValues[0].m_deprecatedSince, 4);
         TS_ASSERT_EQUALS(validValues[1].m_value, ValueType({0x03, 0x04}));
         TS_ASSERT_EQUALS(validValues[1].m_sinceVersion, 3);
-        TS_ASSERT_EQUALS(validValues[1].m_deprecatedSince, protocol->parseNotYetDeprecated());    
+        TS_ASSERT_EQUALS(validValues[1].m_deprecatedSince, protocol->parseNotYetDeprecated());
         TS_ASSERT_EQUALS(validValues[2].m_value, ValueType({0x05, 0x06}));
         TS_ASSERT_EQUALS(validValues[2].m_sinceVersion, 0);
-        TS_ASSERT_EQUALS(validValues[2].m_deprecatedSince, protocol->parseNotYetDeprecated());      
+        TS_ASSERT_EQUALS(validValues[2].m_deprecatedSince, protocol->parseNotYetDeprecated());
         TS_ASSERT_EQUALS(validValues[3].m_value, ValueType({0x07, 0x08}));
         TS_ASSERT_EQUALS(validValues[3].m_sinceVersion, 0);
-        TS_ASSERT_EQUALS(validValues[3].m_deprecatedSince, protocol->parseNotYetDeprecated());             
-    }    
+        TS_ASSERT_EQUALS(validValues[3].m_deprecatedSince, protocol->parseNotYetDeprecated());
+    }
 }

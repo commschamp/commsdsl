@@ -30,7 +30,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigFloatField::SwigFloatField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+SwigFloatField::SwigFloatField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     SwigBase(static_cast<GenBase&>(*this))
 {
@@ -43,7 +43,7 @@ bool SwigFloatField::genWriteImpl() const
 
 std::string SwigFloatField::swigValueTypeDeclImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "using ValueType = #^#TYPE#$#;\n";
 
     auto obj = genFloatFieldParseObj();
@@ -56,7 +56,7 @@ std::string SwigFloatField::swigValueTypeDeclImpl() const
 
 std::string SwigFloatField::swigExtraPublicFuncsDeclImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "bool hasSpecials();\n"
         "#^#SCPECIALS#$#\n"
         "static unsigned displayDecimals();\n";
@@ -93,7 +93,7 @@ std::string SwigFloatField::swigSpecialsDeclInternal() const
         };
 
         specialsList.push_back(util::genProcessTemplate(Templ, repl));
-    }    
+    }
 
     return util::genStrListToString(specialsList, "", "");
 }

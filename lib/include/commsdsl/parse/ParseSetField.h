@@ -77,7 +77,6 @@ bool operator!=(const ParseSetField::ParseBitInfo& i1, const ParseSetField::Pars
     return !(i1 == i2);
 }
 
-
 } // namespace parse
 
 } // namespace commsdsl

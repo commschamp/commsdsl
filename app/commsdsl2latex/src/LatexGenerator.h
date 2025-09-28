@@ -17,7 +17,7 @@
 
 #include "commsdsl/gen/GenGenerator.h"
 
-namespace commsdsl2latex 
+namespace commsdsl2latex
 {
 
 class LatexGenerator final : public commsdsl::gen::GenGenerator
@@ -54,11 +54,11 @@ public:
     static const LatexGenerator& latexCast(const GenGenerator& generator)
     {
         return static_cast<const LatexGenerator&>(generator);
-    }    
+    }
 
     std::string latexRelPathFor(const GenElem& elem) const;
 
-    std::string latexInputCodePathForFile(const std::string& name) const;    
+    std::string latexInputCodePathForFile(const std::string& name) const;
 
     bool latexHasCodeInjectionComments() const
     {
@@ -66,7 +66,7 @@ public:
     }
 
 protected:
-    virtual bool genWriteImpl() override;    
+    virtual bool genWriteImpl() override;
 
     virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
     virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;

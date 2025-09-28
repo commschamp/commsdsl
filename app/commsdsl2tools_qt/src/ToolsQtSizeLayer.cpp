@@ -26,7 +26,7 @@ ToolsQtSizeLayer::ToolsQtSizeLayer(ToolsQtGenerator& generator, ParseLayer parse
 {
 }
 
-bool ToolsQtSizeLayer::genPrepareImpl() 
+bool ToolsQtSizeLayer::genPrepareImpl()
 {
     return GenBase::genPrepareImpl() && ToolsBase::toolsPrepare();
 }

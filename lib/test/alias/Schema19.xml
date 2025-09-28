@@ -8,6 +8,6 @@
         <alias name="A1" field="$F1" />
         <alias name="A2" field="$F2" />
     </message>
-    
+
     <message name="Msg2" id="2" reuse="Msg1" reuseAliases="false" />
 </schema>

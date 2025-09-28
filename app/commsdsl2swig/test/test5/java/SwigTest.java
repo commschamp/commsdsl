@@ -7,7 +7,7 @@ public class SwigTest {
 
     public void setMsg1(test5_swig.message_Msg1 msg) {
         m_msg1 = msg;
-    }    
+    }
 
     public void doTest1() {
         var msg = new test5_swig.message_Msg1();

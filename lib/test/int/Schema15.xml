@@ -10,8 +10,8 @@
                 <defaultValue value="100" />
             </int>
         </fields>
-    </ns> 
-           
+    </ns>
+
     <ns name="ns1">
         <fields>
             <int reuse="ns2.Int1" serOffset="0" endian="big" defaultValue="0">

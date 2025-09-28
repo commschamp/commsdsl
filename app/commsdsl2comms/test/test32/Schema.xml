@@ -32,7 +32,7 @@
                     <validValue name="V2" val="0xffff" />
                     <validValue name="V3" val="0xffffff" />
                 </enum>
-            </bundle>            
+            </bundle>
             <bundle name="P4">
                 <int name="Type" reuse="PropType" defaultValidValue="Prop.P4"/>
                 <int name="Length" type="uint8" semanticType="length" />
@@ -42,7 +42,7 @@
                     <bit name="B16" idx="16" />
                     <bit name="B24" idx="24" />
                 </set>
-            </bundle>            
+            </bundle>
             <bundle name="Any">
                 <int name="Type" type="uint8" />
                 <int name="Length" type="uint8" semanticType="length" />
@@ -52,7 +52,7 @@
 
         <int name="ShortLength" type="uint8">
             <special name="LongPresent" val="0xff" />
-        </int>        
+        </int>
 
         <bundle name="ComplexLength" semanticType="length" valueOverride="replace" readOverride="replace" refreshOverride="replace">
             <ref field="ShortLength" name="Short" />
@@ -80,7 +80,7 @@
                     <validValue name="V2" val="0xffff" />
                     <validValue name="V3" val="0xffffff" />
                 </enum>
-            </bundle>            
+            </bundle>
             <bundle name="P4">
                 <int name="Type" reuse="PropType" defaultValidValue="Prop.P4"/>
                 <ref field="ComplexLength" name="Length" />
@@ -90,15 +90,15 @@
                     <bit name="B16" idx="16" />
                     <bit name="B24" idx="24" />
                 </set>
-            </bundle>            
+            </bundle>
             <bundle name="Any">
                 <int name="Type" type="uint8"/>
                 <ref field="ComplexLength" name="Length" />
                 <data name="Value" />
             </bundle>
-        </variant>        
+        </variant>
     </fields>
-    
+
     <message name="Msg1" id="MsgId.M1">
         <ref name="F1" field="Variant1" />
         <int name="F2" type="uint16" />
@@ -125,15 +125,15 @@
                 <bit name="B16" idx="16" />
             </set>
         </bundle>
-    </message>    
+    </message>
 
     <message name="Msg3" id="MsgId.M3">
         <ref name="F1" field="Variant2" />
         <int name="F2" type="uint16" />
-    </message>    
+    </message>
 
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>     
+    </frame>
 </schema>

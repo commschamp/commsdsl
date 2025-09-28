@@ -19,18 +19,18 @@
         <int name="Dummy" type="uint8" forceGen="true" />
         <int name="Dummy2" type="uint8" />
     </fields>
-    
+
     <interface name="Message">
         <int name="version" type="uint16" semanticType="version" />
-    </interface>    
-    
+    </interface>
+
     <message name="Msg1" id="1">
         <ref name="year" field="year" />
         <int name="f2" reuse="I1">
             <special name="zero" val="0" sinceVersion="2">
                 <description>
-                    Some very very very very very very very very very very very very very very very 
-                    long long long long long long long long long long long long long long long long 
+                    Some very very very very very very very very very very very very very very very
+                    long long long long long long long long long long long long long long long long
                     long long long long long long long long long long long description.
                 </description>
             </special>

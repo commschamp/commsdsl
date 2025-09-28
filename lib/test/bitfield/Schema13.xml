@@ -16,6 +16,6 @@
                     <validValue name="V1" val="1" />
                 </enum>
             </replace>
-        </bitfield>        
+        </bitfield>
     </fields>
 </schema>

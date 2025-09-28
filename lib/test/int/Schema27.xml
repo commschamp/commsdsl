@@ -11,6 +11,6 @@
         </int>
         <int name="Int4" type="uint8" defaultValue="Int3.S1">
             <special name="S1" val="Int3.S1" />
-        </int>        
+        </int>
     </fields>
 </schema>

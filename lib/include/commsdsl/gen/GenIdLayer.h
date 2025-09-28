@@ -39,7 +39,7 @@ public:
     GenIdLayer(GenGenerator& generator, ParseLayer dslObj, GenElem* parent = nullptr);
     virtual ~GenIdLayer();
 
-protected:    
+protected:
     ParseIdLayer genIdLayerParseObj() const;
 };
 

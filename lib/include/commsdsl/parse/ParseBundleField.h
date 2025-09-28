@@ -39,7 +39,7 @@ public:
 
     ParseMembers parseMembers() const;
     ParseAliases parseAliases() const;
-    ParseOptCond parseValidCond() const;    
+    ParseOptCond parseValidCond() const;
 };
 
 } // namespace parse

@@ -48,11 +48,11 @@ public:
     static const ToolsQtMessage& toolsCast(const commsdsl::gen::GenMessage& msg)
     {
         return static_cast<const ToolsQtMessage&>(msg);
-    }    
+    }
 
 protected:
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
 private:
     bool toolsWriteHeaderInternal() const;

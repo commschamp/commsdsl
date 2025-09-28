@@ -30,22 +30,22 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2c
 {
 
-namespace 
+namespace
 {
 
 const std::string& cCodeTemplInternal()
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#VALUE#$#\n"
         "#^#SPECIALS#$#\n"
-        ;  
-        
+        ;
+
     return Templ;
 }
 
-} // namespace     
+} // namespace
 
-CFloatField::CFloatField(CGenerator& generator, ParseField parseObj, GenElem* parent) : 
+CFloatField::CFloatField(CGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     CBase(static_cast<GenBase&>(*this))
 {
@@ -55,7 +55,6 @@ bool CFloatField::genWriteImpl() const
 {
     return cWrite();
 }
-
 
 std::string CFloatField::cHeaderCodeImpl() const
 {
@@ -85,7 +84,7 @@ std::string CFloatField::cTypeInternal() const
 
 std::string CFloatField::cHeaderValueCodeInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @breif Inner value storage type of @ref #^#NAME#$#.\n"
         "typedef #^#TYPE#$# #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$#;\n"
         "\n"
@@ -111,8 +110,8 @@ std::string CFloatField::cHeaderSpecialsCodeInternal() const
     auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
         return strings::genEmptyString();
-    }   
-    
+    }
+
     util::GenStringsList specialsList;
     for (auto& s : specials) {
         if (!genGenerator().genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
@@ -150,7 +149,7 @@ std::string CFloatField::cHeaderSpecialsCodeInternal() const
         specialsList.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    return util::genStrListToString(specialsList, "\n", "\n");    
+    return util::genStrListToString(specialsList, "\n", "\n");
 }
 
 std::string CFloatField::cSourceSpecialsCodeInternal() const
@@ -158,8 +157,8 @@ std::string CFloatField::cSourceSpecialsCodeInternal() const
     auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
         return strings::genEmptyString();
-    }   
-    
+    }
+
     util::GenStringsList specialsList;
     for (auto& s : specials) {
         if (!genGenerator().genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
@@ -179,7 +178,7 @@ std::string CFloatField::cSourceSpecialsCodeInternal() const
             "void #^#NAME#$##^#SUFFIX#$#_set#^#SPEC_ACC#$#(#^#NAME#$##^#SUFFIX#$#* field)\n"
             "{\n"
             "    from#^#CONV_SUFFIX#$#(field)->set#^#SPEC_ACC#$#();\n"
-            "}\n"            
+            "}\n"
         );
 
         util::GenReplacementMap repl = {
@@ -193,7 +192,7 @@ std::string CFloatField::cSourceSpecialsCodeInternal() const
         specialsList.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    return util::genStrListToString(specialsList, "\n", "\n");  
+    return util::genStrListToString(specialsList, "\n", "\n");
 }
 
 } // namespace commsdsl2c

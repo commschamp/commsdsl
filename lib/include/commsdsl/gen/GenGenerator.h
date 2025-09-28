@@ -75,7 +75,7 @@ public:
     void genForceSchemaVersion(unsigned value);
     void genSetMinRemoteVersion(unsigned value);
     unsigned genGetMinRemoteVersion() const;
-    void genSetNamespaceOverride(const std::string& value);    
+    void genSetNamespaceOverride(const std::string& value);
 
     void genSetTopNamespace(const std::string& value);
     const std::string& genGetTopNamespace() const;
@@ -84,12 +84,12 @@ public:
     const std::string& genGetOutputDir() const;
 
     void genSetCodeDir(const std::string& dir);
-    const std::string& genGetCodeDir() const;   
+    const std::string& genGetCodeDir() const;
 
     void genSetMultipleSchemasEnabled(bool enabled);
     bool genGetMultipleSchemasEnabled() const;
 
-    void genSetVersionIndependentCodeForced(bool value = true); 
+    void genSetVersionIndependentCodeForced(bool value = true);
     bool genGetVersionIndependentCodeForced() const;
 
     const GenField* genFindField(const std::string& externalRef) const;
@@ -113,7 +113,7 @@ public:
     GenMessagesAccessList genGetAllMessagesFromAllSchemas() const;
     GenMessagesAccessList genGetAllMessagesIdSortedFromAllSchemas() const;
     GenFramesAccessList genGetAllFramesFromAllSchemas() const;
-    GenFieldsAccessList genGetAllFieldsFromAllSchemas() const;    
+    GenFieldsAccessList genGetAllFieldsFromAllSchemas() const;
 
     bool genPrepare(const GenFilesList& files);
     bool genWrite();
@@ -138,7 +138,7 @@ public:
     GenSchema& genCurrentSchema();
     const GenSchema& genCurrentSchema() const;
     GenSchema& genProtocolSchema();
-    const GenSchema& genProtocolSchema() const;    
+    const GenSchema& genProtocolSchema() const;
     bool genIsCurrentProtocolSchema() const;
 
     GenSchemaPtr genCreateSchema(ParseSchema parseObj, GenElem* parent = nullptr);
@@ -182,7 +182,7 @@ public:
 
     void genReferenceAllInterfaces();
     bool genGetAllInterfacesReferencedByDefault() const;
-    void genSetAllInterfacesReferencedByDefault(bool value = true);    
+    void genSetAllInterfacesReferencedByDefault(bool value = true);
 
     OptsProcessResult genProcessOptions(const GenProgramOptions& options);
 
@@ -227,7 +227,7 @@ protected:
     bool genCopyExtraSourceFiles(const std::vector<std::string>& reservedExtensions) const;
 
 private:
-    std::unique_ptr<GenGeneratorImpl> m_impl;    
+    std::unique_ptr<GenGeneratorImpl> m_impl;
 };
 
 } // namespace gen

@@ -2,7 +2,7 @@
 <schema name="Schema3"
         id="1"
         endian="big">
-        
+
     <ns name="my_ns1">
         <fields>
             <int name="Year" type="int16" defaultValue="2000" validRange="[2000, 2100]" serOffset="-2000" length="1"/>
@@ -31,5 +31,5 @@
                 <length>1</length>
             </int>
         </fields>
-    </ns>    
+    </ns>
 </schema>

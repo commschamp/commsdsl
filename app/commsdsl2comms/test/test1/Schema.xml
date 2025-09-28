@@ -3,7 +3,7 @@
     <message name="Msg1" displayName="Message no 1" id="1">
         <description>
             This is very very very very very very very very very very very very very very
-            long long long long long long long long long long long long long long long 
+            long long long long long long long long long long long long long long long
             description
         </description>
         <fields>
@@ -16,7 +16,7 @@
             <int name="F2" type="uintvar" length="4" displayName="some field"/>
         </fields>
     </message>
-    <message name="Msg2" id="2" />    
+    <message name="Msg2" id="2" />
     <frame name="Frame">
         <id name="ID">
             <field>

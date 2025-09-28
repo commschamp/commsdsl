@@ -78,7 +78,7 @@ protected:
     }
 
 private:
-    std::string m_condStr;    
+    std::string m_condStr;
 };
 
 class ParseOptCondExprImpl final: public ParseOptCondImpl
@@ -155,8 +155,6 @@ public:
     ParseCondList parseCondList() const;
 
     bool parse(::xmlNodePtr node, const ParseProtocolImpl& protocol);
-
-
 
 protected:
     virtual ParseKind parseKindImpl() const override;

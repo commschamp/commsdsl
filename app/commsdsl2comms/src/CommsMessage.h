@@ -38,7 +38,7 @@ public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     using CommsFieldsList = CommsField::CommsFieldsList;
-    
+
     explicit CommsMessage(CommsGenerator& generator, ParseMessage parseObj, GenElem* parent);
     virtual ~CommsMessage();
 
@@ -81,8 +81,8 @@ private:
 
     bool commsCopyCodeFromInternal();
     bool commsPrepareOverrideInternal(
-        commsdsl::parse::ParseOverrideType type, 
-        std::string& codePathPrefix, 
+        commsdsl::parse::ParseOverrideType type,
+        std::string& codePathPrefix,
         const std::string& suffix,
         std::string& customCode,
         const std::string& name,
@@ -94,7 +94,7 @@ private:
     static std::string commsPrepareCustomValidFromBodyInternal(const std::string& codePathPrefix);
     static std::string commsPrepareCustomNameFromBodyInternal(const std::string& codePathPrefix);
     bool commsWriteCommonInternal() const;
-    bool commsWriteDefInternal() const;  
+    bool commsWriteDefInternal() const;
     std::string commsCommonIncludesInternal() const;
     std::string commsCommonBodyInternal() const;
     std::string commsCommonNameFuncInternal() const;
@@ -131,7 +131,7 @@ private:
     GenStringsList commsServerExtraCustomizationOptionsInternal() const;
     void commsPrepareConstructCodeInternal();
 
-    CommsFieldsList m_commsFields;  
+    CommsFieldsList m_commsFields;
     commsdsl::gen::util::GenStringsList m_bundledReadPrepareCodes;
     commsdsl::gen::util::GenStringsList m_bundledRefreshCodes;
     std::string m_internalConstruct;

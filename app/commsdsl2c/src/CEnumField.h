@@ -42,12 +42,12 @@ public:
 
 protected:
     // GenBase overrides
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
     // CBase overrides
     virtual std::string cHeaderCodeImpl() const override;
     virtual std::string cSourceCodeImpl() const override;
-    
+
 private:
     std::string cHeaderEnumInternal() const;
 };

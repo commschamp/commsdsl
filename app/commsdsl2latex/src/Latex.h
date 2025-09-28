@@ -25,11 +25,11 @@ class Latex
 {
 public:
     static bool latexWrite(LatexGenerator& generator);
-    
+
     static std::string latexDocFileBaseName(const LatexGenerator& generator);
     static std::string latexDocTexFileName(const LatexGenerator& generator);
     static std::string latexDocCfgFileName(const LatexGenerator& generator);
-    
+
 private:
     explicit Latex(LatexGenerator& generator) : m_latexGenerator(generator) {}
 

@@ -39,7 +39,7 @@ public:
     GenPayloadLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent = nullptr);
     virtual ~GenPayloadLayer();
 
-protected:    
+protected:
     ParsePayloadLayer genPayloadLayerParseObj() const;
 };
 

@@ -25,7 +25,7 @@
             </bundle>
         </variant>
     </fields>
-    
+
     <message name="Msg" id="MsgId.M0">
         <list name="F1" element="Variant1" />
     </message>
@@ -41,5 +41,5 @@
             <int name="DummyId" type="uint8" defaultValue="MsgId.M0" pseudo="true" />
         </id>
         <payload name="Data" />
-    </frame>     
+    </frame>
 </schema>

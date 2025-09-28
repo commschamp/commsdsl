@@ -26,7 +26,7 @@ ToolsQtSyncLayer::ToolsQtSyncLayer(ToolsQtGenerator& generator, ParseLayer parse
 {
 }
 
-bool ToolsQtSyncLayer::genPrepareImpl() 
+bool ToolsQtSyncLayer::genPrepareImpl()
 {
     return GenBase::genPrepareImpl() && ToolsBase::toolsPrepare();
 }

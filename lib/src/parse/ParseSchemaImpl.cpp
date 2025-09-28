@@ -225,13 +225,13 @@ ParseNamespaceImpl& ParseSchemaImpl::parseDefaultNamespace()
         globalNsPtr.reset(new ParseNamespaceImpl(nullptr, m_protocol));
         globalNsPtr->parseSetParent(this);
     }
-        
+
     return *globalNsPtr;
 }
 
 bool ParseSchemaImpl::parseValidateAllMessages()
 {
-    return 
+    return
         std::all_of(
             m_namespaces.begin(), m_namespaces.end(),
             [this](auto& elem)
@@ -364,14 +364,14 @@ bool ParseSchemaImpl::parseUpdateDisplayName()
     }
 
     if ((!m_displayName.empty()) && (0U < m_dslVersion) && (m_dslVersion < 7U)) {
-        // The check must be explicit here and not via protocol feature check. 
+        // The check must be explicit here and not via protocol feature check.
         // The current schema for the protocol object is not set yet.
         parseLogWarning(m_protocol.parseLogger()) << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The property \"" << propName << "\" of schema is not supported for dslVersion=" << 
-                m_dslVersion << ".";        
+            "The property \"" << propName << "\" of schema is not supported for dslVersion=" <<
+                m_dslVersion << ".";
         m_displayName.clear();
     }
-    
+
     return true;
 }
 
@@ -387,7 +387,6 @@ const ParseNamespaceImpl* ParseSchemaImpl::parseGetNsFromPath(const std::string&
         assert(common::parseIsValidRefName(ref));
     }
 
-
     auto nameSepPos = ref.find_last_of('.');
     const ParseNamespaceImpl* ns = nullptr;
     do {
@@ -402,7 +401,7 @@ const ParseNamespaceImpl* ParseSchemaImpl::parseGetNsFromPath(const std::string&
             assert(ns != nullptr);
             break;
         }
-        
+
         auto signedNameSepPos = static_cast<std::ptrdiff_t>(nameSepPos);
         remName.assign(ref.begin() + signedNameSepPos + 1, ref.end());
         std::size_t nsNamePos = 0;
@@ -411,7 +410,7 @@ const ParseNamespaceImpl* ParseSchemaImpl::parseGetNsFromPath(const std::string&
             auto nextDotPos = ref.find_first_of('.', nsNamePos);
             assert(nextDotPos != std::string::npos);
             std::string nsName(
-                    ref.begin() + static_cast<std::ptrdiff_t>(nsNamePos), 
+                    ref.begin() + static_cast<std::ptrdiff_t>(nsNamePos),
                     ref.begin() + static_cast<std::ptrdiff_t>(nextDotPos));
             if (nsName.empty()) {
                 return nullptr;

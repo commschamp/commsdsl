@@ -15,7 +15,6 @@
 
 #pragma once
 
-
 #include "commsdsl/parse/ParseInterface.h"
 #include "commsdsl/parse/ParseProtocol.h"
 #include "ParseAliasImpl.h"
@@ -112,7 +111,7 @@ private:
 
         auto basicForwardAsTuple()
         {
-            return 
+            return
                 std::forward_as_tuple(
                     m_name,
                     m_description,
@@ -141,9 +140,9 @@ private:
             m_aliases.reserve(other.m_aliases.size());
             for (auto& a : other.m_aliases) {
                 m_aliases.push_back(a->parseClone());
-            }            
+            }
 
-            return *this;          
+            return *this;
         }
     };
 

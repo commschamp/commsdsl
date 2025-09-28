@@ -52,7 +52,7 @@ void EmscriptenVersion::emscriptenAddSourceFiles(const EmscriptenGenerator& gene
         if ((schema.get() != &generator.genProtocolSchema()) && (!schema->genHasAnyReferencedComponent())) {
             continue;
         }
-        
+
         sources.push_back(generator.emscriptenSchemaRelSourceForRoot(idx, strings::genVersionFileNameStr()));
     }
 }
@@ -75,7 +75,7 @@ bool EmscriptenVersion::emscriptenWriteSrcInternal() const
     }
 
     const std::string Templ =
-        "#^#GENERATED#$#\n" 
+        "#^#GENERATED#$#\n"
         "#include <emscripten/bind.h>\n\n"
         "#include \"#^#HEADER#$#\"\n\n"
         "EMSCRIPTEN_BINDINGS(#^#NAME#$#) {\n"
@@ -98,13 +98,13 @@ bool EmscriptenVersion::emscriptenWriteSrcInternal() const
         m_emscriptenGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
 std::string EmscriptenVersion::emscriptenSpecConstantsInternal() const
 {
-    const std::string Templ = 
+    const std::string Templ =
         "emscripten::constant(\"#^#NS#$#_SPEC_VERSION\", #^#NS#$#_SPEC_VERSION);";
 
     util::GenReplacementMap repl = {
@@ -120,7 +120,7 @@ std::string EmscriptenVersion::emscriptenProtConstantsInternal() const
         return strings::genEmptyString();
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "emscripten::constant(\"#^#NS#$#_MAJOR_VERSION\", #^#NS#$#_MAJOR_VERSION);\n"
         "emscripten::constant(\"#^#NS#$#_MINOR_VERSION\", #^#NS#$#_MINOR_VERSION);\n"
         "emscripten::constant(\"#^#NS#$#_PATCH_VERSION\", #^#NS#$#_PATCH_VERSION);"
@@ -130,7 +130,7 @@ std::string EmscriptenVersion::emscriptenProtConstantsInternal() const
         {"NS", util::genStrToUpper(m_emscriptenGenerator.genCurrentSchema().genMainNamespace())}
     };
 
-    return util::genProcessTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2emscripten

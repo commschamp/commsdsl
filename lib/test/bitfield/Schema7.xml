@@ -16,7 +16,7 @@
                 <enum name="Enum1" reuse="Enum1" bitLength="4" />
                 <set name="Set1" reuse="Set1" />
                 <int name="Int1" reuse="Int1" bitLength="12" />
-            </members>   
+            </members>
             <endian value="little" />
         </bitfield>
     </fields>

@@ -107,7 +107,7 @@ public:
     bool genIsElementOptional(
         unsigned sinceVersion,
         unsigned deprecatedSince,
-        bool deprecatedRemoved) const;  
+        bool deprecatedRemoved) const;
 
     bool genIsElementDeprecated(unsigned deprecatedSince) const;
 
@@ -115,8 +115,8 @@ public:
     void genSetAllMessagesReferenced();
 
     bool genHasReferencedMessageIdField() const;
-    bool genHasAnyReferencedMessage() const;    
-    bool genHasAnyReferencedComponent() const;    
+    bool genHasAnyReferencedMessage() const;
+    bool genHasAnyReferencedComponent() const;
 
     GenGenerator& genGenerator();
     const GenGenerator& genGenerator() const;
@@ -126,9 +126,8 @@ protected:
     virtual bool genPrepareImpl();
     virtual bool genWriteImpl();
 
-
 private:
-    std::unique_ptr<GenSchemaImpl> m_impl;    
+    std::unique_ptr<GenSchemaImpl> m_impl;
 };
 
 using GenSchemaPtr = GenSchema::GenPtr;

@@ -13,11 +13,11 @@
         <int name="Version" type="uint8" semanticType="version" />
         <int name="Checksum" type="uint16" />
     </fields>
-    
+
     <interface name="Message">
         <int name="version" type="uint8" semanticType="version" />
-    </interface>      
-    
+    </interface>
+
     <frame name="TestFrame1" >
         <id name="Id" field="MsgId" />
         <payload name="Data">
@@ -29,7 +29,7 @@
             </description>
         </payload>
     </frame>
-    
+
     <frame name="TestFrame2" >
         <size name="Size">
             <description value="Size layer description" />
@@ -46,13 +46,13 @@
             <description value="Payload layer description" />
         </payload>
     </frame>
-    
+
     <frame name="TestFrame3" >
         <id name="Id" field="MsgId" />
         <size name="Size" field="Size" />
         <payload name="Data" />
     </frame>
-    
+
     <frame name="TestFrame4" >
         <sync name="Sync">
             <field>
@@ -63,7 +63,7 @@
         <id name="Id" field="MsgId" />
         <payload name="Data" />
     </frame>
-    
+
     <frame name="TestFrame5" >
         <sync name="Sync">
             <field>
@@ -74,22 +74,22 @@
         <id name="Id" field="MsgId" />
         <payload name="Data" />
     </frame>
-    
+
     <frame name="TestFrame6" >
         <sync name="Sync" field="Sync" />
         <size name="Size" field="Size" />
         <id name="Id" field="MsgId" />
         <payload name="Data" />
     </frame>
-    
+
     <frame name="TestFrame7" >
         <sync name="Sync" field="Sync" />
         <size name="Size" field="Size" />
         <value name="Version" field="Version" interfaceFieldName="version" />
         <id name="Id" field="MsgId" />
         <payload name="Data" />
-    </frame>  
-    
+    </frame>
+
     <frame name="TestFrame8" >
         <sync name="Sync" field="Sync" />
         <size name="Size" field="Size" />
@@ -100,16 +100,16 @@
             </field>
         </value>
         <payload name="Data" />
-    </frame>        
-    
+    </frame>
+
     <frame name="TestFrame9" >
         <sync name="Sync" field="Sync" />
         <size name="Size" field="Size" />
         <value name="Version" interfaceFieldName="version" pseudo="true" field="Version" />
-        <id name="Id" field="MsgId" />        
+        <id name="Id" field="MsgId" />
         <payload name="Data" />
-    </frame>        
-    
+    </frame>
+
     <frame name="TestFrame10" >
         <sync name="Sync" field="Sync" />
         <size name="Size">
@@ -117,11 +117,11 @@
                 <int name="Size" type="uint16" serOffset="2" displayOffset="2" />
             </field>
         </size>
-        <id name="Id" field="MsgId" />        
+        <id name="Id" field="MsgId" />
         <payload name="Data" />
         <checksum name="Checksum" from="Size" field="Checksum" alg="sum" />
-    </frame>        
-    
+    </frame>
+
     <frame name="TestFrame11" >
         <sync name="Sync" field="Sync" />
         <size name="Size">
@@ -130,7 +130,7 @@
                 <int name="Size" type="uint16" serOffset="2" />
             </field>
         </size>
-        <id name="Id" field="MsgId" />        
+        <id name="Id" field="MsgId" />
         <checksum name="DataChecksum" until="Data" alg="custom" algName="Sum" >
             <description value="Prefix checksum" />
             <field>
@@ -139,15 +139,15 @@
         </checksum>
         <payload name="Data" />
         <checksum name="Checksum" from="Size" field="Checksum" alg="crc-16" />
-    </frame>  
-    
+    </frame>
+
     <frame name="TestFrame12" >
         <custom name="Size" field="Size" semanticLayerType="size" />
         <custom name="Id" field="MsgId">
             <semanticLayerType value="id" />
-        </custom>   
+        </custom>
         <payload name="Data" />
-    </frame>           
-    
+    </frame>
+
     <message name="Msg1" id="MsgId.M1" />
 </schema>

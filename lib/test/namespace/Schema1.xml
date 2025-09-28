@@ -9,7 +9,7 @@
             <int name="F1" type="uint8" />
             <ref name="F2" field="ns1.F1" />
         </fields>
-        <description> 
+        <description>
             NS1
         </description>
     </ns>

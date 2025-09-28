@@ -38,8 +38,8 @@ public:
     explicit SwigNamespace(SwigGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~SwigNamespace();
 
-    void swigAddCodeIncludes(GenStringsList& list) const; 
-    void swigAddCode(GenStringsList& list) const; 
+    void swigAddCodeIncludes(GenStringsList& list) const;
+    void swigAddCode(GenStringsList& list) const;
 
     void swigAddDef(GenStringsList& list) const;
 
@@ -51,14 +51,14 @@ public:
     std::string swigMsgIdClassName() const;
 
 protected:
-    virtual bool genPrepareImpl() override;    
+    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;
 
 private:
     using SwigFieldsList = SwigField::SwigFieldsList;
 
-    SwigFieldsList m_swigFields;   
-    SwigMsgId m_msgId;     
+    SwigFieldsList m_swigFields;
+    SwigMsgId m_msgId;
 };
 
 } // namespace commsdsl2swig

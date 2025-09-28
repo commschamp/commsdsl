@@ -29,7 +29,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenValueLayer::EmscriptenValueLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+EmscriptenValueLayer::EmscriptenValueLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     EmscriptenBase(static_cast<GenBase&>(*this))
 {
@@ -50,7 +50,7 @@ std::string EmscriptenValueLayer::emscriptenHeaderExtraFuncsImpl() const
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "Field* pseudoField()\n"
         "{\n"
         "    return reinterpret_cast<Field*>(&Base::pseudoField());\n"
@@ -66,7 +66,7 @@ std::string EmscriptenValueLayer::emscriptenSourceExtraFuncsImpl() const
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         ".function(\"pseudoField\", &#^#CLASS_NAME#$#::pseudoField, emscripten::allow_raw_pointers())";
 
     auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());

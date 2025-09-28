@@ -33,7 +33,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2c
 {
 
-namespace 
+namespace
 {
 
 std::string cCodeInternal(const util::GenStringsList& opts, std::size_t idx)
@@ -47,7 +47,7 @@ std::string cCodeInternal(const util::GenStringsList& opts, std::size_t idx)
         return opts[idx];
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#OPT#$#T<\n"
         "    #^#NEXT#$#\n"
         ">";
@@ -56,12 +56,12 @@ std::string cCodeInternal(const util::GenStringsList& opts, std::size_t idx)
         {"OPT", opts[idx]},
         {"NEXT", std::move(wrappedCode)}
     };
-    
+
     return util::genProcessTemplate(Templ, repl);
 }
 
-} // namespace 
-  
+} // namespace
+
 std::string CProtocolOptions::cName(const CGenerator& generator)
 {
     return generator.cNamesPrefix() + "ProtocolOptions";
@@ -69,8 +69,8 @@ std::string CProtocolOptions::cName(const CGenerator& generator)
 
 std::string CProtocolOptions::cRelHeaderPath(const CGenerator& generator)
 {
-    return 
-        generator.genGetTopNamespace() + '/' + 
+    return
+        generator.genGetTopNamespace() + '/' +
         generator.genProtocolSchema().genMainNamespace() + '/' +
         strings::genOptionsNamespaceStr() + '/' +
         cName(generator) + strings::genCppHeaderSuffixStr();
@@ -85,7 +85,7 @@ bool CProtocolOptions::cWrite(CGenerator& generator)
 CProtocolOptions::CProtocolOptions(CGenerator& generator) :
     m_cGenerator(generator)
 {
-}    
+}
 
 bool CProtocolOptions::cWriteHeaderInternal()
 {
@@ -105,7 +105,7 @@ bool CProtocolOptions::cWriteHeaderInternal()
     }
 
     const std::string Templ =
-        "#^#GENERATED#$#\n" 
+        "#^#GENERATED#$#\n"
         "#^#INCLUDES#$#\n"
         "#^#DEF#$#\n"
     ;
@@ -122,15 +122,15 @@ bool CProtocolOptions::cWriteHeaderInternal()
         m_cGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
 std::string CProtocolOptions::cTypeDefInternal()
 {
     assert(m_cGenerator.genIsCurrentProtocolSchema());
 
-    const std::string Templ = 
+    const std::string Templ =
         "using #^#OPT_TYPE#$# =\n"
         "    #^#CODE#$#;\n\n"
         ;

@@ -23,9 +23,9 @@ public:
         {
             static_cast<void>(msg);
         }
-    };    
+    };
 
-    using Sub1Interface = 
+    using Sub1Interface =
         test53::sub1::Interface<
             comms::option::app::IdInfoInterface,
             comms::option::app::LengthInfoInterface,
@@ -35,7 +35,7 @@ public:
             comms::option::app::Handler<Handler>
         >;
 
-    using Sub2Interface = 
+    using Sub2Interface =
         test53::sub2::Interface<
             comms::option::app::IdInfoInterface,
             comms::option::app::LengthInfoInterface,
@@ -43,11 +43,10 @@ public:
             comms::option::app::WriteIterator<std::uint8_t*>,
             comms::option::app::NameInterface,
             comms::option::app::Handler<Handler>
-        >;        
+        >;
 
     using Sub1Frame = test53::sub1::frame::Frame<Sub1Interface>;
     using Sub2Frame = test53::sub2::frame::Frame<Sub2Interface>;
-
 
     TEST53_SUB1_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(Sub1,,Sub1Interface);
     TEST53_SUB2_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(Sub2,,Sub2Interface);

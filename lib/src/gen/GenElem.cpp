@@ -34,7 +34,7 @@ namespace commsdsl
 namespace gen
 {
 
-namespace 
+namespace
 {
 
 template <typename TElem>
@@ -44,7 +44,7 @@ decltype(auto) genElemName(const TElem& elem)
         return strings::genEmptyString();
     }
     return elem.genParseObj().parseName();
-}  
+}
 
 const std::string& genNameOfNamespace(const GenElem& elem)
 {
@@ -81,8 +81,7 @@ const std::string& genNameOfSchema(const GenElem& elem)
     return genElemName(static_cast<const GenSchema&>(elem));
 }
 
-} // namespace 
-    
+} // namespace
 
 GenElem::~GenElem() = default;
 
@@ -116,8 +115,8 @@ const std::string& GenElem::genName() const
         /* GenType_Field */ &genNameOfField,
         /* GenType_Interface */ &genNameOfInterface,
         /* GenType_Frame */ &genNameOfFrame,
-        /* GenType_Layer */ &genNameOfLayer,    
-        /* GenType_Schema */ &genNameOfSchema,    
+        /* GenType_Layer */ &genNameOfLayer,
+        /* GenType_Schema */ &genNameOfSchema,
     };
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == GenType_NumOfValues, "Invalid map");

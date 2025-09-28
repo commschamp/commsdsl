@@ -53,11 +53,11 @@ CommsSyncLayer::CommsIncludesList CommsSyncLayer::commsDefIncludesImpl() const
 
 std::string CommsSyncLayer::commsDefBaseTypeImpl(const std::string& prevName) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "comms::frame::SyncPrefixLayer<\n"
         "    #^#FIELD_TYPE#$#,\n"
         "    #^#PREV_LAYER#$#\n"
-        ">";  
+        ">";
 
     util::GenReplacementMap repl = {
         {"FIELD_TYPE", commsDefFieldType()},

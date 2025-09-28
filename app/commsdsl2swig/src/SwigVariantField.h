@@ -43,14 +43,14 @@ public:
 protected:
     // GenBase overrides
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
     // SwigBase overrides
     virtual std::string swigMembersDeclImpl() const override;
     virtual std::string swigValueAccDeclImpl() const override;
     virtual std::string swigExtraPublicFuncsDeclImpl() const override;
     virtual std::string swigExtraPublicFuncsCodeImpl() const override;
-    
+
     virtual void swigAddDefImpl(GenStringsList& list) const override;
     virtual void swigAddMembersCodeImpl(GenStringsList& list) const override;
 
@@ -58,7 +58,7 @@ private:
     bool swigPrepareInternal();
     std::string swigHandlerDeclInternal() const;
     void swigAddHandlerCodeInternal(GenStringsList& list) const;
-    
+
     SwigFieldsList m_swigMembers;
 };
 

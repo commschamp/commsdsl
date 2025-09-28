@@ -31,7 +31,6 @@ namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
 
-
 namespace commsdsl2swig
 {
 
@@ -48,14 +47,14 @@ const SwigLayer* SwigLayer::swigCast(const commsdsl::gen::GenLayer* layer)
         return nullptr;
     }
 
-    auto* swigLayer = dynamic_cast<const SwigLayer*>(layer);    
+    auto* swigLayer = dynamic_cast<const SwigLayer*>(layer);
     assert(swigLayer != nullptr);
     return swigLayer;
 }
 
 std::string SwigLayer::swigDeclCode() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#MEMBER#$#\n"
         "class #^#CLASS_NAME#$#\n"
         "{\n"
@@ -115,7 +114,7 @@ void SwigLayer::swigAddCode(GenStringsList& list) const
 
     swigAddCodeImpl(list);
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#\n"
         "{\n"
         "    using Base = #^#COMMS_CLASS#$#;\n"
@@ -143,7 +142,7 @@ void SwigLayer::swigAddCode(GenStringsList& list) const
 
 void SwigLayer::swigAddToAllFieldsDecl(GenStringsList& list) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#CLASS_NAME#$#::Field #^#ACC_NAME#$#;\n";
 
     auto& gen = SwigGenerator::swigCast(m_genLayer.genGenerator());
@@ -201,6 +200,5 @@ std::string SwigLayer::swigTemplateScope() const
     assert(iFace != nullptr);
     return m_genLayer.genTemplateScopeOfComms(gen.swigClassName(*iFace), strings::genAllMessagesStr(), SwigProtocolOptions::swigClassName(gen));
 }
-
 
 } // namespace commsdsl2swig

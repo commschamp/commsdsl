@@ -2,7 +2,7 @@
 <schema name="Schema10"
         id="1"
         endian="big">
-    <ns name="ns1">        
+    <ns name="ns1">
         <fields>
             <data name="Data1" defaultValue="abcdef0123">
                 <lengthPrefix>

@@ -41,7 +41,7 @@ namespace commsdsl2swig
 SwigFrame::SwigFrame(SwigGenerator& generator, ParseFrame parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent)
 {
-}   
+}
 
 SwigFrame::~SwigFrame() = default;
 
@@ -99,7 +99,7 @@ bool SwigFrame::genPrepareImpl()
         m_swigLayers.push_back(const_cast<SwigLayer*>(swigLayer));
     }
 
-    m_validFrame = 
+    m_validFrame =
         std::all_of(
             m_swigLayers.begin(), m_swigLayers.end(),
             [](auto* l)
@@ -111,7 +111,7 @@ bool SwigFrame::genPrepareImpl()
         return true;
     }
 
-    return true;   
+    return true;
 }
 
 bool SwigFrame::genWriteImpl() const
@@ -125,7 +125,7 @@ bool SwigFrame::genWriteImpl() const
     assert(!dirPath.empty());
     if (!genGenerator().genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     auto& logger = genGenerator().genLogger();
     logger.genInfo("Generating " + filePath);
@@ -136,7 +136,7 @@ bool SwigFrame::genWriteImpl() const
         return false;
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "#^#LAYERS#$#\n"
@@ -150,7 +150,7 @@ bool SwigFrame::genWriteImpl() const
         {"ALL_FIELDS", swigAllFieldsInternal()},
         {"DEF", swigClassDeclInternal()},
     };
-    
+
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
@@ -181,7 +181,7 @@ std::string SwigFrame::swigClassDeclInternal() const
         "    #^#DATA_BUF#$# writeMessage(const #^#INTERFACE#$#& msg);\n"
         "    #^#ERR_STATUS#$# appendMessage(const #^#INTERFACE#$#& msg, #^#DATA_BUF#$#& buf);\n"
         "    #^#CUSTOM#$#\n"
-        "};\n";    
+        "};\n";
 
     auto& gen = SwigGenerator::swigCast(genGenerator());
     auto* iFace = gen.swigMainInterface();
@@ -197,7 +197,7 @@ std::string SwigFrame::swigClassDeclInternal() const
         {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)}
     };
 
-    return util::genProcessTemplate(Templ, repl);            
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string SwigFrame::swigLayersAccDeclInternal() const
@@ -205,7 +205,7 @@ std::string SwigFrame::swigLayersAccDeclInternal() const
     auto& gen = SwigGenerator::swigCast(genGenerator());
     util::GenStringsList elems;
     for (auto& l : genLayers()) {
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#CLASS_NAME#$#& layer_#^#ACC_NAME#$#();\n";
 
         util::GenReplacementMap repl = {
@@ -223,7 +223,7 @@ std::string SwigFrame::swigLayersAccCodeInternal() const
     auto& gen = SwigGenerator::swigCast(genGenerator());
     util::GenStringsList elems;
     for (auto& l : genLayers()) {
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#CLASS_NAME#$#& layer_#^#ACC_NAME#$#() { return static_cast<#^#CLASS_NAME#$#&>(m_frame.layer_#^#ACC_NAME#$#()); }\n";
 
         util::GenReplacementMap repl = {
@@ -279,7 +279,7 @@ std::string SwigFrame::swigFrameCodeInternal() const
         "                        #^#ALL_FIELDS_VALUES#$#);\n\n"
         "                auto frameFieldsValues =\n"
         "                    std::forward_as_tuple(\n"
-        "                        #^#FRAME_FIELDS_VALUES#$#);\n\n"        
+        "                        #^#FRAME_FIELDS_VALUES#$#);\n\n"
         "                allFieldsValues = std::move(frameFieldsValues);\n"
         "            }\n\n"
         "            consumed += static_cast<decltype(consumed)>(std::distance(begIter, iter));\n\n"
@@ -289,7 +289,7 @@ std::string SwigFrame::swigFrameCodeInternal() const
         "            break;\n"
         "        }\n"
         "        return consumed;\n"
-        "    }\n\n"        
+        "    }\n\n"
         "    #^#DATA_BUF#$# writeMessage(const #^#INTERFACE#$#& msg)\n"
         "    {\n"
         "        #^#DATA_BUF#$# outBuf;\n"
@@ -305,12 +305,12 @@ std::string SwigFrame::swigFrameCodeInternal() const
         "        buf.reserve(buf.size() + m_frame.length(msg));\n"
         "        auto writeIter = std::back_inserter(buf);\n"
         "        return m_frame.write(msg, writeIter, buf.max_size() - buf.size());\n"
-        "    }\n\n"        
+        "    }\n\n"
         "    #^#CUSTOM#$#\n\n"
         "private:\n"
         "    using Frame = #^#COMMS_CLASS#$#<#^#INTERFACE#$#, AllMessages#^#OPTS#$#>;\n"
         "    Frame m_frame;\n"
-        "};\n";    
+        "};\n";
 
     util::GenStringsList allFieldsAcc;
     for (auto* l : m_swigLayers) {
@@ -320,7 +320,7 @@ std::string SwigFrame::swigFrameCodeInternal() const
     util::GenStringsList frameFieldsAcc;
     for (auto idx = 0U; idx < m_swigLayers.size(); ++idx) {
         frameFieldsAcc.push_back("std::move(std::get<" + std::to_string(idx) + ">(frameFields).value())");
-    }    
+    }
 
     auto& gen = SwigGenerator::swigCast(genGenerator());
     auto* iFace = gen.swigMainInterface();
@@ -345,12 +345,12 @@ std::string SwigFrame::swigFrameCodeInternal() const
         repl["OPTS"] = ", " + SwigProtocolOptions::swigClassName(gen);
     }
 
-    return util::genProcessTemplate(Templ, repl);   
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string SwigFrame::swigAllFieldsInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "struct #^#CLASS_NAME#$#_AllFields\n"
         "{\n"
         "   #^#FIELDS#$#\n"

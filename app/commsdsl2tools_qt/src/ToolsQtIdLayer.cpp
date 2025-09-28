@@ -26,7 +26,7 @@ ToolsQtIdLayer::ToolsQtIdLayer(ToolsQtGenerator& generator, ParseLayer parseObj,
 {
 }
 
-bool ToolsQtIdLayer::genPrepareImpl() 
+bool ToolsQtIdLayer::genPrepareImpl()
 {
     return GenBase::genPrepareImpl() && ToolsBase::toolsPrepare();
 }

@@ -29,7 +29,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigSetField::SwigSetField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+SwigSetField::SwigSetField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     SwigBase(static_cast<GenBase&>(*this))
 {
@@ -42,7 +42,7 @@ bool SwigSetField::genWriteImpl() const
 
 std::string SwigSetField::swigValueTypeDeclImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "using ValueType = #^#TYPE#$#;\n";
 
     auto obj = genSetFieldParseObj();
@@ -50,7 +50,7 @@ std::string SwigSetField::swigValueTypeDeclImpl() const
         {"TYPE", SwigGenerator::swigCast(genGenerator()).swigConvertIntType(obj.parseType(), obj.parseMaxLength())}
     };
 
-    return util::genProcessTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
@@ -63,7 +63,7 @@ std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
     for (auto& bitInfo : obj.parseRevBits()) {
         indices.push_back("BitIdx_" + bitInfo.second + " = " + std::to_string(bitInfo.first));
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "bool getBitValue_#^#NAME#$#() const;\n"
             "void setBitValue_#^#NAME#$#(bool val);";
 
@@ -74,16 +74,16 @@ std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
         accesses.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "enum BitIdx : unsigned\n"
         "{\n"
         "    #^#INDICES#$#\n"
         "    BitIdx_numOfValues\n"
         "};\n\n"
         "bool getBitValue(unsigned bitNum) const;\n"
-        "void setBitValue(unsigned bitNum, bool val);\n"        
+        "void setBitValue(unsigned bitNum, bool val);\n"
         "#^#ACCESS_FUNCS#$#\n"
-        ;    
+        ;
 
     util::GenReplacementMap repl = {
         {"INDICES", util::genStrListToString(indices, ",\n", ",")},

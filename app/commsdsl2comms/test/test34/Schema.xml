@@ -5,10 +5,10 @@
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
         </enum>
-        
+
         <int name="Msg1Type" type="uint8" displayName="type" failOnInvalid="true" />
     </fields>
-        
+
     <message name="Msg1_1" id="MsgId.M1" order="0">
         <int name="type" reuse="Msg1Type"/>
         <int name="f1" type="uint32" />
@@ -23,9 +23,9 @@
         <int name="f1" type="uint8" />
         <int name="f2" type="uint16" />
     </message>
-    
+
     <frame name="Frame">
         <id name="Id" field="MsgId" />
         <payload name="Data" />
-    </frame>       
+    </frame>
 </schema>

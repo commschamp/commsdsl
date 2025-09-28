@@ -646,11 +646,11 @@ void StringTestSuite::test31()
         TS_ASSERT_EQUALS(validValues[0].m_deprecatedSince, 4);
         TS_ASSERT_EQUALS(validValues[1].m_value, "bla2");
         TS_ASSERT_EQUALS(validValues[1].m_sinceVersion, 3);
-        TS_ASSERT_EQUALS(validValues[1].m_deprecatedSince, protocol->parseNotYetDeprecated());    
+        TS_ASSERT_EQUALS(validValues[1].m_deprecatedSince, protocol->parseNotYetDeprecated());
         TS_ASSERT_EQUALS(validValues[2].m_value, "bla3");
         TS_ASSERT_EQUALS(validValues[2].m_sinceVersion, 0);
-        TS_ASSERT_EQUALS(validValues[2].m_deprecatedSince, protocol->parseNotYetDeprecated());  
-    }   
+        TS_ASSERT_EQUALS(validValues[2].m_deprecatedSince, protocol->parseNotYetDeprecated());
+    }
 
     {
         TS_ASSERT_LESS_THAN_EQUALS(2U, fields.size());
@@ -666,12 +666,12 @@ void StringTestSuite::test31()
         TS_ASSERT_EQUALS(validValues[0].m_deprecatedSince, 4);
         TS_ASSERT_EQUALS(validValues[1].m_value, "bla2");
         TS_ASSERT_EQUALS(validValues[1].m_sinceVersion, 3);
-        TS_ASSERT_EQUALS(validValues[1].m_deprecatedSince, protocol->parseNotYetDeprecated());    
+        TS_ASSERT_EQUALS(validValues[1].m_deprecatedSince, protocol->parseNotYetDeprecated());
         TS_ASSERT_EQUALS(validValues[2].m_value, "bla3");
         TS_ASSERT_EQUALS(validValues[2].m_sinceVersion, 0);
-        TS_ASSERT_EQUALS(validValues[2].m_deprecatedSince, protocol->parseNotYetDeprecated());  
+        TS_ASSERT_EQUALS(validValues[2].m_deprecatedSince, protocol->parseNotYetDeprecated());
         TS_ASSERT_EQUALS(validValues[3].m_value, "bla4");
         TS_ASSERT_EQUALS(validValues[3].m_sinceVersion, 0);
-        TS_ASSERT_EQUALS(validValues[3].m_deprecatedSince, protocol->parseNotYetDeprecated());          
-    }        
+        TS_ASSERT_EQUALS(validValues[3].m_deprecatedSince, protocol->parseNotYetDeprecated());
+    }
 }

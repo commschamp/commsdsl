@@ -58,12 +58,12 @@ public:
     bool emscriptenHasInput() const;
 
 protected:
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
 private:
-    EmscriptenMsgId m_msgId; 
-    EmscriptenMsgHandler m_handler; 
-    EmscriptenInputMessages m_input;  
+    EmscriptenMsgId m_msgId;
+    EmscriptenMsgHandler m_handler;
+    EmscriptenInputMessages m_input;
 };
 
 } // namespace commsdsl2emscripten

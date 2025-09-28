@@ -66,7 +66,7 @@ public:
     bool commsHasMsgId() const;
 
 protected:
-    virtual bool genPrepareImpl() override;    
+    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;
 
 private:
@@ -83,7 +83,7 @@ private:
         CommsFrameOptsFunc frameOptsFunc,
         bool hasBase) const;
 
-    CommsFieldsList m_commsFields;        
+    CommsFieldsList m_commsFields;
     CommsDispatch m_dispatch;
     CommsMsgFactory m_factory;
     CommsInputMessages m_input;

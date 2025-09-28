@@ -43,7 +43,7 @@ public:
 
     bool genIsInterfaceSupported(const GenInterface* iFace) const;
 
-protected:    
+protected:
     ParseValueLayer genValueLayerParseObj() const;
 };
 

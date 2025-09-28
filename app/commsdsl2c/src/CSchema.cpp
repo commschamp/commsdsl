@@ -24,7 +24,7 @@ namespace commsdsl2c
 CSchema::CSchema(CGenerator& generator, ParseSchema parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent)
 {
-}   
+}
 
 CSchema::~CSchema() = default;
 
@@ -35,6 +35,5 @@ void CSchema::cAddSourceFiles(GenStringsList& sources) const
         n->cAddSourceFiles(sources);
     }
 }
-
 
 } // namespace commsdsl2c

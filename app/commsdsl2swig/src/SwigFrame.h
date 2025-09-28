@@ -34,7 +34,7 @@ public:
 
     using GenElem = commsdsl::gen::GenElem;
     using GenStringsList = commsdsl::gen::util::GenStringsList;
-    
+
     using SwigLayersList = SwigLayer::SwigLayersList;
 
     explicit SwigFrame(SwigGenerator& generator, ParseFrame parseObj, GenElem* parent);
@@ -47,16 +47,16 @@ public:
     static const SwigFrame* swigCast(const commsdsl::gen::GenFrame* i)
     {
         return static_cast<const SwigFrame*>(i);
-    }        
+    }
 
     const SwigLayersList& swigLayers() const
     {
         return m_swigLayers;
     }
 
-protected:    
+protected:
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
 private:
 

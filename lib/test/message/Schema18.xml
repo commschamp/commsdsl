@@ -3,7 +3,7 @@
         id="1"
         endian="Little"
         version="5">
-    
+
     <fields>
         <enum name="MsgId" type="uint8">
             <validValue name="Msg1" val="0" />

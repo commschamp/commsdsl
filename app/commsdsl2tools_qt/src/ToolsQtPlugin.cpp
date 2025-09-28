@@ -37,7 +37,7 @@ namespace
 const std::string ProtPrefix("Protocol_");
 const std::string PluginPrefix("Plugin_");
 
-} // namespace    
+} // namespace
 
 bool ToolsQtPlugin::toolsPrepare()
 {
@@ -45,20 +45,20 @@ bool ToolsQtPlugin::toolsPrepare()
     if (m_toolsFramePtr == nullptr) {
         m_toolsGenerator.genLogger().genError("Frame \"" + m_frame + "\" hasn't been defined.");
         return false;
-    }    
+    }
 
     m_toolsInterfacePtr = static_cast<const ToolsQtInterface*>(m_toolsGenerator.genFindInterface(m_interface));
     if (m_toolsInterfacePtr == nullptr) {
         m_toolsGenerator.genLogger().genError("Interface \"" + m_interface + "\" hasn't been defined.");
         return false;
-    }    
+    }
 
     return true;
 }
 
 bool ToolsQtPlugin::toolsWrite()
 {
-    return 
+    return
         toolsWriteProtocolHeaderInternal() &&
         toolsWriteProtocolSrcInternal() &&
         toolsWritePluginHeaderInternal() &&
@@ -78,7 +78,7 @@ std::string ToolsQtPlugin::toolsInterfaceName() const
     return util::genStrReplace(iFaceScope, "::", "_");
 }
 
-bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal() 
+bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
 {
     auto relPath = toolsRelFilePath(toolsProtClassNameInternal()) + strings::genCppHeaderSuffixStr();
     auto filePath = util::genPathAddElem(m_toolsGenerator.genGetOutputDir(), relPath);
@@ -98,19 +98,19 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
     }
 
     auto replacePath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genReplaceFileSuffixStr());
-    auto replaceCode = util::genReadFileContents(replacePath);    
+    auto replaceCode = util::genReadFileContents(replacePath);
 
     if (!replaceCode.empty()) {
         stream << replaceCode;
         stream.flush();
-        return stream.good();        
+        return stream.good();
     }
 
     auto extendPath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genExtendFileSuffixStr());
     auto extendCode = util::genReadFileContents(extendPath);
 
     auto incPath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genIncFileSuffixStr());
-    auto incCode = util::genReadFileContents(incPath);    
+    auto incCode = util::genReadFileContents(incPath);
 
     static const std::string Templ =
         "#^#GENERATED#$#\n"
@@ -119,7 +119,7 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         "#^#INC#$#\n\n"
         "#^#TOP_NS_BEGIN#$#\n"
         "namespace #^#MAIN_NS#$#\n"
-        "{\n\n"        
+        "{\n\n"
         "namespace plugin\n"
         "{\n\n"
         "class #^#CLASS_NAME#$##^#ORIG#$# : public cc_tools_qt::ToolsProtocol\n"
@@ -145,7 +145,7 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         {"CLASS_NAME", toolsProtClassNameInternal()},
         {"EXTEND", extendCode},
         {"INC", incCode},
-    };   
+    };
 
     if (!extendCode.empty()) {
         repl["ORIG"] = strings::genOrigSuffixStr();
@@ -158,14 +158,14 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         m_toolsGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
-bool ToolsQtPlugin::toolsWriteProtocolSrcInternal() 
+bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
 {
     auto relPath = toolsRelFilePath(toolsProtClassNameInternal()) + strings::genCppSourceSuffixStr();
-    auto filePath = util::genPathAddElem(m_toolsGenerator.genGetOutputDir(), relPath);    
+    auto filePath = util::genPathAddElem(m_toolsGenerator.genGetOutputDir(), relPath);
 
     m_toolsGenerator.genLogger().genInfo("Generating " + filePath);
 
@@ -176,12 +176,12 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
     }
 
     auto replacePath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genReplaceFileSuffixStr());
-    auto replaceCode = util::genReadFileContents(replacePath);    
+    auto replaceCode = util::genReadFileContents(replacePath);
 
     if (!replaceCode.empty()) {
         stream << replaceCode;
         stream.flush();
-        return stream.good();        
+        return stream.good();
     }
 
     auto extendPath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genExtendFileSuffixStr());
@@ -216,8 +216,8 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         "        static const QString Str(\"#^#PROT_NAME#$#\");\n"
         "        return Str;\n"
         "}\n\n"
-        "#^#EXTEND#$#\n"      
-        "} // namespace plugin\n\n"       
+        "#^#EXTEND#$#\n"
+        "} // namespace plugin\n\n"
         "} // namespace #^#MAIN_NS#$#\n\n"
         "#^#TOP_NS_END#$#\n"
     ;
@@ -233,11 +233,11 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         {"INCLUDES", util::genStrListToString(includes, "\n", "")},
         {"INC", incCode},
         {"EXTEND", extendCode},
-    };    
+    };
 
     if (!extendCode.empty()) {
         repl["ORIG"] = strings::genOrigSuffixStr();
-    }        
+    }
 
     auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;
@@ -246,11 +246,11 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         m_toolsGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
-bool ToolsQtPlugin::toolsWritePluginHeaderInternal() 
+bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
 {
     auto relPath = toolsRelFilePath(toolsPluginClassNameInternal()) + strings::genCppHeaderSuffixStr();
     auto filePath = util::genPathAddElem(m_toolsGenerator.genGetOutputDir(), relPath);
@@ -269,7 +269,7 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
         stream << replaceCode;
         stream.flush();
         return stream.good();
-    }    
+    }
 
     auto extendPath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genExtendFileSuffixStr());
     auto extendCode = util::genReadFileContents(extendPath);
@@ -286,9 +286,9 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
         "#^#INC#$#\n\n"
         "#^#TOP_NS_BEGIN#$#\n"
         "namespace #^#MAIN_NS#$#\n"
-        "{\n\n"    
+        "{\n\n"
         "namespace plugin\n"
-        "{\n\n"    
+        "{\n\n"
         "class #^#CLASS_NAME#$##^#ORIG#$# : public cc_tools_qt::ToolsPlugin\n"
         "{\n"
         "    #^#EXTEND_COMMENT#$#\n"
@@ -312,13 +312,13 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
     util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS_BEGIN", m_toolsGenerator.toolsNamespaceBegin()},
-        {"TOP_NS_END", m_toolsGenerator.toolsNamespaceEnd()},        
+        {"TOP_NS_END", m_toolsGenerator.toolsNamespaceEnd()},
         {"MAIN_NS", m_toolsGenerator.genCurrentSchema().genMainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
         {"ID", m_pluginId},
         {"EXTEND", extendCode},
         {"INC", incCode},
-    };        
+    };
 
     if (!extendCode.empty()) {
         repl["ORIG"] = strings::genOrigSuffixStr();
@@ -333,11 +333,11 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
         m_toolsGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
-bool ToolsQtPlugin::toolsWritePluginSrcInternal() 
+bool ToolsQtPlugin::toolsWritePluginSrcInternal()
 {
     auto relPath = toolsRelFilePath(toolsPluginClassNameInternal()) + strings::genCppSourceSuffixStr();
     auto filePath = util::genPathAddElem(m_toolsGenerator.genGetOutputDir(), relPath);
@@ -356,13 +356,13 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
         stream << replaceCode;
         stream.flush();
         return stream.good();
-    }     
+    }
 
     auto extendPath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genExtendFileSuffixStr());
     auto extendCode = util::genReadFileContents(extendPath);
 
     auto incPath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genIncFileSuffixStr());
-    auto incCode = util::genReadFileContents(incPath);    
+    auto incCode = util::genReadFileContents(incPath);
 
     static const std::string Templ =
         "#^#GENERATED#$#\n"
@@ -371,9 +371,9 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
         "#^#INC#$#\n\n"
         "#^#TOP_NS_BEGIN#$#\n"
         "namespace #^#MAIN_NS#$#\n"
-        "{\n\n"    
+        "{\n\n"
         "namespace plugin\n"
-        "{\n\n"    
+        "{\n\n"
         "#^#CLASS_NAME#$##^#ORIG#$#::#^#CLASS_NAME#$##^#ORIG#$#() :\n"
         "    Base(Type_Protocol)\n"
         "{\n"
@@ -392,17 +392,17 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
     util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS_BEGIN", m_toolsGenerator.toolsNamespaceBegin()},
-        {"TOP_NS_END", m_toolsGenerator.toolsNamespaceEnd()},  
+        {"TOP_NS_END", m_toolsGenerator.toolsNamespaceEnd()},
         {"MAIN_NS", m_toolsGenerator.genCurrentSchema().genMainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
         {"PROTOCOL_CLASS_NAME", toolsProtClassNameInternal()},
         {"EXTEND", extendCode},
         {"INC", incCode},
-    };        
+    };
 
     if (!extendCode.empty()) {
         repl["ORIG"] = strings::genOrigSuffixStr();
-    }         
+    }
 
     auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;
@@ -411,8 +411,8 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
         m_toolsGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
 bool ToolsQtPlugin::toolsWritePluginJsonInternal()
@@ -434,7 +434,7 @@ bool ToolsQtPlugin::toolsWritePluginJsonInternal()
         stream << replaceCode;
         stream.flush();
         return stream.good();
-    }     
+    }
 
     static const std::string Templ =
         "{\n"
@@ -456,12 +456,12 @@ bool ToolsQtPlugin::toolsWritePluginJsonInternal()
     if (!desc.empty()) {
         desc = '\"' + desc + '\"';
         desc = util::genStrReplace(desc, "\n", "\",\n\"");
-    }        
+    }
 
     util::GenReplacementMap repl = {
         {"NAME", std::move(name)},
         {"DESC", std::move(desc)},
-    };        
+    };
 
     auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;
@@ -470,15 +470,15 @@ bool ToolsQtPlugin::toolsWritePluginJsonInternal()
         m_toolsGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;   
+
+    return true;
 }
 
 bool ToolsQtPlugin::toolsWritePluginConfigInternal()
 {
     auto relPath = toolsRelFilePath(toolsProtocolName()) + ".cfg";
     auto filePath = util::genPathAddElem(m_toolsGenerator.genGetOutputDir(), relPath);
-        
+
     m_toolsGenerator.genLogger().genInfo("Generating " + filePath);
 
     std::ofstream stream(filePath);
@@ -493,7 +493,7 @@ bool ToolsQtPlugin::toolsWritePluginConfigInternal()
         stream << replaceCode;
         stream.flush();
         return stream.good();
-    }      
+    }
 
     static const std::string Templ =
         "{\n"
@@ -505,7 +505,7 @@ bool ToolsQtPlugin::toolsWritePluginConfigInternal()
 
     util::GenReplacementMap repl = {
         {"ID", m_pluginId},
-    };        
+    };
 
     auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;
@@ -514,8 +514,8 @@ bool ToolsQtPlugin::toolsWritePluginConfigInternal()
         m_toolsGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;   
+
+    return true;
 }
 
 const std::string& ToolsQtPlugin::toolsAdjustedNameInternal() const
@@ -540,8 +540,8 @@ std::string ToolsQtPlugin::toolsPluginClassNameInternal() const
 std::string ToolsQtPlugin::toolsRelFilePath(const std::string& name) const
 {
     auto prefix = util::genScopeToRelPath(m_toolsGenerator.toolsScopePrefix());
-    return 
-        prefix + m_toolsGenerator.genProtocolSchema().genMainNamespace() + '/' + 
+    return
+        prefix + m_toolsGenerator.genProtocolSchema().genMainNamespace() + '/' +
         strings::genPluginNamespaceStr() + '/' + name;
 }
 

@@ -14,7 +14,7 @@ public:
     void test1();
     void test2();
     void test3();
-    void test4();    
+    void test4();
 
     using Interface =
         test27::Message<
@@ -62,7 +62,6 @@ void TestSuite::test2()
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
     TS_ASSERT_EQUALS(buf[0], 5U);
 
-    
     ServerMsg1 msg2;
     msg2.field_value().value() = 5U;
     writeIter = comms::writeIteratorFor<Interface>(&buf[0]);
@@ -99,7 +98,7 @@ void TestSuite::test4()
     msg1.field_value().value() = 5U;
     auto es = msg1.write(writeIter, BufSize);
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::NotSupported);
-    
+
     ServerMsg2 msg2;
     msg2.field_value().value() = 5U;
     writeIter = comms::writeIteratorFor<Interface>(&buf[0]);

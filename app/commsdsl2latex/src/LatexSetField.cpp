@@ -33,9 +33,9 @@ namespace commsdsl2latex
 
 LatexSetField::LatexSetField(LatexGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
-    LatexBase(static_cast<GenBase&>(*this)) 
+    LatexBase(static_cast<GenBase&>(*this))
 {
-}   
+}
 
 bool LatexSetField::genWriteImpl() const
 {
@@ -46,7 +46,7 @@ std::string LatexSetField::latexInfoDetailsImpl() const
 {
     GenStringsList list;
     auto parseObj = genSetFieldParseObj();
-    
+
     list.push_back(latexEndianInfo(parseObj.parseEndian()));
     return util::genStrListToString(list, "\\\\\\hline\n", "\\\\");
 }
@@ -58,7 +58,7 @@ std::string LatexSetField::latexExtraDetailsImpl() const
     auto& revBits = parseObj.parseRevBits();
     auto hexWidth = parseObj.parseMinLength() * 2U;
 
-    auto maskStr = 
+    auto maskStr =
         [hexWidth](std::uintmax_t val)
         {
             std::stringstream stream;
@@ -66,7 +66,7 @@ std::string LatexSetField::latexExtraDetailsImpl() const
             return stream.str();
         };
 
-    auto idxToMaskStr = 
+    auto idxToMaskStr =
         [maskStr](unsigned idx)
         {
             return maskStr(1ULL << idx);
@@ -87,11 +87,11 @@ std::string LatexSetField::latexExtraDetailsImpl() const
         assert(iter != bits.end());
 
         auto& info = iter->second;
-        auto l = std::to_string(b.first) + " & " + idxToMaskStr(b.first) + " & " + 
-            LatexGenerator::latexEscDisplayName(info.m_displayName, b.second) + " & " + 
+        auto l = std::to_string(b.first) + " & " + idxToMaskStr(b.first) + " & " +
+            LatexGenerator::latexEscDisplayName(info.m_displayName, b.second) + " & " +
             info.m_description;
 
-        auto addVersionInfo = 
+        auto addVersionInfo =
             [&info, &l]()
             {
                 if (info.m_sinceVersion != 0) {
@@ -100,14 +100,14 @@ std::string LatexSetField::latexExtraDetailsImpl() const
 
                 if (info.m_deprecatedSince != commsdsl::parse::ParseProtocol::parseNotYetDeprecated()) {
                     l.append("Deprecated in version " + LatexGenerator::latexIntegralToStr(info.m_deprecatedSince) + ". ");
-                }                
-            };            
+                }
+            };
 
         if (!info.m_description.empty()) {
             if (info.m_description.back() != '.') {
                 l.push_back('.');
             }
-            
+
             l.push_back(' ');
         }
 
@@ -132,7 +132,7 @@ std::string LatexSetField::latexExtraDetailsImpl() const
         for (auto i = gapIdx ; i < bitLimit; ++i) {
             mask |= (1ULL << i);
         }
-        
+
         auto l = std::to_string(gapIdx);
         if (gapIdx < (bitLimit - 1)) {
             l += " - " + std::to_string(bitLimit - 1);
@@ -142,14 +142,14 @@ std::string LatexSetField::latexExtraDetailsImpl() const
         lines.push_back(std::move(l));
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "\\subsubparagraph{Bit Values}\n"
         "\\label{#^#LABEL#$#}\n\n"
         "\\fbox{%\n"
         "\\begin{tabular}{c|c|c|p{7cm}}\n"
         "\\textbf{Bit(s) Index} & \\textbf{Bit(s) Mask} & \\textbf{Name} & \\textbf{Description}\\\\\n"
         "\\hline\n"
-        "\\hline\n"        
+        "\\hline\n"
         "#^#LINES#$#\n"
         "\\end{tabular}\n"
         "}\n"
@@ -162,7 +162,7 @@ std::string LatexSetField::latexExtraDetailsImpl() const
         {"LINES", util::genStrListToString(lines, " \\\\\\hline\n", " \\\\")},
     };
 
-    return util::genProcessTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2latex

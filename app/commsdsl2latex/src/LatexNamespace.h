@@ -63,9 +63,9 @@ protected:
 
 private:
     bool latexHasDocElements() const;
-    std::string latexInputs() const;   
+    std::string latexInputs() const;
     std::string latexSection(const std::string& title) const;
-    
+
     LatexFieldsList m_latexFields;
     LatexMessagesList m_latexMessages;
     LatexFramesList m_latexFrames;

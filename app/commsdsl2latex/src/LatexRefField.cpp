@@ -30,9 +30,9 @@ namespace commsdsl2latex
 
 LatexRefField::LatexRefField(LatexGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
-    LatexBase(static_cast<GenBase&>(*this)) 
+    LatexBase(static_cast<GenBase&>(*this))
 {
-}   
+}
 
 bool LatexRefField::genPrepareImpl()
 {

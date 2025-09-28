@@ -53,10 +53,10 @@ public:
     const CMsgId* cMsgId() const;
 
 protected:
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
 private:
-    const CInterface* cFindSuitableInterfaceInternal() const;    
+    const CInterface* cFindSuitableInterfaceInternal() const;
 
     CMsgId m_msgId;
 };

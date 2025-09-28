@@ -18,13 +18,13 @@ class MsgHandler(test10.MsgHandler):
     def handle_message_Msg2(self, msg):
         self.msg1 = True
         if (self.testObj is not None):
-            self.testObj.msg2 = test10.message_Msg2(msg)            
+            self.testObj.msg2 = test10.message_Msg2(msg)
 
     def handle_Message(self, msg):
         sys.exit("shouldn't happen")
 
 class TestProtocol(unittest.TestCase):
-    def setUp(self): 
+    def setUp(self):
         self.msg1 = None
         self.msg2 = None
 
@@ -44,5 +44,4 @@ class TestProtocol(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
 

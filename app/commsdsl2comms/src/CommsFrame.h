@@ -53,8 +53,8 @@ protected:
 private:
     using CommsLayerOptsFunc = std::string (CommsLayer::*)() const;
 
-    bool commsWriteCommonInternal() const;  
-    bool commsWriteDefInternal() const;  
+    bool commsWriteCommonInternal() const;
+    bool commsWriteDefInternal() const;
     std::string commsCommonIncludesInternal() const;
     std::string commsCommonBodyInternal() const;
     std::string commsDefIncludesInternal() const;
@@ -68,9 +68,9 @@ private:
     std::string commsDefPrivateInternal() const;
     std::string commsCustomizationOptionsInternal(
         CommsLayerOptsFunc layerOptsFunc,
-        bool hasBase) const;    
-    
-    CommsLayersList m_commsLayers;  
+        bool hasBase) const;
+
+    CommsLayersList m_commsLayers;
     bool m_hasIdLayer = false;
     bool m_hasCommonCode = false;
 };

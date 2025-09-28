@@ -33,16 +33,15 @@ const std::string CommsVersionIndependentCodeStr("version-independent-code");
 const std::string CommsExtraMessagesBundleStr("extra-messages-bundle");
 const std::string CommsForceMainNamespaceInOptionsStr("force-main-ns-in-options");
 
-
 } // namespace
 
 CommsProgramOptions::CommsProgramOptions()
 {
     genAddCommonOptions()
-    (CommsFullProtocolVerStr, 
+    (CommsFullProtocolVerStr,
         "Specify semantic version of the generated protocol code using <major>.<minor>.<patch> "
         "format to make this information available in the generated code", true)
-    (CommsCustomizationStr, 
+    (CommsCustomizationStr,
         "Allowed customization level of generated code. Supported values are:\n"
         "  * \"full\" - For full customization of all fields and messages.\n"
         "  * \"limited\" - For limited customization of variable length fields and messages.\n"
@@ -52,7 +51,7 @@ CommsProgramOptions::CommsProgramOptions()
         "By default the generated code is version dependent if at least one defined "
         "interface has \"version\" field. Use this switch to forcefully disable generation "
         "of version denendent code.")
-    (CommsExtraMessagesBundleStr, 
+    (CommsExtraMessagesBundleStr,
         "Provide extra custom bundle(s) of messages, the relevant code will be added to generated "
         "\"input\" and \"dispatch\" protocol definition folders. The format of the parameter is "
         "\'Name@ListFile\'. The external \'ListFile\' needs to contain a new line separated list of message names "
@@ -82,7 +81,7 @@ bool CommsProgramOptions::commsVersionIndependentCodeRequested() const
 
 std::vector<std::string> CommsProgramOptions::commsGetExtraInputBundles() const
 {
-    return commsdsl::gen::util::genStrSplitByAnyChar(genValue(CommsExtraMessagesBundleStr), ",");    
+    return commsdsl::gen::util::genStrSplitByAnyChar(genValue(CommsExtraMessagesBundleStr), ",");
 }
 
 bool CommsProgramOptions::commsIsMainNamespaceInOptionsForced() const

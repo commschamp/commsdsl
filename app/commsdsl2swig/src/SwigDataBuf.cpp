@@ -34,14 +34,13 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-namespace 
+namespace
 {
 
 const std::string SwigClassName("DataBuf");
 
+} // namespace
 
-} // namespace 
-    
 bool SwigDataBuf::swigWrite(SwigGenerator& generator)
 {
     SwigDataBuf obj(generator);
@@ -50,7 +49,7 @@ bool SwigDataBuf::swigWrite(SwigGenerator& generator)
 
 void SwigDataBuf::swigAddDef(const SwigGenerator& generator, GenStringsList& list)
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "%template(#^#CLASS_NAME#$#) std::vector<#^#UINT8_T#$#>;\n"
         "%feature(\"valuewrapper\") #^#CLASS_NAME#$#;";
 
@@ -59,14 +58,14 @@ void SwigDataBuf::swigAddDef(const SwigGenerator& generator, GenStringsList& lis
         {"UINT8_T", SwigGenerator::swigCast(generator).swigConvertCppType("std::uint8_t")}
     };
 
-    list.push_back(util::genProcessTemplate(Templ, repl));        
+    list.push_back(util::genProcessTemplate(Templ, repl));
 
     list.push_back(SwigGenerator::swigDefInclude(SwigClassName + strings::genCppHeaderSuffixStr()));
 }
 
 void SwigDataBuf::swigAddCode(const SwigGenerator& generator, GenStringsList& list)
 {
-    const std::string Templ = 
+    const std::string Templ =
         "using #^#CLASS_NAME#$# = std::vector<#^#UINT8_T#$#>;\n";
 
     util::GenReplacementMap repl = {
@@ -100,7 +99,7 @@ bool SwigDataBuf::swigWriteInternal() const
         return false;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "using #^#CLASS_NAME#$# = std::vector<#^#UINT8_T#$#>;\n"
@@ -118,8 +117,8 @@ bool SwigDataBuf::swigWriteInternal() const
         m_swigGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
 } // namespace commsdsl2swig

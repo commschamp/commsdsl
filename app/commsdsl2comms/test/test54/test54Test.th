@@ -20,9 +20,9 @@ public:
         {
             static_cast<void>(msg);
         }
-    };    
+    };
 
-    using Interface = 
+    using Interface =
         test54::Message<
             comms::option::app::IdInfoInterface,
             comms::option::app::LengthInfoInterface,
@@ -33,7 +33,6 @@ public:
         >;
 
     using Frame = test54::frame::Frame<Interface>;
-
 
     TEST54_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
 };

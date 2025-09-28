@@ -421,7 +421,7 @@
             </members>
         </variant>
     </fields>
-    
+
     <message name="Msg1" id="MsgId.M1">
         <ref field="Variant1" name="F1" />
     </message>
@@ -429,5 +429,5 @@
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>     
+    </frame>
 </schema>

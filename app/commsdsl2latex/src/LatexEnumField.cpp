@@ -32,21 +32,20 @@ namespace commsdsl2latex
 
 LatexEnumField::LatexEnumField(LatexGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
-    LatexBase(static_cast<GenBase&>(*this)) 
+    LatexBase(static_cast<GenBase&>(*this))
 {
-}   
+}
 
 bool LatexEnumField::genWriteImpl() const
 {
     return latexWrite();
 }
 
-
 std::string LatexEnumField::latexInfoDetailsImpl() const
 {
     GenStringsList list;
     auto parseObj = genEnumFieldParseObj();
-    
+
     list.push_back(latexSignedInfo(parseObj.parseType()));
     list.push_back(latexEndianInfo(parseObj.parseEndian()));
 
@@ -58,7 +57,7 @@ std::string LatexEnumField::latexExtraDetailsImpl() const
     util::GenStringsList lines;
     auto parseObj = genEnumFieldParseObj();
     auto& values = parseObj.parseValues();
-    auto& revValues = parseObj.parseRevValues();    
+    auto& revValues = parseObj.parseRevValues();
     bool unsignedType = genIsUnsignedType();
     auto hexWidth = parseObj.parseMinLength() * 2U;
     for (auto& v : revValues) {
@@ -72,8 +71,8 @@ std::string LatexEnumField::latexExtraDetailsImpl() const
             continue;
         }
 
-        auto l = 
-            LatexGenerator::latexIntegralToStr(iter->second.m_value, unsignedType, hexWidth) + " & " + 
+        auto l =
+            LatexGenerator::latexIntegralToStr(iter->second.m_value, unsignedType, hexWidth) + " & " +
             LatexGenerator::latexEscDisplayName(iter->second.m_displayName, iter->first) + " & " + iter->second.m_description;
         lines.push_back(std::move(l));
     }
@@ -82,14 +81,14 @@ std::string LatexEnumField::latexExtraDetailsImpl() const
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "\\subsubparagraph{Valid Values}\n"
         "\\label{#^#LABEL#$#}\n\n"
         "\\fbox{%\n"
         "\\begin{tabular}{l|l|p{7cm}}\n"
         "\\textbf{Value} & \\textbf{Name}& \\textbf{Description}\\\\\n"
         "\\hline\n"
-        "\\hline\n"        
+        "\\hline\n"
         "#^#LINES#$#\n"
         "\\end{tabular}\n"
         "}\n"

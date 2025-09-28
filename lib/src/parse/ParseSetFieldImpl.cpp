@@ -36,9 +36,9 @@ namespace
 {
 const std::size_t BitsInByte =
         std::numeric_limits<std::uint8_t>::digits;
-static_assert(BitsInByte == 8U, "Invalid assumption");    
+static_assert(BitsInByte == 8U, "Invalid assumption");
 
-} // namespace 
+} // namespace
 
 ParseSetFieldImpl::ParseSetFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol)
   : Base(node, protocol)
@@ -164,17 +164,17 @@ bool ParseSetFieldImpl::parseIsComparableToValueImpl(const std::string& val) con
     auto valTmp = common::parseStrToIntMax(val, &ok);
     if (ok && (valTmp < 0)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "Cannot compare to negative number " << valTmp << ".";        
+            "Cannot compare to negative number " << valTmp << ".";
         return false;
     }
 
-    return ok;    
+    return ok;
 }
 
 bool ParseSetFieldImpl::parseIsComparableToFieldImpl(const ParseFieldImpl& field) const
 {
     auto fieldKind = field.parseKind();
-    return (fieldKind == ParseKind::Set);    
+    return (fieldKind == ParseKind::Set);
 }
 
 bool ParseSetFieldImpl::parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
@@ -244,7 +244,7 @@ ParseSetFieldImpl::ParseFieldRefInfo ParseSetFieldImpl::parseProcessInnerRefImpl
         info.m_refType = FieldRefType_InnerValue;
     }
 
-    return info;    
+    return info;
 }
 
 bool ParseSetFieldImpl::parseIsValidRefTypeImpl(ParseFieldRefType type) const
@@ -429,7 +429,7 @@ bool ParseSetFieldImpl::parseUpdateNonUniqueAllowed()
     if (valueStr.empty()) {
         return true;
     }
-    
+
     if (wasAllowed && (!newAllowed) && (!parseIsUnique())) {
         parseLogError() << "Cannot clear \"" << common::parseNonUniqueAllowedStr() << "\" property value "
                       "while having multiple names for the same bit(s).";
@@ -617,7 +617,6 @@ bool ParseSetFieldImpl::parseUpdateBits()
             }
 
         } while (false);
-
 
         do {
             auto& bitReservedValueStr = common::parseGetStringProp(props, common::parseReservedValueStr());

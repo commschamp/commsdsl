@@ -33,7 +33,6 @@ namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
 
-
 namespace commsdsl2emscripten
 {
 
@@ -50,7 +49,7 @@ const EmscriptenLayer* EmscriptenLayer::emscriptenCast(const GenLayer* layer)
         return nullptr;
     }
 
-    auto* emscriptenLayer = dynamic_cast<const EmscriptenLayer*>(layer);    
+    auto* emscriptenLayer = dynamic_cast<const EmscriptenLayer*>(layer);
     assert(emscriptenLayer != nullptr);
     return emscriptenLayer;
 }
@@ -86,7 +85,7 @@ void EmscriptenLayer::emscriptenAddHeaderInclude(GenStringsList& includes) const
 
 std::string EmscriptenLayer::emscriptenHeaderClass() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#FIELD#$#\n"
         "#^#DEF#$#\n";
 
@@ -100,7 +99,7 @@ std::string EmscriptenLayer::emscriptenHeaderClass() const
 
 std::string EmscriptenLayer::emscriptenSourceCode() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#FIELD#$#\n"
         "#^#CODE#$#\n";
 
@@ -159,10 +158,10 @@ std::string EmscriptenLayer::emscriptenTemplateScope() const
         assert(ns->emscriptenHasInput());
     }
 
-    return 
+    return
         m_genLayer.genTemplateScopeOfComms(
-            gen.emscriptenClassName(*iFace), 
-            EmscriptenNamespace::emscriptenCast(static_cast<const commsdsl::gen::GenNamespace*>(ns))->emscriptenInputClassName(), 
+            gen.emscriptenClassName(*iFace),
+            EmscriptenNamespace::emscriptenCast(static_cast<const commsdsl::gen::GenNamespace*>(ns))->emscriptenInputClassName(),
             EmscriptenProtocolOptions::emscriptenClassName(gen));
 }
 
@@ -178,7 +177,7 @@ std::string EmscriptenLayer::emscriptenHeaderFieldDefInternal() const
 
 std::string EmscriptenLayer::emscriptenHeaderClassDefInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#\n"
         "{\n"
         "    using Base = #^#COMMS_CLASS#$#;\n\n"

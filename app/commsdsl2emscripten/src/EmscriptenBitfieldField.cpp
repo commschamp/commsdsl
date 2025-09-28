@@ -30,7 +30,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenBitfieldField::EmscriptenBitfieldField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+EmscriptenBitfieldField::EmscriptenBitfieldField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     EmscriptenBase(static_cast<GenBase&>(*this))
 {
@@ -56,7 +56,7 @@ std::string EmscriptenBitfieldField::emscriptenHeaderValueAccImpl() const
     if (genParseObj().parseSemanticType() != commsdsl::parse::ParseField::ParseSemanticType::Length) {
         return strings::genEmptyString();
     }
-    
+
     return emscriptenHeaderValueAccLengthField();
 }
 

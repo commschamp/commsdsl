@@ -5,7 +5,7 @@
 
     <description>
         Testing platforms and extra bundles.
-    </description>        
+    </description>
 
     <platform name="Plat1" />
     <platform name="Plat2" />
@@ -18,7 +18,7 @@
             <validValue name="M4" val="4" />
         </enum>
     </fields>
-    
+
     <message name="Msg1" id="MsgId.M1" />
     <message name="Msg2" id="MsgId.M2" />
     <message name="Msg3" id="MsgId.M3" platforms="+Plat1" />
@@ -27,5 +27,5 @@
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>     
+    </frame>
 </schema>

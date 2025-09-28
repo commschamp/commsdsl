@@ -20,7 +20,7 @@
 
 #include <string>
 
-namespace commsdsl2c 
+namespace commsdsl2c
 {
 
 class CInterface;
@@ -51,27 +51,27 @@ public:
     static const CGenerator& cCast(const GenGenerator& generator)
     {
         return static_cast<const CGenerator&>(generator);
-    }    
+    }
 
     std::string cRelHeaderFor(const commsdsl::gen::GenElem& elem) const;
     std::string cAbsHeaderFor(const commsdsl::gen::GenElem& elem) const;
     std::string cRelSourceFor(const commsdsl::gen::GenElem& elem) const;
     std::string cAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
-    std::string cRelCommsHeaderFor(const commsdsl::gen::GenElem& elem) const;  
-    std::string cAbsCommsHeaderFor(const commsdsl::gen::GenElem& elem) const;  
+    std::string cRelCommsHeaderFor(const commsdsl::gen::GenElem& elem) const;
+    std::string cAbsCommsHeaderFor(const commsdsl::gen::GenElem& elem) const;
     std::string cRelHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
     std::string cAbsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
     std::string cRelRootHeaderFor(const std::string& name) const;
     std::string cAbsRootHeaderFor(const std::string& name) const;
     std::string cRelRootSourceFor(const std::string& name) const;
-    std::string cAbsRootSourceFor(const std::string& name) const;    
-    
+    std::string cAbsRootSourceFor(const std::string& name) const;
+
     std::string cInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const;
     std::string cInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
 
     std::string cNameFor(const commsdsl::gen::GenElem& elem) const;
 
-    static std::string cScopeToName(const std::string& scope);    
+    static std::string cScopeToName(const std::string& scope);
     static const std::string& cCppGuardBegin(bool addBool = true);
     static const std::string& cCppGuardEnd();
 
@@ -82,7 +82,7 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() override;    
+    virtual bool genWriteImpl() override;
 
     virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
     virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
@@ -115,7 +115,7 @@ private:
     bool cPrepareCommsOptionsInternal();
     bool cPrepareForcedInterfaceInternal();
 
-    std::string m_namesPrefix;    
+    std::string m_namesPrefix;
     std::string m_forcedInterfaceName;
     GenStringsList m_commsOptions;
     const CInterface* m_forcedInterface = nullptr;

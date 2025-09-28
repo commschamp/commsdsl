@@ -25,7 +25,7 @@ public:
         {
             static_cast<void>(msg);
         }
-    };    
+    };
 
     using Interface = test52::Message<
         comms::option::app::IdInfoInterface,
@@ -37,7 +37,6 @@ public:
     >;
     using Sub1Frame = test52::sub1::frame::Frame<Interface>;
     using Sub2Frame = test52::sub2::frame::Frame<Interface>;
-
 
     TEST52_SUB1_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(Sub1,,Interface);
     TEST52_SUB2_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(Sub2,,Interface);

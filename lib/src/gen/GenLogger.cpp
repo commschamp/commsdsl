@@ -89,7 +89,7 @@ private:
     bool m_hadWarning = false;
 };
 
-GenLogger::GenLogger() : 
+GenLogger::GenLogger() :
     m_impl(std::make_unique<GenLoggerImpl>())
 {
 }
