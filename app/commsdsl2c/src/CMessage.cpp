@@ -309,7 +309,7 @@ std::string CMessage::cHeaderCodeInternal() const
     util::GenReplacementMap repl = {
         {"NAME", cName()},
         {"DISP_NAME", util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName())},
-        {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
+        {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "\n", "\n")},
         {"INTERFACE", interface->cName()},
         {"MSG_ID", msgId->cName()},
     };
@@ -386,7 +386,7 @@ std::string CMessage::cSourceCodeInternal() const
     auto parseObj = genParseObj();
     util::GenReplacementMap repl = {
         {"NAME", cName()},
-        {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
+        {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "\n", "\n")},
         {"INTERFACE", interface->cName()},
         {"MSG_ID", msgId->cName()},
     };
