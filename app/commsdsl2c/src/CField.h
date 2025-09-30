@@ -70,6 +70,7 @@ protected:
     virtual void cAddCommsHeaderIncludesImpl(CIncludesList& includes) const;
     virtual std::string cHeaderCodeImpl() const;
     virtual std::string cSourceCodeImpl() const;
+    virtual std::string cCommsHeaderCodeImpl() const;
 
     std::string cHeaderCommonValueAccessFuncs() const;
     std::string cSourceCommonValueAccessFuncs() const;

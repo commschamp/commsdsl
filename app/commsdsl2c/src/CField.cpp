@@ -285,15 +285,22 @@ std::string CField::cCommsHeaderCode() const
             return util::genProcessTemplate(Templ, repl);
         };
 
-    if (!cIsVersionOptional()) {
-        return doCode(false);
-    }
-
     static const std::string Templ =
+        "#^#IMPL#$#\n"
         "#^#INNER#$#\n"
         "#^#WRAP#$#\n";
 
+    if (!cIsVersionOptional()) {
+        util::GenReplacementMap repl = {
+            {"IMPL", cCommsHeaderCodeImpl()},
+            {"INNER", doCode(false)},
+        };
+
+        return util::genProcessTemplate(Templ, repl);
+    }
+
     util::GenReplacementMap repl = {
+        {"IMPL", cCommsHeaderCodeImpl()},
         {"INNER", doCode(true)},
         {"WRAP", doCode(false)},
     };
@@ -304,10 +311,10 @@ std::string CField::cCommsHeaderCode() const
 std::string CField::cCommsType(bool appendOptions, bool forceOptional) const
 {
     auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
-    auto adjustType =
-        [this, &cGenerator, forceOptional](const std::string& type, bool withOpts)
+    auto memberType =
+        [this, &cGenerator, forceOptional](const std::string& type, bool withOpts, const std::string& suffix = strings::genFieldsSuffixStr())
         {
-            auto str = type + strings::genFieldsSuffixStr();
+            auto str = type + suffix;
             if (withOpts) {
                 str += '<' + CProtocolOptions::cName(cGenerator) + '>';
             }
@@ -325,23 +332,32 @@ std::string CField::cCommsType(bool appendOptions, bool forceOptional) const
     assert(parent != nullptr);
     auto parentType = parent->genElemType();
     if (parentType == GenElem::GenType::GenType_Field) {
-        return adjustType(CField::cCast(static_cast<const GenField*>(parent))->cCommsType(appendOptions), false);
+        auto* parentField = CField::cCast(static_cast<const commsdsl::gen::GenField*>(parent));
+        auto parentStr = parentField->cCommsType(false, parentField->cIsVersionOptional());
+        auto greatParent = parent->genGetParent();
+        assert(greatParent != nullptr);
+        auto greatParentType = greatParent->genElemType();
+        return memberType(parentStr, appendOptions && (greatParentType == GenElem::GenType::GenType_Namespace), strings::genMembersSuffixStr());
     }
 
     if (parentType == GenElem::GenType::GenType_Message) {
-        return adjustType(CMessage::cCast(static_cast<const commsdsl::gen::GenMessage*>(parent))->cCommsType(false), true);
+        return memberType(CMessage::cCast(static_cast<const commsdsl::gen::GenMessage*>(parent))->cCommsType(false), true);
     }
 
     if (parentType == GenElem::GenType::GenType_Interface) {
-        return adjustType(CInterface::cCast(static_cast<const commsdsl::gen::GenInterface*>(parent))->cCommsType(), false);
+        return memberType(CInterface::cCast(static_cast<const commsdsl::gen::GenInterface*>(parent))->cCommsType(), false);
     }
 
     // TODO: Frame Layer
     assert (parentType == GenElem::GenType::GenType_Namespace);
     auto str = comms::genScopeFor(m_genField, cGenerator);
+    if (forceOptional) {
+        str += strings::genVersionOptionalFieldSuffixStr();
+    }    
     if (appendOptions) {
         str += '<' + CProtocolOptions::cName(cGenerator) + '>';
     }
+
     return str;
 }
 
@@ -408,6 +424,11 @@ std::string CField::cHeaderCodeImpl() const
 }
 
 std::string CField::cSourceCodeImpl() const
+{
+    return strings::genEmptyString();
+}
+
+std::string CField::cCommsHeaderCodeImpl() const
 {
     return strings::genEmptyString();
 }

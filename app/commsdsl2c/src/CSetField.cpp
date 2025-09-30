@@ -199,7 +199,6 @@ std::string CSetField::cSourceBitsCodeInternal() const
     util::GenStringsList asserts;
     util::GenStringsList accesses;
 
-    auto& bits = parseObj.parseBits();
     for (auto& bitInfo : parseObj.parseRevBits()) {
         auto idx = bitInfo.first;
         if (CMaxBits <= idx) {
@@ -207,9 +206,6 @@ std::string CSetField::cSourceBitsCodeInternal() const
             assert(Should_not_happen);
             continue;
         }
-
-        auto iter = bits.find(bitInfo.second);
-        assert(iter != bits.end());
 
         static const std::string AssertTempl =
             "static_assert(static_cast<unsigned>(#^#NAME#$##^#SUFFIX#$#_#^#BIT_IDX#$#_#^#BIT_NAME#$#) == static_cast<unsigned>(#^#NAME#$##^#SUFFIX#$##^#COMMS#$#::BitIdx_#^#BIT_NAME#$#), \"Bit index mismatch\");"
