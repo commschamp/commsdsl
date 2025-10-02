@@ -42,8 +42,6 @@ protected:
     virtual void cAddSourceIncludesImpl(CIncludesList& includes) const override;
     virtual std::string cHeaderCodeImpl() const override;
     virtual std::string cSourceCodeImpl() const override;
-
-private:
 };
 
 } // namespace commsdsl2c

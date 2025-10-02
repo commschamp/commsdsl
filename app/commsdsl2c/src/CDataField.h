@@ -39,8 +39,9 @@ protected:
     virtual bool genWriteImpl() const override;
 
     // CBase overrides
-
-private:
+    virtual void cAddSourceIncludesImpl(CIncludesList& includes) const override;
+    virtual std::string cHeaderCodeImpl() const override;
+    virtual std::string cSourceCodeImpl() const override;
 };
 
 } // namespace commsdsl2c
