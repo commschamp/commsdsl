@@ -41,4 +41,76 @@ bool CStringField::genWriteImpl() const
     return cWrite();
 }
 
+void CStringField::cAddSourceIncludesImpl(CIncludesList& includes) const
+{
+    includes.push_back("<algorithm>");
+    includes.push_back("comms/util/assign.h");
+}
+
+std::string CStringField::cHeaderCodeImpl() const
+{
+    static const std::string Templ =
+        "/// @brief Get the stored value of the @ref #^#NAME#$##^#SUFFIX#$# field.\n"
+        "/// @details When value is copied to the output buffer, the trailing '\\0' (is such exists) is NOT copied.\n"
+        "/// @param[in] field Field handle.\n"
+        "/// @param[out] buf Buffer to which value is copied.\n"
+        "/// @param[in] bufSize Available size of the buffer.\n"
+        "/// @return Amount of bytes copied.\n"
+        "size_t #^#NAME#$##^#SUFFIX#$#_getValue(const #^#NAME#$##^#SUFFIX#$#* field, char* buf, size_t bufSize);\n"
+        "\n"
+        "/// @brief Set value of the @ref #^#NAME#$##^#SUFFIX#$# field.\n"
+        "/// @param[in, out] field Field handle.\n"
+        "/// @param[in] buf Buffer from which the value to be copied.\n"
+        "/// @param[in] bufSize Size of the buffer to copy (not including trailing '\\0' if such exists).\n"
+        "void #^#NAME#$##^#SUFFIX#$#_setValue(#^#NAME#$##^#SUFFIX#$#* field, const char* buf, size_t bufSize);\n"
+        "\n"
+        "/// @brief Get size (not including trailing '\\0' if such exists) of the currently stored field value.\n"
+        "size_t #^#NAME#$##^#SUFFIX#$#_valueSize(const #^#NAME#$##^#SUFFIX#$#* field);\n"
+    ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cName()},
+    };
+
+    if (cIsVersionOptional()) {
+        repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CStringField::cSourceCodeImpl() const
+{
+    static const std::string Templ =
+        "size_t #^#NAME#$##^#SUFFIX#$#_getValue(const #^#NAME#$##^#SUFFIX#$#* field, char* buf, size_t bufSize)\n"
+        "{\n"
+        "    auto& fieldValue = from#^#CONV_SUFFIX#$#(field)->getValue();\n"
+        "    auto bytesToCopy = std::min(bufSize, fieldValue.size());\n"
+        "    std::copy_n(fieldValue.begin(), bytesToCopy, buf);\n"
+        "    return bytesToCopy;\n"
+        "}\n"
+        "\n"
+        "void #^#NAME#$##^#SUFFIX#$#_setValue(#^#NAME#$##^#SUFFIX#$#* field, const char* buf, size_t bufSize)\n"
+        "{\n"
+        "    comms::util::assign(from#^#CONV_SUFFIX#$#(field)->value(), buf, buf + bufSize);\n"
+        "}\n"
+        "\n"
+        "size_t #^#NAME#$##^#SUFFIX#$#_valueSize(const #^#NAME#$##^#SUFFIX#$#* field)\n"
+        "{\n"
+        "    return from#^#CONV_SUFFIX#$#(field)->getValue().size();\n"
+        "}\n"
+    ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cName()},
+        {"CONV_SUFFIX", cConversionSuffix()}
+    };
+
+    if (cIsVersionOptional()) {
+        repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
 } // namespace commsdsl2c
