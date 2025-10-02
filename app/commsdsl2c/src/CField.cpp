@@ -353,7 +353,7 @@ std::string CField::cCommsType(bool appendOptions, bool forceOptional) const
     auto str = comms::genScopeFor(m_genField, cGenerator);
     if (forceOptional) {
         str += strings::genVersionOptionalFieldSuffixStr();
-    }    
+    }
     if (appendOptions) {
         str += '<' + CProtocolOptions::cName(cGenerator) + '>';
     }
@@ -707,10 +707,32 @@ std::string CField::cHandleBriefInternal(bool forcedOptional) const
         return "/// @brief Inner field of @ref " + cName() + " optional.";
     }
 
-    return
+    auto prefix =
         "/// @brief Definition of <b>\"" +
-        util::genDisplayName(m_genField.genParseObj().parseDisplayName(), m_genField.genParseObj().parseName()) +
-        "\"</b> field.";
+        util::genDisplayName(m_genField.genParseObj().parseDisplayName(), m_genField.genParseObj().parseName()) + "\"</b>";
+
+    auto* parent = m_genField.genGetParent();
+    assert(parent != nullptr);
+    auto parentElemType = parent->genElemType();
+
+    if (parentElemType == GenElem::GenType_Namespace) {
+        return prefix + " global field.";
+    }
+
+    std::string parentName;
+    if (parentElemType == GenElem::GenType_Interface) {
+        parentName = CInterface::cCast(static_cast<const commsdsl::gen::GenInterface*>(parent))->cName();
+    }
+    else if (parentElemType == GenElem::GenType_Message) {
+        parentName = CMessage::cCast(static_cast<const commsdsl::gen::GenMessage*>(parent))->cName();
+    }
+    else if (parentElemType == GenElem::GenType_Field) {
+        parentName = CField::cCast(static_cast<const commsdsl::gen::GenField*>(parent))->cName();
+    }
+    // TODO: layer
+
+    assert(!parentName.empty());
+    return prefix + " member field of @ref " + parentName + '.';
 }
 
 std::string CField::cCommsHeaderIncludesInternal() const

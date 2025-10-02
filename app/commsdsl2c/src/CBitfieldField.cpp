@@ -43,7 +43,7 @@ const std::string& cCodeTemplInternal()
     return Templ;
 }
 
-} // namespace    
+} // namespace
 
 CBitfieldField::CBitfieldField(CGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
@@ -95,11 +95,11 @@ std::string CBitfieldField::cHeaderCodeImpl() const
     for (auto* m : m_cMembers) {
         members.push_back(m->cHeaderCode());
 
-        static const std::string AccTempl = 
+        static const std::string AccTempl =
             "/// @brief Acquire access to member @ref #^#MEM#$#.\n"
             "#^#MEM#$#* #^#NAME#$##^#SUFFIX#$#_field_#^#MEM_NAME#$#(#^#NAME#$##^#SUFFIX#$#* field);\n"
         ;
-        
+
         util::GenReplacementMap accRepl = {
             {"NAME", cName()},
             {"MEM", m->cName()},
@@ -108,8 +108,8 @@ std::string CBitfieldField::cHeaderCodeImpl() const
 
         if (cIsVersionOptional()) {
             accRepl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
-        } 
-        
+        }
+
         access.push_back(util::genProcessTemplate(AccTempl, accRepl));
     }
 
@@ -129,13 +129,13 @@ std::string CBitfieldField::cSourceCodeImpl() const
     for (auto* m : m_cMembers) {
         members.push_back(m->cSourceCode());
 
-        static const std::string AccTempl = 
+        static const std::string AccTempl =
             "#^#MEM#$#* #^#NAME#$##^#SUFFIX#$#_field_#^#MEM_NAME#$#(#^#NAME#$##^#SUFFIX#$#* field)\n"
             "{\n"
             "    return to#^#MEM_CONV_SUFFIX#$#(&(from#^#CONV_SUFFIX#$#(field)->field_#^#MEM_NAME#$#()));\n"
             "}\n"
         ;
-        
+
         util::GenReplacementMap accRepl = {
             {"NAME", cName()},
             {"MEM", m->cName()},
@@ -146,8 +146,8 @@ std::string CBitfieldField::cSourceCodeImpl() const
 
         if (cIsVersionOptional()) {
             accRepl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
-        } 
-        
+        }
+
         access.push_back(util::genProcessTemplate(AccTempl, accRepl));
     }
 

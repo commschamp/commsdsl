@@ -30,15 +30,142 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2c
 {
 
+namespace
+{
+
+const std::string& cCodeTemplInternal()
+{
+    static const std::string Templ =
+        "#^#MEMBERS#$#\n"
+        "#^#ACCESS#$#\n"
+        ;
+
+    return Templ;
+}
+
+} // namespace
+
 CBundleField::CBundleField(CGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     CBase(static_cast<GenBase&>(*this))
 {
 }
 
+bool CBundleField::genPrepareImpl()
+{
+    if (!GenBase::genPrepareImpl()) {
+        return false;
+    }
+
+    m_cMembers = cTransformFieldsList(genMembers());
+    return true;
+}
+
 bool CBundleField::genWriteImpl() const
 {
     return cWrite();
+}
+
+void CBundleField::cAddHeaderIncludesImpl(CIncludesList& includes) const
+{
+    for (auto* m : m_cMembers) {
+        m->cAddHeaderIncludes(includes);
+    }
+}
+
+void CBundleField::cAddSourceIncludesImpl(CIncludesList& includes) const
+{
+    for (auto* m : m_cMembers) {
+        m->cAddSourceIncludes(includes);
+    }
+}
+
+void CBundleField::cAddCommsHeaderIncludesImpl(CIncludesList& includes) const
+{
+    for (auto* m : m_cMembers) {
+        m->cAddCommsHeaderIncludes(includes);
+    }
+}
+
+std::string CBundleField::cHeaderCodeImpl() const
+{
+    GenStringsList members;
+    GenStringsList access;
+
+    for (auto* m : m_cMembers) {
+        members.push_back(m->cHeaderCode());
+
+        static const std::string AccTempl =
+            "/// @brief Acquire access to member @ref #^#MEM#$#.\n"
+            "#^#MEM#$#* #^#NAME#$##^#SUFFIX#$#_field_#^#MEM_NAME#$#(#^#NAME#$##^#SUFFIX#$#* field);\n"
+        ;
+
+        util::GenReplacementMap accRepl = {
+            {"NAME", cName()},
+            {"MEM", m->cName()},
+            {"MEM_NAME", comms::genAccessName(m->cGenField().genName())},
+        };
+
+        if (cIsVersionOptional()) {
+            accRepl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+        }
+
+        access.push_back(util::genProcessTemplate(AccTempl, accRepl));
+    }
+
+    util::GenReplacementMap repl = {
+        {"MEMBERS", util::genStrListToString(members, "\n", "\n")},
+        {"ACCESS", util::genStrListToString(access, "\n", "\n")},
+    };
+
+    return util::genProcessTemplate(cCodeTemplInternal(), repl);
+}
+
+std::string CBundleField::cSourceCodeImpl() const
+{
+    GenStringsList members;
+    GenStringsList access;
+
+    for (auto* m : m_cMembers) {
+        members.push_back(m->cSourceCode());
+
+        static const std::string AccTempl =
+            "#^#MEM#$#* #^#NAME#$##^#SUFFIX#$#_field_#^#MEM_NAME#$#(#^#NAME#$##^#SUFFIX#$#* field)\n"
+            "{\n"
+            "    return to#^#MEM_CONV_SUFFIX#$#(&(from#^#CONV_SUFFIX#$#(field)->field_#^#MEM_NAME#$#()));\n"
+            "}\n"
+        ;
+
+        util::GenReplacementMap accRepl = {
+            {"NAME", cName()},
+            {"MEM", m->cName()},
+            {"MEM_NAME", comms::genAccessName(m->cGenField().genName())},
+            {"CONV_SUFFIX", cConversionSuffix()},
+            {"MEM_CONV_SUFFIX", m->cConversionSuffix()},
+        };
+
+        if (cIsVersionOptional()) {
+            accRepl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+        }
+
+        access.push_back(util::genProcessTemplate(AccTempl, accRepl));
+    }
+
+    util::GenReplacementMap repl = {
+        {"MEMBERS", util::genStrListToString(members, "\n", "\n")},
+        {"ACCESS", util::genStrListToString(access, "\n", "\n")},
+    };
+
+    return util::genProcessTemplate(cCodeTemplInternal(), repl);
+}
+
+std::string CBundleField::cCommsHeaderCodeImpl() const
+{
+    GenStringsList members;
+    for (auto* m : m_cMembers) {
+        members.push_back(m->cCommsHeaderCode());
+    }
+    return util::genStrListToString(members, "\n", "\n");
 }
 
 } // namespace commsdsl2c
