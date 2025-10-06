@@ -333,7 +333,7 @@ std::string CField::cCommsType(bool appendOptions, bool forceOptional) const
     auto parentType = parent->genElemType();
     if (parentType == GenElem::GenType::GenType_Field) {
         auto* parentField = CField::cCast(static_cast<const commsdsl::gen::GenField*>(parent));
-        auto parentStr = parentField->cCommsType(false, parentField->cIsVersionOptional());
+        auto parentStr = parentField->cCommsType(false, false);
         auto greatParent = parent->genGetParent();
         assert(greatParent != nullptr);
         auto greatParentType = greatParent->genElemType();
