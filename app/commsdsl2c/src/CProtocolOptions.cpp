@@ -64,7 +64,7 @@ std::string cCodeInternal(const util::GenStringsList& opts, std::size_t idx)
 
 std::string CProtocolOptions::cName(const CGenerator& generator)
 {
-    return generator.cNamesPrefix() + "ProtocolOptions";
+    return generator.genProtocolSchema().genMainNamespace() + "_ProtocolOptions";
 }
 
 std::string CProtocolOptions::cRelHeaderPath(const CGenerator& generator)

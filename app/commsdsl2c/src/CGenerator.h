@@ -75,7 +75,6 @@ public:
     static const std::string& cCppGuardBegin(bool addBool = true);
     static const std::string& cCppGuardEnd();
 
-    const std::string& cNamesPrefix() const;
     const GenStringsList& cProtocolOptions() const;
 
     const CInterface* cForcedInterface() const;

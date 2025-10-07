@@ -36,9 +36,73 @@ CRefField::CRefField(CGenerator& generator, ParseField parseObj, GenElem* parent
 {
 }
 
+bool CRefField::genPrepareImpl()
+{
+    if (!GenBase::genPrepareImpl()) {
+        return false;
+    }
+
+    m_cRefField = cCast(genReferencedField());
+    assert(m_cRefField != nullptr);
+    return true;
+}
+
 bool CRefField::genWriteImpl() const
 {
     return cWrite();
+}
+
+void CRefField::cAddHeaderIncludesImpl(CIncludesList& includes) const
+{
+    includes.push_back(m_cRefField->cRelHeader());
+}
+
+void CRefField::cAddSourceIncludesImpl(CIncludesList& includes) const
+{
+    includes.push_back(m_cRefField->cRelCommsDefHeader());
+}
+
+std::string CRefField::cHeaderCodeImpl() const
+{
+    static const std::string Templ = 
+        "/// @brief Acquire access to the field referenced by the @ref #^#NAME#$##^#SUFFIX#$#.\n"
+        "#^#REF_NAME#$#* #^#NAME#$##^#SUFFIX#$#_ref(#^#NAME#$##^#SUFFIX#$#* field);\n"
+    ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cName()},
+        {"REF_NAME", m_cRefField->cName()},
+    };
+
+    if (cIsVersionOptional()) {
+        repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+    }
+    
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CRefField::cSourceCodeImpl() const
+{
+    static const std::string Templ = 
+        "#^#REF_NAME#$#* #^#NAME#$##^#SUFFIX#$#_ref(#^#NAME#$##^#SUFFIX#$#* field)\n"
+        "{\n"
+        "    return to#^#REF_CONV_SUFFIX#$#(reinterpret_cast<#^#REF_COMMS_TYPE#$#*>(from#^#CONV_SUFFIX#$#(field)));\n"
+        "}\n"
+    ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cName()},
+        {"REF_NAME", m_cRefField->cName()},
+        {"CONV_SUFFIX", cConversionSuffix()},
+        {"REF_CONV_SUFFIX", m_cRefField->cConversionSuffix()},
+        {"REF_COMMS_TYPE", m_cRefField->cCommsTypeName()},
+    };
+
+    if (cIsVersionOptional()) {
+        repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+    }
+    
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2c

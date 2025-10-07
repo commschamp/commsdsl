@@ -33,7 +33,7 @@ namespace commsdsl2c
 
 std::string CErrorStatus::cName(const CGenerator& generator)
 {
-    return generator.cNamesPrefix() + "ErrorStatus";
+    return generator.genProtocolSchema().genMainNamespace() + "_ErrorStatus";
 }
 
 std::string CErrorStatus::cRelHeaderPath(const CGenerator& generator)

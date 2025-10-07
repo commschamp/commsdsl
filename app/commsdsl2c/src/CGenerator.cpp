@@ -145,7 +145,7 @@ std::string CGenerator::cInputAbsSourceFor(const commsdsl::gen::GenElem& elem) c
 
 std::string CGenerator::cNameFor(const commsdsl::gen::GenElem& elem) const
 {
-    return cNamesPrefix() + cScopeToName(comms::genScopeFor(elem, *this, false));
+    return cScopeToName(comms::genScopeFor(elem, *this));
 }
 
 std::string CGenerator::cScopeToName(const std::string& scope)
@@ -185,11 +185,6 @@ const std::string& CGenerator::cCppGuardEnd()
         ;
 
     return Str;
-}
-
-const std::string& CGenerator::cNamesPrefix() const
-{
-    return m_namesPrefix;
 }
 
 const CGenerator::GenStringsList& CGenerator::cProtocolOptions() const
@@ -340,10 +335,9 @@ void CGenerator::cSetCommsinterfaceInternal(const std::string& value)
 
 bool CGenerator::cPrepareNamesPrefixInternal()
 {
-    if (m_namesPrefix.empty()) {
-        m_namesPrefix = genProtocolSchema().genMainNamespace();
+    if (!m_namesPrefix.empty()) {
+        genProtocolSchema().genSetMainNamespaceOverride(m_namesPrefix);
     }
-    m_namesPrefix += '_';
     return true;
 }
 
