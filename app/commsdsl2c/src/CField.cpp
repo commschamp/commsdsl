@@ -278,7 +278,7 @@ std::string CField::cCommsHeaderCode() const
             util::GenReplacementMap repl = {
                 {"NAME", cName(forceOptional)},
                 {"COMMS_NAME", cCommsTypeName(forceOptional)},
-                {"COMMS_TYPE", cCommsType(true, forceOptional)},
+                {"COMMS_TYPE", cCommsType(forceOptional)},
                 {"CONV_SUFFIX", cConversionSuffix()},
             };
 
@@ -308,57 +308,66 @@ std::string CField::cCommsHeaderCode() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string CField::cCommsType(bool appendOptions, bool forceOptional) const
+std::string CField::cCommsType(bool forceOptional) const
 {
+    m_genField.genGenerator().genLogger().genInfo("!!! cCommsType for " + m_genField.genName());
+    GenElem* optParent = &m_genField;
+    bool needOptions = true;
+    std::string memberSuffix;
+    while (optParent != nullptr) {
+        auto* nextParent = optParent->genGetParent();
+        assert(nextParent != nullptr);
+        auto nextParentType = nextParent->genElemType();
+
+        if (nextParentType == GenElem::GenType::GenType_Namespace) {
+            // Global field
+            break;
+        }
+
+        optParent = nextParent;
+
+        if ((nextParentType == GenElem::GenType::GenType_Field) ||
+            (nextParentType == GenElem::GenType::GenType_Layer)) {
+            memberSuffix = strings::genMembersSuffixStr();
+            continue;
+        }
+
+        if (nextParentType == GenElem::GenType::GenType_Interface) {
+            needOptions = false;
+            memberSuffix = strings::genFieldsSuffixStr();
+            break;
+        }
+
+        if (nextParentType == GenElem::GenType::GenType_Message) {
+            memberSuffix = strings::genFieldsSuffixStr();            
+            break;
+        } 
+
+        if (nextParentType == GenElem::GenType::GenType_Frame) {
+            memberSuffix = strings::genLayersSuffixStr();            
+            break;
+        }          
+
+        [[maybe_unused]] static const bool Should_not_reach = true;
+        assert(Should_not_reach);
+    }
+
     auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
-    auto memberType =
-        [this, &cGenerator, forceOptional](const std::string& type, bool withOpts, const std::string& suffix = strings::genFieldsSuffixStr())
-        {
-            auto str = type + suffix;
-            if (withOpts) {
-                str += '<' + CProtocolOptions::cName(cGenerator) + '>';
-            }
-            str += "::";
-            str += comms::genClassName(m_genField.genName());
-
-            if (forceOptional) {
-                str += strings::genVersionOptionalFieldSuffixStr();
-            }
-
-            return str;
-        };
-
-    auto* parent = m_genField.genGetParent();
-    assert(parent != nullptr);
-    auto parentType = parent->genElemType();
-    if (parentType == GenElem::GenType::GenType_Field) {
-        auto* parentField = CField::cCast(static_cast<const commsdsl::gen::GenField*>(parent));
-        auto parentStr = parentField->cCommsType(false, false);
-        auto greatParent = parent->genGetParent();
-        assert(greatParent != nullptr);
-        auto greatParentType = greatParent->genElemType();
-        return memberType(parentStr, appendOptions && (greatParentType == GenElem::GenType::GenType_Namespace), strings::genMembersSuffixStr());
+    auto scope = comms::genScopeFor(m_genField, cGenerator);
+    auto optScope = comms::genScopeFor(*optParent, cGenerator) + memberSuffix;
+    
+    auto result = optScope;
+    if (needOptions) {
+        result += '<' + CProtocolOptions::cName(cGenerator) + '>';
     }
+    result += scope.substr(optScope.size());
 
-    if (parentType == GenElem::GenType::GenType_Message) {
-        return memberType(CMessage::cCast(static_cast<const commsdsl::gen::GenMessage*>(parent))->cCommsType(false), true);
-    }
-
-    if (parentType == GenElem::GenType::GenType_Interface) {
-        return memberType(CInterface::cCast(static_cast<const commsdsl::gen::GenInterface*>(parent))->cCommsType(), false);
-    }
-
-    // TODO: Frame Layer
-    assert (parentType == GenElem::GenType::GenType_Namespace);
-    auto str = comms::genScopeFor(m_genField, cGenerator);
     if (forceOptional) {
-        str += strings::genVersionOptionalFieldSuffixStr();
-    }
-    if (appendOptions) {
-        str += '<' + CProtocolOptions::cName(cGenerator) + '>';
+        result += strings::genVersionOptionalFieldSuffixStr();
     }
 
-    return str;
+    m_genField.genGenerator().genLogger().genInfo("!!! returning " + result);
+    return result;
 }
 
 bool CField::cIsVersionOptional() const
@@ -746,25 +755,25 @@ std::string CField::cCommsHeaderIncludesInternal() const
 std::string CField::cHeaderOptionalCodeInternal() const
 {
     static const std::string Templ =
-        "/// @brief Obtain access to inner non-optional field.\n"
+        "/// @brief Obtain access to inner non-optional field of @ref #^#NAME#$#.\n"
         "#^#NAME#$##^#SUFFIX#$#* #^#NAME#$#_field(#^#NAME#$#* field);\n"
         "\n"
-        "/// @brief Check the version dependent field exists.\n"
+        "/// @brief Check the version dependent field @ref #^#NAME#$# exists.\n"
         "bool #^#NAME#$#_doesExist(const #^#NAME#$#* field);\n"
         "\n"
-        "/// @brief Force the version dependent field into existance\n"
+        "/// @brief Force the version dependent field @ref #^#NAME#$# into existance\n"
         "void #^#NAME#$#_setExists(#^#NAME#$#* field);\n"
         "\n"
-        "/// @brief Check the version dependent field is missing.\n"
+        "/// @brief Check the version dependent field @ref #^#NAME#$# is missing.\n"
         "bool #^#NAME#$#_isMissing(const #^#NAME#$#* field);\n"
         "\n"
-        "/// @brief Force the version dependent field to be missing\n"
+        "/// @brief Force the version dependent field @ref #^#NAME#$# to be missing\n"
         "void #^#NAME#$#_setMissing(#^#NAME#$#* field);\n"
         "\n"
-        "/// @brief Check the version dependent field is tentative.\n"
+        "/// @brief Check the version dependent field @ref #^#NAME#$# is tentative.\n"
         "bool #^#NAME#$#_isTentative(const #^#NAME#$#* field);\n"
         "\n"
-        "/// @brief Force the version dependent field to be tenative\n"
+        "/// @brief Force the version dependent field @ref #^#NAME#$# to be tenative\n"
         "void #^#NAME#$#_setTentative(#^#NAME#$#* field);\n"
         ;
 

@@ -36,9 +36,171 @@ COptionalField::COptionalField(CGenerator& generator, ParseField parseObj, GenEl
 {
 }
 
+bool COptionalField::genPrepareImpl()
+{
+    if (!GenBase::genPrepareImpl()) {
+        return false;
+    }
+
+    m_cExtField = cCast(genExternalField());
+    m_cMemField = cCast(genMemberField());
+    return true;
+}
+
 bool COptionalField::genWriteImpl() const
 {
     return cWrite();
+}
+
+void COptionalField::cAddHeaderIncludesImpl(CIncludesList& includes) const
+{
+    if (m_cExtField != nullptr) {
+        includes.push_back(m_cExtField->cRelHeader());
+    }
+
+    if (m_cMemField != nullptr) {
+        m_cMemField->cAddHeaderIncludes(includes);
+    }
+}
+
+void COptionalField::cAddSourceIncludesImpl(CIncludesList& includes) const
+{
+    if (m_cMemField != nullptr) {
+        m_cMemField->cAddSourceIncludes(includes);
+    }
+}
+
+void COptionalField::cAddCommsHeaderIncludesImpl(CIncludesList& includes) const
+{
+    if (m_cExtField != nullptr) {
+        includes.push_back(m_cExtField->cRelCommsDefHeader());
+    }
+
+    if (m_cMemField != nullptr) {
+        m_cMemField->cAddCommsHeaderIncludes(includes);
+    }
+}
+
+
+std::string COptionalField::cHeaderCodeImpl() const
+{
+    static const std::string Templ =
+        "#^#MEMBER#$#\n"
+        "/// @brief Obtain access to inner non-optional field of @ref #^#NAME#$##^#SUFFIX#$#.\n"
+        "#^#FIELD#$#* #^#NAME#$##^#SUFFIX#$#_field(#^#NAME#$##^#SUFFIX#$#* field);\n"
+        "\n"
+        "/// @brief Check the optional field @ref #^#NAME#$##^#SUFFIX#$# exists.\n"
+        "bool #^#NAME#$##^#SUFFIX#$#_doesExist(const #^#NAME#$##^#SUFFIX#$#* field);\n"
+        "\n"
+        "/// @brief Force the optional field @ref #^#NAME#$##^#SUFFIX#$# into existance\n"
+        "void #^#NAME#$##^#SUFFIX#$#_setExists(#^#NAME#$##^#SUFFIX#$#* field);\n"
+        "\n"
+        "/// @brief Check the optional field @ref #^#NAME#$##^#SUFFIX#$# is missing.\n"
+        "bool #^#NAME#$##^#SUFFIX#$#_isMissing(const #^#NAME#$##^#SUFFIX#$#* field);\n"
+        "\n"
+        "/// @brief Force the optional field @ref #^#NAME#$##^#SUFFIX#$# to be missing\n"
+        "void #^#NAME#$##^#SUFFIX#$#_setMissing(#^#NAME#$##^#SUFFIX#$#* field);\n"
+        "\n"
+        "/// @brief Check the optional field @ref #^#NAME#$##^#SUFFIX#$# is tentative.\n"
+        "bool #^#NAME#$##^#SUFFIX#$#_isTentative(const #^#NAME#$##^#SUFFIX#$#* field);\n"
+        "\n"
+        "/// @brief Force the optional field @ref #^#NAME#$##^#SUFFIX#$# to be tenative\n"
+        "void #^#NAME#$##^#SUFFIX#$#_setTentative(#^#NAME#$##^#SUFFIX#$#* field);\n"        
+    ;
+
+    auto* field = m_cExtField;
+    if (field == nullptr) {
+        field = m_cMemField;
+        assert(field != nullptr);
+    }
+
+    util::GenReplacementMap repl = {
+        {"NAME", cName()},
+        {"FIELD", field->cName()},
+    };
+
+    if (cIsVersionOptional()) {
+        repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+    }
+
+    if (m_cMemField != nullptr) {
+        repl["MEMBER"] = m_cMemField->cHeaderCode();
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string COptionalField::cSourceCodeImpl() const
+{
+    static const std::string Templ =
+        "#^#MEMBER#$#\n"
+        "#^#FIELD#$#* #^#NAME#$##^#SUFFIX#$#_field(#^#NAME#$##^#SUFFIX#$#* field)\n"
+        "{\n"
+        "    return to#^#FIELD_CONV_SUFFIX#$#(&(from#^#CONV_SUFFIX#$#(field)->field()));\n"
+        "}\n"
+        "\n"
+        "bool #^#NAME#$##^#SUFFIX#$#_doesExist(const #^#NAME#$##^#SUFFIX#$#* field)\n"
+        "{\n"
+        "    return from#^#CONV_SUFFIX#$#(field)->doesExist();\n"
+        "}\n"
+        "\n"
+        "void #^#NAME#$##^#SUFFIX#$#_setExists(#^#NAME#$##^#SUFFIX#$#* field)\n"
+        "{\n"
+        "    return from#^#CONV_SUFFIX#$#(field)->setExists();\n"
+        "}\n"
+        "\n"
+        "bool #^#NAME#$##^#SUFFIX#$#_isMissing(const #^#NAME#$##^#SUFFIX#$#* field)\n"
+        "{\n"
+        "    return from#^#CONV_SUFFIX#$#(field)->isMissing();\n"
+        "}\n"
+        "\n"
+        "void #^#NAME#$##^#SUFFIX#$#_setMissing(#^#NAME#$##^#SUFFIX#$#* field)\n"
+        "{\n"
+        "    return from#^#CONV_SUFFIX#$#(field)->setMissing();\n"
+        "}\n"
+        "\n"
+        "bool #^#NAME#$##^#SUFFIX#$#_isTenative(const #^#NAME#$##^#SUFFIX#$#* field)\n"
+        "{\n"
+        "    return from#^#CONV_SUFFIX#$#(field)->isTentative();\n"
+        "}\n"
+        "\n"
+        "void #^#NAME#$##^#SUFFIX#$#_setTenative(#^#NAME#$##^#SUFFIX#$#* field)\n"
+        "{\n"
+        "    return from#^#CONV_SUFFIX#$#(field)->setTentative();\n"
+        "}\n"        
+    ;
+
+    auto* field = m_cExtField;
+    if (field == nullptr) {
+        field = m_cMemField;
+        assert(field != nullptr);
+    }
+
+    util::GenReplacementMap repl = {
+        {"NAME", cName()},
+        {"FIELD", field->cName()},
+        {"CONV_SUFFIX", cConversionSuffix()},
+        {"FIELD_CONV_SUFFIX", field->cConversionSuffix()},
+    };
+
+    if (cIsVersionOptional()) {
+        repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+    }
+
+    if (m_cMemField != nullptr) {
+        repl["MEMBER"] = m_cMemField->cSourceCode();
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string COptionalField::cCommsHeaderCodeImpl() const
+{
+    if (m_cMemField != nullptr) {
+        return m_cMemField->cCommsHeaderCode();
+    }
+
+    return strings::genEmptyString();
 }
 
 } // namespace commsdsl2c

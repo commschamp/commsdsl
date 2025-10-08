@@ -52,7 +52,7 @@ public:
     std::string cHeaderCode() const;
     std::string cSourceCode() const;
     std::string cCommsHeaderCode() const;
-    std::string cCommsType(bool appendOptions = true, bool forceOptional = false) const;
+    std::string cCommsType(bool forceOptional = false) const;
     bool cIsVersionOptional() const;
     void cAddSourceFiles(GenStringsList& sources) const;
     std::string cRelCommsDefHeader() const;
