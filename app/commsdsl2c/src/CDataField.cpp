@@ -59,14 +59,9 @@ std::string CDataField::cHeaderCodeImpl() const
         "/// @return Amount of bytes copied.\n"
         "size_t #^#NAME#$##^#SUFFIX#$#_getValue(const #^#NAME#$##^#SUFFIX#$#* field, uint8_t* buf, size_t bufSize);\n"
         "\n"
-        "/// @brief Set value of the @ref #^#NAME#$##^#SUFFIX#$# field.\n"
-        "/// @param[in, out] field Field handle.\n"
-        "/// @param[in] buf Buffer from which the value to be copied.\n"
-        "/// @param[in] bufSize Size of the buffer to copy.\n"
-        "void #^#NAME#$##^#SUFFIX#$#_setValue(#^#NAME#$##^#SUFFIX#$#* field, const uint8_t* buf, size_t bufSize);\n"
-        "\n"
         "/// @brief Get size of the currently stored field value.\n"
         "size_t #^#NAME#$##^#SUFFIX#$#_valueSize(const #^#NAME#$##^#SUFFIX#$#* field);\n"
+        "\n#^#SET_FUNC#$#\n"
     ;
 
     util::GenReplacementMap repl = {
@@ -75,6 +70,18 @@ std::string CDataField::cHeaderCodeImpl() const
 
     if (cIsVersionOptional()) {
         repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+    }
+
+    if (!genParseObj().parseIsFixedValue()) {
+        static const std::string SetTempl = 
+            "/// @brief Set value of the @ref #^#NAME#$##^#SUFFIX#$# field.\n"
+            "/// @param[in, out] field Field handle.\n"
+            "/// @param[in] buf Buffer from which the value to be copied.\n"
+            "/// @param[in] bufSize Size of the buffer to copy.\n"
+            "void #^#NAME#$##^#SUFFIX#$#_setValue(#^#NAME#$##^#SUFFIX#$#* field, const uint8_t* buf, size_t bufSize);"
+            ;
+
+        repl["SET_FUNC"] = util::genProcessTemplate(SetTempl, repl);
     }
 
     return util::genProcessTemplate(Templ, repl);
@@ -91,15 +98,12 @@ std::string CDataField::cSourceCodeImpl() const
         "    return bytesToCopy;\n"
         "}\n"
         "\n"
-        "void #^#NAME#$##^#SUFFIX#$#_setValue(#^#NAME#$##^#SUFFIX#$#* field, const uint8_t* buf, size_t bufSize)\n"
-        "{\n"
-        "    comms::util::assign(from#^#CONV_SUFFIX#$#(field)->value(), buf, buf + bufSize);\n"
-        "}\n"
-        "\n"
         "size_t #^#NAME#$##^#SUFFIX#$#_valueSize(const #^#NAME#$##^#SUFFIX#$#* field)\n"
         "{\n"
         "    return from#^#CONV_SUFFIX#$#(field)->getValue().size();\n"
-        "}\n"
+        "}\n"        
+        "\n"
+        "#^#SET_FUNC#$#\n"
     ;
 
     util::GenReplacementMap repl = {
@@ -109,6 +113,17 @@ std::string CDataField::cSourceCodeImpl() const
 
     if (cIsVersionOptional()) {
         repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+    }
+
+    if (!genParseObj().parseIsFixedValue()) {
+        static const std::string SetTempl = 
+            "void #^#NAME#$##^#SUFFIX#$#_setValue(#^#NAME#$##^#SUFFIX#$#* field, const uint8_t* buf, size_t bufSize)\n"
+            "{\n"
+            "    comms::util::assign(from#^#CONV_SUFFIX#$#(field)->value(), buf, buf + bufSize);\n"
+            "}"
+            ;
+
+        repl["SET_FUNC"] = util::genProcessTemplate(SetTempl, repl);
     }
 
     return util::genProcessTemplate(Templ, repl);
