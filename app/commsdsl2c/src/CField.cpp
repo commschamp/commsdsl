@@ -338,14 +338,14 @@ std::string CField::cCommsType(bool forceOptional) const
         }
 
         if (nextParentType == GenElem::GenType::GenType_Message) {
-            memberSuffix = strings::genFieldsSuffixStr();            
+            memberSuffix = strings::genFieldsSuffixStr();
             break;
-        } 
+        }
 
         if (nextParentType == GenElem::GenType::GenType_Frame) {
-            memberSuffix = strings::genLayersSuffixStr();            
+            memberSuffix = strings::genLayersSuffixStr();
             break;
-        }          
+        }
 
         [[maybe_unused]] static const bool Should_not_reach = true;
         assert(Should_not_reach);
@@ -354,7 +354,7 @@ std::string CField::cCommsType(bool forceOptional) const
     auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
     auto scope = comms::genScopeFor(m_genField, cGenerator);
     auto optScope = comms::genScopeFor(*optParent, cGenerator) + memberSuffix;
-    
+
     auto result = optScope;
     if (needOptions) {
         result += '<' + CProtocolOptions::cName(cGenerator) + '>';
@@ -414,7 +414,6 @@ const std::string& CField::cConversionSuffix() const
     //     return Str;
     // }
 
-
     static const std::string Str = "FieldHandle";
     return Str;
 }
@@ -465,7 +464,7 @@ std::string CField::cHeaderCommonValueAccessFuncs() const
     }
 
     if (!m_genField.genParseObj().parseIsFixedValue()) {
-        static const std::string SetTempl = 
+        static const std::string SetTempl =
             "/// @brief Set value of the @ref #^#NAME#$# field.\n"
             "void #^#NAME#$##^#SUFFIX#$#_setValue(#^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# value);"
         ;
@@ -498,7 +497,7 @@ std::string CField::cSourceCommonValueAccessFuncs() const
     }
 
     if (!m_genField.genParseObj().parseIsFixedValue()) {
-        static const std::string SetTempl = 
+        static const std::string SetTempl =
             "void #^#NAME#$##^#SUFFIX#$#_setValue(#^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# value)\n"
             "{\n"
             "    from#^#CONV_SUFFIX#$#(field)->setValue(value);\n"

@@ -15,6 +15,7 @@
 
 #include "CInterface.h"
 
+#include "CErrorStatus.h"
 #include "CGenerator.h"
 #include "CNamespace.h"
 #include "CMsgId.h"
@@ -286,15 +287,19 @@ bool CInterface::cWriteCommsHeaderInternal() const
 
 std::string CInterface::cHeaderIncludesInternal() const
 {
-    util::GenStringsList includes;
+    auto* msgId = cMsgId();
+    assert(msgId != nullptr);
+
+    util::GenStringsList includes {
+        "<stddef.h>",
+        "<stdint.h>",
+        CErrorStatus::cRelHeaderPath(CGenerator::cCast(genGenerator())),
+        msgId->cRelHeader(),
+    };
 
     for (auto* f : m_cFields) {
         f->cAddHeaderIncludes(includes);
     }
-
-    auto* msgId = cMsgId();
-    assert(msgId != nullptr);
-    includes.push_back(msgId->cRelHeader());
 
     comms::genPrepareIncludeStatement(includes);
     return util::genStrListToString(includes, "\n", "\n");
@@ -334,6 +339,31 @@ std::string CInterface::cHeaderCodeInternal() const
         "#^#FIELDS_ACC#$#\n"
         "/// @brief Get message ID\n"
         "#^#MSG_ID#$# #^#NAME#$#_getId(const #^#NAME#$#* msg);\n"
+        "\n"
+        "/// @brief Read the message contents from input buffer.\n"
+        "/// @param[in, out] msg Handle of the @ref #^#NAME#$# message interface.\n"
+        "/// @param[in, out] iter Pointer to bufer iterator.\n"
+        "/// @param[in] bufLen Remaining bytes in the input buffer.\n"
+        "/// @post The iterator is advanced by amount of consumed bytes.\n"
+        "/// @return Status of the read operation.\n"
+        "#^#ERROR_STATUS#$# #^#NAME#$#_read(#^#NAME#$#* msg, const uint8_t** iter, size_t bufLen);\n"
+        "\n"
+        "/// @brief Write the message contents into output buffer.\n"
+        "/// @param[in] msg Handle of the @ref #^#NAME#$# message interface.\n"
+        "/// @param[in, out] iter Pointer to bufer iterator.\n"
+        "/// @param[in] bufLen Available bytes in the output buffer.\n"
+        "/// @post The iterator is advanced by amount of written bytes.\n"
+        "/// @return Status of the write operation.\n"
+        "#^#ERROR_STATUS#$# #^#NAME#$#_write(const #^#NAME#$#* msg, uint8_t** iter, size_t bufLen);\n"
+        "\n"
+        "/// @brief Retrieve serialization length of the @ref #^#NAME#$# message.\n"
+        "size_t #^#NAME#$#_length(const #^#NAME#$#* msg);\n"
+        "\n"
+        "/// @brief Retrieve name of the @ref #^#NAME#$# message.\n"
+        "const char* #^#NAME#$#_name(const #^#NAME#$#* msg);\n"
+        "\n"
+        "/// @brief Check if message @ref #^#NAME#$# contents are valid.\n"
+        "bool #^#NAME#$#_valid(const #^#NAME#$#* msg);\n"
         // TODO: extra code
         ;
 
@@ -344,6 +374,7 @@ std::string CInterface::cHeaderCodeInternal() const
         {"NAME", cName()},
         {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
         {"MSG_ID", msgId->cName()},
+        {"ERROR_STATUS", CErrorStatus::cName(CGenerator::cCast(genGenerator()))},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -402,6 +433,31 @@ std::string CInterface::cSourceCodeInternal() const
         "{\n"
         "    return static_cast<#^#MSG_ID#$#>(fromInterfaceHandle(msg)->getId());\n"
         "}\n"
+        "\n"
+        "#^#ERROR_STATUS#$# #^#NAME#$#_read(#^#NAME#$#* msg, const uint8_t** iter, size_t bufLen)\n"
+        "{\n"
+        "    return static_cast<#^#ERROR_STATUS#$#>(fromInterfaceHandle(msg)->read(*iter, bufLen));\n"
+        "}\n"
+        "\n"
+        "#^#ERROR_STATUS#$# #^#NAME#$#_write(const #^#NAME#$#* msg, uint8_t** iter, size_t bufLen)\n"
+        "{\n"
+        "    return static_cast<#^#ERROR_STATUS#$#>(fromInterfaceHandle(msg)->write(*iter, bufLen));\n"
+        "}\n"
+        "\n"
+        "size_t #^#NAME#$#_length(const #^#NAME#$#* msg)\n"
+        "{\n"
+        "    return fromInterfaceHandle(msg)->length();\n"
+        "}\n"
+        "\n"
+        "const char* #^#NAME#$#_name(const #^#NAME#$#* msg)\n"
+        "{\n"
+        "    return fromInterfaceHandle(msg)->name();\n"
+        "}\n"
+        "\n"
+        "bool #^#NAME#$#_valid(const #^#NAME#$#* msg)\n"
+        "{\n"
+        "    return fromInterfaceHandle(msg)->valid();\n"
+        "}\n"
         // TODO: extra code
         ;
 
@@ -413,6 +469,7 @@ std::string CInterface::cSourceCodeInternal() const
         {"NAME", cName()},
         {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
         {"MSG_ID", msgId->cName()},
+        {"ERROR_STATUS", CErrorStatus::cName(CGenerator::cCast(genGenerator()))},
     };
 
     return util::genProcessTemplate(Templ, repl);

@@ -81,7 +81,6 @@ void COptionalField::cAddCommsHeaderIncludesImpl(CIncludesList& includes) const
     }
 }
 
-
 std::string COptionalField::cHeaderCodeImpl() const
 {
     static const std::string Templ =
@@ -105,7 +104,7 @@ std::string COptionalField::cHeaderCodeImpl() const
         "bool #^#NAME#$##^#SUFFIX#$#_isTentative(const #^#NAME#$##^#SUFFIX#$#* field);\n"
         "\n"
         "/// @brief Force the optional field @ref #^#NAME#$##^#SUFFIX#$# to be tenative\n"
-        "void #^#NAME#$##^#SUFFIX#$#_setTentative(#^#NAME#$##^#SUFFIX#$#* field);\n"        
+        "void #^#NAME#$##^#SUFFIX#$#_setTentative(#^#NAME#$##^#SUFFIX#$#* field);\n"
     ;
 
     auto* field = m_cExtField;
@@ -167,7 +166,7 @@ std::string COptionalField::cSourceCodeImpl() const
         "void #^#NAME#$##^#SUFFIX#$#_setTenative(#^#NAME#$##^#SUFFIX#$#* field)\n"
         "{\n"
         "    return from#^#CONV_SUFFIX#$#(field)->setTentative();\n"
-        "}\n"        
+        "}\n"
     ;
 
     auto* field = m_cExtField;

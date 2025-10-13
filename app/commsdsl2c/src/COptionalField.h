@@ -45,7 +45,7 @@ protected:
     virtual void cAddCommsHeaderIncludesImpl(CIncludesList& includes) const override;
     virtual std::string cHeaderCodeImpl() const override;
     virtual std::string cSourceCodeImpl() const override;
-    virtual std::string cCommsHeaderCodeImpl() const override;    
+    virtual std::string cCommsHeaderCodeImpl() const override;
 
 private:
     const CField* m_cExtField = nullptr;

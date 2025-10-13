@@ -68,7 +68,6 @@ bool CVariantField::genWriteImpl() const
     return cWrite();
 }
 
-
 void CVariantField::cAddHeaderIncludesImpl(CIncludesList& includes) const
 {
     for (auto* m : m_cMembers) {
@@ -131,7 +130,7 @@ std::string CVariantField::cHeaderCodeImpl() const
         handles.push_back("void (*handle_" + accRepl["MEM_NAME"] + ")(" + m->cName() + "* field);");
     }
 
-    static const std::string ExtraTempl = 
+    static const std::string ExtraTempl =
         "/// @brief Access indices for the members of the @ref #^#NAME#$##^#SUFFIX#$# field.\n"
         "typedef enum\n"
         "{\n"
@@ -140,10 +139,10 @@ std::string CVariantField::cHeaderCodeImpl() const
         "} #^#NAME#$#_#^#FIELD_IDX#$#;\n"
         "\n"
         "/// @brief Get an index of the currently selected (initialized) member.\n"
-        "#^#NAME#$#_#^#FIELD_IDX#$# #^#NAME#$##^#SUFFIX#$#_currentField(const #^#NAME#$##^#SUFFIX#$#* field);\n"    
+        "#^#NAME#$#_#^#FIELD_IDX#$# #^#NAME#$##^#SUFFIX#$#_currentField(const #^#NAME#$##^#SUFFIX#$#* field);\n"
         "\n"
-        "/// @brief Select a member field of the @ref #^#NAME#$##^#SUFFIX#$# to initialize by its index.\n"   
-        "void #^#NAME#$##^#SUFFIX#$#_selectField(#^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$#_#^#FIELD_IDX#$# idx);\n"   
+        "/// @brief Select a member field of the @ref #^#NAME#$##^#SUFFIX#$# to initialize by its index.\n"
+        "void #^#NAME#$##^#SUFFIX#$#_selectField(#^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$#_#^#FIELD_IDX#$# idx);\n"
         "\n"
         "/// @brief Deinitialize currently selected member of @ref #^#NAME#$##^#SUFFIX#$#.\n"
         "void #^#NAME#$##^#SUFFIX#$#_reset(#^#NAME#$##^#SUFFIX#$#*);\n"
@@ -167,7 +166,7 @@ std::string CVariantField::cHeaderCodeImpl() const
 
     if (cIsVersionOptional()) {
         extraRepl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
-    }    
+    }
 
     util::GenReplacementMap repl = {
         {"MEMBERS", util::genStrListToString(members, "\n", "\n")},
@@ -201,7 +200,7 @@ std::string CVariantField::cSourceCodeImpl() const
             "#^#MEM#$#* #^#NAME#$##^#SUFFIX#$#_accessField_#^#MEM_NAME#$#(#^#NAME#$##^#SUFFIX#$#* field)\n"
             "{\n"
             "    return to#^#MEM_CONV_SUFFIX#$#(&(from#^#CONV_SUFFIX#$#(field)->accessField_#^#MEM_NAME#$#()));\n"
-            "}\n"  
+            "}\n"
         ;
 
         util::GenReplacementMap accRepl = {
@@ -219,7 +218,7 @@ std::string CVariantField::cSourceCodeImpl() const
 
         access.push_back(util::genProcessTemplate(AccTempl, accRepl));
 
-        const std::string HandleTempl = 
+        const std::string HandleTempl =
             "case #^#NAME#$#_#^#FIELD_IDX#$#_#^#MEM_NAME#$#:\n"
             "    return handler->handle_#^#MEM_NAME#$#(#^#NAME#$##^#SUFFIX#$#_accessField_#^#MEM_NAME#$#(field));"
             ;
@@ -227,22 +226,22 @@ std::string CVariantField::cSourceCodeImpl() const
         handles.push_back(util::genProcessTemplate(HandleTempl, accRepl));
     }
 
-    static const std::string ExtraTempl = 
-        "#^#NAME#$#_#^#FIELD_IDX#$# #^#NAME#$##^#SUFFIX#$#_currentField(const #^#NAME#$##^#SUFFIX#$#* field)\n"          
+    static const std::string ExtraTempl =
+        "#^#NAME#$#_#^#FIELD_IDX#$# #^#NAME#$##^#SUFFIX#$#_currentField(const #^#NAME#$##^#SUFFIX#$#* field)\n"
         "{\n"
         "    return static_cast<#^#NAME#$#_#^#FIELD_IDX#$#>(std::min(static_cast<std::size_t>(#^#NAME#$#_#^#FIELD_IDX#$#_numOfValues), from#^#CONV_SUFFIX#$#(field)->currentField()));\n"
-        "}\n"   
-        "\n" 
+        "}\n"
+        "\n"
         "void #^#NAME#$##^#SUFFIX#$#_selectField(#^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$#_#^#FIELD_IDX#$# idx)\n"
         "{\n"
         "    from#^#CONV_SUFFIX#$#(field)->selectField(static_cast<std::size_t>(idx));\n"
-        "}\n"  
-        "\n" 
+        "}\n"
+        "\n"
         "void #^#NAME#$##^#SUFFIX#$#_reset(#^#NAME#$##^#SUFFIX#$#* field)\n"
         "{\n"
         "    from#^#CONV_SUFFIX#$#(field)->reset();\n"
         "}\n"
-        "\n"                       
+        "\n"
         "void #^#NAME#$##^#SUFFIX#$#_currFieldExec(#^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$#_MemHandler* handler)\n"
         "{\n"
         "   if (handler == nullptr) {\n"
@@ -264,7 +263,7 @@ std::string CVariantField::cSourceCodeImpl() const
 
     if (cIsVersionOptional()) {
         extraRepl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
-    }        
+    }
 
     util::GenReplacementMap repl = {
         {"MEMBERS", util::genStrListToString(members, "\n", "\n")},

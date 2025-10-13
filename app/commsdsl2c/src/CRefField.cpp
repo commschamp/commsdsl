@@ -64,7 +64,7 @@ void CRefField::cAddSourceIncludesImpl(CIncludesList& includes) const
 
 std::string CRefField::cHeaderCodeImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Acquire access to the field referenced by the @ref #^#NAME#$##^#SUFFIX#$#.\n"
         "#^#REF_NAME#$#* #^#NAME#$##^#SUFFIX#$#_ref(#^#NAME#$##^#SUFFIX#$#* field);\n"
     ;
@@ -77,13 +77,13 @@ std::string CRefField::cHeaderCodeImpl() const
     if (cIsVersionOptional()) {
         repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
     }
-    
+
     return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CRefField::cSourceCodeImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#REF_NAME#$#* #^#NAME#$##^#SUFFIX#$#_ref(#^#NAME#$##^#SUFFIX#$#* field)\n"
         "{\n"
         "    return to#^#REF_CONV_SUFFIX#$#(reinterpret_cast<#^#REF_COMMS_TYPE#$#*>(from#^#CONV_SUFFIX#$#(field)));\n"
@@ -101,7 +101,7 @@ std::string CRefField::cSourceCodeImpl() const
     if (cIsVersionOptional()) {
         repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
     }
-    
+
     return util::genProcessTemplate(Templ, repl);
 }
 

@@ -73,7 +73,7 @@ std::string CDataField::cHeaderCodeImpl() const
     }
 
     if (!genParseObj().parseIsFixedValue()) {
-        static const std::string SetTempl = 
+        static const std::string SetTempl =
             "/// @brief Set value of the @ref #^#NAME#$##^#SUFFIX#$# field.\n"
             "/// @param[in, out] field Field handle.\n"
             "/// @param[in] buf Buffer from which the value to be copied.\n"
@@ -101,7 +101,7 @@ std::string CDataField::cSourceCodeImpl() const
         "size_t #^#NAME#$##^#SUFFIX#$#_valueSize(const #^#NAME#$##^#SUFFIX#$#* field)\n"
         "{\n"
         "    return from#^#CONV_SUFFIX#$#(field)->getValue().size();\n"
-        "}\n"        
+        "}\n"
         "\n"
         "#^#SET_FUNC#$#\n"
     ;
@@ -116,7 +116,7 @@ std::string CDataField::cSourceCodeImpl() const
     }
 
     if (!genParseObj().parseIsFixedValue()) {
-        static const std::string SetTempl = 
+        static const std::string SetTempl =
             "void #^#NAME#$##^#SUFFIX#$#_setValue(#^#NAME#$##^#SUFFIX#$#* field, const uint8_t* buf, size_t bufSize)\n"
             "{\n"
             "    comms::util::assign(from#^#CONV_SUFFIX#$#(field)->value(), buf, buf + bufSize);\n"

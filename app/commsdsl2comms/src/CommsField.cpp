@@ -1144,8 +1144,6 @@ std::string CommsField::commsFieldDefCodeInternal() const
 
     auto* templ = &Templ;
 
-
-
     if (pub.empty() && prot.empty() && priv.empty() && m_customCode.m_extend.empty()) {
         static const std::string AliasTempl =
             "#^#BRIEF#$#\n"
@@ -1157,8 +1155,8 @@ std::string CommsField::commsFieldDefCodeInternal() const
             "    #^#BASE#$#\n"
             "{\n"
             "};\n"
-            
-            // Type aliasing attempt below can create irresolvable ambiguous declarations  
+
+            // Type aliasing attempt below can create irresolvable ambiguous declarations
             // when it comes to generating bindings, better to avoid.
             // "using #^#NAME#$##^#SUFFIX#$# =\n"
             // "    #^#BASE#$#;\n"
