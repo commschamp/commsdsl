@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2025 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ std::string CMsgId::cRelHeader() const
 
 std::string CMsgId::cName() const
 {
-    return m_parent.cPrefixName() + strings::genMsgIdEnumNameStr();
+    return m_parent.cPrefixName() + '_' + strings::genMsgIdEnumNameStr();
 }
 
 bool CMsgId::cWrite() const
@@ -109,7 +109,7 @@ bool CMsgId::cWrite() const
 
 std::string CMsgId::cIdsInternal() const
 {
-    auto prefix = m_parent.cPrefixName() + strings::genMsgIdPrefixStr();
+    auto prefix = cName();
     auto allMsgIdFields = m_parent.genFindMessageIdFields();
     if (allMsgIdFields.empty() && m_parent.genName().empty()) {
         allMsgIdFields = m_cGenerator.genCurrentSchema().genGetAllMessageIdFields();

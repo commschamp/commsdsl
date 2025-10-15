@@ -220,7 +220,10 @@ std::string CVariantField::cSourceCodeImpl() const
 
         const std::string HandleTempl =
             "case #^#NAME#$#_#^#FIELD_IDX#$#_#^#MEM_NAME#$#:\n"
-            "    return handler->handle_#^#MEM_NAME#$#(#^#NAME#$##^#SUFFIX#$#_accessField_#^#MEM_NAME#$#(field));"
+            "    if (handler->handle_#^#MEM_NAME#$# != nullptr) {\n"
+            "        handler->handle_#^#MEM_NAME#$#(#^#NAME#$##^#SUFFIX#$#_accessField_#^#MEM_NAME#$#(field));\n"
+            "    }\n"
+            "    return;"
             ;
 
         handles.push_back(util::genProcessTemplate(HandleTempl, accRepl));

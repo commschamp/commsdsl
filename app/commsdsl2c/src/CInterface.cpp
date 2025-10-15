@@ -47,7 +47,7 @@ std::string CInterface::cRelHeader() const
     return cGenerator.cRelHeaderFor(*this);
 }
 
-std::string CInterface::cRelCommsDefHeader() const
+std::string CInterface::cRelCommsHeader() const
 {
     auto& cGenerator = CGenerator::cCast(genGenerator());
     return cGenerator.cRelCommsHeaderFor(*this);
@@ -94,6 +94,15 @@ const CMsgId* CInterface::cMsgId() const
     auto* msgId = parentNs->cMsgId();
     assert(msgId != nullptr);
     return msgId;
+}
+
+const CMsgHandler* CInterface::cMsgHandler() const
+{
+    auto parentNs = CNamespace::cCast(genParentNamespace());
+    assert(parentNs != nullptr);
+    auto* handler = parentNs->cMsgHandler();
+    assert(handler != nullptr);
+    return handler;
 }
 
 bool CInterface::genPrepareImpl()
@@ -225,7 +234,8 @@ bool CInterface::cWriteCommsHeaderInternal() const
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
         "#^#FIELDS#$#\n"
-        "using #^#COMMS_NAME#$# =\n"
+        "class #^#HANDLER#$#;\n"
+        "class #^#COMMS_NAME#$# : public\n"
         "    ::#^#SCOPE#$#<\n"
         "        comms::option::app::IdInfoInterface,\n"
         "        comms::option::app::ReadIterator<const uint8_t*>,\n"
@@ -233,9 +243,12 @@ bool CInterface::cWriteCommsHeaderInternal() const
         "        comms::option::app::ValidCheckInterface,\n"
         "        comms::option::app::LengthInfoInterface,\n"
         "        comms::option::app::RefreshInterface,\n"
-        "        comms::option::app::NameInterface\n"
+        "        comms::option::app::NameInterface,\n"
+        "        comms::option::app::Handler<#^#HANDLER#$#>\n"
         // TODO: handling
-        "    >;\n\n"
+        "    >\n"
+        "{\n"
+        "};\n\n"
         "struct alignas(alignof(#^#COMMS_NAME#$#)) #^#NAME#$#_ {};\n\n"
         "inline const #^#COMMS_NAME#$#* fromInterfaceHandle(const #^#NAME#$#* from)\n"
         "{\n"
@@ -270,6 +283,9 @@ bool CInterface::cWriteCommsHeaderInternal() const
 
     comms::genPrepareIncludeStatement(includes);
 
+    auto* handler = cMsgHandler();
+    assert(handler != nullptr);
+
     util::GenReplacementMap repl = {
         {"GENERATED", CGenerator::cFileGeneratedComment()},
         {"HEADER", cGenerator.cRelHeaderFor(*this)},
@@ -278,6 +294,7 @@ bool CInterface::cWriteCommsHeaderInternal() const
         {"SCOPE", comms::genScopeFor(*this, cGenerator)},
         {"COMMS_NAME", cCommsTypeName()},
         {"NAME", cName()},
+        {"HANDLER", handler->cCommsTypeName()},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -289,12 +306,15 @@ std::string CInterface::cHeaderIncludesInternal() const
 {
     auto* msgId = cMsgId();
     assert(msgId != nullptr);
+    auto* msgHandler = cMsgHandler();
+    assert(msgHandler != nullptr);
 
     util::GenStringsList includes {
         "<stddef.h>",
         "<stdint.h>",
         CErrorStatus::cRelHeaderPath(CGenerator::cCast(genGenerator())),
         msgId->cRelHeader(),
+        msgHandler->cRelHeader(),
     };
 
     for (auto* f : m_cFields) {
@@ -364,17 +384,23 @@ std::string CInterface::cHeaderCodeInternal() const
         "\n"
         "/// @brief Check if message @ref #^#NAME#$# contents are valid.\n"
         "bool #^#NAME#$#_valid(const #^#NAME#$#* msg);\n"
-        // TODO: extra code
+        "\n"
+        "/// @brief Dispatch message to appropriate handling function.\n"
+        "void #^#NAME#$#_dispatch(#^#NAME#$#* msg, #^#HANDLER#$#* handler);\n"
+        // TODO: dispatch code
         ;
 
     auto* msgId = cMsgId();
     assert(msgId != nullptr);
+    auto* msgHandler = cMsgHandler();
+    assert(msgHandler != nullptr);
 
     util::GenReplacementMap repl = {
         {"NAME", cName()},
         {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
         {"MSG_ID", msgId->cName()},
         {"ERROR_STATUS", CErrorStatus::cName(CGenerator::cCast(genGenerator()))},
+        {"HANDLER", msgHandler->cName()},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -382,10 +408,12 @@ std::string CInterface::cHeaderCodeInternal() const
 
 std::string CInterface::cSourceIncludesInternal() const
 {
-    // auto& cGenerator = CGenerator::cCast(genGenerator());
+    auto* msgHandler = cMsgHandler();
+    assert(msgHandler != nullptr);
 
     util::GenStringsList includes = {
-        cRelCommsDefHeader(),
+        cRelCommsHeader(),
+        msgHandler->cRelCommsHeader(),
     };
 
     for (auto* f : m_cFields) {
@@ -458,11 +486,22 @@ std::string CInterface::cSourceCodeInternal() const
         "{\n"
         "    return fromInterfaceHandle(msg)->valid();\n"
         "}\n"
-        // TODO: extra code
+        "\n"
+        "void #^#NAME#$#_dispatch(#^#NAME#$#* msg, #^#HANDLER#$#* handler)\n"
+        "{\n"
+        "    if (handler == nullptr) {\n"
+        "        return;\n"
+        "    }\n\n"
+        "    #^#COMMS_HANDLER#$# commsHandler(*handler);\n"
+        "    fromInterfaceHandle(msg)->dispatch(commsHandler);\n"
+        "}\n"
+        // TODO: dispatch code
         ;
 
     auto* msgId = cMsgId();
     assert(msgId != nullptr);
+    auto* msgHandler = cMsgHandler();
+    assert(msgHandler != nullptr);
 
     auto parseObj = genParseObj();
     util::GenReplacementMap repl = {
@@ -470,6 +509,8 @@ std::string CInterface::cSourceCodeInternal() const
         {"FIELDS_ACC", util::genStrListToString(fieldsAcc, "", "\n")},
         {"MSG_ID", msgId->cName()},
         {"ERROR_STATUS", CErrorStatus::cName(CGenerator::cCast(genGenerator()))},
+        {"HANDLER", msgHandler->cName()},
+        {"COMMS_HANDLER", msgHandler->cCommsTypeName()},
     };
 
     return util::genProcessTemplate(Templ, repl);

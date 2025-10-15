@@ -55,7 +55,7 @@ public:
     std::string cCommsType(bool forceOptional = false) const;
     bool cIsVersionOptional() const;
     void cAddSourceFiles(GenStringsList& sources) const;
-    std::string cRelCommsDefHeader() const;
+    std::string cRelCommsHeader() const;
 
     const GenField& cGenField() const
     {

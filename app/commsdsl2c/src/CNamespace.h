@@ -17,6 +17,7 @@
 #pragma once
 
 #include "CField.h"
+#include "CMsgHandler.h"
 #include "CMsgId.h"
 
 #include "commsdsl/gen/GenNamespace.h"
@@ -51,6 +52,7 @@ public:
     std::string cPrefixName() const;
 
     const CMsgId* cMsgId() const;
+    const CMsgHandler* cMsgHandler() const;
 
 protected:
     virtual bool genWriteImpl() const override;
@@ -59,6 +61,7 @@ private:
     const CInterface* cFindSuitableInterfaceInternal() const;
 
     CMsgId m_msgId;
+    CMsgHandler m_msgHandler;
 };
 
 } // namespace commsdsl2c

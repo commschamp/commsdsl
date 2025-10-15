@@ -61,6 +61,10 @@ public:
     std::string cAbsCommsHeaderFor(const commsdsl::gen::GenElem& elem) const;
     std::string cRelHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
     std::string cAbsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
+    std::string cRelCommsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
+    std::string cAbsCommsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
+    std::string cRelSourceForNamespaceMember(const std::string& name, const CNamespace& parent) const;
+    std::string cAbsSourceForNamespaceMember(const std::string& name, const CNamespace& parent) const;
     std::string cRelRootHeaderFor(const std::string& name) const;
     std::string cAbsRootHeaderFor(const std::string& name) const;
     std::string cRelRootSourceFor(const std::string& name) const;

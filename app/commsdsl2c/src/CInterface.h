@@ -28,6 +28,8 @@ namespace commsdsl2c
 
 class CGenerator;
 class CMsgId;
+class CMsgHandler;
+
 class CInterface final: public commsdsl::gen::GenInterface
 {
     using GenBase = commsdsl::gen::GenInterface;
@@ -46,7 +48,7 @@ public:
     }
 
     std::string cRelHeader() const;
-    std::string cRelCommsDefHeader() const;
+    std::string cRelCommsHeader() const;
     void cAddSourceFiles(GenStringsList& sources) const;
     std::string cCommsType() const;
     bool cCodeGenerationAllowed() const;
@@ -54,6 +56,7 @@ public:
     std::string cCommsTypeName() const;
 
     const CMsgId* cMsgId() const;
+    const CMsgHandler* cMsgHandler() const;
 
 protected:
     virtual bool genPrepareImpl() override;

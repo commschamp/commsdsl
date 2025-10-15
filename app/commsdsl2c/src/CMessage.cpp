@@ -49,7 +49,7 @@ std::string CMessage::cRelHeader() const
     return cGenerator.cRelHeaderFor(*this);
 }
 
-std::string CMessage::cRelCommsDefHeader() const
+std::string CMessage::cRelCommsHeader() const
 {
     auto& cGenerator = CGenerator::cCast(genGenerator());
     return cGenerator.cRelCommsHeaderFor(*this);
@@ -332,7 +332,6 @@ std::string CMessage::cHeaderCodeInternal() const
         "/// @brief Release @ref #^#NAME#$# message object when it's no longer needed.\n"
         "/// @param[in] msg Message object handle returned by the @ref #^#NAME#$#_alloc().\n"
         "void #^#NAME#$#_free(#^#NAME#$#* msg);\n"
-        // TODO: extra code
         ;
 
     auto* parentNs = CNamespace::cCast(genParentNamespace());
@@ -358,7 +357,7 @@ std::string CMessage::cHeaderCodeInternal() const
 std::string CMessage::cSourceIncludesInternal() const
 {
     util::GenStringsList includes = {
-        cRelCommsDefHeader(),
+        cRelCommsHeader(),
     };
 
     for (auto* f : m_cFields) {
@@ -475,13 +474,16 @@ std::string CMessage::cCommsHeaderIncludesInternal() const
     assert(parentNs != nullptr);
     auto* interface = parentNs->cInterface();
     assert (interface != nullptr);
+    auto* msgHandler = interface->cMsgHandler();
+    assert(msgHandler != nullptr);
 
     GenStringsList includes = {
         "<stdint.h>",
         "comms/options.h",
         comms::genRelHeaderPathFor(*this, cGenerator),
         cRelHeader(),
-        interface->cRelCommsDefHeader(),
+        interface->cRelCommsHeader(),
+        msgHandler->cRelCommsHeader(),
         CProtocolOptions::cRelHeaderPath(cGenerator),
     };
 
@@ -511,7 +513,7 @@ std::string CMessage::cCommsHeaderCodeInternal() const
     assert (interface != nullptr);
 
     static const std::string Templ =
-        "using #^#COMMS_NAME#$# = ::#^#COMMS_TYPE#$#<#^#INTERFACE#$#, #^#OPTS#$#>;\n"
+        "class #^#COMMS_NAME#$# : public ::#^#COMMS_TYPE#$#<#^#INTERFACE#$#, #^#OPTS#$#> {};\n"
         "struct alignas(alignof(#^#COMMS_NAME#$#)) #^#NAME#$#_ {};\n\n"
         "inline const #^#COMMS_NAME#$#* fromMessageHandle(const #^#NAME#$#* from)\n"
         "{\n"

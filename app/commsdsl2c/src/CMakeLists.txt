@@ -13,6 +13,7 @@ set (
     CIntField.cpp
     CListField.cpp
     CMessage.cpp
+    CMsgHandler.cpp
     CMsgId.cpp
     CNamespace.cpp
     COptionalField.cpp

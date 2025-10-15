@@ -121,7 +121,7 @@ void CField::cAddHeaderIncludes(CIncludesList& includes) const
 void CField::cAddSourceIncludes(CIncludesList& includes) const
 {
     if (comms::genIsGlobalField(m_genField) && m_genField.genIsReferenced()) {
-        includes.push_back(cRelCommsDefHeader());
+        includes.push_back(cRelCommsHeader());
     }
 
     return cAddSourceIncludesImpl(includes);
@@ -383,7 +383,7 @@ void CField::cAddSourceFiles(GenStringsList& sources) const
     sources.push_back(cGenerator.cRelSourceFor(m_genField));
 }
 
-std::string CField::cRelCommsDefHeader() const
+std::string CField::cRelCommsHeader() const
 {
     auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
     return cGenerator.cRelCommsHeaderFor(m_genField);

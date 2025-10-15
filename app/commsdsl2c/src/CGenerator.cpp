@@ -107,6 +107,26 @@ std::string CGenerator::cAbsHeaderForNamespaceMember(const std::string& name, co
     return genGetOutputDir() + '/' + strings::genIncludeDirStr() + '/' + cRelHeaderForNamespaceMember(name, parent);
 }
 
+std::string CGenerator::cRelCommsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const
+{
+    return genGetTopNamespace() + '/' + comms::genRelHeaderForNamespaceMember(name + strings::genCommsNameSuffixStr(), *this, parent);
+}
+
+std::string CGenerator::cAbsCommsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const
+{
+    return genGetOutputDir() + '/' + cRelCommsHeaderForNamespaceMember(name, parent);
+}
+
+std::string CGenerator::cRelSourceForNamespaceMember(const std::string& name, const CNamespace& parent) const
+{
+    return genGetTopNamespace() + '/' + comms::genRelSourceForNamespaceMember(name, *this, parent);
+}
+
+std::string CGenerator::cAbsSourceForNamespaceMember(const std::string& name, const CNamespace& parent) const
+{
+    return genGetOutputDir() + '/' + cRelSourceForNamespaceMember(name, parent);
+}
+
 std::string CGenerator::cRelRootHeaderFor(const std::string& name) const
 {
     return

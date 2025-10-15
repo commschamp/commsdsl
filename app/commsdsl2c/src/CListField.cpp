@@ -83,7 +83,7 @@ void CListField::cAddSourceIncludesImpl(CIncludesList& includes) const
 void CListField::cAddCommsHeaderIncludesImpl(CIncludesList& includes) const
 {
     if (m_cExternalElementField != nullptr) {
-        includes.push_back(m_cExternalElementField->cRelCommsDefHeader());
+        includes.push_back(m_cExternalElementField->cRelCommsHeader());
     }
 
     if (m_cMemberElementField != nullptr) {

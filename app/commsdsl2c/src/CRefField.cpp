@@ -59,7 +59,7 @@ void CRefField::cAddHeaderIncludesImpl(CIncludesList& includes) const
 
 void CRefField::cAddSourceIncludesImpl(CIncludesList& includes) const
 {
-    includes.push_back(m_cRefField->cRelCommsDefHeader());
+    includes.push_back(m_cRefField->cRelCommsHeader());
 }
 
 std::string CRefField::cHeaderCodeImpl() const

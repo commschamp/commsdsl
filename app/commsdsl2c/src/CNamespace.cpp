@@ -51,7 +51,8 @@ void cAddSourceFilesInternal(const TList& list, util::GenStringsList& sources)
 
 CNamespace::CNamespace(CGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
-    m_msgId(generator, *this)
+    m_msgId(generator, *this),
+    m_msgHandler(generator, *this)
 {
 }
 
@@ -128,10 +129,9 @@ void CNamespace::cAddSourceFiles(GenStringsList& sources) const
     auto* iFace = cInterface();
     iFace->cAddSourceFiles(sources);
 
-    // if (!genInterfaces().empty()) {
-    //     m_msgId.cAddSourceFiles(sources);
-    //     m_handler.cAddSourceFiles(sources);
-    // }
+    if (!genInterfaces().empty()) {
+        m_msgHandler.cAddSourceFiles(sources);
+    }
 }
 
 bool CNamespace::cCodeGenerationAllowed() const
@@ -155,6 +155,15 @@ const CMsgId* CNamespace::cMsgId() const
     return &m_msgId;
 }
 
+const CMsgHandler* CNamespace::cMsgHandler() const
+{
+    if (!cCodeGenerationAllowed()) {
+        return nullptr;
+    }
+
+    return &m_msgHandler;
+}
+
 bool CNamespace::genWriteImpl() const
 {
     if (!cCodeGenerationAllowed()) {
@@ -162,7 +171,8 @@ bool CNamespace::genWriteImpl() const
     }
 
     return
-        m_msgId.cWrite();
+        m_msgId.cWrite() &&
+        m_msgHandler.cWrite();
 }
 
 const CInterface* CNamespace::cFindSuitableInterfaceInternal() const

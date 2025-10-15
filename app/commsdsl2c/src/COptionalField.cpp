@@ -73,7 +73,7 @@ void COptionalField::cAddSourceIncludesImpl(CIncludesList& includes) const
 void COptionalField::cAddCommsHeaderIncludesImpl(CIncludesList& includes) const
 {
     if (m_cExtField != nullptr) {
-        includes.push_back(m_cExtField->cRelCommsDefHeader());
+        includes.push_back(m_cExtField->cRelCommsHeader());
     }
 
     if (m_cMemField != nullptr) {
