@@ -46,6 +46,7 @@ public:
     using ParseMessage = commsdsl::parse::ParseMessage;
     using ParseFrame = commsdsl::parse::ParseFrame;
     using ParseField = commsdsl::parse::ParseField;
+    using ParseLayer = commsdsl::parse::ParseLayer;
 
     using GenFilesList = std::vector<std::string>;
     using GenLoggerPtr = std::unique_ptr<GenLogger>;
@@ -160,13 +161,13 @@ public:
     GenFieldPtr genCreateOptionalField(ParseField parseObj, GenElem* parent);
     GenFieldPtr genCreateVariantField(ParseField parseObj, GenElem* parent);
 
-    GenLayerPtr genCreateCustomLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreateSyncLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreateSizeLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreateIdLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreateValueLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreatePayloadLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreateChecksumLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateCustomLayer(ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateSyncLayer(ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateSizeLayer(ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateIdLayer(ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateValueLayer(ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreatePayloadLayer(ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateChecksumLayer(ParseLayer parseObj, GenElem* parent);
 
     unsigned genCurrentSchemaIdx() const;
     void genChooseCurrentSchema(unsigned idx);
@@ -209,13 +210,13 @@ protected:
     virtual GenFieldPtr genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent);
     virtual GenFieldPtr genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent);
 
-    virtual GenLayerPtr genCreateCustomLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreateSyncLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreateSizeLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreateIdLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreateValueLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateCustomLayerImpl(ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateSyncLayerImpl(ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateSizeLayerImpl(ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateIdLayerImpl(ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateValueLayerImpl(ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreatePayloadLayerImpl(ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateChecksumLayerImpl(ParseLayer parseObj, GenElem* parent);
 
     virtual bool genWriteImpl();
     virtual GenLoggerPtr genCreateLoggerImpl();

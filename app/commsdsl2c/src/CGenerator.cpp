@@ -16,25 +16,32 @@
 #include "CGenerator.h"
 
 #include "CBitfieldField.h"
+#include "CChecksumLayer.h"
 #include "CBundleField.h"
+#include "CCustomLayer.h"
 #include "CDataField.h"
 #include "CCmake.h"
 #include "CEnumField.h"
 #include "CErrorStatus.h"
 #include "CFloatField.h"
-// #include "CFrame.h"
+#include "CFrame.h"
+#include "CIdLayer.h"
 #include "CInterface.h"
 #include "CIntField.h"
 #include "CListField.h"
 #include "CMessage.h"
 #include "CNamespace.h"
 #include "COptionalField.h"
+#include "CPayloadLayer.h"
 #include "CProgramOptions.h"
 #include "CProtocolOptions.h"
 #include "CRefField.h"
 #include "CSchema.h"
 #include "CSetField.h"
+#include "CSizeLayer.h"
 #include "CStringField.h"
+#include "CSyncLayer.h"
+#include "CValueLayer.h"
 #include "CVariantField.h"
 
 #include "commsdsl/version.h"
@@ -66,33 +73,33 @@ const std::string& CGenerator::cFileGeneratedComment()
     return Str;
 }
 
-std::string CGenerator::cRelHeaderFor(const commsdsl::gen::GenElem& elem) const
+std::string CGenerator::cRelHeaderFor(const GenElem& elem) const
 {
     return genGetTopNamespace() + '/' + comms::genRelHeaderPathFor(elem, *this);
 }
 
-std::string CGenerator::cAbsHeaderFor(const commsdsl::gen::GenElem& elem) const
+std::string CGenerator::cAbsHeaderFor(const GenElem& elem) const
 {
     return genGetOutputDir() + '/' + strings::genIncludeDirStr() + '/' + cRelHeaderFor(elem);
 }
 
-std::string CGenerator::cRelSourceFor(const commsdsl::gen::GenElem& elem) const
+std::string CGenerator::cRelSourceFor(const GenElem& elem) const
 {
     return genGetTopNamespace() + '/' + comms::genRelSourcePathFor(elem, *this);
 }
 
-std::string CGenerator::cAbsSourceFor(const commsdsl::gen::GenElem& elem) const
+std::string CGenerator::cAbsSourceFor(const GenElem& elem) const
 {
     return genGetOutputDir() + '/' + cRelSourceFor(elem);
 }
 
-std::string CGenerator::cRelCommsHeaderFor(const commsdsl::gen::GenElem& elem) const
+std::string CGenerator::cRelCommsHeaderFor(const GenElem& elem) const
 {
     auto scope = comms::genScopeFor(elem, *this) + strings::genCommsNameSuffixStr();
     return genGetTopNamespace() + '/' + util::genScopeToRelPath(scope) + strings::genCppHeaderSuffixStr();
 }
 
-std::string CGenerator::cAbsCommsHeaderFor(const commsdsl::gen::GenElem& elem) const
+std::string CGenerator::cAbsCommsHeaderFor(const GenElem& elem) const
 {
     return genGetOutputDir() + '/' + cRelCommsHeaderFor(elem);
 }
@@ -153,17 +160,17 @@ std::string CGenerator::cAbsRootSourceFor(const std::string& name) const
     return genGetOutputDir() + '/' + cRelRootSourceFor(name);
 }
 
-std::string CGenerator::cInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const
+std::string CGenerator::cInputAbsHeaderFor(const GenElem& elem) const
 {
     return genGetCodeDir() + '/' + strings::genIncludeDirStr() + '/' + cRelHeaderFor(elem);
 }
 
-std::string CGenerator::cInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const
+std::string CGenerator::cInputAbsSourceFor(const GenElem& elem) const
 {
     return genGetCodeDir() + '/' + cRelSourceFor(elem);
 }
 
-std::string CGenerator::cNameFor(const commsdsl::gen::GenElem& elem) const
+std::string CGenerator::cNameFor(const GenElem& elem) const
 {
     return cScopeToName(comms::genScopeFor(elem, *this));
 }
@@ -254,10 +261,10 @@ CGenerator::GenMessagePtr CGenerator::genCreateMessageImpl(ParseMessage parseObj
     return std::make_unique<CMessage>(*this, parseObj, parent);
 }
 
-// CGenerator::GenFramePtr CGenerator::genCreateFrameImpl(ParseFrame parseObj, GenElem* parent)
-// {
-//     return std::make_unique<CFrame>(*this, parseObj, parent);
-// }
+CGenerator::GenFramePtr CGenerator::genCreateFrameImpl(ParseFrame parseObj, GenElem* parent)
+{
+    return std::make_unique<CFrame>(*this, parseObj, parent);
+}
 
 CGenerator::GenFieldPtr CGenerator::genCreateIntFieldImpl(ParseField parseObj, GenElem* parent)
 {
@@ -317,6 +324,41 @@ CGenerator::GenFieldPtr CGenerator::genCreateOptionalFieldImpl(ParseField parseO
 CGenerator::GenFieldPtr CGenerator::genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent)
 {
     return std::make_unique<CVariantField>(*this, parseObj, parent);
+}
+
+CGenerator::GenLayerPtr CGenerator::genCreateCustomLayerImpl(ParseLayer parseObj, GenElem* parent)
+{
+    return std::make_unique<CCustomLayer>(*this, parseObj, parent);
+}
+
+CGenerator::GenLayerPtr CGenerator::genCreateSyncLayerImpl(ParseLayer parseObj, GenElem* parent)
+{
+    return std::make_unique<CSyncLayer>(*this, parseObj, parent);
+}
+
+CGenerator::GenLayerPtr CGenerator::genCreateSizeLayerImpl(ParseLayer parseObj, GenElem* parent)
+{
+    return std::make_unique<CSizeLayer>(*this, parseObj, parent);
+}
+
+CGenerator::GenLayerPtr CGenerator::genCreateIdLayerImpl(ParseLayer parseObj, GenElem* parent)
+{
+    return std::make_unique<CIdLayer>(*this, parseObj, parent);
+}
+
+CGenerator::GenLayerPtr CGenerator::genCreateValueLayerImpl(ParseLayer parseObj, GenElem* parent)
+{
+    return std::make_unique<CValueLayer>(*this, parseObj, parent);
+}
+
+CGenerator::GenLayerPtr CGenerator::genCreatePayloadLayerImpl(ParseLayer parseObj, GenElem* parent)
+{
+    return std::make_unique<CPayloadLayer>(*this, parseObj, parent);
+}
+
+CGenerator::GenLayerPtr CGenerator::genCreateChecksumLayerImpl(ParseLayer parseObj, GenElem* parent)
+{
+    return std::make_unique<CChecksumLayer>(*this, parseObj, parent);
 }
 
 CGenerator::OptsProcessResult CGenerator::genProcessOptionsImpl(const GenProgramOptions& options)

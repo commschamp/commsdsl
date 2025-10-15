@@ -1,5 +1,5 @@
 //
-// Copyright 2022 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2025 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,30 +44,6 @@ public:
     {
         return m_genLayer;
     }
-
-    bool cIsMainInterfaceSupported() const;
-    std::string cFieldAccName() const;
-    std::string cFieldAccFuncName() const;
-    void cAddHeaderInclude(GenStringsList& includes) const;
-    std::string cHeaderClass() const;
-    std::string cSourceCode() const;
-
-protected:
-    virtual bool cIsMainInterfaceSupportedImpl() const;
-    virtual std::string cHeaderFieldDefImpl() const;
-    virtual std::string cFieldClassNameImpl() const;
-    virtual std::string cHeaderExtraFuncsImpl() const;
-    virtual std::string cSourceFieldBindImpl() const;
-    virtual std::string cSourceExtraFuncsImpl() const;
-
-    std::string cTemplateScope() const;
-
-private:
-    std::string cHeaderFieldDefInternal() const;
-    std::string cHeaderClassDefInternal() const;
-    std::string cFieldClassNameInternal() const;
-    std::string cSourceFieldBindInternal() const;
-    std::string cSourceCodeInternal() const;
 
 private:
     commsdsl::gen::GenLayer& m_genLayer;

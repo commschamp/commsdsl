@@ -1037,45 +1037,45 @@ GenFieldPtr GenGenerator::genCreateVariantField(ParseField parseObj, GenElem* pa
     return genCreateVariantFieldImpl(parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateCustomLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateCustomLayer(ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Custom);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Custom);
     return genCreateCustomLayerImpl(parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateSyncLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateSyncLayer(ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Sync);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Sync);
     return genCreateSyncLayerImpl(parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateSizeLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateSizeLayer(ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Size);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Size);
     return genCreateSizeLayerImpl(parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateIdLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateIdLayer(ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Id);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Id);
     return genCreateIdLayerImpl(parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateValueLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateValueLayer(ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Value);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Value);
     return genCreateValueLayerImpl(parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreatePayloadLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreatePayloadLayer(ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Payload);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Payload);
     return genCreatePayloadLayerImpl(parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateChecksumLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateChecksumLayer(ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Checksum);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Checksum);
     return genCreateChecksumLayerImpl(parseObj, parent);
 }
 
@@ -1302,37 +1302,37 @@ GenFieldPtr GenGenerator::genCreateVariantFieldImpl(ParseField parseObj, GenElem
     return std::make_unique<GenVariantField>(*this, parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateCustomLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateCustomLayerImpl(ParseLayer parseObj, GenElem* parent)
 {
     return std::make_unique<GenCustomLayer>(*this, parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateSyncLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateSyncLayerImpl(ParseLayer parseObj, GenElem* parent)
 {
     return std::make_unique<GenSyncLayer>(*this, parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateSizeLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateSizeLayerImpl(ParseLayer parseObj, GenElem* parent)
 {
     return std::make_unique<GenSizeLayer>(*this, parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateIdLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateIdLayerImpl(ParseLayer parseObj, GenElem* parent)
 {
     return std::make_unique<GenIdLayer>(*this, parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateValueLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateValueLayerImpl(ParseLayer parseObj, GenElem* parent)
 {
     return std::make_unique<GenValueLayer>(*this, parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreatePayloadLayerImpl(ParseLayer parseObj, GenElem* parent)
 {
     return std::make_unique<GenPayloadLayer>(*this, parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateChecksumLayerImpl(ParseLayer parseObj, GenElem* parent)
 {
     return std::make_unique<GenChecksumLayer>(*this, parseObj, parent);
 }

@@ -40,6 +40,7 @@ public:
     using GenProgramOptions = commsdsl::gen::GenProgramOptions;
     using GenGenerator = commsdsl::gen::GenGenerator;
     using GenFieldPtr = commsdsl::gen::GenFieldPtr;
+    using GenLayerPtr = commsdsl::gen::GenLayerPtr;
 
     static const std::string& cFileGeneratedComment();
 
@@ -53,12 +54,12 @@ public:
         return static_cast<const CGenerator&>(generator);
     }
 
-    std::string cRelHeaderFor(const commsdsl::gen::GenElem& elem) const;
-    std::string cAbsHeaderFor(const commsdsl::gen::GenElem& elem) const;
-    std::string cRelSourceFor(const commsdsl::gen::GenElem& elem) const;
-    std::string cAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
-    std::string cRelCommsHeaderFor(const commsdsl::gen::GenElem& elem) const;
-    std::string cAbsCommsHeaderFor(const commsdsl::gen::GenElem& elem) const;
+    std::string cRelHeaderFor(const GenElem& elem) const;
+    std::string cAbsHeaderFor(const GenElem& elem) const;
+    std::string cRelSourceFor(const GenElem& elem) const;
+    std::string cAbsSourceFor(const GenElem& elem) const;
+    std::string cRelCommsHeaderFor(const GenElem& elem) const;
+    std::string cAbsCommsHeaderFor(const GenElem& elem) const;
     std::string cRelHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
     std::string cAbsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
     std::string cRelCommsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
@@ -70,10 +71,10 @@ public:
     std::string cRelRootSourceFor(const std::string& name) const;
     std::string cAbsRootSourceFor(const std::string& name) const;
 
-    std::string cInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const;
-    std::string cInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
+    std::string cInputAbsHeaderFor(const GenElem& elem) const;
+    std::string cInputAbsSourceFor(const GenElem& elem) const;
 
-    std::string cNameFor(const commsdsl::gen::GenElem& elem) const;
+    std::string cNameFor(const GenElem& elem) const;
 
     static std::string cScopeToName(const std::string& scope);
     static const std::string& cCppGuardBegin(bool addBool = true);
@@ -91,7 +92,7 @@ protected:
     virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
     virtual GenInterfacePtr genCreateInterfaceImpl(ParseInterface parseObj, GenElem* parent) override;
     virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent) override;
-    // virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent) override;
+    virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent) override;
 
     virtual GenFieldPtr genCreateIntFieldImpl(ParseField parseObj, GenElem* parent) override;
     virtual GenFieldPtr genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent) override;
@@ -105,6 +106,14 @@ protected:
     virtual GenFieldPtr genCreateRefFieldImpl(ParseField parseObj, GenElem* parent) override;
     virtual GenFieldPtr genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent) override;
     virtual GenFieldPtr genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent) override;
+
+    virtual GenLayerPtr genCreateCustomLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    virtual GenLayerPtr genCreateSyncLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    virtual GenLayerPtr genCreateSizeLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    virtual GenLayerPtr genCreateIdLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    virtual GenLayerPtr genCreateValueLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    virtual GenLayerPtr genCreatePayloadLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    virtual GenLayerPtr genCreateChecksumLayerImpl(ParseLayer parseObj, GenElem* parent) override;
 
     virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
 
