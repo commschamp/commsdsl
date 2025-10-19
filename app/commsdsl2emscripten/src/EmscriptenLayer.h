@@ -21,56 +21,56 @@
 #include <string>
 #include <vector>
 
-namespace commsdsl2c
+namespace commsdsl2emscripten
 {
 
-class CLayer
+class EmscriptenLayer
 {
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
     using GenLayer = commsdsl::gen::GenLayer;
 
-    explicit CLayer(GenLayer& layer);
-    virtual ~CLayer();
+    explicit EmscriptenLayer(GenLayer& layer);
+    virtual ~EmscriptenLayer();
 
-    static const CLayer* cCast(const GenLayer* layer);
+    static const EmscriptenLayer* emscriptenCast(const GenLayer* layer);
 
-    commsdsl::gen::GenLayer& cGenLayer()
+    commsdsl::gen::GenLayer& emscriptenGenLayer()
     {
         return m_genLayer;
     }
 
-    const commsdsl::gen::GenLayer& cGenLayer() const
+    const commsdsl::gen::GenLayer& emscriptenGenLayer() const
     {
         return m_genLayer;
     }
 
-    bool cIsMainInterfaceSupported() const;
-    std::string cFieldAccName() const;
-    std::string cFieldAccFuncName() const;
-    void cAddHeaderInclude(GenStringsList& includes) const;
-    std::string cHeaderClass() const;
-    std::string cSourceCode() const;
+    bool emscriptenIsMainInterfaceSupported() const;
+    std::string emscriptenFieldAccName() const;
+    std::string emscriptenFieldAccFuncName() const;
+    void emscriptenAddHeaderInclude(GenStringsList& includes) const;
+    std::string emscriptenHeaderClass() const;
+    std::string emscriptenSourceCode() const;
 
 protected:
-    virtual bool cIsMainInterfaceSupportedImpl() const;
-    virtual std::string cHeaderFieldDefImpl() const;
-    virtual std::string cFieldClassNameImpl() const;
-    virtual std::string cHeaderExtraFuncsImpl() const;
-    virtual std::string cSourceFieldBindImpl() const;
-    virtual std::string cSourceExtraFuncsImpl() const;
+    virtual bool emscriptenIsMainInterfaceSupportedImpl() const;
+    virtual std::string emscriptenHeaderFieldDefImpl() const;
+    virtual std::string emscriptenFieldClassNameImpl() const;
+    virtual std::string emscriptenHeaderExtraFuncsImpl() const;
+    virtual std::string emscriptenSourceFieldBindImpl() const;
+    virtual std::string emscriptenSourceExtraFuncsImpl() const;
 
-    std::string cTemplateScope() const;
+    std::string emscriptenTemplateScope() const;
 
 private:
-    std::string cHeaderFieldDefInternal() const;
-    std::string cHeaderClassDefInternal() const;
-    std::string cFieldClassNameInternal() const;
-    std::string cSourceFieldBindInternal() const;
-    std::string cSourceCodeInternal() const;
+    std::string emscriptenHeaderFieldDefInternal() const;
+    std::string emscriptenHeaderClassDefInternal() const;
+    std::string emscriptenFieldClassNameInternal() const;
+    std::string emscriptenSourceFieldBindInternal() const;
+    std::string emscriptenSourceCodeInternal() const;
 
 private:
     commsdsl::gen::GenLayer& m_genLayer;
 };
 
-} // namespace commsdsl2c
+} // namespace commsdsl2emscripten
