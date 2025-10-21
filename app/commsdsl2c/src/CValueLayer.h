@@ -33,6 +33,15 @@ public:
     using GenElem = commsdsl::gen::GenElem;
 
     CValueLayer(CGenerator& generator, ParseLayer parseObj, GenElem* parent);
+
+protected:
+    virtual bool genPrepareImpl() override;
+    virtual std::string cHeaderCodeImpl() const override;    
+    virtual std::string cSourceCodeImpl() const override;    
+    virtual bool cIsInterfaceSupportedImpl(const CInterface& iFace) const override;
+
+private:
+    bool m_hasPseudoField = false;    
 };
 
 } // namespace commsdsl2c

@@ -15,6 +15,9 @@
 
 #pragma once
 
+#include "CField.h"
+#include "CInterface.h"
+
 #include "commsdsl/gen/GenLayer.h"
 #include "commsdsl/gen/util.h"
 
@@ -24,6 +27,7 @@
 namespace commsdsl2c
 {
 
+class CFrame;
 class CLayer
 {
 public:
@@ -45,8 +49,31 @@ public:
         return m_genLayer;
     }
 
+    bool cPrepare();
+    void cAddHeaderIncludes(GenStringsList& includes) const;
+    void cAddSourceIncludes(GenStringsList& includes) const;
+    void cAddCommsHeaderIncludes(GenStringsList& includes) const;
+    std::string cName() const;
+    std::string cCommsTypeName() const;
+    std::string cCommsType() const;
+    std::string cHeaderCode() const;
+    std::string cSourceCode() const;
+    std::string cCommsHeaderCode(const CInterface& iFace, bool& hasInputMessages) const;
+    bool cIsInterfaceSupported(const CInterface& iFace) const;
+
+protected:
+    virtual std::string cHeaderCodeImpl() const;
+    virtual std::string cSourceCodeImpl() const;
+    virtual bool cIsInterfaceSupportedImpl(const CInterface& iFace) const;
+    virtual bool cHasInputMessagesImpl() const;
+
+    const CField* cField() const;
+    const CFrame* cParentFrame() const;
+
 private:
     commsdsl::gen::GenLayer& m_genLayer;
+    const CField* m_cExternalField = nullptr;
+    const CField* m_cMemberField = nullptr;
 };
 
 } // namespace commsdsl2c

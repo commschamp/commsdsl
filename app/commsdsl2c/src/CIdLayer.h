@@ -33,6 +33,10 @@ public:
     using GenElem = commsdsl::gen::GenElem;
 
     CIdLayer(CGenerator& generator, ParseLayer parseObj, GenElem* parent);
+
+protected:
+    virtual bool genPrepareImpl() override;    
+    virtual bool cHasInputMessagesImpl() const override;
 };
 
 } // namespace commsdsl2c

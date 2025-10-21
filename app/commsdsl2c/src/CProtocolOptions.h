@@ -29,7 +29,7 @@ public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     static std::string cName(const CGenerator& generator);
-    static std::string cRelHeaderPath(const CGenerator& generator);
+    static std::string cRelHeader(const CGenerator& generator);
 
     static bool cWrite(CGenerator& generator);
 

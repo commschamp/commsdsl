@@ -41,8 +41,6 @@ const std::string CommsClientInputPrefixStr = "ClientInput";
 const std::string CommsServerInputMessagesStr = CommsServerInputPrefixStr + "Messages";
 const std::string CommsClientInputMessagesStr = CommsClientInputPrefixStr + "Messages";
 
-using GenReplacementMap = util::GenReplacementMap;
-
 bool commsWriteFileInternal(const std::string& name, const std::string& str, CommsGenerator& generator)
 {
     auto filePath = comms::genPathForDoc(name, generator);

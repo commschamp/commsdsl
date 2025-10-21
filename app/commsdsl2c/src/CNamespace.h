@@ -17,6 +17,7 @@
 #pragma once
 
 #include "CField.h"
+#include "CInputMessages.h"
 #include "CMsgHandler.h"
 #include "CMsgId.h"
 
@@ -53,6 +54,7 @@ public:
 
     const CMsgId* cMsgId() const;
     const CMsgHandler* cMsgHandler() const;
+    const CInputMessages* cInputMessages() const;
 
 protected:
     virtual bool genWriteImpl() const override;
@@ -62,6 +64,7 @@ private:
 
     CMsgId m_msgId;
     CMsgHandler m_msgHandler;
+    CInputMessages m_input;
 };
 
 } // namespace commsdsl2c

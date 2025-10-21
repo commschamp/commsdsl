@@ -17,6 +17,16 @@
 
 #include "CGenerator.h"
 
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+#include <cassert>
+
+namespace comms = commsdsl::gen::comms;
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
+
 namespace commsdsl2c
 {
 
@@ -24,6 +34,68 @@ CValueLayer::CValueLayer(CGenerator& generator, ParseLayer parseObj, GenElem* pa
     GenBase(generator, parseObj, parent),
     CBase(static_cast<GenBase&>(*this))
 {
+}
+
+bool CValueLayer::genPrepareImpl()
+{
+    if ((!GenBase::genPrepareImpl()) || (!cPrepare())) {
+        return false;
+    } 
+
+    m_hasPseudoField = genValueLayerParseObj().parsePseudo();
+    return true;
+}
+
+std::string CValueLayer::cHeaderCodeImpl() const
+{
+    if (!m_hasPseudoField) {
+        return CBase::cHeaderCodeImpl();
+    }
+
+    auto* field = cField();
+    assert(field != nullptr);
+
+    static const std::string Templ = 
+        "#^#FIELD#$#* #^#NAME#$#_pseudoField(#^#NAME#$#* layer);\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"FIELD", field->cName()},
+        {"NAME", cName()}
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CValueLayer::cSourceCodeImpl() const
+{
+    if (!m_hasPseudoField) {
+        return CBase::cSourceCodeImpl();
+    }
+
+    auto* field = cField();
+    assert(field != nullptr);
+
+    static const std::string Templ = 
+        "#^#FIELD#$#* #^#NAME#$#_pseudoField(#^#NAME#$#* layer)\n"
+        "{\n"
+        "    return to#^#CONV_SUFFIX#$#(reinterpret_cast<#^#FIELD_COMMS#$#*>(&(fromLayerHandle(layer)->pseudoField())));\n"
+        "}"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"FIELD", field->cName()},
+        {"FIELD_COMMS", field->cCommsTypeName()},
+        {"NAME", cName()},
+        {"CONV_SUFFIX", field->cConversionSuffix()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+bool CValueLayer::cIsInterfaceSupportedImpl(const CInterface& iFace) const
+{
+    return genIsInterfaceSupported(&iFace);
 }
 
 } // namespace commsdsl2c

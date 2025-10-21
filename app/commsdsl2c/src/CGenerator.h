@@ -66,6 +66,8 @@ public:
     std::string cAbsCommsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
     std::string cRelSourceForNamespaceMember(const std::string& name, const CNamespace& parent) const;
     std::string cAbsSourceForNamespaceMember(const std::string& name, const CNamespace& parent) const;
+    std::string cRelHeaderForInput(const std::string& name, const CNamespace& parent) const;
+    std::string cAbsHeaderForInput(const std::string& name, const CNamespace& parent) const;
     std::string cRelRootHeaderFor(const std::string& name) const;
     std::string cAbsRootHeaderFor(const std::string& name) const;
     std::string cRelRootSourceFor(const std::string& name) const;
@@ -81,6 +83,7 @@ public:
     static const std::string& cCppGuardEnd();
 
     const GenStringsList& cProtocolOptions() const;
+    const std::string& cInputName() const;
 
     const CInterface* cForcedInterface() const;
 
@@ -121,14 +124,17 @@ private:
     bool cWriteExtraFilesInternal() const;
     void cSetNamesPrefixInternal(const std::string& value);
     void cSetCommsOptionsInternal(const std::string& value);
-    void cSetCommsinterfaceInternal(const std::string& value);
+    void cSetCommsInputInternal(const std::string& value);
+    void cSetCommsInterfaceInternal(const std::string& value);
 
     bool cPrepareNamesPrefixInternal();
     bool cPrepareCommsOptionsInternal();
     bool cPrepareForcedInterfaceInternal();
+    bool cPrepareInputNameInternal();
 
     std::string m_namesPrefix;
     std::string m_forcedInterfaceName;
+    std::string m_inputName;
     GenStringsList m_commsOptions;
     const CInterface* m_forcedInterface = nullptr;
 };

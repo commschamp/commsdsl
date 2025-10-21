@@ -134,6 +134,16 @@ std::string CGenerator::cAbsSourceForNamespaceMember(const std::string& name, co
     return genGetOutputDir() + '/' + cRelSourceForNamespaceMember(name, parent);
 }
 
+std::string CGenerator::cRelHeaderForInput(const std::string& name, const CNamespace& parent) const
+{
+    return genGetTopNamespace() + '/' + comms::genRelHeaderForInput(name, *this, parent);
+}
+
+std::string CGenerator::cAbsHeaderForInput(const std::string& name, const CNamespace& parent) const
+{
+    return genGetOutputDir() + '/' + cRelHeaderForInput(name, parent);
+}
+
 std::string CGenerator::cRelRootHeaderFor(const std::string& name) const
 {
     return
@@ -219,6 +229,11 @@ const CGenerator::GenStringsList& CGenerator::cProtocolOptions() const
     return m_commsOptions;
 }
 
+const std::string& CGenerator::cInputName() const
+{
+    return m_inputName;
+}
+
 const CInterface* CGenerator::cForcedInterface() const
 {
     return m_forcedInterface;
@@ -228,7 +243,9 @@ bool CGenerator::genPrepareImpl()
 {
     return
         cPrepareNamesPrefixInternal() &&
-        cPrepareCommsOptionsInternal();
+        cPrepareCommsOptionsInternal() &&
+        cPrepareForcedInterfaceInternal() &&
+        cPrepareInputNameInternal();
 }
 
 bool CGenerator::genWriteImpl()
@@ -367,7 +384,8 @@ CGenerator::OptsProcessResult CGenerator::genProcessOptionsImpl(const GenProgram
 
     cSetNamesPrefixInternal(opts.cGetNamesPrefix());
     cSetCommsOptionsInternal(opts.cGetCommsOptions());
-    cSetCommsinterfaceInternal(opts.cGetCommsInterface());
+    cSetCommsInterfaceInternal(opts.cGetCommsInterface());
+    cSetCommsInputInternal(opts.cGetCommsInput());
     genSetTopNamespace("cc_c");
     return OptsProcessResult_Continue;
 }
@@ -390,7 +408,12 @@ void CGenerator::cSetCommsOptionsInternal(const std::string& value)
     m_commsOptions = util::genStrSplit(value, "::");
 }
 
-void CGenerator::cSetCommsinterfaceInternal(const std::string& value)
+void CGenerator::cSetCommsInputInternal(const std::string& value)
+{
+    m_inputName = value;
+}
+
+void CGenerator::cSetCommsInterfaceInternal(const std::string& value)
 {
     m_forcedInterfaceName = value;
 }
@@ -460,6 +483,14 @@ bool CGenerator::cPrepareForcedInterfaceInternal()
     }
 
     m_forcedInterface = CInterface::cCast(iFace);
+    return true;
+}
+
+bool CGenerator::cPrepareInputNameInternal()
+{
+    if (m_inputName.empty()) {
+        m_inputName = strings::genAllMessagesStr();
+    }
     return true;
 }
 

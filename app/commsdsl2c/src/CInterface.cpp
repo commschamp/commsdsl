@@ -312,7 +312,7 @@ std::string CInterface::cHeaderIncludesInternal() const
     util::GenStringsList includes {
         "<stddef.h>",
         "<stdint.h>",
-        CErrorStatus::cRelHeaderPath(CGenerator::cCast(genGenerator())),
+        CErrorStatus::cRelHeader(CGenerator::cCast(genGenerator())),
         msgId->cRelHeader(),
         msgHandler->cRelHeader(),
     };

@@ -26,4 +26,9 @@ CSyncLayer::CSyncLayer(CGenerator& generator, ParseLayer parseObj, GenElem* pare
 {
 }
 
+bool CSyncLayer::genPrepareImpl()
+{
+    return GenBase::genPrepareImpl() && cPrepare();
+}
+
 } // namespace commsdsl2c

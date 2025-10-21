@@ -26,4 +26,14 @@ CIdLayer::CIdLayer(CGenerator& generator, ParseLayer parseObj, GenElem* parent) 
 {
 }
 
+bool CIdLayer::genPrepareImpl()
+{
+    return GenBase::genPrepareImpl() && cPrepare();
+}
+
+bool CIdLayer::cHasInputMessagesImpl() const
+{
+    return true;
+}
+
 } // namespace commsdsl2c

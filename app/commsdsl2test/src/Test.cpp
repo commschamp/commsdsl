@@ -32,13 +32,6 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2test
 {
 
-namespace
-{
-
-using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
-
-} // namespace
-
 bool Test::testWrite(TestGenerator& generator)
 {
     Test obj(generator);
@@ -59,7 +52,7 @@ bool Test::testWriteInputTest() const
         return false;
     }
 
-    GenReplacementMap repl = {
+    util::GenReplacementMap repl = {
         std::make_pair("GEN_COMMENT", m_testGenerator.testFileGeneratedComment()),
     };
 

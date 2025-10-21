@@ -26,4 +26,9 @@ CPayloadLayer::CPayloadLayer(CGenerator& generator, ParseLayer parseObj, GenElem
 {
 }
 
+bool CPayloadLayer::genPrepareImpl()
+{
+    return GenBase::genPrepareImpl() && cPrepare();
+}
+
 } // namespace commsdsl2c

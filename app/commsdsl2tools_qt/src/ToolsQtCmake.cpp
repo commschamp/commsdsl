@@ -31,14 +31,6 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2tools_qt
 {
 
-namespace
-{
-
-using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
-using GenStringsList = commsdsl::gen::util::GenStringsList;
-
-} // namespace
-
 bool ToolsQtCmake::toolsWrite(ToolsQtGenerator& generator)
 {
     ToolsQtCmake obj(generator);
@@ -207,7 +199,7 @@ std::string ToolsQtCmake::toolsPerInterfaceFuncsInternal() const
         "    )\n"
         "endfunction()\n";
 
-    GenStringsList result;
+    util::GenStringsList result;
     auto& allInterfaces = m_toolsGenerator.toolsGetSelectedInterfaces();
     for (auto* i : allInterfaces) {
         assert(i != nullptr);
@@ -233,7 +225,7 @@ std::string ToolsQtCmake::toolsPerInterfaceCallsInternal() const
 {
     const std::string Templ = "cc_plugin_#^#INTERFACE#$#()\n";
 
-    GenStringsList result;
+    util::GenStringsList result;
     auto& allInterfaces = m_toolsGenerator.toolsGetSelectedInterfaces();
     for (auto* i : allInterfaces) {
         assert(i != nullptr);

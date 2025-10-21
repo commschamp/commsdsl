@@ -36,7 +36,7 @@ std::string CErrorStatus::cName(const CGenerator& generator)
     return generator.genProtocolSchema().genMainNamespace() + "_ErrorStatus";
 }
 
-std::string CErrorStatus::cRelHeaderPath(const CGenerator& generator)
+std::string CErrorStatus::cRelHeader(const CGenerator& generator)
 {
     return generator.cRelRootHeaderFor(cName(generator));
 }
@@ -169,7 +169,7 @@ bool CErrorStatus::cWriteSourceInternal()
     util::GenReplacementMap repl = {
         {"GENERATED", CGenerator::cFileGeneratedComment()},
         {"NAME", cName(m_cGenerator)},
-        {"HEADER", cRelHeaderPath(m_cGenerator)},
+        {"HEADER", cRelHeader(m_cGenerator)},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);

@@ -249,7 +249,7 @@ std::string CMessage::cHeaderIncludesInternal() const
     util::GenStringsList includes = {
         "<stddef.h>",
         "<stdint.h>",
-        CErrorStatus::cRelHeaderPath(CGenerator::cCast(genGenerator())),
+        CErrorStatus::cRelHeader(CGenerator::cCast(genGenerator())),
         interface->cRelHeader(),
         msgId->cRelHeader(),
     };
@@ -484,7 +484,7 @@ std::string CMessage::cCommsHeaderIncludesInternal() const
         cRelHeader(),
         interface->cRelCommsHeader(),
         msgHandler->cRelCommsHeader(),
-        CProtocolOptions::cRelHeaderPath(cGenerator),
+        CProtocolOptions::cRelHeader(cGenerator),
     };
 
     for (auto* f : m_cFields) {

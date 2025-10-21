@@ -26,4 +26,9 @@ CChecksumLayer::CChecksumLayer(CGenerator& generator, ParseLayer parseObj, GenEl
 {
 }
 
+bool CChecksumLayer::genPrepareImpl()
+{
+    return GenBase::genPrepareImpl() && cPrepare();
+}
+
 } // namespace commsdsl2c

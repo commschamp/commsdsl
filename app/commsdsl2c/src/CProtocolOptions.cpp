@@ -67,7 +67,7 @@ std::string CProtocolOptions::cName(const CGenerator& generator)
     return generator.genProtocolSchema().genMainNamespace() + "_ProtocolOptions";
 }
 
-std::string CProtocolOptions::cRelHeaderPath(const CGenerator& generator)
+std::string CProtocolOptions::cRelHeader(const CGenerator& generator)
 {
     return
         generator.genGetTopNamespace() + '/' +
@@ -89,7 +89,7 @@ CProtocolOptions::CProtocolOptions(CGenerator& generator) :
 
 bool CProtocolOptions::cWriteHeaderInternal()
 {
-    auto filePath = m_cGenerator.genGetOutputDir() + '/' + cRelHeaderPath(m_cGenerator);
+    auto filePath = m_cGenerator.genGetOutputDir() + '/' + cRelHeader(m_cGenerator);
     m_cGenerator.genLogger().genInfo("Generating " + filePath);
 
     auto dirPath = util::genPathUp(filePath);

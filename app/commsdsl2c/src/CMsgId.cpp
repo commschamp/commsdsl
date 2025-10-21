@@ -36,13 +36,6 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2c
 {
 
-namespace
-{
-
-using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
-
-} // namespace
-
 CMsgId::CMsgId(CGenerator& generator, const CNamespace& parent) :
     m_cGenerator(generator),
     m_parent(parent)

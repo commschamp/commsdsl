@@ -13,6 +13,7 @@ set (
     CFrame.cpp
     CGenerator.cpp
     CIdLayer.cpp
+    CInputMessages.cpp
     CInterface.cpp
     CIntField.cpp
     CLayer.cpp

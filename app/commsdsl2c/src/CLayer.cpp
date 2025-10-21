@@ -15,6 +15,11 @@
 
 #include "CLayer.h"
 
+#include "CFrame.h"
+#include "CGenerator.h"
+#include "CNamespace.h"
+#include "CProtocolOptions.h"
+
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -44,6 +49,206 @@ const CLayer* CLayer::cCast(const GenLayer* layer)
     auto* cLayer = dynamic_cast<const CLayer*>(layer);
     assert(cLayer != nullptr);
     return cLayer;
+}
+
+bool CLayer::cPrepare()
+{
+    m_cExternalField = CField::cCast(m_genLayer.genExternalField());
+    m_cMemberField = CField::cCast(m_genLayer.genMemberField());
+    return true;
+}
+
+void CLayer::cAddHeaderIncludes(GenStringsList& includes) const
+{
+    if (m_cExternalField != nullptr) {
+        includes.push_back(m_cExternalField->cRelHeader());
+    }
+
+    if (m_cMemberField != nullptr) {
+        m_cMemberField->cAddHeaderIncludes(includes);
+    }
+}
+
+void CLayer::cAddSourceIncludes(GenStringsList& includes) const
+{
+    if (m_cExternalField != nullptr) {
+        includes.push_back(m_cExternalField->cRelCommsHeader());
+    }
+
+    if (m_cMemberField != nullptr) {
+        m_cMemberField->cAddSourceIncludes(includes);
+    }
+}
+
+void CLayer::cAddCommsHeaderIncludes(GenStringsList& includes) const
+{
+    if (m_cExternalField != nullptr) {
+        includes.push_back(m_cExternalField->cRelCommsHeader());
+    }
+
+    if (m_cMemberField != nullptr) {
+        m_cMemberField->cAddCommsHeaderIncludes(includes);
+    }
+}
+
+std::string CLayer::cName() const
+{
+    auto& cGenerator = CGenerator::cCast(m_genLayer.genGenerator());
+    return cGenerator.cNameFor(m_genLayer);
+}
+
+std::string CLayer::cCommsTypeName() const
+{
+    return cName() + strings::genCommsNameSuffixStr();
+}
+
+std::string CLayer::cCommsType() const
+{
+    auto* frame = cParentFrame();
+    assert(frame != nullptr);
+    auto frameType = frame->cCommsType(false) + strings::genLayersSuffixStr();
+
+    auto& cGenerator = CGenerator::cCast(m_genLayer.genGenerator());
+    auto scope = comms::genScopeFor(m_genLayer, cGenerator);
+
+    assert(frameType.size() <= scope.size());
+    return frameType + '<' + CProtocolOptions::cName(cGenerator) + '>' + scope.substr(frameType.size());    
+}
+
+std::string CLayer::cHeaderCode() const
+{
+    static const std::string Templ =
+        "#^#FIELD#$#\n"
+        "/// @brief Framing layer <b>#^#DISP_NAME#$#</b> of @ref #^#FRAME#$# frame.\n"
+        "typedef struct #^#NAME#$#_ #^#NAME#$#;\n\n"
+        "#^#CODE#$#\n"
+        ;
+
+    auto* cFrame = cParentFrame();
+
+    auto parseObj = m_genLayer.genParseObj();
+
+    util::GenReplacementMap repl = {
+        {"NAME", cName()},
+        {"DISP_NAME", util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName())},
+        {"CODE", cHeaderCodeImpl()},
+        {"FRAME", cFrame->cName()},
+    };
+
+    if (m_cMemberField != nullptr) {
+        repl["FIELD"] = m_cMemberField->cHeaderCode();
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CLayer::cSourceCode() const
+{
+    static const std::string Templ =
+        "#^#FIELD#$#\n"
+        "#^#CODE#$#\n"
+        ;
+
+
+    util::GenReplacementMap repl = {
+        {"CODE", cSourceCodeImpl()},
+    };
+
+    if (m_cMemberField != nullptr) {
+        repl["FIELD"] = m_cMemberField->cSourceCode();
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CLayer::cCommsHeaderCode(const CInterface& iFace, bool& hasInputMessages) const
+{
+    static const std::string Templ =
+        "#^#FIELD#$#\n"
+        "using #^#COMMS_NAME#$# = ::#^#COMMS_TYPE#$##^#TEMPL_PARAMS#$#;\n"
+        "struct alignas(alignof(#^#COMMS_NAME#$#)) #^#NAME#$#_ {};\n"
+        "\n"
+        "inline const #^#COMMS_NAME#$#* fromLayerHandle(const #^#NAME#$#* from)\n"
+        "{\n"
+        "    return reinterpret_cast<const #^#COMMS_NAME#$#*>(from);\n"
+        "}\n\n"
+        "inline #^#COMMS_NAME#$#* fromLayerHandle(#^#NAME#$#* from)\n"
+        "{\n"
+        "    return reinterpret_cast<#^#COMMS_NAME#$#*>(from);\n"
+        "}\n\n"
+        "inline const #^#NAME#$#* toLayerHandle(const #^#COMMS_NAME#$#* from)\n"
+        "{\n"
+        "    return reinterpret_cast<const #^#NAME#$#*>(from);\n"
+        "}\n\n"
+        "inline #^#NAME#$#* toLayerHandle(#^#COMMS_NAME#$#* from)\n"
+        "{\n"
+        "    return reinterpret_cast<#^#NAME#$#*>(from);\n"
+        "}\n"        
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cName()},
+        {"COMMS_NAME", cCommsTypeName()},
+        {"COMMS_TYPE", cCommsType()},
+    };
+
+    auto ns = CNamespace::cCast(cParentFrame()->genParentNamespace());
+    auto* input = ns->cInputMessages();
+    assert(input != nullptr);
+
+    hasInputMessages = hasInputMessages || cHasInputMessagesImpl();
+    if (hasInputMessages) {
+        repl["TEMPL_PARAMS"] = "<" + iFace.cCommsTypeName() + ", " + input->cName() + ">";
+    }
+
+    if (m_cMemberField != nullptr) {
+        repl["FIELD"] = m_cMemberField->cCommsHeaderCode();
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+bool CLayer::cIsInterfaceSupported(const CInterface& iFace) const
+{
+    return cIsInterfaceSupportedImpl(iFace);
+}
+
+std::string CLayer::cHeaderCodeImpl() const
+{
+    return strings::genEmptyString();
+}
+
+std::string CLayer::cSourceCodeImpl() const
+{
+    return strings::genEmptyString();
+}
+
+bool CLayer::cIsInterfaceSupportedImpl([[maybe_unused]] const CInterface& iFace) const
+{
+    return true;
+}
+
+bool CLayer::cHasInputMessagesImpl() const
+{
+    return false;
+}
+
+const CField* CLayer::cField() const
+{
+    if (m_cExternalField != nullptr) {
+        return m_cExternalField;
+    }
+
+    return m_cMemberField;
+}
+
+const CFrame* CLayer::cParentFrame() const
+{
+    auto* parent = m_genLayer.genGetParent();
+    assert(parent != nullptr);
+    auto* cFrame = CFrame::cCast(static_cast<const commsdsl::gen::GenFrame*>(parent));
+    assert(cFrame != nullptr);
+    return cFrame;
 }
 
 } // namespace commsdsl2c

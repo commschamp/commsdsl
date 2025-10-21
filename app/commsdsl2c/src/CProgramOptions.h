@@ -39,6 +39,7 @@ public:
     const std::string& cGetNamesPrefix() const;
     const std::string& cGetCommsOptions() const;
     const std::string& cGetCommsInterface() const;
+    const std::string& cGetCommsInput() const;
 };
 
 } // namespace commsdsl2c

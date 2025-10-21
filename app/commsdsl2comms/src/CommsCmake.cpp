@@ -29,13 +29,6 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-namespace
-{
-
-using GenReplacementMap = util::GenReplacementMap;
-
-} // namespace
-
 bool CommsCmake::commsWrite(CommsGenerator& generator)
 {
     CommsCmake obj(generator);

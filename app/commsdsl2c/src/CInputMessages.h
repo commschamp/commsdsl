@@ -15,33 +15,27 @@
 
 #pragma once
 
-#include "commsdsl/gen/util.h"
-
 #include <string>
 
 namespace commsdsl2c
 {
 
 class CGenerator;
-class CErrorStatus
+class CNamespace;
+
+class CInputMessages
 {
 public:
-    using GenStringsList = commsdsl::gen::util::GenStringsList;
+    CInputMessages(CGenerator& generator, const CNamespace& parent);
+    bool cWrite() const;
 
-    static std::string cName(const CGenerator& generator);
-    static std::string cRelHeader(const CGenerator& generator);
-    static std::string cRelSourcePath(const CGenerator& generator);
-    static void cAddSourceFiles(const CGenerator& generator, GenStringsList& sources);
-
-    static bool cWrite(CGenerator& generator);
+    std::string cRelHeader() const;
+    std::string cName() const;
 
 private:
-    explicit CErrorStatus(CGenerator& generator);
-
-    bool cWriteHeaderInternal();
-    bool cWriteSourceInternal();
 
     CGenerator& m_cGenerator;
+    const CNamespace& m_parent;
 };
 
 } // namespace commsdsl2c

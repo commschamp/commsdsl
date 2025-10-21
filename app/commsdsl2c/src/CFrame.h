@@ -17,6 +17,7 @@
 #pragma once
 
 #include "CLayer.h"
+#include "CInterface.h"
 
 #include "commsdsl/gen/GenFrame.h"
 #include "commsdsl/gen/util.h"
@@ -47,7 +48,7 @@ public:
     std::string cRelHeader() const;
     std::string cRelCommsHeader() const;
     void cAddSourceFiles(GenStringsList& sources) const;
-    std::string cCommsType() const;
+    std::string cCommsType(bool appendOptions = true) const;
     std::string cName() const;
     std::string cCommsTypeName() const;
 
@@ -60,9 +61,21 @@ private:
 
     bool cWriteHeaderInternal() const;
     bool cWriteSourceInternal() const;
+    bool cWriteCommsHeaderInternal() const;
+    std::string cHeaderIncludesInternal() const;
+    std::string cHeaderLayersCodeInternal() const;
+    std::string cHeaderFrameCodeInternal() const;
+    std::string cSourceIncludesInternal() const;
+    std::string cSourceLayersCodeInternal() const;
+    std::string cSourceFrameCodeInternal() const;
+    std::string cCommsHeaderIncludesInternal() const;
+    std::string cCommsHeaderLayersCodeInternal() const;    
+    std::string cCommsHeaderFrameCodeInternal() const;    
+    const CInterface* cInterfaceInternal() const;
+    std::string cMsgIdTypeInternal() const;
 
     CLayersList m_cLayers;
-    bool m_validFrame = true;
+    bool m_validFrame = false;
 };
 
 } // namespace commsdsl2c

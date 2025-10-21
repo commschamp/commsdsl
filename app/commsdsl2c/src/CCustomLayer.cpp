@@ -26,4 +26,14 @@ CCustomLayer::CCustomLayer(CGenerator& generator, ParseLayer parseObj, GenElem* 
 {
 }
 
+bool CCustomLayer::genPrepareImpl()
+{
+    return GenBase::genPrepareImpl() && cPrepare();
+}
+
+bool CCustomLayer::cHasInputMessagesImpl() const
+{
+    return (genCustomLayerParseObj().parseSemanticLayerType() == commsdsl::parse::ParseLayer::ParseKind::Id);
+}
+
 } // namespace commsdsl2c

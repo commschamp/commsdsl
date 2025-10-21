@@ -18,6 +18,7 @@
 #include "CErrorStatus.h"
 #include "CGenerator.h"
 #include "CInterface.h"
+#include "CLayer.h"
 #include "CMessage.h"
 #include "CProtocolOptions.h"
 
@@ -114,7 +115,7 @@ void CField::cAddHeaderIncludes(CIncludesList& includes) const
 {
     includes.push_back("<stddef.h>");
     includes.push_back("<stdint.h>");
-    includes.push_back(CErrorStatus::cRelHeaderPath(CGenerator::cCast(m_genField.genGenerator())));
+    includes.push_back(CErrorStatus::cRelHeader(CGenerator::cCast(m_genField.genGenerator())));
     return cAddHeaderIncludesImpl(includes);
 }
 
@@ -134,7 +135,7 @@ void CField::cAddCommsHeaderIncludes(CIncludesList& includes) const
     assert(parent != nullptr);
 
     if (parent->genElemType() != GenElem::GenType_Interface) {
-        includes.push_back(CProtocolOptions::cRelHeaderPath(cGenerator));
+        includes.push_back(CProtocolOptions::cRelHeader(cGenerator));
     }
 
     if (comms::genIsGlobalField(m_genField) && m_genField.genIsReferenced()) {
@@ -757,7 +758,9 @@ std::string CField::cHandleBriefInternal(bool forcedOptional) const
     else if (parentElemType == GenElem::GenType_Field) {
         parentName = CField::cCast(static_cast<const commsdsl::gen::GenField*>(parent))->cName();
     }
-    // TODO: layer
+    else if (parentElemType == GenElem::GenType_Layer) {
+        parentName = CLayer::cCast(static_cast<const commsdsl::gen::GenLayer*>(parent))->cName();
+    }    
 
     assert(!parentName.empty());
     return prefix + " member field of @ref " + parentName + '.';

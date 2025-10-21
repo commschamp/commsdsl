@@ -30,13 +30,6 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2test
 {
 
-namespace
-{
-
-using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
-
-} // namespace
-
 bool TestCmake::testWrite(TestGenerator& generator)
 {
     TestCmake obj(generator);
@@ -87,7 +80,7 @@ bool TestCmake::testWriteInternal() const
         inputNs = interfaceNs;
     }
 
-    GenReplacementMap repl = {
+    util::GenReplacementMap repl = {
         {"PROJ_NAME", m_testGenerator.genCurrentSchema().genSchemaName()},
         {"PROJ_NS", m_testGenerator.genCurrentSchema().genMainNamespace()},
         {"INTERFACE_SCOPE", std::move(interfaceScope)},

@@ -26,4 +26,9 @@ CSizeLayer::CSizeLayer(CGenerator& generator, ParseLayer parseObj, GenElem* pare
 {
 }
 
+bool CSizeLayer::genPrepareImpl()
+{
+    return GenBase::genPrepareImpl() && cPrepare();
+}
+
 } // namespace commsdsl2c

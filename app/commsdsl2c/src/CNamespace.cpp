@@ -16,10 +16,10 @@
 #include "CNamespace.h"
 
 #include "CField.h"
+#include "CFrame.h"
 #include "CGenerator.h"
 #include "CInterface.h"
 #include "CMessage.h"
-// #include "CFrame.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -52,7 +52,8 @@ void cAddSourceFilesInternal(const TList& list, util::GenStringsList& sources)
 CNamespace::CNamespace(CGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     m_msgId(generator, *this),
-    m_msgHandler(generator, *this)
+    m_msgHandler(generator, *this),
+    m_input(generator, *this)
 {
 }
 
@@ -120,11 +121,10 @@ void CNamespace::cAddSourceFiles(GenStringsList& sources) const
         return;
     }
 
-    // TODO
     cAddSourceFilesInternal<CNamespace>(genNamespaces(), sources);
     cAddSourceFilesInternal<CField>(genFields(), sources);
     cAddSourceFilesInternal<CMessage>(genMessages(), sources);
-    // cAddSourceFilesInternal<CFrame>(genFrames(), sources);
+    cAddSourceFilesInternal<CFrame>(genFrames(), sources);
 
     auto* iFace = cInterface();
     iFace->cAddSourceFiles(sources);
@@ -164,6 +164,15 @@ const CMsgHandler* CNamespace::cMsgHandler() const
     return &m_msgHandler;
 }
 
+const CInputMessages* CNamespace::cInputMessages() const
+{
+    if (!cCodeGenerationAllowed()) {
+        return nullptr;
+    }
+
+    return &m_input;
+}
+
 bool CNamespace::genWriteImpl() const
 {
     if (!cCodeGenerationAllowed()) {
@@ -172,7 +181,8 @@ bool CNamespace::genWriteImpl() const
 
     return
         m_msgId.cWrite() &&
-        m_msgHandler.cWrite();
+        m_msgHandler.cWrite() &&
+        m_input.cWrite();
 }
 
 const CInterface* CNamespace::cFindSuitableInterfaceInternal() const
