@@ -213,6 +213,11 @@ bool CLayer::cIsInterfaceSupported(const CInterface& iFace) const
     return cIsInterfaceSupportedImpl(iFace);
 }
 
+std::string CLayer::cFrameValueDef() const
+{
+    return cFrameValueDefImpl();
+}
+
 std::string CLayer::cHeaderCodeImpl() const
 {
     return strings::genEmptyString();
@@ -231,6 +236,16 @@ bool CLayer::cIsInterfaceSupportedImpl([[maybe_unused]] const CInterface& iFace)
 bool CLayer::cHasInputMessagesImpl() const
 {
     return false;
+}
+
+std::string CLayer::cFrameValueDefImpl() const
+{
+    auto* field = cField();
+    if (field == nullptr) {
+        return strings::genEmptyString();
+    }
+
+    return field->cFrameValueDef(comms::genAccessName(m_genLayer.genName())) + " ///< Access to the value processed by the @ref " + cName() + " layer";
 }
 
 const CField* CLayer::cField() const

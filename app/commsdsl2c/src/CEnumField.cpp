@@ -231,20 +231,32 @@ std::string CEnumField::cHeaderEnumInternal() const
         "typedef enum\n"
         "{\n"
         "    #^#VALUES#$#\n"
-        "} #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$#;\n"
+        "} #^#TYPE#$#;\n"
         ;
 
     util::GenReplacementMap repl = {
         {"NAME", cName()},
-        {"VALUE_TYPE", strings::genValueTypeStr()},
         {"VALUES", util::genStrListToString(cEnumValues(), "\n", "")},
+        {"TYPE", cHeaderEnumTypeNameInternal()},
     };
 
-    if (cIsVersionOptional()) {
-        repl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
-    }
-
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CEnumField::cFrameValueDefImpl(const std::string& name) const
+{
+    return cCommonFrameValueDef(cHeaderEnumTypeNameInternal(), name);
+}
+
+std::string CEnumField::cHeaderEnumTypeNameInternal() const
+{
+    auto str = cName();
+    if (cIsVersionOptional()) {
+        str += strings::genVersionOptionalFieldSuffixStr();
+    }
+    str += '_';
+    str += strings::genValueTypeStr();
+    return str;
 }
 
 } // namespace commsdsl2c

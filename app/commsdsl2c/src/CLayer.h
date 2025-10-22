@@ -60,12 +60,14 @@ public:
     std::string cSourceCode() const;
     std::string cCommsHeaderCode(const CInterface& iFace, bool& hasInputMessages) const;
     bool cIsInterfaceSupported(const CInterface& iFace) const;
+    std::string cFrameValueDef() const;
 
 protected:
     virtual std::string cHeaderCodeImpl() const;
     virtual std::string cSourceCodeImpl() const;
     virtual bool cIsInterfaceSupportedImpl(const CInterface& iFace) const;
     virtual bool cHasInputMessagesImpl() const;
+    virtual std::string cFrameValueDefImpl() const;
 
     const CField* cField() const;
     const CFrame* cParentFrame() const;

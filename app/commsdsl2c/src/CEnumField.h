@@ -47,9 +47,11 @@ protected:
     // CBase overrides
     virtual std::string cHeaderCodeImpl() const override;
     virtual std::string cSourceCodeImpl() const override;
+    virtual std::string cFrameValueDefImpl(const std::string& name) const override;
 
 private:
     std::string cHeaderEnumInternal() const;
+    std::string cHeaderEnumTypeNameInternal() const;
 };
 
 } // namespace commsdsl2c

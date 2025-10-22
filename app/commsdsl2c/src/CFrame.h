@@ -18,6 +18,7 @@
 
 #include "CLayer.h"
 #include "CInterface.h"
+#include "CMsgHandler.h"
 
 #include "commsdsl/gen/GenFrame.h"
 #include "commsdsl/gen/util.h"
@@ -65,6 +66,7 @@ private:
     std::string cHeaderIncludesInternal() const;
     std::string cHeaderLayersCodeInternal() const;
     std::string cHeaderFrameCodeInternal() const;
+    std::string cHeaderFrameFieldsCodeInternal() const;
     std::string cSourceIncludesInternal() const;
     std::string cSourceLayersCodeInternal() const;
     std::string cSourceFrameCodeInternal() const;
@@ -72,6 +74,7 @@ private:
     std::string cCommsHeaderLayersCodeInternal() const;    
     std::string cCommsHeaderFrameCodeInternal() const;    
     const CInterface* cInterfaceInternal() const;
+    const CMsgHandler* cMsgHandlerInternal() const;
     std::string cMsgIdTypeInternal() const;
 
     CLayersList m_cLayers;

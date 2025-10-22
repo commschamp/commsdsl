@@ -42,6 +42,7 @@ protected:
     virtual void cAddHeaderIncludesImpl(CIncludesList& includes) const override;
     virtual std::string cHeaderCodeImpl() const override;
     virtual std::string cSourceCodeImpl() const override;
+    virtual std::string cFrameValueDefImpl(const std::string& name) const override;
 
 private:
     std::string cTypeInternal() const;

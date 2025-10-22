@@ -56,6 +56,7 @@ public:
     bool cIsVersionOptional() const;
     void cAddSourceFiles(GenStringsList& sources) const;
     std::string cRelCommsHeader() const;
+    std::string cFrameValueDef(const std::string& name) const;
 
     const GenField& cGenField() const
     {
@@ -71,9 +72,11 @@ protected:
     virtual std::string cHeaderCodeImpl() const;
     virtual std::string cSourceCodeImpl() const;
     virtual std::string cCommsHeaderCodeImpl() const;
+    virtual std::string cFrameValueDefImpl(const std::string& name) const;
 
     std::string cHeaderCommonValueAccessFuncs() const;
     std::string cSourceCommonValueAccessFuncs() const;
+    std::string cCommonFrameValueDef(const std::string& typeStr, const std::string& name) const;
 
 private:
     bool cWriteHeaderInternal() const;

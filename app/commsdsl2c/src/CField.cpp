@@ -390,6 +390,11 @@ std::string CField::cRelCommsHeader() const
     return cGenerator.cRelCommsHeaderFor(m_genField);
 }
 
+std::string CField::cFrameValueDef(const std::string& name) const
+{
+    return cFrameValueDefImpl(name);
+}
+
 const std::string& CField::cConversionSuffix() const
 {
     auto* parent = m_genField.genGetParent();
@@ -442,6 +447,11 @@ std::string CField::cSourceCodeImpl() const
 }
 
 std::string CField::cCommsHeaderCodeImpl() const
+{
+    return strings::genEmptyString();
+}
+
+std::string CField::cFrameValueDefImpl([[maybe_unused]] const std::string& name) const
 {
     return strings::genEmptyString();
 }
@@ -507,6 +517,20 @@ std::string CField::cSourceCommonValueAccessFuncs() const
 
         repl["SET_FUNC"] = util::genProcessTemplate(SetTempl, repl);
     }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CField::cCommonFrameValueDef(const std::string& typeStr, const std::string& name) const
+{
+    static const std::string Templ = 
+        "#^#TYPE#$# m_#^#NAME#$#;"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"TYPE", typeStr},
+        {"NAME", name},
+    };
 
     return util::genProcessTemplate(Templ, repl);
 }

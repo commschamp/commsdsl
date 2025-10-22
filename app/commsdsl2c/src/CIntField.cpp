@@ -81,6 +81,11 @@ std::string CIntField::cSourceCodeImpl() const
     return util::genProcessTemplate(cCodeTemplInternal(), repl);
 }
 
+std::string CIntField::cFrameValueDefImpl(const std::string& name) const
+{
+    return cCommonFrameValueDef(cTypeInternal(), name);
+}
+
 std::string CIntField::cTypeInternal() const
 {
     auto parseObj = genIntFieldParseObj();

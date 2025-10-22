@@ -35,6 +35,14 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2c
 {
 
+namespace 
+{
+
+const std::string FrameValuesSuffix("_FrameValues");
+
+} // namespace 
+    
+
 CFrame::CFrame(CGenerator& generator, ParseFrame parseObj, commsdsl::gen::GenElem* parent) :
     GenBase(generator, parseObj, parent)
 {
@@ -263,11 +271,15 @@ std::string CFrame::cHeaderIncludesInternal() const
 {
     auto* iFace = cInterfaceInternal();
     assert(iFace != nullptr);
+    auto* msgHandler = cMsgHandlerInternal();
+    assert(msgHandler != nullptr);
+
 
     GenStringsList includes = {
         "<stddef.h>",
         "<stdint.h>",
         iFace->cRelHeader(),
+        msgHandler->cRelHeader(),
     };
 
     for (auto* l : m_cLayers) {
@@ -302,6 +314,7 @@ std::string CFrame::cHeaderFrameCodeInternal() const
         "/// @details Use @ref #^#NAME#$#_free() to de-allocate it.\n"
         "void #^#NAME#$#_free(#^#NAME#$#* frame);\n"        
         "\n"
+        "#^#LAYERS_ACC#$#\n"
         "/// @brief Create message object with factory used to create message objects when processing input data.\n"
         "/// @param[in] frame Frame object handle.\n"
         "/// @param[in] msgId Numeric message ID.\n"
@@ -312,17 +325,79 @@ std::string CFrame::cHeaderFrameCodeInternal() const
         "\n"
         "/// @brief Delete message object allocated using @ref #^#NAME#$#_createMsg().\n"
         "void #^#NAME#$#_deleteMsg(#^#INTERFACE#$#* msg);\n"
+        "\n"
+        "/// @brief Process all the available messages in the input buffer.\n"
+        "/// @details Will dispatch every message to the handler object. \n"
+        "///     The created message object will be automatically deleted right after dispatching to the handler.\n"
+        "/// @param[in] frame Frame handle.\n"
+        "/// @param[in] buf Pointer to input buffer.\n"
+        "/// @param[in] bufSize Available amount of bytes in the input buffer.\n"
+        "/// @param[in] handler Handler objects with all the relevant handling functions assigned.\n"
+        "/// @return Amount of consumed bytes.\n"
+        "size_t #^#NAME#$#_processInputData(#^#NAME#$#* frame, const uint8_t* buf, size_t bufSize, #^#HANDLER#$#* handler);\n"
+        "\n"
+        "#^#FRAME_FIELDS#$#\n"
         ;  
+
+    util::GenStringsList layersAcc;
+    for (auto* l : m_cLayers) {
+        static const std::string LayerTempl = 
+            "/// @brief Access the @ref #^#LAYER_NAME#$# layer.\n"
+            "#^#LAYER_NAME#$#* #^#NAME#$#_layer_#^#ACC_NAME#$#(#^#NAME#$#* frame);\n"
+            ;
+
+        util::GenReplacementMap layerRepl = {
+            {"NAME", cName()},
+            {"LAYER_NAME", l->cName()},
+            {"ACC_NAME", comms::genAccessName(l->cGenLayer().genName())},
+        };
+
+        layersAcc.push_back(util::genProcessTemplate(LayerTempl, layerRepl));
+    }
     
     auto parseObj = genParseObj();
     auto* iFace = cInterfaceInternal();
     assert(iFace != nullptr);
+    auto* msgHandler = cMsgHandlerInternal();
+    assert(msgHandler != nullptr);
     
     util::GenReplacementMap repl = {
         {"NAME", cName()},
         {"DISP_NAME", util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName())},
         {"INTERFACE", iFace->cName()},
         {"MSG_ID", cMsgIdTypeInternal()},
+        {"LAYERS_ACC", util::genStrListToString(layersAcc, "\n", "\n")},
+        {"HANDLER", msgHandler->cName()},
+        {"FRAME_FIELDS", cHeaderFrameFieldsCodeInternal()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CFrame::cHeaderFrameFieldsCodeInternal() const
+{
+    static const std::string Templ = 
+        "/// @brief Values processed by the frame layers.\n"
+        "typedef struct\n"
+        "{\n"
+        "    #^#VALUES#$#\n"
+        "} #^#NAME#$##^#SUFFIX#$#;\n"
+        ;
+
+    util::GenStringsList values;
+    for (auto* l : m_cLayers) {
+        auto str = l->cFrameValueDef();
+        if (str.empty()) {
+            continue;
+        }
+
+        values.push_back(std::move(str));
+    }
+
+    util::GenReplacementMap repl = {
+        {"NAME", cName()},
+        {"SUFFIX", FrameValuesSuffix},
+        {"VALUES", util::genStrListToString(values, "\n", "")},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -330,8 +405,13 @@ std::string CFrame::cHeaderFrameCodeInternal() const
 
 std::string CFrame::cSourceIncludesInternal() const
 {
+    auto* msgHandler = cMsgHandlerInternal();
+    assert(msgHandler != nullptr);
+
     GenStringsList includes = {
+        "comms/process.h",
         cRelCommsHeader(),
+        msgHandler->cRelCommsHeader(),
     };
 
     for (auto* l : m_cLayers) {
@@ -365,6 +445,7 @@ std::string CFrame::cSourceFrameCodeInternal() const
         "    delete fromFrameHandle(frame);\n"
         "}\n"            
         "\n"
+        "#^#LAYERS_ACC#$#\n"
         "#^#INTERFACE#$#* #^#NAME#$#_createMsg(#^#NAME#$#* frame, #^#MSG_ID#$# msgId, unsigned idx)\n"
         "{\n"
         "    return toInterfaceHandle(fromFrameHandle(frame)->createMsg(static_cast<#^#INTERFACE_COMMS#$#::MsgIdType>(msgId), idx).release());\n"
@@ -374,11 +455,40 @@ std::string CFrame::cSourceFrameCodeInternal() const
         "{\n"
         "    #^#COMMS_NAME#$#::MsgPtr ptr(fromInterfaceHandle(msg)); // delete on destruct\n"
         "}\n"            
+        "\n"
+        "size_t #^#NAME#$#_processInputData(#^#NAME#$#* frame, const uint8_t* buf, size_t bufSize, #^#HANDLER#$#* handler)\n"
+        "{\n"
+        "    if (bufSize == 0U) {\n"
+        "        return 0U;\n"
+        "    }\n\n"
+        "    #^#COMMS_HANDLER#$# commsHandler(*handler);\n"
+        "    return comms::processAllWithDispatch(buf, bufSize, *(fromFrameHandle(frame)), commsHandler);\n"
+        "}\n"        
         ;  
     
+    util::GenStringsList layersAcc;
+    for (auto* l : m_cLayers) {
+        static const std::string LayerTempl = 
+            "#^#LAYER_NAME#$#* #^#NAME#$#_layer_#^#ACC_NAME#$#(#^#NAME#$#* frame)\n"
+            "{\n"
+            "    return toLayerHandle(&(fromFrameHandle(frame)->layer_#^#ACC_NAME#$#()));\n"
+            "}\n"
+            ;
+
+        util::GenReplacementMap layerRepl = {
+            {"NAME", cName()},
+            {"LAYER_NAME", l->cName()},
+            {"ACC_NAME", comms::genAccessName(l->cGenLayer().genName())},
+        };
+
+        layersAcc.push_back(util::genProcessTemplate(LayerTempl, layerRepl));
+    }
+
     auto parseObj = genParseObj();
     auto* iFace = cInterfaceInternal();
     assert(iFace != nullptr);
+    auto* msgHandler = cMsgHandlerInternal();
+    assert(msgHandler != nullptr);
     
     util::GenReplacementMap repl = {
         {"NAME", cName()},
@@ -387,6 +497,9 @@ std::string CFrame::cSourceFrameCodeInternal() const
         {"MSG_ID", cMsgIdTypeInternal()},
         {"COMMS_NAME", cCommsTypeName()},
         {"INTERFACE_COMMS", iFace->cCommsTypeName()},
+        {"LAYERS_ACC", util::genStrListToString(layersAcc, "\n", "\n")},
+        {"HANDLER", msgHandler->cName()},
+        {"COMMS_HANDLER", msgHandler->cCommsTypeName()},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -401,7 +514,7 @@ std::string CFrame::cCommsHeaderIncludesInternal() const
     assert(ns != nullptr);
     auto* input = ns->cInputMessages();
     assert(input != nullptr);
-    auto* msgHandler = ns->cMsgHandler();
+    auto* msgHandler = cMsgHandlerInternal();
     assert(msgHandler != nullptr);
 
     GenStringsList includes {
@@ -475,6 +588,15 @@ const CInterface* CFrame::cInterfaceInternal() const
     assert(parent->genElemType() == commsdsl::gen::GenElem::GenType_Namespace);
     auto* parentNs = CNamespace::cCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
     return parentNs->cInterface();
+}
+
+const CMsgHandler* CFrame::cMsgHandlerInternal() const
+{
+    auto* parent = genGetParent();
+    assert(parent != nullptr);
+    assert(parent->genElemType() == commsdsl::gen::GenElem::GenType_Namespace);
+    auto* parentNs = CNamespace::cCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
+    return parentNs->cMsgHandler();
 }
 
 std::string CFrame::cMsgIdTypeInternal() const
