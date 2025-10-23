@@ -17,6 +17,12 @@
 
 #include "CGenerator.h"
 
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/util.h"
+
+namespace comms = commsdsl::gen::comms;
+namespace util = commsdsl::gen::util;
+
 namespace commsdsl2c
 {
 
@@ -29,6 +35,44 @@ CPayloadLayer::CPayloadLayer(CGenerator& generator, ParseLayer parseObj, GenElem
 bool CPayloadLayer::genPrepareImpl()
 {
     return GenBase::genPrepareImpl() && cPrepare();
+}
+
+std::string CPayloadLayer::cFrameValueDefImpl() const
+{
+    static const std::string Templ = 
+        "uint8_t* m_#^#ACC_NAME#$#; ///< Buffer containing bytes processed by the @ref #^#NAME#$# layer.\n"
+        "size_t m_#^#ACC_NAME#$#Len; ///< Amount of bytes processed by the @ref #^#NAME#$# layer."
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cName()},
+        {"ACC_NAME", comms::genAccessName(genName())},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CPayloadLayer::cFrameValueAssignImpl(
+    const std::string& valuesPtrName, 
+    const std::string& commsBundleName,
+    unsigned layerIdx) const
+{
+    static const std::string Templ = 
+        "if (#^#VALUES#$#->m_#^#ACC_NAME#$# != nullptr) {\n"
+        "    auto& payloadField = std::get<#^#IDX#$#>(#^#BUNDLE#$#);\n"
+        "    auto actBufSize = std::min(#^#VALUES#$#->m_#^#ACC_NAME#$#Len, payloadField.value().size());\n"
+        "    std::copy_n(payloadField.value().begin(), actBufSize, #^#VALUES#$#->m_#^#ACC_NAME#$#);\n"
+        "    #^#VALUES#$#->m_#^#ACC_NAME#$#Len = actBufSize;\n"
+        "}";
+
+    util::GenReplacementMap repl = {
+        {"VALUES", valuesPtrName},
+        {"BUNDLE", commsBundleName},
+        {"IDX", std::to_string(layerIdx)},
+        {"ACC_NAME", comms::genAccessName(genName())},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2c

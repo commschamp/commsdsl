@@ -61,6 +61,10 @@ public:
     std::string cCommsHeaderCode(const CInterface& iFace, bool& hasInputMessages) const;
     bool cIsInterfaceSupported(const CInterface& iFace) const;
     std::string cFrameValueDef() const;
+    std::string cFrameValueAssign(
+        const std::string& valuesPtrName, 
+        const std::string& commsBundleName,
+        unsigned layerIdx) const;
 
 protected:
     virtual std::string cHeaderCodeImpl() const;
@@ -68,6 +72,10 @@ protected:
     virtual bool cIsInterfaceSupportedImpl(const CInterface& iFace) const;
     virtual bool cHasInputMessagesImpl() const;
     virtual std::string cFrameValueDefImpl() const;
+    virtual std::string cFrameValueAssignImpl(
+        const std::string& valuesPtrName, 
+        const std::string& commsBundleName,
+        unsigned layerIdx) const;
 
     const CField* cField() const;
     const CFrame* cParentFrame() const;

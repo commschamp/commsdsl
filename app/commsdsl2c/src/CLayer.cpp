@@ -218,6 +218,14 @@ std::string CLayer::cFrameValueDef() const
     return cFrameValueDefImpl();
 }
 
+std::string CLayer::cFrameValueAssign(
+    const std::string& valuesPtrName, 
+    const std::string& commsBundleName,
+    unsigned layerIdx) const
+{
+    return cFrameValueAssignImpl(valuesPtrName, commsBundleName, layerIdx);
+}
+
 std::string CLayer::cHeaderCodeImpl() const
 {
     return strings::genEmptyString();
@@ -245,7 +253,35 @@ std::string CLayer::cFrameValueDefImpl() const
         return strings::genEmptyString();
     }
 
-    return field->cFrameValueDef(comms::genAccessName(m_genLayer.genName())) + " ///< Access to the value processed by the @ref " + cName() + " layer";
+    auto str = field->cFrameValueDef(comms::genAccessName(m_genLayer.genName()));
+    if (!str.empty()) {
+        str += " ///< Access to the value processed by the @ref " + cName() + " layer";
+    }
+
+    return str;
+}
+
+std::string CLayer::cFrameValueAssignImpl(
+    const std::string& valuesPtrName, 
+    const std::string& commsBundleName,
+    unsigned layerIdx) const
+{
+    auto* field = cField();
+    if (field == nullptr) {
+        return strings::genEmptyString();
+    }
+
+    static const std::string Templ = 
+        "std::get<#^#IDX#$#>(#^#BUNDLE_NAME#$#)"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"IDX", std::to_string(layerIdx)},
+        {"BUNDLE_NAME", commsBundleName},
+    };
+
+    auto rightHandValue = util::genProcessTemplate(Templ, repl);
+    return field->cFrameValueAssign(valuesPtrName + "->m_" + comms::genAccessName(m_genLayer.genName()), rightHandValue);
 }
 
 const CField* CLayer::cField() const

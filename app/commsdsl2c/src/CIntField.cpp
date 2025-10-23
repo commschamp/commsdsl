@@ -86,6 +86,11 @@ std::string CIntField::cFrameValueDefImpl(const std::string& name) const
     return cCommonFrameValueDef(cTypeInternal(), name);
 }
 
+std::string CIntField::cFrameValueAssignImpl(const std::string& valueAccess, const std::string& fieldAccess) const
+{
+    return cCommonFrameValueAssign(valueAccess, fieldAccess);
+}
+
 std::string CIntField::cTypeInternal() const
 {
     auto parseObj = genIntFieldParseObj();

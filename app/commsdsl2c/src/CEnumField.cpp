@@ -248,6 +248,11 @@ std::string CEnumField::cFrameValueDefImpl(const std::string& name) const
     return cCommonFrameValueDef(cHeaderEnumTypeNameInternal(), name);
 }
 
+std::string CEnumField::cFrameValueAssignImpl(const std::string& valueAccess, const std::string& fieldAccess) const
+{
+    return cCommonFrameValueAssign(valueAccess, fieldAccess);
+}
+
 std::string CEnumField::cHeaderEnumTypeNameInternal() const
 {
     auto str = cName();

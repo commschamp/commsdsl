@@ -395,6 +395,11 @@ std::string CField::cFrameValueDef(const std::string& name) const
     return cFrameValueDefImpl(name);
 }
 
+std::string CField::cFrameValueAssign(const std::string& valueAccess, const std::string& fieldAccess) const
+{
+    return cFrameValueAssignImpl(valueAccess, fieldAccess);
+}
+
 const std::string& CField::cConversionSuffix() const
 {
     auto* parent = m_genField.genGetParent();
@@ -452,6 +457,11 @@ std::string CField::cCommsHeaderCodeImpl() const
 }
 
 std::string CField::cFrameValueDefImpl([[maybe_unused]] const std::string& name) const
+{
+    return strings::genEmptyString();
+}
+
+std::string CField::cFrameValueAssignImpl([[maybe_unused]] const std::string& valueAccess, [[maybe_unused]] const std::string& fieldAccess) const
 {
     return strings::genEmptyString();
 }
@@ -530,6 +540,20 @@ std::string CField::cCommonFrameValueDef(const std::string& typeStr, const std::
     util::GenReplacementMap repl = {
         {"TYPE", typeStr},
         {"NAME", name},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CField::cCommonFrameValueAssign(const std::string& valueAccess, const std::string& fieldAccess) const
+{
+    static const std::string Templ = 
+        "#^#VALUE#$# = static_cast<decltype(#^#VALUE#$#)>(#^#FIELD#$#.value());"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"VALUE", valueAccess},
+        {"FIELD", fieldAccess},
     };
 
     return util::genProcessTemplate(Templ, repl);

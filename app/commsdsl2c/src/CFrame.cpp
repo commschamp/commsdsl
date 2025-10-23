@@ -302,6 +302,22 @@ std::string CFrame::cHeaderLayersCodeInternal() const
 
 std::string CFrame::cHeaderFrameCodeInternal() const
 {
+    util::GenStringsList layersAcc;
+    for (auto* l : m_cLayers) {
+        static const std::string LayerTempl = 
+            "/// @brief Access the @ref #^#LAYER_NAME#$# layer.\n"
+            "#^#LAYER_NAME#$#* #^#NAME#$#_layer_#^#ACC_NAME#$#(#^#NAME#$#* frame);\n"
+            ;
+
+        util::GenReplacementMap layerRepl = {
+            {"NAME", cName()},
+            {"LAYER_NAME", l->cName()},
+            {"ACC_NAME", comms::genAccessName(l->cGenLayer().genName())},
+        };
+
+        layersAcc.push_back(util::genProcessTemplate(LayerTempl, layerRepl));
+    }
+    
     static const std::string Templ = 
         "/// @brief Definition of <b>#^#DISP_NAME#$#</b> frame.\n"
         "typedef struct #^#NAME#$#_ #^#NAME#$#;\n"
@@ -337,24 +353,24 @@ std::string CFrame::cHeaderFrameCodeInternal() const
         "size_t #^#NAME#$#_processInputData(#^#NAME#$#* frame, const uint8_t* buf, size_t bufSize, #^#HANDLER#$#* handler);\n"
         "\n"
         "#^#FRAME_FIELDS#$#\n"
+        "\n"
+        "/// @brief Process single message from the data available in the input buffer.\n"
+        "/// @details Will dispatch created message message to the handler object. \n"
+        "///     The created message object will be automatically deleted right after dispatching to the handler.\n"
+        "/// @param[in] frame Frame handle.\n"
+        "/// @param[in] buf Pointer to input buffer.\n"
+        "/// @param[in] bufSize Available amount of bytes in the input buffer.\n"
+        "/// @param[in] handler Handler objects with all the relevant handling functions assigned.\n"
+        "/// @param[out] frameValues Values of the frame fields.\n"
+        "/// @return Amount of consumed bytes.\n"
+        "size_t #^#NAME#$#_processInputDataSingleMsg(\n"
+        "    #^#NAME#$#* frame,\n"
+        "    const uint8_t* buf,\n"
+        "    size_t bufSize,\n"
+        "    #^#HANDLER#$#* handler,\n"
+        "    #^#NAME#$##^#VALUES_SUFFIX#$#* frameValues);\n"
         ;  
 
-    util::GenStringsList layersAcc;
-    for (auto* l : m_cLayers) {
-        static const std::string LayerTempl = 
-            "/// @brief Access the @ref #^#LAYER_NAME#$# layer.\n"
-            "#^#LAYER_NAME#$#* #^#NAME#$#_layer_#^#ACC_NAME#$#(#^#NAME#$#* frame);\n"
-            ;
-
-        util::GenReplacementMap layerRepl = {
-            {"NAME", cName()},
-            {"LAYER_NAME", l->cName()},
-            {"ACC_NAME", comms::genAccessName(l->cGenLayer().genName())},
-        };
-
-        layersAcc.push_back(util::genProcessTemplate(LayerTempl, layerRepl));
-    }
-    
     auto parseObj = genParseObj();
     auto* iFace = cInterfaceInternal();
     assert(iFace != nullptr);
@@ -369,6 +385,7 @@ std::string CFrame::cHeaderFrameCodeInternal() const
         {"LAYERS_ACC", util::genStrListToString(layersAcc, "\n", "\n")},
         {"HANDLER", msgHandler->cName()},
         {"FRAME_FIELDS", cHeaderFrameFieldsCodeInternal()},
+        {"VALUES_SUFFIX", FrameValuesSuffix},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -409,6 +426,9 @@ std::string CFrame::cSourceIncludesInternal() const
     assert(msgHandler != nullptr);
 
     GenStringsList includes = {
+        "<algorithm>",
+        "<iterator>",
+        "<type_traits>",
         "comms/process.h",
         cRelCommsHeader(),
         msgHandler->cRelCommsHeader(),
@@ -434,6 +454,31 @@ std::string CFrame::cSourceLayersCodeInternal() const
 
 std::string CFrame::cSourceFrameCodeInternal() const
 {
+    util::GenStringsList layersAcc;
+    util::GenStringsList layerFieldsAssigns;
+    for (auto idx = 0U; idx < m_cLayers.size(); ++idx) {
+        auto* l = m_cLayers[idx];
+        static const std::string LayerTempl = 
+            "#^#LAYER_NAME#$#* #^#NAME#$#_layer_#^#ACC_NAME#$#(#^#NAME#$#* frame)\n"
+            "{\n"
+            "    return toLayerHandle(&(fromFrameHandle(frame)->layer_#^#ACC_NAME#$#()));\n"
+            "}\n"
+            ;
+
+        util::GenReplacementMap layerRepl = {
+            {"NAME", cName()},
+            {"LAYER_NAME", l->cName()},
+            {"ACC_NAME", comms::genAccessName(l->cGenLayer().genName())},
+        };
+
+        layersAcc.push_back(util::genProcessTemplate(LayerTempl, layerRepl));
+
+        auto assignStr = l->cFrameValueAssign("frameValues", "frameFields", idx);
+        if (!assignStr.empty()) {
+            layerFieldsAssigns.push_back(std::move(assignStr));
+        }
+    }
+
     static const std::string Templ = 
         "#^#NAME#$#* #^#NAME#$#_alloc(void)\n"
         "{\n"
@@ -463,27 +508,56 @@ std::string CFrame::cSourceFrameCodeInternal() const
         "    }\n\n"
         "    #^#COMMS_HANDLER#$# commsHandler(*handler);\n"
         "    return comms::processAllWithDispatch(buf, bufSize, *(fromFrameHandle(frame)), commsHandler);\n"
-        "}\n"        
+        "}\n" 
+        "\n"
+        "size_t #^#NAME#$#_processInputDataSingleMsg(\n"
+        "    #^#NAME#$#* frame,\n"
+        "    const uint8_t* buf,\n"
+        "    size_t bufSize,\n"
+        "    #^#HANDLER#$#* handler,\n"
+        "    #^#NAME#$##^#VALUES_SUFFIX#$#* frameValues)\n"  
+        "{\n"
+        "    if (bufSize == 0U) {\n"
+        "        return 0U;\n"
+        "    }\n\n"
+        "    #^#COMMS_HANDLER#$# commsHandler(*handler);\n"
+        "    auto& commsFrame = *fromFrameHandle(frame);\n"
+        "    using CommsFrame = typename std::decay<decltype(commsFrame)>::type;\n\n"
+        "    std::size_t consumed = 0U;\n"
+        "    CommsFrame::MsgPtr msg;\n"
+        "    CommsFrame::AllFields frameFields;\n"
+        "    while (consumed < bufSize) {\n"
+        "        auto begIter = buf + consumed;\n"
+        "        auto iter = begIter;\n\n"
+        "        auto es = comms::ErrorStatus::Success;\n"
+        "        auto len = bufSize - consumed;\n"
+        "        std::size_t idx = 0U;\n"
+        "        if (frameValues == nullptr) {\n"
+        "            es = commsFrame.read(msg, iter, len, comms::frame::msgIndex(idx));\n"
+        "        }\n"
+        "        else {\n"
+        "            es = commsFrame.readFieldsCached(frameFields, msg, iter, len, comms::frame::msgIndex(idx));\n"
+        "        }\n\n"
+        "        if (es == comms::ErrorStatus::NotEnoughData) {\n"
+        "            return consumed;\n"
+        "        }\n\n"
+        "        if (es == comms::ErrorStatus::ProtocolError) {\n"
+        "            ++consumed;\n"
+        "            continue;\n"
+        "        }\n\n"
+        "        if (frameValues != nullptr) {\n"
+        "            #^#ASSIGNS#$#\n"
+        "        }\n\n"
+        "        consumed += static_cast<decltype(consumed)>(std::distance(begIter, iter));\n\n"
+        "        if (es == comms::ErrorStatus::Success) {\n"
+        "            msg->dispatch(commsHandler);\n"
+        "        }\n"
+        "        break;\n"
+        "    }\n"
+        "    return consumed;\n"
+        "}\n"                      
         ;  
     
-    util::GenStringsList layersAcc;
-    for (auto* l : m_cLayers) {
-        static const std::string LayerTempl = 
-            "#^#LAYER_NAME#$#* #^#NAME#$#_layer_#^#ACC_NAME#$#(#^#NAME#$#* frame)\n"
-            "{\n"
-            "    return toLayerHandle(&(fromFrameHandle(frame)->layer_#^#ACC_NAME#$#()));\n"
-            "}\n"
-            ;
-
-        util::GenReplacementMap layerRepl = {
-            {"NAME", cName()},
-            {"LAYER_NAME", l->cName()},
-            {"ACC_NAME", comms::genAccessName(l->cGenLayer().genName())},
-        };
-
-        layersAcc.push_back(util::genProcessTemplate(LayerTempl, layerRepl));
-    }
-
     auto parseObj = genParseObj();
     auto* iFace = cInterfaceInternal();
     assert(iFace != nullptr);
@@ -500,6 +574,8 @@ std::string CFrame::cSourceFrameCodeInternal() const
         {"LAYERS_ACC", util::genStrListToString(layersAcc, "\n", "\n")},
         {"HANDLER", msgHandler->cName()},
         {"COMMS_HANDLER", msgHandler->cCommsTypeName()},
+        {"ASSIGNS", util::genStrListToString(layerFieldsAssigns, "\n", "")},
+        {"VALUES_SUFFIX", FrameValuesSuffix},
     };
 
     return util::genProcessTemplate(Templ, repl);
