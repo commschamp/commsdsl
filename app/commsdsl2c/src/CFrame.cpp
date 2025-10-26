@@ -15,6 +15,7 @@
 
 #include "CFrame.h"
 
+#include "CErrorStatus.h"
 #include "CGenerator.h"
 #include "CMsgId.h"
 #include "CNamespace.h"
@@ -35,13 +36,12 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2c
 {
 
-namespace 
+namespace
 {
 
 const std::string FrameValuesSuffix("_FrameValues");
 
-} // namespace 
-    
+} // namespace
 
 CFrame::CFrame(CGenerator& generator, ParseFrame parseObj, commsdsl::gen::GenElem* parent) :
     GenBase(generator, parseObj, parent)
@@ -180,8 +180,8 @@ bool CFrame::cWriteHeaderInternal() const
         {"INCLUDES", cHeaderIncludesInternal()},
         {"LAYERS", cHeaderLayersCodeInternal()},
         {"CPP_GUARD_BEGIN", CGenerator::cCppGuardBegin()},
-        {"CPP_GUARD_END", CGenerator::cCppGuardEnd()}, 
-        {"FRAME", cHeaderFrameCodeInternal()},       
+        {"CPP_GUARD_END", CGenerator::cCppGuardEnd()},
+        {"FRAME", cHeaderFrameCodeInternal()},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -274,12 +274,12 @@ std::string CFrame::cHeaderIncludesInternal() const
     auto* msgHandler = cMsgHandlerInternal();
     assert(msgHandler != nullptr);
 
-
     GenStringsList includes = {
         "<stddef.h>",
         "<stdint.h>",
         iFace->cRelHeader(),
         msgHandler->cRelHeader(),
+        CErrorStatus::cRelHeader(CGenerator::cCast(genGenerator())),
     };
 
     for (auto* l : m_cLayers) {
@@ -304,7 +304,7 @@ std::string CFrame::cHeaderFrameCodeInternal() const
 {
     util::GenStringsList layersAcc;
     for (auto* l : m_cLayers) {
-        static const std::string LayerTempl = 
+        static const std::string LayerTempl =
             "/// @brief Access the @ref #^#LAYER_NAME#$# layer.\n"
             "#^#LAYER_NAME#$#* #^#NAME#$#_layer_#^#ACC_NAME#$#(#^#NAME#$#* frame);\n"
             ;
@@ -317,8 +317,8 @@ std::string CFrame::cHeaderFrameCodeInternal() const
 
         layersAcc.push_back(util::genProcessTemplate(LayerTempl, layerRepl));
     }
-    
-    static const std::string Templ = 
+
+    static const std::string Templ =
         "/// @brief Definition of <b>#^#DISP_NAME#$#</b> frame.\n"
         "typedef struct #^#NAME#$#_ #^#NAME#$#;\n"
         "\n"
@@ -328,7 +328,7 @@ std::string CFrame::cHeaderFrameCodeInternal() const
         "\n"
         "/// @brief Free frame object allocated with @ref #^#NAME#$#_alloc().\n"
         "/// @details Use @ref #^#NAME#$#_free() to de-allocate it.\n"
-        "void #^#NAME#$#_free(#^#NAME#$#* frame);\n"        
+        "void #^#NAME#$#_free(#^#NAME#$#* frame);\n"
         "\n"
         "#^#LAYERS_ACC#$#\n"
         "/// @brief Create message object with factory used to create message objects when processing input data.\n"
@@ -369,14 +369,26 @@ std::string CFrame::cHeaderFrameCodeInternal() const
         "    size_t bufSize,\n"
         "    #^#HANDLER#$#* handler,\n"
         "    #^#NAME#$##^#VALUES_SUFFIX#$#* frameValues);\n"
-        ;  
+        "\n"
+        "/// @brief Write message object into output buffer"
+        "/// @param[in] frame Frame handle.\n"
+        "/// @param[in] msg Message object as a common interface handle.\n"
+        "/// @param[in] buf Output buffer.\n"
+        "/// @param[in, out] bufLen Pointer to the buffer length information.\n"
+        "///     On call contains the size of the output buffer, on return contains amount of written bytes.\n"
+        "/// @return Status of the write operation.\n"
+        "#^#ERROR_STATUS#$# #^#NAME#$#_writeMessage(#^#NAME#$#* frame, const #^#INTERFACE#$#* msg, uint8_t* buf, size_t* bufLen);\n"
+        "\n"
+        "/// @brief Get amount of bytes required to serialize the message.\n"
+        "size_t #^#NAME#$#_messageLength(const #^#NAME#$#* frame, const #^#INTERFACE#$#* msg);\n"
+        ;
 
     auto parseObj = genParseObj();
     auto* iFace = cInterfaceInternal();
     assert(iFace != nullptr);
     auto* msgHandler = cMsgHandlerInternal();
     assert(msgHandler != nullptr);
-    
+
     util::GenReplacementMap repl = {
         {"NAME", cName()},
         {"DISP_NAME", util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName())},
@@ -386,6 +398,7 @@ std::string CFrame::cHeaderFrameCodeInternal() const
         {"HANDLER", msgHandler->cName()},
         {"FRAME_FIELDS", cHeaderFrameFieldsCodeInternal()},
         {"VALUES_SUFFIX", FrameValuesSuffix},
+        {"ERROR_STATUS", CErrorStatus::cName(CGenerator::cCast(genGenerator()))},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -393,7 +406,7 @@ std::string CFrame::cHeaderFrameCodeInternal() const
 
 std::string CFrame::cHeaderFrameFieldsCodeInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Values processed by the frame layers.\n"
         "typedef struct\n"
         "{\n"
@@ -458,7 +471,7 @@ std::string CFrame::cSourceFrameCodeInternal() const
     util::GenStringsList layerFieldsAssigns;
     for (auto idx = 0U; idx < m_cLayers.size(); ++idx) {
         auto* l = m_cLayers[idx];
-        static const std::string LayerTempl = 
+        static const std::string LayerTempl =
             "#^#LAYER_NAME#$#* #^#NAME#$#_layer_#^#ACC_NAME#$#(#^#NAME#$#* frame)\n"
             "{\n"
             "    return toLayerHandle(&(fromFrameHandle(frame)->layer_#^#ACC_NAME#$#()));\n"
@@ -479,7 +492,7 @@ std::string CFrame::cSourceFrameCodeInternal() const
         }
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#NAME#$#* #^#NAME#$#_alloc(void)\n"
         "{\n"
         "    return toFrameHandle(new #^#COMMS_NAME#$#);\n"
@@ -488,18 +501,18 @@ std::string CFrame::cSourceFrameCodeInternal() const
         "void #^#NAME#$#_free(#^#NAME#$#* frame)\n"
         "{\n"
         "    delete fromFrameHandle(frame);\n"
-        "}\n"            
+        "}\n"
         "\n"
         "#^#LAYERS_ACC#$#\n"
         "#^#INTERFACE#$#* #^#NAME#$#_createMsg(#^#NAME#$#* frame, #^#MSG_ID#$# msgId, unsigned idx)\n"
         "{\n"
         "    return toInterfaceHandle(fromFrameHandle(frame)->createMsg(static_cast<#^#INTERFACE_COMMS#$#::MsgIdType>(msgId), idx).release());\n"
-        "}\n" 
+        "}\n"
         "\n"
         "void #^#NAME#$#_deleteMsg(#^#INTERFACE#$#* msg)\n"
         "{\n"
         "    #^#COMMS_NAME#$#::MsgPtr ptr(fromInterfaceHandle(msg)); // delete on destruct\n"
-        "}\n"            
+        "}\n"
         "\n"
         "size_t #^#NAME#$#_processInputData(#^#NAME#$#* frame, const uint8_t* buf, size_t bufSize, #^#HANDLER#$#* handler)\n"
         "{\n"
@@ -508,14 +521,14 @@ std::string CFrame::cSourceFrameCodeInternal() const
         "    }\n\n"
         "    #^#COMMS_HANDLER#$# commsHandler(*handler);\n"
         "    return comms::processAllWithDispatch(buf, bufSize, *(fromFrameHandle(frame)), commsHandler);\n"
-        "}\n" 
+        "}\n"
         "\n"
         "size_t #^#NAME#$#_processInputDataSingleMsg(\n"
         "    #^#NAME#$#* frame,\n"
         "    const uint8_t* buf,\n"
         "    size_t bufSize,\n"
         "    #^#HANDLER#$#* handler,\n"
-        "    #^#NAME#$##^#VALUES_SUFFIX#$#* frameValues)\n"  
+        "    #^#NAME#$##^#VALUES_SUFFIX#$#* frameValues)\n"
         "{\n"
         "    if (bufSize == 0U) {\n"
         "        return 0U;\n"
@@ -555,15 +568,28 @@ std::string CFrame::cSourceFrameCodeInternal() const
         "        break;\n"
         "    }\n"
         "    return consumed;\n"
-        "}\n"                      
-        ;  
-    
+        "}\n"
+        "\n"
+        "#^#ERROR_STATUS#$# #^#NAME#$#_writeMessage(#^#NAME#$#* frame, const #^#INTERFACE#$#* msg, uint8_t* buf, size_t* bufLen)\n"
+        "{\n"
+        "    auto bufFrom = buf;\n"
+        "    auto es = fromFrameHandle(frame)->write(*fromInterfaceHandle(msg), buf, *bufLen);\n"
+        "    *bufLen = static_cast<size_t>(std::distance(bufFrom, buf));\n"
+        "    return static_cast<#^#ERROR_STATUS#$#>(es);\n"
+        "}\n"
+        "\n"
+        "size_t #^#NAME#$#_messageLength(const #^#NAME#$#* frame, const #^#INTERFACE#$#* msg)\n"
+        "{\n"
+        "    return fromFrameHandle(frame)->length(*fromInterfaceHandle(msg));\n"
+        "}\n"
+        ;
+
     auto parseObj = genParseObj();
     auto* iFace = cInterfaceInternal();
     assert(iFace != nullptr);
     auto* msgHandler = cMsgHandlerInternal();
     assert(msgHandler != nullptr);
-    
+
     util::GenReplacementMap repl = {
         {"NAME", cName()},
         {"DISP_NAME", util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName())},
@@ -576,6 +602,7 @@ std::string CFrame::cSourceFrameCodeInternal() const
         {"COMMS_HANDLER", msgHandler->cCommsTypeName()},
         {"ASSIGNS", util::genStrListToString(layerFieldsAssigns, "\n", "")},
         {"VALUES_SUFFIX", FrameValuesSuffix},
+        {"ERROR_STATUS", CErrorStatus::cName(CGenerator::cCast(genGenerator()))},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -645,7 +672,7 @@ std::string CFrame::cCommsHeaderFrameCodeInternal() const
         "inline #^#NAME#$#* toFrameHandle(#^#COMMS_NAME#$#* from)\n"
         "{\n"
         "    return reinterpret_cast<#^#NAME#$#*>(from);\n"
-        "}\n" 
+        "}\n"
         ;
 
     util::GenReplacementMap repl = {
@@ -654,7 +681,7 @@ std::string CFrame::cCommsHeaderFrameCodeInternal() const
         {"COMMS_TYPE", cCommsType()},
     };
 
-    return util::genProcessTemplate(Templ, repl);        
+    return util::genProcessTemplate(Templ, repl);
 }
 
 const CInterface* CFrame::cInterfaceInternal() const

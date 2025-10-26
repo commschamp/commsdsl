@@ -62,7 +62,7 @@ public:
     bool cIsInterfaceSupported(const CInterface& iFace) const;
     std::string cFrameValueDef() const;
     std::string cFrameValueAssign(
-        const std::string& valuesPtrName, 
+        const std::string& valuesPtrName,
         const std::string& commsBundleName,
         unsigned layerIdx) const;
 
@@ -73,7 +73,7 @@ protected:
     virtual bool cHasInputMessagesImpl() const;
     virtual std::string cFrameValueDefImpl() const;
     virtual std::string cFrameValueAssignImpl(
-        const std::string& valuesPtrName, 
+        const std::string& valuesPtrName,
         const std::string& commsBundleName,
         unsigned layerIdx) const;
 

@@ -112,7 +112,7 @@ std::string CLayer::cCommsType() const
     auto scope = comms::genScopeFor(m_genLayer, cGenerator);
 
     assert(frameType.size() <= scope.size());
-    return frameType + '<' + CProtocolOptions::cName(cGenerator) + '>' + scope.substr(frameType.size());    
+    return frameType + '<' + CProtocolOptions::cName(cGenerator) + '>' + scope.substr(frameType.size());
 }
 
 std::string CLayer::cHeaderCode() const
@@ -149,7 +149,6 @@ std::string CLayer::cSourceCode() const
         "#^#CODE#$#\n"
         ;
 
-
     util::GenReplacementMap repl = {
         {"CODE", cSourceCodeImpl()},
     };
@@ -183,7 +182,7 @@ std::string CLayer::cCommsHeaderCode(const CInterface& iFace, bool& hasInputMess
         "inline #^#NAME#$#* toLayerHandle(#^#COMMS_NAME#$#* from)\n"
         "{\n"
         "    return reinterpret_cast<#^#NAME#$#*>(from);\n"
-        "}\n"        
+        "}\n"
         ;
 
     util::GenReplacementMap repl = {
@@ -219,7 +218,7 @@ std::string CLayer::cFrameValueDef() const
 }
 
 std::string CLayer::cFrameValueAssign(
-    const std::string& valuesPtrName, 
+    const std::string& valuesPtrName,
     const std::string& commsBundleName,
     unsigned layerIdx) const
 {
@@ -262,7 +261,7 @@ std::string CLayer::cFrameValueDefImpl() const
 }
 
 std::string CLayer::cFrameValueAssignImpl(
-    const std::string& valuesPtrName, 
+    const std::string& valuesPtrName,
     const std::string& commsBundleName,
     unsigned layerIdx) const
 {
@@ -271,7 +270,7 @@ std::string CLayer::cFrameValueAssignImpl(
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "std::get<#^#IDX#$#>(#^#BUNDLE_NAME#$#)"
         ;
 

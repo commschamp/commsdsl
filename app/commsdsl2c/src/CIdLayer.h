@@ -35,7 +35,7 @@ public:
     CIdLayer(CGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual bool genPrepareImpl() override;    
+    virtual bool genPrepareImpl() override;
     virtual bool cHasInputMessagesImpl() const override;
 };
 

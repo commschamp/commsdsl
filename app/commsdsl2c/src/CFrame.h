@@ -71,8 +71,8 @@ private:
     std::string cSourceLayersCodeInternal() const;
     std::string cSourceFrameCodeInternal() const;
     std::string cCommsHeaderIncludesInternal() const;
-    std::string cCommsHeaderLayersCodeInternal() const;    
-    std::string cCommsHeaderFrameCodeInternal() const;    
+    std::string cCommsHeaderLayersCodeInternal() const;
+    std::string cCommsHeaderFrameCodeInternal() const;
     const CInterface* cInterfaceInternal() const;
     const CMsgHandler* cMsgHandlerInternal() const;
     std::string cMsgIdTypeInternal() const;

@@ -35,12 +35,12 @@ public:
     CPayloadLayer(CGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual bool genPrepareImpl() override;    
+    virtual bool genPrepareImpl() override;
     virtual std::string cFrameValueDefImpl() const override;
     virtual std::string cFrameValueAssignImpl(
-        const std::string& valuesPtrName, 
+        const std::string& valuesPtrName,
         const std::string& commsBundleName,
-        unsigned layerIdx) const override;    
+        unsigned layerIdx) const override;
 };
 
 } // namespace commsdsl2c

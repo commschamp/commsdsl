@@ -40,7 +40,7 @@ bool CValueLayer::genPrepareImpl()
 {
     if ((!GenBase::genPrepareImpl()) || (!cPrepare())) {
         return false;
-    } 
+    }
 
     m_hasPseudoField = genValueLayerParseObj().parsePseudo();
     return true;
@@ -55,7 +55,7 @@ std::string CValueLayer::cHeaderCodeImpl() const
     auto* field = cField();
     assert(field != nullptr);
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#FIELD#$#* #^#NAME#$#_pseudoField(#^#NAME#$#* layer);\n"
         ;
 
@@ -76,7 +76,7 @@ std::string CValueLayer::cSourceCodeImpl() const
     auto* field = cField();
     assert(field != nullptr);
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#FIELD#$#* #^#NAME#$#_pseudoField(#^#NAME#$#* layer)\n"
         "{\n"
         "    return to#^#CONV_SUFFIX#$#(reinterpret_cast<#^#FIELD_COMMS#$#*>(&(fromLayerHandle(layer)->pseudoField())));\n"

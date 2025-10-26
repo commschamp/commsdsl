@@ -39,7 +39,7 @@ bool CPayloadLayer::genPrepareImpl()
 
 std::string CPayloadLayer::cFrameValueDefImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "uint8_t* m_#^#ACC_NAME#$#; ///< Buffer containing bytes processed by the @ref #^#NAME#$# layer.\n"
         "size_t m_#^#ACC_NAME#$#Len; ///< Amount of bytes processed by the @ref #^#NAME#$# layer."
         ;
@@ -53,11 +53,11 @@ std::string CPayloadLayer::cFrameValueDefImpl() const
 }
 
 std::string CPayloadLayer::cFrameValueAssignImpl(
-    const std::string& valuesPtrName, 
+    const std::string& valuesPtrName,
     const std::string& commsBundleName,
     unsigned layerIdx) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "if (#^#VALUES#$#->m_#^#ACC_NAME#$# != nullptr) {\n"
         "    auto& payloadField = std::get<#^#IDX#$#>(#^#BUNDLE#$#);\n"
         "    auto actBufSize = std::min(#^#VALUES#$#->m_#^#ACC_NAME#$#Len, payloadField.value().size());\n"

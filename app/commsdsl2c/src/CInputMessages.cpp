@@ -34,13 +34,12 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2c
 {
 
-namespace 
+namespace
 {
 
 const std::string CName = "InputMessages";
 
-} // namespace 
-    
+} // namespace
 
 CInputMessages::CInputMessages(CGenerator& generator, const CNamespace& parent) :
     m_cGenerator(generator),
@@ -87,11 +86,10 @@ bool CInputMessages::cWrite() const
     assert(iFace != nullptr);
 
     util::GenStringsList includes = {
-        comms::genRelHeaderForInput(m_cGenerator.cInputName(), m_cGenerator, m_parent), 
+        comms::genRelHeaderForInput(m_cGenerator.cInputName(), m_cGenerator, m_parent),
         CProtocolOptions::cRelHeader(m_cGenerator),
         iFace->cRelCommsHeader(),
     };
-
 
     comms::genPrepareIncludeStatement(includes);
 

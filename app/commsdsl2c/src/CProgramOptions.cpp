@@ -45,7 +45,7 @@ CProgramOptions::CProgramOptions()
     (CCommsInterfaceStr,
         "Force usage of the provided interface (CommsDSL reference string).", true)
     (CCommsInputStr,
-        "Name of the input bundle used by frame(s). If not provided \"AllMessages\" is used.", true)        
+        "Name of the input bundle used by frame(s). If not provided \"AllMessages\" is used.", true)
     ;
 }
 

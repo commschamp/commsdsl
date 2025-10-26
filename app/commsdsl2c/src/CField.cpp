@@ -533,7 +533,7 @@ std::string CField::cSourceCommonValueAccessFuncs() const
 
 std::string CField::cCommonFrameValueDef(const std::string& typeStr, const std::string& name) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#TYPE#$# m_#^#NAME#$#;"
         ;
 
@@ -547,7 +547,7 @@ std::string CField::cCommonFrameValueDef(const std::string& typeStr, const std::
 
 std::string CField::cCommonFrameValueAssign(const std::string& valueAccess, const std::string& fieldAccess) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#VALUE#$# = static_cast<decltype(#^#VALUE#$#)>(#^#FIELD#$#.value());"
         ;
 
@@ -808,7 +808,7 @@ std::string CField::cHandleBriefInternal(bool forcedOptional) const
     }
     else if (parentElemType == GenElem::GenType_Layer) {
         parentName = CLayer::cCast(static_cast<const commsdsl::gen::GenLayer*>(parent))->cName();
-    }    
+    }
 
     assert(!parentName.empty());
     return prefix + " member field of @ref " + parentName + '.';
