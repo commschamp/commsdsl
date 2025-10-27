@@ -207,11 +207,12 @@ bool CMsgHandler::cWriteCommsHeaderInternal() const
         "class #^#COMMS_NAME#$#\n"
         "{\n"
         "public:\n"
-        "    explicit #^#COMMS_NAME#$#(#^#NAME#$#& handler) : m_handler(handler) {}\n"
+        "    explicit #^#COMMS_NAME#$#(#^#NAME#$#& handler, void* userData) : m_handler(handler), m_userData(userData) {}\n"
         "\n"
         "    #^#FUNCS#$#\n"
         "private:\n"
         "    #^#NAME#$#& m_handler;\n"
+        "    void* m_userData = nullptr;\n"
         "};\n"
     ;
 
@@ -242,7 +243,7 @@ std::string CMsgHandler::cHeaderFuncsInternal() const
     for (auto* m : allMessages) {
         static const std::string Templ =
             "/// @brief Handle the @ref #^#NAME#$# message.\n"
-            "void (*handle_#^#NAME#$#)(struct #^#NAME#$#_* msg);\n"
+            "void (*handle_#^#NAME#$#)(struct #^#NAME#$#_* msg, void* userData);\n"
         ;
         auto* cMsg = CMessage::cCast(m);
         util::GenReplacementMap repl = {
@@ -257,7 +258,7 @@ std::string CMsgHandler::cHeaderFuncsInternal() const
 
     static const std::string Templ =
         "/// @brief Handle all other messages if their appropriate handling function is not assigned.\n"
-        "void (*handle_#^#NAME#$#)(struct #^#NAME#$#_* msg);"
+        "void (*handle_#^#NAME#$#)(struct #^#NAME#$#_* msg, void* userData);"
     ;
 
     util::GenReplacementMap repl = {
@@ -405,7 +406,7 @@ std::string CMsgHandler::cCommsSourceFuncsInternal() const
             "void #^#HANDLER#$#::handle(#^#COMMS_NAME#$#& msg)\n"
             "{\n"
             "    if (m_handler.handle_#^#NAME#$# != nullptr) {\n"
-            "        m_handler.handle_#^#NAME#$#(toMessageHandle(&msg));\n"
+            "        m_handler.handle_#^#NAME#$#(toMessageHandle(&msg), m_userData);\n"
             "        return;\n"
             "    }\n\n"
             "    handle(static_cast<#^#INTERFACE_COMMS_NAME#$#&>(msg));\n"
@@ -427,7 +428,7 @@ std::string CMsgHandler::cCommsSourceFuncsInternal() const
         "void #^#HANDLER#$#::handle(#^#COMMS_NAME#$#& msg)\n"
         "{\n"
         "    if (m_handler.handle_#^#NAME#$# != nullptr) {\n"
-        "        m_handler.handle_#^#NAME#$#(toInterfaceHandle(&msg));\n"
+        "        m_handler.handle_#^#NAME#$#(toInterfaceHandle(&msg), m_userData);\n"
         "    }\n"
         "}\n"
         ;

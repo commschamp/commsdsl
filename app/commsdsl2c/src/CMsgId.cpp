@@ -124,7 +124,7 @@ std::string CMsgId::cIdsInternal() const
     util::GenStringsList ids;
     ids.reserve(allMessages.size());
     for (auto* m : allMessages) {
-        ids.push_back(prefix + comms::genFullNameFor(*m) + " = " + util::genNumToString(m->genParseObj().parseId()));
+        ids.push_back(prefix + '_' + comms::genFullNameFor(*m) + " = " + util::genNumToString(m->genParseObj().parseId()));
     }
     return util::genStrListToString(ids, ",\n", "");
 }

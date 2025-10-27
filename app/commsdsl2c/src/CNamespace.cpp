@@ -148,17 +148,31 @@ std::string CNamespace::cPrefixName() const
 
 const CMsgId* CNamespace::cMsgId() const
 {
-    if (!cCodeGenerationAllowed()) {
+    auto* iFace = cInterface();
+    if (iFace == nullptr) {
         return nullptr;
     }
+
+    auto* parent = iFace->genGetParent();
+    auto* iFaceNs = cCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
+    if (iFaceNs != this) {
+        return iFaceNs->cMsgId();
+    }    
 
     return &m_msgId;
 }
 
 const CMsgHandler* CNamespace::cMsgHandler() const
 {
-    if (!cCodeGenerationAllowed()) {
+    auto* iFace = cInterface();
+    if (iFace == nullptr) {
         return nullptr;
+    }
+
+    auto* parent = iFace->genGetParent();
+    auto* iFaceNs = cCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
+    if (iFaceNs != this) {
+        return iFaceNs->cMsgHandler();
     }
 
     return &m_msgHandler;
@@ -175,14 +189,24 @@ const CInputMessages* CNamespace::cInputMessages() const
 
 bool CNamespace::genWriteImpl() const
 {
-    if (!cCodeGenerationAllowed()) {
+    auto* iFace = cInterface();
+    if (iFace == nullptr) {
         return true;
     }
 
+    if (!m_input.cWrite()) {
+        return false;
+    }
+
+    auto* parent = iFace->genGetParent();
+    auto* iFaceNs = cCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
+    if (iFaceNs != this) {
+        return true;
+    }    
+
     return
         m_msgId.cWrite() &&
-        m_msgHandler.cWrite() &&
-        m_input.cWrite();
+        m_msgHandler.cWrite();
 }
 
 const CInterface* CNamespace::cFindSuitableInterfaceInternal() const

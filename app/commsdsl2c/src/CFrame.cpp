@@ -120,6 +120,7 @@ bool CFrame::genPrepareImpl()
     auto* iFace = cInterfaceInternal();
     do {
         if (iFace == nullptr) {
+            genGenerator().genLogger().genDebug("No valid interface for " + cName());
             break;
         }
 
@@ -137,6 +138,7 @@ bool CFrame::genPrepareImpl()
 bool CFrame::genWriteImpl() const
 {
     if (!m_validFrame) {
+        genGenerator().genLogger().genDebug("Skipping code generation for frame " + cName());
         return true;
     }
 
@@ -349,8 +351,9 @@ std::string CFrame::cHeaderFrameCodeInternal() const
         "/// @param[in] buf Pointer to input buffer.\n"
         "/// @param[in] bufSize Available amount of bytes in the input buffer.\n"
         "/// @param[in] handler Handler objects with all the relevant handling functions assigned.\n"
+        "/// @param[in] userData Pointer to user data to be passed to the handling functions.\n"
         "/// @return Amount of consumed bytes.\n"
-        "size_t #^#NAME#$#_processInputData(#^#NAME#$#* frame, const uint8_t* buf, size_t bufSize, #^#HANDLER#$#* handler);\n"
+        "size_t #^#NAME#$#_processInputData(#^#NAME#$#* frame, const uint8_t* buf, size_t bufSize, #^#HANDLER#$#* handler, void* userData);\n"
         "\n"
         "#^#FRAME_FIELDS#$#\n"
         "\n"
@@ -361,6 +364,7 @@ std::string CFrame::cHeaderFrameCodeInternal() const
         "/// @param[in] buf Pointer to input buffer.\n"
         "/// @param[in] bufSize Available amount of bytes in the input buffer.\n"
         "/// @param[in] handler Handler objects with all the relevant handling functions assigned.\n"
+        "/// @param[in] userData Pointer to user data to be passed to the handling functions.\n"
         "/// @param[out] frameValues Values of the frame fields.\n"
         "/// @return Amount of consumed bytes.\n"
         "size_t #^#NAME#$#_processInputDataSingleMsg(\n"
@@ -368,6 +372,7 @@ std::string CFrame::cHeaderFrameCodeInternal() const
         "    const uint8_t* buf,\n"
         "    size_t bufSize,\n"
         "    #^#HANDLER#$#* handler,\n"
+        "    void* userData\n,"
         "    #^#NAME#$##^#VALUES_SUFFIX#$#* frameValues);\n"
         "\n"
         "/// @brief Write message object into output buffer"
@@ -514,12 +519,12 @@ std::string CFrame::cSourceFrameCodeInternal() const
         "    #^#COMMS_NAME#$#::MsgPtr ptr(fromInterfaceHandle(msg)); // delete on destruct\n"
         "}\n"
         "\n"
-        "size_t #^#NAME#$#_processInputData(#^#NAME#$#* frame, const uint8_t* buf, size_t bufSize, #^#HANDLER#$#* handler)\n"
+        "size_t #^#NAME#$#_processInputData(#^#NAME#$#* frame, const uint8_t* buf, size_t bufSize, #^#HANDLER#$#* handler, void* userData)\n"
         "{\n"
         "    if (bufSize == 0U) {\n"
         "        return 0U;\n"
         "    }\n\n"
-        "    #^#COMMS_HANDLER#$# commsHandler(*handler);\n"
+        "    #^#COMMS_HANDLER#$# commsHandler(*handler, userData);\n"
         "    return comms::processAllWithDispatch(buf, bufSize, *(fromFrameHandle(frame)), commsHandler);\n"
         "}\n"
         "\n"
@@ -528,12 +533,13 @@ std::string CFrame::cSourceFrameCodeInternal() const
         "    const uint8_t* buf,\n"
         "    size_t bufSize,\n"
         "    #^#HANDLER#$#* handler,\n"
+        "    void* userData,\n"
         "    #^#NAME#$##^#VALUES_SUFFIX#$#* frameValues)\n"
         "{\n"
         "    if (bufSize == 0U) {\n"
         "        return 0U;\n"
         "    }\n\n"
-        "    #^#COMMS_HANDLER#$# commsHandler(*handler);\n"
+        "    #^#COMMS_HANDLER#$# commsHandler(*handler, userData);\n"
         "    auto& commsFrame = *fromFrameHandle(frame);\n"
         "    using CommsFrame = typename std::decay<decltype(commsFrame)>::type;\n\n"
         "    std::size_t consumed = 0U;\n"

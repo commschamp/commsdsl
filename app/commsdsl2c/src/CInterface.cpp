@@ -112,6 +112,7 @@ bool CInterface::genPrepareImpl()
     }
 
     m_cFields = CField::cTransformFieldsList(genFields());
+    genGenerator().genLogger().genDebug("Prepared interface " + cName());
     return true;
 }
 
@@ -386,8 +387,10 @@ std::string CInterface::cHeaderCodeInternal() const
         "bool #^#NAME#$#_valid(const #^#NAME#$#* msg);\n"
         "\n"
         "/// @brief Dispatch message to appropriate handling function.\n"
-        "void #^#NAME#$#_dispatch(#^#NAME#$#* msg, #^#HANDLER#$#* handler);\n"
-        // TODO: dispatch code
+        "/// @param[in] Handle to the message object.\n"
+        "/// @param[in] Handle of the handler object.\n"
+        "/// @param[in] Pointer to user data to be passed to the handling function.\n"
+        "void #^#NAME#$#_dispatch(#^#NAME#$#* msg, #^#HANDLER#$#* handler, void* userData);\n"
         ;
 
     auto* msgId = cMsgId();
@@ -487,12 +490,12 @@ std::string CInterface::cSourceCodeInternal() const
         "    return fromInterfaceHandle(msg)->valid();\n"
         "}\n"
         "\n"
-        "void #^#NAME#$#_dispatch(#^#NAME#$#* msg, #^#HANDLER#$#* handler)\n"
+        "void #^#NAME#$#_dispatch(#^#NAME#$#* msg, #^#HANDLER#$#* handler, void* userData)\n"
         "{\n"
         "    if (handler == nullptr) {\n"
         "        return;\n"
         "    }\n\n"
-        "    #^#COMMS_HANDLER#$# commsHandler(*handler);\n"
+        "    #^#COMMS_HANDLER#$# commsHandler(*handler, userData);\n"
         "    fromInterfaceHandle(msg)->dispatch(commsHandler);\n"
         "}\n"
         // TODO: dispatch code

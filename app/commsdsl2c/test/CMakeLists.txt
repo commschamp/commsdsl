@@ -17,6 +17,28 @@ add_custom_target(${APP_NAME}.all_tests
 
 include(ExternalProject)
 
+set (COMMSDSL_SANITIZER_OPTS)
+if (COMMSDSL_TEST_USE_SANITIZERS AND
+    (NOT COMMSDSL_BUILD_WITH_SANITIZERS) AND
+    ((CMAKE_COMPILER_IS_GNUCC) OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")))
+    set (COMMSDSL_SANITIZER_OPTS
+        -fno-omit-frame-pointer
+        -fno-sanitize-recover=address
+        -fsanitize=address
+        -fno-sanitize-recover=undefined
+        -fsanitize=undefined)
+endif ()
+
+if ((NOT "${COMMSDSL_SANITIZER_OPTS}" STREQUAL "") AND (${CMAKE_VERSION} VERSION_LESS "3.13"))
+    message (WARNING "The CMake version is too old, expected at least 3.13, sanitizers are disabled")
+    set (COMMSDSL_SANITIZER_OPTS)
+endif ()
+
+if ((NOT "${COMMSDSL_SANITIZER_OPTS}" STREQUAL "") AND (NOT "${VALGRIND_EXECUTABLE}" STREQUAL ""))
+    message (WARNING "Cannot run valgrind when tests compiled with sanitizers")
+    set (VALGRIND_EXECUTABLE) # Disable valgrind tests
+endif ()
+
 set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2comms/test)
 set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
 file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
@@ -44,7 +66,7 @@ foreach (name ${tests})
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
     add_custom_target(${output_tgt} ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
-        COMMAND $<TARGET_FILE:${APP_NAME}> -s --warn-as-err ${code_input_param} -o ${output_dir}.tmp ${schema_files}
+        COMMAND $<TARGET_FILE:${APP_NAME}> -d -s --warn-as-err ${code_input_param} -o ${output_dir}.tmp ${schema_files}
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="."
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
@@ -69,6 +91,16 @@ foreach (name ${tests})
     execute_process (
         COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/dummy.txt")
 
+    set (lib_name lib${name}_c.a)
+    if (WIN32)
+        set (lib_name lib${name}_csd.lib)
+        if (("${CMAKE_BUILD_TYPE}" STREQUAL "Release") OR
+            ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel") OR
+            ("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo"))
+            set (lib_name lib${name}_cs.lib)
+        endif ()
+    endif ()          
+
     ExternalProject_Add(
         ${build_tgt}
         BUILD_ALWAYS TRUE
@@ -83,12 +115,59 @@ foreach (name ${tests})
         CMAKE_ARGS
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_INSTALL_PREFIX=${install_dir}
+            -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
             -DOPT_FIND_COMMS=OFF
             -DOPT_FIND_PROTOCOL=OFF
             -DOPT_EXTRA_INCLUDE_DIRS=${extra_includes_path_str}
             -DOPT_USE_CCACHE=${COMMSDSL_USE_CCACHE}
             -DOPT_CCACHE_EXECUTABLE=${COMMSDSL_CCACHE_EXECUTABLE}
+
+        # BUILD_BYPRODUCTS are needed by Ninja
+        BUILD_BYPRODUCTS <INSTALL_DIR>/lib/${lib_name}            
     )
 
     add_dependencies(${APP_NAME}.all_tests ${build_tgt})
+
+    if (NOT EXISTS ${this_test_dir}/${name}Test.th)
+        continue()
+    endif ()    
+
+    execute_process (
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${install_dir}/include")    
+
+    add_library(${name}_c STATIC IMPORTED GLOBAL)
+    add_dependencies(${name}_c ${build_tgt})
+    set_target_properties(${name}_c PROPERTIES
+        IMPORTED_LOCATION ${install_dir}/lib/${lib_name}
+        IMPORTED_IMPLIB ${install_dir}/lib/${lib_name}
+        INTERFACE_INCLUDE_DIRECTORIES "${install_dir}/include"
+    )
+    add_library(cc::${name}_c ALIAS ${name}_c)
+
+    set (testName "${APP_NAME}.${name}Test")
+
+    set (valgrand_opt)
+    if (COMMSDSL_VALGRIND_TESTS AND VALGRIND_EXECUTABLE)
+        set (valgrand_opt VALGRIND_EXECUTABLE ${VALGRIND_EXECUTABLE})
+    endif ()
+
+    cc_cxxtest_add_test(NAME ${testName} SRC ${this_test_dir}/${name}Test.th ${valgrand_opt})
+    add_dependencies(${APP_NAME}.all_tests ${testName})
+
+    add_dependencies(${testName} ${build_tgt})
+    target_link_libraries(${testName} PRIVATE cc::${name}_c)
+
+    target_compile_options(${testName} PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:/bigobj>
+        $<$<CXX_COMPILER_ID:GNU>:-Wno-old-style-cast -ftemplate-depth=2048 ${COMMSDSL_SANITIZER_OPTS}>
+        $<$<CXX_COMPILER_ID:Clang>:-Wno-old-style-cast -ftemplate-depth=2048 ${COMMSDSL_SANITIZER_OPTS}>
+    )
+
+    if (NOT "${COMMSDSL_SANITIZER_OPTS}" STREQUAL "")
+        target_link_options(${testName} PRIVATE
+            $<$<CXX_COMPILER_ID:GNU>:${COMMSDSL_SANITIZER_OPTS}>
+            $<$<CXX_COMPILER_ID:Clang>:${COMMSDSL_SANITIZER_OPTS}>
+        )
+    endif ()
+    
 endforeach ()

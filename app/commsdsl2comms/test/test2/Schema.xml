@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test2"
-        id="1"
-        endian="big"
-        version="5">
+<schema name="test2" endian="big" version="5">
     <fields>
         <bundle name="B1">
             <int name="F1" type="uint32" />

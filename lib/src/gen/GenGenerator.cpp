@@ -395,6 +395,10 @@ public:
             return false;
         }
 
+        if (!genPrepareDefaultInterfaceInternal()) {
+            return false;
+        }        
+
         for (auto& s : m_schemas) {
             m_currentSchema = s.get();
             if (!s->genPrepare()) {
@@ -405,10 +409,6 @@ public:
 
         if (m_logger->genHadWarning()) {
             m_logger->genError("Warning treated as error");
-            return false;
-        }
-
-        if (!genPrepareDefaultInterfaceInternal()) {
             return false;
         }
 
