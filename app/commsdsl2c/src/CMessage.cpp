@@ -294,8 +294,13 @@ std::string CMessage::cHeaderCodeInternal() const
         "/// @brief Definition of <b>#^#DISP_NAME#$#</b> message handle.\n"
         "typedef struct #^#NAME#$#_ #^#NAME#$#;\n\n"
         "/// @brief Access to common interface handle.\n"
-        "#^#INTERFACE#$#* #^#NAME#$#_interface(#^#NAME#$#* msg);\n"
+        "/// @details Internally performs upcasting to interface class.\n"
+        "#^#INTERFACE#$#* #^#NAME#$#_toInterface(#^#NAME#$#* msg);\n"
         "\n"
+        "/// @brief Access the message object.\n"
+        "/// @details Internally performs downcasting to message class.\n"
+        "#^#NAME#$#* #^#NAME#$#_fromInterface(#^#INTERFACE#$#* msg);\n"
+        "\n"        
         "#^#FIELDS_ACC#$#\n"
         "/// @brief Get message ID.\n"
         "#^#MSG_ID#$# #^#NAME#$#_doGetId(const #^#NAME#$#* msg);\n"
@@ -407,10 +412,15 @@ std::string CMessage::cSourceCodeInternal() const
     assert(msgId != nullptr);
 
     static const std::string Templ =
-        "#^#INTERFACE#$#* #^#NAME#$#_interface(#^#NAME#$#* msg)\n"
+        "#^#INTERFACE#$#* #^#NAME#$#_toInterface(#^#NAME#$#* msg)\n"
         "{\n"
         "    return toInterfaceHandle(fromMessageHandle(msg));\n"
         "}\n"
+        "\n"
+        "#^#NAME#$#* #^#NAME#$#_fromInterface(#^#INTERFACE#$#* msg)\n"
+        "{\n"
+        "    return toMessageHandle(static_cast<#^#COMMS_NAME#$#*>(fromInterfaceHandle(msg)));\n"
+        "}\n"        
         "\n"
         "#^#FIELDS_ACC#$#\n"
         "#^#MSG_ID#$# #^#NAME#$#_doGetId(const #^#NAME#$#* msg)\n"
@@ -513,7 +523,8 @@ std::string CMessage::cCommsHeaderCodeInternal() const
     assert (interface != nullptr);
 
     static const std::string Templ =
-        "class #^#COMMS_NAME#$# : public ::#^#COMMS_TYPE#$#<#^#INTERFACE#$#, #^#OPTS#$#> {};\n"
+        //"class #^#COMMS_NAME#$# : public ::#^#COMMS_TYPE#$#<#^#INTERFACE#$#, #^#OPTS#$#> {};\n"
+        "using #^#COMMS_NAME#$# = ::#^#COMMS_TYPE#$#<#^#INTERFACE#$#, #^#OPTS#$#>;\n"
         "struct alignas(alignof(#^#COMMS_NAME#$#)) #^#NAME#$#_ {};\n\n"
         "inline const #^#COMMS_NAME#$#* fromMessageHandle(const #^#NAME#$#* from)\n"
         "{\n"

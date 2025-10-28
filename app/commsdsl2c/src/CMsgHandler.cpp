@@ -19,6 +19,7 @@
 #include "CInterface.h"
 #include "CMessage.h"
 #include "CNamespace.h"
+#include "CProtocolOptions.h"
 #include "CSchema.h"
 
 #include "commsdsl/gen/strings.h"
@@ -203,7 +204,6 @@ bool CMsgHandler::cWriteCommsHeaderInternal() const
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
-        "#^#FWD#$#\n"
         "class #^#COMMS_NAME#$#\n"
         "{\n"
         "public:\n"
@@ -219,7 +219,6 @@ bool CMsgHandler::cWriteCommsHeaderInternal() const
     util::GenReplacementMap repl = {
         {"GENERATED", CGenerator::cFileGeneratedComment()},
         {"INCLUDES", cCommsHeaderIncludesInternal()},
-        {"FWD", cCommsHeaderFwdInternal()},
         {"NAME", cName()},
         {"COMMS_NAME", cCommsTypeName()},
         {"FUNCS", cCommsHeaderFuncsInternal()},
@@ -302,43 +301,22 @@ std::string CMsgHandler::cHeaderFwdInternal() const
 
 std::string CMsgHandler::cCommsHeaderIncludesInternal() const
 {
-    auto allMessages = cMessagesListInternal();
+    auto* cInterface = m_parent.cInterface();
+    assert(cInterface != nullptr);    
+
     util::GenStringsList includes {
-        cRelHeader()
+        cRelHeader(),
+        cInterface->cRelCommsHeader(),
+        CProtocolOptions::cRelHeader(m_cGenerator),
     };
+
+    auto allMessages = cMessagesListInternal();
+    for (auto* m : allMessages) {
+        includes.push_back(comms::genRelHeaderPathFor(*m, m_cGenerator));
+    }    
 
     comms::genPrepareIncludeStatement(includes);
     return util::genStrListToString(includes, "\n", "\n");
-}
-
-std::string CMsgHandler::cCommsHeaderFwdInternal() const
-{
-    auto allMessages = cMessagesListInternal();
-    util::GenStringsList fwd;
-
-    const std::string Templ =
-        "class #^#NAME#$#;\n"
-        ;
-
-    fwd.reserve(allMessages.size() + 1U);
-    for (auto* m : allMessages) {
-        auto* cMsg = CMessage::cCast(m);
-        util::GenReplacementMap repl = {
-            {"NAME", cMsg->cCommsTypeName()},
-        };
-
-        fwd.push_back(util::genProcessTemplate(Templ, repl));
-    }
-
-    auto* cInterface = m_parent.cInterface();
-    assert(cInterface != nullptr);
-
-    util::GenReplacementMap repl = {
-        {"NAME", cInterface->cCommsTypeName()},
-    };
-
-    fwd.push_back(util::genProcessTemplate(Templ, repl));
-    return util::genStrListToString(fwd, "", "\n");
 }
 
 std::string CMsgHandler::cCommsHeaderFuncsInternal() const
@@ -346,22 +324,28 @@ std::string CMsgHandler::cCommsHeaderFuncsInternal() const
     auto allMessages = cMessagesListInternal();
     util::GenStringsList funcs;
 
-    static const std::string Templ =
-        "void handle(#^#COMMS_NAME#$#& msg);"
-        ;
+
+    auto* cInterface = m_parent.cInterface();
+    assert(cInterface != nullptr);    
 
     funcs.reserve(funcs.size() + 1U);
     for (auto* m : allMessages) {
-        auto* cMsg = CMessage::cCast(m);
+
+        static const std::string Templ =
+            "void handle(::#^#COMMS_SCOPE#$#<#^#INTERFACE_COMMS_NAME#$#, #^#OPTS#$#>& msg);"
+            ;        
         util::GenReplacementMap repl = {
-            {"COMMS_NAME", cMsg->cCommsTypeName()},
+            {"INTERFACE_COMMS_NAME", cInterface->cCommsTypeName()},
+            {"COMMS_SCOPE", ::comms::genScopeFor(*m, m_cGenerator)},
+            {"OPTS", CProtocolOptions::cName(m_cGenerator)},
         };
 
         funcs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    auto* cInterface = m_parent.cInterface();
-    assert(cInterface != nullptr);
+    static const std::string Templ =
+        "void handle(#^#COMMS_NAME#$#& msg);"
+        ;
 
     util::GenReplacementMap repl = {
         {"COMMS_NAME", cInterface->cCommsTypeName()},
@@ -403,8 +387,9 @@ std::string CMsgHandler::cCommsSourceFuncsInternal() const
     funcs.reserve(funcs.size() + 1U);
     for (auto* m : allMessages) {
         static const std::string Templ =
-            "void #^#HANDLER#$#::handle(#^#COMMS_NAME#$#& msg)\n"
+            "void #^#HANDLER#$#::handle(::#^#COMMS_SCOPE#$#<#^#INTERFACE_COMMS_NAME#$#, #^#OPTS#$#>& msg)\n"
             "{\n"
+            ""
             "    if (m_handler.handle_#^#NAME#$# != nullptr) {\n"
             "        m_handler.handle_#^#NAME#$#(toMessageHandle(&msg), m_userData);\n"
             "        return;\n"
@@ -415,10 +400,12 @@ std::string CMsgHandler::cCommsSourceFuncsInternal() const
 
         auto* cMsg = CMessage::cCast(m);
         util::GenReplacementMap repl = {
-            {"COMMS_NAME", cMsg->cCommsTypeName()},
+            //{"COMMS_NAME", cMsg->cCommsTypeName()},
             {"NAME", cMsg->cName()},
             {"INTERFACE_COMMS_NAME", cInterface->cCommsTypeName()},
             {"HANDLER", cCommsTypeName()},
+            {"COMMS_SCOPE", ::comms::genScopeFor(*m, m_cGenerator)},
+            {"OPTS", CProtocolOptions::cName(m_cGenerator)},
         };
 
         funcs.push_back(util::genProcessTemplate(Templ, repl));

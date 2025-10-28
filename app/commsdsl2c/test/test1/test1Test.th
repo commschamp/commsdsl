@@ -14,6 +14,8 @@ class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
+    void test2();
+    void test3();
 
 private:
     struct Deleter
@@ -22,7 +24,15 @@ private:
         {
             test1_frame_Frame_free(ptr);
         }
+
+        void operator()(test1_message_Msg1* ptr)
+        {
+            test1_message_Msg1_free(ptr);
+        }
     };
+
+    using FramePtr = std::unique_ptr<test1_frame_Frame, Deleter>;    
+    using Msg1Ptr = std::unique_ptr<test1_message_Msg1, Deleter>;
 
     struct Handler
     {
@@ -55,25 +65,80 @@ private:
         }
     };
 
-    using FramePtr = std::unique_ptr<test1_frame_Frame, Deleter>;    
+    test1_MsgHandler prepareMsgHandlerInternal()
+    {
+        auto handler = test1_MsgHandler();
+        handler.handle_test1_message_Msg1 = &Handler::handle_test1_message_Msg1;
+        handler.handle_test1_message_Msg2 = &Handler::handle_test1_message_Msg2;
+        handler.handle_test1_Message = &Handler::handle_test1_Message;
+        return handler;
+    }
+
 };
 
 void TestSuite::test1()
 {
-    static const std::uint8_t Buf[] = {1, 0x1, 0x2, 0x3, 0x4};
-    static const std::size_t BufSize = std::extent<decltype(Buf)>::value; 
+    const std::uint8_t Buf[] = {1, 0x1, 0x2, 0x3, 0x4};
+    const std::size_t BufSize = std::extent<decltype(Buf)>::value; 
     
     FramePtr frame(test1_frame_Frame_alloc());
 
-    auto handler = test1_MsgHandler();
-    handler.handle_test1_message_Msg1 = &Handler::handle_test1_message_Msg1;
-    handler.handle_test1_message_Msg2 = &Handler::handle_test1_message_Msg2;
-    handler.handle_test1_Message = &Handler::handle_test1_Message;
+    auto handler = prepareMsgHandlerInternal();
 
     Handler testHandler;
     auto consumed = test1_frame_Frame_processInputData(frame.get(), Buf, BufSize, &handler, &testHandler);
     TS_ASSERT_EQUALS(consumed, BufSize);
-    // TS_ASSERT_EQUALS(testHandler.m_msg1Count, 1U);
-    // TS_ASSERT_EQUALS(testHandler.m_msg2Count, 0U);
-    // TS_ASSERT_EQUALS(testHandler.m_interfaceCount, 0U);
+    TS_ASSERT_EQUALS(testHandler.m_msg1Count, 1U);
+    TS_ASSERT_EQUALS(testHandler.m_msg2Count, 0U);
+    TS_ASSERT_EQUALS(testHandler.m_interfaceCount, 0U);
+}
+
+void TestSuite::test2()
+{
+    const std::uint8_t Buf[] = {1, 0x1, 0x2, 0x3, 0x4, 0x5};
+    const std::size_t BufSize = std::extent<decltype(Buf)>::value; 
+    
+    FramePtr frame(test1_frame_Frame_alloc());
+
+    auto handler = prepareMsgHandlerInternal();
+
+    Handler testHandler;
+
+    std::vector<std::uint8_t> payload(10);
+    auto frameValues = test1_frame_Frame_FrameValues();
+    frameValues.m_data = payload.data();
+    frameValues.m_dataLen = payload.size();
+
+    auto consumed = test1_frame_Frame_processInputDataSingleMsg(frame.get(), Buf, BufSize, &handler, &testHandler, &frameValues);
+    TS_ASSERT_EQUALS(consumed, BufSize - 1U);
+    TS_ASSERT_EQUALS(testHandler.m_msg1Count, 1U);
+    TS_ASSERT_EQUALS(testHandler.m_msg2Count, 0U);
+    TS_ASSERT_EQUALS(testHandler.m_interfaceCount, 0U);
+    TS_ASSERT_EQUALS(frameValues.m_iD, 1U);
+    TS_ASSERT_EQUALS(frameValues.m_dataLen, BufSize - 2U);
+    TS_ASSERT(std::equal(frameValues.m_data, frameValues.m_data + frameValues.m_dataLen, &Buf[1]));
+}
+
+void TestSuite::test3()
+{
+    Msg1Ptr msg1(test1_message_Msg1_alloc());
+    auto* f1 = test1_message_Msg1_field_f1(msg1.get());
+    test1_message_Msg1Fields_F1_setValue(f1, 0x030201); // serialized as little endian
+    TS_ASSERT_EQUALS(test1_message_Msg1Fields_F1_length(f1), 3U);
+    auto* f2 = test1_message_Msg1_field_f2(msg1.get());
+    test1_message_Msg1Fields_F2_setValue(f2, 0x04);
+    TS_ASSERT_EQUALS(test1_message_Msg1Fields_F2_length(f2), 1U);
+
+    FramePtr frame(test1_frame_Frame_alloc());
+    auto length = test1_frame_Frame_messageLength(frame.get(), test1_message_Msg1_toInterface(msg1.get()));
+
+    const std::uint8_t ExpBuf[] = {1, 0x1, 0x2, 0x3, 0x4};
+    const std::size_t ExpBufSize = std::extent<decltype(ExpBuf)>::value; 
+
+    std::vector<std::uint8_t> outBuf(length + 10);
+    auto bufLen = outBuf.size();
+    auto es = test1_frame_Frame_writeMessage(frame.get(), test1_message_Msg1_toInterface(msg1.get()), outBuf.data(), &bufLen);
+    TS_ASSERT_EQUALS(es, test1_ErrorStatus_Success);
+    TS_ASSERT_EQUALS(bufLen, ExpBufSize);
+    TS_ASSERT(std::equal(std::begin(outBuf), std::begin(outBuf) + bufLen, ExpBuf));
 }

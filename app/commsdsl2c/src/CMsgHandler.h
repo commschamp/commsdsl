@@ -49,7 +49,6 @@ private:
     std::string cHeaderFuncsInternal() const;
     std::string cHeaderFwdInternal() const;
     std::string cCommsHeaderIncludesInternal() const;
-    std::string cCommsHeaderFwdInternal() const;
     std::string cCommsHeaderFuncsInternal() const;
     std::string cCommsSourceIncludesInternal() const;
     std::string cCommsSourceFuncsInternal() const;
