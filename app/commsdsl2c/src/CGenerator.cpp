@@ -405,7 +405,7 @@ void CGenerator::cSetNamesPrefixInternal(const std::string& value)
 
 void CGenerator::cSetCommsOptionsInternal(const std::string& value)
 {
-    m_commsOptions = util::genStrSplit(value, "::");
+    m_commsOptions = util::genStrSplit(value, ",");
 }
 
 void CGenerator::cSetCommsInputInternal(const std::string& value)
