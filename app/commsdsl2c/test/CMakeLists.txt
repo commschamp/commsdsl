@@ -39,6 +39,11 @@ if ((NOT "${COMMSDSL_SANITIZER_OPTS}" STREQUAL "") AND (NOT "${VALGRIND_EXECUTAB
     set (VALGRIND_EXECUTABLE) # Disable valgrind tests
 endif ()
 
+set (SANITIZERS_OPT "OFF")
+if (COMMSDSL_BUILD_WITH_SANITIZERS OR (NOT "${COMMSDSL_SANITIZER_OPTS}" STREQUAL ""))
+    set (SANITIZERS_OPT "ON")
+endif ()
+
 set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2comms/test)
 set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
 file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
@@ -94,8 +99,8 @@ foreach (name ${tests})
     set (lib_name lib${name}_c.a)
     if (WIN32)
         set (lib_name ${name}_c.lib)
-    endif ()          
-
+    endif ()    
+    
     ExternalProject_Add(
         ${build_tgt}
         BUILD_ALWAYS TRUE
@@ -108,11 +113,14 @@ foreach (name ${tests})
         CMAKE_GENERATOR_TOOLSET ${CMAKE_GENERATOR_TOOLSET}
         LIST_SEPARATOR |
         CMAKE_ARGS
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DCMAKE_C_COMPILER=${COMMSDSL_TESTS_C_COMPILER} -DCMAKE_CXX_COMPILER=${COMMSDSL_TESTS_CXX_COMPILER}
+            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_EXE_LINKER_FLAGS="${CMAKE_EXE_LINKER_FLAGS}"
             -DCMAKE_INSTALL_PREFIX=${install_dir}
             -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
             -DOPT_FIND_COMMS=OFF
             -DOPT_FIND_PROTOCOL=OFF
+            -DOPT_WITH_DEFAULT_SANITIZERS=${SANITIZERS_OPT}
             -DOPT_EXTRA_INCLUDE_DIRS=${extra_includes_path_str}
             -DOPT_USE_CCACHE=${COMMSDSL_USE_CCACHE}
             -DOPT_CCACHE_EXECUTABLE=${COMMSDSL_CCACHE_EXECUTABLE}

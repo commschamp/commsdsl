@@ -1,7 +1,13 @@
 #!/bin/bash
 
-export CC=clang
-export CXX=clang++
+if [ -z "${CC}" ]; then
+    export CC=clang
+fi
+
+if [ -z "${CXX}" ]; then
+    export CXX=clang++
+fi
+
 export COMMON_BUILD_TYPE=Debug
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
