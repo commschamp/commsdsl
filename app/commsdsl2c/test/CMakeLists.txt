@@ -93,12 +93,7 @@ foreach (name ${tests})
 
     set (lib_name lib${name}_c.a)
     if (WIN32)
-        set (lib_name lib${name}_csd.lib)
-        if (("${CMAKE_BUILD_TYPE}" STREQUAL "Release") OR
-            ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel") OR
-            ("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo"))
-            set (lib_name lib${name}_cs.lib)
-        endif ()
+        set (lib_name ${name}_c.lib)
     endif ()          
 
     ExternalProject_Add(
