@@ -31,19 +31,27 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2c
 {
 
+namespace 
+{
+
+const std::string CName("ErrorStatus");
+
+} // namespace 
+    
+
 std::string CErrorStatus::cName(const CGenerator& generator)
 {
-    return generator.genProtocolSchema().genMainNamespace() + "_ErrorStatus";
+    return generator.cNamesPrefix() + '_' + CName;
 }
 
 std::string CErrorStatus::cRelHeader(const CGenerator& generator)
 {
-    return generator.cRelRootHeaderFor(cName(generator));
+    return generator.cRelRootHeaderFor(CName);
 }
 
 std::string CErrorStatus::cRelSourcePath(const CGenerator& generator)
 {
-    return generator.cRelRootSourceFor(cName(generator));
+    return generator.cRelRootSourceFor(CName);
 }
 
 void CErrorStatus::cAddSourceFiles(const CGenerator& generator, GenStringsList& sources)
@@ -66,7 +74,7 @@ CErrorStatus::CErrorStatus(CGenerator& generator) :
 
 bool CErrorStatus::cWriteHeaderInternal()
 {
-    auto filePath = m_cGenerator.cAbsRootHeaderFor(cName(m_cGenerator));
+    auto filePath = m_cGenerator.cAbsRootHeaderFor(CName);
     m_cGenerator.genLogger().genInfo("Generating " + filePath);
 
     auto dirPath = util::genPathUp(filePath);
@@ -125,7 +133,7 @@ bool CErrorStatus::cWriteHeaderInternal()
 
 bool CErrorStatus::cWriteSourceInternal()
 {
-    auto filePath = m_cGenerator.cAbsRootSourceFor(cName(m_cGenerator));
+    auto filePath = m_cGenerator.cAbsRootSourceFor(CName);
     m_cGenerator.genLogger().genInfo("Generating " + filePath);
 
     auto dirPath = util::genPathUp(filePath);

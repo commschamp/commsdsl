@@ -372,7 +372,7 @@ std::string CFrame::cHeaderFrameCodeInternal() const
         "    const uint8_t* buf,\n"
         "    size_t bufSize,\n"
         "    #^#HANDLER#$#* handler,\n"
-        "    void* userData\n,"
+        "    void* userData,\n"
         "    #^#NAME#$##^#VALUES_SUFFIX#$#* frameValues);\n"
         "\n"
         "/// @brief Write message object into output buffer"

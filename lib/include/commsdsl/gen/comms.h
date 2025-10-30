@@ -121,8 +121,8 @@ std::string genRelHeaderForOptions(const std::string& name, const GenGenerator& 
 std::string genRelHeaderForDispatch(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
 std::string genRelHeaderForFactory(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
 std::string genRelHeaderForMsgId(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
-std::string genRelHeaderForNamespaceMember(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
-std::string genRelSourceForNamespaceMember(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
+std::string genRelHeaderForNamespaceMember(const std::string& name, const GenGenerator& generator, const GenNamespace& ns, bool addMainNamespace = true);
+std::string genRelSourceForNamespaceMember(const std::string& name, const GenGenerator& generator, const GenNamespace& ns, bool addMainNamespace = true);
 std::string genRelHeaderForLayer(const std::string& name, const GenGenerator& generator);
 std::string genRelHeaderForChecksum(const std::string& name, const GenGenerator& generator);
 std::string genRelHeaderForInput(const std::string& name, const GenGenerator& generator, const GenNamespace& ns, bool addMainNamespace = true);

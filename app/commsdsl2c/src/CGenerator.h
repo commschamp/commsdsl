@@ -77,6 +77,7 @@ public:
     std::string cInputAbsSourceFor(const GenElem& elem) const;
 
     std::string cNameFor(const GenElem& elem) const;
+    const std::string& cNamesPrefix() const;
 
     static std::string cScopeToName(const std::string& scope);
     static const std::string& cCppGuardBegin(bool addBool = true);

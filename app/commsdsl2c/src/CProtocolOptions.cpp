@@ -36,6 +36,8 @@ namespace commsdsl2c
 namespace
 {
 
+const std::string CName("ProtocolOptions");
+
 std::string cCodeInternal(const util::GenStringsList& opts, std::size_t idx)
 {
     if (idx == 0U) {
@@ -64,16 +66,16 @@ std::string cCodeInternal(const util::GenStringsList& opts, std::size_t idx)
 
 std::string CProtocolOptions::cName(const CGenerator& generator)
 {
-    return generator.genProtocolSchema().genMainNamespace() + "_ProtocolOptions";
+    return generator.cNamesPrefix() + '_' + CName;
 }
 
 std::string CProtocolOptions::cRelHeader(const CGenerator& generator)
 {
     return
         generator.genGetTopNamespace() + '/' +
-        generator.genProtocolSchema().genMainNamespace() + '/' +
+        generator.cNamesPrefix() + '/' +
         strings::genOptionsNamespaceStr() + '/' +
-        cName(generator) + strings::genCppHeaderSuffixStr();
+        CName + strings::genCppHeaderSuffixStr();
 }
 
 bool CProtocolOptions::cWrite(CGenerator& generator)

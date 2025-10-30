@@ -75,7 +75,12 @@ const std::string& CGenerator::cFileGeneratedComment()
 
 std::string CGenerator::cRelHeaderFor(const GenElem& elem) const
 {
-    return genGetTopNamespace() + '/' + comms::genRelHeaderPathFor(elem, *this);
+    auto& schema = genSchemaOf(elem);
+    if (&schema != &genProtocolSchema()) {
+        return genGetTopNamespace() + '/' + comms::genRelHeaderPathFor(elem, *this);
+    }
+
+    return genGetTopNamespace() + '/' + m_namesPrefix + '/' + comms::genRelHeaderPathFor(elem, *this, false);
 }
 
 std::string CGenerator::cAbsHeaderFor(const GenElem& elem) const
@@ -85,7 +90,12 @@ std::string CGenerator::cAbsHeaderFor(const GenElem& elem) const
 
 std::string CGenerator::cRelSourceFor(const GenElem& elem) const
 {
-    return genGetTopNamespace() + '/' + comms::genRelSourcePathFor(elem, *this);
+    auto& schema = genSchemaOf(elem);
+    if (&schema != &genProtocolSchema()) {
+        return genGetTopNamespace() + '/' + comms::genRelSourcePathFor(elem, *this);
+    }
+
+    return genGetTopNamespace() + '/' + m_namesPrefix + '/' + comms::genRelSourcePathFor(elem, *this, false);
 }
 
 std::string CGenerator::cAbsSourceFor(const GenElem& elem) const
@@ -95,7 +105,13 @@ std::string CGenerator::cAbsSourceFor(const GenElem& elem) const
 
 std::string CGenerator::cRelCommsHeaderFor(const GenElem& elem) const
 {
-    auto scope = comms::genScopeFor(elem, *this) + strings::genCommsNameSuffixStr();
+    auto& schema = genSchemaOf(elem);
+    if (&schema != &genProtocolSchema()) {
+        auto scope = comms::genScopeFor(elem, *this) + strings::genCommsNameSuffixStr();
+        return genGetTopNamespace() + '/' + util::genScopeToRelPath(scope) + strings::genCppHeaderSuffixStr();
+    }
+
+    auto scope = m_namesPrefix + "::" + comms::genScopeFor(elem, *this, false) + strings::genCommsNameSuffixStr();
     return genGetTopNamespace() + '/' + util::genScopeToRelPath(scope) + strings::genCppHeaderSuffixStr();
 }
 
@@ -106,7 +122,12 @@ std::string CGenerator::cAbsCommsHeaderFor(const GenElem& elem) const
 
 std::string CGenerator::cRelHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const
 {
-    return genGetTopNamespace() + '/' + comms::genRelHeaderForNamespaceMember(name, *this, parent);
+    auto& schema = genSchemaOf(parent);
+    if (&schema != &genProtocolSchema()) {
+        return genGetTopNamespace() + '/' + comms::genRelHeaderForNamespaceMember(name, *this, parent);
+    }
+
+    return genGetTopNamespace() + '/' + m_namesPrefix + '/' + comms::genRelHeaderForNamespaceMember(name, *this, parent, false);
 }
 
 std::string CGenerator::cAbsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const
@@ -116,7 +137,12 @@ std::string CGenerator::cAbsHeaderForNamespaceMember(const std::string& name, co
 
 std::string CGenerator::cRelCommsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const
 {
-    return genGetTopNamespace() + '/' + comms::genRelHeaderForNamespaceMember(name + strings::genCommsNameSuffixStr(), *this, parent);
+    auto& schema = genSchemaOf(parent);
+    if (&schema != &genProtocolSchema()) {
+        return genGetTopNamespace() + '/' + comms::genRelHeaderForNamespaceMember(name, *this, parent);
+    }
+
+    return genGetTopNamespace() + '/' + m_namesPrefix + '/' + comms::genRelHeaderForNamespaceMember(name + strings::genCommsNameSuffixStr(), *this, parent, false);
 }
 
 std::string CGenerator::cAbsCommsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const
@@ -126,7 +152,12 @@ std::string CGenerator::cAbsCommsHeaderForNamespaceMember(const std::string& nam
 
 std::string CGenerator::cRelSourceForNamespaceMember(const std::string& name, const CNamespace& parent) const
 {
-    return genGetTopNamespace() + '/' + comms::genRelSourceForNamespaceMember(name, *this, parent);
+    auto& schema = genSchemaOf(parent);
+    if (&schema != &genProtocolSchema()) {
+        return genGetTopNamespace() + '/' + comms::genRelSourceForNamespaceMember(name, *this, parent);
+    }
+
+    return genGetTopNamespace() + '/' + m_namesPrefix + '/' + comms::genRelSourceForNamespaceMember(name, *this, parent, false);
 }
 
 std::string CGenerator::cAbsSourceForNamespaceMember(const std::string& name, const CNamespace& parent) const
@@ -136,7 +167,12 @@ std::string CGenerator::cAbsSourceForNamespaceMember(const std::string& name, co
 
 std::string CGenerator::cRelHeaderForInput(const std::string& name, const CNamespace& parent) const
 {
-    return genGetTopNamespace() + '/' + comms::genRelHeaderForInput(name, *this, parent);
+    auto& schema = genSchemaOf(parent);
+    if (&schema != &genProtocolSchema()) {
+        return genGetTopNamespace() + '/' + comms::genRelSourceForNamespaceMember(name, *this, parent);
+    }
+
+    return genGetTopNamespace() + '/' + m_namesPrefix + '/' + comms::genRelHeaderForInput(name, *this, parent, false);
 }
 
 std::string CGenerator::cAbsHeaderForInput(const std::string& name, const CNamespace& parent) const
@@ -148,7 +184,7 @@ std::string CGenerator::cRelRootHeaderFor(const std::string& name) const
 {
     return
         genGetTopNamespace() + '/' +
-        genProtocolSchema().genMainNamespace() + '/' +
+        m_namesPrefix + '/' +
         name + strings::genCppHeaderSuffixStr();
 }
 
@@ -161,7 +197,7 @@ std::string CGenerator::cRelRootSourceFor(const std::string& name) const
 {
     return
         genGetTopNamespace() + '/' +
-        genProtocolSchema().genMainNamespace() + '/' +
+        m_namesPrefix + '/' +
         name + strings::genCppSourceSuffixStr();
 }
 
@@ -182,7 +218,17 @@ std::string CGenerator::cInputAbsSourceFor(const GenElem& elem) const
 
 std::string CGenerator::cNameFor(const GenElem& elem) const
 {
-    return cScopeToName(comms::genScopeFor(elem, *this));
+    auto& schema = genSchemaOf(elem);
+    if (&schema != &genProtocolSchema()) {
+        return cScopeToName(comms::genScopeFor(elem, *this));
+    }
+    
+    return cScopeToName(m_namesPrefix + "::" + comms::genScopeFor(elem, *this, false));
+}
+
+const std::string& CGenerator::cNamesPrefix() const
+{
+    return m_namesPrefix;
 }
 
 std::string CGenerator::cScopeToName(const std::string& scope)
@@ -420,8 +466,8 @@ void CGenerator::cSetCommsInterfaceInternal(const std::string& value)
 
 bool CGenerator::cPrepareNamesPrefixInternal()
 {
-    if (!m_namesPrefix.empty()) {
-        genProtocolSchema().genSetMainNamespaceOverride(m_namesPrefix);
+    if (m_namesPrefix.empty()) {
+        m_namesPrefix = genProtocolSchema().genMainNamespace();
     }
     return true;
 }

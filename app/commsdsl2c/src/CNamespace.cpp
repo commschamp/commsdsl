@@ -143,7 +143,11 @@ bool CNamespace::cCodeGenerationAllowed() const
 std::string CNamespace::cPrefixName() const
 {
     auto& cGenerator = CGenerator::cCast(genGenerator());
-    return cGenerator.cNameFor(*this);
+    auto name = cGenerator.cNameFor(*this);
+    if ((!name.empty()) && (name.back() == '_')) {
+        name.resize(name.size() - 1U);
+    }
+    return name;
 }
 
 const CMsgId* CNamespace::cMsgId() const

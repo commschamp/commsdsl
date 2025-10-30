@@ -1,9 +1,9 @@
 #include "cxxtest/TestSuite.h"
 
-#include "cc_c/test27/Message.h"
-#include "cc_c/test27/frame/Frame.h"
-#include "cc_c/test27/message/Msg1.h"
-#include "cc_c/test27/message/Msg2.h"
+#include "cc_c/t27/Message.h"
+#include "cc_c/t27/frame/Frame.h"
+#include "cc_c/t27/message/Msg1.h"
+#include "cc_c/t27/message/Msg2.h"
 
 #include <cstdint>
 #include <cstddef>
@@ -17,34 +17,34 @@ public:
 private:
     struct Deleter
     {
-        void operator()(test27_frame_Frame* ptr)
+        void operator()(t27_frame_Frame* ptr)
         {
-            test27_frame_Frame_free(ptr);
+            t27_frame_Frame_free(ptr);
         }
 
-        void operator()(test27_message_Msg1* ptr)
+        void operator()(t27_message_Msg1* ptr)
         {
-            test27_message_Msg1_free(ptr);
+            t27_message_Msg1_free(ptr);
         }        
 
-        void operator()(test27_message_Msg2* ptr)
+        void operator()(t27_message_Msg2* ptr)
         {
-            test27_message_Msg2_free(ptr);
+            t27_message_Msg2_free(ptr);
         }           
     };
 
-    using FramePtr = std::unique_ptr<test27_frame_Frame, Deleter>;    
-    using Msg2Ptr = std::unique_ptr<test27_message_Msg2, Deleter>;
+    using FramePtr = std::unique_ptr<t27_frame_Frame, Deleter>;    
+    using Msg2Ptr = std::unique_ptr<t27_message_Msg2, Deleter>;
 };
 
 void TestSuite::test1()
 {
-    FramePtr frame(test27_frame_Frame_alloc());
-    Msg2Ptr msg2(test27_message_Msg2_alloc());
+    FramePtr frame(t27_frame_Frame_alloc());
+    Msg2Ptr msg2(t27_message_Msg2_alloc());
 
-    auto length = test27_frame_Frame_messageLength(frame.get(), test27_message_Msg2_toInterface(msg2.get()));
+    auto length = t27_frame_Frame_messageLength(frame.get(), t27_message_Msg2_toInterface(msg2.get()));
     std::vector<std::uint8_t> outBuf(length);
     auto bufLen = outBuf.size();
-    auto es = test27_frame_Frame_writeMessage(frame.get(), test27_message_Msg2_toInterface(msg2.get()), outBuf.data(), &bufLen);
-    TS_ASSERT_EQUALS(es, test27_ErrorStatus_NotSupported);
+    auto es = t27_frame_Frame_writeMessage(frame.get(), t27_message_Msg2_toInterface(msg2.get()), outBuf.data(), &bufLen);
+    TS_ASSERT_EQUALS(es, t27_ErrorStatus_NotSupported);
 }

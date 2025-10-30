@@ -536,24 +536,24 @@ std::string genRelHeaderForMsgId(const std::string& name, const GenGenerator& ge
     return genRelHeaderForNamespaceMember(name, generator, ns);
 }
 
-std::string genRelHeaderForNamespaceMember(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
+std::string genRelHeaderForNamespaceMember(const std::string& name, const GenGenerator& generator, const GenNamespace& ns, bool addMainNamespace)
 {
     std::vector<std::string> subElems;
     if (!ns.genName().empty()) {
         subElems.push_back(ns.genName());
     }
 
-    return genScopeForElement(name, generator, subElems, true, true, GenPathSep) + strings::genCppHeaderSuffixStr();
+    return genScopeForElement(name, generator, subElems, addMainNamespace, true, GenPathSep) + strings::genCppHeaderSuffixStr();
 }
 
-std::string genRelSourceForNamespaceMember(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
+std::string genRelSourceForNamespaceMember(const std::string& name, const GenGenerator& generator, const GenNamespace& ns, bool addMainNamespace)
 {
     std::vector<std::string> subElems;
     if (!ns.genName().empty()) {
         subElems.push_back(ns.genName());
     }
 
-    return genScopeForElement(name, generator, subElems, true, true, GenPathSep) + strings::genCppSourceSuffixStr();
+    return genScopeForElement(name, generator, subElems, addMainNamespace, true, GenPathSep) + strings::genCppSourceSuffixStr();
 }
 
 std::string genRelHeaderForLayer(const std::string& name, const GenGenerator& generator)
