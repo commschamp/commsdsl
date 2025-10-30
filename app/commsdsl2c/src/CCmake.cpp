@@ -88,6 +88,7 @@ bool CCmake::cWriteInternal() const
         "if (OPT_FIND_PROTOCOL)\n"
         "    find_package(${OPT_PROTOCOL_NAME} REQUIRED)\n"
         "endif ()\n\n"
+        "message (STATUS \"Compiling with C++ standard: ${CMAKE_CXX_STANDARD}\")\n\n"
         "if ((CMAKE_COMPILER_IS_GNUCC) OR (\"${CMAKE_CXX_COMPILER_ID}\" STREQUAL \"Clang\"))\n"
         "    set (extra_flags_list)\n"
         "    if (OPT_ENABLE_WARNINGS)\n"
