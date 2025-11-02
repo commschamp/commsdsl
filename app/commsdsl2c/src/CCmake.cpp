@@ -124,7 +124,7 @@ bool CCmake::cWriteInternal() const
         "    string(REPLACE \";\" \" \" extra_flags \"${extra_flags_list}\")\n"
         "    set (CMAKE_CXX_FLAGS \"${CMAKE_CXX_FLAGS} ${extra_flags}\")\n"        
         "elseif (MSVC)\n"
-        "    add_definitions(\"/wd4503\" \"-D_SCL_SECURE_NO_WARNINGS\")\n\n"
+        "    add_definitions(\"/wd4503\" \"-D_SCL_SECURE_NO_WARNINGS\" \"/Zc:__cplusplus\")\n\n"
         "    if (OPT_ENABLE_WARNINGS)\n"
         "        if (OPT_WARN_AS_ERR)\n"
         "            add_definitions(\"/WX\")\n"
