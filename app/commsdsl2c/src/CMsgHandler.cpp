@@ -302,7 +302,7 @@ std::string CMsgHandler::cHeaderFwdInternal() const
 std::string CMsgHandler::cCommsHeaderIncludesInternal() const
 {
     auto* cInterface = m_parent.cInterface();
-    assert(cInterface != nullptr);    
+    assert(cInterface != nullptr);
 
     util::GenStringsList includes {
         cRelHeader(),
@@ -313,7 +313,7 @@ std::string CMsgHandler::cCommsHeaderIncludesInternal() const
     auto allMessages = cMessagesListInternal();
     for (auto* m : allMessages) {
         includes.push_back(comms::genRelHeaderPathFor(*m, m_cGenerator));
-    }    
+    }
 
     comms::genPrepareIncludeStatement(includes);
     return util::genStrListToString(includes, "\n", "\n");
@@ -324,16 +324,15 @@ std::string CMsgHandler::cCommsHeaderFuncsInternal() const
     auto allMessages = cMessagesListInternal();
     util::GenStringsList funcs;
 
-
     auto* cInterface = m_parent.cInterface();
-    assert(cInterface != nullptr);    
+    assert(cInterface != nullptr);
 
     funcs.reserve(funcs.size() + 1U);
     for (auto* m : allMessages) {
 
         static const std::string Templ =
             "void handle(::#^#COMMS_SCOPE#$#<#^#INTERFACE_COMMS_NAME#$#, #^#OPTS#$#>& msg);"
-            ;        
+            ;
         util::GenReplacementMap repl = {
             {"INTERFACE_COMMS_NAME", cInterface->cCommsTypeName()},
             {"COMMS_SCOPE", ::comms::genScopeFor(*m, m_cGenerator)},

@@ -99,6 +99,11 @@ std::string CFrame::cCommsTypeName() const
     return cName() + strings::genCommsNameSuffixStr();
 }
 
+bool CFrame::cIsValidFrame() const
+{
+    return m_validFrame;
+}
+
 bool CFrame::genPrepareImpl()
 {
     if (!GenBase::genPrepareImpl()) {

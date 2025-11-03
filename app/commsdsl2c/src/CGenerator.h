@@ -72,9 +72,12 @@ public:
     std::string cAbsRootHeaderFor(const std::string& name) const;
     std::string cRelRootSourceFor(const std::string& name) const;
     std::string cAbsRootSourceFor(const std::string& name) const;
+    std::string cRelPathForDoc(const std::string& name) const;
+    std::string cAbsPathForDoc(const std::string& name) const;
 
     std::string cInputAbsHeaderFor(const GenElem& elem) const;
     std::string cInputAbsSourceFor(const GenElem& elem) const;
+    std::string cInputAbsPathForDoc(const std::string& name) const;
 
     std::string cNameFor(const GenElem& elem) const;
     const std::string& cNamesPrefix() const;

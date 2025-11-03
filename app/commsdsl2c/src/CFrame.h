@@ -52,6 +52,7 @@ public:
     std::string cCommsType(bool appendOptions = true) const;
     std::string cName() const;
     std::string cCommsTypeName() const;
+    bool cIsValidFrame() const;
 
 protected:
     virtual bool genPrepareImpl() override;

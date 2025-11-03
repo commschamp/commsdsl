@@ -25,15 +25,15 @@ private:
         void operator()(t27_message_Msg1* ptr)
         {
             t27_message_Msg1_free(ptr);
-        }        
+        }
 
         void operator()(t27_message_Msg2* ptr)
         {
             t27_message_Msg2_free(ptr);
-        }           
+        }
     };
 
-    using FramePtr = std::unique_ptr<t27_frame_Frame, Deleter>;    
+    using FramePtr = std::unique_ptr<t27_frame_Frame, Deleter>;
     using Msg2Ptr = std::unique_ptr<t27_message_Msg2, Deleter>;
 };
 

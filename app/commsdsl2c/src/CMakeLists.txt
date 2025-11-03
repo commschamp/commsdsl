@@ -6,6 +6,7 @@ set (
     CCmake.cpp
     CCustomLayer.cpp
     CDataField.cpp
+    CDoxygen.cpp
     CEnumField.cpp
     CErrorStatus.cpp
     CFloatField.cpp

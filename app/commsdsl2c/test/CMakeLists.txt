@@ -48,6 +48,8 @@ set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2comms/test)
 set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
 file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
 
+find_package (Doxygen)
+
 foreach (name ${tests})
     set (this_test_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}")
 
@@ -105,8 +107,8 @@ foreach (name ${tests})
     set (lib_name lib${name}_c.a)
     if (WIN32)
         set (lib_name ${name}_c.lib)
-    endif ()    
-    
+    endif ()
+
     ExternalProject_Add(
         ${build_tgt}
         BUILD_ALWAYS TRUE
@@ -122,7 +124,7 @@ foreach (name ${tests})
         CMAKE_ARGS
             -DCMAKE_C_COMPILER=${COMMSDSL_TESTS_C_COMPILER} -DCMAKE_CXX_COMPILER=${COMMSDSL_TESTS_CXX_COMPILER}
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_EXE_LINKER_FLAGS=${CMAKE_EXE_LINKER_FLAGS}
             -DCMAKE_INSTALL_PREFIX=${install_dir}
             -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
@@ -134,17 +136,27 @@ foreach (name ${tests})
             -DOPT_CCACHE_EXECUTABLE=${COMMSDSL_CCACHE_EXECUTABLE}
 
         # BUILD_BYPRODUCTS are needed by Ninja
-        BUILD_BYPRODUCTS <INSTALL_DIR>/lib/${lib_name}            
+        BUILD_BYPRODUCTS <INSTALL_DIR>/lib/${lib_name}
     )
+
+    if (COMMSDSL_TEST_BUILD_DOC AND DOXYGEN_FOUND)
+        ExternalProject_Add_Step(
+            ${build_tgt}
+            "doc"
+            COMMAND ${CMAKE_COMMAND} --build ${build_dir} --target doc_${name}_c
+            DEPENDEES "build"
+            DEPENDERS "install"
+        )
+    endif ()
 
     add_dependencies(${APP_NAME}.all_tests ${build_tgt})
 
     if (NOT EXISTS ${this_test_dir}/${name}Test.th)
         continue()
-    endif ()    
+    endif ()
 
     execute_process (
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${install_dir}/include")    
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${install_dir}/include")
 
     add_library(${name}_c STATIC IMPORTED GLOBAL)
     add_dependencies(${name}_c ${build_tgt})
@@ -180,5 +192,5 @@ foreach (name ${tests})
             $<$<CXX_COMPILER_ID:Clang>:${COMMSDSL_SANITIZER_OPTS}>
         )
     endif ()
-    
+
 endforeach ()

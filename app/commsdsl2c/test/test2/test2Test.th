@@ -28,7 +28,7 @@ private:
         }
     };
 
-    using FramePtr = std::unique_ptr<test2_frame_Frame, Deleter>;    
+    using FramePtr = std::unique_ptr<test2_frame_Frame, Deleter>;
     using IntefacePtr = std::unique_ptr<test2_Interface, Deleter>;
 };
 
@@ -43,7 +43,7 @@ void TestSuite::test1()
     test2_message_Msg1Fields_F1_setValue(f1, 0x02030405);
 
     const std::uint8_t ExpBuf[] = {0x1, 0x2, 0x3, 0x4, 0x5};
-    const std::size_t ExpBufSize = std::extent<decltype(ExpBuf)>::value; 
+    const std::size_t ExpBufSize = std::extent<decltype(ExpBuf)>::value;
 
     auto length = test2_frame_Frame_messageLength(frame.get(), iFace.get());
 
@@ -52,5 +52,5 @@ void TestSuite::test1()
     auto es = test2_frame_Frame_writeMessage(frame.get(), iFace.get(), outBuf.data(), &bufLen);
     TS_ASSERT_EQUALS(es, test2_ErrorStatus_Success);
     TS_ASSERT_EQUALS(bufLen, ExpBufSize);
-    TS_ASSERT(std::equal(std::begin(outBuf), std::begin(outBuf) + bufLen, ExpBuf));    
+    TS_ASSERT(std::equal(std::begin(outBuf), std::begin(outBuf) + bufLen, ExpBuf));
 }

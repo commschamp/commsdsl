@@ -246,7 +246,6 @@ bool CInterface::cWriteCommsHeaderInternal() const
         "        comms::option::app::RefreshInterface,\n"
         "        comms::option::app::NameInterface,\n"
         "        comms::option::app::Handler<#^#HANDLER#$#>\n"
-        // TODO: handling
         "    >\n"
         "{\n"
         "};\n\n"
@@ -387,9 +386,9 @@ std::string CInterface::cHeaderCodeInternal() const
         "bool #^#NAME#$#_valid(const #^#NAME#$#* msg);\n"
         "\n"
         "/// @brief Dispatch message to appropriate handling function.\n"
-        "/// @param[in] Handle to the message object.\n"
-        "/// @param[in] Handle of the handler object.\n"
-        "/// @param[in] Pointer to user data to be passed to the handling function.\n"
+        "/// @param[in] msg Handle to the message object.\n"
+        "/// @param[in] handler Handle of the handler object.\n"
+        "/// @param[in] userData Pointer to user data to be passed to the handling function.\n"
         "void #^#NAME#$#_dispatch(#^#NAME#$#* msg, #^#HANDLER#$#* handler, void* userData);\n"
         ;
 

@@ -101,7 +101,7 @@ std::string CIntField::cTypeInternal() const
 std::string CIntField::cHeaderValueCodeInternal() const
 {
     static const std::string Templ =
-        "/// @breif Inner value storage type of @ref #^#NAME#$#.\n"
+        "/// @brief Inner value storage type of @ref #^#NAME#$#.\n"
         "typedef #^#TYPE#$# #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$#;\n"
         "\n"
         "#^#FUNCS#$#\n"

@@ -397,7 +397,7 @@ public:
 
         if (!genPrepareDefaultInterfaceInternal()) {
             return false;
-        }        
+        }
 
         for (auto& s : m_schemas) {
             m_currentSchema = s.get();

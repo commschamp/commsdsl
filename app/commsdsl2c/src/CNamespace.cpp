@@ -161,7 +161,7 @@ const CMsgId* CNamespace::cMsgId() const
     auto* iFaceNs = cCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
     if (iFaceNs != this) {
         return iFaceNs->cMsgId();
-    }    
+    }
 
     return &m_msgId;
 }
@@ -206,7 +206,7 @@ bool CNamespace::genWriteImpl() const
     auto* iFaceNs = cCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
     if (iFaceNs != this) {
         return true;
-    }    
+    }
 
     return
         m_msgId.cWrite() &&

@@ -20,6 +20,7 @@
 #include "CBundleField.h"
 #include "CCustomLayer.h"
 #include "CDataField.h"
+#include "CDoxygen.h"
 #include "CCmake.h"
 #include "CEnumField.h"
 #include "CErrorStatus.h"
@@ -206,6 +207,16 @@ std::string CGenerator::cAbsRootSourceFor(const std::string& name) const
     return genGetOutputDir() + '/' + cRelRootSourceFor(name);
 }
 
+std::string CGenerator::cRelPathForDoc(const std::string& name) const
+{
+    return strings::genDocDirStr() + '/' + name;
+}
+
+std::string CGenerator::cAbsPathForDoc(const std::string& name) const
+{
+    return genGetOutputDir() + '/' + cRelPathForDoc(name);
+}
+
 std::string CGenerator::cInputAbsHeaderFor(const GenElem& elem) const
 {
     return genGetCodeDir() + '/' + strings::genIncludeDirStr() + '/' + cRelHeaderFor(elem);
@@ -216,13 +227,18 @@ std::string CGenerator::cInputAbsSourceFor(const GenElem& elem) const
     return genGetCodeDir() + '/' + cRelSourceFor(elem);
 }
 
+std::string CGenerator::cInputAbsPathForDoc(const std::string& name) const
+{
+    return genGetCodeDir() + '/' + cRelPathForDoc(name);
+}
+
 std::string CGenerator::cNameFor(const GenElem& elem) const
 {
     auto& schema = genSchemaOf(elem);
     if (&schema != &genProtocolSchema()) {
         return cScopeToName(comms::genScopeFor(elem, *this));
     }
-    
+
     return cScopeToName(m_namesPrefix + "::" + comms::genScopeFor(elem, *this, false));
 }
 
@@ -301,6 +317,7 @@ bool CGenerator::genWriteImpl()
         CProtocolOptions::cWrite(*this) &&
         CErrorStatus::cWrite(*this) &&
         CCmake::cWrite(*this) &&
+        CDoxygen::cWrite(*this) &&
         cWriteExtraFilesInternal();
 }
 

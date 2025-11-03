@@ -31,13 +31,12 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2c
 {
 
-namespace 
+namespace
 {
 
 const std::string CName("ErrorStatus");
 
-} // namespace 
-    
+} // namespace
 
 std::string CErrorStatus::cName(const CGenerator& generator)
 {

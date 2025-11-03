@@ -31,7 +31,7 @@ private:
         }
     };
 
-    using FramePtr = std::unique_ptr<test1_frame_Frame, Deleter>;    
+    using FramePtr = std::unique_ptr<test1_frame_Frame, Deleter>;
     using Msg1Ptr = std::unique_ptr<test1_message_Msg1, Deleter>;
 
     struct Handler
@@ -57,7 +57,7 @@ private:
             static_cast<void>(msg);
             ++(asHandler(userData)->m_interfaceCount);
         }
-        
+
     private:
         static Handler* asHandler(void* userData)
         {
@@ -79,8 +79,8 @@ private:
 void TestSuite::test1()
 {
     const std::uint8_t Buf[] = {1, 0x1, 0x2, 0x3, 0x4};
-    const std::size_t BufSize = std::extent<decltype(Buf)>::value; 
-    
+    const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
     FramePtr frame(test1_frame_Frame_alloc());
 
     auto handler = prepareMsgHandlerInternal();
@@ -96,8 +96,8 @@ void TestSuite::test1()
 void TestSuite::test2()
 {
     const std::uint8_t Buf[] = {1, 0x1, 0x2, 0x3, 0x4, 0x5};
-    const std::size_t BufSize = std::extent<decltype(Buf)>::value; 
-    
+    const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
     FramePtr frame(test1_frame_Frame_alloc());
 
     auto handler = prepareMsgHandlerInternal();
@@ -133,7 +133,7 @@ void TestSuite::test3()
     auto length = test1_frame_Frame_messageLength(frame.get(), test1_message_Msg1_toInterface(msg1.get()));
 
     const std::uint8_t ExpBuf[] = {1, 0x1, 0x2, 0x3, 0x4};
-    const std::size_t ExpBufSize = std::extent<decltype(ExpBuf)>::value; 
+    const std::size_t ExpBufSize = std::extent<decltype(ExpBuf)>::value;
 
     std::vector<std::uint8_t> outBuf(length + 10);
     auto bufLen = outBuf.size();
