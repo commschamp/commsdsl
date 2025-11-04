@@ -76,6 +76,8 @@ public:
     void genForceSchemaVersion(unsigned value);
     void genSetMinRemoteVersion(unsigned value);
     unsigned genGetMinRemoteVersion() const;
+    const std::string& genGetCodeVersion() const;
+    void genSetCodeVersion(const std::string& value);
     void genSetNamespaceOverride(const std::string& value);
 
     void genSetTopNamespace(const std::string& value);

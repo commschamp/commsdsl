@@ -44,6 +44,7 @@
 #include "CSyncLayer.h"
 #include "CValueLayer.h"
 #include "CVariantField.h"
+#include "CVersion.h"
 
 #include "commsdsl/version.h"
 #include "commsdsl/gen/comms.h"
@@ -232,6 +233,11 @@ std::string CGenerator::cInputAbsPathForDoc(const std::string& name) const
     return genGetCodeDir() + '/' + cRelPathForDoc(name);
 }
 
+std::string CGenerator::cInputAbsRootHeaderFor(const std::string& name) const
+{
+    return genGetCodeDir() + '/' + cRelRootHeaderFor(name);
+}
+
 std::string CGenerator::cNameFor(const GenElem& elem) const
 {
     auto& schema = genSchemaOf(elem);
@@ -318,6 +324,7 @@ bool CGenerator::genWriteImpl()
         CErrorStatus::cWrite(*this) &&
         CCmake::cWrite(*this) &&
         CDoxygen::cWrite(*this) &&
+        CVersion::cWrite(*this) &&
         cWriteExtraFilesInternal();
 }
 

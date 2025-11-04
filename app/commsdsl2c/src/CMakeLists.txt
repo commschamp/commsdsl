@@ -35,6 +35,7 @@ set (
     CSyncLayer.cpp
     CValueLayer.cpp
     CVariantField.cpp
+    CVersion.cpp
     main.cpp
 )
 

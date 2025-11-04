@@ -78,6 +78,7 @@ public:
     std::string cInputAbsHeaderFor(const GenElem& elem) const;
     std::string cInputAbsSourceFor(const GenElem& elem) const;
     std::string cInputAbsPathForDoc(const std::string& name) const;
+    std::string cInputAbsRootHeaderFor(const std::string& name) const;
 
     std::string cNameFor(const GenElem& elem) const;
     const std::string& cNamesPrefix() const;

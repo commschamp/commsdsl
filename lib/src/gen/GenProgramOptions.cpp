@@ -45,6 +45,8 @@ const std::string GenFullNamespaceStr("n," + GenNamespaceStr);
 const std::string GenMinRemoteVerStr("min-remote-version");
 const std::string GenFullMinRemoteVerStr("m," + GenMinRemoteVerStr);
 const std::string GenForceVerStr("force-schema-version");
+const std::string GenCodeVerStr("code-version");
+const std::string GenFullCodeVerStr("V," + GenCodeVerStr);
 
 }
 
@@ -363,6 +365,16 @@ GenProgramOptions& GenProgramOptions::genAddCommonOptions()
             ;
 }
 
+GenProgramOptions& GenProgramOptions::genAddCodeVersionOptions()
+{
+    return
+        (*this)
+            (GenFullCodeVerStr,
+                "Specify semantic version of the generated protocol code using <major>.<minor>.<patch> "
+                "format to make this information available in the generated code", true)
+        ;
+}
+
 GenProgramOptions& GenProgramOptions::genRemoveMinRemoteVersionOptions()
 {
     m_impl->genRemove(GenFullMinRemoteVerStr);
@@ -511,6 +523,11 @@ bool GenProgramOptions::genHasForcedSchemaVersion() const
 unsigned GenProgramOptions::genGetForcedSchemaVersion() const
 {
     return commsdsl::gen::util::genStrToUnsigned(genValue(GenForceVerStr));
+}
+
+const std::string& GenProgramOptions::genGetCodeVersion() const
+{
+    return genValue(GenCodeVerStr);
 }
 
 } // namespace gen

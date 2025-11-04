@@ -36,7 +36,6 @@ public:
         return static_cast<const CommsProgramOptions&>(options);
     }
 
-    const std::string& commsGetProtocolVersion() const;
     const std::string& commsGetCustomizationLevel() const;
     bool commsVersionIndependentCodeRequested() const;
     std::vector<std::string> commsGetExtraInputBundles() const;

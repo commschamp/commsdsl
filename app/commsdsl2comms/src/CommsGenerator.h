@@ -54,9 +54,6 @@ public:
     CommsCustomizationLevel commsGetCustomizationLevel() const;
     void commsSetCustomizationLevel(const std::string& opt);
 
-    const std::string& commsGetProtocolVersion() const;
-    void commsSetProtocolVersion(const std::string& value);
-
     bool commsGetMainNamespaceInOptionsForced() const;
     void commsSetMainNamespaceInOptionsForced(bool value);
     bool commsHasMainNamespaceInOptions() const;
@@ -106,7 +103,6 @@ private:
 
     static const CommsCustomizationLevel DefaultCustomizationLevel = CommsCustomizationLevel::Limited;
     CommsCustomizationLevel m_customizationLevel = DefaultCustomizationLevel;
-    std::string m_protocolVersion;
     std::vector<std::string> m_extraInputBundles;
     CommsExtraMessageBundlesList m_commsExtraMessageBundles;
     bool m_mainNamespaceInOptionsForced = false;

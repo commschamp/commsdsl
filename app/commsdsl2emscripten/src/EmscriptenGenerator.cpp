@@ -269,9 +269,9 @@ void EmscriptenGenerator::emscriptenSetForcedInterface(const std::string& value)
     m_forcedInterface = value;
 }
 
-void EmscriptenGenerator::emscriptenSetHasProtocolVersion(bool value)
+void EmscriptenGenerator::emscriptenSetHasCodeVersion(bool value)
 {
-    m_hasProtocolVersion = value;
+    m_hasCodeVersion = value;
 }
 
 void EmscriptenGenerator::emscriptenSetMessagesListFile(const std::string& value)
@@ -284,9 +284,9 @@ void EmscriptenGenerator::emscriptenSetForcedPlatform(const std::string& value)
     m_forcedPlatform = value;
 }
 
-bool EmscriptenGenerator::emscriptenHasProtocolVersion() const
+bool EmscriptenGenerator::emscriptenHasCodeVersion() const
 {
-    return m_hasProtocolVersion;
+    return m_hasCodeVersion;
 }
 
 const EmscriptenInterface* EmscriptenGenerator::emscriptenMainInterface() const
@@ -444,7 +444,7 @@ EmscriptenGenerator::OptsProcessResult EmscriptenGenerator::genProcessOptionsImp
     }
 
     emscriptenSetMainNamespaceInNamesForced(opts.emscriptenIsMainNamespaceInNamesForced());
-    emscriptenSetHasProtocolVersion(opts.emscriptenHasProtocolVersion());
+    emscriptenSetHasCodeVersion(opts.emscriptenHasCodeVersion());
     emscriptenSetMessagesListFile(opts.emscriptenMessagesListFile());
     emscriptenSetForcedPlatform(opts.emscriptenForcedPlatform());
     genSetTopNamespace("cc_emscripten");

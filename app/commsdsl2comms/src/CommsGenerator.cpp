@@ -105,16 +105,6 @@ void CommsGenerator::commsSetCustomizationLevel(const std::string& value)
     m_customizationLevel = static_cast<CommsCustomizationLevel>(std::distance(std::begin(Map), iter));
 }
 
-const std::string& CommsGenerator::commsGetProtocolVersion() const
-{
-    return m_protocolVersion;
-}
-
-void CommsGenerator::commsSetProtocolVersion(const std::string& value)
-{
-    m_protocolVersion = value;
-}
-
 bool CommsGenerator::commsGetMainNamespaceInOptionsForced() const
 {
     return m_mainNamespaceInOptionsForced;
@@ -306,7 +296,6 @@ CommsGenerator::OptsProcessResult CommsGenerator::genProcessOptionsImpl(const Ge
     auto& opts = CommsProgramOptions::commsCast(options);
     genSetVersionIndependentCodeForced(opts.commsVersionIndependentCodeRequested());
     commsSetCustomizationLevel(opts.commsGetCustomizationLevel());
-    commsSetProtocolVersion(opts.commsGetProtocolVersion());
     commsSetExtraInputBundles(opts.commsGetExtraInputBundles());
     commsSetMainNamespaceInOptionsForced(opts.commsIsMainNamespaceInOptionsForced());
 

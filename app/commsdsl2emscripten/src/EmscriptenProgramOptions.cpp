@@ -31,7 +31,7 @@ namespace
 
 const std::string EmscriptenForceMainNamespaceInNamesStr("force-main-ns-in-names");
 const std::string EmscriptenForceInterfaceStr("force-interface");
-const std::string EmscriptenHasProtocolStr("has-protocol-version");
+const std::string EmscriptenHasCodeVerStr("has-code-version");
 const std::string EmscriptenMessagesListStr("messages-list");
 const std::string EmscriptenForcePlatformStr("force-platform");
 
@@ -42,7 +42,7 @@ EmscriptenProgramOptions::EmscriptenProgramOptions()
     genAddCommonOptions()
     (EmscriptenForceMainNamespaceInNamesStr, "Force having main namespace in generated class names.")
     (EmscriptenForceInterfaceStr, "Force usage of the provided interface (CommsDSL reference string).", true)
-    (EmscriptenHasProtocolStr, "The protocol definition (produced by commsdsl2comms) contains protocol semantic version.")
+    (EmscriptenHasCodeVerStr, "The protocol definition (produced by commsdsl2comms) contains protocol semantic version.")
     (EmscriptenMessagesListStr,
         "Path to the file containing list of messages that need to be supported. "
         "In case the message resides in a namespace its name must be "
@@ -68,9 +68,9 @@ const std::string& EmscriptenProgramOptions::emscriptenGetForcedInterface() cons
     return genValue(EmscriptenForceInterfaceStr);
 }
 
-bool EmscriptenProgramOptions::emscriptenHasProtocolVersion() const
+bool EmscriptenProgramOptions::emscriptenHasCodeVersion() const
 {
-    return genIsOptUsed(EmscriptenHasProtocolStr);
+    return genIsOptUsed(EmscriptenHasCodeVerStr);
 }
 
 const std::string& EmscriptenProgramOptions::emscriptenMessagesListFile() const

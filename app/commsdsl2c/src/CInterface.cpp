@@ -497,7 +497,6 @@ std::string CInterface::cSourceCodeInternal() const
         "    #^#COMMS_HANDLER#$# commsHandler(*handler, userData);\n"
         "    fromInterfaceHandle(msg)->dispatch(commsHandler);\n"
         "}\n"
-        // TODO: dispatch code
         ;
 
     auto* msgId = cMsgId();

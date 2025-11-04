@@ -87,11 +87,11 @@ public:
 
     void emscriptenSetMainNamespaceInNamesForced(bool value);
     void emscriptenSetForcedInterface(const std::string& value);
-    void emscriptenSetHasProtocolVersion(bool value);
+    void emscriptenSetHasCodeVersion(bool value);
     void emscriptenSetMessagesListFile(const std::string& value);
     void emscriptenSetForcedPlatform(const std::string& value);
 
-    bool emscriptenHasProtocolVersion() const;
+    bool emscriptenHasCodeVersion() const;
 
     const EmscriptenInterface* emscriptenMainInterface() const;
     EmscriptenInterface* emscriptenMainInterface();
@@ -141,7 +141,7 @@ private:
     std::string m_messagesListFile;
     std::string m_forcedPlatform;
     bool m_mainNamespaceInNamesForced = false;
-    bool m_hasProtocolVersion = false;
+    bool m_hasCodeVersion = false;
 };
 
 } // namespace commsdsl2emscripten

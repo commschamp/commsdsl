@@ -70,11 +70,11 @@ public:
 
     void swigSetMainNamespaceInNamesForced(bool value);
     void swigSetForcedInterface(const std::string& value);
-    void swigSetHasProtocolVersion(bool value);
+    void swigSetHasCodeVersion(bool value);
     void swigSetMessagesListFile(const std::string& value);
     void swigSetForcedPlatform(const std::string& value);
 
-    bool swigHasProtocolVersion() const;
+    bool swigHasCodeVersion() const;
 
     const SwigInterface* swigMainInterface() const;
     SwigInterface* swigMainInterface();
@@ -124,7 +124,7 @@ private:
     std::string m_messagesListFile;
     std::string m_forcedPlatform;
     bool m_mainNamespaceInNamesForced = false;
-    bool m_hasProtocolVersion = false;
+    bool m_hasCodeVersion = false;
 };
 
 } // namespace commsdsl2swig

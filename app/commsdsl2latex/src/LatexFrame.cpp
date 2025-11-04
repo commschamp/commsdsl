@@ -56,12 +56,6 @@ std::string LatexFrame::latexTitle() const
     return "Frame \"" + name + "\"";
 }
 
-bool LatexFrame::genPrepareImpl()
-{
-    // TODO: layers
-    return true;
-}
-
 bool LatexFrame::genWriteImpl() const
 {
     auto relFilePath = latexRelFilePath();

@@ -116,7 +116,7 @@ std::string EmscriptenVersion::emscriptenSpecConstantsInternal() const
 
 std::string EmscriptenVersion::emscriptenProtConstantsInternal() const
 {
-    if (!m_emscriptenGenerator.emscriptenHasProtocolVersion()) {
+    if (!m_emscriptenGenerator.emscriptenHasCodeVersion()) {
         return strings::genEmptyString();
     }
 

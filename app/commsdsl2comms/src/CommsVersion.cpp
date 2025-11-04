@@ -114,7 +114,7 @@ bool CommsVersion::commsWriteInternal() const
 
 std::string CommsVersion::commsProtVersionDefineInternal() const
 {
-    auto& protVersion = m_commsGenerator.commsGetProtocolVersion();
+    auto& protVersion = m_commsGenerator.genGetCodeVersion();
     if (protVersion.empty()) {
         return strings::genEmptyString();
     }
@@ -146,7 +146,7 @@ std::string CommsVersion::commsProtVersionDefineInternal() const
 
 std::string CommsVersion::commsProtVersionFuncsInternal() const
 {
-    auto& protVersion = m_commsGenerator.commsGetProtocolVersion();
+    auto& protVersion = m_commsGenerator.genGetCodeVersion();
     if (protVersion.empty()) {
         return strings::genEmptyString();
     }

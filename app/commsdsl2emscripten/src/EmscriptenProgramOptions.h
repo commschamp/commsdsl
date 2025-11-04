@@ -39,7 +39,7 @@ public:
     bool emscriptenIsMainNamespaceInNamesForced() const;
     bool emscriptenHasForcedInterface() const;
     const std::string& emscriptenGetForcedInterface() const;
-    bool emscriptenHasProtocolVersion() const;
+    bool emscriptenHasCodeVersion() const;
     const std::string& emscriptenMessagesListFile() const;
     const std::string& emscriptenForcedPlatform() const;
 };

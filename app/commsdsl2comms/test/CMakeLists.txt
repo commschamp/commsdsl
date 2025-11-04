@@ -17,10 +17,16 @@ function (test_func name)
         set (extra_bundle_param --extra-messages-bundle "${extra_bundle_param_value}")
     endif()
 
+    set (extra_params)
+    if (EXISTS "${test_dir}/commsdsl2comms.params")
+        file (READ "${test_dir}/commsdsl2comms.params" extra_params_str)
+        string (REPLACE " " ";" extra_params "${extra_params_str}")
+    endif ()
+
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
     add_custom_target(${output_tgt} ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
-        COMMAND $<TARGET_FILE:${APP_NAME}> -d -s --warn-as-err -o ${output_dir}.tmp ${code_input_param} ${extra_bundle_param} ${schema_files}
+        COMMAND $<TARGET_FILE:${APP_NAME}> -d -s --warn-as-err -o ${output_dir}.tmp ${code_input_param} ${extra_bundle_param} ${extra_params} ${schema_files}
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="doc\;include"
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"

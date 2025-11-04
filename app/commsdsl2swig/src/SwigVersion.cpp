@@ -90,7 +90,7 @@ void SwigVersion::swigAddDef(SwigGenerator& generator, GenStringsList& list)
         };
         list.push_back(util::genProcessTemplate(Templ, repl));
 
-        if (generator.genIsCurrentProtocolSchema() && generator.swigHasProtocolVersion()) {
+        if (generator.genIsCurrentProtocolSchema() && generator.swigHasCodeVersion()) {
             repl["NAME"] = "MAJOR_VERSION";
             list.push_back(util::genProcessTemplate(Templ, repl));
 
@@ -129,7 +129,7 @@ void SwigVersion::swigAddCode(SwigGenerator& generator, GenStringsList& list)
 
         list.push_back(util::genProcessTemplate(Templ, specRepl));
 
-        if ((!generator.genIsCurrentProtocolSchema()) || (!generator.swigHasProtocolVersion())) {
+        if ((!generator.genIsCurrentProtocolSchema()) || (!generator.swigHasCodeVersion())) {
             continue;
         }
 
@@ -187,7 +187,7 @@ bool SwigVersion::swigWriteInternal() const
         {"SPEC_VERSION", m_swigGenerator.swigScopeNameForRoot(SpecVersionFunc)}
     };
 
-    if (m_swigGenerator.genIsCurrentProtocolSchema() && m_swigGenerator.swigHasProtocolVersion()) {
+    if (m_swigGenerator.genIsCurrentProtocolSchema() && m_swigGenerator.swigHasCodeVersion()) {
         const std::string ProtTempl =
             "unsigned #^#MAJOR#$#();\n"
             "unsigned #^#MINOR#$#();\n"

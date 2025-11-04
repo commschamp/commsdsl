@@ -205,8 +205,6 @@ bool CCmake::cWriteInternal() const
     util::GenStringsList sources = {
         CErrorStatus::cRelSourcePath(m_cGenerator)
     };
-    // TODO:
-    // CVersion::cAddSourceFiles(m_cGenerator, sources);
 
     for (auto& sPtr : m_cGenerator.genSchemas()) {
         auto* s = CSchema::cCast(sPtr.get());

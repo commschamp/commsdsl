@@ -152,6 +152,16 @@ public:
         return m_minRemoteVersion;
     }
 
+    const std::string& genGetCodeVersion() const
+    {
+        return m_codeVersion;
+    }
+
+    void genSetCodeVersion(const std::string& value)
+    {
+        m_codeVersion = value;
+    }
+
     GenInterfacesAccessList genGetAllInterfaces() const
     {
         return genCurrentSchema().genGetAllInterfaces();
@@ -539,6 +549,7 @@ private:
     std::string m_topNamespace;
     int m_forcedSchemaVersion = -1;
     unsigned m_minRemoteVersion = 0U;
+    std::string m_codeVersion;
     std::string m_outputDir;
     std::string m_codeDir;
     mutable std::vector<std::string> m_createdDirectories;
@@ -595,6 +606,16 @@ void GenGenerator::genSetMinRemoteVersion(unsigned value)
 unsigned GenGenerator::genGetMinRemoteVersion() const
 {
     return m_impl->genGetMinRemoteVersion();
+}
+
+const std::string& GenGenerator::genGetCodeVersion() const
+{
+    return m_impl->genGetCodeVersion();
+}
+
+void GenGenerator::genSetCodeVersion(const std::string& value)
+{
+    m_impl->genSetCodeVersion(value);
 }
 
 void GenGenerator::genSetNamespaceOverride(const std::string& value)
@@ -1203,6 +1224,7 @@ GenGenerator::OptsProcessResult GenGenerator::genProcessOptions(const GenProgram
     genSetCodeDir(options.genGetCodeInputDirectory());
     genSetMultipleSchemasEnabled(options.genMultipleSchemasEnabled());
     genSetMinRemoteVersion(options.genGetMinRemoteVersion());
+    genSetCodeVersion(options.genGetCodeVersion());
 
     return genProcessOptionsImpl(options);
 }

@@ -217,9 +217,9 @@ void SwigGenerator::swigSetForcedInterface(const std::string& value)
     m_forcedInterface = value;
 }
 
-void SwigGenerator::swigSetHasProtocolVersion(bool value)
+void SwigGenerator::swigSetHasCodeVersion(bool value)
 {
-    m_hasProtocolVersion = value;
+    m_hasCodeVersion = value;
 }
 
 void SwigGenerator::swigSetMessagesListFile(const std::string& value)
@@ -232,9 +232,9 @@ void SwigGenerator::swigSetForcedPlatform(const std::string& value)
     m_forcedPlatform = value;
 }
 
-bool SwigGenerator::swigHasProtocolVersion() const
+bool SwigGenerator::swigHasCodeVersion() const
 {
-    return m_hasProtocolVersion;
+    return m_hasCodeVersion;
 }
 
 const SwigInterface* SwigGenerator::swigMainInterface() const
@@ -392,7 +392,7 @@ SwigGenerator::OptsProcessResult SwigGenerator::genProcessOptionsImpl(const GenP
     }
 
     swigSetMainNamespaceInNamesForced(opts.swigIsMainNamespaceInNamesForced());
-    swigSetHasProtocolVersion(opts.swigHasProtocolVersion());
+    swigSetHasCodeVersion(opts.swigHasCodeVersion());
     swigSetMessagesListFile(opts.swigMessagesListFile());
     swigSetForcedPlatform(opts.swigForcedPlatform());
     return OptsProcessResult_Continue;
