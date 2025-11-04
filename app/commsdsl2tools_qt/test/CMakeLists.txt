@@ -12,28 +12,7 @@ find_package(cc_tools_qt REQUIRED)
 
 set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2comms/test)
 set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
-
-set (tests)
-
-macro (commsdsl_add_chunk_tests chunk from to)
-    foreach(t RANGE ${from} ${to})
-        if (NOT ${chunk})
-            break()
-        endif()
-
-        if (NOT EXISTS "${tests_path}/test${t}")
-            break()
-        endif ()
-
-        list(APPEND tests "test${t}")
-    endforeach ()
-endmacro()
-
-commsdsl_add_chunk_tests(COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS_CHUNK1 1 24)
-commsdsl_add_chunk_tests(COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS_CHUNK2 25 49)
-commsdsl_add_chunk_tests(COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS_CHUNK3 50 74)
-
-message(STATUS "Building following commsdsl2tools_qt tests: ${tests}")
+file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
 
 add_custom_target(${APP_NAME}.all_tests
     COMMAND ${CMAKE_COMMAND} -E echo "All ${APP_NAME} tests are built")
