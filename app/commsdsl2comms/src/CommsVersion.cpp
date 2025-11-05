@@ -37,10 +37,10 @@ namespace
 
 enum CommsVersionIdx
 {
-    VersionIdx_major,
-    VersionIdx_minor,
-    VersionIdx_patch,
-    VersionIdx_numOfValues
+    CommsVersionIdx_major,
+    CommsVersionIdx_minor,
+    CommsVersionIdx_patch,
+    CommsVersionIdx_numOfValues
 };
 
 } // namespace
@@ -75,7 +75,7 @@ bool CommsVersion::commsWriteInternal() const
         "#include \"comms/version.h\"\n\n"
         "/// @brief Version of the protocol specification.\n"
         "#define #^#NS#$#_SPEC_VERSION (#^#VERSION#$#)\n\n"
-        "#^#PROT_VER_DEFINE#$#\n"
+        "#^#CODE_VER_DEFINE#$#\n"
         "namespace #^#PROT_NAMESPACE#$#\n"
         "{\n\n"
         "/// @brief Version of the protocol specification.\n"
@@ -83,7 +83,7 @@ bool CommsVersion::commsWriteInternal() const
         "{\n"
         "    return #^#NS#$#_SPEC_VERSION;\n"
         "}\n\n"
-        "#^#PROT_VER_FUNC#$#\n"
+        "#^#CODE_VER_FUNC#$#\n"
         "} // namespace #^#PROT_NAMESPACE#$#\n\n"
         "// Generated compile time check for minimal supported version of the COMMS library\n"
         "static_assert(COMMS_MAKE_VERSION(#^#COMMS_MIN#$#) <= comms::version(),\n"
@@ -96,8 +96,8 @@ bool CommsVersion::commsWriteInternal() const
         {"VERSION", util::genNumToString(m_commsGenerator.genCurrentSchema().genSchemaVersion())},
         {"NS", util::genStrToUpper(m_commsGenerator.genCurrentSchema().genMainNamespace())},
         {"COMMS_MIN", util::genStrReplace(CommsGenerator::commsMinCommsVersion(), ".", ", ")},
-        {"PROT_VER_DEFINE", commsProtVersionDefineInternal()},
-        {"PROT_VER_FUNC", commsProtVersionFuncsInternal()},
+        {"CODE_VER_DEFINE", commsCodeVersionDefineInternal()},
+        {"CODE_VER_FUNC", commsCodeVersionFuncsInternal()},
         {"APPEND", util::genReadFileContents(comms::genInputCodePathForRoot(strings::genVersionFileNameStr(), m_commsGenerator))},
     };
 
@@ -112,15 +112,15 @@ bool CommsVersion::commsWriteInternal() const
     return true;
 }
 
-std::string CommsVersion::commsProtVersionDefineInternal() const
+std::string CommsVersion::commsCodeVersionDefineInternal() const
 {
-    auto& protVersion = m_commsGenerator.genGetCodeVersion();
-    if (protVersion.empty()) {
+    auto& codeVersion = m_commsGenerator.genGetCodeVersion();
+    if (codeVersion.empty()) {
         return strings::genEmptyString();
     }
 
-    auto tokens = util::genStrSplitByAnyChar(protVersion, ".");
-    while (tokens.size() < VersionIdx_numOfValues) {
+    auto tokens = util::genStrSplitByAnyChar(codeVersion, ".");
+    while (tokens.size() < CommsVersionIdx_numOfValues) {
         tokens.push_back("0");
     }
 
@@ -136,18 +136,18 @@ std::string CommsVersion::commsProtVersionDefineInternal() const
 
     util::GenReplacementMap repl = {
         {"NS", util::genStrToUpper(m_commsGenerator.genCurrentSchema().genMainNamespace())},
-        {"MAJOR_VERSION", tokens[VersionIdx_major]},
-        {"MINOR_VERSION", tokens[VersionIdx_minor]},
-        {"PATCH_VERSION", tokens[VersionIdx_patch]},
+        {"MAJOR_VERSION", tokens[CommsVersionIdx_major]},
+        {"MINOR_VERSION", tokens[CommsVersionIdx_minor]},
+        {"PATCH_VERSION", tokens[CommsVersionIdx_patch]},
     };
 
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string CommsVersion::commsProtVersionFuncsInternal() const
+std::string CommsVersion::commsCodeVersionFuncsInternal() const
 {
-    auto& protVersion = m_commsGenerator.genGetCodeVersion();
-    if (protVersion.empty()) {
+    auto& codeVersion = m_commsGenerator.genGetCodeVersion();
+    if (codeVersion.empty()) {
         return strings::genEmptyString();
     }
 

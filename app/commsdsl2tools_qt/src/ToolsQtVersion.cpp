@@ -31,6 +31,20 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2tools_qt
 {
 
+namespace 
+{
+
+enum ToolsVersionIdx
+{
+    ToolsVersionIdx_major,
+    ToolsVersionIdx_minor,
+    ToolsVersionIdx_patch,
+    ToolsVersionIdx_numOfValues
+};
+
+} // namespace 
+    
+
 bool ToolsQtVersion::toolsWrite(ToolsQtGenerator& generator)
 {
     ToolsQtVersion obj(generator);
@@ -57,14 +71,29 @@ bool ToolsQtVersion::toolsWriteInternal() const
     const std::string Templ =
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
-        "#include \"cc_tools_qt/version.h\"\n\n"
+        "#^#INCLUDES#$#\n"
+        "#define CC_TOOLS_QT_PLUGIN_#^#NS#$#_SPEC_VERSION (#^#VERSION#$#)\n\n"
+        "static_assert(CC_TOOLS_QT_PLUGIN_#^#NS#$#_SPEC_VERSION == #^#NS#$#_SPEC_VERSION,\n"
+        "    \"The spec versions don't match\");\n\n"
+        "#^#CODE_VERSION#$#\n"
         "static_assert(CC_TOOLS_QT_MAKE_VERSION(#^#TOOLS_QT_MIN#$#) <= cc_tools_qt::version(),\n"
         "    \"The version of cc_tools_qt library is too old\");\n\n"
         "#^#APPEND#$#\n";
 
+    util::GenStringsList includes = {
+        "cc_tools_qt/version.h",
+        comms::genRelHeaderForRoot(strings::genVersionFileNameStr(), m_toolsGenerator),
+    };
+
+    comms::genPrepareIncludeStatement(includes);
+
     util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOOLS_QT_MIN", util::genStrReplace(ToolsQtGenerator::toolsMinCcToolsQtVersion(), ".", ", ")},
+        {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
+        {"NS", util::genStrToUpper(m_toolsGenerator.genProtocolSchema().genMainNamespace())},
+        {"VERSION", util::genNumToString(m_toolsGenerator.genProtocolSchema().genSchemaVersion())},
+        {"CODE_VERSION", toolsCodeVersionInternal()},
         {"APPEND", util::genReadFileContents(m_toolsGenerator.genGetCodeDir() + '/' + toolsRelHeaderPath(m_toolsGenerator) + strings::genAppendFileSuffixStr())},
     };
 
@@ -77,6 +106,36 @@ bool ToolsQtVersion::toolsWriteInternal() const
     }
 
     return true;
+}
+
+std::string ToolsQtVersion::toolsCodeVersionInternal() const
+{
+    auto& codeVersion = m_toolsGenerator.genGetCodeVersion();
+    if (codeVersion.empty()) {
+        return strings::genEmptyString();
+    }
+
+    auto tokens = util::genStrSplitByAnyChar(codeVersion, ".");
+    while (tokens.size() < ToolsVersionIdx_numOfValues) {
+        tokens.push_back("0");
+    }
+
+    const std::string Templ =
+        "#define CC_TOOLS_QT_PLUGIN_#^#NS#$#_MAJOR_VERSION (#^#MAJOR_VERSION#$#)\n\n"
+        "#define CC_TOOLS_QT_PLUGIN_#^#NS#$#_MINOR_VERSION (#^#MINOR_VERSION#$#)\n\n"
+        "#define CC_TOOLS_QT_PLUGIN_#^#NS#$#_PATCH_VERSION (#^#PATCH_VERSION#$#)\n\n"
+        "#define CC_TOOLS_QT_PLUGIN_#^#NS#$#_VERSION (COMMS_MAKE_VERSION(#^#NS#$#_MAJOR_VERSION, #^#NS#$#_MINOR_VERSION, #^#NS#$#_PATCH_VERSION))\n\n"
+        "static_assert(CC_TOOLS_QT_PLUGIN_#^#NS#$#_VERSION == #^#NS#$#_VERSION, \"Versions mismatch\");\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NS", util::genStrToUpper(m_toolsGenerator.genProtocolSchema().genMainNamespace())},
+        {"MAJOR_VERSION", tokens[ToolsVersionIdx_major]},
+        {"MINOR_VERSION", tokens[ToolsVersionIdx_minor]},
+        {"PATCH_VERSION", tokens[ToolsVersionIdx_patch]},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2tools_qt

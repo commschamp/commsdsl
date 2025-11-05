@@ -442,6 +442,7 @@ bool ToolsQtPlugin::toolsWritePluginJsonInternal()
         "    \"desc\" : [\n"
         "        #^#DESC#$#\n"
         "    ],\n"
+        "    #^#VERSION#$#\n"
         "    \"type\" : \"protocol\"\n"
         "}\n";
 
@@ -462,6 +463,11 @@ bool ToolsQtPlugin::toolsWritePluginJsonInternal()
         {"NAME", std::move(name)},
         {"DESC", std::move(desc)},
     };
+
+    auto& codeVersion = m_toolsGenerator.genGetCodeVersion();
+    if (!codeVersion.empty()) {
+        repl["VERSION"] = "\"version\": \"v" + codeVersion + "\",";
+    }    
 
     auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;
