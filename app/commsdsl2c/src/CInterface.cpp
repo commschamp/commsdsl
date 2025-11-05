@@ -73,7 +73,7 @@ bool CInterface::cCodeGenerationAllowed() const
 {
     auto* parentNs = CNamespace::cCast(genParentNamespace());
     assert(parentNs);
-    return parentNs->cIsSuitableInterface(*this);
+    return this == parentNs->cInterface();
 }
 
 std::string CInterface::cName() const

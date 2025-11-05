@@ -386,8 +386,8 @@ std::string EmscriptenFrame::emscriptenSourceAllFieldsInternal() const
 
     static const std::string Templ =
         "emscripten::class_<#^#CLASS_NAME#$#>(\"#^#CLASS_NAME#$#\")\n"
-        "    .constructor<>()"
-        "    .constructor<const #^#CLASS_NAME#$#&>()"
+        "    .constructor<>()\n"
+        "    .constructor<const #^#CLASS_NAME#$#&>()\n"
         "    #^#FIELDS#$#\n"
         "    ;\n";
 
