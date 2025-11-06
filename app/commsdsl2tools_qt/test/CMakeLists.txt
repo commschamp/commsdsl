@@ -35,7 +35,7 @@ foreach (name ${tests})
     if (EXISTS "${this_test_dir}/commsdsl2tools_qt.params")
         file (READ "${this_test_dir}/commsdsl2tools_qt.params" extra_params_str)
         string (REPLACE " " ";" extra_params "${extra_params_str}")
-    endif ()    
+    endif ()
 
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
     add_custom_target(${output_tgt} ALL

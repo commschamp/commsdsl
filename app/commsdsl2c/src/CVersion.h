@@ -25,13 +25,15 @@ class CVersion
 {
 public:
     static bool cWrite(CGenerator& generator);
+    static std::string cRelCommsHeader(const CGenerator& generator);
 
 private:
     explicit CVersion(CGenerator& generator) : m_cGenerator(generator) {}
 
-    bool cWriteInternal() const;
-    std::string cProtVersionDefineInternal() const;
-    std::string cProtVersionFuncsInternal() const;
+    bool cWriteHeaderInternal() const;
+    bool cWriteCommsHeaderInternal() const;
+    std::string cCodeVersionDefineInternal() const;
+    std::string cCodeVersionCommsHeaderInternal() const;
 
     CGenerator& m_cGenerator;
 };

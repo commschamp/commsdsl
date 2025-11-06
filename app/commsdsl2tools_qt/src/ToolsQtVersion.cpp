@@ -31,7 +31,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2tools_qt
 {
 
-namespace 
+namespace
 {
 
 enum ToolsVersionIdx
@@ -42,8 +42,7 @@ enum ToolsVersionIdx
     ToolsVersionIdx_numOfValues
 };
 
-} // namespace 
-    
+} // namespace
 
 bool ToolsQtVersion::toolsWrite(ToolsQtGenerator& generator)
 {

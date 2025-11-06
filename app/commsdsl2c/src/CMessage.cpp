@@ -21,6 +21,7 @@
 #include "CMsgId.h"
 #include "CNamespace.h"
 #include "CProtocolOptions.h"
+#include "CVersion.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -495,6 +496,7 @@ std::string CMessage::cCommsHeaderIncludesInternal() const
         interface->cRelCommsHeader(),
         msgHandler->cRelCommsHeader(),
         CProtocolOptions::cRelHeader(cGenerator),
+        CVersion::cRelCommsHeader(cGenerator),
     };
 
     for (auto* f : m_cFields) {

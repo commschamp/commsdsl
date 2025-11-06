@@ -20,6 +20,7 @@
 #include "CMsgId.h"
 #include "CNamespace.h"
 #include "CProtocolOptions.h"
+#include "CVersion.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -631,12 +632,15 @@ std::string CFrame::cCommsHeaderIncludesInternal() const
     auto* msgHandler = cMsgHandlerInternal();
     assert(msgHandler != nullptr);
 
+    auto& cGenerator = CGenerator::cCast(genGenerator());
+
     GenStringsList includes {
         cRelHeader(),
-        comms::genRelHeaderPathFor(*this, genGenerator()),
+        comms::genRelHeaderPathFor(*this, cGenerator),
         iFace->cRelCommsHeader(),
         msgHandler->cRelCommsHeader(),
         input->cRelHeader(),
+        CVersion::cRelCommsHeader(cGenerator),
     };
 
     for (auto* l : m_cLayers) {

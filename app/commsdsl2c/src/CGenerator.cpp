@@ -208,6 +208,19 @@ std::string CGenerator::cAbsRootSourceFor(const std::string& name) const
     return genGetOutputDir() + '/' + cRelRootSourceFor(name);
 }
 
+std::string CGenerator::cRelRootCommsHeaderFor(const std::string& name) const
+{
+    return
+        genGetTopNamespace() + '/' +
+        m_namesPrefix + '/' +
+        name + strings::genCommsNameSuffixStr() + strings::genCppHeaderSuffixStr();
+}
+
+std::string CGenerator::cAbsRootCommsHeaderFor(const std::string& name) const
+{
+    return genGetOutputDir() + '/' + cRelRootCommsHeaderFor(name);
+}
+
 std::string CGenerator::cRelPathForDoc(const std::string& name) const
 {
     return strings::genDocDirStr() + '/' + name;

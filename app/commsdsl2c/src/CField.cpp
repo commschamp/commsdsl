@@ -21,6 +21,7 @@
 #include "CLayer.h"
 #include "CMessage.h"
 #include "CProtocolOptions.h"
+#include "CVersion.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -133,6 +134,8 @@ void CField::cAddCommsHeaderIncludes(CIncludesList& includes) const
     auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
     auto* parent = m_genField.genGetParent();
     assert(parent != nullptr);
+
+    includes.push_back(CVersion::cRelCommsHeader(cGenerator));
 
     if (parent->genElemType() != GenElem::GenType_Interface) {
         includes.push_back(CProtocolOptions::cRelHeader(cGenerator));
@@ -817,6 +820,7 @@ std::string CField::cHandleBriefInternal(bool forcedOptional) const
 std::string CField::cCommsHeaderIncludesInternal() const
 {
     CIncludesList includes;
+
     cAddCommsHeaderIncludes(includes);
     comms::genPrepareIncludeStatement(includes);
     return util::genStrListToString(includes, "\n", "\n");

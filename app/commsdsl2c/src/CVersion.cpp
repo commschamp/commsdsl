@@ -48,10 +48,17 @@ enum CVersionIdx
 bool CVersion::cWrite(CGenerator& generator)
 {
     CVersion obj(generator);
-    return obj.cWriteInternal();
+    return
+        obj.cWriteHeaderInternal() &&
+        obj.cWriteCommsHeaderInternal();
 }
 
-bool CVersion::cWriteInternal() const
+std::string CVersion::cRelCommsHeader(const CGenerator& generator)
+{
+    return generator.cRelRootCommsHeaderFor(strings::genVersionFileNameStr());
+}
+
+bool CVersion::cWriteHeaderInternal() const
 {
     auto filePath = m_cGenerator.cAbsRootHeaderFor(strings::genVersionFileNameStr());
 
@@ -66,15 +73,15 @@ bool CVersion::cWriteInternal() const
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "/// @brief Version of the protocol specification.\n"
-        "#define #^#PREFIX#$#_SPEC_VERSION (#^#VERSION#$#)\n\n"
-        "#^#PROT_VER_DEFINE#$#\n"
+        "#define CC_C_#^#PREFIX#$#_SPEC_VERSION (#^#VERSION#$#)\n\n"
+        "#^#CODE_VER_DEFINE#$#\n"
         "#^#APPEND#$#\n";
 
     util::GenReplacementMap repl = {
         {"GENERATED", CGenerator::cFileGeneratedComment()},
         {"VERSION", util::genNumToString(m_cGenerator.genCurrentSchema().genSchemaVersion())},
         {"PREFIX", util::genStrToUpper(m_cGenerator.cNamesPrefix())},
-        {"PROT_VER_DEFINE", cProtVersionDefineInternal()},
+        {"CODE_VER_DEFINE", cCodeVersionDefineInternal()},
         {"APPEND", util::genReadFileContents(m_cGenerator.cInputAbsRootHeaderFor(strings::genVersionFileNameStr()))},
     };
 
@@ -89,32 +96,77 @@ bool CVersion::cWriteInternal() const
     return true;
 }
 
-std::string CVersion::cProtVersionDefineInternal() const
+bool CVersion::cWriteCommsHeaderInternal() const
 {
-    auto& protVersion = m_cGenerator.genGetCodeVersion();
-    if (protVersion.empty()) {
+    auto filePath = m_cGenerator.cAbsRootCommsHeaderFor(strings::genVersionFileNameStr());
+
+    m_cGenerator.genLogger().genInfo("Generating " + filePath);
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_cGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+
+    const std::string Templ =
+        "#^#GENERATED#$#\n"
+        "#pragma once\n\n"
+        "#^#INCLUDES#$#\n"
+        "static_assert(CC_C_#^#PREFIX#$#_SPEC_VERSION == #^#NS#$#_SPEC_VERSION, \"Specification versions mismatch\");\n"
+        "#^#CODE_VER_DEFINE#$#\n"
+        ;
+
+    util::GenStringsList includes = {
+        comms::genRelHeaderForRoot(strings::genVersionFileNameStr(), m_cGenerator),
+        m_cGenerator.cRelRootHeaderFor(strings::genVersionFileNameStr()),
+    };
+
+    comms::genPrepareIncludeStatement(includes);
+
+    util::GenReplacementMap repl = {
+        {"GENERATED", CGenerator::cFileGeneratedComment()},
+        {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
+        {"PREFIX", util::genStrToUpper(m_cGenerator.cNamesPrefix())},
+        {"CODE_VER_DEFINE", cCodeVersionCommsHeaderInternal()},
+        {"NS", util::genStrToUpper(m_cGenerator.genProtocolSchema().genMainNamespace())},
+    };
+
+    stream << util::genProcessTemplate(Templ, repl, true);
+    stream.flush();
+
+    if (!stream.good()) {
+        m_cGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+std::string CVersion::cCodeVersionDefineInternal() const
+{
+    auto& codeVersion = m_cGenerator.genGetCodeVersion();
+    if (codeVersion.empty()) {
         return strings::genEmptyString();
     }
 
-    auto tokens = util::genStrSplitByAnyChar(protVersion, ".");
+    auto tokens = util::genStrSplitByAnyChar(codeVersion, ".");
     while (tokens.size() < CVersionIdx_numOfValues) {
         tokens.push_back("0");
     }
 
     const std::string Templ =
         "/// @brief Major version of the protocol library.\n"
-        "#define #^#PREFIX#$#_MAJOR_VERSION (#^#MAJOR_VERSION#$#)\n\n"
+        "#define CC_C_#^#PREFIX#$#_MAJOR_VERSION (#^#MAJOR_VERSION#$#)\n\n"
         "/// @brief Minor version of the protocol library.\n"
-        "#define #^#PREFIX#$#_MINOR_VERSION (#^#MINOR_VERSION#$#)\n\n"
+        "#define CC_C_#^#PREFIX#$#_MINOR_VERSION (#^#MINOR_VERSION#$#)\n\n"
         "/// @brief Patch version of the protocol library.\n"
-        "#define #^#PREFIX#$#_PATCH_VERSION (#^#PATCH_VERSION#$#)\n\n"
+        "#define CC_C_#^#PREFIX#$#_PATCH_VERSION (#^#PATCH_VERSION#$#)\n\n"
         "/// @brief Make version as a single number.\n"
-        "#define #^#PREFIX#$#_MAKE_VERSION(major_, minor_, patch_) \\\n"
+        "#define CC_C_#^#PREFIX#$#_MAKE_VERSION(major_, minor_, patch_) \\\n"
         "    ((static_cast<unsigned>(major_) << 24) | \\\n"
         "     (static_cast<unsigned>(minor_) << 8) | \\\n"
-        "     (static_cast<unsigned>(pathch_)))\n\n"
+        "     (static_cast<unsigned>(patch_)))\n\n"
         "/// @brief Full version of the protocol library as single number.\n"
-        "#define #^#PREFIX#$#_VERSION #^#PREFIX#$#_MAKE_VERSION(#^#PREFIX#$#_MAJOR_VERSION, #^#PREFIX#$#_MINOR_VERSION, #^#PREFIX#$#_PATCH_VERSION)\n"
+        "#define CC_C_#^#PREFIX#$#_VERSION CC_C_#^#PREFIX#$#_MAKE_VERSION(#^#PREFIX#$#_MAJOR_VERSION, #^#PREFIX#$#_MINOR_VERSION, #^#PREFIX#$#_PATCH_VERSION)\n"
         ;
 
     util::GenReplacementMap repl = {
@@ -122,6 +174,25 @@ std::string CVersion::cProtVersionDefineInternal() const
         {"MAJOR_VERSION", tokens[CVersionIdx_major]},
         {"MINOR_VERSION", tokens[CVersionIdx_minor]},
         {"PATCH_VERSION", tokens[CVersionIdx_patch]},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CVersion::cCodeVersionCommsHeaderInternal() const
+{
+    auto& codeVersion = m_cGenerator.genGetCodeVersion();
+    if (codeVersion.empty()) {
+        return strings::genEmptyString();
+    }
+
+    const std::string Templ =
+        "static_assert(CC_C_#^#PREFIX#$#_VERSION == #^#NS#$#_VERSION, \"Versions mismatch\");\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"PREFIX", util::genStrToUpper(m_cGenerator.cNamesPrefix())},
+        {"NS", util::genStrToUpper(m_cGenerator.genProtocolSchema().genMainNamespace())},
     };
 
     return util::genProcessTemplate(Templ, repl);

@@ -19,6 +19,7 @@
 #include "CGenerator.h"
 #include "CNamespace.h"
 #include "CMsgId.h"
+#include "CVersion.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -273,6 +274,7 @@ bool CInterface::cWriteCommsHeaderInternal() const
         "comms/options.h",
         comms::genRelHeaderPathFor(*this, cGenerator),
         cRelHeader(),
+        CVersion::cRelCommsHeader(cGenerator),
     };
 
     GenStringsList fieldsCode;

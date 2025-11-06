@@ -467,7 +467,7 @@ bool ToolsQtPlugin::toolsWritePluginJsonInternal()
     auto& codeVersion = m_toolsGenerator.genGetCodeVersion();
     if (!codeVersion.empty()) {
         repl["VERSION"] = "\"version\": \"v" + codeVersion + "\",";
-    }    
+    }
 
     auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
     stream << str;

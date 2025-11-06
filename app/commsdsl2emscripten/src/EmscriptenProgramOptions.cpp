@@ -42,7 +42,7 @@ EmscriptenProgramOptions::EmscriptenProgramOptions()
     genAddCommonOptions()
     (EmscriptenForceMainNamespaceInNamesStr, "Force having main namespace in generated class names.")
     (EmscriptenForceInterfaceStr, "Force usage of the provided interface (CommsDSL reference string).", true)
-    (EmscriptenHasCodeVerStr, "The protocol definition (produced by commsdsl2comms) contains protocol semantic version.")
+    (EmscriptenHasCodeVerStr, "The protocol definition (produced by commsdsl2comms) contains code semantic version.")
     (EmscriptenMessagesListStr,
         "Path to the file containing list of messages that need to be supported. "
         "In case the message resides in a namespace its name must be "
