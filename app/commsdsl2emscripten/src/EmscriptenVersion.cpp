@@ -34,6 +34,19 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2emscripten
 {
 
+namespace
+{
+
+enum EmscriptenVersionIdx
+{
+    EmscriptenVersionIdx_major,
+    EmscriptenVersionIdx_minor,
+    EmscriptenVersionIdx_patch,
+    EmscriptenVersionIdx_numOfValues
+};
+
+} // namespace
+
 bool EmscriptenVersion::emscriptenWrite(EmscriptenGenerator& generator)
 {
     if ((!generator.genIsCurrentProtocolSchema()) && (!generator.genCurrentSchema().genHasAnyReferencedComponent())) {
@@ -41,7 +54,9 @@ bool EmscriptenVersion::emscriptenWrite(EmscriptenGenerator& generator)
     }
 
     EmscriptenVersion obj(generator);
-    return obj.emscriptenWriteSrcInternal();
+    return
+        obj.emscriptenWriteHeaderInternal() &&
+        obj.emscriptenWriteSrcInternal();
 }
 
 void EmscriptenVersion::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, GenStringsList& sources)
@@ -49,12 +64,62 @@ void EmscriptenVersion::emscriptenAddSourceFiles(const EmscriptenGenerator& gene
 
     for (auto idx = 0U; idx < generator.genSchemas().size(); ++idx) {
         auto& schema = generator.genSchemas()[idx];
-        if ((schema.get() != &generator.genProtocolSchema()) && (!schema->genHasAnyReferencedComponent())) {
+        if ((schema.get() != &generator.genCurrentSchema()) && (!schema->genHasAnyReferencedComponent())) {
             continue;
         }
 
         sources.push_back(generator.emscriptenSchemaRelSourceForRoot(idx, strings::genVersionFileNameStr()));
     }
+}
+
+std::string EmscriptenVersion::emscriptenRelHeader(const EmscriptenGenerator& generator)
+{
+    return generator.emscriptenRelHeaderForRoot(strings::genVersionFileNameStr());
+}
+
+bool EmscriptenVersion::emscriptenWriteHeaderInternal() const
+{
+    auto filePath = m_emscriptenGenerator.emscriptenAbsHeaderForRoot(strings::genVersionFileNameStr());
+    m_emscriptenGenerator.genLogger().genInfo("Generating " + filePath);
+
+    auto dirPath = util::genPathUp(filePath);
+    assert(!dirPath.empty());
+    if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
+        return false;
+    }
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_emscriptenGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+
+    const std::string Templ =
+        "#^#GENERATED#$#\n"
+        "#include \"#^#HEADER#$#\"\n\n"
+        "#define CC_EMSCRIPTEN_#^#NS#$#_SPEC_VERSION (#^#VERSION#$#)\n"
+        "static_assert(CC_EMSCRIPTEN_#^#NS#$#_SPEC_VERSION == #^#NS#$#_SPEC_VERSION, \"Specification versions mismatch\");\n"
+        "\n"
+        "#^#CODE_VER#$#\n"
+        "\n"
+    ;
+
+    util::GenReplacementMap repl = {
+        {"GENERATED", EmscriptenGenerator::emscriptenFileGeneratedComment()},
+        {"HEADER", comms::genRelHeaderForRoot(strings::genVersionFileNameStr(), m_emscriptenGenerator)},
+        {"NS", util::genStrToUpper(m_emscriptenGenerator.genCurrentSchema().genMainNamespace())},
+        {"VERSION", util::genNumToString(m_emscriptenGenerator.genCurrentSchema().genSchemaVersion())},
+        {"CODE_VER", emscriptenCodeVersionInternal()},
+    };
+
+    stream << util::genProcessTemplate(Templ, repl, true);
+    stream.flush();
+    if (!stream.good()) {
+        m_emscriptenGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
 }
 
 bool EmscriptenVersion::emscriptenWriteSrcInternal() const
@@ -81,15 +146,16 @@ bool EmscriptenVersion::emscriptenWriteSrcInternal() const
         "EMSCRIPTEN_BINDINGS(#^#NAME#$#) {\n"
         "    #^#SPEC#$#\n"
         "    #^#PROT#$#\n"
+        "    #^#CODE_VER#$#\n"
         "}\n"
     ;
 
     util::GenReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::emscriptenFileGeneratedComment()},
-        {"HEADER", comms::genRelHeaderForRoot(strings::genVersionFileNameStr(), m_emscriptenGenerator)},
+        {"HEADER", emscriptenRelHeader(m_emscriptenGenerator)},
         {"NAME", m_emscriptenGenerator.emscriptenScopeNameForRoot(strings::genVersionFileNameStr())},
-        {"SPEC", emscriptenSpecConstantsInternal()},
         {"PROT", emscriptenProtConstantsInternal()},
+        {"CODE_VER", emscriptenCodeVerConstantsInternal()},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -105,7 +171,8 @@ bool EmscriptenVersion::emscriptenWriteSrcInternal() const
 std::string EmscriptenVersion::emscriptenSpecConstantsInternal() const
 {
     const std::string Templ =
-        "emscripten::constant(\"#^#NS#$#_SPEC_VERSION\", #^#NS#$#_SPEC_VERSION);";
+        "emscripten::constant(\"#^#NS#$#_SPEC_VERSION\", #^#NS#$#_SPEC_VERSION);\n"
+        "emscripten::constant(\"CC_EMSCRIPTEN_#^#NS#$#_SPEC_VERSION\", CC_EMSCRIPTEN_#^#NS#$#_SPEC_VERSION);";
 
     util::GenReplacementMap repl = {
         {"NS", util::genStrToUpper(m_emscriptenGenerator.genCurrentSchema().genMainNamespace())}
@@ -128,6 +195,61 @@ std::string EmscriptenVersion::emscriptenProtConstantsInternal() const
 
     util::GenReplacementMap repl = {
         {"NS", util::genStrToUpper(m_emscriptenGenerator.genCurrentSchema().genMainNamespace())}
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string EmscriptenVersion::emscriptenCodeVerConstantsInternal() const
+{
+    auto& codeVersion = m_emscriptenGenerator.genGetCodeVersion();
+    if (codeVersion.empty()) {
+        return strings::genEmptyString();
+    }
+
+    const std::string Templ =
+        "emscripten::constant(\"CC_EMSCRIPTEN_#^#NS#$#_MAJOR_VERSION\", CC_EMSCRIPTEN_#^#NS#$#_MAJOR_VERSION);\n"
+        "emscripten::constant(\"CC_EMSCRIPTEN_#^#NS#$#_MINOR_VERSION\", CC_EMSCRIPTEN_#^#NS#$#_MINOR_VERSION);\n"
+        "emscripten::constant(\"CC_EMSCRIPTEN_#^#NS#$#_PATCH_VERSION\", CC_EMSCRIPTEN_#^#NS#$#_PATCH_VERSION);"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NS", util::genStrToUpper(m_emscriptenGenerator.genCurrentSchema().genMainNamespace())}
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string EmscriptenVersion::emscriptenCodeVersionInternal() const
+{
+    auto& codeVersion = m_emscriptenGenerator.genGetCodeVersion();
+    if (codeVersion.empty()) {
+        return strings::genEmptyString();
+    }
+
+    auto tokens = util::genStrSplitByAnyChar(codeVersion, ".");
+    while (tokens.size() < EmscriptenVersionIdx_numOfValues) {
+        tokens.push_back("0");
+    }
+
+    const std::string Templ =
+        "#define CC_EMSCRIPTEN_#^#NS#$#_MAJOR_VERSION (#^#MAJOR_VERSION#$#)\n"
+        "#define CC_EMSCRIPTEN_#^#NS#$#_MINOR_VERSION (#^#MINOR_VERSION#$#)\n"
+        "#define CC_EMSCRIPTEN_#^#NS#$#_PATCH_VERSION (#^#PATCH_VERSION#$#)\n"
+        "\n"
+        "#define CC_EMSCRIPTEN_#^#NS#$#_MAKE_VERSION(major_, minor_, patch_) \\\n"
+        "    ((static_cast<unsigned>(major_) << 24) | \\\n"
+        "     (static_cast<unsigned>(minor_) << 8) | \\\n"
+        "     (static_cast<unsigned>(patch_)))\n\n"
+        "#define CC_EMSCRIPTEN_#^#NS#$#_VERSION CC_EMSCRIPTEN_#^#NS#$#_MAKE_VERSION(CC_EMSCRIPTEN_#^#NS#$#_MAJOR_VERSION, CC_EMSCRIPTEN_#^#NS#$#_MINOR_VERSION, CC_EMSCRIPTEN_#^#NS#$#_PATCH_VERSION)\n"
+        "static_assert(CC_EMSCRIPTEN_#^#NS#$#_VERSION == #^#NS#$#_VERSION, \"Versions mismatch\");\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NS", util::genStrToUpper(m_emscriptenGenerator.genCurrentSchema().genMainNamespace())},
+        {"MAJOR_VERSION", tokens[EmscriptenVersionIdx_major]},
+        {"MINOR_VERSION", tokens[EmscriptenVersionIdx_minor]},
+        {"PATCH_VERSION", tokens[EmscriptenVersionIdx_patch]},
     };
 
     return util::genProcessTemplate(Templ, repl);

@@ -19,6 +19,7 @@
 #include "EmscriptenGenerator.h"
 #include "EmscriptenOptionalField.h"
 #include "EmscriptenProtocolOptions.h"
+#include "EmscriptenVersion.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -518,7 +519,8 @@ std::string EmscriptenField::emscriptenHeaderIncludesInternal() const
     GenStringsList includes = {
         "<iterator>",
         comms::genRelHeaderPathFor(m_genField, generator),
-        EmscriptenDataBuf::emscriptenRelHeader(generator)
+        EmscriptenDataBuf::emscriptenRelHeader(generator),
+        EmscriptenVersion::emscriptenRelHeader(generator),
     };
 
     EmscriptenProtocolOptions::emscriptenAddInclude(generator, includes);

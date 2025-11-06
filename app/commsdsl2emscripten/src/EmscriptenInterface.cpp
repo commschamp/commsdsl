@@ -18,6 +18,7 @@
 #include "EmscriptenDataBuf.h"
 #include "EmscriptenGenerator.h"
 #include "EmscriptenNamespace.h"
+#include "EmscriptenVersion.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -167,6 +168,7 @@ std::string EmscriptenInterface::emscriptenHeaderIncludesInternal() const
         "<emscripten/val.h>",
         comms::genRelHeaderPathFor(*this, gen),
         EmscriptenDataBuf::emscriptenRelHeader(gen),
+        EmscriptenVersion::emscriptenRelHeader(gen),
     };
 
     for (auto* f : m_emscriptenFields) {

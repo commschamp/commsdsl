@@ -21,6 +21,7 @@
 #include "EmscriptenLayer.h"
 #include "EmscriptenNamespace.h"
 #include "EmscriptenProtocolOptions.h"
+#include "EmscriptenVersion.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -217,6 +218,7 @@ std::string EmscriptenFrame::emscriptenHeaderIncludesInternal() const
         EmscriptenNamespace::emscriptenCast(interfaceNs)->emscriptenHandlerRelHeader(),
         EmscriptenNamespace::emscriptenCast(inputNs)->emscriptenInputRelHeader(),
         iFace->emscriptenRelHeader(),
+        EmscriptenVersion::emscriptenRelHeader(gen),
     };
 
     EmscriptenProtocolOptions::emscriptenAddInclude(gen, includes);

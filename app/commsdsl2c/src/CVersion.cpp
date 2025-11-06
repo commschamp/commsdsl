@@ -79,7 +79,7 @@ bool CVersion::cWriteHeaderInternal() const
 
     util::GenReplacementMap repl = {
         {"GENERATED", CGenerator::cFileGeneratedComment()},
-        {"VERSION", util::genNumToString(m_cGenerator.genCurrentSchema().genSchemaVersion())},
+        {"VERSION", util::genNumToString(m_cGenerator.genProtocolSchema().genSchemaVersion())},
         {"PREFIX", util::genStrToUpper(m_cGenerator.cNamesPrefix())},
         {"CODE_VER_DEFINE", cCodeVersionDefineInternal()},
         {"APPEND", util::genReadFileContents(m_cGenerator.cInputAbsRootHeaderFor(strings::genVersionFileNameStr()))},
@@ -166,7 +166,7 @@ std::string CVersion::cCodeVersionDefineInternal() const
         "     (static_cast<unsigned>(minor_) << 8) | \\\n"
         "     (static_cast<unsigned>(patch_)))\n\n"
         "/// @brief Full version of the protocol library as single number.\n"
-        "#define CC_C_#^#PREFIX#$#_VERSION CC_C_#^#PREFIX#$#_MAKE_VERSION(#^#PREFIX#$#_MAJOR_VERSION, #^#PREFIX#$#_MINOR_VERSION, #^#PREFIX#$#_PATCH_VERSION)\n"
+        "#define CC_C_#^#PREFIX#$#_VERSION CC_C_#^#PREFIX#$#_MAKE_VERSION(CC_C_#^#PREFIX#$#_MAJOR_VERSION, CC_C_#^#PREFIX#$#_MINOR_VERSION, CC_C_#^#PREFIX#$#_PATCH_VERSION)\n"
         ;
 
     util::GenReplacementMap repl = {

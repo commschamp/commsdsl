@@ -20,6 +20,7 @@
 #include "EmscriptenInterface.h"
 #include "EmscriptenNamespace.h"
 #include "EmscriptenProtocolOptions.h"
+#include "EmscriptenVersion.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -167,6 +168,7 @@ std::string EmscriptenMessage::emscriptenHeaderIncludesInternal() const
         comms::genRelHeaderPathFor(*this, gen),
         iFace->emscriptenRelHeader(),
         EmscriptenNamespace::emscriptenCast(parentNs)->emscriptenHandlerRelHeader(),
+        EmscriptenVersion::emscriptenRelHeader(gen),
     };
 
     EmscriptenProtocolOptions::emscriptenAddInclude(gen, includes);

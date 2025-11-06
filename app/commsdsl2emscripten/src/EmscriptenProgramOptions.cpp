@@ -39,18 +39,18 @@ const std::string EmscriptenForcePlatformStr("force-platform");
 
 EmscriptenProgramOptions::EmscriptenProgramOptions()
 {
-    genAddCommonOptions()
-    (EmscriptenForceMainNamespaceInNamesStr, "Force having main namespace in generated class names.")
-    (EmscriptenForceInterfaceStr, "Force usage of the provided interface (CommsDSL reference string).", true)
-    (EmscriptenHasCodeVerStr, "The protocol definition (produced by commsdsl2comms) contains code semantic version.")
-    (EmscriptenMessagesListStr,
-        "Path to the file containing list of messages that need to be supported. "
-        "In case the message resides in a namespace its name must be "
-        "specified in the same way as being referenced in CommsDSL (\'Namespace.MessageName\'). "
-        "If not provided all the defined messages are going to be supported.",
-        true)
-    (EmscriptenForcePlatformStr, "Support only messages applicable to specified platform. Requires protocol schema to define it.", true)
-    ;
+    genAddCommonOptions().genAddCodeVersionOptions()
+        (EmscriptenForceMainNamespaceInNamesStr, "Force having main namespace in generated class names.")
+        (EmscriptenForceInterfaceStr, "Force usage of the provided interface (CommsDSL reference string).", true)
+        (EmscriptenHasCodeVerStr, "The protocol definition (produced by commsdsl2comms) contains code semantic version.")
+        (EmscriptenMessagesListStr,
+            "Path to the file containing list of messages that need to be supported. "
+            "In case the message resides in a namespace its name must be "
+            "specified in the same way as being referenced in CommsDSL (\'Namespace.MessageName\'). "
+            "If not provided all the defined messages are going to be supported.",
+            true)
+        (EmscriptenForcePlatformStr, "Support only messages applicable to specified platform. Requires protocol schema to define it.", true)
+        ;
 }
 
 bool EmscriptenProgramOptions::emscriptenIsMainNamespaceInNamesForced() const
