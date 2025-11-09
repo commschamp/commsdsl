@@ -31,7 +31,9 @@ const std::string CCommsInputStr("comms-input");
 
 CProgramOptions::CProgramOptions()
 {
-    genAddCommonOptions().genAddCodeVersionOptions()
+    genAddCommonOptions();
+    genAddCodeVersionOptions();
+    genAddMessagesSelectionOptions()
     (CFullNamesPrefixStr,
         "Prefix to all generated structs and functions. "
         "If not provided the main namespace name is used.",

@@ -162,6 +162,16 @@ public:
         m_codeVersion = value;
     }
 
+    void genSetMessagesListFile(const std::string& value)
+    {
+        m_messagesListFile = value;
+    }
+
+    void genSetForcedPlatform(const std::string& value)
+    {
+        m_forcedPlatform = value;
+    }
+
     GenInterfacesAccessList genGetAllInterfaces() const
     {
         return genCurrentSchema().genGetAllInterfaces();
@@ -395,10 +405,10 @@ public:
             if (m_allInterfacesReferencedByDefault) {
                 s->genSetAllInterfacesReferenced();
             }
+        }
 
-            if (m_allMessagesReferencedByDefault) {
-                s->genSetAllMessagesReferenced();
-            }
+        if (!genReferenceRequestedMessagesInternal()) {
+            return false;
         }
 
         if (createCompleteCb && (!createCompleteCb())) {
@@ -468,16 +478,6 @@ public:
         }
     }
 
-    bool genGetAllMessagesReferencedByDefault() const
-    {
-        return m_allMessagesReferencedByDefault;
-    }
-
-    void genSetAllMessagesReferencedByDefault(bool value)
-    {
-        m_allMessagesReferencedByDefault = value;
-    }
-
     bool genGetAllInterfacesReferencedByDefault() const
     {
         return m_allInterfacesReferencedByDefault;
@@ -540,6 +540,89 @@ private:
         return true;
     }
 
+    bool genReferenceRequestedMessagesInternal()
+    {
+        if ((m_messagesListFile.empty()) && (m_forcedPlatform.empty())) {
+            m_logger->genDebug("Referencing all messages.");
+            genReferenceAllMessages();
+            return true;
+        }
+
+        if ((!m_messagesListFile.empty()) && (!m_forcedPlatform.empty())) {
+            m_logger->genError("Cannot force platform messages together with explicit message list.");
+            return false;
+        }
+
+        if (!m_messagesListFile.empty()) {
+            return genProcessMessagesListFileInternal();
+        }
+
+        if (!m_forcedPlatform.empty()) {
+            return genProcessForcedPlatformInternal();
+        }
+
+        return true;
+    }
+
+    bool genProcessMessagesListFileInternal()
+    {
+        std::ifstream stream(m_messagesListFile);
+        if (!stream) {
+            m_logger->genError("Failed to open messages list file: \"" + m_messagesListFile + "\".");
+            return false;
+        }
+
+        std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
+        auto lines = util::genStrSplitByAnyChar(contents, "\n\r");
+
+        for (auto& l : lines) {
+            auto* m = genGindMessage(l);
+            if (m == nullptr) {
+                m_logger->genError("Failed to fined message \"" + l + "\" listed in \"" + m_messagesListFile + "\".");
+                return false;
+            }
+
+            m->genSetReferenced(true);
+        }
+
+        return true;
+    }
+
+    bool genProcessForcedPlatformInternal()
+    {
+        bool validPlatform = false;
+
+        assert(!m_forcedPlatform.empty());
+        for (auto& s : m_schemas) {
+            for (auto* m : s->genGetAllMessages()) {
+                assert(m != nullptr);
+                auto& schemaPlatforms = s->genParseObj().parsePlatforms();
+                auto iter = std::find(schemaPlatforms.begin(), schemaPlatforms.end(), m_forcedPlatform);
+                if (iter == schemaPlatforms.end()) {
+                    continue;
+                }
+
+                validPlatform = true;
+                auto& messagePlatforms = m->genParseObj().parsePlatforms();
+
+                bool messageSupported =
+                    (messagePlatforms.empty()) ||
+                    (std::find(messagePlatforms.begin(), messagePlatforms.end(), m_forcedPlatform) != messagePlatforms.end());
+
+                if (messageSupported) {
+                    const_cast<GenMessage*>(m)->genSetReferenced(true);
+                }
+            }
+        }
+
+        if (!validPlatform) {
+            m_logger->genError("Unknown platform: \"" + m_forcedPlatform + "\".");
+            return false;
+        }
+
+        return true;
+    }
+
     GenGenerator& m_generator;
     commsdsl::parse::ParseProtocol m_protocol;
     GenLoggerPtr m_logger;
@@ -552,9 +635,10 @@ private:
     std::string m_codeVersion;
     std::string m_outputDir;
     std::string m_codeDir;
+    std::string m_messagesListFile;
+    std::string m_forcedPlatform;
     mutable std::vector<std::string> m_createdDirectories;
     bool m_versionIndependentCodeForced = false;
-    bool m_allMessagesReferencedByDefault = true;
     bool m_allInterfacesReferencedByDefault = true;
 };
 
@@ -616,6 +700,16 @@ const std::string& GenGenerator::genGetCodeVersion() const
 void GenGenerator::genSetCodeVersion(const std::string& value)
 {
     m_impl->genSetCodeVersion(value);
+}
+
+void GenGenerator::genSetMessagesListFile(const std::string& value)
+{
+    m_impl->genSetMessagesListFile(value);
+}
+
+void GenGenerator::genSetForcedPlatform(const std::string& value)
+{
+    m_impl->genSetForcedPlatform(value);
 }
 
 void GenGenerator::genSetNamespaceOverride(const std::string& value)
@@ -1153,16 +1247,6 @@ void GenGenerator::genReferenceAllMessages()
     m_impl->genReferenceAllMessages();
 }
 
-bool GenGenerator::genGetAllMessagesReferencedByDefault() const
-{
-    return m_impl->genGetAllMessagesReferencedByDefault();
-}
-
-void GenGenerator::genSetAllMessagesReferencedByDefault(bool value)
-{
-    m_impl->genSetAllMessagesReferencedByDefault(value);
-}
-
 void GenGenerator::genReferenceAllInterfaces()
 {
     m_impl->genReferenceAllInterfaces();
@@ -1225,6 +1309,8 @@ GenGenerator::OptsProcessResult GenGenerator::genProcessOptions(const GenProgram
     genSetMultipleSchemasEnabled(options.genMultipleSchemasEnabled());
     genSetMinRemoteVersion(options.genGetMinRemoteVersion());
     genSetCodeVersion(options.genGetCodeVersion());
+    genSetMessagesListFile(options.genMessagesListFile());
+    genSetForcedPlatform(options.genForcedPlatform());
 
     return genProcessOptionsImpl(options);
 }

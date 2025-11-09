@@ -40,8 +40,6 @@ public:
     bool emscriptenHasForcedInterface() const;
     const std::string& emscriptenGetForcedInterface() const;
     bool emscriptenHasCodeVersion() const;
-    const std::string& emscriptenMessagesListFile() const;
-    const std::string& emscriptenForcedPlatform() const;
 };
 
 } // namespace commsdsl2emscripten

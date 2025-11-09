@@ -40,8 +40,6 @@ public:
     bool swigHasForcedInterface() const;
     const std::string& swigGetForcedInterface() const;
     bool swigHasCodeVersion() const;
-    const std::string& swigMessagesListFile() const;
-    const std::string& swigForcedPlatform() const;
 };
 
 } // namespace commsdsl2swig

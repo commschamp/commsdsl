@@ -68,7 +68,6 @@ namespace commsdsl2emscripten
 EmscriptenGenerator::EmscriptenGenerator()
 {
     GenBase::genSetAllInterfacesReferencedByDefault(false);
-    GenBase::genSetAllMessagesReferencedByDefault(false);
 }
 
 const std::string& EmscriptenGenerator::emscriptenFileGeneratedComment()
@@ -215,8 +214,7 @@ std::string EmscriptenGenerator::emscriptenScopeToName(const std::string& scope)
 bool EmscriptenGenerator::genCreateCompleteImpl()
 {
     return
-        emscriptenReferenceRequestedInterfaceInternal() &&
-        emscriptenReferenceRequestedMessagesInternal();
+        emscriptenReferenceRequestedInterfaceInternal();
 }
 
 bool EmscriptenGenerator::genPrepareImpl()
@@ -272,16 +270,6 @@ void EmscriptenGenerator::emscriptenSetForcedInterface(const std::string& value)
 void EmscriptenGenerator::emscriptenSetHasCodeVersion(bool value)
 {
     m_hasCodeVersion = value;
-}
-
-void EmscriptenGenerator::emscriptenSetMessagesListFile(const std::string& value)
-{
-    m_messagesListFile = value;
-}
-
-void EmscriptenGenerator::emscriptenSetForcedPlatform(const std::string& value)
-{
-    m_forcedPlatform = value;
 }
 
 bool EmscriptenGenerator::emscriptenHasCodeVersion() const
@@ -445,8 +433,6 @@ EmscriptenGenerator::OptsProcessResult EmscriptenGenerator::genProcessOptionsImp
 
     emscriptenSetMainNamespaceInNamesForced(opts.emscriptenIsMainNamespaceInNamesForced());
     emscriptenSetHasCodeVersion(opts.emscriptenHasCodeVersion());
-    emscriptenSetMessagesListFile(opts.emscriptenMessagesListFile());
-    emscriptenSetForcedPlatform(opts.emscriptenForcedPlatform());
     genSetTopNamespace("cc_emscripten");
     return OptsProcessResult_Continue;
 }
@@ -472,89 +458,6 @@ bool EmscriptenGenerator::emscriptenReferenceRequestedInterfaceInternal()
     auto* mainInterface = emscriptenMainInterface();
     if (mainInterface != nullptr) {
         mainInterface->genSetReferenced(true);
-    }
-
-    return true;
-}
-
-bool EmscriptenGenerator::emscriptenReferenceRequestedMessagesInternal()
-{
-    if ((m_messagesListFile.empty()) && (m_forcedPlatform.empty())) {
-        genReferenceAllMessages();
-        return true;
-    }
-
-    if ((!m_messagesListFile.empty()) && (!m_forcedPlatform.empty())) {
-        genLogger().genError("Cannot force platform messages together with explicit message list.");
-        return false;
-    }
-
-    if (!m_messagesListFile.empty()) {
-        return emscriptenProcessMessagesListFileInternal();
-    }
-
-    if (!m_forcedPlatform.empty()) {
-        return emscriptenProcessForcedPlatformInternal();
-    }
-
-    return true;
-}
-
-bool EmscriptenGenerator::emscriptenProcessMessagesListFileInternal()
-{
-    std::ifstream stream(m_messagesListFile);
-    if (!stream) {
-        genLogger().genError("Failed to open messages list file: \"" + m_messagesListFile + "\".");
-        return false;
-    }
-
-    std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
-    auto lines = util::genStrSplitByAnyChar(contents, "\n\r");
-
-    for (auto& l : lines) {
-        auto* m = genGindMessage(l);
-        if (m == nullptr) {
-            genLogger().genError("Failed to fined message \"" + l + "\" listed in \"" + m_messagesListFile + "\".");
-            return false;
-        }
-
-        m->genSetReferenced(true);
-    }
-
-    return true;
-}
-
-bool EmscriptenGenerator::emscriptenProcessForcedPlatformInternal()
-{
-    bool validPlatform = false;
-
-    assert(!m_forcedPlatform.empty());
-    for (auto* m : genGetAllMessages()) {
-        assert(m != nullptr);
-        auto& s = genSchemaOf(*m);
-        auto& schemaPlatforms = s.genParseObj().parsePlatforms();
-        auto iter = std::find(schemaPlatforms.begin(), schemaPlatforms.end(), m_forcedPlatform);
-        if (iter == schemaPlatforms.end()) {
-            continue;
-        }
-
-        validPlatform = true;
-
-        auto* emscriptenM = const_cast<EmscriptenMessage*>(EmscriptenMessage::emscriptenCast(m));
-        auto& messagePlatforms = emscriptenM->genParseObj().parsePlatforms();
-
-        bool messageSupported =
-            (messagePlatforms.empty()) ||
-            (std::find(messagePlatforms.begin(), messagePlatforms.end(), m_forcedPlatform) != messagePlatforms.end());
-
-        if (messageSupported) {
-            emscriptenM->genSetReferenced(true);
-        }
-    }
-
-    if (!validPlatform) {
-        genLogger().genError("Unknown platform: \"" + m_forcedPlatform + "\".");
-        return false;
     }
 
     return true;

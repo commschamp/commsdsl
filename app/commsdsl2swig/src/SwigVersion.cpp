@@ -163,14 +163,14 @@ void SwigVersion::swigAddCode(SwigGenerator& generator, GenStringsList& list)
 
         list.push_back(util::genProcessTemplate(Templ, patchRepl));
 
-        const std::string SpecAssertTempl = 
+        const std::string SpecAssertTempl =
             "static_assert(#^#SPEC_VERSION_FUNC#$#() == #^#SPEC_VERSION#$#, \"Spec versions mismatch\");\n"
             ;
 
         util::GenReplacementMap specAssertRepl = {
             {"SPEC_VERSION_FUNC", comms::genScopeForRoot(SpecVersionFunc, generator)},
             {"SPEC_VERSION", util::genNumToString(generator.genCurrentSchema().genSchemaVersion())},
-        };        
+        };
 
         list.push_back(util::genProcessTemplate(SpecAssertTempl, specAssertRepl));
     }
@@ -250,7 +250,7 @@ std::string SwigVersion::swigVersionsAssertInternal(SwigGenerator& generator)
         tokens.push_back("0");
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "static_assert(#^#NS#$#_VERSION == COMMS_MAKE_VERSION(#^#MAJOR#$#, #^#MINOR#$#, #^#PATHC#$#), \"Library versions mismatch\");\n"
         ;
 

@@ -88,8 +88,6 @@ public:
     void emscriptenSetMainNamespaceInNamesForced(bool value);
     void emscriptenSetForcedInterface(const std::string& value);
     void emscriptenSetHasCodeVersion(bool value);
-    void emscriptenSetMessagesListFile(const std::string& value);
-    void emscriptenSetForcedPlatform(const std::string& value);
 
     bool emscriptenHasCodeVersion() const;
 
@@ -133,13 +131,8 @@ protected:
 private:
     bool emscriptenWriteExtraFilesInternal() const;
     bool emscriptenReferenceRequestedInterfaceInternal();
-    bool emscriptenReferenceRequestedMessagesInternal();
-    bool emscriptenProcessMessagesListFileInternal();
-    bool emscriptenProcessForcedPlatformInternal();
 
     std::string m_forcedInterface;
-    std::string m_messagesListFile;
-    std::string m_forcedPlatform;
     bool m_mainNamespaceInNamesForced = false;
     bool m_hasCodeVersion = false;
 };

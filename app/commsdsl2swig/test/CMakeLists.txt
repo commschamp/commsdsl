@@ -30,7 +30,7 @@ foreach (name ${tests})
     if (EXISTS "${this_test_dir}/commsdsl2swig.params")
         file (READ "${this_test_dir}/commsdsl2swig.params" extra_params_str)
         string (REPLACE " " ";" extra_params "${extra_params_str}")
-    endif ()    
+    endif ()
 
     set (output_dir ${CMAKE_CURRENT_BINARY_DIR}/${name})
 

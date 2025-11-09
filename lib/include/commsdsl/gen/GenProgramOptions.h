@@ -39,6 +39,7 @@ public:
 
     GenProgramOptions& genAddCommonOptions();
     GenProgramOptions& genAddCodeVersionOptions();
+    GenProgramOptions& genAddMessagesSelectionOptions();
     GenProgramOptions& genRemoveMinRemoteVersionOptions();
     GenProgramOptions& operator()(const std::string& optStr, const std::string& desc, bool hasParam = false);
     GenProgramOptions& operator()(const std::string& optStr, const std::string& desc, const std::string& defaultValue);
@@ -65,6 +66,8 @@ public:
     bool genHasForcedSchemaVersion() const;
     unsigned genGetForcedSchemaVersion() const;
     const std::string& genGetCodeVersion() const;
+    const std::string& genMessagesListFile() const;
+    const std::string& genForcedPlatform() const;
 
 private:
     std::unique_ptr<GenProgramOptionsImpl> m_impl;

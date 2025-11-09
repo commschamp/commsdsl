@@ -32,24 +32,17 @@ namespace
 const std::string ForceMainNamespaceInNamesStr("force-main-ns-in-names");
 const std::string ForceInterfaceStr("force-interface");
 const std::string HasCodeVerStr("has-code-version");
-const std::string MessagesListStr("messages-list");
-const std::string ForcePlatformStr("force-platform");
 
 } // namespace
 
 SwigProgramOptions::SwigProgramOptions()
 {
-    genAddCommonOptions().genAddCodeVersionOptions()
+    genAddCommonOptions();
+    genAddCodeVersionOptions();
+    genAddMessagesSelectionOptions()
     (ForceMainNamespaceInNamesStr, "Force having main namespace in generated class names.")
     (ForceInterfaceStr, "Force usage of the provided interface (CommsDSL reference string).", true)
     (HasCodeVerStr, "The protocol definition (produced by commsdsl2comms) contains code semantic version.")
-    (MessagesListStr,
-        "Path to the file containing list of messages that need to be supported. "
-        "In case the message resides in a namespace its name must be "
-        "specified in the same way as being referenced in CommsDSL (\'Namespace.MessageName\'). "
-        "If not provided all the defined messages are going to be supported.",
-        true)
-    (ForcePlatformStr, "Support only messages applicable to specified platform. Requires protocol schema to define it.", true)
     ;
 }
 
@@ -71,16 +64,6 @@ const std::string& SwigProgramOptions::swigGetForcedInterface() const
 bool SwigProgramOptions::swigHasCodeVersion() const
 {
     return genIsOptUsed(HasCodeVerStr);
-}
-
-const std::string& SwigProgramOptions::swigMessagesListFile() const
-{
-    return genValue(MessagesListStr);
-}
-
-const std::string& SwigProgramOptions::swigForcedPlatform() const
-{
-    return genValue(ForcePlatformStr);
 }
 
 } // namespace commsdsl2swig

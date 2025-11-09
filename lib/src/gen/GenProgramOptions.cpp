@@ -47,6 +47,8 @@ const std::string GenFullMinRemoteVerStr("m," + GenMinRemoteVerStr);
 const std::string GenForceVerStr("force-schema-version");
 const std::string GenCodeVerStr("code-version");
 const std::string GenFullCodeVerStr("V," + GenCodeVerStr);
+const std::string GenMessagesListStr("messages-list");
+const std::string GenForcePlatformStr("force-platform");
 
 }
 
@@ -375,6 +377,20 @@ GenProgramOptions& GenProgramOptions::genAddCodeVersionOptions()
         ;
 }
 
+GenProgramOptions& GenProgramOptions::genAddMessagesSelectionOptions()
+{
+    return
+        (*this)
+            (GenMessagesListStr,
+                "Path to the file containing list of messages that need to be supported. "
+                "In case the message resides in a namespace its name must be "
+                "specified in the same way as being referenced in CommsDSL (\'Namespace.MessageName\'). "
+                "If not provided all the defined messages are going to be supported.",
+                true)
+            (GenForcePlatformStr, "Support only messages applicable to specified platform. Requires protocol schema to define it.", true)
+        ;
+}
+
 GenProgramOptions& GenProgramOptions::genRemoveMinRemoteVersionOptions()
 {
     m_impl->genRemove(GenFullMinRemoteVerStr);
@@ -528,6 +544,16 @@ unsigned GenProgramOptions::genGetForcedSchemaVersion() const
 const std::string& GenProgramOptions::genGetCodeVersion() const
 {
     return genValue(GenCodeVerStr);
+}
+
+const std::string& GenProgramOptions::genMessagesListFile() const
+{
+    return genValue(GenMessagesListStr);
+}
+
+const std::string& GenProgramOptions::genForcedPlatform() const
+{
+    return genValue(GenForcePlatformStr);
 }
 
 } // namespace gen

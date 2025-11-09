@@ -69,7 +69,6 @@ namespace commsdsl2swig
 SwigGenerator::SwigGenerator()
 {
     GenBase::genSetAllInterfacesReferencedByDefault(false);
-    GenBase::genSetAllMessagesReferencedByDefault(false);
 }
 
 const std::string& SwigGenerator::swigFileGeneratedComment()
@@ -162,8 +161,7 @@ std::string SwigGenerator::swigDefInclude(const std::string& path)
 bool SwigGenerator::genCreateCompleteImpl()
 {
     return
-        swigReferenceRequestedInterfaceInternal() &&
-        swigReferenceRequestedMessagesInternal();
+        swigReferenceRequestedInterfaceInternal();
 }
 
 bool SwigGenerator::genPrepareImpl()
@@ -220,16 +218,6 @@ void SwigGenerator::swigSetForcedInterface(const std::string& value)
 void SwigGenerator::swigSetHasCodeVersion(bool value)
 {
     m_hasCodeVersion = value;
-}
-
-void SwigGenerator::swigSetMessagesListFile(const std::string& value)
-{
-    m_messagesListFile = value;
-}
-
-void SwigGenerator::swigSetForcedPlatform(const std::string& value)
-{
-    m_forcedPlatform = value;
 }
 
 bool SwigGenerator::swigHasCodeVersion() const
@@ -393,8 +381,6 @@ SwigGenerator::OptsProcessResult SwigGenerator::genProcessOptionsImpl(const GenP
 
     swigSetMainNamespaceInNamesForced(opts.swigIsMainNamespaceInNamesForced());
     swigSetHasCodeVersion(opts.swigHasCodeVersion());
-    swigSetMessagesListFile(opts.swigMessagesListFile());
-    swigSetForcedPlatform(opts.swigForcedPlatform());
     return OptsProcessResult_Continue;
 }
 
@@ -419,89 +405,6 @@ bool SwigGenerator::swigReferenceRequestedInterfaceInternal()
     auto* mainInterface = swigMainInterface();
     if (mainInterface != nullptr) {
         mainInterface->genSetReferenced(true);
-    }
-
-    return true;
-}
-
-bool SwigGenerator::swigReferenceRequestedMessagesInternal()
-{
-    if ((m_messagesListFile.empty()) && (m_forcedPlatform.empty())) {
-        genReferenceAllMessages();
-        return true;
-    }
-
-    if ((!m_messagesListFile.empty()) && (!m_forcedPlatform.empty())) {
-        genLogger().genError("Cannot force platform messages together with explicit message list.");
-        return false;
-    }
-
-    if (!m_messagesListFile.empty()) {
-        return swigProcessMessagesListFileInternal();
-    }
-
-    if (!m_forcedPlatform.empty()) {
-        return swigProcessForcedPlatformInternal();
-    }
-
-    return true;
-}
-
-bool SwigGenerator::swigProcessMessagesListFileInternal()
-{
-    std::ifstream stream(m_messagesListFile);
-    if (!stream) {
-        genLogger().genError("Failed to open messages list file: \"" + m_messagesListFile + "\".");
-        return false;
-    }
-
-    std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
-    auto lines = util::genStrSplitByAnyChar(contents, "\n\r");
-
-    for (auto& l : lines) {
-        auto* m = genGindMessage(l);
-        if (m == nullptr) {
-            genLogger().genError("Failed to fined message \"" + l + "\" listed in \"" + m_messagesListFile + "\".");
-            return false;
-        }
-
-        m->genSetReferenced(true);
-    }
-
-    return true;
-}
-
-bool SwigGenerator::swigProcessForcedPlatformInternal()
-{
-    bool validPlatform = false;
-
-    assert(!m_forcedPlatform.empty());
-    for (auto* m : genGetAllMessages()) {
-        assert(m != nullptr);
-        auto& s = genSchemaOf(*m);
-        auto& schemaPlatforms = s.genParseObj().parsePlatforms();
-        auto iter = std::find(schemaPlatforms.begin(), schemaPlatforms.end(), m_forcedPlatform);
-        if (iter == schemaPlatforms.end()) {
-            continue;
-        }
-
-        validPlatform = true;
-
-        auto* swigM = const_cast<SwigMessage*>(SwigMessage::swigCast(m));
-        auto& messagePlatforms = swigM->genParseObj().parsePlatforms();
-
-        bool messageSupported =
-            (messagePlatforms.empty()) ||
-            (std::find(messagePlatforms.begin(), messagePlatforms.end(), m_forcedPlatform) != messagePlatforms.end());
-
-        if (messageSupported) {
-            swigM->genSetReferenced(true);
-        }
-    }
-
-    if (!validPlatform) {
-        genLogger().genError("Unknown platform: \"" + m_forcedPlatform + "\".");
-        return false;
     }
 
     return true;

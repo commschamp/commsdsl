@@ -78,6 +78,8 @@ public:
     unsigned genGetMinRemoteVersion() const;
     const std::string& genGetCodeVersion() const;
     void genSetCodeVersion(const std::string& value);
+    void genSetMessagesListFile(const std::string& value);
+    void genSetForcedPlatform(const std::string& value);
     void genSetNamespaceOverride(const std::string& value);
 
     void genSetTopNamespace(const std::string& value);
@@ -180,8 +182,6 @@ public:
     bool genCreateDirectory(const std::string& path) const;
 
     void genReferenceAllMessages();
-    bool genGetAllMessagesReferencedByDefault() const;
-    void genSetAllMessagesReferencedByDefault(bool value = true);
 
     void genReferenceAllInterfaces();
     bool genGetAllInterfacesReferencedByDefault() const;
