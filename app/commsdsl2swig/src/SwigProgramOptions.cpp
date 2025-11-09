@@ -39,7 +39,7 @@ const std::string ForcePlatformStr("force-platform");
 
 SwigProgramOptions::SwigProgramOptions()
 {
-    genAddCommonOptions()
+    genAddCommonOptions().genAddCodeVersionOptions()
     (ForceMainNamespaceInNamesStr, "Force having main namespace in generated class names.")
     (ForceInterfaceStr, "Force usage of the provided interface (CommsDSL reference string).", true)
     (HasCodeVerStr, "The protocol definition (produced by commsdsl2comms) contains code semantic version.")
