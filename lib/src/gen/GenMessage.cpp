@@ -187,12 +187,15 @@ bool GenMessage::genPrepare()
 
 bool GenMessage::genWrite() const
 {
+    genGenerator().genLogger().genDebug("Attempt to generate code for message: " + genParseObj().parseExternalRef());
     if (!m_impl->genWrite()) {
         return false;
     }
 
     if (!m_impl->genIsReferenced()) {
-        return false;
+        genGenerator().genLogger().genDebug("Skipping code generation for message: " + genParseObj().parseExternalRef());
+        // Not writing anything for not reference object
+        return true;
     }
 
     return genWriteImpl();

@@ -17,6 +17,7 @@
 
 #include "CGenerator.h"
 #include "CInterface.h"
+#include "CMessage.h"
 #include "CNamespace.h"
 #include "CProtocolOptions.h"
 
@@ -79,27 +80,24 @@ bool CInputMessages::cWrite() const
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
-        "using #^#NAME#$# = #^#SCOPE#$#<#^#INTERFACE#$#, #^#OPTS#$#>;\n"
+        "#^#DEF#$#\n"
     ;
 
     auto* iFace = m_parent.cInterface();
     assert(iFace != nullptr);
 
     util::GenStringsList includes = {
-        comms::genRelHeaderForInput(m_cGenerator.cInputName(), m_cGenerator, m_parent),
         CProtocolOptions::cRelHeader(m_cGenerator),
         iFace->cRelCommsHeader(),
     };
 
+    cAddIncludesInternal(includes);
     comms::genPrepareIncludeStatement(includes);
 
     util::GenReplacementMap repl = {
         {"GENERATED", CGenerator::cFileGeneratedComment()},
         {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
-        {"NAME", cName()},
-        {"INTERFACE", iFace->cCommsTypeName()},
-        {"OPTS", CProtocolOptions::cName(m_cGenerator)},
-        {"SCOPE", comms::genScopeForInput(m_cGenerator.cInputName(), m_cGenerator, m_parent)},
+        {"DEF", cInputDefInternal()},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -110,6 +108,91 @@ bool CInputMessages::cWrite() const
     }
 
     return true;
+}
+
+std::string CInputMessages::cCommsNameInternal() const
+{
+    auto& inputName = m_cGenerator.cInputName();
+    if (!inputName.empty()) {
+        return inputName;
+    }
+
+    auto& forcedPlatform = m_cGenerator.genGetForcedPlatform();
+    if (!forcedPlatform.empty()) {
+        return comms::genClassName(forcedPlatform) + "Messages";
+    }
+
+    auto& msgListFile = m_cGenerator.genGetMessagesListFile();
+    if (msgListFile.empty()) {
+        return strings::genAllMessagesStr();
+    }
+
+    return strings::genEmptyString();
+}
+
+std::string CInputMessages::cInputDefInternal() const
+{
+    auto* iFace = m_parent.cInterface();
+    assert(iFace != nullptr);
+
+    auto inputName = cCommsNameInternal();
+    if (!inputName.empty()) {
+        const std::string Templ =
+            "using #^#NAME#$# = #^#SCOPE#$#<#^#INTERFACE#$#, #^#OPTS#$#>;\n"
+            ;
+
+        util::GenReplacementMap repl = {
+            {"NAME", cName()},
+            {"INTERFACE", iFace->cCommsTypeName()},
+            {"OPTS", CProtocolOptions::cName(m_cGenerator)},
+            {"SCOPE", comms::genScopeForInput(inputName, m_cGenerator, m_parent)}
+        };
+
+        return util::genProcessTemplate(Templ, repl);
+    }
+
+    util::GenStringsList msgs;
+    auto allMsgs = m_parent.genGetAllMessages();
+    for (auto* m : allMsgs) {
+        if (!m->genIsReferenced()) {
+            continue;
+        }
+
+        msgs.push_back(CMessage::cCast(m)->cCommsTypeName());
+    }
+
+    const std::string Templ =
+        "using #^#NAME#$# =\n"
+        "    std::tuple<\n"
+        "        #^#MSGS#$#\n"
+        "    >;"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", cName()},
+        {"MSGS", util::genStrListToString(msgs, ",\n", "")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+void CInputMessages::cAddIncludesInternal(GenStringsList& includes) const
+{
+    auto inputName = cCommsNameInternal();
+    if (!inputName.empty()) {
+        includes.push_back(comms::genRelHeaderForInput(inputName, m_cGenerator, m_parent));
+        return;
+    }
+
+    includes.push_back("<tuple>");
+    auto allMsgs = m_parent.genGetAllMessages();
+    for (auto* m : allMsgs) {
+        if (!m->genIsReferenced()) {
+            continue;
+        }
+
+        includes.push_back(CMessage::cCast(m)->cRelCommsHeader());
+    }
 }
 
 } // namespace commsdsl2c

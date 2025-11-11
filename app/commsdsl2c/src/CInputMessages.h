@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "commsdsl/gen/util.h"
+
 #include <string>
 
 namespace commsdsl2c
@@ -26,6 +28,8 @@ class CNamespace;
 class CInputMessages
 {
 public:
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+
     CInputMessages(CGenerator& generator, const CNamespace& parent);
     bool cWrite() const;
 
@@ -33,6 +37,9 @@ public:
     std::string cName() const;
 
 private:
+    std::string cCommsNameInternal() const;
+    std::string cInputDefInternal() const;
+    void cAddIncludesInternal(GenStringsList& includes) const;
 
     CGenerator& m_cGenerator;
     const CNamespace& m_parent;

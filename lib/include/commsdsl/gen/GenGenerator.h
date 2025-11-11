@@ -79,7 +79,9 @@ public:
     const std::string& genGetCodeVersion() const;
     void genSetCodeVersion(const std::string& value);
     void genSetMessagesListFile(const std::string& value);
+    const std::string& genGetMessagesListFile() const;
     void genSetForcedPlatform(const std::string& value);
+    const std::string& genGetForcedPlatform() const;
     void genSetNamespaceOverride(const std::string& value);
 
     void genSetTopNamespace(const std::string& value);

@@ -137,7 +137,6 @@ private:
     bool cPrepareNamesPrefixInternal();
     bool cPrepareCommsOptionsInternal();
     bool cPrepareForcedInterfaceInternal();
-    bool cPrepareInputNameInternal();
 
     std::string m_namesPrefix;
     std::string m_forcedInterfaceName;

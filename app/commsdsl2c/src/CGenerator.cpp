@@ -325,8 +325,7 @@ bool CGenerator::genPrepareImpl()
     return
         cPrepareNamesPrefixInternal() &&
         cPrepareCommsOptionsInternal() &&
-        cPrepareForcedInterfaceInternal() &&
-        cPrepareInputNameInternal();
+        cPrepareForcedInterfaceInternal();
 }
 
 bool CGenerator::genWriteImpl()
@@ -566,14 +565,6 @@ bool CGenerator::cPrepareForcedInterfaceInternal()
     }
 
     m_forcedInterface = CInterface::cCast(iFace);
-    return true;
-}
-
-bool CGenerator::cPrepareInputNameInternal()
-{
-    if (m_inputName.empty()) {
-        m_inputName = strings::genAllMessagesStr();
-    }
     return true;
 }
 

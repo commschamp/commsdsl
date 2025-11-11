@@ -46,12 +46,20 @@ CMessage::~CMessage() = default;
 
 std::string CMessage::cRelHeader() const
 {
+    if (!genIsReferenced()) {
+        return strings::genEmptyString();
+    }
+
     auto& cGenerator = CGenerator::cCast(genGenerator());
     return cGenerator.cRelHeaderFor(*this);
 }
 
 std::string CMessage::cRelCommsHeader() const
 {
+    if (!genIsReferenced()) {
+        return strings::genEmptyString();
+    }
+
     auto& cGenerator = CGenerator::cCast(genGenerator());
     return cGenerator.cRelCommsHeaderFor(*this);
 }

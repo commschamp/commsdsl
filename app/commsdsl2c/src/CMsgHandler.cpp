@@ -397,6 +397,10 @@ std::string CMsgHandler::cCommsSourceFuncsInternal() const
             "}\n"
             ;
 
+        if (!m->genIsReferenced()) {
+            continue;
+        }
+
         auto* cMsg = CMessage::cCast(m);
         util::GenReplacementMap repl = {
             //{"COMMS_NAME", cMsg->cCommsTypeName()},

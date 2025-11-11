@@ -167,9 +167,19 @@ public:
         m_messagesListFile = value;
     }
 
+    const std::string& genGetMessagesListFile() const
+    {
+        return m_messagesListFile;
+    }
+
     void genSetForcedPlatform(const std::string& value)
     {
         m_forcedPlatform = value;
+    }
+
+    const std::string& genGetForcedPlatform() const
+    {
+        return m_forcedPlatform;
     }
 
     GenInterfacesAccessList genGetAllInterfaces() const
@@ -667,10 +677,12 @@ int GenGenerator::genExec(const GenProgramOptions& options)
     }
 
     if (!genPrepare(files)) {
+        genLogger().genError("Failed to prepare data structures for code generation");
         return -1;
     }
 
     if (!genWrite()) {
+        genLogger().genError("Code generation failed");
         return -2;
     }
 
@@ -707,9 +719,19 @@ void GenGenerator::genSetMessagesListFile(const std::string& value)
     m_impl->genSetMessagesListFile(value);
 }
 
+const std::string& GenGenerator::genGetMessagesListFile() const
+{
+    return m_impl->genGetMessagesListFile();
+}
+
 void GenGenerator::genSetForcedPlatform(const std::string& value)
 {
     m_impl->genSetForcedPlatform(value);
+}
+
+const std::string& GenGenerator::genGetForcedPlatform() const
+{
+    return m_impl->genGetForcedPlatform();
 }
 
 void GenGenerator::genSetNamespaceOverride(const std::string& value)
