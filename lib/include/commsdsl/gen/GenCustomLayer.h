@@ -44,7 +44,6 @@ public:
 
 protected:
     virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const override final;
-
 };
 
 } // namespace gen

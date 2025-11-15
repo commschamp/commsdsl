@@ -307,8 +307,37 @@ bool GenLayer::genWriteImpl() const
     return true;
 }
 
-bool GenLayer::genForceCommsOrderImpl([[maybe_unused]] GenLayersAccessList& layers, bool& success) const
+bool GenLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const
 {
+    auto iter =
+        std::find_if(
+            layers.begin(), layers.end(),
+            [this](const auto* l)
+            {
+                return l == this;
+            });
+
+    if (iter == layers.end()) {
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
+        assert(Should_not_happen);
+        success = false;
+        return false;
+    }
+
+    auto payloadIter =
+        std::find_if(
+            layers.begin(), layers.end(),
+            [](const auto* l)
+            {
+                return l->genParseObj().parseKind() == ParseLayer::ParseKind::Payload;
+            });
+
+    if (payloadIter == layers.end()) {
+        genGenerator().genLogger().genError("Frame layer \"" + genName() + "\" is expected to precede <payload>.");
+        success = false;
+        return false;
+    }
+
     success = true;
     return false;
 }

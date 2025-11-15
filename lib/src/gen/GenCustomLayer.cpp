@@ -44,8 +44,7 @@ bool GenCustomLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool& s
 {
     auto obj = genCustomLayerParseObj();
     if (obj.parseSemanticLayerType() != ParseLayer::ParseKind::Checksum) {
-        success = true;
-        return false;
+        return Base::genForceCommsOrderImpl(layers, success);
     }
 
     auto iter =
