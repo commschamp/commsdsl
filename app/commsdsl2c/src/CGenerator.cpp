@@ -466,7 +466,6 @@ CGenerator::OptsProcessResult CGenerator::genProcessOptionsImpl(const GenProgram
 
     cSetNamesPrefixInternal(opts.cGetNamesPrefix());
     cSetCommsOptionsInternal(opts.cGetCommsOptions());
-    cSetCommsInterfaceInternal(opts.cGetCommsInterface());
     cSetCommsInputInternal(opts.cGetCommsInput());
     genSetTopNamespace("cc_c");
     return OptsProcessResult_Continue;
@@ -493,11 +492,6 @@ void CGenerator::cSetCommsOptionsInternal(const std::string& value)
 void CGenerator::cSetCommsInputInternal(const std::string& value)
 {
     m_inputName = value;
-}
-
-void CGenerator::cSetCommsInterfaceInternal(const std::string& value)
-{
-    m_forcedInterfaceName = value;
 }
 
 bool CGenerator::cPrepareNamesPrefixInternal()
@@ -554,13 +548,14 @@ bool CGenerator::cPrepareCommsOptionsInternal()
 
 bool CGenerator::cPrepareForcedInterfaceInternal()
 {
-    if (m_forcedInterfaceName.empty()) {
+    auto& forcedInterfaceName = genGetForcedInterface();
+    if (forcedInterfaceName.empty()) {
         return true;
     }
 
-    auto* iFace = genFindInterface(m_forcedInterfaceName);
+    auto* iFace = genFindInterface(forcedInterfaceName);
     if (iFace == nullptr) {
-        genLogger().genError("Unknown forced interface \"" + m_forcedInterfaceName + "\"");
+        genLogger().genError("Unknown forced interface \"" + forcedInterfaceName + "\"");
         return false;
     }
 

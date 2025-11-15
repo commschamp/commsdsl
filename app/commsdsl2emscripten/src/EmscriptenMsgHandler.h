@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include "commsdsl/gen/GenNamespace.h"
 #include "commsdsl/gen/util.h"
 
 #include <string>
@@ -29,6 +30,7 @@ class EmscriptenMsgHandler
 {
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
+    using GenMessagesAccessList = commsdsl::gen::GenNamespace::GenMessagesAccessList;
 
     EmscriptenMsgHandler(EmscriptenGenerator& generator, const EmscriptenNamespace& parent);
     bool emscriptenWrite() const;
@@ -47,6 +49,7 @@ private:
     std::string emscriptenSourceWrapperFuncsInternal() const;
     std::string emscriptenSourceBindInternal() const;
     std::string emscriptenSourceBindFuncsInternal() const;
+    GenMessagesAccessList emscriptenMessagesListInternal() const;
 
     EmscriptenGenerator& m_emscriptenGenerator;
     const EmscriptenNamespace& m_parent;

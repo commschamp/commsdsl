@@ -182,6 +182,21 @@ public:
         return m_forcedPlatform;
     }
 
+    void genSetForcedInterface(const std::string& value)
+    {
+        m_forcedInterfaceName = value;
+    }
+
+    const std::string& genGetForcedInterface() const
+    {
+        return m_forcedInterfaceName;
+    }
+
+    const GenInterface* genForcedInterface() const
+    {
+        return m_forcedInterface;
+    }
+
     GenInterfacesAccessList genGetAllInterfaces() const
     {
         return genCurrentSchema().genGetAllInterfaces();
@@ -411,13 +426,10 @@ public:
                 m_logger->genError("Failed to genCreate elements inside schema \"" + s->genParseObj().parseName() + "\"");
                 return false;
             }
-
-            if (m_allInterfacesReferencedByDefault) {
-                s->genSetAllInterfacesReferenced();
-            }
         }
 
-        if (!genReferenceRequestedMessagesInternal()) {
+        if ((!genReferenceRequestedInterfacesInternal()) ||
+            (!genReferenceRequestedMessagesInternal())) {
             return false;
         }
 
@@ -488,16 +500,6 @@ public:
         }
     }
 
-    bool genGetAllInterfacesReferencedByDefault() const
-    {
-        return m_allInterfacesReferencedByDefault;
-    }
-
-    void genSetAllInterfacesReferencedByDefault(bool value)
-    {
-        m_allInterfacesReferencedByDefault = value;
-    }
-
 private:
     std::pair<const GenSchema*, std::string> genParseExternalRef(const std::string& externalRef) const
     {
@@ -547,6 +549,25 @@ private:
             return false;
         }
 
+        return true;
+    }
+
+    bool genReferenceRequestedInterfacesInternal()
+    {
+        if (m_forcedInterfaceName.empty()) {
+            m_logger->genDebug("Referencing all interfaces.");
+            genReferenceAllInterfaces();
+            return true;
+        }
+
+        auto* iFace = const_cast<GenInterface*>(genFindInterface(m_forcedInterfaceName));
+        if (iFace == nullptr) {
+            m_logger->genError("Cannot find forced interface \"" + m_forcedInterfaceName + "\".");
+            return false;
+        }
+
+        iFace->genSetReferenced();
+        m_forcedInterface = iFace;
         return true;
     }
 
@@ -638,6 +659,7 @@ private:
     GenLoggerPtr m_logger;
     GenSchemasList m_schemas;
     GenSchema* m_currentSchema = nullptr;
+    const GenInterface* m_forcedInterface = nullptr;
     std::map<std::string, std::string> m_namespaceOverrides;
     std::string m_topNamespace;
     int m_forcedSchemaVersion = -1;
@@ -647,9 +669,9 @@ private:
     std::string m_codeDir;
     std::string m_messagesListFile;
     std::string m_forcedPlatform;
+    std::string m_forcedInterfaceName;
     mutable std::vector<std::string> m_createdDirectories;
     bool m_versionIndependentCodeForced = false;
-    bool m_allInterfacesReferencedByDefault = true;
 };
 
 GenGenerator::GenGenerator() :
@@ -732,6 +754,21 @@ void GenGenerator::genSetForcedPlatform(const std::string& value)
 const std::string& GenGenerator::genGetForcedPlatform() const
 {
     return m_impl->genGetForcedPlatform();
+}
+
+void GenGenerator::genSetForcedInterface(const std::string& value)
+{
+    m_impl->genSetForcedInterface(value);
+}
+
+const std::string& GenGenerator::genGetForcedInterface() const
+{
+    return m_impl->genGetForcedInterface();
+}
+
+const GenInterface* GenGenerator::genForcedInterface() const
+{
+    return m_impl->genForcedInterface();
 }
 
 void GenGenerator::genSetNamespaceOverride(const std::string& value)
@@ -1274,16 +1311,6 @@ void GenGenerator::genReferenceAllInterfaces()
     m_impl->genReferenceAllInterfaces();
 }
 
-bool GenGenerator::genGetAllInterfacesReferencedByDefault() const
-{
-    return m_impl->genGetAllInterfacesReferencedByDefault();
-}
-
-void GenGenerator::genSetAllInterfacesReferencedByDefault(bool value)
-{
-    m_impl->genSetAllInterfacesReferencedByDefault(value);
-}
-
 GenGenerator::OptsProcessResult GenGenerator::genProcessOptions(const GenProgramOptions& options)
 {
     if (options.genHelpRequested()) {
@@ -1333,6 +1360,7 @@ GenGenerator::OptsProcessResult GenGenerator::genProcessOptions(const GenProgram
     genSetCodeVersion(options.genGetCodeVersion());
     genSetMessagesListFile(options.genMessagesListFile());
     genSetForcedPlatform(options.genForcedPlatform());
+    genSetForcedInterface(options.genForcedInterface());
 
     return genProcessOptionsImpl(options);
 }

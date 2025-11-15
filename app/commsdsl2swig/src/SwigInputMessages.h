@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include "commsdsl/gen/GenNamespace.h"
 #include "commsdsl/gen/util.h"
 
 #include <string>
@@ -23,12 +24,22 @@ namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigAllMessages
+class SwigNamespace;
+class SwigInputMessages
 {
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
+    using GenMessagesAccessList = commsdsl::gen::GenNamespace::GenMessagesAccessList;
 
-    static void swigAddCode(const SwigGenerator& generator, GenStringsList& list);
+    SwigInputMessages(SwigGenerator& generator, const SwigNamespace& parent);
+    void swigAddCode(GenStringsList& list) const;
+    std::string swigClassName() const;
+
+private:
+    GenMessagesAccessList swigMessagesListInternal() const;
+
+    SwigGenerator& m_swigGenerator;
+    const SwigNamespace& m_parent;
 };
 
 } // namespace commsdsl2swig

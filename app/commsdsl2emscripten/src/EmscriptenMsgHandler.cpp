@@ -102,7 +102,7 @@ bool EmscriptenMsgHandler::emscriptenWriteHeaderInternal() const
         "};\n"
         ;
 
-    auto* iFace = m_emscriptenGenerator.emscriptenMainInterface();
+    auto* iFace = m_parent.emscriptenInterface();;
     assert(iFace != nullptr);
 
     util::GenReplacementMap repl = {
@@ -186,7 +186,7 @@ bool EmscriptenMsgHandler::emscriptenWriteSrcInternal() const
 
 std::string EmscriptenMsgHandler::emscriptenHeaderIncludesInternal() const
 {
-    auto* iFace = m_emscriptenGenerator.emscriptenMainInterface();
+    auto* iFace = m_parent.emscriptenInterface();
     assert(iFace != nullptr);
     auto* parentNs = iFace->genParentNamespace();
     assert(parentNs != nullptr);
@@ -214,7 +214,7 @@ std::string EmscriptenMsgHandler::emscriptenHeaderIncludesInternal() const
 
 std::string EmscriptenMsgHandler::emscriptenHeaderHandleFuncsInternal() const
 {
-    auto* iFace = m_emscriptenGenerator.emscriptenMainInterface();
+    auto* iFace = m_parent.emscriptenInterface();
     assert(iFace != nullptr);
 
     util::GenReplacementMap repl = {
@@ -227,7 +227,7 @@ std::string EmscriptenMsgHandler::emscriptenHeaderHandleFuncsInternal() const
 
     util::GenStringsList funcs;
 
-    auto allMessages = m_emscriptenGenerator.genGetAllMessagesIdSorted();
+    auto allMessages = emscriptenMessagesListInternal();
     funcs.reserve(allMessages.size());
 
     for (auto* m : allMessages) {
@@ -249,7 +249,7 @@ std::string EmscriptenMsgHandler::emscriptenHeaderHandleFuncsInternal() const
 
 std::string EmscriptenMsgHandler::emscriptenSourceHandleFuncsInternal() const
 {
-    auto* iFace = m_emscriptenGenerator.emscriptenMainInterface();
+    auto* iFace = m_parent.emscriptenInterface();
     assert(iFace != nullptr);
 
     util::GenReplacementMap repl = {
@@ -263,7 +263,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceHandleFuncsInternal() const
 
     util::GenStringsList funcs;
 
-    auto allMessages = m_emscriptenGenerator.genGetAllMessagesIdSorted();
+    auto allMessages = emscriptenMessagesListInternal();
     funcs.reserve(allMessages.size() + 1U);
 
     for (auto* m : allMessages) {
@@ -315,7 +315,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceWrapperFuncsInternal() const
 
     util::GenStringsList funcs;
 
-    auto allMessages = m_emscriptenGenerator.genGetAllMessagesIdSorted();
+    auto allMessages = emscriptenMessagesListInternal();
     funcs.reserve(allMessages.size() + 1U);
 
     for (auto* m : allMessages) {
@@ -330,7 +330,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceWrapperFuncsInternal() const
         funcs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    auto* iFace = m_emscriptenGenerator.emscriptenMainInterface();
+    auto* iFace = m_parent.emscriptenInterface();
     assert(iFace != nullptr);
 
     util::GenReplacementMap repl = {
@@ -372,7 +372,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceBindFuncsInternal() const
 
     util::GenStringsList funcs;
 
-    auto allMessages = m_emscriptenGenerator.genGetAllMessagesIdSorted();
+    auto allMessages = emscriptenMessagesListInternal();
     funcs.reserve(allMessages.size() + 1U);
 
     for (auto* m : allMessages) {
@@ -384,13 +384,23 @@ std::string EmscriptenMsgHandler::emscriptenSourceBindFuncsInternal() const
         funcs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    auto* iFace = m_emscriptenGenerator.emscriptenMainInterface();
+    auto* iFace = m_parent.emscriptenInterface();
     assert(iFace != nullptr);
 
     repl["TYPE"] = m_emscriptenGenerator.emscriptenClassName(*iFace);
     funcs.push_back(util::genProcessTemplate(Templ, repl));
 
     return util::genStrListToString(funcs, "\n", "");
+}
+
+EmscriptenMsgHandler::GenMessagesAccessList EmscriptenMsgHandler::emscriptenMessagesListInternal() const
+{
+    auto allMessages = m_parent.genGetAllMessagesIdSorted();
+    if (allMessages.empty() && m_parent.genName().empty()) {
+        allMessages = m_emscriptenGenerator.genCurrentSchema().genGetAllMessagesIdSorted();
+    }
+
+    return allMessages;
 }
 
 } // namespace commsdsl2emscripten

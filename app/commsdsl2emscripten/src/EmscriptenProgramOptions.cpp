@@ -30,7 +30,6 @@ namespace
 {
 
 const std::string EmscriptenForceMainNamespaceInNamesStr("force-main-ns-in-names");
-const std::string EmscriptenForceInterfaceStr("force-interface");
 const std::string EmscriptenHasCodeVerStr("has-code-version");
 
 } // namespace
@@ -39,9 +38,9 @@ EmscriptenProgramOptions::EmscriptenProgramOptions()
 {
     genAddCommonOptions();
     genAddCodeVersionOptions();
-    genAddMessagesSelectionOptions()
+    genAddMessagesSelectionOptions();
+    genAddInterfaceSelectionOptions()
     (EmscriptenForceMainNamespaceInNamesStr, "Force having main namespace in generated class names.")
-    (EmscriptenForceInterfaceStr, "Force usage of the provided interface (CommsDSL reference string).", true)
     (EmscriptenHasCodeVerStr, "The protocol definition (produced by commsdsl2comms) contains code semantic version.")
     ;
 }
@@ -49,16 +48,6 @@ EmscriptenProgramOptions::EmscriptenProgramOptions()
 bool EmscriptenProgramOptions::emscriptenIsMainNamespaceInNamesForced() const
 {
     return genIsOptUsed(EmscriptenForceMainNamespaceInNamesStr);
-}
-
-bool EmscriptenProgramOptions::emscriptenHasForcedInterface() const
-{
-    return genIsOptUsed(EmscriptenForceInterfaceStr);
-}
-
-const std::string& EmscriptenProgramOptions::emscriptenGetForcedInterface() const
-{
-    return genValue(EmscriptenForceInterfaceStr);
 }
 
 bool EmscriptenProgramOptions::emscriptenHasCodeVersion() const

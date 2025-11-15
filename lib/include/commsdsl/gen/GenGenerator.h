@@ -82,6 +82,9 @@ public:
     const std::string& genGetMessagesListFile() const;
     void genSetForcedPlatform(const std::string& value);
     const std::string& genGetForcedPlatform() const;
+    void genSetForcedInterface(const std::string& value);
+    const std::string& genGetForcedInterface() const;
+    const GenInterface* genForcedInterface() const;
     void genSetNamespaceOverride(const std::string& value);
 
     void genSetTopNamespace(const std::string& value);
@@ -186,8 +189,6 @@ public:
     void genReferenceAllMessages();
 
     void genReferenceAllInterfaces();
-    bool genGetAllInterfacesReferencedByDefault() const;
-    void genSetAllInterfacesReferencedByDefault(bool value = true);
 
     OptsProcessResult genProcessOptions(const GenProgramOptions& options);
 

@@ -13,10 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "SwigAllMessages.h"
+#include "SwigInputMessages.h"
 
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
+#include "SwigNamespace.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -31,21 +32,27 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-void SwigAllMessages::swigAddCode(const SwigGenerator& generator, GenStringsList& list)
+SwigInputMessages::SwigInputMessages(SwigGenerator& generator, const SwigNamespace& parent) :
+    m_swigGenerator(generator),
+    m_parent(parent)
 {
-    auto allMessages = generator.genGetAllMessagesIdSorted();
+}
+
+void SwigInputMessages::swigAddCode(GenStringsList& list) const
+{
+    auto allMessages = swigMessagesListInternal();
     util::GenStringsList msgList;
     msgList.reserve(allMessages.size());
 
-    auto* iFace = generator.swigMainInterface();
+    auto* iFace = m_parent.swigInterface();
     assert(iFace != nullptr);
-    auto interfaceClassName = generator.swigClassName(*iFace);
+    auto interfaceClassName = m_swigGenerator.swigClassName(*iFace);
 
     for (auto* m : allMessages) {
         if (!m->genIsReferenced()) {
             continue;
         }
-        msgList.push_back(generator.swigClassName(*m));
+        msgList.push_back(m_swigGenerator.swigClassName(*m));
     }
 
     const std::string Templ =
@@ -55,11 +62,26 @@ void SwigAllMessages::swigAddCode(const SwigGenerator& generator, GenStringsList
         "    >;\n";
 
     util::GenReplacementMap repl = {
-        {"NAME", strings::genAllMessagesStr()},
+        {"NAME", swigClassName()},
         {"MESSAGES", util::genStrListToString(msgList, ",\n", "")}
     };
 
     list.push_back(util::genProcessTemplate(Templ, repl));
+}
+
+std::string SwigInputMessages::swigClassName() const
+{
+    return m_swigGenerator.swigScopeNameForNamespaceMember(strings::genAllMessagesStr(), m_parent);
+}
+
+SwigInputMessages::GenMessagesAccessList SwigInputMessages::swigMessagesListInternal() const
+{
+    auto allMessages = m_parent.genGetAllMessagesIdSorted();
+    if (allMessages.empty() && m_parent.genName().empty()) {
+        allMessages = m_swigGenerator.genCurrentSchema().genGetAllMessagesIdSorted();
+    }
+
+    return allMessages;
 }
 
 } // namespace commsdsl2swig

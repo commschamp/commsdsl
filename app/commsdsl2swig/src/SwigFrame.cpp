@@ -21,6 +21,7 @@
 #include "SwigInterface.h"
 #include "SwigLayer.h"
 #include "SwigMsgHandler.h"
+#include "SwigNamespace.h"
 #include "SwigProtocolOptions.h"
 
 #include "commsdsl/gen/comms.h"
@@ -184,8 +185,11 @@ std::string SwigFrame::swigClassDeclInternal() const
         "};\n";
 
     auto& gen = SwigGenerator::swigCast(genGenerator());
-    auto* iFace = gen.swigMainInterface();
+    auto* iFace = swigInterfaceInternal();
     assert(iFace != nullptr);
+    auto* handler = swigMsgHandlerInternal();
+    assert(handler != nullptr);
+
     util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"INTERFACE", gen.swigClassName(*iFace)},
@@ -193,7 +197,7 @@ std::string SwigFrame::swigClassDeclInternal() const
         {"CUSTOM", util::genReadFileContents(gen.swigInputCodePathFor(*this) + strings::genAppendFileSuffixStr())},
         {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
-        {"HANDLER", SwigMsgHandler::swigClassName(gen)},
+        {"HANDLER", handler->swigClassName()},
         {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)}
     };
 
@@ -308,7 +312,7 @@ std::string SwigFrame::swigFrameCodeInternal() const
         "    }\n\n"
         "    #^#CUSTOM#$#\n\n"
         "private:\n"
-        "    using Frame = #^#COMMS_CLASS#$#<#^#INTERFACE#$#, AllMessages#^#OPTS#$#>;\n"
+        "    using Frame = #^#COMMS_CLASS#$#<#^#INTERFACE#$#, #^#INPUT_MESSAGES#$##^#OPTS#$#>;\n"
         "    Frame m_frame;\n"
         "};\n";
 
@@ -323,8 +327,12 @@ std::string SwigFrame::swigFrameCodeInternal() const
     }
 
     auto& gen = SwigGenerator::swigCast(genGenerator());
-    auto* iFace = gen.swigMainInterface();
+    auto* iFace = swigInterfaceInternal();
     assert(iFace != nullptr);
+    auto* handler = swigMsgHandlerInternal();
+    assert(handler != nullptr);
+    auto* input = swigInputInternal();
+    assert(input != nullptr);
     util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"INTERFACE", gen.swigClassName(*iFace)},
@@ -337,8 +345,9 @@ std::string SwigFrame::swigFrameCodeInternal() const
         {"PROT_OPTS", SwigProtocolOptions::swigClassName(gen)},
         {"ALL_FIELDS_VALUES", util::genStrListToString(allFieldsAcc, ",\n", "")},
         {"FRAME_FIELDS_VALUES", util::genStrListToString(frameFieldsAcc, ",\n", "")},
-        {"HANDLER", SwigMsgHandler::swigClassName(gen)},
+        {"HANDLER", handler->swigClassName()},
         {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)},
+        {"INPUT_MESSAGES", input->swigClassName()}
     };
 
     if (SwigProtocolOptions::swigIsDefined(gen)) {
@@ -368,6 +377,24 @@ std::string SwigFrame::swigAllFieldsInternal() const
     };
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+const SwigInterface* SwigFrame::swigInterfaceInternal() const
+{
+    auto* parentNs = SwigNamespace::swigCast(genParentNamespace());
+    return parentNs->swigInterface();
+}
+
+const SwigMsgHandler* SwigFrame::swigMsgHandlerInternal() const
+{
+    auto* parentNs = SwigNamespace::swigCast(genParentNamespace());
+    return parentNs->swigMsgHandler();
+}
+
+const SwigInputMessages* SwigFrame::swigInputInternal() const
+{
+    auto* parentNs = SwigNamespace::swigCast(genParentNamespace());
+    return parentNs->swigInputMessages();
 }
 
 } // namespace commsdsl2swig

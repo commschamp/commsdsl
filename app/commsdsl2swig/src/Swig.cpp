@@ -15,14 +15,13 @@
 
 #include "Swig.h"
 
-#include "SwigAllMessages.h"
 #include "SwigComms.h"
 #include "SwigDataBuf.h"
 #include "SwigFrame.h"
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
 #include "SwigMessage.h"
-#include "SwigMsgHandler.h"
+#include "SwigNamespace.h"
 #include "SwigProtocolOptions.h"
 #include "SwigSchema.h"
 #include "SwigVersion.h"
@@ -113,19 +112,20 @@ std::string Swig::swigCodeBlockInternal()
 
     SwigProtocolOptions::swigAddCode(m_swigGenerator, codeElems);
 
-    SwigMsgHandler::swigAddFwdCode(m_swigGenerator, codeElems);
-
-    SwigGenerator::swigCast(m_swigGenerator).swigMainInterface()->swigAddCode(codeElems);
-
     for (auto& sPtr : m_swigGenerator.genSchemas()) {
         auto* schema = SwigSchema::swigCast(sPtr.get());
         schema->swigAddCodeIncludes(includes);
         schema->swigAddCode(codeElems);
     }
 
-    SwigAllMessages::swigAddCode(m_swigGenerator, codeElems);
-
-    SwigMsgHandler::swigAddClassCode(m_swigGenerator, codeElems);
+    auto allNamespaces = m_swigGenerator.genGetAllNamespacesFromAllSchemas();
+    for (auto* nsPtr : allNamespaces) {
+        auto* ns = SwigNamespace::swigCast(nsPtr);
+        auto* msgHandler = ns->swigMsgHandler();
+        if (msgHandler != nullptr) {
+            msgHandler->swigAddClassCode(codeElems);
+        }
+    }
 
     auto allFrames = m_swigGenerator.genGetAllFramesFromAllSchemas();
     for (auto* fPtr : allFrames) {
@@ -174,7 +174,7 @@ std::string Swig::swigDefInternal()
         SwigSchema::swigCast(sPtr.get())->swigAddDef(defs);
     }
 
-    SwigMsgHandler::swigAddDef(m_swigGenerator, defs);
+    // SwigMsgHandler::swigAddDef(m_swigGenerator, defs);
 
     auto allFrames = m_swigGenerator.genGetAllFrames();
     for (auto* fPtr : allFrames) {

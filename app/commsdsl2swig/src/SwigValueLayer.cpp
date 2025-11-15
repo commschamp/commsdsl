@@ -15,6 +15,7 @@
 
 #include "SwigValueLayer.h"
 
+#include "SwigFrame.h"
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
 
@@ -66,8 +67,8 @@ std::string SwigValueLayer::swigCodeFuncsImpl() const
 
 bool SwigValueLayer::swigIsMainInterfaceSupportedImpl() const
 {
-    auto& gen = SwigGenerator::swigCast(genGenerator());
-    auto* iFace = gen.swigMainInterface();
+    auto* frame = SwigFrame::swigCast(genParentFrame());
+    auto* iFace = frame->swigInterface();
     assert(iFace != nullptr);
     return genIsInterfaceSupported(iFace);
 }

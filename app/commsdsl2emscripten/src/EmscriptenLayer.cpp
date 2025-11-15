@@ -54,9 +54,9 @@ const EmscriptenLayer* EmscriptenLayer::emscriptenCast(const GenLayer* layer)
     return emscriptenLayer;
 }
 
-bool EmscriptenLayer::emscriptenIsMainInterfaceSupported() const
+bool EmscriptenLayer::emscriptenIsInterfaceSupported(const EmscriptenInterface& iFace) const
 {
-    return emscriptenIsMainInterfaceSupportedImpl();
+    return emscriptenIsInterfaceSupportedImpl(iFace);
 }
 
 std::string EmscriptenLayer::emscriptenFieldAccName() const
@@ -111,7 +111,7 @@ std::string EmscriptenLayer::emscriptenSourceCode() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-bool EmscriptenLayer::emscriptenIsMainInterfaceSupportedImpl() const
+bool EmscriptenLayer::emscriptenIsInterfaceSupportedImpl([[maybe_unused]] const EmscriptenInterface& iFace) const
 {
     return true;
 }
@@ -146,13 +146,14 @@ std::string EmscriptenLayer::emscriptenSourceExtraFuncsImpl() const
 std::string EmscriptenLayer::emscriptenTemplateScope() const
 {
     auto& gen = EmscriptenGenerator::emscriptenCast(m_genLayer.genGenerator());
-    auto* iFace = gen.emscriptenMainInterface();
-    assert(iFace != nullptr);
-
     auto* frame = emscriptenGenLayer().genGetParent();
     assert(frame->genElemType() == commsdsl::gen::GenElem::GenType_Frame);
 
-    auto* ns = EmscriptenFrame::emscriptenCast(static_cast<const commsdsl::gen::GenFrame*>(frame))->emscriptenFindInputNamespace();
+    auto* emscriptenFrame = EmscriptenFrame::emscriptenCast(static_cast<const commsdsl::gen::GenFrame*>(frame));
+    auto* iFace = emscriptenFrame->emscriptenInterface();
+    assert(iFace != nullptr);
+
+    auto* ns = emscriptenFrame->emscriptenFindInputNamespace();
     if (ns == nullptr) {
         ns = EmscriptenNamespace::emscriptenCast(static_cast<const commsdsl::gen::GenNamespace*>((iFace->genParentNamespace())));
         assert(ns->emscriptenHasInput());

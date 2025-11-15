@@ -76,6 +76,11 @@ const EmscriptenNamespace* EmscriptenFrame::emscriptenFindInputNamespace() const
     return EmscriptenNamespace::emscriptenCast(static_cast<const commsdsl::gen::GenNamespace*>(ns));
 }
 
+const EmscriptenInterface* EmscriptenFrame::emscriptenInterface() const
+{
+    return emscriptenInterfaceInternal();
+}
+
 bool EmscriptenFrame::genPrepareImpl()
 {
     if (!GenBase::genPrepareImpl()) {
@@ -94,13 +99,21 @@ bool EmscriptenFrame::genPrepareImpl()
         m_emscriptenLayers.push_back(const_cast<EmscriptenLayer*>(emscriptenLayer));
     }
 
-    m_validFrame =
-        std::all_of(
-            m_emscriptenLayers.begin(), m_emscriptenLayers.end(),
-            [](auto* l)
-            {
-                return l->emscriptenIsMainInterfaceSupported();
-            });
+    auto* iFace = emscriptenInterfaceInternal();
+    do {
+        if (iFace == nullptr) {
+            genGenerator().genLogger().genDebug("No valid interface for frame " + genName());
+            break;
+        }
+
+        m_validFrame =
+            std::all_of(
+                m_emscriptenLayers.begin(), m_emscriptenLayers.end(),
+                [iFace](auto* l)
+                {
+                    return l->emscriptenIsInterfaceSupported(*iFace);
+                });
+    } while (false);
 
     return true;
 }
@@ -203,7 +216,7 @@ bool EmscriptenFrame::emscriptenWriteSourceInternal() const
 std::string EmscriptenFrame::emscriptenHeaderIncludesInternal() const
 {
     auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
-    auto* iFace = gen.emscriptenMainInterface();
+    auto* iFace = emscriptenInterfaceInternal();
     assert(iFace != nullptr);
     auto interfaceNs = iFace->genParentNamespace();
     auto* inputNs = emscriptenFindInputNamespace();
@@ -310,7 +323,7 @@ std::string EmscriptenFrame::emscriptenHeaderClassInternal() const
     "};\n";
 
     auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
-    auto* iFace = gen.emscriptenMainInterface();
+    auto* iFace = emscriptenInterfaceInternal();
     assert(iFace != nullptr);
     auto* interfaceNs = iFace->genParentNamespace();
     assert(interfaceNs != nullptr);
@@ -477,7 +490,7 @@ std::string EmscriptenFrame::emscriptenSourceCodeInternal() const
     }
 
     auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
-    auto* iFace = gen.emscriptenMainInterface();
+    auto* iFace = emscriptenInterfaceInternal();
     assert(iFace != nullptr);
     auto* parentNs = iFace->genParentNamespace();
     assert(parentNs != nullptr);
@@ -540,6 +553,15 @@ std::string EmscriptenFrame::emscriptenSourceLayersAccBindInternal() const
     }
 
     return util::genStrListToString(result, "\n", "");
+}
+
+const EmscriptenInterface* EmscriptenFrame::emscriptenInterfaceInternal() const
+{
+    auto* parent = genGetParent();
+    assert(parent != nullptr);
+    assert(parent->genElemType() == commsdsl::gen::GenElem::GenType_Namespace);
+    auto* parentNs = EmscriptenNamespace::emscriptenCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
+    return parentNs->emscriptenInterface();
 }
 
 } // namespace commsdsl2emscripten

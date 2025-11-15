@@ -108,7 +108,7 @@ void SwigMsgId::swigAddCode(GenStringsList& list) const
 
 std::string SwigMsgId::swigClassName() const
 {
-    return m_swigGenerator.swigScopeNameForMsgId(strings::genMsgIdEnumNameStr(), m_parent);
+    return m_swigGenerator.swigScopeNameForNamespaceMember(strings::genMsgIdEnumNameStr(), m_parent);
 }
 
 void SwigMsgId::swigAddCodeIncludes(GenStringsList& list) const

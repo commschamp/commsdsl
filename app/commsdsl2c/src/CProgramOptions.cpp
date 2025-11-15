@@ -24,7 +24,6 @@ namespace
 const std::string CNamesPrefixStr("names-prefix");
 const std::string CFullNamesPrefixStr("p," + CNamesPrefixStr);
 const std::string CCommsOptionsStr("comms-options");
-const std::string CCommsInterfaceStr("comms-interface");
 const std::string CCommsInputStr("comms-input");
 
 } // namespace
@@ -44,8 +43,6 @@ CProgramOptions::CProgramOptions()
         "In case of multiple schemas use comma separation between scopes. "
         "In case of single schema, just the name of the options without the full scope is also supported.",
         true)
-    (CCommsInterfaceStr,
-        "Force usage of the provided interface (CommsDSL reference string).", true)
     (CCommsInputStr,
         "Name of the input bundle used by frame(s). If not provided \"AllMessages\" is used.", true)
     ;
@@ -59,11 +56,6 @@ const std::string& CProgramOptions::cGetNamesPrefix() const
 const std::string& CProgramOptions::cGetCommsOptions() const
 {
     return genValue(CCommsOptionsStr);
-}
-
-const std::string& CProgramOptions::cGetCommsInterface() const
-{
-    return genValue(CCommsInterfaceStr);
 }
 
 const std::string& CProgramOptions::cGetCommsInput() const

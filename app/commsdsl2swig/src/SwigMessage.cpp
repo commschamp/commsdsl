@@ -19,6 +19,7 @@
 #include "SwigInterface.h"
 #include "SwigMsgHandler.h"
 #include "SwigMsgId.h"
+#include "SwigNamespace.h"
 #include "SwigProtocolOptions.h"
 
 #include "commsdsl/gen/comms.h"
@@ -62,14 +63,16 @@ void SwigMessage::swigAddCode(GenStringsList& list) const
     }
 
     auto& gen = SwigGenerator::swigCast(genGenerator());
-    auto* mainInterface = gen.swigMainInterface();
+    auto* mainInterface = swigGetInterfaceInternal();
     assert(mainInterface != nullptr);
+    auto* handler = swigMsgHandlerInternal();
+    assert(handler != nullptr);
 
     util::GenReplacementMap repl = {
         {"COMMS_CLASS", comms::genScopeFor(*this, gen)},
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"INTERFACE", gen.swigClassName(*mainInterface)},
-        {"MSG_HANDLER", SwigMsgHandler::swigClassName(gen)}
+        {"MSG_HANDLER", handler->swigClassName()},
     };
 
     if (SwigProtocolOptions::swigIsDefined(gen)) {
@@ -221,7 +224,7 @@ std::string SwigMessage::swigClassDeclInternal() const
         "bool operator==(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second);\n";
 
     auto& gen = SwigGenerator::swigCast(genGenerator());
-    auto* iFace = gen.swigMainInterface();
+    auto* iFace = swigGetInterfaceInternal();
     assert(iFace != nullptr);
     util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
@@ -282,6 +285,20 @@ std::string SwigMessage::swigFieldsAccCodeInternal() const
     }
 
     return util::genStrListToString(accFuncs, "\n", "");
+}
+
+const SwigInterface* SwigMessage::swigGetInterfaceInternal() const
+{
+    auto* parentNs = SwigNamespace::swigCast(genParentNamespace());
+    assert(parentNs != nullptr);
+    return parentNs->swigInterface();
+}
+
+const SwigMsgHandler* SwigMessage::swigMsgHandlerInternal() const
+{
+    auto* parentNs = SwigNamespace::swigCast(genParentNamespace());
+    assert(parentNs != nullptr);
+    return parentNs->swigMsgHandler();
 }
 
 } // namespace commsdsl2swig

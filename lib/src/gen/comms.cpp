@@ -640,6 +640,11 @@ std::string genHeaderPathForMsgId(const std::string& name, const GenGenerator& g
     return generator.genGetOutputDir() + '/' + strings::genIncludeDirStr() + '/' + genRelHeaderForMsgId(name, generator, ns);
 }
 
+std::string genHeaderPathForNamespaceMember(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
+{
+    return generator.genGetOutputDir() + '/' + strings::genIncludeDirStr() + '/' + genRelHeaderForNamespaceMember(name, generator, ns);
+}
+
 std::string genCommonHeaderPathFor(const GenElem& elem, const GenGenerator& generator)
 {
     return generator.genGetOutputDir() + '/' + strings::genIncludeDirStr() + '/' + genRelCommonHeaderPathFor(elem, generator);

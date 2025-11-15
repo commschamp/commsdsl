@@ -137,6 +137,7 @@ std::string genHeaderPathForOptions(const std::string& name, const GenGenerator&
 std::string genHeaderPathForDispatch(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
 std::string genHeaderPathForFactory(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
 std::string genHeaderPathForMsgId(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
+std::string genHeaderPathForNamespaceMember(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
 std::string genCommonHeaderPathFor(const GenElem& elem, const GenGenerator& generator);
 std::string genHeaderPathRoot(const std::string& name, const GenGenerator& generator);
 std::string genSourcePathRoot(const std::string& name, const GenGenerator& generator);

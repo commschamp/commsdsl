@@ -25,6 +25,7 @@ namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
+class EmscriptenInterface;
 class EmscriptenMessage final: public commsdsl::gen::GenMessage
 {
     using GenBase = commsdsl::gen::GenMessage;
@@ -60,6 +61,7 @@ private:
     std::string emscriptenHeaderClassInternal() const;
     std::string emscriptenSourceFieldsInternal() const;
     std::string emscriptenSourceCodeInternal() const;
+    const EmscriptenInterface* emscriptenGetInterfaceInternal() const;
 
     EmscriptenFieldsList m_emscriptenFields;
 };

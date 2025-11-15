@@ -136,6 +136,16 @@ bool EmscriptenNamespace::emscriptenHasInput() const
     return (genHasFramesRecursive() && genHasMessagesRecursive());
 }
 
+const EmscriptenInterface* EmscriptenNamespace::emscriptenInterface() const
+{
+    auto* iFace = genFindSuitableInterface();
+    if (iFace == nullptr) {
+        return nullptr;
+    }
+
+    return EmscriptenInterface::emscriptenCast(iFace);
+}
+
 bool EmscriptenNamespace::genWriteImpl() const
 {
     if (!genInterfaces().empty()) {

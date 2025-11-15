@@ -16,8 +16,10 @@
 #include "SwigLayer.h"
 
 #include "SwigField.h"
+#include "SwigFrame.h"
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
+#include "SwigNamespace.h"
 #include "SwigProtocolOptions.h"
 
 #include "commsdsl/gen/comms.h"
@@ -195,10 +197,13 @@ std::string SwigLayer::swigFieldTypeImpl() const
 
 std::string SwigLayer::swigTemplateScope() const
 {
-    auto& gen = SwigGenerator::swigCast(m_genLayer.genGenerator());
-    auto* iFace = gen.swigMainInterface();
+    auto* frame = SwigFrame::swigCast(m_genLayer.genParentFrame());
+    auto* iFace = frame->swigInterface();
     assert(iFace != nullptr);
-    return m_genLayer.genTemplateScopeOfComms(gen.swigClassName(*iFace), strings::genAllMessagesStr(), SwigProtocolOptions::swigClassName(gen));
+    auto* input = frame->swigInput();
+    assert(input != nullptr);
+    auto& gen = SwigGenerator::swigCast(m_genLayer.genGenerator());
+    return m_genLayer.genTemplateScopeOfComms(gen.swigClassName(*iFace), input->swigClassName(), SwigProtocolOptions::swigClassName(gen));
 }
 
 } // namespace commsdsl2swig

@@ -30,7 +30,6 @@ namespace
 {
 
 const std::string ForceMainNamespaceInNamesStr("force-main-ns-in-names");
-const std::string ForceInterfaceStr("force-interface");
 const std::string HasCodeVerStr("has-code-version");
 
 } // namespace
@@ -39,9 +38,9 @@ SwigProgramOptions::SwigProgramOptions()
 {
     genAddCommonOptions();
     genAddCodeVersionOptions();
-    genAddMessagesSelectionOptions()
+    genAddMessagesSelectionOptions();
+    genAddInterfaceSelectionOptions()
     (ForceMainNamespaceInNamesStr, "Force having main namespace in generated class names.")
-    (ForceInterfaceStr, "Force usage of the provided interface (CommsDSL reference string).", true)
     (HasCodeVerStr, "The protocol definition (produced by commsdsl2comms) contains code semantic version.")
     ;
 }
@@ -49,16 +48,6 @@ SwigProgramOptions::SwigProgramOptions()
 bool SwigProgramOptions::swigIsMainNamespaceInNamesForced() const
 {
     return genIsOptUsed(ForceMainNamespaceInNamesStr);
-}
-
-bool SwigProgramOptions::swigHasForcedInterface() const
-{
-    return genIsOptUsed(ForceInterfaceStr);
-}
-
-const std::string& SwigProgramOptions::swigGetForcedInterface() const
-{
-    return genValue(ForceInterfaceStr);
 }
 
 bool SwigProgramOptions::swigHasCodeVersion() const

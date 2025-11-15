@@ -49,6 +49,7 @@ const std::string GenCodeVerStr("code-version");
 const std::string GenFullCodeVerStr("V," + GenCodeVerStr);
 const std::string GenMessagesListStr("messages-list");
 const std::string GenForcePlatformStr("force-platform");
+const std::string GenForceInterfaceStr("force-interface");
 
 }
 
@@ -391,6 +392,14 @@ GenProgramOptions& GenProgramOptions::genAddMessagesSelectionOptions()
         ;
 }
 
+GenProgramOptions& GenProgramOptions::genAddInterfaceSelectionOptions()
+{
+    return
+        (*this)
+            (GenForceInterfaceStr, "Force usage of the provided interface (CommsDSL reference string).", true)
+        ;
+}
+
 GenProgramOptions& GenProgramOptions::genRemoveMinRemoteVersionOptions()
 {
     m_impl->genRemove(GenFullMinRemoteVerStr);
@@ -554,6 +563,11 @@ const std::string& GenProgramOptions::genMessagesListFile() const
 const std::string& GenProgramOptions::genForcedPlatform() const
 {
     return genValue(GenForcePlatformStr);
+}
+
+const std::string& GenProgramOptions::genForcedInterface() const
+{
+    return genValue(GenForceInterfaceStr);
 }
 
 } // namespace gen

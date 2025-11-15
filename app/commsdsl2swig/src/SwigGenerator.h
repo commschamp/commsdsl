@@ -60,7 +60,7 @@ public:
     std::string swigInputCodePathForFile(const std::string& name) const;
     std::string swigClassName(const commsdsl::gen::GenElem& elem) const;
     std::string swigScopeNameForRoot(const std::string& name) const;
-    std::string swigScopeNameForMsgId(const std::string& name, const SwigNamespace& parent) const;
+    std::string swigScopeNameForNamespaceMember(const std::string& name, const SwigNamespace& parent) const;
     std::string swigProtocolClassNameForRoot(const std::string& name) const;
     const std::string& swigConvertCppType(const std::string& str) const;
     const std::string& swigConvertIntType(commsdsl::parse::ParseIntField::ParseType value, std::size_t len) const;
@@ -69,17 +69,11 @@ public:
     static std::string swigDefInclude(const std::string& path);
 
     void swigSetMainNamespaceInNamesForced(bool value);
-    void swigSetForcedInterface(const std::string& value);
     void swigSetHasCodeVersion(bool value);
 
     bool swigHasCodeVersion() const;
 
-    const SwigInterface* swigMainInterface() const;
-    SwigInterface* swigMainInterface();
-
 protected:
-    virtual bool genCreateCompleteImpl() override;
-    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() override;
 
     virtual GenSchemaPtr genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, commsdsl::gen::GenElem* parent) override;
@@ -113,9 +107,7 @@ protected:
 
 private:
     bool swigWriteExtraFilesInternal() const;
-    bool swigReferenceRequestedInterfaceInternal();
 
-    std::string m_forcedInterface;
     bool m_mainNamespaceInNamesForced = false;
     bool m_hasCodeVersion = false;
 };

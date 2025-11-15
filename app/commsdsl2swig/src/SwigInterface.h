@@ -60,6 +60,8 @@ private:
     std::string swigCommonCodeInternal() const;
 
     SwigFieldsList m_swigFields;
+    mutable bool m_codeAdded = false;
+    mutable bool m_defAdded = false;
 };
 
 } // namespace commsdsl2swig

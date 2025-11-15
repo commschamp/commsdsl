@@ -285,6 +285,13 @@ std::string GenLayer::genTemplateScopeOfComms(const std::string& iFaceStr, const
     return result;
 }
 
+const GenFrame* GenLayer::genParentFrame() const
+{
+    auto* parent = genGetParent();
+    assert(parent->genElemType() == GenType_Frame);
+    return static_cast<const commsdsl::gen::GenFrame*>(parent);
+}
+
 GenElem::GenType GenLayer::genElemTypeImpl() const
 {
     return GenType_Layer;

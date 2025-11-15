@@ -37,8 +37,6 @@ public:
     }
 
     bool emscriptenIsMainNamespaceInNamesForced() const;
-    bool emscriptenHasForcedInterface() const;
-    const std::string& emscriptenGetForcedInterface() const;
     bool emscriptenHasCodeVersion() const;
 };
 

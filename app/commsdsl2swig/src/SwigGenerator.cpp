@@ -66,10 +66,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigGenerator::SwigGenerator()
-{
-    GenBase::genSetAllInterfacesReferencedByDefault(false);
-}
+SwigGenerator::SwigGenerator() = default;
 
 const std::string& SwigGenerator::swigFileGeneratedComment()
 {
@@ -104,10 +101,10 @@ std::string SwigGenerator::swigScopeNameForRoot(const std::string& name) const
     return swigScopeToName(str);
 }
 
-std::string SwigGenerator::swigScopeNameForMsgId(const std::string& name, const SwigNamespace& parent) const
+std::string SwigGenerator::swigScopeNameForNamespaceMember(const std::string& name, const SwigNamespace& parent) const
 {
     bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U);
-    auto str = comms::genScopeForMsgId(name, *this, parent, addMainNamespace);
+    auto str = comms::genScopeForNamespaceMember(name, *this, parent, addMainNamespace);
     return swigScopeToName(str);
 }
 
@@ -158,31 +155,6 @@ std::string SwigGenerator::swigDefInclude(const std::string& path)
     return "%include \"include/" + path + '\"';
 }
 
-bool SwigGenerator::genCreateCompleteImpl()
-{
-    return
-        swigReferenceRequestedInterfaceInternal();
-}
-
-bool SwigGenerator::genPrepareImpl()
-{
-    if (!GenBase::genPrepareImpl()) {
-        return false;
-    }
-
-    if (m_forcedInterface.empty()) {
-        return true;
-    }
-
-    auto* iFace = genFindInterface(m_forcedInterface);
-    if (iFace == nullptr) {
-        genLogger().genError("The selected forced interface \"" + m_forcedInterface + "\" hasn't been found");
-        return false;
-    }
-
-    return true;
-}
-
 bool SwigGenerator::genWriteImpl()
 {
     for (auto idx = 0U; idx < genSchemas().size(); ++idx) {
@@ -198,7 +170,6 @@ bool SwigGenerator::genWriteImpl()
     return
         SwigComms::swigWrite(*this) &&
         SwigDataBuf::swigWrite(*this) &&
-        SwigMsgHandler::swigWrite(*this) &&
         Swig::swigWrite(*this) &&
         SwigCmake::swigWrite(*this) &&
         swigWriteExtraFilesInternal();
@@ -210,11 +181,6 @@ void SwigGenerator::swigSetMainNamespaceInNamesForced(bool value)
     m_mainNamespaceInNamesForced = value;
 }
 
-void SwigGenerator::swigSetForcedInterface(const std::string& value)
-{
-    m_forcedInterface = value;
-}
-
 void SwigGenerator::swigSetHasCodeVersion(bool value)
 {
     m_hasCodeVersion = value;
@@ -223,33 +189,6 @@ void SwigGenerator::swigSetHasCodeVersion(bool value)
 bool SwigGenerator::swigHasCodeVersion() const
 {
     return m_hasCodeVersion;
-}
-
-const SwigInterface* SwigGenerator::swigMainInterface() const
-{
-    do {
-        if (m_forcedInterface.empty()) {
-            break;
-        }
-
-        auto iFace = genFindInterface(m_forcedInterface);
-        if (iFace == nullptr) {
-            break;
-        }
-
-        return static_cast<const SwigInterface*>(iFace);
-    } while (false);
-
-    auto allInterfaces = genGetAllInterfaces();
-    if (allInterfaces.empty()) {
-        return nullptr;
-    }
-    return static_cast<const SwigInterface*>(allInterfaces.front());
-}
-
-SwigInterface* SwigGenerator::swigMainInterface()
-{
-    return const_cast<SwigInterface*>(static_cast<const SwigGenerator*>(this)->swigMainInterface());
 }
 
 SwigGenerator::GenSchemaPtr SwigGenerator::genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, commsdsl::gen::GenElem* parent)
@@ -375,10 +314,6 @@ SwigGenerator::GenLayerPtr SwigGenerator::genCreateChecksumLayerImpl(commsdsl::p
 SwigGenerator::OptsProcessResult SwigGenerator::genProcessOptionsImpl(const GenProgramOptions& options)
 {
     auto& opts = SwigProgramOptions::swigCast(options);
-    if (opts.swigHasForcedInterface()) {
-        swigSetForcedInterface(opts.swigGetForcedInterface());
-    }
-
     swigSetMainNamespaceInNamesForced(opts.swigIsMainNamespaceInNamesForced());
     swigSetHasCodeVersion(opts.swigHasCodeVersion());
     return OptsProcessResult_Continue;
@@ -398,16 +333,6 @@ bool SwigGenerator::swigWriteExtraFilesInternal() const
     };
 
     return genCopyExtraSourceFiles(ReservedExt);
-}
-
-bool SwigGenerator::swigReferenceRequestedInterfaceInternal()
-{
-    auto* mainInterface = swigMainInterface();
-    if (mainInterface != nullptr) {
-        mainInterface->genSetReferenced(true);
-    }
-
-    return true;
 }
 
 } // namespace commsdsl2swig

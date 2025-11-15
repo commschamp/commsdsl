@@ -54,6 +54,12 @@ void SwigInterface::swigAddCodeIncludes(GenStringsList& list) const
 
 void SwigInterface::swigAddCode(GenStringsList& list) const
 {
+    if (m_codeAdded) {
+        return;
+    }
+
+    m_codeAdded = true;
+
     if (!genIsReferenced()) {
         return;
     }
@@ -63,13 +69,17 @@ void SwigInterface::swigAddCode(GenStringsList& list) const
     }
 
     auto& gen = SwigGenerator::swigCast(genGenerator());
+    auto* parentNs = SwigNamespace::swigCast(genParentNamespace());
+    assert(parentNs != nullptr);
+    auto* handler = parentNs->swigMsgHandler();
+    assert(handler != nullptr);
 
     util::GenReplacementMap repl = {
         {"COMMS_CLASS", comms::genScopeFor(*this, gen)},
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
         {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
-        {"MSG_HANDLER", SwigMsgHandler::swigClassName(gen)}
+        {"MSG_HANDLER", handler->swigClassName()},
     };
 
     std::string publicCode = util::genReadFileContents(gen.swigInputCodePathFor(*this) + strings::genPublicFileSuffixStr());
@@ -145,6 +155,12 @@ void SwigInterface::swigAddCode(GenStringsList& list) const
 
 void SwigInterface::swigAddDef(GenStringsList& list) const
 {
+    if (m_defAdded) {
+        return;
+    }
+
+    m_defAdded = true;
+
     if (!genIsReferenced()) {
         return;
     }
@@ -243,10 +259,10 @@ std::string SwigInterface::swigClassDeclInternal() const
         "    #^#CLASS_NAME#$#(const #^#CLASS_NAME#$#& other);\n"
         "};\n";
 
-    auto* parent = genGetParent();
-    assert(parent != nullptr);
-    assert(parent->genElemType() == commsdsl::gen::GenElem::GenType_Namespace);
-    auto* parentNs = SwigNamespace::swigCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
+    auto* parentNs = SwigNamespace::swigCast(genParentNamespace());
+    assert(parentNs != nullptr);
+    auto* handler = parentNs->swigMsgHandler();
+    assert(handler != nullptr);
 
     auto& gen = SwigGenerator::swigCast(genGenerator());
     util::GenReplacementMap repl = {
@@ -256,7 +272,7 @@ std::string SwigInterface::swigClassDeclInternal() const
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
         {"MSG_ID", parentNs->swigMsgIdClassName()},
         {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
-        {"MSG_HANDLER", SwigMsgHandler::swigClassName(gen)},
+        {"MSG_HANDLER", handler->swigClassName()},
         {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)}
     };
 

@@ -61,57 +61,12 @@ CNamespace::~CNamespace() = default;
 
 const CInterface* CNamespace::cInterface() const
 {
-    auto& cGenerator = CGenerator::cCast(genGenerator());
-    auto* iFace = cGenerator.cForcedInterface();
-
+    auto iFace = genFindSuitableInterface();
     if (iFace == nullptr) {
-        return cFindSuitableInterfaceInternal();
+        return nullptr;
     }
 
-    if (cIsSuitableInterface(*iFace)) {
-        return iFace;
-    }
-
-    return nullptr;
-}
-
-bool CNamespace::cIsSuitableInterface(const CInterface& iFace) const
-{
-    auto& thisNsInterfaces = genInterfaces();
-    auto iter =
-        std::find_if(
-            thisNsInterfaces.begin(), thisNsInterfaces.end(),
-            [&iFace](auto& iFacePtr)
-            {
-                return &iFace == iFacePtr.get();
-            });
-
-    if (iter != thisNsInterfaces.end()) {
-        return true;
-    }
-
-    auto* parent = genGetParent();
-    if (parent->genElemType() == GenElem::GenType_Namespace) {
-        return CNamespace::cCast(static_cast<const GenNamespace*>(parent))->cIsSuitableInterface(iFace);
-    }
-
-    auto& cGenerator = CGenerator::cCast(genGenerator());
-    auto allNamespaces = cGenerator.genGetAllNamespaces();
-    auto nsIter =
-        std::find_if(
-            allNamespaces.begin(), allNamespaces.end(),
-            [](auto* ns)
-            {
-                return ns->genName().empty();
-            });
-
-    if (nsIter == allNamespaces.end()) {
-        return false;
-    }
-
-    auto defaultNsInterfaces = (*nsIter)->genGetAllInterfaces();
-    auto iFaceIter = std::find(defaultNsInterfaces.begin(), defaultNsInterfaces.end(), &iFace);
-    return iFaceIter != defaultNsInterfaces.end();
+    return CInterface::cCast(iFace);
 }
 
 void CNamespace::cAddSourceFiles(GenStringsList& sources) const
@@ -211,40 +166,6 @@ bool CNamespace::genWriteImpl() const
     return
         m_msgId.cWrite() &&
         m_msgHandler.cWrite();
-}
-
-const CInterface* CNamespace::cFindSuitableInterfaceInternal() const
-{
-    auto& thisNsInterfaces = genInterfaces();
-    if (!thisNsInterfaces.empty()) {
-        return CInterface::cCast(thisNsInterfaces.front().get());
-    }
-
-    auto* parent = genGetParent();
-    if (parent->genElemType() == GenElem::GenType_Namespace) {
-        return CNamespace::cCast(static_cast<const GenNamespace*>(parent))->cInterface();
-    }
-
-    auto& cGenerator = CGenerator::cCast(genGenerator());
-    auto allNamespaces = cGenerator.genGetAllNamespaces();
-    auto iter =
-        std::find_if(
-            allNamespaces.begin(), allNamespaces.end(),
-            [](auto* ns)
-            {
-                return ns->genName().empty();
-            });
-
-    if (iter == allNamespaces.end()) {
-        return nullptr;
-    }
-
-    auto defaultNsInterfaces = (*iter)->genGetAllInterfaces();
-    if (defaultNsInterfaces.empty()) {
-        return nullptr;
-    }
-
-    return CInterface::cCast(defaultNsInterfaces.front());
 }
 
 } // namespace commsdsl2c

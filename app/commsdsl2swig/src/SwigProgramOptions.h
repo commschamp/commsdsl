@@ -37,8 +37,6 @@ public:
     }
 
     bool swigIsMainNamespaceInNamesForced() const;
-    bool swigHasForcedInterface() const;
-    const std::string& swigGetForcedInterface() const;
     bool swigHasCodeVersion() const;
 };
 

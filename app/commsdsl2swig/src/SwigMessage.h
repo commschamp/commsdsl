@@ -25,6 +25,8 @@ namespace commsdsl2swig
 {
 
 class SwigGenerator;
+class SwigInterface;
+class SwigMsgHandler;
 class SwigMessage final: public commsdsl::gen::GenMessage
 {
     using GenBase = commsdsl::gen::GenMessage;
@@ -57,6 +59,8 @@ private:
     std::string swigClassDeclInternal() const;
     std::string swigFieldsAccDeclInternal() const;
     std::string swigFieldsAccCodeInternal() const;
+    const SwigInterface* swigGetInterfaceInternal() const;
+    const SwigMsgHandler* swigMsgHandlerInternal() const;
 
     SwigFieldsList m_swigFields;
 };

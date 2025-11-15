@@ -65,10 +65,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2emscripten
 {
 
-EmscriptenGenerator::EmscriptenGenerator()
-{
-    GenBase::genSetAllInterfacesReferencedByDefault(false);
-}
+EmscriptenGenerator::EmscriptenGenerator() = default;
 
 const std::string& EmscriptenGenerator::emscriptenFileGeneratedComment()
 {
@@ -114,14 +111,14 @@ std::string EmscriptenGenerator::emscriptenRelHeaderForRoot(const std::string& n
     return genGetTopNamespace() + '/' + comms::genRelHeaderForRoot(name, *this);
 }
 
-std::string EmscriptenGenerator::emscriptenRelHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
-{
-    return genGetTopNamespace() + '/' + comms::genRelHeaderForNamespaceMember(name, *this, parent);
-}
-
 std::string EmscriptenGenerator::emscriptenAbsHeaderForRoot(const std::string& name) const
 {
     return genGetOutputDir() + '/' + strings::genIncludeDirStr() + '/' + emscriptenRelHeaderForRoot(name);
+}
+
+std::string EmscriptenGenerator::emscriptenRelHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
+{
+    return genGetTopNamespace() + '/' + comms::genRelHeaderForNamespaceMember(name, *this, parent);
 }
 
 std::string EmscriptenGenerator::emscriptenAbsHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
@@ -129,19 +126,29 @@ std::string EmscriptenGenerator::emscriptenAbsHeaderForNamespaceMember(const std
     return genGetOutputDir() + '/' + strings::genIncludeDirStr() + '/' + emscriptenRelHeaderForNamespaceMember(name, parent);
 }
 
+std::string EmscriptenGenerator::emscriptenRelHeaderForInput(const std::string& name, const EmscriptenNamespace& parent) const
+{
+    return genGetTopNamespace() + '/' + comms::genRelHeaderForInput(name, *this, parent);
+}
+
+std::string EmscriptenGenerator::emscriptenAbsHeaderForInput(const std::string& name, const EmscriptenNamespace& parent) const
+{
+    return genGetOutputDir() + '/' + strings::genIncludeDirStr() + '/' + emscriptenRelHeaderForInput(name, parent);
+}
+
 std::string EmscriptenGenerator::emscriptenRelSourceForRoot(const std::string& name) const
 {
     return genGetTopNamespace() + '/' + comms::genRelSourceForRoot(name, *this);
 }
 
-std::string EmscriptenGenerator::emscriptenRelSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
-{
-    return genGetTopNamespace() + '/' + comms::genRelSourceForNamespaceMember(name, *this, parent);
-}
-
 std::string EmscriptenGenerator::emscriptenAbsSourceForRoot(const std::string& name) const
 {
     return genGetOutputDir() + '/' + emscriptenRelSourceForRoot(name);
+}
+
+std::string EmscriptenGenerator::emscriptenRelSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
+{
+    return genGetTopNamespace() + '/' + comms::genRelSourceForNamespaceMember(name, *this, parent);
 }
 
 std::string EmscriptenGenerator::emscriptenAbsSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
@@ -211,31 +218,6 @@ std::string EmscriptenGenerator::emscriptenScopeToName(const std::string& scope)
     return util::genStrReplace(scope, "::", "_");
 }
 
-bool EmscriptenGenerator::genCreateCompleteImpl()
-{
-    return
-        emscriptenReferenceRequestedInterfaceInternal();
-}
-
-bool EmscriptenGenerator::genPrepareImpl()
-{
-    if (!GenBase::genPrepareImpl()) {
-        return false;
-    }
-
-    if (m_forcedInterface.empty()) {
-        return true;
-    }
-
-    auto* iFace = genFindInterface(m_forcedInterface);
-    if (iFace == nullptr) {
-        genLogger().genError("The selected forced interface \"" + m_forcedInterface + "\" hasn't been found");
-        return false;
-    }
-
-    return true;
-}
-
 bool EmscriptenGenerator::genWriteImpl()
 {
     for (auto idx = 0U; idx < genSchemas().size(); ++idx) {
@@ -262,11 +244,6 @@ void EmscriptenGenerator::emscriptenSetMainNamespaceInNamesForced(bool value)
     m_mainNamespaceInNamesForced = value;
 }
 
-void EmscriptenGenerator::emscriptenSetForcedInterface(const std::string& value)
-{
-    m_forcedInterface = value;
-}
-
 void EmscriptenGenerator::emscriptenSetHasCodeVersion(bool value)
 {
     m_hasCodeVersion = value;
@@ -275,33 +252,6 @@ void EmscriptenGenerator::emscriptenSetHasCodeVersion(bool value)
 bool EmscriptenGenerator::emscriptenHasCodeVersion() const
 {
     return m_hasCodeVersion;
-}
-
-const EmscriptenInterface* EmscriptenGenerator::emscriptenMainInterface() const
-{
-    do {
-        if (m_forcedInterface.empty()) {
-            break;
-        }
-
-        auto iFace = genFindInterface(m_forcedInterface);
-        if (iFace == nullptr) {
-            break;
-        }
-
-        return static_cast<const EmscriptenInterface*>(iFace);
-    } while (false);
-
-    auto allInterfaces = genGetAllInterfaces();
-    if (allInterfaces.empty()) {
-        return nullptr;
-    }
-    return static_cast<const EmscriptenInterface*>(allInterfaces.front());
-}
-
-EmscriptenInterface* EmscriptenGenerator::emscriptenMainInterface()
-{
-    return const_cast<EmscriptenInterface*>(static_cast<const EmscriptenGenerator*>(this)->emscriptenMainInterface());
 }
 
 EmscriptenGenerator::GenSchemaPtr EmscriptenGenerator::genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, commsdsl::gen::GenElem* parent)
@@ -427,10 +377,6 @@ EmscriptenGenerator::GenLayerPtr EmscriptenGenerator::genCreateChecksumLayerImpl
 EmscriptenGenerator::OptsProcessResult EmscriptenGenerator::genProcessOptionsImpl(const GenProgramOptions& options)
 {
     auto& opts = EmscriptenProgramOptions::emscriptenCast(options);
-    if (opts.emscriptenHasForcedInterface()) {
-        emscriptenSetForcedInterface(opts.emscriptenGetForcedInterface());
-    }
-
     emscriptenSetMainNamespaceInNamesForced(opts.emscriptenIsMainNamespaceInNamesForced());
     emscriptenSetHasCodeVersion(opts.emscriptenHasCodeVersion());
     genSetTopNamespace("cc_emscripten");
@@ -451,16 +397,6 @@ bool EmscriptenGenerator::emscriptenWriteExtraFilesInternal() const
     };
 
     return genCopyExtraSourceFiles(ReservedExt);
-}
-
-bool EmscriptenGenerator::emscriptenReferenceRequestedInterfaceInternal()
-{
-    auto* mainInterface = emscriptenMainInterface();
-    if (mainInterface != nullptr) {
-        mainInterface->genSetReferenced(true);
-    }
-
-    return true;
 }
 
 } // namespace commsdsl2emscripten

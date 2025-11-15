@@ -435,9 +435,9 @@ std::string CMsgHandler::cCommsSourceFuncsInternal() const
 
 CMsgHandler::GenMessagesAccessList CMsgHandler::cMessagesListInternal() const
 {
-    auto allMessages = m_parent.genGetAllMessages();
+    auto allMessages = m_parent.genGetAllMessagesIdSorted();
     if (allMessages.empty() && m_parent.genName().empty()) {
-        allMessages = m_cGenerator.genCurrentSchema().genGetAllMessages();
+        allMessages = m_cGenerator.genCurrentSchema().genGetAllMessagesIdSorted();
     }
 
     return allMessages;

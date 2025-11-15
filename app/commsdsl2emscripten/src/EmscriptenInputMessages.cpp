@@ -17,6 +17,7 @@
 
 #include "EmscriptenGenerator.h"
 #include "EmscriptenMessage.h"
+#include "EmscriptenNamespace.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -59,17 +60,17 @@ std::string EmscriptenInputMessages::emscriptenClassName() const
 
 std::string EmscriptenInputMessages::emscriptenRelHeader() const
 {
-    return m_emscriptenGenerator.emscriptenProtocolRelHeaderForNamespaceMember(strings::genAllMessagesStr(), m_parent);
+    return m_emscriptenGenerator.emscriptenRelHeaderForInput(strings::genAllMessagesStr(), m_parent);
 }
 
 std::string EmscriptenInputMessages::emscriptenRelFwdHeader() const
 {
-    return m_emscriptenGenerator.emscriptenProtocolRelHeaderForNamespaceMember(strings::genAllMessagesStr() + EmscriptenFwdSuffix, m_parent);
+    return m_emscriptenGenerator.emscriptenRelHeaderForInput(strings::genAllMessagesStr() + EmscriptenFwdSuffix, m_parent);
 }
 
 bool EmscriptenInputMessages::emscriptenWriteHeaderInternal() const
 {
-    auto filePath = m_emscriptenGenerator.emscriptenAbsHeaderForNamespaceMember(strings::genAllMessagesStr(), m_parent);
+    auto filePath = m_emscriptenGenerator.emscriptenAbsHeaderForInput(strings::genAllMessagesStr(), m_parent);
     auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
     if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
@@ -88,7 +89,7 @@ bool EmscriptenInputMessages::emscriptenWriteHeaderInternal() const
     };
     util::GenStringsList msgs;
 
-    auto allMessages = m_emscriptenGenerator.genGetAllMessagesIdSorted();
+    auto allMessages = m_parent.genGetAllMessagesIdSorted();
     includes.reserve(includes.size() + allMessages.size());
     msgs.reserve(allMessages.size());
 
@@ -133,7 +134,7 @@ bool EmscriptenInputMessages::emscriptenWriteHeaderInternal() const
 
 bool EmscriptenInputMessages::emscriptenWriteHeaderFwdInternal() const
 {
-    auto filePath = m_emscriptenGenerator.emscriptenAbsHeaderForNamespaceMember(strings::genAllMessagesStr() + EmscriptenFwdSuffix, m_parent);
+    auto filePath = m_emscriptenGenerator.emscriptenAbsHeaderForInput(strings::genAllMessagesStr() + EmscriptenFwdSuffix, m_parent);
     auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
     if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
@@ -149,7 +150,7 @@ bool EmscriptenInputMessages::emscriptenWriteHeaderFwdInternal() const
 
     util::GenStringsList msgs;
 
-    auto allMessages = m_emscriptenGenerator.genGetAllMessagesIdSorted();
+    auto allMessages = m_parent.genGetAllMessagesIdSorted();
     msgs.reserve(allMessages.size());
 
     for (auto* m : allMessages) {

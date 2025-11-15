@@ -60,10 +60,10 @@ public:
     using GenMessagesList = GenNamespace::GenMessagesList;
     using GenFramesList = GenNamespace::GenFramesList;
 
-    GenNamespaceImpl(GenGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
+    GenNamespaceImpl(GenGenerator& generator, ParseNamespace parseObj, GenNamespace* holder) :
         m_generator(generator),
         m_parseObj(parseObj),
-        m_parent(parent)
+        m_holder(holder)
     {
     }
 
@@ -293,13 +293,67 @@ public:
                 });
     }
 
+    const GenInterface* genFindSuitableInterface() const
+    {
+        auto* iFace = m_generator.genForcedInterface();
+
+        if (iFace == nullptr) {
+            return genFindSuitableInterfaceInternal();
+        }
+
+        assert(iFace->genIsReferenced());
+        if (genIsSuitableInterface(*iFace)) {
+            return iFace;
+        }
+
+        return nullptr;
+    }
+
+    bool genIsSuitableInterface(const GenInterface& iFace) const
+    {
+        auto& thisNsInterfaces = genInterfaces();
+        auto iter =
+            std::find_if(
+                thisNsInterfaces.begin(), thisNsInterfaces.end(),
+                [&iFace](auto& iFacePtr)
+                {
+                    return &iFace == iFacePtr.get();
+                });
+
+        if (iter != thisNsInterfaces.end()) {
+            return true;
+        }
+
+        auto* parent = m_holder->genGetParent();
+        if (parent->genElemType() == GenElem::GenType_Namespace) {
+            return static_cast<const GenNamespace*>(parent)->genIsSuitableInterface(iFace);
+        }
+
+        auto allNamespaces = m_generator.genGetAllNamespaces();
+        auto nsIter =
+            std::find_if(
+                allNamespaces.begin(), allNamespaces.end(),
+                [](auto* ns)
+                {
+                    return ns->genName().empty();
+                });
+
+        if (nsIter == allNamespaces.end()) {
+            return false;
+        }
+
+        auto defaultNsInterfaces = (*nsIter)->genGetAllInterfaces();
+        auto iFaceIter = std::find(defaultNsInterfaces.begin(), defaultNsInterfaces.end(), &iFace);
+        return iFaceIter != defaultNsInterfaces.end();
+    }
+
 private:
     bool genCreateNamespaces()
     {
         auto namespaces = m_parseObj.parseNamespaces();
         m_namespaces.reserve(namespaces.size());
         for (auto& n : namespaces) {
-            auto ptr = m_generator.genCreateNamespace(n, m_parent);
+            auto ptr = m_generator.genCreateNamespace(n, m_holder);
             assert(ptr);
             if (!ptr->genCreateAll()) {
                 return false;
@@ -331,7 +385,7 @@ private:
         auto fields = m_parseObj.parseFields();
         m_fields.reserve(fields.size());
         for (auto& parseObj : fields) {
-            auto ptr = GenField::genCreate(m_generator, parseObj, m_parent);
+            auto ptr = GenField::genCreate(m_generator, parseObj, m_holder);
             assert(ptr);
             m_fields.push_back(std::move(ptr));
         }
@@ -357,7 +411,7 @@ private:
         auto interfaces = m_parseObj.parseInterfaces();
         m_interfaces.reserve(interfaces.size());
         for (auto& i : interfaces) {
-            auto ptr = m_generator.genCreateInterface(i, m_parent);
+            auto ptr = m_generator.genCreateInterface(i, m_holder);
             assert(ptr);
             if (!ptr->genCreateAll()) {
                 return false;
@@ -386,7 +440,7 @@ private:
         auto messages = m_parseObj.parseMessages();
         m_messages.reserve(messages.size());
         for (auto& m : messages) {
-            auto ptr = m_generator.genCreateMessage(m, m_parent);
+            auto ptr = m_generator.genCreateMessage(m, m_holder);
             if (!ptr->genCreateAll()) {
                 return false;
             }
@@ -414,7 +468,7 @@ private:
         auto frames = m_parseObj.parseFrames();
         m_frames.reserve(frames.size());
         for (auto& f : frames) {
-            auto ptr = m_generator.genCreateFrame(f, m_parent);
+            auto ptr = m_generator.genCreateFrame(f, m_holder);
             assert(ptr);
             m_frames.push_back(std::move(ptr));
         }
@@ -434,9 +488,70 @@ private:
                 });
     }
 
+    const GenInterface* genFindSuitableInterfaceInternal() const
+    {
+        auto& thisNsInterfaces = genInterfaces();
+        do {
+            if (thisNsInterfaces.empty()) {
+                break;
+            }
+
+            auto iter =
+                std::find_if(
+                    thisNsInterfaces.begin(), thisNsInterfaces.end(),
+                    [](auto& iFace)
+                    {
+                        return iFace->genIsReferenced();
+                    });
+
+            if (iter == thisNsInterfaces.end()) {
+                break;
+            }
+
+            return iter->get();
+        } while (false);
+
+        auto* parent = m_holder->genGetParent();
+        if (parent->genElemType() == GenElem::GenType_Namespace) {
+            return static_cast<const GenNamespace*>(parent)->genFindSuitableInterface();
+        }
+
+        auto allNamespaces = m_generator.genGetAllNamespaces();
+        auto iter =
+            std::find_if(
+                allNamespaces.begin(), allNamespaces.end(),
+                [](auto* ns)
+                {
+                    return ns->genName().empty();
+                });
+
+        if (iter == allNamespaces.end()) {
+            return nullptr;
+        }
+
+        auto defaultNsInterfaces = (*iter)->genGetAllInterfaces();
+        if (defaultNsInterfaces.empty()) {
+            return nullptr;
+        }
+
+        auto iFaceIter =
+            std::find_if(
+                defaultNsInterfaces.begin(), defaultNsInterfaces.end(),
+                [](auto* iFace)
+                {
+                    return iFace->genIsReferenced();
+                });
+
+        if (iFaceIter == defaultNsInterfaces.end()) {
+            return nullptr;
+        }
+
+        return *iFaceIter;
+    }
+
     GenGenerator& m_generator;
     ParseNamespace m_parseObj;
-    GenElem* m_parent = nullptr;
+    GenNamespace* m_holder = nullptr;
     GenNamespacesList m_namespaces;
     GenFieldsList m_fields;
     GenInterfacesList m_interfaces;
@@ -881,6 +996,16 @@ bool GenNamespace::genHasAnyReferencedMessage() const
 bool GenNamespace::genHasAnyReferencedComponent() const
 {
     return m_impl->genHasAnyReferencedComponent();
+}
+
+const GenInterface* GenNamespace::genFindSuitableInterface() const
+{
+    return m_impl->genFindSuitableInterface();
+}
+
+bool GenNamespace::genIsSuitableInterface(const GenInterface& iFace) const
+{
+    return m_impl->genIsSuitableInterface(iFace);
 }
 
 GenElem::GenType GenNamespace::genElemTypeImpl() const

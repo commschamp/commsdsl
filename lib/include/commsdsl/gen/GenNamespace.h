@@ -101,6 +101,9 @@ public:
     bool genHasAnyReferencedMessage() const;
     bool genHasAnyReferencedComponent() const;
 
+    const GenInterface* genFindSuitableInterface() const;
+    bool genIsSuitableInterface(const GenInterface& iFace) const;
+
 protected:
     virtual GenType genElemTypeImpl() const override final;
     virtual bool genPrepareImpl();

@@ -152,7 +152,7 @@ std::string CInputMessages::cInputDefInternal() const
     }
 
     util::GenStringsList msgs;
-    auto allMsgs = m_parent.genGetAllMessages();
+    auto allMsgs = m_parent.genGetAllMessagesIdSorted();
     for (auto* m : allMsgs) {
         if (!m->genIsReferenced()) {
             continue;
@@ -185,7 +185,7 @@ void CInputMessages::cAddIncludesInternal(GenStringsList& includes) const
     }
 
     includes.push_back("<tuple>");
-    auto allMsgs = m_parent.genGetAllMessages();
+    auto allMsgs = m_parent.genGetAllMessagesIdSorted();
     for (auto* m : allMsgs) {
         if (!m->genIsReferenced()) {
             continue;

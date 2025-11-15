@@ -62,13 +62,15 @@ public:
     std::string emscriptenProtocolClassNameForRoot(const std::string& name) const;
 
     std::string emscriptenRelHeaderForRoot(const std::string& name) const;
-    std::string emscriptenRelHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
-    std::string emscriptenRelHeaderForInput(const std::string& name, const EmscriptenNamespace& parent) const;
     std::string emscriptenAbsHeaderForRoot(const std::string& name) const;
+    std::string emscriptenRelHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
     std::string emscriptenAbsHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
+    std::string emscriptenRelHeaderForInput(const std::string& name, const EmscriptenNamespace& parent) const;
+    std::string emscriptenAbsHeaderForInput(const std::string& name, const EmscriptenNamespace& parent) const;
+
     std::string emscriptenRelSourceForRoot(const std::string& name) const;
-    std::string emscriptenRelSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
     std::string emscriptenAbsSourceForRoot(const std::string& name) const;
+    std::string emscriptenRelSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
     std::string emscriptenAbsSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
 
     std::string emscriptenProtocolRelHeaderForRoot(const std::string& name) const;
@@ -86,17 +88,11 @@ public:
     static std::string emscriptenScopeToName(const std::string& scope);
 
     void emscriptenSetMainNamespaceInNamesForced(bool value);
-    void emscriptenSetForcedInterface(const std::string& value);
     void emscriptenSetHasCodeVersion(bool value);
 
     bool emscriptenHasCodeVersion() const;
 
-    const EmscriptenInterface* emscriptenMainInterface() const;
-    EmscriptenInterface* emscriptenMainInterface();
-
 protected:
-    virtual bool genCreateCompleteImpl() override;
-    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() override;
 
     virtual GenSchemaPtr genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, commsdsl::gen::GenElem* parent) override;
@@ -130,9 +126,7 @@ protected:
 
 private:
     bool emscriptenWriteExtraFilesInternal() const;
-    bool emscriptenReferenceRequestedInterfaceInternal();
 
-    std::string m_forcedInterface;
     bool m_mainNamespaceInNamesForced = false;
     bool m_hasCodeVersion = false;
 };

@@ -139,7 +139,6 @@ private:
     bool cPrepareForcedInterfaceInternal();
 
     std::string m_namesPrefix;
-    std::string m_forcedInterfaceName;
     std::string m_inputName;
     GenStringsList m_commsOptions;
     const CInterface* m_forcedInterface = nullptr;

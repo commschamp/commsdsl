@@ -35,12 +35,9 @@ EmscriptenValueLayer::EmscriptenValueLayer(EmscriptenGenerator& generator, Parse
 {
 }
 
-bool EmscriptenValueLayer::emscriptenIsMainInterfaceSupportedImpl() const
+bool EmscriptenValueLayer::emscriptenIsInterfaceSupportedImpl(const EmscriptenInterface& iFace) const
 {
-    auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
-    auto* iFace = gen.emscriptenMainInterface();
-    assert(iFace != nullptr);
-    return genIsInterfaceSupported(iFace);
+    return genIsInterfaceSupported(&iFace);
 }
 
 std::string EmscriptenValueLayer::emscriptenHeaderExtraFuncsImpl() const

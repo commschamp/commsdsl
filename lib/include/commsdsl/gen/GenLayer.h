@@ -31,6 +31,7 @@ namespace gen
 {
 
 class GenLayerImpl;
+class GenFrame;
 class COMMSDSL_API GenLayer : public GenElem
 {
     using Base = GenElem;
@@ -62,6 +63,8 @@ public:
     bool genForceCommsOrder(GenLayersAccessList& layers, bool& success) const;
 
     std::string genTemplateScopeOfComms(const std::string& iFaceStr, const std::string& allMessagesStr, const std::string& protOptionsStr) const;
+
+    const GenFrame* genParentFrame() const;
 
 protected:
     GenLayer(GenGenerator& generator, const ParseLayer& parseObj, GenElem* parent = nullptr);

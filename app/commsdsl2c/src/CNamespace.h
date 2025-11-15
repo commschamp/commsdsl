@@ -47,7 +47,6 @@ public:
     }
 
     const CInterface* cInterface() const;
-    bool cIsSuitableInterface(const CInterface& iFace) const;
     void cAddSourceFiles(GenStringsList& sources) const;
     bool cCodeGenerationAllowed() const;
     std::string cPrefixName() const;
@@ -60,8 +59,6 @@ protected:
     virtual bool genWriteImpl() const override;
 
 private:
-    const CInterface* cFindSuitableInterfaceInternal() const;
-
     CMsgId m_msgId;
     CMsgHandler m_msgHandler;
     CInputMessages m_input;
