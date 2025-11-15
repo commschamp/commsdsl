@@ -656,11 +656,10 @@ std::string CFrame::cCommsHeaderLayersCodeInternal() const
     auto* iFace = cInterfaceInternal();
     assert(iFace != nullptr);
 
-    bool hasInputMessages = false; // gets updated in the loop below
     GenStringsList code;
     for (auto iter = m_cLayers.rbegin(); iter != m_cLayers.rend(); ++iter) {
         auto* l = *iter;
-        code.push_back(l->cCommsHeaderCode(*iFace, hasInputMessages));
+        code.push_back(l->cCommsHeaderCode(*iFace));
     }
 
     return util::genStrListToString(code, "\n", "\n");

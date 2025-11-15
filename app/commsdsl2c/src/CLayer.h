@@ -58,7 +58,7 @@ public:
     std::string cCommsType() const;
     std::string cHeaderCode() const;
     std::string cSourceCode() const;
-    std::string cCommsHeaderCode(const CInterface& iFace, bool& hasInputMessages) const;
+    std::string cCommsHeaderCode(const CInterface& iFace) const;
     bool cIsInterfaceSupported(const CInterface& iFace) const;
     std::string cFrameValueDef() const;
     std::string cFrameValueAssign(

@@ -160,11 +160,11 @@ std::string CLayer::cSourceCode() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string CLayer::cCommsHeaderCode(const CInterface& iFace, bool& hasInputMessages) const
+std::string CLayer::cCommsHeaderCode(const CInterface& iFace) const
 {
     static const std::string Templ =
         "#^#FIELD#$#\n"
-        "using #^#COMMS_NAME#$# = ::#^#COMMS_TYPE#$##^#TEMPL_PARAMS#$#;\n"
+        "using #^#COMMS_NAME#$# = ::#^#COMMS_TYPE#$#;\n"
         "struct alignas(alignof(#^#COMMS_NAME#$#)) #^#NAME#$#_ {};\n"
         "\n"
         "inline const #^#COMMS_NAME#$#* fromLayerHandle(const #^#NAME#$#* from)\n"
@@ -185,20 +185,16 @@ std::string CLayer::cCommsHeaderCode(const CInterface& iFace, bool& hasInputMess
         "}\n"
         ;
 
-    util::GenReplacementMap repl = {
-        {"NAME", cName()},
-        {"COMMS_NAME", cCommsTypeName()},
-        {"COMMS_TYPE", cCommsType()},
-    };
-
-    auto ns = CNamespace::cCast(cParentFrame()->genParentNamespace());
+    auto& cGenerator = CGenerator::cCast(m_genLayer.genGenerator());
+    auto* ns = CNamespace::cCast(cParentFrame()->genParentNamespace());
     auto* input = ns->cInputMessages();
     assert(input != nullptr);
 
-    hasInputMessages = hasInputMessages || cHasInputMessagesImpl();
-    if (hasInputMessages) {
-        repl["TEMPL_PARAMS"] = "<" + iFace.cCommsTypeName() + ", " + input->cName() + ">";
-    }
+    util::GenReplacementMap repl = {
+        {"NAME", cName()},
+        {"COMMS_NAME", cCommsTypeName()},
+        {"COMMS_TYPE", m_genLayer.genTemplateScopeOfComms(iFace.cCommsTypeName(), input->cName(), CProtocolOptions::cName(cGenerator))},
+    };
 
     if (m_cMemberField != nullptr) {
         repl["FIELD"] = m_cMemberField->cCommsHeaderCode();
