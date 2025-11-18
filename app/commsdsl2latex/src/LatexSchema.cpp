@@ -40,7 +40,7 @@ LatexSchema::~LatexSchema() = default;
 
 std::string LatexSchema::latexRelDirPath() const
 {
-    return genOrigNamespace();
+    return genMainNamespace();
 }
 
 std::string LatexSchema::latexRelFilePath() const

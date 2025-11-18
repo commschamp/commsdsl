@@ -25,10 +25,16 @@ foreach (name ${tests})
         set (code_input_param -c ${code_input_dir})
     endif()
 
+    set (extra_params)
+    if (EXISTS "${this_test_dir}/commsdsl2latex.params")
+        file (READ "${this_test_dir}/commsdsl2latex.params" extra_params_str)
+        string (REPLACE " " ";" extra_params "${extra_params_str}")
+    endif ()
+
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
     add_custom_target(${output_tgt} ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
-        COMMAND $<TARGET_FILE:${APP_NAME}> -s --warn-as-err --code-inject-comments ${code_input_param} -o ${output_dir}.tmp ${schema_files}
+        COMMAND $<TARGET_FILE:${APP_NAME}> -s --warn-as-err --code-inject-comments ${code_input_param} ${extra_params} -o ${output_dir}.tmp ${schema_files}
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="."
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
@@ -63,8 +69,6 @@ foreach (name ${tests})
         CMAKE_GENERATOR_TOOLSET ${CMAKE_GENERATOR_TOOLSET}
         LIST_SEPARATOR |
         CMAKE_ARGS
-#            -DCMAKE_C_COMPILER=${COMMSDSL_TESTS_C_COMPILER} -DCMAKE_CXX_COMPILER=${COMMSDSL_TESTS_CXX_COMPILER}
-#            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_INSTALL_PREFIX=${install_dir}
             -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
