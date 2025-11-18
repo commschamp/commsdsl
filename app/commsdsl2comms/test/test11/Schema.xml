@@ -206,6 +206,9 @@
         </description>
         <fields>
             <string name="F1">
+                <description>
+                    Special characters in description: $_%&amp;&lt;&gt;:^
+                </description>
                 <lengthPrefix>
                     <int name="Length" type="uint8" />
                 </lengthPrefix>

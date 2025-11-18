@@ -133,7 +133,7 @@ bool LatexMessage::genWriteImpl() const
             {"GENERATED", LatexGenerator::latexFileGeneratedComment()},
             {"SECTION", latexSection()},
             {"LABEL", "\\label{" + LatexGenerator::latexLabelId(*this) + '}'},
-            {"DESCRIPTION", util::genStrMakeMultiline(genParseObj().parseDescription())},
+            {"DESCRIPTION", util::genStrMakeMultiline(LatexGenerator::latexEscString(genParseObj().parseDescription()))},
             {"PREPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(prependFileName))},
             {"APPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(appendFileName))},
             {"INFO", latexInfoDetails()},

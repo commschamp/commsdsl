@@ -333,7 +333,7 @@ std::string Latex::latexTitleInternal() const
     auto& protSchema = m_latexGenerator.genProtocolSchema();
     auto title = protSchema.genParseObj().parseDisplayName();
     if (title.empty()) {
-        title = "Protocol \"" + LatexGenerator::latexEscDisplayName(protSchema.genMainNamespace(), std::string()) + "\"";
+        title = "Protocol \"" + LatexGenerator::latexEscString(protSchema.genMainNamespace()) + "\"";
     }
 
     auto appendFileName = latexDocTexFileName(m_latexGenerator) + strings::genTitleAppendFileSuffixStr();

@@ -64,7 +64,7 @@ std::string LatexOptionalField::latexDocImpl() const
 std::string LatexOptionalField::latexDescriptionImpl() const
 {
     if (latexIsPassThroughToMember()) {
-        return genMemberField()->genParseObj().parseDescription();
+        return LatexGenerator::latexEscString(genMemberField()->genParseObj().parseDescription());
     }
 
     return LatexBase::latexDescriptionImpl();

@@ -722,7 +722,7 @@ std::string LatexField::latexDocImpl() const
 
 std::string LatexField::latexDescriptionImpl() const
 {
-    return util::genStrMakeMultiline(m_genField.genParseObj().parseDescription());
+    return util::genStrMakeMultiline(LatexGenerator::latexEscString(m_genField.genParseObj().parseDescription()));
 }
 
 std::string LatexField::latexRefLabelIdImpl() const

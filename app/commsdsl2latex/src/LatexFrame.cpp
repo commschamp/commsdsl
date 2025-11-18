@@ -105,7 +105,7 @@ bool LatexFrame::genWriteImpl() const
             {"GENERATED", LatexGenerator::latexFileGeneratedComment()},
             {"SECTION", latexSection()},
             {"LABEL", "\\label{" + LatexGenerator::latexLabelId(*this) + '}'},
-            {"DESCRIPTION", util::genStrMakeMultiline(genParseObj().parseDescription())},
+            {"DESCRIPTION", util::genStrMakeMultiline(LatexGenerator::latexEscString(genParseObj().parseDescription()))},
             {"PREPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(prependFileName))},
             {"APPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(appendFileName))},
             {"FIELDS", latexLayers()},
@@ -223,7 +223,7 @@ std::string LatexFrame::latexLayers() const
             {"SECTION", LatexGenerator::latexSectionDirective(*lPtr)},
             {"TITLE", "Frame Field \"" + nameStr + "\""},
             {"LABEL", LatexGenerator::latexLabelId(*lPtr)},
-            {"DESCRIPTION", layerParseObj.parseDescription()},
+            {"DESCRIPTION", LatexGenerator::latexEscString(layerParseObj.parseDescription())},
         };
 
         LatexGenerator::latexEnsureNewLineBreak(layerRepl["DESCRIPTION"]);

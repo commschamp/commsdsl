@@ -117,7 +117,7 @@ std::string LatexNamespace::latexTitle() const
 
     auto& displayName = genParseObj().parseDisplayName();
     if (!displayName.empty()) {
-        return LatexGenerator::latexEscDisplayName(displayName, std::string());
+        return LatexGenerator::latexEscString(displayName);
     }
 
     do {
@@ -145,7 +145,7 @@ std::string LatexNamespace::latexTitle() const
         name = &(schema.genOrigNamespace());
     }
 
-    return "Namespace \"" + LatexGenerator::latexEscDisplayName(*name, std::string()) + "\"";
+    return "Namespace \"" + LatexGenerator::latexEscString(*name) + "\"";
 }
 
 bool LatexNamespace::genPrepareImpl()
@@ -214,7 +214,7 @@ bool LatexNamespace::genWriteImpl() const
             repl["LABEL"] = "\\label{" + LatexGenerator::latexLabelId(*this) + '}';
 
             if (genParseObj().parseValid()) {
-                repl["DESCRIPTION"] = util::genStrMakeMultiline(genParseObj().parseDescription());
+                repl["DESCRIPTION"] = util::genStrMakeMultiline(LatexGenerator::latexEscString(genParseObj().parseDescription()));
             }
 
             LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);

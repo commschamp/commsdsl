@@ -53,7 +53,7 @@ std::string LatexSchema::latexTitle() const
     auto& latexGenerator = LatexGenerator::latexCast(genGenerator());
     auto& displayName = genParseObj().parseDisplayName();
     if (!displayName.empty()) {
-        return LatexGenerator::latexEscDisplayName(displayName, std::string());
+        return LatexGenerator::latexEscString(displayName);
     }
 
     auto& schemas = latexGenerator.genSchemas();
@@ -63,10 +63,10 @@ std::string LatexSchema::latexTitle() const
 
     auto& name = genParseObj().parseName();
     if (&(latexGenerator.genProtocolSchema()) == this) {
-        return "Protocol \"" + LatexGenerator::latexEscDisplayName(name, std::string()) + "\"";
+        return "Protocol \"" + LatexGenerator::latexEscString(name) + "\"";
     }
 
-    return "Schema \"" + LatexGenerator::latexEscDisplayName(name, std::string()) + "\"";
+    return "Schema \"" + LatexGenerator::latexEscString(name) + "\"";
 }
 
 bool LatexSchema::genWriteImpl()
@@ -134,7 +134,7 @@ bool LatexSchema::genWriteImpl()
         if (!title.empty()) {
             repl["SECTION"] = LatexGenerator::latexSectionDirective(*this) + '{' + title + '}';
             repl["LABEL"] = "\\label{" + LatexGenerator::latexLabelId(*this) + '}';
-            repl["DESCRIPTION"] = util::genStrMakeMultiline(genParseObj().parseDescription());
+            repl["DESCRIPTION"] = util::genStrMakeMultiline(LatexGenerator::latexEscString(genParseObj().parseDescription()));
 
             LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);
 
