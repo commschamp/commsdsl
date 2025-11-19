@@ -66,7 +66,7 @@ bool LatexCmake::latexWriteInternal()
         "include (GNUInstallDirs)\n\n"
         "set (MAIN_FILE \"${CMAKE_CURRENT_SOURCE_DIR}/#^#TEX_FILE#$#\")\n\n"
         "if (\"${OUTPUT_DIR}\" STREQUAL \"\")\n"
-        "    set (OUTPUT_DIR \"${CMAKE_INSTALL_FULL_DATADIR}/doc/#^#PROJ_NAME#$#\")\n"
+        "    set (OUTPUT_DIR \"${CMAKE_INSTALL_FULL_DATADIR}/doc/#^#PROJ_NAME#$#_spec\")\n"
         "endif()\n\n"
         "add_custom_target(\"all_artifacts\"\n"
         "   COMMAND ${CMAKE_COMMAND} -E echo \"Built all artifacts\")\n\n"
