@@ -108,7 +108,7 @@ std::string LatexCmake::latexSectionPdf() const
         "# PDF Generation\n"
         "find_program (PDFLATEX_EXE \"pdflatex\")\n"
         "if (PDFLATEX_EXE)\n"
-        "    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTPUT_DIR}/pdf)\n"
+        "    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/pdf)\n"
         "    # Run generation twice for table of contents\n"
         "    add_custom_target(\"pdf\"\n"
         "        COMMAND ${CMAKE_COMMAND} -E env TEXINPUTS=\"${CMAKE_CURRENT_SOURCE_DIR}:\" -- ${PDFLATEX_EXE} -file-line-error -output-directory ${CMAKE_CURRENT_BINARY_DIR}/pdf ${MAIN_FILE}\n"
