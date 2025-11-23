@@ -1522,6 +1522,11 @@ bool GenGenerator::genCopyExtraSourceFiles(const std::vector<std::string>& reser
         return true;
     }
 
+    if (!fs::exits(inputDir)) {
+        genLogger().genError("Input directory \"" + inputDir + "\" doesn't exist");
+        return false;
+    }
+
     auto& outputDir = genGetOutputDir();
     auto pos = inputDir.size();
     auto endIter = fs::recursive_directory_iterator();
