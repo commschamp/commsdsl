@@ -22,7 +22,7 @@ namespace
 {
 
 const std::string CNamesPrefixStr("names-prefix");
-const std::string CFullNamesPrefixStr("p," + CNamesPrefixStr);
+const std::string CFullNamesPrefixStr("P," + CNamesPrefixStr);
 const std::string CCommsOptionsStr("comms-options");
 const std::string CCommsInputStr("comms-input");
 

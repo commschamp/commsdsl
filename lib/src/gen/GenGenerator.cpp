@@ -1522,7 +1522,7 @@ bool GenGenerator::genCopyExtraSourceFiles(const std::vector<std::string>& reser
         return true;
     }
 
-    if (!fs::exits(inputDir)) {
+    if (!fs::exists(inputDir)) {
         genLogger().genError("Input directory \"" + inputDir + "\" doesn't exist");
         return false;
     }
