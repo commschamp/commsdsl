@@ -8,7 +8,7 @@ using the [emscripten](https://emscripten.org/) toolchain..
 
 ## Command Line Arguments
 The **commsdsl2emscripten** utility has multiple command line arguments, please
-use `-h` option for the full list as well as default option values. 
+use `-h` option for the full list as well as default option values.
 
 ```
 $> /path/to/commsdsl2emscripten -h
@@ -84,6 +84,14 @@ list can be provided using the `--messages-list` command line option.
 
 ```
 $> /path/to/commsdsl2emscripten --messages-list /path/to/messages/list/file ...
+```
+
+### Providing Generated Code Version
+It is possible to set a [semantic version](https://semver.org/) of the generated
+code using `-V` option. The specified version string is expected to be the same
+as one used with **commsdsl2comms**.
+```
+$> /path/to/commsdsl2emscripten -V 1.2.3 schema.xml
 ```
 
 ## Custom Code

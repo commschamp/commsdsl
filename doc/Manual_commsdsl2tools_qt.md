@@ -8,7 +8,7 @@ It generates CMake project that can be used to build the **protocol plugin** for
 
 ## Command Line Arguments
 The **commsdsl2tools_qt** utility has multiple command line arguments, please
-use `-h` option for the full list as well as default option values. 
+use `-h` option for the full list as well as default option values.
 
 ```
 $> /path/to/commsdsl2tools_qt -h
@@ -111,6 +111,14 @@ the plugin. To do so the schema file(s) should be split into multiple files
 (for example single message definition per file) and only necessary files
 are passed to the code generator (see [Selecting Schema Files](#selecting-schema-files)
 section above).
+
+### Providing Generated Code Version
+It is possible to set a [semantic version](https://semver.org/) of the generated
+code using `-V` option. The specified version string is expected to be the same
+as one used with **commsdsl2comms**.
+```
+$> /path/to/commsdsl2tools_qt -V 1.2.3 schema.xml
+```
 
 ## Custom Code
 As was already mentioned earlier, **commsdsl2tools_qt** utility allows injection

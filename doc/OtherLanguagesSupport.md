@@ -18,7 +18,6 @@ bindings.
 The generation of the [SWIG](https://www.swig.org/) interface file(s) is performed using **commsdsl2swig** code
 generator, please make sure its build is enabled by using appropriate cmake [options](../CMakeLists.txt).
 
-
 ## Build Order
 
 - Build and install [COMMS Library](https://github.com/commschamp/comms) project.
@@ -65,7 +64,6 @@ For more details please refer to the language specific swig [documentation](http
 - **&lt;protocol_name&gt;.i** - [SWIG](https://www.swig.org/) interface file containing real C++ code of the glue code classes definition
   as well as some swig directives specifying some extra functionality.
 - **CMakeLists.txt** - CMake project definition file allowing output to be built as a separate project.
-
 
 ## Generated CMake Project
 As it was mentioned above, the output of the **commsdsl2swig**

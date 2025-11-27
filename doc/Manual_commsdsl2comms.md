@@ -1,17 +1,17 @@
 # Manual of **commsdsl2comms**
 
 ## Overview
-The **commsdsl2comms** is main code generation tool provided by this project. 
-It generates headers only protocol definition code defined using 
+The **commsdsl2comms** is main code generation tool provided by this project.
+It generates headers only protocol definition code defined using
 [CommsDSL](https://commschamp.github.io/commsdsl_spec/) schema file(s).
 
-Note that the output of the **commsdsl2comms** is CMake project which 
-can be used to install all the necessary files (protocol definition 
+Note that the output of the **commsdsl2comms** is CMake project which
+can be used to install all the necessary files (protocol definition
 headers as well as CMake confiugration files) into the installation directory.
 
 ## Command Line Arguments
 The **commsdsl2comms** utility has multiple command line arguments, please
-use `-h` option for the full list as well as default option values. 
+use `-h` option for the full list as well as default option values.
 
 ```
 $> /path/to/commsdsl2comms -h
@@ -19,14 +19,14 @@ $> /path/to/commsdsl2comms -h
 Below is a summary of most important ones.
 
 ### Selecting Schema Files
-In case there are only few schema files, it is possible to pass them 
+In case there are only few schema files, it is possible to pass them
 at the end of the arguments list.
 ```
 $> /path/to/commsdsl2comms <args> schema1.xml schema2.xml schema3.xml ...
 ```
 The schema files will be processed **in order** of their listing.
 
-In case there are lots of schema files (for example every message 
+In case there are lots of schema files (for example every message
 is defined in separate schema file), it is recommended to create a separate
 text file with list of all schema files and use `-i` option.
 ```
@@ -58,30 +58,38 @@ Please read [Custom Code](#custom-code) section below for more details on
 how to format and where to place the custom code.
 
 ### Changing Main Namespace
-By default the protocol name defined in the schema file(s) is used as the 
+By default the protocol name defined in the schema file(s) is used as the
 main namespace for the generated code. It is possible to change it using
 `-n` option.
 ```
 $> /path/to/commsdsl2comms -n other_ns_name schema.xml
 ```
 
-### Selecting Protocol Version
-The schema file(s) is expected to specify protocol numeric version. By default
+### Selecting Schema Version
+The schema file(s) is expected to specify schema numeric version. By default
 the generated code will be for the latest version including all the fields that
-were introduced at some stage and omitting all the deprecated and removed 
+were introduced at some stage and omitting all the deprecated and removed
 ones. However, the **commsdsl2comms**
 utility allows generation of the code for any version of the protocol by using
-`--force-schema-version` option. 
+`--force-schema-version` option.
 ```
 $> /path/to/commsdsl2comms --force-schema-version 2 schema.xml
 ```
 
+### Providing Generated Code Version
+It is possible to set a [semantic version](https://semver.org/) of the generated
+code using `-V` option. The information will be exposed in the `Version.h` header file
+of the generated code.
+```
+$> /path/to/commsdsl2comms -V 1.2.3 schema.xml
+```
+
 ### Selecting Minimal Remote Version
-For version dependent protocols (where the used protocol version is reported 
+For version dependent protocols (where the used protocol version is reported
 to the other side in transport framing or payload of one of the messages), the
 assumed minimal remote version is **0**. In means all the fields that were
 introduced at later stage will be *optional* ones that can exist or be missing.
-If it is known for sure that the other side of communication won't use some early 
+If it is known for sure that the other side of communication won't use some early
 versions, it is possible to generate more efficient code by passing `-m` option.
 ```
 $> /path/to/commsdsl2comms -m 5 schema.xml
@@ -99,7 +107,7 @@ and `<list>`) and uni-directional messages will be customizable.
 - **none** - No fields or messages will allow extra compile time customization.
 
 The recommended (and default) customization level is **limited**. However, when
-protocol schema being developed (i.e. new fields / and messages are being 
+protocol schema being developed (i.e. new fields / and messages are being
 constantly added) it is recommended to temporarily use **none** as customization level in
 order to reduce (re)compilation times of the target project.
 
@@ -126,13 +134,13 @@ $> /path/to/commsdsl2comms --extra-messages-bundle=Set1:extra-set1.txt,Set2:extr
 
 ## Custom Code
 As was already mentioned earlier, **commsdsl2comms** utility allows injection
-of custom C++11 code snippets in the generated code. The 
+of custom C++11 code snippets in the generated code. The
 [Injecting Custom Code](#injecting-custom-code) section above described `-c`
-option that can be used to specify directory with custom code snippets. 
+option that can be used to specify directory with custom code snippets.
 Every file inside that directory must have the same relative path to the file its
 going to update, as the generated file inside the output directory.
 
-Every global **field** and/or **message** class will be defined in a separate 
+Every global **field** and/or **message** class will be defined in a separate
 file and will have the following basic operations:
 - **construct** - Construction (applicable only to messages).
 - **read** - Read operation.
@@ -142,7 +150,7 @@ file and will have the following basic operations:
 - **refresh** - Bring the contents into consistent state.
 - **name** - Get a descriptive name of the field / message.
 
-In order to replace the default implementation of any of these operations, 
+In order to replace the default implementation of any of these operations,
 the file with the same name (and relative path) must be created, but also have
 additional file extension with the operation name. For example let's assume we have
 protocol named **demo**, with message **Msg1**. The class for the message
@@ -243,10 +251,10 @@ found in the following relative paths:
 
 The example of checksum definition can be found at
 [UbloxChecksum.h](https://github.com/commschamp/cc.ublox.commsdsl/blob/master/src/include/ublox/frame/checksum/UbloxChecksum.h)
-file from [cc.ublox.commsdsl](https://github.com/commschamp/cc.ublox.commsdsl) 
+file from [cc.ublox.commsdsl](https://github.com/commschamp/cc.ublox.commsdsl)
 protocol definition.
 
-The example of custom layer can be found 
+The example of custom layer can be found
 at [IdAndFlags.h](https://github.com/commschamp/cc.mqtt311.commsdsl/blob/master/src/include/mqtt311/frame/layer/IdAndFlags.h)
 file from [cc.mqtt311.commsdsl](https://github.com/commschamp/cc.mqtt311.commsdsl)
 protocol definition (defines custom ID layer that also contains extra flags) or
@@ -301,11 +309,11 @@ the following real-life protocols.
 The **commsdsl2comms** also allows appending any text to any generated file
 (not necessarily C++ code). It is done by creating appropriate file
 with **.append** file extension. For example, adding extra logic to the generated CMake
-file(s) are possible by creating `CMakeLists.txt.append` file with custom 
+file(s) are possible by creating `CMakeLists.txt.append` file with custom
 content.
 
 The **commsdsl2comms** utility will also copy all the files, residing in the
 source directory and not having any of the special extensions (**.read**, **.write**,
-**.length**, etc...), as-is without modification into the output directory 
-preserving their relative path. 
- 
+**.length**, etc...), as-is without modification into the output directory
+preserving their relative path.
+
