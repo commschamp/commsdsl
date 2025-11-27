@@ -10,6 +10,8 @@
   **commsdsl2tools_qt** code generator and its available command line options.
 - [Manual_commsdsl2test.md](Manual_commsdsl2test.md) - Manual of the
   **commsdsl2test** code generator and its available command line options.
+- [Manual_commsdsl2c.md](Manual_commsdsl2c.md) - Manual of the
+  **commsdsl2c** code generator and its available command line options.
 - [Manual_commsdsl2swig.md](Manual_commsdsl2swig.md) - Manual of the
   **commsdsl2swig** code generator and its available command line options.
 - [Manual_commsdsl2emscripten.md](Manual_commsdsl2emscripten.md) - Manual of the
