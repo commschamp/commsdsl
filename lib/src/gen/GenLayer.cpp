@@ -326,7 +326,7 @@ bool GenLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success
 
     auto payloadIter =
         std::find_if(
-            layers.begin(), layers.end(),
+            iter, layers.end(),
             [](const auto* l)
             {
                 return l->genParseObj().parseKind() == ParseLayer::ParseKind::Payload;
