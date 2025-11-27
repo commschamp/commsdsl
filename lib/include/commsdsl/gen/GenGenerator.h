@@ -28,6 +28,7 @@
 #include "commsdsl/parse/ParseEndian.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace commsdsl
@@ -68,6 +69,14 @@ public:
         OptsProcessResult_NumOfValues
     };
 
+    enum GenVersionIdx
+    {
+        GenVersionIdx_Major,
+        GenVersionIdx_Minor,
+        GenVersionIdx_Patch,
+        GenVersionIdx_NumOfValues
+    };
+
     GenGenerator();
     virtual ~GenGenerator();
 
@@ -77,6 +86,7 @@ public:
     void genSetMinRemoteVersion(unsigned value);
     unsigned genGetMinRemoteVersion() const;
     const std::string& genGetCodeVersion() const;
+    std::vector<std::string> genGetCodeVersionTokens() const;
     void genSetCodeVersion(const std::string& value);
     void genSetMessagesListFile(const std::string& value);
     const std::string& genGetMessagesListFile() const;

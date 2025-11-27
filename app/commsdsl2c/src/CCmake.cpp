@@ -150,7 +150,7 @@ bool CCmake::cWriteInternal() const
         "    $<$<CXX_COMPILER_ID:MSVC>:/bigobj>\n"
         "    $<$<CXX_COMPILER_ID:GNU>:-ftemplate-depth=2048 -fconstexpr-depth=4096>\n"
         "    $<$<CXX_COMPILER_ID:Clang>:-ftemplate-depth=2048 -fconstexpr-depth=4096 -fbracket-depth=2048>\n"
-        "    )\n\n"        
+        "    )\n\n"
         "target_include_directories(${PROJECT_NAME}\n"
         "    PUBLIC\n"
         "        $<INSTALL_INTERFACE:include>\n"

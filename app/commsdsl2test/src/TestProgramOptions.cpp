@@ -25,6 +25,7 @@ namespace commsdsl2test
 TestProgramOptions::TestProgramOptions()
 {
     genAddCommonOptions();
+    genAddCodeVersionOptions();
     genRemoveMinRemoteVersionOptions();
     ;
 }

@@ -731,6 +731,22 @@ const std::string& GenGenerator::genGetCodeVersion() const
     return m_impl->genGetCodeVersion();
 }
 
+std::vector<std::string> GenGenerator::genGetCodeVersionTokens() const
+{
+    std::vector<std::string> tokens;
+    auto codeVersion = genGetCodeVersion();
+    if (codeVersion.empty()) {
+        return tokens;
+    }
+
+    tokens = util::genStrSplitByAnyChar(codeVersion, ".");
+    while (tokens.size() < GenVersionIdx_NumOfValues) {
+        tokens.push_back("0");
+    }
+
+    return tokens;
+}
+
 void GenGenerator::genSetCodeVersion(const std::string& value)
 {
     m_impl->genSetCodeVersion(value);

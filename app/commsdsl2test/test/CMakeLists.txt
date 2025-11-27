@@ -25,10 +25,16 @@ foreach (name ${tests})
         set (code_input_param -c ${code_input_dir})
     endif()
 
+    set (extra_params)
+    if (EXISTS "${this_test_dir}/commsdsl2test.params")
+        file (READ "${this_test_dir}/commsdsl2test.params" extra_params_str)
+        string (REPLACE " " ";" extra_params "${extra_params_str}")
+    endif ()
+
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
     add_custom_target(${output_tgt} ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
-        COMMAND $<TARGET_FILE:${APP_NAME}> -s --warn-as-err ${code_input_param} -o ${output_dir}.tmp ${schema_files}
+        COMMAND $<TARGET_FILE:${APP_NAME}> -s --warn-as-err ${code_input_param} ${extra_params} -o ${output_dir}.tmp ${schema_files}
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="."
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"

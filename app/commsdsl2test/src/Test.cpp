@@ -53,7 +53,10 @@ bool Test::testWriteInputTest() const
     }
 
     util::GenReplacementMap repl = {
-        std::make_pair("GEN_COMMENT", m_testGenerator.testFileGeneratedComment()),
+        {"GEN_COMMENT", m_testGenerator.testFileGeneratedComment()},
+        {"NS", util::genStrToUpper(m_testGenerator.genCurrentSchema().genMainNamespace())},
+        {"VERSION", util::genNumToString(m_testGenerator.genCurrentSchema().genSchemaVersion())},
+        {"CODE_VER", testCodeVersionInternal()},
     };
 
     std::string idType;
@@ -134,6 +137,10 @@ bool Test::testWriteInputTest() const
         "#include QUOTES(FRAME_HEADER)\n"
         "#include QUOTES(OPTIONS_HEADER)\n"
         "#include QUOTES(INPUT_MESSAGES_HEADER)\n\n"
+        "#define CC_TEST_#^#NS#$#_SPEC_VERSION (#^#VERSION#$#)\n"
+        "static_assert(CC_TEST_#^#NS#$#_SPEC_VERSION == #^#NS#$#_SPEC_VERSION, \"Specification versions mismatch\");\n"
+        "#^#CODE_VER#$#\n"
+        "\n"
         "namespace\n"
         "{\n\n"
         "class Handler;\n"
@@ -446,6 +453,31 @@ bool Test::testWriteInputTest() const
     }
 
     return true;
+}
+
+std::string Test::testCodeVersionInternal() const
+{
+    auto tokens = m_testGenerator.genGetCodeVersionTokens();
+    if (tokens.empty()) {
+        return strings::genEmptyString();
+    }
+
+    const std::string Templ =
+        "#define CC_TEST_#^#NS#$#_MAJOR_VERSION (#^#MAJOR_VERSION#$#)\n"
+        "#define CC_TEST_#^#NS#$#_MINOR_VERSION (#^#MINOR_VERSION#$#)\n"
+        "#define CC_TEST_#^#NS#$#_PATCH_VERSION (#^#PATCH_VERSION#$#)\n"
+        "#define CC_TEST_#^#NS#$#_VERSION COMMS_MAKE_VERSION(CC_TEST_#^#NS#$#_MAJOR_VERSION, CC_TEST_#^#NS#$#_MINOR_VERSION, CC_TEST_#^#NS#$#_PATCH_VERSION)\n"
+        "static_assert(CC_TEST_#^#NS#$#_VERSION == #^#NS#$#_VERSION, \"Versions mismatch\");\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NS", util::genStrToUpper(m_testGenerator.genCurrentSchema().genMainNamespace())},
+        {"MAJOR_VERSION", tokens[TestGenerator::GenVersionIdx_Major]},
+        {"MINOR_VERSION", tokens[TestGenerator::GenVersionIdx_Minor]},
+        {"PATCH_VERSION", tokens[TestGenerator::GenVersionIdx_Patch]},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2test
