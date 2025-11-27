@@ -32,19 +32,6 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-namespace
-{
-
-enum CommsVersionIdx
-{
-    CommsVersionIdx_major,
-    CommsVersionIdx_minor,
-    CommsVersionIdx_patch,
-    CommsVersionIdx_numOfValues
-};
-
-} // namespace
-
 bool CommsVersion::commsWrite(CommsGenerator& generator)
 {
     auto& thisSchema = static_cast<CommsSchema&>(generator.genCurrentSchema());
@@ -114,14 +101,9 @@ bool CommsVersion::commsWriteInternal() const
 
 std::string CommsVersion::commsCodeVersionDefineInternal() const
 {
-    auto& codeVersion = m_commsGenerator.genGetCodeVersion();
-    if (codeVersion.empty()) {
+    auto tokens = m_commsGenerator.genGetCodeVersionTokens();
+    if (tokens.empty()) {
         return strings::genEmptyString();
-    }
-
-    auto tokens = util::genStrSplitByAnyChar(codeVersion, ".");
-    while (tokens.size() < CommsVersionIdx_numOfValues) {
-        tokens.push_back("0");
     }
 
     const std::string Templ =
@@ -136,9 +118,9 @@ std::string CommsVersion::commsCodeVersionDefineInternal() const
 
     util::GenReplacementMap repl = {
         {"NS", util::genStrToUpper(m_commsGenerator.genCurrentSchema().genMainNamespace())},
-        {"MAJOR_VERSION", tokens[CommsVersionIdx_major]},
-        {"MINOR_VERSION", tokens[CommsVersionIdx_minor]},
-        {"PATCH_VERSION", tokens[CommsVersionIdx_patch]},
+        {"MAJOR_VERSION", tokens[CommsGenerator::GenVersionIdx_Major]},
+        {"MINOR_VERSION", tokens[CommsGenerator::GenVersionIdx_Minor]},
+        {"PATCH_VERSION", tokens[CommsGenerator::GenVersionIdx_Patch]},
     };
 
     return util::genProcessTemplate(Templ, repl);

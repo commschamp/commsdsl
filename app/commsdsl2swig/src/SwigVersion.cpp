@@ -42,15 +42,7 @@ const std::string MajorVersionFunc("versionMajor");
 const std::string MinorVersionFunc("versionMinor");
 const std::string PatchVersionFunc("versionPatch");
 
-enum SwigVersionIdx
-{
-    SwigVersionIdx_major,
-    SwigVersionIdx_minor,
-    SwigVersionIdx_patch,
-    SwigVersionIdx_numOfValues
-};
-
-} // namespace
+}
 
 bool SwigVersion::swigWrite(SwigGenerator& generator)
 {
@@ -240,14 +232,9 @@ bool SwigVersion::swigWriteInternal() const
 
 std::string SwigVersion::swigVersionsAssertInternal(SwigGenerator& generator)
 {
-    auto& codeVersion = generator.genGetCodeVersion();
-    if (codeVersion.empty()) {
+    auto tokens = generator.genGetCodeVersionTokens();
+    if (tokens.empty()) {
         return strings::genEmptyString();
-    }
-
-    auto tokens = util::genStrSplitByAnyChar(codeVersion, ".");
-    while (tokens.size() < SwigVersionIdx_numOfValues) {
-        tokens.push_back("0");
     }
 
     const std::string Templ =
@@ -256,9 +243,9 @@ std::string SwigVersion::swigVersionsAssertInternal(SwigGenerator& generator)
 
     util::GenReplacementMap repl = {
         {"NS", util::genStrToUpper(generator.genProtocolSchema().genMainNamespace())},
-        {"MAJOR", tokens[SwigVersionIdx_major]},
-        {"MINOR", tokens[SwigVersionIdx_minor]},
-        {"PATHC", tokens[SwigVersionIdx_patch]},
+        {"MAJOR", tokens[SwigGenerator::GenVersionIdx_Major]},
+        {"MINOR", tokens[SwigGenerator::GenVersionIdx_Minor]},
+        {"PATHC", tokens[SwigGenerator::GenVersionIdx_Patch]},
     };
 
     return util::genProcessTemplate(Templ, repl);

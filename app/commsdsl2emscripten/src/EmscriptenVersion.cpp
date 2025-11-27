@@ -34,19 +34,6 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2emscripten
 {
 
-namespace
-{
-
-enum EmscriptenVersionIdx
-{
-    EmscriptenVersionIdx_major,
-    EmscriptenVersionIdx_minor,
-    EmscriptenVersionIdx_patch,
-    EmscriptenVersionIdx_numOfValues
-};
-
-} // namespace
-
 bool EmscriptenVersion::emscriptenWrite(EmscriptenGenerator& generator)
 {
     if ((!generator.genIsCurrentProtocolSchema()) && (!generator.genCurrentSchema().genHasAnyReferencedComponent())) {
@@ -222,14 +209,9 @@ std::string EmscriptenVersion::emscriptenCodeVerConstantsInternal() const
 
 std::string EmscriptenVersion::emscriptenCodeVersionInternal() const
 {
-    auto& codeVersion = m_emscriptenGenerator.genGetCodeVersion();
-    if (codeVersion.empty()) {
+    auto tokens = m_emscriptenGenerator.genGetCodeVersionTokens();
+    if (tokens.empty()) {
         return strings::genEmptyString();
-    }
-
-    auto tokens = util::genStrSplitByAnyChar(codeVersion, ".");
-    while (tokens.size() < EmscriptenVersionIdx_numOfValues) {
-        tokens.push_back("0");
     }
 
     const std::string Templ =
@@ -247,9 +229,9 @@ std::string EmscriptenVersion::emscriptenCodeVersionInternal() const
 
     util::GenReplacementMap repl = {
         {"NS", util::genStrToUpper(m_emscriptenGenerator.genCurrentSchema().genMainNamespace())},
-        {"MAJOR_VERSION", tokens[EmscriptenVersionIdx_major]},
-        {"MINOR_VERSION", tokens[EmscriptenVersionIdx_minor]},
-        {"PATCH_VERSION", tokens[EmscriptenVersionIdx_patch]},
+        {"MAJOR_VERSION", tokens[EmscriptenGenerator::GenVersionIdx_Major]},
+        {"MINOR_VERSION", tokens[EmscriptenGenerator::GenVersionIdx_Minor]},
+        {"PATCH_VERSION", tokens[EmscriptenGenerator::GenVersionIdx_Patch]},
     };
 
     return util::genProcessTemplate(Templ, repl);

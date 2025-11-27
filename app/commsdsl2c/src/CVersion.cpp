@@ -32,19 +32,6 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2c
 {
 
-namespace
-{
-
-enum CVersionIdx
-{
-    CVersionIdx_major,
-    CVersionIdx_minor,
-    CVersionIdx_patch,
-    CVersionIdx_numOfValues
-};
-
-} // namespace
-
 bool CVersion::cWrite(CGenerator& generator)
 {
     CVersion obj(generator);
@@ -143,14 +130,9 @@ bool CVersion::cWriteCommsHeaderInternal() const
 
 std::string CVersion::cCodeVersionDefineInternal() const
 {
-    auto& codeVersion = m_cGenerator.genGetCodeVersion();
-    if (codeVersion.empty()) {
+    auto tokens = m_cGenerator.genGetCodeVersionTokens();
+    if (tokens.empty()) {
         return strings::genEmptyString();
-    }
-
-    auto tokens = util::genStrSplitByAnyChar(codeVersion, ".");
-    while (tokens.size() < CVersionIdx_numOfValues) {
-        tokens.push_back("0");
     }
 
     const std::string Templ =
@@ -171,9 +153,9 @@ std::string CVersion::cCodeVersionDefineInternal() const
 
     util::GenReplacementMap repl = {
         {"PREFIX", util::genStrToUpper(m_cGenerator.cNamesPrefix())},
-        {"MAJOR_VERSION", tokens[CVersionIdx_major]},
-        {"MINOR_VERSION", tokens[CVersionIdx_minor]},
-        {"PATCH_VERSION", tokens[CVersionIdx_patch]},
+        {"MAJOR_VERSION", tokens[CGenerator::GenVersionIdx_Major]},
+        {"MINOR_VERSION", tokens[CGenerator::GenVersionIdx_Minor]},
+        {"PATCH_VERSION", tokens[CGenerator::GenVersionIdx_Patch]},
     };
 
     return util::genProcessTemplate(Templ, repl);

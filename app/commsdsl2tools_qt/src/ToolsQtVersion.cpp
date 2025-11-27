@@ -31,19 +31,6 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2tools_qt
 {
 
-namespace
-{
-
-enum ToolsVersionIdx
-{
-    ToolsVersionIdx_major,
-    ToolsVersionIdx_minor,
-    ToolsVersionIdx_patch,
-    ToolsVersionIdx_numOfValues
-};
-
-} // namespace
-
 bool ToolsQtVersion::toolsWrite(ToolsQtGenerator& generator)
 {
     ToolsQtVersion obj(generator);
@@ -109,14 +96,9 @@ bool ToolsQtVersion::toolsWriteInternal() const
 
 std::string ToolsQtVersion::toolsCodeVersionInternal() const
 {
-    auto& codeVersion = m_toolsGenerator.genGetCodeVersion();
-    if (codeVersion.empty()) {
+    auto tokens = m_toolsGenerator.genGetCodeVersionTokens();
+    if (tokens.empty()) {
         return strings::genEmptyString();
-    }
-
-    auto tokens = util::genStrSplitByAnyChar(codeVersion, ".");
-    while (tokens.size() < ToolsVersionIdx_numOfValues) {
-        tokens.push_back("0");
     }
 
     const std::string Templ =
@@ -129,9 +111,9 @@ std::string ToolsQtVersion::toolsCodeVersionInternal() const
 
     util::GenReplacementMap repl = {
         {"NS", util::genStrToUpper(m_toolsGenerator.genProtocolSchema().genMainNamespace())},
-        {"MAJOR_VERSION", tokens[ToolsVersionIdx_major]},
-        {"MINOR_VERSION", tokens[ToolsVersionIdx_minor]},
-        {"PATCH_VERSION", tokens[ToolsVersionIdx_patch]},
+        {"MAJOR_VERSION", tokens[ToolsQtGenerator::GenVersionIdx_Major]},
+        {"MINOR_VERSION", tokens[ToolsQtGenerator::GenVersionIdx_Minor]},
+        {"PATCH_VERSION", tokens[ToolsQtGenerator::GenVersionIdx_Patch]},
     };
 
     return util::genProcessTemplate(Templ, repl);
