@@ -125,15 +125,15 @@ bool CMessage::genWriteImpl() const
 
 bool CMessage::cWriteHeaderInternal() const
 {
-    auto& gen = CGenerator::cCast(genGenerator());
-    auto filePath = gen.cAbsHeaderFor(*this);
+    auto& cGenerator = CGenerator::cCast(genGenerator());
+    auto filePath = cGenerator.cAbsHeaderFor(*this);
     auto dirPath = util::genPathUp(filePath);
     assert(!dirPath.empty());
-    if (!gen.genCreateDirectory(dirPath)) {
+    if (!cGenerator.genCreateDirectory(dirPath)) {
         return false;
     }
 
-    auto& logger = gen.genLogger();
+    auto& logger = cGenerator.genLogger();
     logger.genInfo("Generating " + filePath);
 
     std::ofstream stream(filePath);
@@ -149,6 +149,7 @@ bool CMessage::cWriteHeaderInternal() const
         "#^#CPP_GUARD_BEGIN#$#\n"
         "#^#FIELDS#$#\n"
         "#^#DEF#$#\n"
+        "#^#APPEND#$#\n"
         "#^#CPP_GUARD_END#$#\n"
     ;
 
@@ -159,6 +160,7 @@ bool CMessage::cWriteHeaderInternal() const
         {"DEF", cHeaderCodeInternal()},
         {"CPP_GUARD_BEGIN", CGenerator::cCppGuardBegin()},
         {"CPP_GUARD_END", CGenerator::cCppGuardEnd()},
+        {"APPEND", util::genReadFileContents(cGenerator.cInputAbsHeaderFor(*this) + strings::genAppendFileSuffixStr())},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -191,6 +193,7 @@ bool CMessage::cWriteSourceInternal() const
         "#^#INCLUDES#$#\n"
         "#^#FIELDS#$#\n"
         "#^#CODE#$#\n"
+        "#^#APPEND#$#\n"
     ;
 
     util::GenReplacementMap repl = {
@@ -199,6 +202,7 @@ bool CMessage::cWriteSourceInternal() const
         {"INCLUDES", cSourceIncludesInternal()},
         {"FIELDS", cSourceFieldsInternal()},
         {"CODE", cSourceCodeInternal()},
+        {"APPEND", util::genReadFileContents(cGenerator.cInputAbsSourceFor(*this) + strings::genAppendFileSuffixStr())},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -255,10 +259,11 @@ std::string CMessage::cHeaderIncludesInternal() const
     auto* msgId = interface->cMsgId();
     assert(msgId != nullptr);
 
+    auto& cGenerator = CGenerator::cCast(genGenerator());
     util::GenStringsList includes = {
         "<stddef.h>",
         "<stdint.h>",
-        CErrorStatus::cRelHeader(CGenerator::cCast(genGenerator())),
+        CErrorStatus::cRelHeader(cGenerator),
         interface->cRelHeader(),
         msgId->cRelHeader(),
     };
@@ -268,7 +273,18 @@ std::string CMessage::cHeaderIncludesInternal() const
     }
 
     comms::genPrepareIncludeStatement(includes);
-    return util::genStrListToString(includes, "\n", "\n");
+
+    static const std::string Templ =
+        "#^#INCLUDES#$#\n"
+        "#^#EXTRA#$#\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
+        {"EXTRA", util::genReadFileContents(cGenerator.cInputAbsHeaderFor(*this) + strings::genIncFileSuffixStr())},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CMessage::cHeaderFieldsInternal() const
@@ -379,7 +395,19 @@ std::string CMessage::cSourceIncludesInternal() const
     }
 
     comms::genPrepareIncludeStatement(includes);
-    return util::genStrListToString(includes, "\n", "\n");
+
+    static const std::string Templ =
+        "#^#INCLUDES#$#\n"
+        "#^#EXTRA#$#\n"
+        ;
+
+    auto& cGenerator = CGenerator::cCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
+        {"EXTRA", util::genReadFileContents(cGenerator.cInputAbsSourceFor(*this) + strings::genIncFileSuffixStr())},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CMessage::cSourceFieldsInternal() const

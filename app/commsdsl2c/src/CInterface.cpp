@@ -155,6 +155,7 @@ bool CInterface::cWriteHeaderInternal() const
         "#^#CPP_GUARD_BEGIN#$#\n"
         "#^#FIELDS#$#\n"
         "#^#DEF#$#\n"
+        "#^#APPEND#$#\n"
         "#^#CPP_GUARD_END#$#\n"
     ;
 
@@ -165,6 +166,7 @@ bool CInterface::cWriteHeaderInternal() const
         {"DEF", cHeaderCodeInternal()},
         {"CPP_GUARD_BEGIN", CGenerator::cCppGuardBegin()},
         {"CPP_GUARD_END", CGenerator::cCppGuardEnd()},
+        {"APPEND", util::genReadFileContents(cGenerator.cInputAbsHeaderFor(*this) + strings::genAppendFileSuffixStr())},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -197,6 +199,7 @@ bool CInterface::cWriteSourceInternal() const
         "#^#INCLUDES#$#\n"
         "#^#FIELDS#$#\n"
         "#^#CODE#$#\n"
+        "#^#APPEND#$#\n"
     ;
 
     util::GenReplacementMap repl = {
@@ -205,6 +208,7 @@ bool CInterface::cWriteSourceInternal() const
         {"INCLUDES", cSourceIncludesInternal()},
         {"FIELDS", cSourceFieldsInternal()},
         {"CODE", cSourceCodeInternal()},
+        {"APPEND", util::genReadFileContents(cGenerator.cInputAbsSourceFor(*this) + strings::genAppendFileSuffixStr())},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -324,7 +328,19 @@ std::string CInterface::cHeaderIncludesInternal() const
     }
 
     comms::genPrepareIncludeStatement(includes);
-    return util::genStrListToString(includes, "\n", "\n");
+
+    static const std::string Templ =
+        "#^#INCLUDES#$#\n"
+        "#^#EXTRA#$#\n"
+        ;
+
+    auto& cGenerator = CGenerator::cCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
+        {"EXTRA", util::genReadFileContents(cGenerator.cInputAbsHeaderFor(*this) + strings::genIncFileSuffixStr())},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CInterface::cHeaderFieldsInternal() const
@@ -425,7 +441,19 @@ std::string CInterface::cSourceIncludesInternal() const
     }
 
     comms::genPrepareIncludeStatement(includes);
-    return util::genStrListToString(includes, "\n", "\n");
+
+    static const std::string Templ =
+        "#^#INCLUDES#$#\n"
+        "#^#EXTRA#$#\n"
+        ;
+
+    auto& cGenerator = CGenerator::cCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
+        {"EXTRA", util::genReadFileContents(cGenerator.cInputAbsSourceFor(*this) + strings::genIncFileSuffixStr())},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CInterface::cSourceFieldsInternal() const

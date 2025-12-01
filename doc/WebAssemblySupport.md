@@ -49,11 +49,11 @@ There are 2 ways to bring these dependencies in. Both of them are headers only l
 
 - The relevant include directories can be brought in using **OPT_EXTRA_INCLUDE_DIRS** cmake variable.
 - In case the dependency projects are built and installed using the same emscripten toolchain, then the
-  dependency projects can be brought it using the standard cmake way of specifying relevant installation paths with
+  dependency projects can be brought in using the standard cmake way of specifying relevant installation paths with
   the **CMAKE_PREFIX_PATH** variable, and enabling the usage of the `find_package()` with the
   **OPT_FIND_COMMS** and **OPT_FIND_PROTOCOL** options enabled.
 
-# Interacting with Protocol Code
+## Interacting with Protocol Code
 Please read through the available [Interacting with code](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html)
 documentation page of the [emscripten](https://emscripten.org) toolchain. It contains information of how
 to call the compiled functions and/or load the module if you're

@@ -32,7 +32,8 @@ CProgramOptions::CProgramOptions()
 {
     genAddCommonOptions();
     genAddCodeVersionOptions();
-    genAddMessagesSelectionOptions()
+    genAddMessagesSelectionOptions();
+    genAddInterfaceSelectionOptions()
     (CFullNamesPrefixStr,
         "Prefix to all generated structs and functions. "
         "If not provided the main namespace name is used.",

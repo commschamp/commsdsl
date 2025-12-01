@@ -687,7 +687,19 @@ std::string CField::cHeaderIncludesInternal() const
     CIncludesList includes;
     cAddHeaderIncludes(includes);
     comms::genPrepareIncludeStatement(includes);
-    return util::genStrListToString(includes, "\n", "\n");
+
+    static const std::string Templ =
+        "#^#INCLUDES#$#\n"
+        "#^#EXTRA#$#\n"
+        ;
+
+    auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
+    util::GenReplacementMap repl = {
+        {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
+        {"EXTRA", util::genReadFileContents(cGenerator.cInputAbsHeaderFor(m_genField) + strings::genIncFileSuffixStr())},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CField::cSourceIncludesInternal() const
@@ -695,7 +707,19 @@ std::string CField::cSourceIncludesInternal() const
     CIncludesList includes;
     cAddSourceIncludes(includes);
     comms::genPrepareIncludeStatement(includes);
-    return util::genStrListToString(includes, "\n", "\n");
+
+    auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
+    static const std::string Templ =
+        "#^#INCLUDES#$#\n"
+        "#^#EXTRA#$#\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
+        {"EXTRA", util::genReadFileContents(cGenerator.cInputAbsSourceFor(m_genField) + strings::genIncFileSuffixStr())},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CField::cHeaderCommonFuncsInternal(bool forcedOptional) const

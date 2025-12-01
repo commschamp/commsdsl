@@ -474,6 +474,9 @@ CGenerator::OptsProcessResult CGenerator::genProcessOptionsImpl(const GenProgram
 bool CGenerator::cWriteExtraFilesInternal() const
 {
     const std::vector<std::string> ReservedExt = {
+        strings::genIncFileSuffixStr(),
+        strings::genAppendFileSuffixStr(),
+        strings::genSourcesFileSuffixStr(),
     };
 
     return genCopyExtraSourceFiles(ReservedExt);
