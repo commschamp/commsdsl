@@ -1,0 +1,9 @@
+void test20_field_Int2_setMeters(test20_field_Int2* field, double val)
+{
+    comms::units::setMeters(*fromFieldHandle(field), val);
+}
+
+double test20_field_Int2_getMeters(const test20_field_Int2* field)
+{
+    return comms::units::getMeters<double>(*fromFieldHandle(field));
+}

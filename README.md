@@ -66,7 +66,7 @@ is licensed under [Apache v2.0](https://www.apache.org/licenses/LICENSE-2.0) lic
 The generated code has no license, the vendor is free to
 pick any as long as it's compatible with the
 [license](https://commschamp.github.io/licenses/) of the
-relevant [CommsChampion Ecosystem](https://commschamp.github.io) project.
+relevant [CommsChampion Ecosystem](https://commschamp.github.io) dependency project.
 
 # Tutorial
 The [cc_tutorial](https://github.com/commschamp/cc_tutorial/) project contains a 
