@@ -109,7 +109,7 @@ std::string CListField::cHeaderCodeImpl() const
         "/// @return Pointer to the inserted element, @b NULL in case inner storage grows out of capacity.\n"
         "#^#ELEMENT#$#* #^#NAME#$##^#SUFFIX#$#_insert(#^#NAME#$##^#SUFFIX#$#* field, size_t idx);\n"
         "\n"
-        "/// @brief Append new element of @ref #^#NAME#$##^#SUFFIX#$# at end.\n"
+        "/// @brief Append new element of @ref #^#NAME#$##^#SUFFIX#$# at the end.\n"
         "/// @return Pointer to the appended element, @b NULL in case inner storage grows out of capacity.\n"
         "#^#ELEMENT#$#* #^#NAME#$##^#SUFFIX#$#_append(#^#NAME#$##^#SUFFIX#$#* field);\n"
         "\n"

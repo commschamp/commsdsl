@@ -112,7 +112,7 @@ std::string CMsgId::cIdsInternal() const
         auto* msgIdField = allMsgIdFields.front();
         assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Enum);
         auto* castedMsgIdField = static_cast<const CEnumField*>(msgIdField);
-        auto enumValues = castedMsgIdField->cEnumValues(prefix);
+        auto enumValues = castedMsgIdField->cEnumValues(prefix + '_');
         return util::genStrListToString(enumValues, "\n", "");
     }
 
