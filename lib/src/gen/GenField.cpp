@@ -37,7 +37,7 @@ class GenFieldImpl
 public:
     using ParseField = GenField::ParseField;
 
-    GenFieldImpl(GenGenerator& generator, const ParseField& parseObj) : 
+    GenFieldImpl(GenGenerator& generator, const ParseField& parseObj) :
         m_generator(generator),
         m_parseObj(parseObj)
     {
@@ -56,7 +56,7 @@ public:
     const ParseField& genParseObj() const
     {
         return m_parseObj;
-    } 
+    }
 
     GenGenerator& genGenerator()
     {
@@ -83,7 +83,7 @@ private:
     ParseField m_parseObj;
     bool m_prepared = false;
     bool m_referenced = false;
-};    
+};
 
 GenField::GenField(GenGenerator& generator, const ParseField& parseObj, GenElem* parent) :
     Base(parent),
@@ -117,7 +117,7 @@ GenField::GenPtr GenField::genCreate(GenGenerator& generator, ParseField parseob
     auto idx = static_cast<std::size_t>(parseobj.parseKind());
     if (MapSize <= idx) {
         [[maybe_unused]] static constexpr bool Unexpected_kind = false;
-        assert(Unexpected_kind);          
+        assert(Unexpected_kind);
         return GenPtr();
     }
 
@@ -151,7 +151,7 @@ bool GenField::genPrepare()
     if (genParseObj().parseIsForceGen()) {
         genSetReferenced();
     }
-    
+
     return result;
 }
 
@@ -202,28 +202,27 @@ std::string GenField::genTemplateScopeOfComms(const std::string& protOptionsStr)
         return commsScope + optionsParams;
     }
 
-    auto formScopeFunc = 
+    auto formScopeFunc =
         [this, &commsScope, &optionsParams](const GenElem* parent, const std::string& suffix)
         {
             auto optLevelScope = comms::genScopeFor(*parent, genGenerator()) + suffix;
             assert(optLevelScope.size() < commsScope.size());
             assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
-            
+
             return optLevelScope + optionsParams + commsScope.substr(optLevelScope.size());
         };
 
-    
     auto* parent = genGetParent();
     while (parent != nullptr)  {
         auto elemType = parent->genElemType();
 
         if (elemType == GenElem::GenType_Interface) {
             return commsScope;
-        }        
+        }
 
         if ((elemType == GenElem::GenType_Field) && (comms::genIsGlobalField(*parent))) {
             return formScopeFunc(parent, strings::genMembersSuffixStr());
-        }        
+        }
 
         if (elemType == GenElem::GenType_Message) {
             return formScopeFunc(parent, strings::genFieldsSuffixStr());
@@ -231,7 +230,7 @@ std::string GenField::genTemplateScopeOfComms(const std::string& protOptionsStr)
 
         if (elemType == GenElem::GenType_Frame) {
             return formScopeFunc(parent, strings::genLayersSuffixStr());
-        }        
+        }
 
         parent = parent->genGetParent();
     }

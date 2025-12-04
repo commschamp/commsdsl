@@ -19,7 +19,7 @@
             <data name="Data3" lengthPrefix="$Len3" sinceVersion="2" />
         </bundle>
     </fields>
-    
+
     <message name="Msg1" id="MsgId.M1">
         <int name="Len" type="uint8" />
         <int name="Reserved" type="uint8" />
@@ -62,11 +62,11 @@
 
     <interface name="Message">
         <int name="version" type="uint8" semanticType="version" />
-    </interface>      
+    </interface>
 
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <value name="Version" field="Version" interfaceFieldName="version" />
         <payload name="Data" />
-    </frame>       
+    </frame>
 </schema>

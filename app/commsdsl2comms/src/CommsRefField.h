@@ -37,7 +37,7 @@ public:
 protected:
     // GenBase overrides
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
     // CommsBase overrides
     virtual CommsIncludesList commsCommonIncludesImpl() const override;
@@ -50,8 +50,8 @@ protected:
     virtual bool commsDefHasNameFuncImpl() const override;
     virtual std::size_t commsMinLengthImpl() const override;
     virtual std::size_t commsMaxLengthImpl() const override;
-    virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const override; 
-    virtual std::string commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const override; 
+    virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
+    virtual std::string commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
     virtual void commsCompOptChecksImpl(const std::string& accStr, GenStringsList& checks, const std::string& prefix) const override;
     virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const override;
     virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;

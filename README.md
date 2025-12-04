@@ -18,24 +18,34 @@ documentation page.
 - **commsdsl2test** - A code generator that produces C++11 code for fuzz
 testing of the protocol definition produced by the **commsdsl2comms**.
 Details are in the [Testing Generated Protocol Code](doc/TestingGeneratedProtocolCode.md) documentation
-page. Build requires explicit cmake enable [option](CMakeLists.txt).
+page. For details on how to use the tool, please read the [commsdsl2test Manual](doc/Manual_commsdsl2test.md) documentation page.
+Build requires explicit cmake enable [option](CMakeLists.txt).
 - **commsdsl2tools_qt** - A code generator, that produces the protocol
 definition plugin code for [CommmsChampion Tools](https://github.com/commschamp/cc_tools_qt),
 which can be used to visualize message contents as well as debug / observe exchange
 of the messages between different systems. Details are in the
 [Visual Protocol Analysis](doc/VisualProtocolAnalysis.md) documentation page.
+For details on how to use the tool, please read the [commsdsl2tools_qt Manual](doc/Manual_commsdsl2tools_qt.md) documentation page.
 Build requires explicit cmake enable [option](CMakeLists.txt).
 - **commsdsl2swig** - A code generator that produces [SWIG](https://www.swig.org) interface 
 file(s) for the protocol definition produced by the **commsdsl2comms**.
 It allows generation of the bindings (glue code) to other high level 
 programming languages using external [swig](https://www.swig.org) utility.
 Details are in the [Other Languages Support](doc/OtherLanguagesSupport.md) documentation page.
+For details on how to use the tool, please read the [commsdsl2swig Manual](doc/Manual_commsdsl2swig.md) documentation page.
 Build requires explicit cmake enable [option](CMakeLists.txt).
-- **commsdsl2emscripten** - A code generator that produces [emscripten](https://emscripten.org/)  
+- **commsdsl2emscripten** - A code generator that produces [emscripten](https://emscripten.org/)
 bindings for the protocol definition produced by the **commsdsl2comms**.
 It allows compilation of the protocol definition C++ code into WebAssembly as well as
 generation javascript bindings to it.
 Details are in the [WebAssembly Support](doc/WebAssemblySupport.md) documentation page.
+For details on how to use the tool, please read the [commsdsl2emscripten Manual](doc/Manual_commsdsl2emscripten.md) documentation page.
+Build requires explicit cmake enable [option](CMakeLists.txt).
+- **commsdsl2c** - A code generator that produces "C" interface to the C++ protocol definition classes
+and functions produced by the **commsdsl2comms**. It allows easier integration with other "C" code
+as well as other programming languages not covered by [SWIG](https://www.swig.org) or [emscripten](https://emscripten.org/).
+Details are in the ["C" Interface](doc/CInterface.md) documentation page.
+For details on how to use the tool, please read the [commsdsl2c Manual](doc/Manual_commsdsl2c.md) documentation page.
 Build requires explicit cmake enable [option](CMakeLists.txt).
 - **commsdsl2latex** - A code generator that produces [LaTeX](https://en.wikipedia.org/wiki/LaTeX)
 files for the protocol specification. The produced files can be built into
@@ -56,7 +66,7 @@ is licensed under [Apache v2.0](https://www.apache.org/licenses/LICENSE-2.0) lic
 The generated code has no license, the vendor is free to
 pick any as long as it's compatible with the
 [license](https://commschamp.github.io/licenses/) of the
-relevant [CommsChampion Ecosystem](https://commschamp.github.io) project.
+relevant [CommsChampion Ecosystem](https://commschamp.github.io) dependency project.
 
 # Tutorial
 The [cc_tutorial](https://github.com/commschamp/cc_tutorial/) project contains a 

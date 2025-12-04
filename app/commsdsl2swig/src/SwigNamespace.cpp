@@ -34,12 +34,13 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-
 SwigNamespace::SwigNamespace(SwigGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
-    m_msgId(generator, *this)
+    m_msgId(generator, *this),
+    m_handler(generator, *this),
+    m_input(generator, *this)
 {
-}   
+}
 
 SwigNamespace::~SwigNamespace() = default;
 
@@ -59,39 +60,57 @@ void SwigNamespace::swigAddCodeIncludes(GenStringsList& list) const
 
     if (!genInterfaces().empty()) {
         m_msgId.swigAddCodeIncludes(list);
-    }    
+    }
 
     for (auto& m : genMessages()) {
         SwigMessage::swigCast(m.get())->swigAddCodeIncludes(list);
-    }   
+    }
 
     for (auto& f : genFrames()) {
         SwigFrame::swigCast(f.get())->swigAddCodeIncludes(list);
-    }    
-    
+    }
+
 }
 
 void SwigNamespace::swigAddCode(GenStringsList& list) const
 {
-    if (!genInterfaces().empty()) {
-        m_msgId.swigAddCode(list);
-    }
-
     for (auto* f : m_swigFields) {
         f->swigAddCode(list);
     }
 
+   if (!genInterfaces().empty()) {
+        m_msgId.swigAddCode(list);
+    }
+
+    auto* msgHandler = swigMsgHandler();
+    if (msgHandler != nullptr) {
+        msgHandler->swigAddFwdCode(list);
+    }
+
+    auto* iFace = swigInterface();
+    if (iFace != nullptr) {
+        iFace->swigAddCode(list);
+    }
+
+    for (auto& i : genInterfaces()) {
+        SwigInterface::swigCast(i.get())->swigAddCode(list);
+    }
+
     for (auto& m : genMessages()) {
         SwigMessage::swigCast(m.get())->swigAddCode(list);
-    }   
+    }
+
+    if (swigHasInput()) {
+        m_input.swigAddCode(list);
+    }
 
     // for (auto& f : genFrames()) {
     //     SwigFrame::swigCast(f.get())->swigAddCode(list);
-    // }    
+    // }
 
     for (auto& ns : genNamespaces()) {
         SwigNamespace::swigCast(ns.get())->swigAddCode(list);
-    }    
+    }
 }
 
 void SwigNamespace::swigAddDef(GenStringsList& list) const
@@ -110,21 +129,81 @@ void SwigNamespace::swigAddDef(GenStringsList& list) const
 
     for (auto& m : genMessages()) {
         SwigMessage::swigCast(m.get())->swigAddDef(list);
-    }   
+    }
+
+    if (!genInterfaces().empty()) {
+        m_handler.swigAddDef(list);
+    }
 
     // for (auto& f : genFrames()) {
     //     SwigFrame::swigCast(f.get())->swigAddDef(list);
-    // } 
+    // }
 
     for (auto& ns : genNamespaces()) {
         SwigNamespace::swigCast(ns.get())->swigAddDef(list);
-    }    
+    }
 }
 
 std::string SwigNamespace::swigMsgIdClassName() const
 {
     assert(!genInterfaces().empty());
     return m_msgId.swigClassName();
+}
+
+const SwigMsgId* SwigNamespace::swigMsgId() const
+{
+    auto* iFace = swigInterface();
+    if (iFace == nullptr) {
+        return nullptr;
+    }
+
+    auto* parent = iFace->genGetParent();
+    auto* iFaceNs = swigCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
+    if (iFaceNs != this) {
+        return iFaceNs->swigMsgId();
+    }
+
+    return &m_msgId;
+}
+
+const SwigMsgHandler* SwigNamespace::swigMsgHandler() const
+{
+    auto* iFace = swigInterface();
+    if (iFace == nullptr) {
+        return nullptr;
+    }
+
+    auto* parent = iFace->genGetParent();
+    auto* iFaceNs = swigCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
+    if (iFaceNs != this) {
+        return iFaceNs->swigMsgHandler();
+    }
+
+    return &m_handler;
+}
+
+const SwigInputMessages* SwigNamespace::swigInputMessages() const
+{
+    if (!swigHasInput()) {
+        return nullptr;
+    }
+
+    return &m_input;
+}
+
+bool SwigNamespace::swigHasInput() const
+{
+    return (genHasFramesRecursive() && genHasMessagesRecursive());
+}
+
+const SwigInterface* SwigNamespace::swigInterface() const
+{
+    auto* iFace = genFindSuitableInterface();
+    if (iFace == nullptr) {
+        return nullptr;
+    }
+
+    return SwigInterface::swigCast(iFace);
 }
 
 bool SwigNamespace::genPrepareImpl()
@@ -139,12 +218,14 @@ bool SwigNamespace::genPrepareImpl()
 
 bool SwigNamespace::genWriteImpl() const
 {
-    if (genInterfaces().empty()) {
-        return true;
+    if (!genInterfaces().empty()) {
+        if ((!m_msgId.swigWrite()) ||
+            (!m_handler.swigWrite())) {
+            return false;
+        }
     }
 
-    return m_msgId.swigWrite();
+    return true;
 }
-
 
 } // namespace commsdsl2swig

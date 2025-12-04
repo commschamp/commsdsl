@@ -24,7 +24,6 @@ public:
     TEST36_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
     using Frame = test36::frame::Frame<Interface>;
 
-
 };
 
 void TestSuite::test1()
@@ -58,7 +57,6 @@ void TestSuite::test1()
         bool m_msg1Received = false;
     };
 
-
     static const std::uint8_t Buf1[] = {
         0x1, 0x1, 0x2
     };
@@ -69,7 +67,6 @@ void TestSuite::test1()
     auto comsumed = comms::processAllWithDispatch(&Buf1[0], Buf1Size, frame, handler);
     TS_ASSERT_EQUALS(comsumed, Buf1Size);
     TS_ASSERT(handler.getMsg1Received());
-
 
     static const std::uint8_t Buf2[] = {
         0x1, 0x0

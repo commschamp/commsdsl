@@ -30,7 +30,7 @@
                 <bit name="B0" idx="0" />
                 <bit name="B1" idx="1" />
             </set>
-        </optional>        
+        </optional>
     </message>
 
     <message name="Msg2" id="2">
@@ -41,11 +41,11 @@
                 <bit name="B1" idx="1" />
             </set>
         </optional>
-    </message>   
+    </message>
 
     <message name="Msg3" id="3">
         <optional name="F1" cond="%#Data = 1" sinceVersion="3">
             <int name="ActF1" type="uint8" />
         </optional>
-    </message>      
+    </message>
 </schema>

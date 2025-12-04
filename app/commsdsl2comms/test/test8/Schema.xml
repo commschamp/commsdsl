@@ -8,13 +8,13 @@
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
         </enum>
-        
+
         <set name="S1" length="1" validCheckVersion="1" nonUniqueAllowed="true">
             <bit name="b3" idx="3" >
                 <description>
                     Some very very very very very very very very very very very very
                     very very very very very very very very very very very
-                    long long long long long long long long long long long long long 
+                    long long long long long long long long long long long long long
                     long long long long description.
                 </description>
             </bit>
@@ -25,13 +25,13 @@
             <bit name="b4_2" idx="4" sinceVersion="4" deprecated="6" reservedValue="true" />
             <bit name="b4_3" idx="4" sinceVersion="7" reservedValue="true" />
             <bit name="b1" idx="1" reserved="true" reservedValue="true" defaultValue="true" />
-        </set>   
+        </set>
     </fields>
-    
+
     <interface name="Message">
         <int name="version" type="uint8" semanticType="version" />
-    </interface>    
-    
+    </interface>
+
     <message name="Msg1" id="MsgId.M1" deprecated="8">
         <ref name="f1" field="S1" />
         <set name="f2" type="uint8" sinceVersion="2" deprecated="3" >
@@ -40,7 +40,7 @@
             <description>
                     Some very very very very very very very very very very very very
                     very very very very very very very very very very very
-                    long long long long long long long long long long long long long 
+                    long long long long long long long long long long long long long
                     long long long long description.
             </description>
         </set>
@@ -48,5 +48,5 @@
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>       
+    </frame>
 </schema>

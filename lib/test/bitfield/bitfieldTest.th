@@ -403,7 +403,7 @@ void BitfieldTestSuite::test14()
         auto validCond = bitfieldField.parseValidCond();
         TS_ASSERT(validCond.parseValid());
         TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);
-    }      
+    }
 
     {
         TS_ASSERT_LESS_THAN_EQUALS(3U, fields.size());
@@ -416,5 +416,5 @@ void BitfieldTestSuite::test14()
         auto validCond = bitfieldField.parseValidCond();
         TS_ASSERT(validCond.parseValid());
         TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::Expr);
-    }      
+    }
 }

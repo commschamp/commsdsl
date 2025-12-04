@@ -69,8 +69,8 @@ bool ParseChecksumLayerImpl::parseVerifyImpl(const ParseLayerImpl::ParseLayersLi
     assert(thisIdx < layers.size());
 
     if (parseFrom().empty() && parseUntil().empty()) {
-        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) << 
-            "Checksum layer must set \"" << common::parseFromStr() << "\" or \"" << 
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "Checksum layer must set \"" << common::parseFromStr() << "\" or \"" <<
             common::parseUntilStr() << "\" property to indicate on what values checksum is calculated.";
         return false;
     }
@@ -183,7 +183,6 @@ bool ParseChecksumLayerImpl::parseUpdateVerifyBeforeRead()
     }
     return true;
 }
-
 
 } // namespace parse
 

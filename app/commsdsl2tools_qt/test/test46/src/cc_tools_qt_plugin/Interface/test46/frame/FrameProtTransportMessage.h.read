@@ -22,7 +22,7 @@ comms::ErrorStatus doRead(TIter& iter, std::size_t len)
         if (checksumType == ChecksumType::Crc16) {
             checksumLen = sizeof(std::uint16_t);
             break;
-        }        
+        }
     } while (false);
 
     len -= checksumLen;
@@ -49,8 +49,8 @@ comms::ErrorStatus doRead(TIter& iter, std::size_t len)
         es = fieldTmp.read(iter, checksumLen);
         checksumField.setValue(fieldTmp.value());
         return es;
-    }    
+    }
 
     len += checksumLen;
-    return Base::template doReadFrom<5U>(iter, len);    
+    return Base::template doReadFrom<5U>(iter, len);
 }

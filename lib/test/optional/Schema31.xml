@@ -7,6 +7,6 @@
 
         <optional name="O2" missingOnInvalid="true">
             <int name="ActO2" type="uint8" validRange="[0, 10]" />
-        </optional>        
+        </optional>
     </fields>
 </schema>

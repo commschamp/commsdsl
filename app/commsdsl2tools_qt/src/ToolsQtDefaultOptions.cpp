@@ -34,7 +34,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2tools_qt
 {
 
-namespace 
+namespace
 {
 
 std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t idx, bool wrapWithFactoryOpts = true)
@@ -55,7 +55,7 @@ std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t
     }
 
     if (wrapWithFactoryOpts && generator.genCurrentSchema().genHasAnyReferencedMessage()) {
-        static const std::string Templ = 
+        static const std::string Templ =
             "::#^#SCOPE#$#T<\n"
             "    #^#NEXT#$#\n"
             ">";
@@ -63,7 +63,7 @@ std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t
         util::GenReplacementMap repl = {
             {"SCOPE", comms::genScopeForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator)},
             {"NEXT", toolsBaseCodeInternal(generator, idx, false)}
-        };        
+        };
 
         generator.genChooseCurrentSchema(oldIdx);
         return util::genProcessTemplate(Templ, repl);
@@ -79,9 +79,9 @@ std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t
     auto nextScope = toolsBaseCodeInternal(generator, idx - 1U);
     if (nextScope.empty()) {
         return "::" + scope;
-    }    
+    }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "::#^#SCOPE#$#T<\n"
         "    #^#NEXT#$#\n"
         ">";
@@ -90,17 +90,16 @@ std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t
         {"SCOPE", std::move(scope)},
         {"NEXT", std::move(nextScope)}
     };
-    
+
     return util::genProcessTemplate(Templ, repl);
 }
 
-} // namespace 
-    
+} // namespace
 
 std::string ToolsQtDefaultOptions::toolsRelHeaderPath(const ToolsQtGenerator& generator)
 {
-    return 
-        util::genScopeToRelPath(toolsClassScope(generator)) + 
+    return
+        util::genScopeToRelPath(toolsClassScope(generator)) +
         strings::genCppHeaderSuffixStr();
 }
 
@@ -111,11 +110,11 @@ std::string ToolsQtDefaultOptions::toolsTemplParam(const ToolsQtGenerator& gener
 
 std::string ToolsQtDefaultOptions::toolsClassScope(const ToolsQtGenerator& generator)
 {
-    return 
-        generator.toolsScopePrefix() + 
-        generator.genProtocolSchema().genMainNamespace() + "::" + 
+    return
+        generator.toolsScopePrefix() +
+        generator.genProtocolSchema().genMainNamespace() + "::" +
         comms::genScopeForOptions(strings::genDefaultOptionsClassStr(), generator, false);
-}    
+}
 
 bool ToolsQtDefaultOptions::toolsWrite(ToolsQtGenerator& generator)
 {
@@ -131,7 +130,7 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
     assert(!dirPath.empty());
     if (!m_toolsGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }      
+    }
 
     m_toolsGenerator.genLogger().genInfo("Generating " + filePath);
 
@@ -139,7 +138,7 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
     if (!stream) {
         m_toolsGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }    
+    }
 
     static const std::string Templ =
         "#^#GENERATED#$#\n"
@@ -173,12 +172,12 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
         m_toolsGenerator.genChooseCurrentSchema(idx);
         if (!m_toolsGenerator.genCurrentSchema().genHasAnyReferencedComponent()) {
             continue;
-        }       
+        }
 
         if (m_toolsGenerator.genCurrentSchema().genHasAnyReferencedMessage()) {
-            includes.push_back(comms::genRelHeaderForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_toolsGenerator));    
+            includes.push_back(comms::genRelHeaderForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_toolsGenerator));
         }
-        
+
         includes.push_back(comms::genRelHeaderForOptions(strings::genDefaultOptionsClassStr(), m_toolsGenerator));
     }
     assert(m_toolsGenerator.genIsCurrentProtocolSchema());
@@ -204,7 +203,7 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
 
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
-    return stream.good();    
+    return stream.good();
 }
 
 } // namespace commsdsl2tools_qt

@@ -38,7 +38,7 @@ public:
         std::string m_pluginId;
     };
     using ToolsPluginInfosList = std::vector<ToolsPluginInfo>;
-    
+
     ToolsQtProgramOptions();
 
     static const ToolsQtProgramOptions& toolsCast(const GenProgramOptions& options)

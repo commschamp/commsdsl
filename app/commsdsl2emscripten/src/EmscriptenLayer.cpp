@@ -33,7 +33,6 @@ namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
 
-
 namespace commsdsl2emscripten
 {
 
@@ -50,14 +49,14 @@ const EmscriptenLayer* EmscriptenLayer::emscriptenCast(const GenLayer* layer)
         return nullptr;
     }
 
-    auto* emscriptenLayer = dynamic_cast<const EmscriptenLayer*>(layer);    
+    auto* emscriptenLayer = dynamic_cast<const EmscriptenLayer*>(layer);
     assert(emscriptenLayer != nullptr);
     return emscriptenLayer;
 }
 
-bool EmscriptenLayer::emscriptenIsMainInterfaceSupported() const
+bool EmscriptenLayer::emscriptenIsInterfaceSupported(const EmscriptenInterface& iFace) const
 {
-    return emscriptenIsMainInterfaceSupportedImpl();
+    return emscriptenIsInterfaceSupportedImpl(iFace);
 }
 
 std::string EmscriptenLayer::emscriptenFieldAccName() const
@@ -86,7 +85,7 @@ void EmscriptenLayer::emscriptenAddHeaderInclude(GenStringsList& includes) const
 
 std::string EmscriptenLayer::emscriptenHeaderClass() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#FIELD#$#\n"
         "#^#DEF#$#\n";
 
@@ -100,7 +99,7 @@ std::string EmscriptenLayer::emscriptenHeaderClass() const
 
 std::string EmscriptenLayer::emscriptenSourceCode() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#FIELD#$#\n"
         "#^#CODE#$#\n";
 
@@ -112,7 +111,7 @@ std::string EmscriptenLayer::emscriptenSourceCode() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-bool EmscriptenLayer::emscriptenIsMainInterfaceSupportedImpl() const
+bool EmscriptenLayer::emscriptenIsInterfaceSupportedImpl([[maybe_unused]] const EmscriptenInterface& iFace) const
 {
     return true;
 }
@@ -147,22 +146,23 @@ std::string EmscriptenLayer::emscriptenSourceExtraFuncsImpl() const
 std::string EmscriptenLayer::emscriptenTemplateScope() const
 {
     auto& gen = EmscriptenGenerator::emscriptenCast(m_genLayer.genGenerator());
-    auto* iFace = gen.emscriptenMainInterface();
-    assert(iFace != nullptr);
-
     auto* frame = emscriptenGenLayer().genGetParent();
     assert(frame->genElemType() == commsdsl::gen::GenElem::GenType_Frame);
 
-    auto* ns = EmscriptenFrame::emscriptenCast(static_cast<const commsdsl::gen::GenFrame*>(frame))->emscriptenFindInputNamespace();
+    auto* emscriptenFrame = EmscriptenFrame::emscriptenCast(static_cast<const commsdsl::gen::GenFrame*>(frame));
+    auto* iFace = emscriptenFrame->emscriptenInterface();
+    assert(iFace != nullptr);
+
+    auto* ns = emscriptenFrame->emscriptenFindInputNamespace();
     if (ns == nullptr) {
         ns = EmscriptenNamespace::emscriptenCast(static_cast<const commsdsl::gen::GenNamespace*>((iFace->genParentNamespace())));
         assert(ns->emscriptenHasInput());
     }
 
-    return 
+    return
         m_genLayer.genTemplateScopeOfComms(
-            gen.emscriptenClassName(*iFace), 
-            EmscriptenNamespace::emscriptenCast(static_cast<const commsdsl::gen::GenNamespace*>(ns))->emscriptenInputClassName(), 
+            gen.emscriptenClassName(*iFace),
+            EmscriptenNamespace::emscriptenCast(static_cast<const commsdsl::gen::GenNamespace*>(ns))->emscriptenInputClassName(),
             EmscriptenProtocolOptions::emscriptenClassName(gen));
 }
 
@@ -178,7 +178,7 @@ std::string EmscriptenLayer::emscriptenHeaderFieldDefInternal() const
 
 std::string EmscriptenLayer::emscriptenHeaderClassDefInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#\n"
         "{\n"
         "    using Base = #^#COMMS_CLASS#$#;\n\n"

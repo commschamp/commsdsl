@@ -32,7 +32,7 @@ namespace commsdsl
 namespace gen
 {
 
-namespace 
+namespace
 {
 
 std::uintmax_t genMaxTypeValueInternal(commsdsl::parse::ParseEnumField::ParseType val)
@@ -62,8 +62,7 @@ std::uintmax_t genMaxTypeValueInternal(commsdsl::parse::ParseEnumField::ParseTyp
     return Map[static_cast<unsigned>(val)];
 }
 
-} // namespace 
-    
+} // namespace
 
 class GenEnumFieldImpl
 {
@@ -109,17 +108,17 @@ public:
 
     std::string genAdjustName(const std::string& val) const
     {
-        std::string result = val;        
+        std::string result = val;
         genAdjustFirstLetterInName(result);
 
-        auto& values = m_dslObj.parseValues();        
+        auto& values = m_dslObj.parseValues();
         while (true) {
             if (values.find(result) == values.end()) {
                 break;
             }
 
             result += '_';
-        }        
+        }
 
         return result;
     }
@@ -133,16 +132,16 @@ public:
         }
 
         return util::genNumToString(val);
-    }    
+    }
 
-    bool genHasValuesLimit() const    
+    bool genHasValuesLimit() const
     {
         auto maxTypeValue = genMaxTypeValueInternal(m_dslObj.parseType());
         if (m_bigUnsigned) {
             return static_cast<std::uintmax_t>(m_sortedRevValues.back().first) < maxTypeValue;
         }
 
-        return m_sortedRevValues.back().first < static_cast<std::intmax_t>(maxTypeValue);        
+        return m_sortedRevValues.back().first < static_cast<std::intmax_t>(maxTypeValue);
     }
 
     const GenSortedRevValues& genSortedRevValues() const
@@ -163,15 +162,15 @@ private:
             assert(!val.empty());
             assert(val[0] == static_cast<char>(std::toupper(val[0])));
             return;
-        }        
+        }
 
         val[0] = static_cast<char>(std::tolower(val[0]));
     }
 
     ParseEnumField m_dslObj;
-    GenSortedRevValues m_sortedRevValues;       
+    GenSortedRevValues m_sortedRevValues;
     bool m_bigUnsigned = false;
-};    
+};
 
 GenEnumField::GenEnumField(GenGenerator& generator, ParseField dslObj, GenElem* parent) :
     Base(generator, dslObj, parent),
@@ -269,7 +268,7 @@ GenEnumField::GenFieldRefInfo GenEnumField::genProcessInnerRefImpl(const std::st
         info.m_refType = FieldRefType_InnerValue;
     }
 
-    return info;    
+    return info;
 }
 
 } // namespace gen

@@ -11,7 +11,7 @@
                 <int name="value" type="uint8" />
             </bundle>
         </variant>
-        
+
         <variant reuse="Variant1" name="Variant2" defaultMember="-1" />
     </fields>
 </schema>

@@ -54,7 +54,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2latex
 {
 
-namespace 
+namespace
 {
 
 int latexSectionElemIndexInternal(const commsdsl::gen::GenElem& elem)
@@ -114,7 +114,7 @@ static const std::string& latexLabelPrefix(commsdsl::gen::GenElem::GenType type)
         /* GenType_Interface */ "iface_",
         /* GenType_Frame */ "frame_",
         /* GenType_Layer */ "layer_",
-        /* GenType_Schema */ "schema_",        
+        /* GenType_Schema */ "schema_",
     };
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == commsdsl::gen::GenElem::GenType_NumOfValues);
@@ -128,8 +128,7 @@ static const std::string& latexLabelPrefix(commsdsl::gen::GenElem::GenType type)
     return Map[idx];
 }
 
-} // namespace 
-    
+} // namespace
 
 const std::string& LatexGenerator::latexFileGeneratedComment()
 {
@@ -207,6 +206,29 @@ std::string LatexGenerator::latexLabelId(const GenElem& elem)
     return prefix + elemName;
 }
 
+std::string LatexGenerator::latexEscString(const std::string& str)
+{
+    auto strTmp = util::genStrReplace(str, "\\", "\\textbackslash{}");
+    std::string result;
+    std::size_t pos = 0U;
+    while (pos < str.size()) {
+        auto nextPos = strTmp.find_first_of("{}#%$_&", pos);
+        if (str.size() <= nextPos) {
+            result.append(str, pos, std::string::npos);
+            break;
+        }
+
+        result.append(str, pos, nextPos - pos);
+        result.append("\\");
+        result.push_back(str[nextPos]);
+        pos = nextPos + 1U;
+    }
+
+    result = util::genStrReplace(result, "^", "\\^{}");
+    result = util::genStrReplace(result, "~", "\\~{}");
+    return result;
+}
+
 std::string LatexGenerator::latexEscDisplayName(const std::string& displayName, const std::string& name)
 {
     auto result = util::genDisplayName(displayName, name);
@@ -214,7 +236,7 @@ std::string LatexGenerator::latexEscDisplayName(const std::string& displayName, 
         result = name;
     }
 
-    return util::genStrReplace(result, "_", "\\_");
+    return latexEscString(result);
 }
 
 void LatexGenerator::latexEnsureNewLineBreak(std::string& str)
@@ -263,7 +285,7 @@ std::string LatexGenerator::latexInputCodePathForFile(const std::string& name) c
 bool LatexGenerator::genWriteImpl()
 {
     assert(&genCurrentSchema() == &genProtocolSchema());
-    return 
+    return
         Latex::latexWrite(*this) &&
         LatexCmake::latexWrite(*this) &&
         latexWriteExtraFilesInternal();
@@ -375,7 +397,7 @@ bool LatexGenerator::latexWriteExtraFilesInternal() const
         strings::genHtmlFileSuffixStr(),
         strings::genHtmlAppendFileSuffixStr(),
         strings::genHtmlCmdAppendFileSuffixStr(),
-    }; 
+    };
 
     return genCopyExtraSourceFiles(ReservedExt);
 }

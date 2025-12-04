@@ -18,19 +18,19 @@
                 <int name="value" type="uint8" />
             </bundle>
         </variant>
-        
+
         <variant reuse="Variant1" name="Variant2" defaultMember="E1.p3">
             <replace>
                 <bundle name="P2">
                     <int name="type" type="uint8" defaultValidValue="1" fixedValue="true" failOnInvalid="true" />
                     <int name="value" type="uint16" />
-                </bundle>            
+                </bundle>
             </replace>
             <members>
                 <bundle name="P3">
                     <int name="type" type="uint8" defaultValidValue="3" fixedValue="true" failOnInvalid="true" />
                     <int name="value" type="uint8" />
-                </bundle>            
+                </bundle>
             </members>
         </variant>
     </fields>

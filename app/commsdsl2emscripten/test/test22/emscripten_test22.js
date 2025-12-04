@@ -24,12 +24,12 @@ function allocHandler(instance)
             if (this.msg2) {
                 this.msg2.delete();
             }
-        },        
+        },
         clean: function() {
             this.clean_Msg1();
             this.clean_Msg2();
-        } 
-    });    
+        }
+    });
 
     return new DerivedHandler;
 }

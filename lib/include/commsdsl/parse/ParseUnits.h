@@ -35,7 +35,7 @@ enum class ParseUnits : unsigned
     Days,
     Weeks,
 
-    // Distance  
+    // Distance
     Nanometers,
     Micrometers,
     Millimeters,

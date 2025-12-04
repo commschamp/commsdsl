@@ -20,7 +20,7 @@
 namespace commsdsl2emscripten
 {
 
-EmscriptenSyncLayer::EmscriptenSyncLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+EmscriptenSyncLayer::EmscriptenSyncLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     EmscriptenBase(static_cast<GenBase&>(*this))
 {

@@ -33,15 +33,13 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-namespace 
+namespace
 {
 
 const std::string CommsServerInputPrefixStr = "ServerInput";
 const std::string CommsClientInputPrefixStr = "ClientInput";
 const std::string CommsServerInputMessagesStr = CommsServerInputPrefixStr + "Messages";
-const std::string CommsClientInputMessagesStr = CommsClientInputPrefixStr + "Messages";    
-
-using GenReplacementMap = util::GenReplacementMap;
+const std::string CommsClientInputMessagesStr = CommsClientInputPrefixStr + "Messages";
 
 bool commsWriteFileInternal(const std::string& name, const std::string& str, CommsGenerator& generator)
 {
@@ -52,13 +50,13 @@ bool commsWriteFileInternal(const std::string& name, const std::string& str, Com
     assert(!dirPath.empty());
     if (!generator.genCreateDirectory(dirPath)) {
         return false;
-    }      
+    }
 
     std::ofstream stream(filePath);
     if (!stream) {
         generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }    
+    }
 
     stream << str;
     stream.flush();
@@ -67,11 +65,10 @@ bool commsWriteFileInternal(const std::string& name, const std::string& str, Com
         generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    return true;    
+    return true;
 }
 
-} // namespace 
-    
+} // namespace
 
 bool CommsDoxygen::commsWrite(CommsGenerator& generator)
 {
@@ -81,7 +78,7 @@ bool CommsDoxygen::commsWrite(CommsGenerator& generator)
 
 bool CommsDoxygen::commsWriteInternal() const
 {
-    return 
+    return
         commsWriteConfInternal() &&
         commsWriteLayoutInternal() &&
         commsWriteNamespacesInternal() &&
@@ -91,7 +88,7 @@ bool CommsDoxygen::commsWriteInternal() const
 bool CommsDoxygen::commsWriteConfInternal() const
 {
     const std::string FileName = "doxygen.conf";
-    const std::string Templ = 
+    const std::string Templ =
         "PROJECT_NAME           = \"#^#PROJ_NAME#$#\"\n"
         "PROJECT_BRIEF          = \"Documentation for generated code of \\\"#^#PROJ_NAME#$#\\\" protocol.\"\n"
         "OUTPUT_DIRECTORY       = \n"
@@ -134,7 +131,7 @@ bool CommsDoxygen::commsWriteConfInternal() const
 bool CommsDoxygen::commsWriteLayoutInternal() const
 {
     const std::string FileName = "layout.xml";
-    const std::string Templ = 
+    const std::string Templ =
         "<doxygenlayout version=\"1.0\">\n"
         "<navindex>\n"
         "    <tab type=\"mainpage\" visible=\"yes\" title=\"\"/>\n"
@@ -358,7 +355,7 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
             nsElems.push_back(util::genProcessTemplate(Templ, repl));
         }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#MAIN#$#\n"
             "#^#NS_LIST#$#\n"
             "/// @namespace #^#NS#$#::options\n"
@@ -366,7 +363,7 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
             "/// @namespace #^#NS#$#::input\n"
             "/// @brief Main namespace for hold input messages bundles.\n\n"
             "/// @namespace #^#NS#$#::dispatch\n"
-            "/// @brief Main namespace for the various message dispatch functions.\n\n"        
+            "/// @brief Main namespace for the various message dispatch functions.\n\n"
         ;
 
         util::GenReplacementMap repl = {
@@ -374,7 +371,7 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
             {"NS", s->genMainNamespace()},
         };
 
-        bool hasDefaultNamespace = 
+        bool hasDefaultNamespace =
             std::any_of(
                 nsList.begin(), nsList.end(),
                 [](auto* ns)
@@ -383,7 +380,7 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
                 });
 
         if (!hasDefaultNamespace) {
-            repl["MAIN"] = 
+            repl["MAIN"] =
                 "/// @namespace " + s->genMainNamespace() + "\n"
                 "/// @brief Main namespace for all classes / functions of this protocol library.\n";
         }
@@ -433,7 +430,7 @@ bool CommsDoxygen::commsWriteMainpageInternal() const
 
     auto desc = m_commsGenerator.genCurrentSchema().genParseObj().parseDescription();
     if (desc.empty()) {
-        desc = 
+        desc =
             "This generated code implements \"" + m_commsGenerator.genCurrentSchema().genDisplayName() + "\" binary protocol using various "
             "classes from\n<a href=\"https://github.com/commschamp/comms\">COMMS Library</a>.@n";
     }
@@ -465,7 +462,7 @@ std::string CommsDoxygen::commsMessagesDocInternal() const
     auto nsList = m_commsGenerator.genGetAllNamespaces();
     util::GenStringsList elems;
     for (auto* n : nsList) {
-        static const std::string Templ = 
+        static const std::string Templ =
             "/// @li @ref #^#SCOPE#$#::#^#SUFFIX#$# (defined in @b #^#PATH#$#/#^#SUFFIX#$#  directory)";
 
         util::GenReplacementMap repl = {
@@ -477,12 +474,12 @@ std::string CommsDoxygen::commsMessagesDocInternal() const
         elems.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "/// @section main_messages Available Message Classes\n"
         "/// The following namespaces contain all the classes describing available messages:\n"
         "#^#LIST#$#\n"
         "///"
-        ;    
+        ;
 
     util::GenReplacementMap repl = {
         {"LIST", util::genStrListToString(elems, "\n", "")}
@@ -495,7 +492,7 @@ std::string CommsDoxygen::commsFieldsDocInternal() const
     auto nsList = m_commsGenerator.genGetAllNamespaces();
     util::GenStringsList elems;
     for (auto* n : nsList) {
-        static const std::string Templ = 
+        static const std::string Templ =
             "/// @li @ref #^#SCOPE#$#::#^#SUFFIX#$# (defined in @b #^#PATH#$#/#^#SUFFIX#$#  directory)";
 
         util::GenReplacementMap repl = {
@@ -507,13 +504,13 @@ std::string CommsDoxygen::commsFieldsDocInternal() const
         elems.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "/// @section main_fields Available Common Fields\n"
         "/// The following namespaces contain all definition of all the fields,\n"
         "/// which can be references by multiple messages:\n"
         "#^#LIST#$#\n"
         "///"
-        ;    
+        ;
 
     util::GenReplacementMap repl = {
         {"LIST", util::genStrListToString(elems, "\n", "")}
@@ -533,11 +530,11 @@ std::string CommsDoxygen::commsInterfaceDocInternal() const
             " (defined in @b " + comms::genRelHeaderPathFor(*i, m_commsGenerator) + " header file).");
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @section main_interfaces Common Interface Classes\n"
         "/// The available common interface classes are:\n"
         "#^#LIST#$#\n"
-        "///";    
+        "///";
 
     util::GenReplacementMap repl = {
         {"LIST", util::genStrListToString(list, "\n", "")}
@@ -547,7 +544,7 @@ std::string CommsDoxygen::commsInterfaceDocInternal() const
 
 std::string CommsDoxygen::commsFrameDocInternal() const
 {
-    const std::string Templ = 
+    const std::string Templ =
         "/// @section main_frames Frame Classes\n"
         "/// The available frame classes are:\n"
         "#^#LIST#$#\n"
@@ -590,11 +587,11 @@ std::string CommsDoxygen::commsFrameDocInternal() const
 
     auto allNamespaces = m_commsGenerator.genGetAllNamespaces();
     for (auto* ns : allNamespaces) {
-        if ((!ns->genHasFramesRecursive()) || 
+        if ((!ns->genHasFramesRecursive()) ||
             (!ns->genHasMessagesRecursive())) {
             continue;
         }
-                
+
         addToMessagesListFunc(strings::genAllMessagesStr(), *ns);
         addToMessagesListFunc(CommsServerInputMessagesStr, *ns);
         addToMessagesListFunc(CommsClientInputMessagesStr, *ns);
@@ -604,10 +601,10 @@ std::string CommsDoxygen::commsFrameDocInternal() const
             addToMessagesListFunc(p + "Messages", *ns);
             addToMessagesListFunc(p + CommsServerInputMessagesStr, *ns);
             addToMessagesListFunc(p + CommsClientInputMessagesStr, *ns);
-        };        
+        };
     }
 
-    auto nsIter = 
+    auto nsIter =
         std::find_if(
             allNamespaces.begin(), allNamespaces.end(),
             [](auto* ns)
@@ -616,7 +613,7 @@ std::string CommsDoxygen::commsFrameDocInternal() const
             });
 
     assert (nsIter != allNamespaces.end());
-    auto& exampleNs = **nsIter;    
+    auto& exampleNs = **nsIter;
 
     util::GenReplacementMap repl = {
         {"LIST", util::genStrListToString(list, "\n", "")},
@@ -631,7 +628,7 @@ std::string CommsDoxygen::commsFrameDocInternal() const
         {"CLIENT_MESSAGES_HEADER", comms::genRelHeaderForInput(CommsClientInputMessagesStr, m_commsGenerator, exampleNs)},
     };
 
-    return util::genProcessTemplate(Templ, repl);     
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsDoxygen::commsDispatchDocInternal() const
@@ -665,10 +662,10 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
             auto accessScope = comms::genScopeForDispatch(accessName, m_commsGenerator, ns);
             auto fileName = comms::genClassName(accessName);
             auto file = comms::genRelHeaderForDispatch(fileName, m_commsGenerator, ns);
-            auto str = "/// @li @ref " + accessScope + 
+            auto str = "/// @li @ref " + accessScope +
                 "()\n/// (defined in @b " + file + " header file).";
             list.push_back(std::move(str));
-            auto defaultOptStr = "/// @li @ref " + accessScope + 
+            auto defaultOptStr = "/// @li @ref " + accessScope +
                 strings::genDefaultOptionsStr() + "()\n/// (defined in @b " + file + " header file).";
             list.push_back(std::move(defaultOptStr));
 
@@ -697,7 +694,7 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
         if (!ns->genHasFramesRecursive()) {
             continue;
         }
-        
+
         addPlatformFunc(strings::genEmptyString(), *ns);
         for (auto& p : m_commsGenerator.genCurrentSchema().platformNames()) {
             addPlatformFunc(comms::genClassName(p), *ns);
@@ -713,7 +710,7 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
 
 std::string CommsDoxygen::commsCustomizeDocInternal() const
 {
-    const std::string Templ = 
+    const std::string Templ =
         "/// @section main_customization Customization\n"
         "/// Depending on the value of @b customization option passed to the @b commsdsl2comms\n"
         "/// code generator, the latter generates @ref #^#OPTIONS#$#\n"
@@ -735,7 +732,7 @@ std::string CommsDoxygen::commsCustomizeDocInternal() const
         "/// };\n"
         "/// @endcode\n"
         "/// @b NOTE, that inner scope of structs in the #^#OPTIONS#$#\n"
-        "/// resembles scope of namespaces used in protocol definition.\n" 
+        "/// resembles scope of namespaces used in protocol definition.\n"
         "///\n"
         "/// The @b COMMS library also provides a flexible way to configure polymorphic\n"
         "/// interface for the message classes. If the defined protocol has multiple\n"
@@ -836,7 +833,7 @@ std::string CommsDoxygen::commsVersionDocInternal() const
         return strings::genEmptyString();
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "///\n"
         "/// @section main_version Version Dependent Code\n"
         "/// The generated code is version dependent. The version information is stored in\n"
@@ -879,7 +876,7 @@ std::string CommsDoxygen::commsPlatformsDocInternal() const
         return strings::genEmptyString();
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "///\n"
         "/// There are also platform specific definitions:\n"
         "#^#LIST#$#\n"
@@ -888,13 +885,13 @@ std::string CommsDoxygen::commsPlatformsDocInternal() const
     util::GenStringsList list;
     auto allNamespaces = m_commsGenerator.genGetAllNamespaces();
     for (auto* ns : allNamespaces) {
-        if ((!ns->genHasFramesRecursive()) || 
+        if ((!ns->genHasFramesRecursive()) ||
             (!ns->genHasMessagesRecursive())) {
             continue;
         }
-                
+
         for (auto& p : platforms) {
-            auto addToListFunc = 
+            auto addToListFunc =
                 [this, &p, &list, ns](const std::string& type)
                 {
                     auto name = comms::genClassName(p) + type + "InputMessages";
@@ -903,10 +900,10 @@ std::string CommsDoxygen::commsPlatformsDocInternal() const
                     auto str = "/// @li @ref " + scope + " (from @b " + file + ").";
                     list.push_back(std::move(str));
                 };
-    
+
             addToListFunc("Server");
             addToListFunc("Client");
-        }   
+        }
     }
 
     if (list.empty()) {

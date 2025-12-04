@@ -46,7 +46,6 @@ public:
         return m_pseudo;
     }
 
-
 protected:
     virtual ParseKind parseKindImpl() const override;
     virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const override;

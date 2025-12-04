@@ -28,7 +28,7 @@ class CommsProgramOptions : public commsdsl::gen::GenProgramOptions
 {
 public:
     using GenProgramOptions = commsdsl::gen::GenProgramOptions;
-    
+
     CommsProgramOptions();
 
     static const CommsProgramOptions& commsCast(const GenProgramOptions& options)
@@ -36,7 +36,6 @@ public:
         return static_cast<const CommsProgramOptions&>(options);
     }
 
-    const std::string& commsGetProtocolVersion() const;
     const std::string& commsGetCustomizationLevel() const;
     bool commsVersionIndependentCodeRequested() const;
     std::vector<std::string> commsGetExtraInputBundles() const;

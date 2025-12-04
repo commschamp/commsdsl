@@ -11,7 +11,7 @@
             <validValue name="M3" val="3" />
             <validValue name="M4" val="4" />
         </enum>
-        
+
         <string name="S1" length="5" defaultValue="hello" />
         <data name="D1" length="3" />
         <list name="L1" count="2">
@@ -21,13 +21,13 @@
         </list>
         <int name="SeqPrefix" type="uint8" />
     </fields>
-    
+
     <message name="Msg1" id="MsgId.M1">
         <ref field="S1" name="F1" />
         <ref field="D1" name="F2" />
         <ref field="L1" name="F3" />
     </message>
-    
+
     <message name="Msg2" id="MsgId.M2">
         <string name="F1" lengthPrefix="SeqPrefix"/>
         <data name="F2" lengthPrefix="SeqPrefix" />
@@ -41,5 +41,5 @@
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>     
+    </frame>
 </schema>

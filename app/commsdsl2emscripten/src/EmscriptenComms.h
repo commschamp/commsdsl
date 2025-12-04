@@ -30,7 +30,7 @@ public:
 
     static bool emscriptenWrite(EmscriptenGenerator& generator);
     static void emscriptenAddSourceFiles(const EmscriptenGenerator& generator, GenStringsList& sources);
-    
+
 private:
     explicit EmscriptenComms(EmscriptenGenerator& generator) : m_emscriptenGenerator(generator) {}
 

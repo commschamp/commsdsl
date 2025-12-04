@@ -65,7 +65,7 @@ bool EmscriptenMsgId::emscriptenWrite() const
     }
 
     const std::string Templ =
-        "#^#GENERATED#$#\n" 
+        "#^#GENERATED#$#\n"
         "#include <emscripten/bind.h>\n\n"
         "#include \"#^#HEADER#$#\"\n\n"
         "EMSCRIPTEN_BINDINGS(#^#NAME#$#) {\n"
@@ -89,8 +89,8 @@ bool EmscriptenMsgId::emscriptenWrite() const
         m_emscriptenGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true; 
+
+    return true;
 }
 
 void EmscriptenMsgId::emscriptenAddSourceFiles(GenStringsList& sources) const
@@ -106,25 +106,25 @@ std::string EmscriptenMsgId::emscriptenIdsInternal() const
         allMsgIdFields = m_emscriptenGenerator.genCurrentSchema().genGetAllMessageIdFields();
     }
 
-    if (allMsgIdFields.size() == 1U) {  
+    if (allMsgIdFields.size() == 1U) {
         auto* msgIdField = allMsgIdFields.front();
         assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Enum);
         auto* castedMsgIdField = EmscriptenEnumField::emscriptenCast(msgIdField);
-        return castedMsgIdField->emscriptenBindValues(&m_parent);        
+        return castedMsgIdField->emscriptenBindValues(&m_parent);
     }
 
     auto allMessages = m_parent.genGetAllMessagesIdSorted();
     if (allMessages.empty() && m_parent.genName().empty()) {
         allMessages = m_emscriptenGenerator.genCurrentSchema().genGetAllMessagesIdSorted();
-    }    
+    }
     util::GenStringsList ids;
     ids.reserve(allMessages.size());
 
-    static const std::string Templ = 
+    static const std::string Templ =
         ".value(\"#^#MSG#$#\", #^#SCOPE#$#_#^#MSG#$#)";
-            
+
     util::GenReplacementMap repl = {
-        {"SCOPE", comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), m_emscriptenGenerator, m_parent)}   
+        {"SCOPE", comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), m_emscriptenGenerator, m_parent)}
     };
 
     for (auto* m : allMessages) {
@@ -137,6 +137,5 @@ std::string EmscriptenMsgId::emscriptenIdsInternal() const
     }
     return util::genStrListToString(ids, "\n", "");
 }
-
 
 } // namespace commsdsl2emscripten

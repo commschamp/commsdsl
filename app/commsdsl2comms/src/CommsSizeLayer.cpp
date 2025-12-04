@@ -49,11 +49,11 @@ CommsSizeLayer::CommsIncludesList CommsSizeLayer::commsDefIncludesImpl() const
 std::string CommsSizeLayer::commsDefBaseTypeImpl(const std::string& prevName) const
 {
     assert(!prevName.empty());
-    static const std::string Templ = 
+    static const std::string Templ =
         "comms::frame::MsgSizeLayer<\n"
         "    #^#FIELD_TYPE#$#,\n"
         "    #^#PREV_LAYER#$#\n"
-        ">";        
+        ">";
 
     util::GenReplacementMap repl = {
         {"FIELD_TYPE", commsDefFieldType()},

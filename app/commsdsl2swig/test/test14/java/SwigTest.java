@@ -7,7 +7,7 @@ public class SwigTest {
 
     public void setMsg1(test14_swig.message_Msg1 msg) {
         m_msg1 = msg;
-    }    
+    }
 
     public void doTest1() {
         var msg = new test14_swig.message_Msg1();
@@ -23,7 +23,7 @@ public class SwigTest {
         msg.field_f2().ref().setValue("aaa");
         msg.field_f3().ref().setValue("bbb");
         msg.field_f4().ref().setValue("ccc");
-        msg.field_f10().setValue("ddd");        
+        msg.field_f10().setValue("ddd");
 
         var frame = new test14_swig.frame_Frame();
         var buf = frame.writeMessage(msg);

@@ -5,5 +5,3 @@
 template <typename TBase, typename TOpt = test21::options::DefaultOptions>
 using AllMessages = AllMessagesOrig<TBase, TOpt>;
 
-
-

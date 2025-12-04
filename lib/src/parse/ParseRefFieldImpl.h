@@ -22,7 +22,6 @@
 #include <utility>
 #include <vector>
 
-
 namespace commsdsl
 {
 
@@ -79,7 +78,7 @@ private:
     struct ParseState
     {
         std::size_t m_bitLength = 0U;
-    };    
+    };
 
     ParseState m_state;
     const ParseFieldImpl* m_field = nullptr;

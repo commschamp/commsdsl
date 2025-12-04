@@ -30,7 +30,7 @@ public:
 
 void TestSuite::test1()
 {
-    static const std::uint8_t Buf1[] = 
+    static const std::uint8_t Buf1[] =
     {
         1, 5
     };
@@ -51,7 +51,7 @@ void TestSuite::test1()
 
 void TestSuite::test2()
 {
-    static const std::uint8_t Buf1[] = 
+    static const std::uint8_t Buf1[] =
     {
         2, 5, 0xab, 0xcd
     };

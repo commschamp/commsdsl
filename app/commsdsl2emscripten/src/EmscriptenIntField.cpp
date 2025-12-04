@@ -30,7 +30,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenIntField::EmscriptenIntField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+EmscriptenIntField::EmscriptenIntField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     EmscriptenBase(static_cast<GenBase&>(*this))
 {
@@ -48,7 +48,7 @@ std::string EmscriptenIntField::emscriptenHeaderValueAccImpl() const
 
 std::string EmscriptenIntField::emscriptenHeaderExtraPublicFuncsImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "static bool hasSpecials()\n"
         "{\n"
         "    return Base::hasSpecials();\n"
@@ -61,14 +61,14 @@ std::string EmscriptenIntField::emscriptenHeaderExtraPublicFuncsImpl() const
         {"SPECIALS", emscriptenHeaderSpecialsInternal()},
         {"DISPLAY_DECIMALS", emscriptenHeaderDisplayDecimalsInternal()},
         {"SCALED", emscriptenHeaderScaledInternal()},
-    };     
+    };
 
     return util::genProcessTemplate(Templ, repl);
 }
 
 std::string EmscriptenIntField::emscriptenSourceBindFuncsImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#SCPECIALS#$#\n"
         "#^#DISPLAY_DECIMALS#$#\n"
         "#^#SCALED#$#\n";
@@ -116,7 +116,7 @@ std::string EmscriptenIntField::emscriptenHeaderSpecialsInternal() const
         };
 
         specialsList.push_back(util::genProcessTemplate(Templ, repl));
-    }    
+    }
 
     return util::genStrListToString(specialsList, "\n", "");
 }
@@ -127,7 +127,7 @@ std::string EmscriptenIntField::emscriptenHeaderDisplayDecimalsInternal() const
     auto scaling = obj.parseScaling();
     std::string result;
     if (scaling.first != scaling.second) {
-        result = 
+        result =
             "static unsigned displayDecimals()\n"
             "{\n"
             "    return Base::displayDecimals();\n"
@@ -148,7 +148,7 @@ std::string EmscriptenIntField::emscriptenHeaderScaledInternal() const
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "double getScaled() const\n"
         "{\n"
         "    return Base::getScaled<double>();\n"
@@ -160,7 +160,6 @@ std::string EmscriptenIntField::emscriptenHeaderScaledInternal() const
 
     return Templ;
 }
-
 
 std::string EmscriptenIntField::emscriptenSourceSpecialsBindInternal() const
 {
@@ -188,9 +187,9 @@ std::string EmscriptenIntField::emscriptenSourceSpecialsBindInternal() const
 
         repl["SPEC_ACC"] = comms::genClassName(s.first);
         specialsList.push_back(util::genProcessTemplate(Templ, repl));
-    }    
+    }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#SPECIALS#$#\n"
         ".class_function(\"hasSpecials\", &#^#CLASS_NAME#$#::hasSpecials)";
 
@@ -205,7 +204,7 @@ std::string EmscriptenIntField::emscriptenSourceDisplayDecimalsBindInternal() co
     auto scaling = obj.parseScaling();
     std::string result;
     if (scaling.first != scaling.second) {
-        static const std::string Templ = 
+        static const std::string Templ =
             ".class_function(\"displayDecimals\", &#^#CLASS_NAME#$#::displayDecimals)";
 
         util::GenReplacementMap repl = {
@@ -229,7 +228,7 @@ std::string EmscriptenIntField::emscriptenSourceScaledBindInternal() const
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         ".function(\"getScaled\", &#^#CLASS_NAME#$#::getScaled)\n"
         ".function(\"setScaled\", &#^#CLASS_NAME#$#::setScaled)";
 
@@ -237,7 +236,7 @@ std::string EmscriptenIntField::emscriptenSourceScaledBindInternal() const
         {"CLASS_NAME", emscriptenBindClassName()}
     };
 
-    return util::genProcessTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2emscripten

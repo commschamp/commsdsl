@@ -148,5 +148,5 @@ void InterfaceTestSuite::test7()
         TS_ASSERT_EQUALS(int2.parseName(), "I2");
         TS_ASSERT_EQUALS(int2.parseFields().size(), 2U);
         TS_ASSERT(!int2.parseDescription().empty());
-    }    
+    }
 }

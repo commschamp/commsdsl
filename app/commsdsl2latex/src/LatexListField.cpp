@@ -30,9 +30,9 @@ namespace commsdsl2latex
 
 LatexListField::LatexListField(LatexGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
-    LatexBase(static_cast<GenBase&>(*this)) 
+    LatexBase(static_cast<GenBase&>(*this))
 {
-}   
+}
 
 bool LatexListField::genWriteImpl() const
 {
@@ -96,13 +96,13 @@ std::string LatexListField::latexInfoDetailsImpl() const
     for (auto& i : detachedInfos) {
         if (i.m_name.empty()) {
             continue;
-        }   
+        }
 
         auto* sibling = latexFindSibling(i.m_name);
         if (sibling == nullptr) {
             break;
-        } 
-        
+        }
+
         list.push_back("\\textbf{" + i.m_doc + "} & \\nameref{" + sibling->latexRefLabelId() + "}");
     }
 
@@ -139,6 +139,5 @@ std::string LatexListField::latexExtraDetailsImpl() const
 
     return util::genStrListToString(elems, "\n", "\n");
 }
-
 
 } // namespace commsdsl2latex

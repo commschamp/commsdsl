@@ -54,9 +54,9 @@ public:
     std::string swigClassDecl() const;
     std::string swigPublicDecl() const;
     std::string swigExtraPublicFuncsCode() const;
-    
-    void swigAddCodeIncludes(GenStringsList& list) const; 
-    void swigAddCode(GenStringsList& list) const; 
+
+    void swigAddCodeIncludes(GenStringsList& list) const;
+    void swigAddCode(GenStringsList& list) const;
     void swigAddDef(GenStringsList& list) const;
 
     std::string swigTemplateScope() const;
@@ -83,7 +83,7 @@ protected:
 
     std::string swigSemanticTypeLengthValueAccDecl() const;
     std::string swigSemanticTypeLengthValueAccCode() const;
-    
+
 private:
     std::string swigClassDeclInternal() const;
     std::string swigOptionalDeclInternal() const;

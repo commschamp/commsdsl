@@ -4,7 +4,7 @@
         <bundle name="B1" semanticType="length">
             <int name="Short" type="uint8" />
             <optional name="Long" defaultMode="missing" cond="$Short = 0xff">
-                <int name="ActLong" type="uint16" /> 
+                <int name="ActLong" type="uint16" />
             </optional>
         </bundle>
         <optional name="F2" cond="$B1 != 0">

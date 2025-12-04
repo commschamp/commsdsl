@@ -28,7 +28,7 @@
                 <bit name="B0" idx="0" />
                 <bit name="B1" idx="1" />
             </set>
-        </bitfield>      
+        </bitfield>
 
         <bitfield name="Length3" valueOverride="replace" copyCodeFrom="Length2">
             <int name="Len" type="uint16" bitLength="12" />
@@ -36,7 +36,7 @@
                 <validValue name="V0" val="0" />
                 <validValue name="V1" val="0xf" />
             </enum>
-        </bitfield>          
+        </bitfield>
 
         <int name="VariantType" type="uint8" failOnInvalid="true" fixedValue="true" />
 
@@ -58,30 +58,30 @@
             </bundle>
         </variant>
     </fields>
-    
+
     <message name="Msg1" id="MsgId.M1">
         <list name="F1" element="Variant1" />
     </message>
 
     <message name="Msg2" id="MsgId.M2">
         <string name="F1" lengthPrefix="Length" />
-    </message>    
+    </message>
 
     <message name="Msg3" id="MsgId.M3">
         <data name="F1" lengthPrefix="Length" defaultValue="0102030405"/>
-    </message>   
+    </message>
 
     <message name="Msg4" id="MsgId.M4">
         <list name="F1" lengthPrefix="Length">
             <int name="Elem" type="uint16" />
         </list>
-    </message>     
+    </message>
 
     <message name="Msg5" id="MsgId.M5">
         <list name="F1" lengthPrefix="Length2" elemLengthPrefix="Length">
             <string name="Elem" />
         </list>
-    </message>    
+    </message>
 
     <message name="Msg6" id="MsgId.M6">
         <string name="F1">
@@ -89,7 +89,7 @@
                 <ref field="Length3" semanticType="length" />
             </lengthPrefix>
         </string>
-    </message>         
+    </message>
 
     <frame name="Frame">
         <sync name="Sync">
@@ -98,5 +98,5 @@
         <size name="Size" field="Length" />
         <id name="Id" field="MsgId" />
         <payload name="Data" />
-    </frame>     
+    </frame>
 </schema>

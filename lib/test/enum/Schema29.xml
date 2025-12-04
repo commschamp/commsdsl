@@ -4,7 +4,7 @@
         endian="big"
         version="2"
         dslVersion="2">
-        
+
     <ns name="ns1">
         <fields>
             <variant name="F1">

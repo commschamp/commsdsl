@@ -8,15 +8,15 @@
             </enum>
             <int name="Version" type="uint8" />
         </fields>
-        
+
         <interface name="Message">
             <ref name="Version" field="ns1.Version" />
         </interface>
-        
+
         <interface name="BareMessage" />
-    
+
         <frame name="Generic">
-            <id name="Id" field="ns1.MsgId"/>        
+            <id name="Id" field="ns1.MsgId"/>
             <value name="Version">
                 <field>ns1.version</field>
                 <interfaceFieldName>Version</interfaceFieldName>

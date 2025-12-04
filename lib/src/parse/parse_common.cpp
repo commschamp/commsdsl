@@ -737,169 +737,169 @@ const std::string& parseReuseAliasesStr()
 const std::string& parseForceGenStr()
 {
     static const std::string Str("forceGen");
-    return Str;    
+    return Str;
 }
 
 const std::string& parseValidateMinLengthStr()
 {
     static const std::string Str("validateMinLength");
-    return Str;    
+    return Str;
 }
 
 const std::string& parseDefaultValidValueStr()
 {
     static const std::string Str("defaultValidValue");
-    return Str;      
+    return Str;
 }
 
 const std::string& parseAvailableLengthLimitStr()
 {
     static const std::string Str("availableLengthLimit");
-    return Str; 
+    return Str;
 }
 
 const std::string& parseValueOverrideStr()
 {
     static const std::string Str("valueOverride");
-    return Str; 
+    return Str;
 }
 
 const std::string& parseReadOverrideStr()
 {
     static const std::string Str("readOverride");
-    return Str; 
+    return Str;
 }
 
 const std::string& parseWriteOverrideStr()
 {
     static const std::string Str("writeOverride");
-    return Str; 
+    return Str;
 }
 
 const std::string& parseRefreshOverrideStr()
 {
     static const std::string Str("refreshOverride");
-    return Str; 
+    return Str;
 }
 
 const std::string& parseLengthOverrideStr()
 {
     static const std::string Str("lengthOverride");
-    return Str; 
+    return Str;
 }
 
 const std::string& parseValidOverrideStr()
 {
     static const std::string Str("validOverride");
-    return Str; 
+    return Str;
 }
 
 const std::string& parseNameOverrideStr()
 {
     static const std::string Str("nameOverride");
-    return Str; 
+    return Str;
 }
 
 const std::string& parseReplaceStr()
 {
     static const std::string Str("replace");
-    return Str; 
+    return Str;
 }
 
 const std::string& parseCopyCodeFromStr()
 {
     static const std::string Str("copyCodeFrom");
-    return Str; 
+    return Str;
 }
 
 const std::string& parseSemanticLayerTypeStr()
 {
     static const std::string Str("semanticLayerType");
-    return Str; 
+    return Str;
 }
 
 const std::string& parseChecksumFromStr()
 {
     static const std::string Str("checksumFrom");
-    return Str; 
+    return Str;
 }
 
 const std::string& parseChecksumUntilStr()
 {
     static const std::string Str("checksumUntil");
-    return Str; 
+    return Str;
 }
 
 const std::string& parseTermSuffixStr()
 {
     static const std::string Str("termSuffix");
-    return Str;     
+    return Str;
 }
 
 const std::string& parseMissingOnReadFailStr()
 {
     static const std::string Str("missingOnReadFail");
-    return Str; 
+    return Str;
 }
 
 const std::string& parseMissingOnInvalparseIdStr()
 {
     static const std::string Str("missingOnInvalid");
-    return Str; 
+    return Str;
 }
 
 const std::string& parseReuseCodeStr()
 {
     static const std::string Str("reuseCode");
-    return Str;    
+    return Str;
 }
 
 const std::string& parseConstructStr()
 {
     static const std::string Str("construct");
-    return Str;    
+    return Str;
 }
 
 const std::string& parseReadCondStr()
 {
     static const std::string Str("readCond");
-    return Str;    
+    return Str;
 }
 
 const std::string& parseValidCondStr()
 {
     static const std::string Str("validCond");
-    return Str;    
+    return Str;
 }
 
 const std::string& parseConstructAsReadCondStr()
 {
     static const std::string Str("constructAsReadCond");
-    return Str;       
+    return Str;
 }
 
 const std::string& parseConstructAsValidCondStr()
 {
     static const std::string Str("constructAsValidCond");
-    return Str;       
+    return Str;
 }
 
 const std::string& parseCopyConstructFromStr()
 {
     static const std::string Str("copyConstructFrom");
-    return Str;      
+    return Str;
 }
 
 const std::string& parseCopyReadCondFromStr()
 {
     static const std::string Str("copyReadCondFrom");
-    return Str;      
+    return Str;
 }
 
 const std::string& parseCopyValidCondFromStr()
 {
     static const std::string Str("copyValidCondFrom");
-    return Str;      
+    return Str;
 }
 
 char parseSiblingRefPrefix()
@@ -1229,7 +1229,7 @@ ParseUnits parseStrToUnits(const std::string& str, bool* ok)
         std::make_pair("kilobytes", ParseUnits::Kilobytes),
         std::make_pair("mb", ParseUnits::Megabytes),
         std::make_pair("megabyte", ParseUnits::Megabytes),
-        std::make_pair("megabytes", ParseUnits::Megabytes),        
+        std::make_pair("megabytes", ParseUnits::Megabytes),
         std::make_pair("gb", ParseUnits::Gigabytes),
         std::make_pair("gigabyte", ParseUnits::Gigabytes),
         std::make_pair("gigabytes", ParseUnits::Gigabytes),
@@ -1237,7 +1237,6 @@ ParseUnits parseStrToUnits(const std::string& str, bool* ok)
         std::make_pair("terabyte", ParseUnits::Terabytes),
         std::make_pair("terabytes", ParseUnits::Terabytes),
     };
-
 
     auto updateOkFunc =
         [ok](bool result)
@@ -1457,11 +1456,11 @@ bool parseIsValidRefName(const char* buf, std::size_t len)
         // Allow first character to be interschema ref
         ++buf;
         --len;
-    } 
+    }
 
     if (len == 0U) {
         return false;
-    }       
+    }
 
     if ((std::isalpha(buf[0]) == 0) && (buf[0] != '_')) {
         return false;

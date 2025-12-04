@@ -60,7 +60,7 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::vector<
 
     protocol->parseSetMultipleSchemasEnabled(enableMultipleSchemas);
 
-    bool parseResult = 
+    bool parseResult =
         std::all_of(
             schemas.begin(), schemas.end(),
             [&protocol](auto& s)
@@ -100,7 +100,7 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::vector<
         TS_ASSERT_LESS_THAN(slashPos, dotPos);
         ++slashPos;
         auto expSchemaName = s.substr(slashPos, dotPos - slashPos);
-        TS_ASSERT_EQUALS(protSchema.parseName(), expSchemaName);     
+        TS_ASSERT_EQUALS(protSchema.parseName(), expSchemaName);
     }
     return protocol;
 }

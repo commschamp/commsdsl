@@ -20,7 +20,7 @@
 namespace commsdsl2emscripten
 {
 
-EmscriptenIdLayer::EmscriptenIdLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+EmscriptenIdLayer::EmscriptenIdLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     EmscriptenBase(static_cast<GenBase&>(*this))
 {

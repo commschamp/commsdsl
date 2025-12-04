@@ -84,7 +84,7 @@ void TestSuite::test2()
     Frame frame;
     Msg2 msg;
     msg.field_f1().value() = Msg2::Field_f1::ValueType::V3;
-    
+
     outBuf.resize(frame.length(msg));
     auto* writeIter = &outBuf[0];
     auto es = frame.write(msg, writeIter, outBuf.size());

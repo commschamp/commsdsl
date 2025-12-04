@@ -21,11 +21,11 @@
 #include <string>
 #include <vector>
 
-namespace commsdsl  
+namespace commsdsl
 {
 
 namespace gen
-{  
+{
 
 namespace util
 {
@@ -33,6 +33,7 @@ namespace util
 std::string genStrReplace(const std::string& str, const std::string& what, const std::string& with);
 std::string genStrToName(const std::string& value);
 std::vector<std::string> genStrSplitByAnyChar(const std::string& str, const std::string& splitChars, bool compressed = true);
+std::vector<std::string> genStrSplit(const std::string& str, const std::string& sep, bool compressed = true);
 std::string genStrInsertIndent(const std::string& str);
 unsigned genStrToUnsigned(const std::string& str);
 bool genStrStartsWith(const std::string& str, const std::string& prefix);

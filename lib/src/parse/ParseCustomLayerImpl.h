@@ -26,7 +26,7 @@ namespace parse
 class ParseCustomLayerImpl final : public ParseLayerImpl
 {
     using Base = ParseLayerImpl;
-    
+
 public:
     using ParseKind = ParseLayer::ParseKind;
 

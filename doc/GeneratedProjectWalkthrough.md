@@ -10,28 +10,28 @@ below.
 The generated CMake project has multiple folders.
 
 ### Protocol Definition
-The protocol definition itself is headers only library which can be found in 
+The protocol definition itself is headers only library which can be found in
 the [include](https://github.com/commschamp/cc.demo1.generated/tree/master/include) folder.
 
 The common fields which can be referenced by multiple messages reside in the
-[field](https://github.com/commschamp/cc.demo1.generated/tree/master/include/demo1/field) 
+[field](https://github.com/commschamp/cc.demo1.generated/tree/master/include/demo1/field)
 folder / namespace.
 
 All the message classes are defined in the
-[message](https://github.com/commschamp/cc.demo1.generated/tree/master/include/demo1/message) 
+[message](https://github.com/commschamp/cc.demo1.generated/tree/master/include/demo1/message)
 folder / namespace.
 
 All the available transport frames are defined in the
-[frame](https://github.com/commschamp/cc.demo1.generated/tree/master/include/demo1/frame) 
+[frame](https://github.com/commschamp/cc.demo1.generated/tree/master/include/demo1/frame)
 folder / namespace.
 
 The various generated input messages bundles reside in the
-[input](https://github.com/commschamp/cc.demo1.generated/tree/master/include/demo1/input) 
+[input](https://github.com/commschamp/cc.demo1.generated/tree/master/include/demo1/input)
 folder / namespace.
 
-All the available auxiliary `switch` statement based message dispatch functions are 
+All the available auxiliary `switch` statement based message dispatch functions are
 defined in various files in the
-[dispatch](https://github.com/commschamp/cc.demo1.generated/tree/master/include/demo1/dispatch) 
+[dispatch](https://github.com/commschamp/cc.demo1.generated/tree/master/include/demo1/dispatch)
 folder / namespace.
 
 All the available compile time configuration options of the protocol reside in the
@@ -39,8 +39,8 @@ All the available compile time configuration options of the protocol reside in t
 folder / namespace.
 
 All the available auxiliary `switch` statement based message factory classes (suitable
-for the replacement of the **comms::MsgFactory**) are defined in various files in the 
-[factory](https://github.com/commschamp/cc.demo1.generated/tree/master/include/demo1/factory) 
+for the replacement of the **comms::MsgFactory**) are defined in various files in the
+[factory](https://github.com/commschamp/cc.demo1.generated/tree/master/include/demo1/factory)
 folder / namespace.
 
 ### Protocol Documentation
@@ -49,7 +49,7 @@ The configuration of the doxygen documentation resides in the
 folder.
 
 ## CMake Configuration.
-Please open the main 
+Please open the main
 [CMakeLists.txt](https://github.com/commschamp/cc.demo1.generated/blob/master/CMakeLists.txt)
 file. It should list all the available options and configuration variables,
 something like this:
@@ -63,16 +63,16 @@ option (OPT_REQUIRE_COMMS_LIB "Require COMMS library, find it and set as depende
 #     (test1Config) with provided new name.
 ```
 
-The generated protocol code requires [COMMS Library](https://github.com/commschamp/comms). By 
-default the cmake configuration process will try to locate it using 
+The generated protocol code requires [COMMS Library](https://github.com/commschamp/comms). By
+default the cmake configuration process will try to locate it using
 ```
 find_package(LibComms REQUIRED)
 ```
 
-The build process (which is just copying relevant files to the install directory) does not 
-really require presence of the [COMMS Library](https://github.com/commschamp/comms). If the 
+The build process (which is just copying relevant files to the install directory) does not
+really require presence of the [COMMS Library](https://github.com/commschamp/comms). If the
 client code is going to provide relevant include directories by other means, then it is
-possible to suppress the requirement for the presence of the 
+possible to suppress the requirement for the presence of the
 [COMMS Library](https://github.com/commschamp/comms) during cmake execution.
 
 ```
@@ -96,16 +96,16 @@ it is **doc_demo1**:
 $> make doc_demo1
 ```
 
-## CMake Import 
+## CMake Import
 When built and installed the project exports and installs the cmake target definition of the protocol library in `<install_dir>/lib/<protocol_name>/<protocol_name>Config.cmake` file, that can be imported in some other project that uses CMake as its build system.
 ```
 list (APPEND CMAKE_PREFIX_PATH "/path/to/protocol/install/dir")
 find_package (demo1 REQUIRED NO_MODULE)
 target_link_libraries (my_proj cc::demo1)
 ```
-Note, that **cc::** is a default namespace for exported project. It is possible to change it using **OPT_CMAKE_EXPORT_NAMESPACE** cmake variable described earlier. 
+Note, that **cc::** is a default namespace for exported project. It is possible to change it using **OPT_CMAKE_EXPORT_NAMESPACE** cmake variable described earlier.
 
-Also note that in case of excluding [COMMS Library](https://github.com/commschamp/comms) lookup during the protocol build process 
+Also note that in case of excluding [COMMS Library](https://github.com/commschamp/comms) lookup during the protocol build process
 it needs to be found separately and used inside `target_link_libraries()` invocation.
 ```
 list (APPEND CMAKE_PREFIX_PATH "/path/to/cc_tools_qt/install/dir")
@@ -114,4 +114,4 @@ target_link_libraries (my_proj cc::demo1 cc::comms)
 ```
 Please also read [doc/CMake.md](https://github.com/commschamp/comms/blob/master/doc/CMake.md) documentation page
 of the [COMMS Library](https://github.com/commschamp/comms) project for the overview on how to import the latter
-in other CMake projects. 
+in other CMake projects.

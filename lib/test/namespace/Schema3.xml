@@ -9,7 +9,7 @@
             <int name="F1" type="uint8" />
             <int name="F2" type="uint8" />
         </fields>
-        <description> 
+        <description>
             NS1
         </description>
         <extraChild1>Hello</extraChild1>

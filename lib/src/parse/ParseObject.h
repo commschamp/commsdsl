@@ -81,7 +81,7 @@ public:
 protected:
     ParseObject() = default;
     ~ParseObject() = default;
-    
+
     virtual ParseObjKind parseObjKindImpl() const = 0;
 
     void parseSetDeprecated(unsigned val)
@@ -98,7 +98,6 @@ protected:
     {
         m_rState = other.m_rState;
     }
-
 
 private:
     struct ParseReusableState

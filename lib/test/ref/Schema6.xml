@@ -11,17 +11,17 @@
         <fields>
             <ref field="ns1.F1"/>
         </fields>
-    </ns>    
-    
+    </ns>
+
     <ns name="ns3">
         <fields>
             <ref reuse="ns2.F1"/>
         </fields>
-    </ns>    
-    
+    </ns>
+
     <ns name="ns4">
         <fields>
             <ref field="ns3.F1"/>
         </fields>
-    </ns>    
+    </ns>
 </schema>

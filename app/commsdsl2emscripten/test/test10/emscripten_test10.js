@@ -24,12 +24,12 @@ function allocHandler(instance)
             if (this.msg2) {
                 this.msg2.delete();
             }
-        },        
+        },
         clean: function() {
             this.clean_Msg1();
             this.clean_Msg2();
-        } 
-    });    
+        }
+    });
 
     return new DerivedHandler;
 }
@@ -50,7 +50,7 @@ function test1(instance) {
         console.log("Output buf: " + instance.dataBufMemoryView(buf));
         assert(es == instance.comms_ErrorStatus.Success);
         frame.processInputData(buf, handler);
-        assert(instance.eq_message_Msg2(msg2, handler.msg2));        
+        assert(instance.eq_message_Msg2(msg2, handler.msg2));
     }
     finally {
         buf.delete();

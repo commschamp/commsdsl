@@ -8,7 +8,7 @@ used in other higher level programming languages, such as Python, Java, C#, etc.
 
 ## Command Line Arguments
 The **commsdsl2swig** utility has multiple command line arguments, please
-use `-h` option for the full list as well as default option values. 
+use `-h` option for the full list as well as default option values.
 
 ```
 $> /path/to/commsdsl2swig -h
@@ -84,6 +84,14 @@ list can be provided using the `--messages-list` command line option.
 
 ```
 $> /path/to/commsdsl2swig --messages-list /path/to/messages/list/file ...
+```
+
+### Providing Generated Code Version
+It is possible to set a [semantic version](https://semver.org/) of the generated
+code using `-V` option. The specified version string is expected to be the same
+as one used with **commsdsl2comms**.
+```
+$> /path/to/commsdsl2swig -V 1.2.3 schema.xml
 ```
 
 ## Custom Code

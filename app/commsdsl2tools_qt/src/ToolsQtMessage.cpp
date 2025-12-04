@@ -62,16 +62,16 @@ bool ToolsQtMessage::genPrepareImpl()
         return false;
     }
 
-    m_exists = 
+    m_exists =
         genGenerator().genDoesElementExist(
             genParseObj().parseSinceVersion(),
             genParseObj().parseDeprecatedSince(),
-            genParseObj().parseIsDeprecatedRemoved());   
+            genParseObj().parseIsDeprecatedRemoved());
 
     if (!m_exists) {
         return true;
     }
-    
+
     return true;
 }
 
@@ -94,7 +94,7 @@ bool ToolsQtMessage::toolsWriteHeaderInternal() const
     for (auto* iFace : allInterfaces) {
         assert(iFace != nullptr);
         auto filePath = gen.genGetOutputDir() + '/' + toolsRelPathInternal(*iFace) + strings::genCppHeaderSuffixStr();
-    
+
         logger.genInfo("Generating " + filePath);
 
         auto dirPath = util::genPathUp(filePath);
@@ -112,7 +112,7 @@ bool ToolsQtMessage::toolsWriteHeaderInternal() const
             return false;
         }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#GENERATED#$#\n"
             "\n"
             "#pragma once\n\n"
@@ -133,7 +133,7 @@ bool ToolsQtMessage::toolsWriteHeaderInternal() const
             {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*iFace)},
             {"DEF", toolsHeaderCodeInternal()},
         };
-        
+
         stream << util::genProcessTemplate(Templ, repl, true);
         stream.flush();
         if (!stream.good()) {
@@ -166,7 +166,7 @@ bool ToolsQtMessage::toolsWriteSrcInternal() const
             return false;
         }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#GENERATED#$#\n"
             "\n"
             "#include \"#^#CLASS_NAME#$#.h\"\n\n"
@@ -188,7 +188,7 @@ bool ToolsQtMessage::toolsWriteSrcInternal() const
             {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
             {"DEF", toolsSrcCodeInternal(*iFace)},
         };
-        
+
         stream << util::genProcessTemplate(Templ, repl, true);
         stream.flush();
         if (!stream.good()) {
@@ -214,7 +214,7 @@ ToolsQtMessage::ToolsIncludesList ToolsQtMessage::toolsHeaderIncludesInternal() 
 
 std::string ToolsQtMessage::toolsHeaderCodeInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "class #^#CLASS_NAME#$#Impl;\n"
         "class #^#CLASS_NAME#$# : public cc_tools_qt::ToolsMessage\n"
         "{\n"
@@ -246,7 +246,7 @@ std::string ToolsQtMessage::toolsHeaderCodeInternal() const
         "    using ImplPtr = std::unique_ptr<#^#CLASS_NAME#$#Impl>;\n\n"
         "    #^#CLASS_NAME#$#(ImplPtr&& impl);\n\n"
         "    ImplPtr m_pImpl;\n"
-        "};";    
+        "};";
 
     util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
@@ -266,7 +266,7 @@ ToolsQtMessage::ToolsIncludesList ToolsQtMessage::toolsSrcIncludesInternal(const
 
 std::string ToolsQtMessage::toolsSrcCodeInternal(const commsdsl::gen::GenInterface& iFace) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "class #^#CLASS_NAME#$#Impl : public\n"
         "    cc_tools_qt::ToolsMessageBase<\n"
         "        #^#INTERFACE#$#,\n"
@@ -301,7 +301,7 @@ std::string ToolsQtMessage::toolsSrcCodeInternal(const commsdsl::gen::GenInterfa
         "bool #^#CLASS_NAME#$#::refreshMsgImpl()\n"
         "{\n"
         "    return m_pImpl->refreshMsg();\n"
-        "}\n\n"        
+        "}\n\n"
         "qlonglong #^#CLASS_NAME#$#::numericIdImpl() const\n"
         "{\n"
         "    return m_pImpl->numericId();\n"
@@ -329,37 +329,37 @@ std::string ToolsQtMessage::toolsSrcCodeInternal(const commsdsl::gen::GenInterfa
         "#^#CLASS_NAME#$#::DataSeq #^#CLASS_NAME#$#::encodeDataImpl() const\n"
         "{\n"
         "    return m_pImpl->encodeData();\n"
-        "}\n\n"    
+        "}\n\n"
         "bool #^#CLASS_NAME#$#::decodeDataImpl(const DataSeq& data)\n"
         "{\n"
         "    return m_pImpl->decodeData(data);\n"
-        "}\n\n"    
+        "}\n\n"
         "#^#CLASS_NAME#$#::Ptr #^#CLASS_NAME#$#::cloneImpl() const\n"
         "{\n"
         "    ImplPtr impl(static_cast<#^#CLASS_NAME#$#Impl*>(m_pImpl->clone().release()));\n"
         "    return Ptr(new #^#CLASS_NAME#$#(std::move(impl)));\n"
-        "}\n\n" 
+        "}\n\n"
         "void #^#CLASS_NAME#$#::assignProtMessageImpl(void* protMsg)\n"
         "{\n"
         "    m_pImpl->assignProtMessage(protMsg);\n"
-        "}\n\n"   
+        "}\n\n"
         "#^#CLASS_NAME#$#::DataSeq #^#CLASS_NAME#$#::encodeFramedImpl(cc_tools_qt::ToolsFrame& frame) const\n"
         "{\n"
         "    return m_pImpl->encodeFramed(frame);\n"
-        "}\n\n"     
+        "}\n\n"
         "#^#CLASS_NAME#$#::FieldsList #^#CLASS_NAME#$#::transportFieldsImpl()\n"
         "{\n"
         "    return m_pImpl->transportFields();\n"
-        "}\n\n"     
+        "}\n\n"
         "#^#CLASS_NAME#$#::FieldsList #^#CLASS_NAME#$#::payloadFieldsImpl()\n"
         "{\n"
         "    return m_pImpl->payloadFields();\n"
-        "}\n\n" 
+        "}\n\n"
         "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#(ImplPtr&& impl) :\n"
         "    m_pImpl(std::move(impl))\n"
         "{\n"
         "}\n\n"
-        ;    
+        ;
 
     auto& gen = ToolsQtGenerator::toolsCast(genGenerator());
 
@@ -369,7 +369,7 @@ std::string ToolsQtMessage::toolsSrcCodeInternal(const commsdsl::gen::GenInterfa
         {"INTERFACE", ToolsQtInterface::toolsCast(iFace).toolsClassScope()},
     };
 
-    return util::genProcessTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2tools_qt

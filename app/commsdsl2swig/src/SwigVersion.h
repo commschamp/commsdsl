@@ -37,7 +37,8 @@ private:
     explicit SwigVersion(SwigGenerator& generator) : m_swigGenerator(generator) {}
 
     bool swigWriteInternal() const;
-    
+    static std::string swigVersionsAssertInternal(SwigGenerator& generator);
+
     SwigGenerator& m_swigGenerator;
 };
 

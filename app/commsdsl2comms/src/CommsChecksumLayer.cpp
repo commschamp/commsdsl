@@ -88,13 +88,13 @@ CommsChecksumLayer::CommsIncludesList CommsChecksumLayer::commsDefIncludesImpl()
 
 std::string CommsChecksumLayer::commsDefBaseTypeImpl(const std::string& prevName) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "comms::frame::Checksum#^#PREFIX_VAR#$#Layer<\n"
         "    #^#FIELD_TYPE#$#,\n"
         "    #^#ALG#$#,\n"
         "    #^#PREV_LAYER#$##^#COMMA#$#\n"
         "    #^#EXTRA_OPT#$#\n"
-        ">";    
+        ">";
 
     util::GenReplacementMap repl = {
         {"FIELD_TYPE", commsDefFieldType()},
@@ -109,7 +109,7 @@ std::string CommsChecksumLayer::commsDefBaseTypeImpl(const std::string& prevName
 
     if (!checksumDslObj().parseUntilLayer().empty()) {
         repl["PREFIX_VAR"] = "Prefix";
-    }    
+    }
 
     return util::genProcessTemplate(Templ, repl);
 }
@@ -128,7 +128,6 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
     const std::size_t ClassMapSize = std::extent<decltype(ClassMap)>::value;
     static_assert(ClassMapSize == static_cast<std::size_t>(commsdsl::parse::ParseChecksumLayer::ParseAlg::NumOfValues),
             "Invalid map");
-
 
     auto obj = checksumDslObj();
     auto alg = obj.parseAlg();
@@ -151,7 +150,7 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
         return str;
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#ALG#$#<\n"
         "    #^#FIELD#$#::ValueType\n"
         ">";

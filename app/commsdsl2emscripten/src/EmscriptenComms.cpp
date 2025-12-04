@@ -31,20 +31,19 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2emscripten
 {
 
-namespace 
+namespace
 {
 
 const std::string ErrorStatusScopeStr("comms::ErrorStatus");
 const std::string OptionalModeScopeStr("comms::field::OptionalMode");
 
-} // namespace 
-    
+} // namespace
 
 bool EmscriptenComms::emscriptenWrite(EmscriptenGenerator& generator)
 {
     EmscriptenComms obj(generator);
-    return 
-        obj.emscriptenWriteErrorStatusInternal() && 
+    return
+        obj.emscriptenWriteErrorStatusInternal() &&
         obj.emscriptenWriteOptionalModeInternal();
 }
 
@@ -62,14 +61,14 @@ bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
     assert(!dirPath.empty());
     if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     m_emscriptenGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
         m_emscriptenGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }     
+    }
 
     const std::string Values[] = {
         "Success",
@@ -86,7 +85,7 @@ bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
 
     util::GenStringsList binds;
     for (auto& v : Values) {
-        static const std::string Templ = 
+        static const std::string Templ =
             ".value(\"#^#VAL#$#\", #^#SCOPE#$#::#^#VAL#$#)";
 
         util::GenReplacementMap repl = {
@@ -97,7 +96,7 @@ bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
         binds.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#GENERATED#$#\n\n"
         "#include <emscripten/bind.h>\n\n"
         "#include \"comms/ErrorStatus.h\"\n\n"
@@ -125,7 +124,6 @@ bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
     return true;
 }
 
-
 bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
 {
     auto name = m_emscriptenGenerator.emscriptenScopeToName(OptionalModeScopeStr);
@@ -134,14 +132,14 @@ bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
     assert(!dirPath.empty());
     if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     m_emscriptenGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
         m_emscriptenGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }     
+    }
 
     const std::string Values[] = {
         "Tentative",
@@ -152,7 +150,7 @@ bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
 
     util::GenStringsList binds;
     for (auto& v : Values) {
-        static const std::string Templ = 
+        static const std::string Templ =
             ".value(\"#^#VAL#$#\", #^#SCOPE#$#::#^#VAL#$#)";
 
         util::GenReplacementMap repl = {
@@ -163,7 +161,7 @@ bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
         binds.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#GENERATED#$#\n\n"
         "#include <emscripten/bind.h>\n\n"
         "#include \"comms/field/OptionalMode.h\"\n\n"

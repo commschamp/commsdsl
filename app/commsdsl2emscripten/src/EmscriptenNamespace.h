@@ -28,6 +28,7 @@ namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
+class EmscriptenInterface;
 class EmscriptenNamespace final: public commsdsl::gen::GenNamespace
 {
     using GenBase = commsdsl::gen::GenNamespace;
@@ -57,13 +58,15 @@ public:
 
     bool emscriptenHasInput() const;
 
+    const EmscriptenInterface* emscriptenInterface() const;
+
 protected:
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
 private:
-    EmscriptenMsgId m_msgId; 
-    EmscriptenMsgHandler m_handler; 
-    EmscriptenInputMessages m_input;  
+    EmscriptenMsgId m_msgId;
+    EmscriptenMsgHandler m_handler;
+    EmscriptenInputMessages m_input;
 };
 
 } // namespace commsdsl2emscripten

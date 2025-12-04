@@ -6,7 +6,7 @@
             <validValue name="M2" val="2" />
             <validValue name="M3" val="3" />
         </enum>
-        
+
         <bundle name="B1">
             <int name="Length" type="uint8" semanticType="length" />
             <string name="Str">
@@ -27,9 +27,9 @@
                     <validCond value="$M2 != 0" />
                 </or>
             </validCond>
-        </bundle>          
+        </bundle>
     </fields>
-    
+
     <message name="Msg1" id="MsgId.M1">
         <ref name="F1" field="B1" />
         <int name="F2" type="uint16" />
@@ -38,14 +38,14 @@
     <message name="Msg2" id="MsgId.M2">
         <bundle name="F1" reuse="B1" />
         <int name="F2" type="uint16" />
-    </message>    
+    </message>
 
     <message name="Msg3" id="MsgId.M3">
         <ref field="B2" name="F1" failOnInvalid="true"/>
-    </message>    
-    
+    </message>
+
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>     
+    </frame>
 </schema>

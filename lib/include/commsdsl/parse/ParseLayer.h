@@ -156,7 +156,6 @@ public:
     bool parsePseudo() const;
 };
 
-
 } // namespace parse
 
 } // namespace commsdsl

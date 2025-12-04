@@ -31,7 +31,7 @@ class GenOptionalFieldImpl
 public:
     using ParseOptionalField = GenOptionalField::ParseOptionalField;
 
-    GenOptionalFieldImpl(GenGenerator& generator, ParseOptionalField parseObj, GenElem* parent): 
+    GenOptionalFieldImpl(GenGenerator& generator, ParseOptionalField parseObj, GenElem* parent):
         m_generator(generator),
         m_parseObj(parseObj),
         m_parent(parent)
@@ -76,7 +76,7 @@ public:
     const GenField* genMemberField() const
     {
         return m_memberField.get();
-    }    
+    }
 
     void genSetReferenced()
     {
@@ -90,7 +90,7 @@ private:
     GenElem* m_parent = nullptr;
     GenField* m_externalField = nullptr;
     GenFieldPtr m_memberField;
-}; 
+};
 
 GenOptionalField::GenOptionalField(GenGenerator& generator, ParseField parseObj, GenElem* parent) :
     Base(generator, parseObj, parent),
@@ -119,7 +119,7 @@ GenField* GenOptionalField::genMemberField()
 const GenField* GenOptionalField::genMemberField() const
 {
     return m_impl->genMemberField();
-}  
+}
 
 bool GenOptionalField::genPrepareImpl()
 {

@@ -32,14 +32,14 @@ class SwigOptionalField final : public commsdsl::gen::GenOptionalField, public S
 public:
     using ParseField = commsdsl::parse::ParseField;
     using GenElem = commsdsl::gen::GenElem;
-    
+
     SwigOptionalField(SwigGenerator& generator, ParseField parseObj, GenElem* parent);
 
     static std::string swigDeclFuncs(const SwigGenerator& generator, const std::string& fieldType);
 
 protected:
     // GenBase overrides
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
     // SwigBase overrides
     virtual std::string swigMembersDeclImpl() const override;

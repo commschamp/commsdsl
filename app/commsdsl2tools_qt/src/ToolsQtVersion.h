@@ -31,6 +31,7 @@ private:
     explicit ToolsQtVersion(ToolsQtGenerator& generator) : m_toolsGenerator(generator) {}
 
     bool toolsWriteInternal() const;
+    std::string toolsCodeVersionInternal() const;
 
     ToolsQtGenerator& m_toolsGenerator;
 };

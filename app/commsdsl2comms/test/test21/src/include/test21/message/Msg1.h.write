@@ -1,4 +1,4 @@
-/// @brief Custom write 
+/// @brief Custom write
 template <typename TIter>
 comms::ErrorStatus doWrite(TIter& iter, std::size_t len) const
 {

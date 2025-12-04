@@ -27,7 +27,7 @@ class CommsSyncLayer final : public commsdsl::gen::GenSyncLayer, public CommsLay
 {
     using GenBase = commsdsl::gen::GenSyncLayer;
     using CommsBase = CommsLayer;
-    
+
 public:
     using ParseLayer = commsdsl::parse::ParseLayer;
     using GenElem = commsdsl::gen::GenElem;
@@ -36,7 +36,7 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
-    
+
     // CommsBase overrides
     virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;

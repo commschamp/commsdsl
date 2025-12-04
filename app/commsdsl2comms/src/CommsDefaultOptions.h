@@ -42,7 +42,7 @@ private:
     bool commsWritePlatformSpecificDynMemMsgFactoryOptionsInternal() const;
     bool commsWriteExtraBundlesDynMemMsgFactoryOptionsInternal() const;
     bool commsWriteSingleMsgFactoryDefaultOptionsInternal(
-        const std::string& prefix, 
+        const std::string& prefix,
         const std::string& messagesDesc,
         const std::string& allocDesc) const;
 

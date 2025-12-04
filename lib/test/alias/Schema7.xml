@@ -7,9 +7,9 @@
         </fields>
         <alias name="A1" field="$F1" />
     </message>
-    
+
     <message name="Msg2" id="2" copyFieldsFrom="Msg1" >
         <alias name="A2" field="$F2" />
     </message>
-    
+
 </schema>

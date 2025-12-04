@@ -66,11 +66,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigGenerator::SwigGenerator()
-{
-    GenBase::genSetAllInterfacesReferencedByDefault(false);
-    GenBase::genSetAllMessagesReferencedByDefault(false);
-}    
+SwigGenerator::SwigGenerator() = default;
 
 const std::string& SwigGenerator::swigFileGeneratedComment()
 {
@@ -93,28 +89,28 @@ std::string SwigGenerator::swigInputCodePathForFile(const std::string& name) con
 
 std::string SwigGenerator::swigClassName(const commsdsl::gen::GenElem& elem) const
 {
-    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U); 
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U);
     auto str = comms::genScopeFor(elem, *this, addMainNamespace);
     return swigScopeToName(str);
 }
 
 std::string SwigGenerator::swigScopeNameForRoot(const std::string& name) const
 {
-    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U); 
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U);
     auto str = comms::genScopeForRoot(name, *this, addMainNamespace);
     return swigScopeToName(str);
 }
 
-std::string SwigGenerator::swigScopeNameForMsgId(const std::string& name, const SwigNamespace& parent) const
+std::string SwigGenerator::swigScopeNameForNamespaceMember(const std::string& name, const SwigNamespace& parent) const
 {
-    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U); 
-    auto str = comms::genScopeForMsgId(name, *this, parent, addMainNamespace);
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U);
+    auto str = comms::genScopeForNamespaceMember(name, *this, parent, addMainNamespace);
     return swigScopeToName(str);
 }
 
 std::string SwigGenerator::swigProtocolClassNameForRoot(const std::string& name) const
 {
-    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U); 
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (genSchemas().size() > 1U);
     auto schemaIdx = genCurrentSchemaIdx();
     genChooseProtocolSchema();
     auto str = comms::genScopeForRoot(name, *this, addMainNamespace);
@@ -133,7 +129,7 @@ const std::string& SwigGenerator::swigConvertCppType(const std::string& str) con
         {"std::uint32_t", "unsigned"},
         {"std::int64_t", "long long"},
         {"std::uint64_t", "unsigned long long"},
-        {"std::size_t", "unsigned long"},        
+        {"std::size_t", "unsigned long"},
     };
 
     auto iter = Map.find(str);
@@ -159,37 +155,11 @@ std::string SwigGenerator::swigDefInclude(const std::string& path)
     return "%include \"include/" + path + '\"';
 }
 
-bool SwigGenerator::genCreateCompleteImpl()
-{
-    return 
-        swigReferenceRequestedInterfaceInternal() &&
-        swigReferenceRequestedMessagesInternal();
-}
-
-bool SwigGenerator::genPrepareImpl()
-{
-    if (!GenBase::genPrepareImpl()) {
-        return false;
-    }
-
-    if (m_forcedInterface.empty()) {
-        return true;
-    }
-    
-    auto* iFace = genFindInterface(m_forcedInterface);
-    if (iFace == nullptr) {
-        genLogger().genError("The selected forced interface \"" + m_forcedInterface + "\" hasn't been found");
-        return false;
-    }
-
-    return true;
-}
-
 bool SwigGenerator::genWriteImpl()
 {
     for (auto idx = 0U; idx < genSchemas().size(); ++idx) {
         genChooseCurrentSchema(idx);
-        bool result = 
+        bool result =
             SwigVersion::swigWrite(*this);
 
         if (!result) {
@@ -197,10 +167,9 @@ bool SwigGenerator::genWriteImpl()
         }
     }
 
-    return 
+    return
         SwigComms::swigWrite(*this) &&
         SwigDataBuf::swigWrite(*this) &&
-        SwigMsgHandler::swigWrite(*this) &&
         Swig::swigWrite(*this) &&
         SwigCmake::swigWrite(*this) &&
         swigWriteExtraFilesInternal();
@@ -212,56 +181,14 @@ void SwigGenerator::swigSetMainNamespaceInNamesForced(bool value)
     m_mainNamespaceInNamesForced = value;
 }
 
-void SwigGenerator::swigSetForcedInterface(const std::string& value)
+void SwigGenerator::swigSetHasCodeVersion(bool value)
 {
-    m_forcedInterface = value;
+    m_hasCodeVersion = value;
 }
 
-void SwigGenerator::swigSetHasProtocolVersion(bool value)
+bool SwigGenerator::swigHasCodeVersion() const
 {
-    m_hasProtocolVersion = value;
-}
-
-void SwigGenerator::swigSetMessagesListFile(const std::string& value)
-{
-    m_messagesListFile = value;
-}
-
-void SwigGenerator::swigSetForcedPlatform(const std::string& value)
-{
-    m_forcedPlatform = value;
-}
-
-bool SwigGenerator::swigHasProtocolVersion() const
-{
-    return m_hasProtocolVersion;
-}
-
-const SwigInterface* SwigGenerator::swigMainInterface() const
-{
-    do {
-        if (m_forcedInterface.empty()) {
-            break;
-        }
-
-        auto iFace = genFindInterface(m_forcedInterface);
-        if (iFace == nullptr) {
-            break;
-        }
-
-        return static_cast<const SwigInterface*>(iFace);
-    } while (false);
-
-    auto allInterfaces = genGetAllInterfaces();
-    if (allInterfaces.empty()) {
-        return nullptr;
-    }
-    return static_cast<const SwigInterface*>(allInterfaces.front());
-}
-
-SwigInterface* SwigGenerator::swigMainInterface()
-{
-    return const_cast<SwigInterface*>(static_cast<const SwigGenerator*>(this)->swigMainInterface());
+    return m_hasCodeVersion;
 }
 
 SwigGenerator::GenSchemaPtr SwigGenerator::genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, commsdsl::gen::GenElem* parent)
@@ -387,14 +314,8 @@ SwigGenerator::GenLayerPtr SwigGenerator::genCreateChecksumLayerImpl(commsdsl::p
 SwigGenerator::OptsProcessResult SwigGenerator::genProcessOptionsImpl(const GenProgramOptions& options)
 {
     auto& opts = SwigProgramOptions::swigCast(options);
-    if (opts.swigHasForcedInterface()) {
-        swigSetForcedInterface(opts.swigGetForcedInterface());
-    }
-
     swigSetMainNamespaceInNamesForced(opts.swigIsMainNamespaceInNamesForced());
-    swigSetHasProtocolVersion(opts.swigHasProtocolVersion());
-    swigSetMessagesListFile(opts.swigMessagesListFile());
-    swigSetForcedPlatform(opts.swigForcedPlatform());
+    swigSetHasCodeVersion(opts.swigHasCodeVersion());
     return OptsProcessResult_Continue;
 }
 
@@ -409,102 +330,9 @@ bool SwigGenerator::swigWriteExtraFilesInternal() const
         strings::genPrependFileSuffixStr(),
         strings::genPrependLangFileSuffixStr(),
         strings::genSourcesFileSuffixStr(),
-    }; 
+    };
 
     return genCopyExtraSourceFiles(ReservedExt);
-}
-
-bool SwigGenerator::swigReferenceRequestedInterfaceInternal()
-{
-    auto* mainInterface = swigMainInterface();
-    if (mainInterface != nullptr) {
-        mainInterface->genSetReferenced(true);
-    }
-
-    return true;
-}
-
-bool SwigGenerator::swigReferenceRequestedMessagesInternal()
-{
-    if ((m_messagesListFile.empty()) && (m_forcedPlatform.empty())) {
-        genReferenceAllMessages();
-        return true;
-    }
-
-    if ((!m_messagesListFile.empty()) && (!m_forcedPlatform.empty())) {
-        genLogger().genError("Cannot force platform messages together with explicit message list.");
-        return false;
-    }    
-
-    if (!m_messagesListFile.empty()) {
-        return swigProcessMessagesListFileInternal();
-    }
-
-    if (!m_forcedPlatform.empty()) {
-        return swigProcessForcedPlatformInternal();
-    }    
-
-    return true;
-}
-
-bool SwigGenerator::swigProcessMessagesListFileInternal()
-{
-    std::ifstream stream(m_messagesListFile);
-    if (!stream) {
-        genLogger().genError("Failed to open messages list file: \"" + m_messagesListFile + "\".");
-        return false;
-    }
-
-    std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
-    auto lines = util::genStrSplitByAnyChar(contents, "\n\r");
-
-    for (auto& l : lines) {
-        auto* m = genGindMessage(l);
-        if (m == nullptr) {
-            genLogger().genError("Failed to fined message \"" + l + "\" listed in \"" + m_messagesListFile + "\".");
-            return false;
-        }
-
-        m->genSetReferenced(true);
-    }
-
-    return true;
-}
-
-bool SwigGenerator::swigProcessForcedPlatformInternal()
-{
-    bool validPlatform = false;
-
-    assert(!m_forcedPlatform.empty());
-    for (auto* m : genGetAllMessages()) {
-        assert(m != nullptr);
-        auto& s = genSchemaOf(*m);
-        auto& schemaPlatforms = s.genParseObj().parsePlatforms();
-        auto iter = std::find(schemaPlatforms.begin(), schemaPlatforms.end(), m_forcedPlatform);
-        if (iter == schemaPlatforms.end()) {
-            continue;
-        }
-
-        validPlatform = true;
-
-        auto* swigM = const_cast<SwigMessage*>(SwigMessage::swigCast(m));
-        auto& messagePlatforms = swigM->genParseObj().parsePlatforms();
-
-        bool messageSupported = 
-            (messagePlatforms.empty()) || 
-            (std::find(messagePlatforms.begin(), messagePlatforms.end(), m_forcedPlatform) != messagePlatforms.end());
-
-        if (messageSupported) {
-            swigM->genSetReferenced(true);
-        }
-    }
-    
-    if (!validPlatform) {
-        genLogger().genError("Unknown platform: \"" + m_forcedPlatform + "\".");
-        return false;
-    }
-
-    return true;
 }
 
 } // namespace commsdsl2swig

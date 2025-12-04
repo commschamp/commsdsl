@@ -34,12 +34,12 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-namespace 
+namespace
 {
 
 const std::string& aliasTempl()
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#GENERATED#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of <b>\"#^#CLASS_NAME#$##^#SUFFIX#$#\"</b> interface class.\n"
@@ -65,7 +65,7 @@ const std::string& aliasTempl()
 
 const std::string& classTempl()
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#GENERATED#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of <b>\"#^#CLASS_NAME#$#\"</b> interface class.\n"
@@ -106,13 +106,12 @@ void commsReadCustomCodeInternal(const std::string& codePath, std::string& code)
     code = util::genReadFileContents(codePath);
 }
 
-} // namespace 
-    
+} // namespace
 
 CommsInterface::CommsInterface(CommsGenerator& generator, ParseInterface parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent)
 {
-}   
+}
 
 CommsInterface::~CommsInterface() = default;
 
@@ -121,7 +120,7 @@ const CommsField* CommsInterface::commsFindValidReferencedField(const std::strin
     auto dotPos = refStr.find(".");
     std::string fieldName(refStr, 0, dotPos);
 
-    auto iter = 
+    auto iter =
         std::find_if(
             m_commsFields.begin(), m_commsFields.end(),
             [&fieldName](auto* f)
@@ -157,7 +156,7 @@ bool CommsInterface::genPrepareImpl()
 
     if (!commsCopyCodeFromInternal()) {
         return false;
-    }    
+    }
 
     if (genParseObj().parseValid()) {
         m_name = comms::genClassName(genParseObj().parseName());
@@ -183,7 +182,7 @@ bool CommsInterface::genPrepareImpl()
 
 bool CommsInterface::genWriteImpl() const
 {
-    return 
+    return
         commsWriteCommonInternal() &&
         commsWriteDefInternal();
 }
@@ -194,7 +193,7 @@ bool CommsInterface::commsCopyCodeFromInternal()
     if (!obj.parseValid()) {
         return true;
     }
-    
+
     auto& copyFrom = obj.parseCopyCodeFrom();
     if (copyFrom.empty()) {
         return true;
@@ -235,7 +234,7 @@ bool CommsInterface::commsWriteCommonInternal() const
     if (!stream) {
         gen.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }    
+    }
 
     static const std::string Templ =
         "#^#GENERATED#$#\n"
@@ -274,7 +273,7 @@ bool CommsInterface::commsWriteCommonInternal() const
 bool CommsInterface::commsWriteDefInternal() const
 {
     auto& gen = genGenerator();
-    auto writeFunc = 
+    auto writeFunc =
         [&gen](const std::string& filePath, const std::string& content)
         {
             auto& logger = gen.genLogger();
@@ -291,12 +290,12 @@ bool CommsInterface::commsWriteDefInternal() const
                 logger.genError("Failed to open \"" + filePath + "\" for writing.");
                 return false;
             }
-            
+
             stream << content;
             stream.flush();
             return stream.good();
         };
-    
+
     auto genFilePath = comms::genHeaderPathFor(*this, gen);
     auto codePathPrefix = comms::genInputCodePathFor(*this, gen);
     auto replaceContent = util::genReadFileContents(codePathPrefix + strings::genReplaceFileSuffixStr());
@@ -323,7 +322,7 @@ bool CommsInterface::commsWriteDefInternal() const
         repl["SUFFIX"] = strings::genOrigSuffixStr();
     }
 
-    bool useClass = 
+    bool useClass =
         (!m_commsFields.empty()) ||
         (!m_constructCode.empty()) ||
         (!m_customCode.m_public.empty()) ||
@@ -356,7 +355,7 @@ std::string CommsInterface::commsCommonIncludesInternal() const
         std::move(fIncludes.begin(), fIncludes.end(), std::back_inserter(includes));
     }
 
-    comms::genPrepareIncludeStatement(includes);    
+    comms::genPrepareIncludeStatement(includes);
     return util::genStrListToString(includes, "\n", "\n");
 }
 
@@ -399,7 +398,7 @@ std::string CommsInterface::commsDefIncludesInternal() const
         includes.reserve(includes.size() + fIncludes.size());
         std::move(fIncludes.begin(), fIncludes.end(), std::back_inserter(includes));
     }
-    comms::genPrepareIncludeStatement(includes);    
+    comms::genPrepareIncludeStatement(includes);
     return util::genStrListToString(includes, "\n", "\n");
 }
 
@@ -445,7 +444,7 @@ std::string CommsInterface::commsDefDocDetailsInternal() const
     std::string desc;
     if (genParseObj().parseValid()) {
         desc = util::genStrMakeMultiline(genParseObj().parseDescription());
-    } 
+    }
 
     if (!desc.empty()) {
         static const std::string DocPrefix = strings::genDoxygenPrefixStr() + strings::genIncFileSuffixStr();
@@ -454,12 +453,12 @@ std::string CommsInterface::commsDefDocDetailsInternal() const
         desc = util::genStrReplace(desc, "\n", DocNewLineRepl);
         desc += " @n";
     }
-    return desc;    
+    return desc;
 }
 
 std::string CommsInterface::commsDefBaseClassInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "comms::Message<\n"
         "    TOpt...,\n"
         "    #^#ENDIAN#$#,\n"
@@ -492,12 +491,12 @@ std::string CommsInterface::commsDefExtraOptionsInternal() const
     if (!m_commsFields.empty()) {
         opts.push_back(
             "comms::option::def::ExtraTransportFields<" +
-            m_name + 
-            strings::genFieldsSuffixStr() + 
+            m_name +
+            strings::genFieldsSuffixStr() +
             "::All>"
         );
     }
-    
+
     auto iter =
         std::find_if(
             m_commsFields.begin(), m_commsFields.end(),
@@ -534,7 +533,7 @@ std::string CommsInterface::commsDefPublicInternal() const
     };
 
     return util::genProcessTemplate(Templ, repl);
-}        
+}
 
 std::string CommsInterface::commsDefProtectedInternal() const
 {
@@ -542,7 +541,7 @@ std::string CommsInterface::commsDefProtectedInternal() const
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "protected:\n"
         "    #^#CUSTOM#$#\n"
     ;
@@ -550,7 +549,7 @@ std::string CommsInterface::commsDefProtectedInternal() const
     util::GenReplacementMap repl = {
         {"CUSTOM", m_customCode.m_protected}
     };
-    
+
     return util::genProcessTemplate(Templ, repl);
 }
 
@@ -560,7 +559,7 @@ std::string CommsInterface::commsDefPrivateInternal() const
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "private:\n"
         "    #^#CUSTOM#$#\n"
     ;
@@ -568,7 +567,7 @@ std::string CommsInterface::commsDefPrivateInternal() const
     util::GenReplacementMap repl = {
         {"CUSTOM", m_customCode.m_private}
     };
-    
+
     return util::genProcessTemplate(Templ, repl);
 }
 
@@ -578,7 +577,7 @@ std::string CommsInterface::commsDefFieldsAccessInternal() const
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Allow access to extra transport fields.\n"
         "/// @details See definition of @b COMMS_MSG_TRANSPORT_FIELDS_NAMES macro\n"
         "///     related to @b comms::Message class from COMMS library\n"
@@ -602,17 +601,17 @@ std::string CommsInterface::commsDefFieldsAccessInternal() const
         auto className = comms::genClassName(name);
 
         static const std::string DocPrefix = strings::genDoxygenPrefixStr() + strings::genIndentStr();
-        auto doc = 
+        auto doc =
             DocPrefix + "@li @b TransportFieldIdx_" + accName + " index, @b TransportField_" + accName +
             " type\n" + DocPrefix + strings::genIndentStr() +
-            "and @b transportField_" + accName + "() access fuction for @ref " + 
+            "and @b transportField_" + accName + "() access fuction for @ref " +
             interfaceClassName + strings::genFieldsSuffixStr() + "::" +
             className + " field.";
 
         names.push_back(accName);
         docs.push_back(std::move(doc));
     }
-    
+
     util::GenReplacementMap repl = {
         {"DOC", util::genStrListToString(docs, "\n", "")},
         {"NAMES", util::genStrListToString(names, ",\n", "")},
@@ -630,7 +629,7 @@ std::string CommsInterface::commsDefFieldsAliasesInternal() const
 
     auto aliases = obj.parseAliases();
     if (aliases.empty()) {
-        return strings::genEmptyString();    
+        return strings::genEmptyString();
     }
 
     util::GenStringsList result;
@@ -653,7 +652,7 @@ std::string CommsInterface::commsDefFieldsAliasesInternal() const
         if (!desc.empty()) {
             desc = strings::genDoxygenPrefixStr() + strings::genIndentStr() + desc + " @n";
             desc = util::genStrReplace(desc, "\n", "\n" + strings::genDoxygenPrefixStr() + strings::genIndentStr());
-        }        
+        }
 
         util::GenReplacementMap repl = {
             {"ALIAS_DESC", std::move(desc)},
@@ -664,7 +663,7 @@ std::string CommsInterface::commsDefFieldsAliasesInternal() const
 
         result.push_back(util::genProcessTemplate(Templ, repl));
     }
-    
+
     return util::genStrListToString(result, "\n", "");
 }
 

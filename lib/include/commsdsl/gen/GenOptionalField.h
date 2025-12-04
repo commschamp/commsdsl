@@ -45,7 +45,7 @@ public:
     GenField* genMemberField();
     const GenField* genMemberField() const;
 
-protected:    
+protected:
     virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl() override;
 

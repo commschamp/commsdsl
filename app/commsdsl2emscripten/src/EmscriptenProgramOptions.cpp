@@ -30,26 +30,18 @@ namespace
 {
 
 const std::string EmscriptenForceMainNamespaceInNamesStr("force-main-ns-in-names");
-const std::string EmscriptenForceInterfaceStr("force-interface");
-const std::string EmscriptenHasProtocolStr("has-protocol-version");
-const std::string EmscriptenMessagesListStr("messages-list");
-const std::string EmscriptenForcePlatformStr("force-platform");
+const std::string EmscriptenHasCodeVerStr("has-code-version");
 
 } // namespace
 
 EmscriptenProgramOptions::EmscriptenProgramOptions()
 {
-    genAddCommonOptions()
+    genAddCommonOptions();
+    genAddCodeVersionOptions();
+    genAddMessagesSelectionOptions();
+    genAddInterfaceSelectionOptions()
     (EmscriptenForceMainNamespaceInNamesStr, "Force having main namespace in generated class names.")
-    (EmscriptenForceInterfaceStr, "Force usage of the provided interface (CommsDSL reference string).", true)
-    (EmscriptenHasProtocolStr, "The protocol definition (produced by commsdsl2comms) contains protocol semantic version.")
-    (EmscriptenMessagesListStr, 
-        "Path to the file containing list of messages that need to be supported. "
-        "In case the message resides in a namespace its name must be "
-        "specified in the same way as being referenced in CommsDSL (\'Namespace.MessageName\'). "
-        "If not provided all the defined messages are going to be supported.",
-        true)
-    (EmscriptenForcePlatformStr, "Support only messages applicable to specified platform. Requires protocol schema to define it.", true)        
+    (EmscriptenHasCodeVerStr, "The protocol definition (produced by commsdsl2comms) contains code semantic version.")
     ;
 }
 
@@ -58,29 +50,9 @@ bool EmscriptenProgramOptions::emscriptenIsMainNamespaceInNamesForced() const
     return genIsOptUsed(EmscriptenForceMainNamespaceInNamesStr);
 }
 
-bool EmscriptenProgramOptions::emscriptenHasForcedInterface() const
+bool EmscriptenProgramOptions::emscriptenHasCodeVersion() const
 {
-    return genIsOptUsed(EmscriptenForceInterfaceStr);
-}
-
-const std::string& EmscriptenProgramOptions::emscriptenGetForcedInterface() const
-{
-    return genValue(EmscriptenForceInterfaceStr);
-}
-
-bool EmscriptenProgramOptions::emscriptenHasProtocolVersion() const
-{
-    return genIsOptUsed(EmscriptenHasProtocolStr);
-}
-
-const std::string& EmscriptenProgramOptions::emscriptenMessagesListFile() const
-{
-    return genValue(EmscriptenMessagesListStr);
-}
-
-const std::string& EmscriptenProgramOptions::emscriptenForcedPlatform() const
-{
-    return genValue(EmscriptenForcePlatformStr);
+    return genIsOptUsed(EmscriptenHasCodeVerStr);
 }
 
 } // namespace commsdsl2emscripten

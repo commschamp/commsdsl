@@ -31,7 +31,7 @@ class GenLogger
 {
 public:
     using ParseErrorLevel = commsdsl::parse::ParseErrorLevel;
-    
+
     GenLogger();
     GenLogger(const GenLogger&) = delete;
     virtual ~GenLogger();
@@ -47,7 +47,7 @@ public:
     bool genHadWarning() const;
 
 protected:
-    virtual void genLogImpl(ParseErrorLevel level, const std::string& msg) const;    
+    virtual void genLogImpl(ParseErrorLevel level, const std::string& msg) const;
 
 private:
     mutable std::unique_ptr<GenLoggerImpl> m_impl;

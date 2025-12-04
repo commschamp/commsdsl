@@ -28,7 +28,7 @@ private:
     explicit CommsCmake(CommsGenerator& generator) : m_generator(generator) {}
 
     bool commsWriteInternal() const;
-    
+
 private:
     CommsGenerator& m_generator;
 };

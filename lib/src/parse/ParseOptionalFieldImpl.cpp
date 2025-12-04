@@ -56,7 +56,6 @@ ParseOptionalFieldImpl::ParseOptionalFieldImpl(::xmlNodePtr node, ParseProtocolI
 {
 }
 
-
 ParseFieldImpl::ParseKind ParseOptionalFieldImpl::parseKindImpl() const
 {
     return ParseKind::Optional;
@@ -471,7 +470,6 @@ bool ParseOptionalFieldImpl::parseCheckFieldAsChild()
 
         fieldNode = fieldTypes.front();
     } while (false);
-
 
     do {
         if (fieldNode != nullptr) {

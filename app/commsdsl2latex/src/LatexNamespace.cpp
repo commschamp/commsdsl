@@ -32,7 +32,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2latex
 {
 
-namespace 
+namespace
 {
 
 LatexNamespace::LatexMessagesList latexTransformMessagesList(const commsdsl::gen::GenNamespace::GenMessagesList& list)
@@ -66,8 +66,7 @@ LatexNamespace::LatexFramesList latexTransformMessagesList(const commsdsl::gen::
     return result;
 }
 
-} // namespace 
-    
+} // namespace
 
 LatexNamespace::LatexNamespace(LatexGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent)
@@ -90,9 +89,8 @@ std::string LatexNamespace::latexRelDirPath() const
 
         assert(parent->genElemType() == GenType_Namespace);
         auto& parentNs = LatexNamespace::latexCast(commsdsl::gen::GenNamespace::genCast(*parent));
-        parentDir = parentNs.latexRelDirPath();        
+        parentDir = parentNs.latexRelDirPath();
     } while (false);
-    
 
     auto& thisName = genName();
     if (thisName.empty()) {
@@ -119,7 +117,7 @@ std::string LatexNamespace::latexTitle() const
 
     auto& displayName = genParseObj().parseDisplayName();
     if (!displayName.empty()) {
-        return LatexGenerator::latexEscDisplayName(displayName, std::string());
+        return LatexGenerator::latexEscString(displayName);
     }
 
     do {
@@ -147,7 +145,7 @@ std::string LatexNamespace::latexTitle() const
         name = &(schema.genOrigNamespace());
     }
 
-    return "Namespace \"" + LatexGenerator::latexEscDisplayName(*name, std::string()) + "\"";
+    return "Namespace \"" + LatexGenerator::latexEscString(*name) + "\"";
 }
 
 bool LatexNamespace::genPrepareImpl()
@@ -172,7 +170,7 @@ bool LatexNamespace::genWriteImpl() const
     assert(!dirPath.empty());
     if (!latexGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }    
+    }
 
     latexGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
@@ -189,7 +187,7 @@ bool LatexNamespace::genWriteImpl() const
             break;
         }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#GENERATED#$#\n"
             "#^#REPLACE_COMMENT#$#\n"
             "#^#SECTION#$#\n"
@@ -216,30 +214,30 @@ bool LatexNamespace::genWriteImpl() const
             repl["LABEL"] = "\\label{" + LatexGenerator::latexLabelId(*this) + '}';
 
             if (genParseObj().parseValid()) {
-                repl["DESCRIPTION"] = util::genStrMakeMultiline(genParseObj().parseDescription());
+                repl["DESCRIPTION"] = util::genStrMakeMultiline(LatexGenerator::latexEscString(genParseObj().parseDescription()));
             }
 
             LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);
 
             if (repl["DESCRIPTION"].empty()) {
-                repl["DESCRIPTION"] = 
-                    LatexGenerator::latexSchemaCommentPrefix() + 
+                repl["DESCRIPTION"] =
+                    LatexGenerator::latexSchemaCommentPrefix() +
                         "Use \"" + strings::genDescriptionStr() + "\" DSL element property to introduce description";
-            }           
-        }    
+            }
+        }
 
         if (latexGenerator.latexHasCodeInjectionComments()) {
-            repl["REPLACE_COMMENT"] = 
+            repl["REPLACE_COMMENT"] =
                 latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
 
             if (repl["PREPEND"].empty()) {
                 repl["PREPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Prepend to details with \"" + prependFileName + "\".";
-            }                  
+            }
 
             if (repl["APPEND"].empty()) {
                 repl["APPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Append to file with \"" + appendFileName + "\".";
-            }                
-        };         
+            }
+        };
 
         stream << util::genProcessTemplate(Templ, repl, true) << std::endl;
     } while (false);
@@ -255,10 +253,10 @@ bool LatexNamespace::genWriteImpl() const
 
 bool LatexNamespace::latexHasDocElements() const
 {
-    auto hasInput = 
+    auto hasInput =
         [](auto& list)
         {
-            return 
+            return
                 std::any_of(
                     list.begin(), list.end(),
                     [](auto& ptr)
@@ -276,7 +274,7 @@ bool LatexNamespace::latexHasDocElements() const
 std::string LatexNamespace::latexInputs() const
 {
     util::GenStringsList inputs;
-    auto addInputFor = 
+    auto addInputFor =
         [&inputs](auto& list)
         {
             for (const auto* elem : list) {
@@ -286,7 +284,7 @@ std::string LatexNamespace::latexInputs() const
                 }
             }
         };
-        
+
     addInputFor(m_latexFields);
     addInputFor(m_latexMessages);
     addInputFor(m_latexFrames);
@@ -300,7 +298,7 @@ std::string LatexNamespace::latexInputs() const
 
 std::string LatexNamespace::latexSection(const std::string& title) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#REPLACE_COMMENT#$#\n"
         "#^#SECTION#$#{#^#TITLE#$#}\n"
         ;
@@ -317,9 +315,9 @@ std::string LatexNamespace::latexSection(const std::string& title) const
     }
 
     if (latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] = 
+        repl["REPLACE_COMMENT"] =
             latexGenerator.latexCodeInjectCommentPrefix() + "Replace the title value with contents of \"" + titleFileName + "\".";
-    };      
+    };
 
     return util::genProcessTemplate(Templ, repl);
 }

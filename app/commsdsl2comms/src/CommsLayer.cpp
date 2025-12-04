@@ -38,7 +38,7 @@ CommsLayer::CommsLayer(GenLayer& layer) :
     m_genLayer(layer)
 {
 }
-    
+
 CommsLayer::~CommsLayer() = default;
 
 bool CommsLayer::commsPrepare()
@@ -56,7 +56,7 @@ CommsLayer::CommsIncludesList CommsLayer::commsCommonIncludes() const
     if (m_commsMemberField != nullptr) {
         auto fieldIncs = m_commsMemberField->commsCommonIncludes();
         std::move(fieldIncs.begin(), fieldIncs.end(), std::back_inserter(result));
-    }    
+    }
 
     // auto otherIncs = commsCommonIncludesImpl();
     // std::move(otherIncs.begin(), otherIncs.end(), std::back_inserter(result));
@@ -74,13 +74,13 @@ std::string CommsLayer::commsCommonCode() const
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Scope for all the common definitions of the fields defined in\n"
         "///     @ref #^#SCOPE#$##^#MEMBERS_SUFFIX#$# struct.\n"
         "struct #^#CLASS_NAME#$##^#MEMBERS_SUFFIX#$##^#COMMON_SUFFIX#$#\n"
         "{\n"
         "    #^#CODE#$#\n"
-        "};\n";    
+        "};\n";
 
     util::GenReplacementMap repl = {
         {"SCOPE", comms::genScopeFor(m_genLayer, m_genLayer.genGenerator())},
@@ -103,7 +103,7 @@ CommsLayer::CommsIncludesList CommsLayer::commsDefIncludes() const
     if (m_commsMemberField != nullptr) {
         auto fieldIncs = m_commsMemberField->commsDefIncludes();
         std::move(fieldIncs.begin(), fieldIncs.end(), std::back_inserter(result));
-    }    
+    }
 
     auto otherIncs = commsDefIncludesImpl();
     std::move(otherIncs.begin(), otherIncs.end(), std::back_inserter(result));
@@ -112,12 +112,12 @@ CommsLayer::CommsIncludesList CommsLayer::commsDefIncludes() const
 
 std::string CommsLayer::commsDefType(const CommsLayer* prevLayer, bool& hasInputMessages) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#MEMBERS#$#\n"
         "#^#DOC#$#\n"
         "#^#TEMPL_PARAMS#$#\n"
         "using #^#CLASS_NAME#$# =\n"
-        "    #^#BASE#$#;\n";    
+        "    #^#BASE#$#;\n";
 
     std::string prevName;
     if (prevLayer != nullptr) {
@@ -127,7 +127,7 @@ std::string CommsLayer::commsDefType(const CommsLayer* prevLayer, bool& hasInput
     if (hasInputMessages) {
         assert(prevLayer != nullptr);
         prevName.append("<TMessage, TAllMessages>");
-    }    
+    }
 
     util::GenReplacementMap repl = {
         {"MEMBERS", commsDefMembersCodeInternal()},
@@ -151,7 +151,7 @@ bool CommsLayer::commsIsCustomizable() const
     if (level == CommsGenerator::CommsCustomizationLevel::Full) {
         return true;
     }
-        
+
     return commsIsCustomizableImpl();
 }
 
@@ -168,12 +168,12 @@ void CommsLayer::commsSetForcedFailOnInvalidField()
     m_forcedFailedOnInvalidField = true;
     if (m_commsMemberField != nullptr) {
         m_commsMemberField->commsSetForcedFailOnInvalid();
-    }    
-}  
+    }
+}
 
 std::string CommsLayer::commsDefaultOptions() const
 {
-    return 
+    return
         commsCustomizationOptionsInternal(
             &CommsField::commsDefaultOptions,
             nullptr,
@@ -184,7 +184,7 @@ std::string CommsLayer::commsDefaultOptions() const
 
 std::string CommsLayer::commsDataViewDefaultOptions() const
 {
-    return 
+    return
         commsCustomizationOptionsInternal(
             &CommsField::commsDataViewDefaultOptions,
             &CommsLayer::commsExtraDataViewDefaultOptionsInternal,
@@ -195,7 +195,7 @@ std::string CommsLayer::commsDataViewDefaultOptions() const
 
 std::string CommsLayer::commsBareMetalDefaultOptions() const
 {
-    return 
+    return
         commsCustomizationOptionsInternal(
             &CommsField::commsBareMetalDefaultOptions,
             &CommsLayer::commsExtraBareMetalDefaultOptionsInternal,
@@ -206,7 +206,7 @@ std::string CommsLayer::commsBareMetalDefaultOptions() const
 
 std::string CommsLayer::commsMsgFactoryDefaultOptions() const
 {
-    return 
+    return
         commsCustomizationOptionsInternal(
             nullptr,
             &CommsLayer::commsExtraMsgFactoryDefaultOptionsInternal,
@@ -279,7 +279,7 @@ std::string CommsLayer::commsCustomFieldBareMetalOptsImpl() const
 std::string CommsLayer::commsDefFieldType() const
 {
     if (m_commsExternalField != nullptr) {
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#SCOPE#$#<\n"
             "    TOpt#^#COMMA#$#\n"
             "    #^#EXTRA_OPTS#$#\n"
@@ -309,7 +309,7 @@ std::string CommsLayer::commsDefFieldType() const
     return
         "typename " +
         comms::genClassName(m_genLayer.genParseObj().parseName()) + strings::genMembersSuffixStr() +
-        "::" + comms::genClassName(m_commsMemberField->commsGenField().genParseObj().parseName());    
+        "::" + comms::genClassName(m_commsMemberField->commsGenField().genParseObj().parseName());
 }
 
 std::string CommsLayer::commsDefExtraOpts() const
@@ -319,7 +319,7 @@ std::string CommsLayer::commsDefExtraOpts() const
     if (commsIsCustomizable()) {
         auto& gen = static_cast<const CommsGenerator&>(m_genLayer.genGenerator());
         opts.push_back("typename TOpt::" + comms::genScopeFor(m_genLayer, m_genLayer.genGenerator(), gen.commsHasMainNamespaceInOptions()));
-    }    
+    }
 
     return util::genStrListToString(opts, ",\n", "");
 }
@@ -357,7 +357,7 @@ std::string CommsLayer::commsDefMembersCodeInternal() const
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Scope for field(s) of @ref #^#CLASS_NAME#$# layer.\n"
         "struct #^#CLASS_NAME#$##^#SUFFIX#$#\n"
         "{\n"
@@ -389,7 +389,7 @@ std::string CommsLayer::commsDefDocInternal() const
 }
 
 std::string CommsLayer::commsCustomizationOptionsInternal(
-    CommsFieldOptsFunc fieldOptsFunc, 
+    CommsFieldOptsFunc fieldOptsFunc,
     CommsExtraLayerOptsFunc extraLayerOptsFunc,
     bool hasBase,
     const std::string& customFieldOpts) const
@@ -449,7 +449,7 @@ std::string CommsLayer::commsCustomizationOptionsInternal(
 
         if (extraOpts.empty() && hasBase) {
             break;
-        }        
+        }
 
         if (extraOpts.empty() && (!hasBase)) {
             extraOpts.push_back("comms::option::app::EmptyOption");
@@ -457,41 +457,41 @@ std::string CommsLayer::commsCustomizationOptionsInternal(
 
         if ((!extraOpts.empty()) && (hasBase)) {
             auto& commsGen = static_cast<const CommsGenerator&>(m_genLayer.genGenerator());
-            bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();            
+            bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();
             extraOpts.push_back("typename TBase::" + comms::genScopeFor(m_genLayer, m_genLayer.genGenerator(), hasMainNs));
         }
 
-        auto docStr = 
+        auto docStr =
             "/// @brief Extra options for @ref " +
             comms::genScopeFor(m_genLayer, m_genLayer.genGenerator()) + " layer.";
         docStr = util::genStrMakeMultiline(docStr, 40);
-        docStr = util::genStrReplace(docStr, "\n", "\n" + strings::genDoxygenPrefixStr() + strings::genIndentStr()); 
+        docStr = util::genStrReplace(docStr, "\n", "\n" + strings::genDoxygenPrefixStr() + strings::genIndentStr());
 
         util::GenReplacementMap repl = {
             {"DOC", std::move(docStr)},
             {"NAME", comms::genClassName(m_genLayer.genParseObj().parseName())},
-        };        
+        };
 
         assert(!extraOpts.empty());
         if (extraOpts.size() == 1U) {
-            static const std::string Templ = 
+            static const std::string Templ =
                 "#^#DOC#$#\n"
                 "using #^#NAME#$# = #^#OPT#$#;\n";
-        
+
             repl["OPT"] = extraOpts.front();
             elems.push_back(util::genProcessTemplate(Templ, repl));
             break;
-        }    
+        }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#DOC#$#\n"
             "using #^#NAME#$# =\n"
             "    std::tuple<\n"
             "        #^#OPTS#$#\n"
             "    >;\n";
-    
+
         repl["OPTS"] = util::genStrListToString(extraOpts, ",\n", "");
-        elems.push_back(util::genProcessTemplate(Templ, repl));          
+        elems.push_back(util::genProcessTemplate(Templ, repl));
     } while (false);
 
     return util::genStrListToString(elems, "\n", "");

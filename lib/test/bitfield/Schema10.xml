@@ -9,7 +9,7 @@
             <members>
                 <int name="M1" type="uint8" bitLength="5" />
                 <ref name="M2" field="F1" bitLength="3" />
-            </members>   
+            </members>
         </bitfield>
     </fields>
 </schema>

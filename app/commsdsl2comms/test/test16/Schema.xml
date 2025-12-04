@@ -35,11 +35,11 @@
             </termSuffix>
         </list>
     </fields>
-    
+
     <interface name="Message">
         <int name="version" type="uint8" semanticType="version" />
-    </interface>      
-    
+    </interface>
+
     <message name="Msg1" id="MsgId.M1">
         <ref name="f1" field="L1" />
         <ref name="f2" field="L2" />
@@ -49,10 +49,10 @@
 
     <message name="Msg2" id="MsgId.M2">
         <ref name="f1" field="L4" />
-    </message>    
-    
+    </message>
+
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>       
+    </frame>
 </schema>

@@ -29,7 +29,7 @@ const std::string& genEmptyString()
 {
     static const std::string Str;
     return Str;
-}    
+}
 
 const std::string& genMsgIdEnumNameStr()
 {
@@ -52,271 +52,271 @@ const std::string& genDefaultOptionsStr()
 const std::string& genAllMessagesStr()
 {
     static const std::string Str("AllMessages");
-    return Str;    
+    return Str;
 }
 
 const std::string& genMessageClassStr()
 {
     static const std::string Str("Message");
-    return Str;    
+    return Str;
 }
 
 const std::string& genCommonSuffixStr()
 {
     static const std::string Str("Common");
-    return Str;     
+    return Str;
 }
 
 const std::string& genMembersSuffixStr()
 {
     static const std::string Str("Members");
-    return Str;     
+    return Str;
 }
 
 const std::string& genCppHeaderSuffixStr()
 {
     static const std::string Str(".h");
-    return Str;     
+    return Str;
 }
 
 const std::string& genCppSourceSuffixStr()
 {
     static const std::string Str(".cpp");
-    return Str;     
+    return Str;
 }
 
 const std::string& genLatexSuffixStr()
 {
     static const std::string Str(".tex");
-    return Str;    
+    return Str;
 }
 
 const std::string& genFieldNamespaceStr()
 {
     static const std::string Str("field");
-    return Str;   
+    return Str;
 }
 
 const std::string& genMessageNamespaceStr()
 {
     static const std::string Str("message");
-    return Str;   
+    return Str;
 }
 
 const std::string& genFrameNamespaceStr()
 {
     static const std::string Str("frame");
-    return Str;   
+    return Str;
 }
 
 const std::string& genLayerNamespaceStr()
 {
     static const std::string Str("layer");
-    return Str;   
+    return Str;
 }
 
 const std::string& genChecksumNamespaceStr()
 {
     static const std::string Str("checksum");
-    return Str;   
+    return Str;
 }
 
 const std::string& genOptionsNamespaceStr()
 {
     static const std::string Str("options");
-    return Str;   
+    return Str;
 }
 
 const std::string& genCispatchNamespaceStr()
 {
     static const std::string Str("dispatch");
-    return Str;   
+    return Str;
 }
 
 const std::string& genFactoryNamespaceStr()
 {
     static const std::string Str("factory");
-    return Str;   
+    return Str;
 }
 
 const std::string& genInputNamespaceStr()
 {
     static const std::string Str("input");
-    return Str;   
+    return Str;
 }
 
 const std::string& genPluginNamespaceStr()
 {
     static const std::string Str("plugin");
-    return Str;   
+    return Str;
 }
 
 const std::string& genIncludeDirStr()
 {
     static const std::string Str("include");
-    return Str;   
+    return Str;
 }
 
 const std::string& genSrcDirStr()
 {
     static const std::string Str("src");
-    return Str;   
+    return Str;
 }
 
 const std::string& genDocDirStr()
 {
     static const std::string Str("doc");
-    return Str;   
+    return Str;
 }
 
 const std::string& genNameFileSuffixStr()
 {
     static const std::string Str(".name");
-    return Str;     
+    return Str;
 }
 
 const std::string& genNameBodyFileSuffixStr()
 {
     static const std::string Str = genNameFileSuffixStr() + genBodyFileSuffixStr();
-    return Str;     
+    return Str;
 }
 
 const std::string& genValueFileSuffixStr()
 {
     static const std::string Str(".value");
-    return Str;     
+    return Str;
 }
 
 const std::string& genReadFileSuffixStr()
 {
     static const std::string Str(".read");
-    return Str;     
+    return Str;
 }
 
 const std::string& genReadBodyFileSuffixStr()
 {
     static const std::string Str = genReadFileSuffixStr() + genBodyFileSuffixStr();
-    return Str;     
+    return Str;
 }
 
 const std::string& genRefreshFileSuffixStr()
 {
     static const std::string Str(".refresh");
-    return Str;     
+    return Str;
 }
 
 const std::string& genRefreshBodyFileSuffixStr()
 {
     static const std::string Str = genRefreshFileSuffixStr() + genBodyFileSuffixStr();
-    return Str;     
+    return Str;
 }
 
 const std::string& genWriteFileSuffixStr()
 {
     static const std::string Str(".write");
-    return Str;     
+    return Str;
 }
 
 const std::string& genWriteBodyFileSuffixStr()
 {
     static const std::string Str = genWriteFileSuffixStr() + genBodyFileSuffixStr();
-    return Str;     
+    return Str;
 }
 
 const std::string& genPublicFileSuffixStr()
 {
     static const std::string Str(".public");
-    return Str;     
+    return Str;
 }
 
 const std::string& genProtectedFileSuffixStr()
 {
     static const std::string Str(".protected");
-    return Str;     
+    return Str;
 }
 
 const std::string& genPrivateFileSuffixStr()
 {
     static const std::string Str(".private");
-    return Str;     
+    return Str;
 }
 
 const std::string& genIncFileSuffixStr()
 {
     static const std::string Str(".inc");
-    return Str;     
+    return Str;
 }
 
 const std::string& genLengthFileSuffixStr()
 {
     static const std::string Str(".length");
-    return Str;     
+    return Str;
 }
 
 const std::string& genLengthBodyFileSuffixStr()
 {
     static const std::string Str = genLengthFileSuffixStr() + genBodyFileSuffixStr();
-    return Str;     
+    return Str;
 }
 
 const std::string& genValidFileSuffixStr()
 {
     static const std::string Str(".valid");
-    return Str;     
+    return Str;
 }
 
 const std::string& genValidBodyFileSuffixStr()
 {
     static const std::string Str = genValidFileSuffixStr() + genBodyFileSuffixStr();
-    return Str;     
+    return Str;
 }
 
 const std::string& genReplaceFileSuffixStr()
 {
     static const std::string Str(".replace");
-    return Str;     
+    return Str;
 }
 
 const std::string& genExtendFileSuffixStr()
 {
     static const std::string Str(".extend");
-    return Str;     
+    return Str;
 }
 
 const std::string& genAppendFileSuffixStr()
 {
     static const std::string Str(".append");
-    return Str;     
+    return Str;
 }
 
 const std::string& genPrependFileSuffixStr()
 {
     static const std::string Str(".prepend");
-    return Str;     
+    return Str;
 }
 
 const std::string& genPrependLangFileSuffixStr()
 {
     static const std::string Str(".prepend_lang");
-    return Str;     
+    return Str;
 }
 
 const std::string& genBindFileSuffixStr()
 {
     static const std::string Str(".bind");
-    return Str;     
+    return Str;
 }
 
 const std::string& genConstructFileSuffixStr()
 {
     static const std::string Str(".construct");
-    return Str;     
+    return Str;
 }
 
 const std::string& genSourcesFileSuffixStr()
 {
     static const std::string Str(".sources");
-    return Str;     
+    return Str;
 }
 
 const std::string& genForceEmptyDisplayNameStr()
@@ -328,91 +328,91 @@ const std::string& genForceEmptyDisplayNameStr()
 const std::string& genFieldBaseClassStr()
 {
     static const std::string Str("FieldBase");
-    return Str;    
+    return Str;
 }
 
 const std::string& genDefaultOptionsClassStr()
 {
     static const std::string Str("DefaultOptions");
-    return Str;    
+    return Str;
 }
 
 const std::string& genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr()
 {
     static const std::string Str("AllMessagesDynMemMsgFactoryDefaultOptions");
-    return Str;      
+    return Str;
 }
 
 const std::string& genIndentStr()
 {
     static const std::string Str("    ");
-    return Str;    
+    return Str;
 }
 
 const std::string& genDoxygenPrefixStr()
 {
     static const std::string Str("/// ");
-    return Str;      
+    return Str;
 }
 
 const std::string& genVersionOptionalFieldSuffixStr()
 {
     static const std::string Str("Field");
-    return Str;      
+    return Str;
 }
 
 const std::string& genOrigSuffixStr()
 {
     static const std::string Str("Orig");
-    return Str;      
+    return Str;
 }
 
 const std::string& genMsgIdPrefixStr()
 {
     static const std::string Str("MsgId_");
-    return Str;    
+    return Str;
 }
 
 const std::string& genFieldsSuffixStr()
 {
     static const std::string Str("Fields");
-    return Str;    
+    return Str;
 }
 
 const std::string& genLayersSuffixStr()
 {
     static const std::string Str("Layers");
-    return Str;    
+    return Str;
 }
 
 const std::string& genBareMetalStr()
 {
     static const std::string Str("BareMetal");
-    return Str;    
+    return Str;
 }
 
 const std::string& genDataViewStr()
 {
     static const std::string Str("DataView");
-    return Str;    
+    return Str;
 }
 
 const std::string& genTransportMessageSuffixStr()
 {
     static const std::string Str("TransportMessage");
-    return Str;     
+    return Str;
 }
 
 const std::string& genUnexpectedValueStr()
 {
     static const std::string Str("???");
-    return Str;     
+    return Str;
 }
 
 const std::string& genVersionFileNameStr()
 {
     static const std::string Str("Version");
-    return Str;      
+    return Str;
 }
 
 const std::string& genEnumFirstValueStr()
@@ -436,31 +436,31 @@ const std::string& genEnumValuesLimitStr()
 const std::string& genTransportFieldAccessPrefixStr()
 {
     static const std::string Str("transportField_");
-    return Str;    
+    return Str;
 }
 
 const std::string& genTransportFieldTypeAccessPrefixStr()
 {
     static const std::string Str("TransportField_");
-    return Str;    
+    return Str;
 }
 
 const std::string& genFieldAccessPrefixStr()
 {
     static const std::string Str("field_");
-    return Str;    
+    return Str;
 }
 
 const std::string& genBodyFileSuffixStr()
 {
     static const std::string Str("_body");
-    return Str;     
+    return Str;
 }
 
 const std::string& genMsgFactorySuffixStr()
 {
     static const std::string Str("MsgFactory");
-    return Str;     
+    return Str;
 }
 
 const std::string& genDocumentFileSuffixStr()
@@ -526,31 +526,31 @@ const std::string& genMacroAppendFileSuffixStr()
 const std::string& genPdfFileSuffixStr()
 {
     static const std::string Str(".pdf_replace");
-    return Str;    
+    return Str;
 }
 
 const std::string& genPdfAppendFileSuffixStr()
 {
     static const std::string Str(".pdf_append");
-    return Str;    
+    return Str;
 }
 
 const std::string& genHtmlFileSuffixStr()
 {
     static const std::string Str(".html_replace");
-    return Str;    
+    return Str;
 }
 
 const std::string& genHtmlAppendFileSuffixStr()
 {
     static const std::string Str(".html_append");
-    return Str;    
+    return Str;
 }
 
 const std::string& genHtmlCmdAppendFileSuffixStr()
 {
     static const std::string Str(".html_cmd_append");
-    return Str;    
+    return Str;
 }
 
 const std::string& genYesStr()
@@ -583,6 +583,17 @@ const std::string& genDescriptionStr()
     return Str;
 }
 
+const std::string& genCommsNameSuffixStr()
+{
+    static const std::string Str("_comms");
+    return Str;
+}
+
+const std::string& genValueTypeStr()
+{
+    static const std::string Str("ValueType");
+    return Str;
+}
 
 char genSiblingRefPrefix()
 {

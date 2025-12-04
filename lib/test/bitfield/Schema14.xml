@@ -9,26 +9,26 @@
             <members>
                 <int name="M1" type="uint8" bitLength="5" />
                 <int name="M2" type="uint8" bitLength="3" />
-            </members>  
+            </members>
             <validCond>
                 <or>
                     <validCond value="$M1 = 0" />
-                    <validCond value="$M2 != 0" />            
+                    <validCond value="$M2 != 0" />
                 </or>
-            </validCond> 
+            </validCond>
         </bitfield>
 
         <bitfield name="Bitfield2" reuse="Bitfield1">
             <description>
                 Testing validCond copied
             </description>
-        </bitfield>  
+        </bitfield>
 
         <bitfield name="Bitfield3" reuse="Bitfield1">
             <description>
                 Testing validCond replaced
             </description>
             <validCond value="$M1 = 1" />
-        </bitfield>              
+        </bitfield>
     </fields>
 </schema>

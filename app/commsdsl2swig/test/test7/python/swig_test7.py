@@ -32,7 +32,7 @@ class TestProtocol(unittest.TestCase):
 
         h = MsgHandler(self)
         frame.processInputData(buf, h)
-                
+
         self.assertEqual(self.msg1.field_f1().ref().getValue(), m.field_f1().ref().getValue())
         self.assertTrue(test7.eq_message_Msg1(self.msg1, m))
 
@@ -53,5 +53,4 @@ class TestProtocol(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
 

@@ -67,7 +67,7 @@ bool parseVerifyConstructInternal(const ParseOptCond& cond)
         return false;
     }
 
-    return 
+    return
         std::all_of(
             conditions.begin(), conditions.end(),
             [](const auto& c)
@@ -94,7 +94,7 @@ bool ParseMessageImpl::parse()
 
     if (!ParseXmlWrap::parseChildrenAsProps(m_node, parseExtraProps(), m_protocol.parseLogger(), m_props, false)) {
         return false;
-    }    
+    }
 
     return
         parseCheckReuse() &&
@@ -119,17 +119,17 @@ bool ParseMessageImpl::parse()
         parseUpdateRefreshOverride() &&
         parseUpdateLengthOverride() &&
         parseUpdateValidOverride() &&
-        parseUpdateNameOverride() &&   
-        parseUpdateCopyOverrideCodeFrom() && 
-        parseCopyConstruct() && 
-        parseCopyReadCond() &&  
+        parseUpdateNameOverride() &&
+        parseUpdateCopyOverrideCodeFrom() &&
+        parseCopyConstruct() &&
+        parseCopyReadCond() &&
         parseCopyValidCond() &&
         parseUpdateSingleConstruct() &&
-        parseUpdateMultiConstruct() && 
+        parseUpdateMultiConstruct() &&
         parseUpdateSingleReadCond() &&
-        parseUpdateMultiReadCond() && 
+        parseUpdateMultiReadCond() &&
         parseUpdateSingleValidCond() &&
-        parseUpdateMultiValidCond() &&         
+        parseUpdateMultiValidCond() &&
         parseCopyConstructToReadCond() &&
         parseCopyConstructToValidCond() &&
         parseUpdateExtraAttrs() &&
@@ -279,14 +279,14 @@ bool ParseMessageImpl::parseValidateAndUpdateOverrideTypePropValue(const std::st
     if (iter == m_props.end()) {
         value = ParseOverrideType_Any;
         return true;
-    }    
+    }
 
     if (!m_protocol.parseIsOverrideTypeSupported()) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The property \"" << propName << "\" is not supported for dslVersion=" << 
-                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << propName << "\" is not supported for dslVersion=" <<
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";
         return true;
-    }    
+    }
 
     static const std::map<std::string, ParseOverrideType> Map = {
         {std::string(), ParseOverrideType_Any},
@@ -299,7 +299,7 @@ bool ParseMessageImpl::parseValidateAndUpdateOverrideTypePropValue(const std::st
     auto valIter = Map.find(common::parseToLowerCopy(iter->second));
     if (valIter == Map.end()) {
         parseReportUnexpectedPropertyValue(propName, iter->second);
-        return false;        
+        return false;
     }
 
     value = valIter->second;
@@ -319,7 +319,7 @@ bool ParseMessageImpl::parseValidateAndUpdateBoolPropValue(const std::string& pr
 
     if (!m_protocol.parseIsPropertySupported(propName)) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "Property \"" << common::parseAvailableLengthLimitStr() << "\" is not available for dslVersion= " << m_protocol.parseCurrSchema().parseDslVersion();                
+            "Property \"" << common::parseAvailableLengthLimitStr() << "\" is not available for dslVersion= " << m_protocol.parseCurrSchema().parseDslVersion();
         return true;
     }
 
@@ -452,7 +452,7 @@ bool ParseMessageImpl::parseCheckReuse()
         }
 
         m_state.m_aliases.clear();
-    } while (false);    
+    } while (false);
 
     do {
         auto& codeProp = common::parseReuseCodeStr();
@@ -464,7 +464,7 @@ bool ParseMessageImpl::parseCheckReuse()
         auto codeIter = m_props.find(codeProp);
         if (codeIter == m_props.end()) {
             break;
-        }  
+        }
 
         bool copyCode = false;
         if (!parseValidateAndUpdateBoolPropValue(codeProp, copyCode)) {
@@ -475,7 +475,7 @@ bool ParseMessageImpl::parseCheckReuse()
             break;
         }
 
-        m_state.m_copyCodeFrom = valueStr; 
+        m_state.m_copyCodeFrom = valueStr;
     } while (false);
 
     return true;
@@ -754,7 +754,7 @@ bool ParseMessageImpl::parseUpdateValidateMinLength()
     if (!ok) {
         parseReportUnexpectedPropertyValue(propStr, iter->second);
         return false;
-    }    
+    }
     return true;
 }
 
@@ -791,7 +791,7 @@ bool ParseMessageImpl::parseCopyFields()
             "Copying fields from multiple sources using various properties is not supported";
         return false;
     }
-    
+
     do {
         m_copyFieldsFromMsg = m_protocol.parseFindMessage(iter->second);
         if (m_copyFieldsFromMsg != nullptr) {
@@ -802,7 +802,7 @@ bool ParseMessageImpl::parseCopyFields()
         if (!m_protocol.parseIsCopyFieldsFromBundleSupported()) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                 "Invalid reference to other message \"" << iter->second << "\".";
-            return false;            
+            return false;
         }
 
         auto* copyFromField = m_protocol.parseFindField(iter->second);
@@ -852,9 +852,9 @@ bool ParseMessageImpl::parseReplaceFields()
     if (!m_protocol.parseIsMemberReplaceSupported()) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Replacing fields with \"" << common::parseReplaceStr() << "\" child element is unavaliable "
-            "for selected DSL version, ignoring...";        
+            "for selected DSL version, ignoring...";
         return true;
-    }    
+    }
 
     auto fieldsTypes = ParseXmlWrap::parseGetChildren(replaceNodes.front(), parseMessageSupportedTypes());
     if (fieldsTypes.size() != replaceNodes.size()) {
@@ -862,7 +862,7 @@ bool ParseMessageImpl::parseReplaceFields()
             "The \"" << common::parseReplaceStr() << "\" child node of \"" <<
             common::parseMessageStr() << "\" element must contain only supported field types.";
         return false;
-    }    
+    }
 
     ParseFieldImpl::ParseFieldsList replMembers;
     replMembers.reserve(fieldsTypes.size());
@@ -884,14 +884,14 @@ bool ParseMessageImpl::parseReplaceFields()
 
         if (!field->parseVerifySiblings(m_state.m_fields)) {
             return false;
-        }        
+        }
 
         replMembers.push_back(std::move(field));
-    }   
+    }
 
     for (auto& field : replMembers) {
         assert(field);
-        auto iter = 
+        auto iter =
             std::find_if(
                 m_state.m_fields.begin(), m_state.m_fields.end(),
                 [&field](auto& currField)
@@ -909,7 +909,7 @@ bool ParseMessageImpl::parseReplaceFields()
         (*iter) = std::move(field);
     }
 
-    return true;       
+    return true;
 }
 
 bool ParseMessageImpl::parseCopyAliases()
@@ -1063,7 +1063,7 @@ bool ParseMessageImpl::parseUpdateFields()
             if (static_cast<unsigned>(m_state.m_validateMinLength) != len) {
                 parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                     "The calculated minimal length of the message is " << len <<
-                    " while expected is " << m_state.m_validateMinLength << " (specified with \"" << common::parseValidateMinLengthStr() << "\" property).";                
+                    " while expected is " << m_state.m_validateMinLength << " (specified with \"" << common::parseValidateMinLengthStr() << "\" property).";
                 return false;
             }
         }
@@ -1185,20 +1185,20 @@ bool ParseMessageImpl::parseUpdateCopyOverrideCodeFrom()
     auto iter = m_props.find(prop);
     if (iter == m_props.end()) {
         return true;
-    }  
+    }
 
     if (!m_protocol.parseIsPropertySupported(prop)) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << prop << "\" is not supported for dslVersion=" <<
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";
         return true;
-    }    
+    }
 
     auto* msg = m_protocol.parseFindMessage(iter->second);
     if (msg == nullptr) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Message referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
-        return false;        
+        return false;
     }
 
     m_state.m_copyCodeFrom = iter->second;
@@ -1215,26 +1215,26 @@ bool ParseMessageImpl::parseCopyConstruct()
     auto iter = m_props.find(prop);
     if (iter == m_props.end()) {
         return true;
-    }  
+    }
 
     if (!m_protocol.parseIsPropertySupported(prop)) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << prop << "\" is not supported for dslVersion=" <<
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";
         return true;
-    }    
+    }
 
     auto* msg = m_protocol.parseFindMessage(iter->second);
     if (msg == nullptr) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Message referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
-        return false;        
+        return false;
     }
 
     if (!msg->m_state.m_construct) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Message referenced by \"" << prop << "\" property (" + iter->second + ") does not specify construction conditions.";
-        return false;        
+        return false;
     }
 
     auto newConstruct = msg->m_state.m_construct->parseClone();
@@ -1242,7 +1242,7 @@ bool ParseMessageImpl::parseCopyConstruct()
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Copied construct conditions cannot be applied to this message.";
         return false;
-    }    
+    }
 
     m_state.m_construct = std::move(newConstruct);
     return true;
@@ -1258,26 +1258,26 @@ bool ParseMessageImpl::parseCopyReadCond()
     auto iter = m_props.find(prop);
     if (iter == m_props.end()) {
         return true;
-    }  
+    }
 
     if (!m_protocol.parseIsPropertySupported(prop)) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << prop << "\" is not supported for dslVersion=" <<
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";
         return true;
-    }    
+    }
 
     auto* msg = m_protocol.parseFindMessage(iter->second);
     if (msg == nullptr) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Message referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
-        return false;        
+        return false;
     }
 
     if (!msg->m_state.m_readCond) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Message referenced by \"" << prop << "\" property (" + iter->second + ") does not specify read conditions.";
-        return false;        
+        return false;
     }
 
     auto newReadCond = msg->m_state.m_readCond->parseClone();
@@ -1285,7 +1285,7 @@ bool ParseMessageImpl::parseCopyReadCond()
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Copied read conditions cannot be applied to this message.";
         return false;
-    }    
+    }
 
     m_state.m_readCond = std::move(newReadCond);
     return true;
@@ -1301,14 +1301,14 @@ bool ParseMessageImpl::parseCopyValidCond()
     auto iter = m_props.find(prop);
     if (iter == m_props.end()) {
         return true;
-    }  
+    }
 
     if (!m_protocol.parseIsPropertySupported(prop)) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << prop << "\" is not supported for dslVersion=" <<
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";
         return true;
-    }    
+    }
 
     const ParseMessageImpl* msg = nullptr;
     const ParseBundleFieldImpl* bundle = nullptr;
@@ -1347,7 +1347,7 @@ bool ParseMessageImpl::parseCopyValidCond()
     if (srcCondPtr == nullptr) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Message / bundle referenced by \"" << prop << "\" property (" + iter->second + ") does not specify validity conditions.";
-        return false;        
+        return false;
     }
 
     auto newCond = srcCondPtr->parseClone();
@@ -1355,7 +1355,7 @@ bool ParseMessageImpl::parseCopyValidCond()
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Copied validity conditions cannot be applied to this message.";
         return false;
-    }    
+    }
 
     m_state.m_validCond = std::move(newCond);
     return true;
@@ -1394,10 +1394,10 @@ bool ParseMessageImpl::parseUpdateMultiConstruct()
     if (!parseVerifyConstructInternal(ParseOptCond(m_state.m_construct.get()))) {
         m_state.m_construct.reset();
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "Only \"" << common::parseAndStr() <<  
+            "Only \"" << common::parseAndStr() <<
             "\" of the bit checks and equality comparisons are supported in the \"" << common::parseConstructStr() << "\" element.";
         return false;
-    }    
+    }
 
     return true;
 }
@@ -1424,7 +1424,7 @@ bool ParseMessageImpl::parseUpdateMultiValidCond()
 
 bool ParseMessageImpl::parseCopyConstructToReadCond()
 {
-    return 
+    return
         parseCopyCondInternal(
             common::parseConstructAsReadCondStr(),
             common::parseConstructStr(),
@@ -1435,7 +1435,7 @@ bool ParseMessageImpl::parseCopyConstructToReadCond()
 
 bool ParseMessageImpl::parseCopyConstructToValidCond()
 {
-    return 
+    return
         parseCopyCondInternal(
             common::parseConstructAsValidCondStr(),
             common::parseConstructStr(),
@@ -1470,10 +1470,10 @@ bool ParseMessageImpl::parseUpdateSingleCondInternal(const std::string& prop, Pa
 
     if (!m_protocol.parseIsPropertySupported(prop)) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << prop << "\" is not supported for dslVersion=" <<
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";
         return true;
-    }          
+    }
 
     auto newCond = std::make_unique<ParseOptCondExprImpl>();
     if (!newCond->parse(iter->second, m_node, m_protocol)) {
@@ -1484,14 +1484,14 @@ bool ParseMessageImpl::parseUpdateSingleCondInternal(const std::string& prop, Pa
     auto* fieldsPtr = &NoFields;
     if (allowFieldsAccess) {
         fieldsPtr = &m_state.m_fields;
-    }    
+    }
 
     if (!newCond->parseVerify(*fieldsPtr, m_node, m_protocol)) {
         return false;
-    }   
+    }
 
     cond = std::move(newCond);
-    return true; 
+    return true;
 }
 
 bool ParseMessageImpl::parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond, bool allowFieldsAccess)
@@ -1503,14 +1503,14 @@ bool ParseMessageImpl::parseUpdateMultiCondInternal(const std::string& prop, Par
 
     if (!m_protocol.parseIsPropertySupported(prop)) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << prop << "\" is not supported for dslVersion=" <<
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";
         return true;
-    }      
+    }
 
     if (condNodes.size() > 1U) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "Cannot use more that one child to the \"" << prop << "\" element.";        
+            "Cannot use more that one child to the \"" << prop << "\" element.";
         return false;
     }
 
@@ -1522,9 +1522,9 @@ bool ParseMessageImpl::parseUpdateMultiCondInternal(const std::string& prop, Par
     auto condChildren = ParseXmlWrap::parseGetChildren(condNodes.front(), ElemNames);
     if (condChildren.size() != condNodes.size()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "Only single \"" << common::parseAndStr() << "\" or \"" << common::parseOrStr() << "\" child of the \"" << prop << "\" element is supported.";           
+            "Only single \"" << common::parseAndStr() << "\" or \"" << common::parseOrStr() << "\" child of the \"" << prop << "\" element is supported.";
         return false;
-    }    
+    }
 
     auto iter = parseProps().find(prop);
     if (iter != parseProps().end()) {
@@ -1547,7 +1547,7 @@ bool ParseMessageImpl::parseUpdateMultiCondInternal(const std::string& prop, Par
 
     if (!newCond->parseVerify(*fieldsPtr, condChildren.front(), m_protocol)) {
         return false;
-    }    
+    }
 
     cond = std::move(newCond);
     return true;
@@ -1555,8 +1555,8 @@ bool ParseMessageImpl::parseUpdateMultiCondInternal(const std::string& prop, Par
 
 bool ParseMessageImpl::parseCopyCondInternal(
     const std::string& copyProp,
-    const std::string& fromProp, 
-    const ParseOptCondImplPtr& fromCond, 
+    const std::string& fromProp,
+    const ParseOptCondImplPtr& fromCond,
     const std::string& toProp,
     ParseOptCondImplPtr& toCond,
     bool allowOverride)
@@ -1568,14 +1568,14 @@ bool ParseMessageImpl::parseCopyCondInternal(
     auto iter = m_props.find(copyProp);
     if (iter == m_props.end()) {
         return true;
-    }    
+    }
 
     if (!m_protocol.parseIsPropertySupported(copyProp)) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "The property \"" << copyProp << "\" is not supported for dslVersion=" << 
-                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << copyProp << "\" is not supported for dslVersion=" <<
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";
         return true;
-    }      
+    }
 
     bool ok = false;
     bool copyRequested = common::parseStrToBool(iter->second, &ok);
@@ -1590,18 +1590,18 @@ bool ParseMessageImpl::parseCopyCondInternal(
 
     if (!fromCond) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "No \"" << fromProp << "\" conditions were defined to copy.";           
-        return false;            
+            "No \"" << fromProp << "\" conditions were defined to copy.";
+        return false;
     }
 
     if (toCond && (!allowOverride)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "Set of the \"" << copyProp << "\" property overrides existing \"" << toProp << "\" setting.";          
+            "Set of the \"" << copyProp << "\" property overrides existing \"" << toProp << "\" setting.";
         return false;
     }
 
     toCond = fromCond->parseClone();
-    return true;    
+    return true;
 }
 
 } // namespace parse

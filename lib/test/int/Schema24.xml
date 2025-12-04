@@ -12,7 +12,7 @@
         <int name="Int2" type="uint64" length="5" units="rad" signExt="false">
             <scaling value="1/100000000000" />
             <serOffset value="314159265359" />
-        </int>        
+        </int>
     </fields>
-           
+
 </schema>

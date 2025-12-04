@@ -37,7 +37,7 @@ public:
 
 protected:
     // GenBase overrides
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
     // SwigBase overrides
     virtual std::string swigValueAccDeclImpl() const override;

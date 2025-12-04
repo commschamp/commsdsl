@@ -36,8 +36,8 @@ public:
     EmscriptenValueLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual bool emscriptenIsMainInterfaceSupportedImpl() const override;
-    virtual std::string emscriptenHeaderExtraFuncsImpl() const override;    
+    virtual bool emscriptenIsInterfaceSupportedImpl(const EmscriptenInterface& iFace) const override;
+    virtual std::string emscriptenHeaderExtraFuncsImpl() const override;
     virtual std::string emscriptenSourceExtraFuncsImpl() const override;
 };
 

@@ -31,7 +31,7 @@ class GenRefFieldImpl
 public:
     using ParseRefField = GenRefField::ParseRefField;
 
-    GenRefFieldImpl(GenGenerator& generator, ParseRefField parseObj): 
+    GenRefFieldImpl(GenGenerator& generator, ParseRefField parseObj):
         m_generator(generator),
         m_parseObj(parseObj)
     {
@@ -85,7 +85,7 @@ private:
     GenGenerator& m_generator;
     ParseRefField m_parseObj;
     GenField* m_referencedField = nullptr;
-};       
+};
 
 GenRefField::GenRefField(GenGenerator& generator, ParseField parseObj, GenElem* parent) :
     Base(generator, parseObj, parent),

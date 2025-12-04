@@ -161,7 +161,6 @@ void TestSuite::test4()
     TS_ASSERT_EQUALS(outMsg.field_f1(), inMsg4->field_f1());
 }
 
-
 void TestSuite::test5()
 {
     Msg5 outMsg;

@@ -57,7 +57,6 @@ namespace commsdsl
 namespace gen
 {
 
-
 class GenGeneratorImpl
 {
 public:
@@ -82,7 +81,7 @@ public:
     const GenLoggerPtr& genGetLogger() const
     {
         return m_logger;
-    }    
+    }
 
     void genSetLogger(GenLoggerPtr logger)
     {
@@ -127,9 +126,9 @@ public:
     unsigned genCurrentSchemaIdx() const
     {
         assert(m_currentSchema != nullptr);
-        auto iter = 
+        auto iter =
             std::find_if(
-                m_schemas.begin(), m_schemas.end(), 
+                m_schemas.begin(), m_schemas.end(),
                 [this](auto& sPtr)
                 {
                     return m_currentSchema == sPtr.get();
@@ -153,16 +152,60 @@ public:
         return m_minRemoteVersion;
     }
 
+    const std::string& genGetCodeVersion() const
+    {
+        return m_codeVersion;
+    }
+
+    void genSetCodeVersion(const std::string& value)
+    {
+        m_codeVersion = value;
+    }
+
+    void genSetMessagesListFile(const std::string& value)
+    {
+        m_messagesListFile = value;
+    }
+
+    const std::string& genGetMessagesListFile() const
+    {
+        return m_messagesListFile;
+    }
+
+    void genSetForcedPlatform(const std::string& value)
+    {
+        m_forcedPlatform = value;
+    }
+
+    const std::string& genGetForcedPlatform() const
+    {
+        return m_forcedPlatform;
+    }
+
+    void genSetForcedInterface(const std::string& value)
+    {
+        m_forcedInterfaceName = value;
+    }
+
+    const std::string& genGetForcedInterface() const
+    {
+        return m_forcedInterfaceName;
+    }
+
+    const GenInterface* genForcedInterface() const
+    {
+        return m_forcedInterface;
+    }
+
     GenInterfacesAccessList genGetAllInterfaces() const
     {
         return genCurrentSchema().genGetAllInterfaces();
-    }    
+    }
 
     GenNamespace* genAddDefaultNamespace()
     {
         return genCurrentSchema().genAddDefaultNamespace();
     }
-    
 
     void genSetNamespaceOverride(const std::string& value)
     {
@@ -276,7 +319,7 @@ public:
         }
 
         return parsedRef.first->genGindMessage(parsedRef.second);
-    }  
+    }
 
     GenMessage* genGindMessage(const std::string& externalRef)
     {
@@ -305,7 +348,7 @@ public:
         if (externalRef.empty()) {
             return genCurrentSchema().genFindInterface(externalRef);
         }
-        
+
         assert(!externalRef.empty());
         auto parsedRef = genParseExternalRef(externalRef);
         if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
@@ -313,7 +356,7 @@ public:
         }
 
         return parsedRef.first->genFindInterface(parsedRef.second);
-    }                
+    }
 
     using CreateCompleteFunc = std::function<bool ()>;
     bool genPrepare(const GenFilesList& files, CreateCompleteFunc createCompleteCb = CreateCompleteFunc())
@@ -366,7 +409,7 @@ public:
 
         assert(!m_schemas.empty());
         auto& protocolSchemaPtr = m_schemas.back();
-        
+
         protocolSchemaPtr->genSetMinRemoteVersion(m_minRemoteVersion);
         if (0 <= m_forcedSchemaVersion) {
             protocolSchemaPtr->genForceSchemaVersion(static_cast<unsigned>(m_forcedSchemaVersion));
@@ -382,18 +425,19 @@ public:
             if (!s->genCreateAll()) {
                 m_logger->genError("Failed to genCreate elements inside schema \"" + s->genParseObj().parseName() + "\"");
                 return false;
-            }       
-
-            if (m_allInterfacesReferencedByDefault) {
-                s->genSetAllInterfacesReferenced();
-            }                 
-
-            if (m_allMessagesReferencedByDefault) {
-                s->genSetAllMessagesReferenced();
             }
-        }   
-        
+        }
+
+        if ((!genReferenceRequestedInterfacesInternal()) ||
+            (!genReferenceRequestedMessagesInternal())) {
+            return false;
+        }
+
         if (createCompleteCb && (!createCompleteCb())) {
+            return false;
+        }
+
+        if (!genPrepareDefaultInterfaceInternal()) {
             return false;
         }
 
@@ -402,16 +446,11 @@ public:
             if (!s->genPrepare()) {
                 m_logger->genError("Failed to prepare elements inside schema \"" + s->genParseObj().parseName() + "\"");
                 return false;
-            }            
-        }               
-
+            }
+        }
 
         if (m_logger->genHadWarning()) {
             m_logger->genError("Warning treated as error");
-            return false;
-        }      
-        
-        if (!genPrepareDefaultInterfaceInternal()) {
             return false;
         }
 
@@ -431,7 +470,7 @@ public:
 
     bool genWasDirectoryCreated(const std::string& path) const
     {
-        auto iter = 
+        auto iter =
             std::find(m_createdDirectories.begin(), m_createdDirectories.end(), path);
 
         return iter != m_createdDirectories.end();
@@ -459,26 +498,6 @@ public:
         for (auto& sPtr : m_schemas) {
             sPtr->genSetAllInterfacesReferenced();
         }
-    }    
-
-    bool genGetAllMessagesReferencedByDefault() const
-    {
-        return m_allMessagesReferencedByDefault;
-    }
-
-    void genSetAllMessagesReferencedByDefault(bool value)
-    {
-        m_allMessagesReferencedByDefault = value;
-    }
-
-    bool genGetAllInterfacesReferencedByDefault() const
-    {
-        return m_allInterfacesReferencedByDefault;
-    }
-
-    void genSetAllInterfacesReferencedByDefault(bool value)
-    {
-        m_allInterfacesReferencedByDefault = value;
     }
 
 private:
@@ -501,7 +520,7 @@ private:
             restRef = externalRef.substr(dotPos + 1);
         }
 
-        auto iter = 
+        auto iter =
             std::find_if(
                 m_schemas.begin(), m_schemas.end(),
                 [&schemaName](auto& s)
@@ -522,15 +541,117 @@ private:
         if (!allInterfaces.empty()) {
             return true;
         }
-    
+
         auto* defaultNamespace = genAddDefaultNamespace();
         auto* interface = defaultNamespace->genAddDefaultInterface();
         if (interface == nullptr) {
             m_logger->genError("Failed to genCreate default interface");
             return false;
         }
-    
-        return true;        
+
+        return true;
+    }
+
+    bool genReferenceRequestedInterfacesInternal()
+    {
+        if (m_forcedInterfaceName.empty()) {
+            m_logger->genDebug("Referencing all interfaces.");
+            genReferenceAllInterfaces();
+            return true;
+        }
+
+        auto* iFace = const_cast<GenInterface*>(genFindInterface(m_forcedInterfaceName));
+        if (iFace == nullptr) {
+            m_logger->genError("Cannot find forced interface \"" + m_forcedInterfaceName + "\".");
+            return false;
+        }
+
+        iFace->genSetReferenced();
+        m_forcedInterface = iFace;
+        return true;
+    }
+
+    bool genReferenceRequestedMessagesInternal()
+    {
+        if ((m_messagesListFile.empty()) && (m_forcedPlatform.empty())) {
+            m_logger->genDebug("Referencing all messages.");
+            genReferenceAllMessages();
+            return true;
+        }
+
+        if ((!m_messagesListFile.empty()) && (!m_forcedPlatform.empty())) {
+            m_logger->genError("Cannot force platform messages together with explicit message list.");
+            return false;
+        }
+
+        if (!m_messagesListFile.empty()) {
+            return genProcessMessagesListFileInternal();
+        }
+
+        if (!m_forcedPlatform.empty()) {
+            return genProcessForcedPlatformInternal();
+        }
+
+        return true;
+    }
+
+    bool genProcessMessagesListFileInternal()
+    {
+        std::ifstream stream(m_messagesListFile);
+        if (!stream) {
+            m_logger->genError("Failed to open messages list file: \"" + m_messagesListFile + "\".");
+            return false;
+        }
+
+        std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
+        auto lines = util::genStrSplitByAnyChar(contents, "\n\r");
+
+        for (auto& l : lines) {
+            auto* m = genGindMessage(l);
+            if (m == nullptr) {
+                m_logger->genError("Failed to fined message \"" + l + "\" listed in \"" + m_messagesListFile + "\".");
+                return false;
+            }
+
+            m->genSetReferenced(true);
+        }
+
+        return true;
+    }
+
+    bool genProcessForcedPlatformInternal()
+    {
+        bool validPlatform = false;
+
+        assert(!m_forcedPlatform.empty());
+        for (auto& s : m_schemas) {
+            for (auto* m : s->genGetAllMessages()) {
+                assert(m != nullptr);
+                auto& schemaPlatforms = s->genParseObj().parsePlatforms();
+                auto iter = std::find(schemaPlatforms.begin(), schemaPlatforms.end(), m_forcedPlatform);
+                if (iter == schemaPlatforms.end()) {
+                    continue;
+                }
+
+                validPlatform = true;
+                auto& messagePlatforms = m->genParseObj().parsePlatforms();
+
+                bool messageSupported =
+                    (messagePlatforms.empty()) ||
+                    (std::find(messagePlatforms.begin(), messagePlatforms.end(), m_forcedPlatform) != messagePlatforms.end());
+
+                if (messageSupported) {
+                    const_cast<GenMessage*>(m)->genSetReferenced(true);
+                }
+            }
+        }
+
+        if (!validPlatform) {
+            m_logger->genError("Unknown platform: \"" + m_forcedPlatform + "\".");
+            return false;
+        }
+
+        return true;
     }
 
     GenGenerator& m_generator;
@@ -538,19 +659,22 @@ private:
     GenLoggerPtr m_logger;
     GenSchemasList m_schemas;
     GenSchema* m_currentSchema = nullptr;
+    const GenInterface* m_forcedInterface = nullptr;
     std::map<std::string, std::string> m_namespaceOverrides;
     std::string m_topNamespace;
     int m_forcedSchemaVersion = -1;
     unsigned m_minRemoteVersion = 0U;
+    std::string m_codeVersion;
     std::string m_outputDir;
     std::string m_codeDir;
+    std::string m_messagesListFile;
+    std::string m_forcedPlatform;
+    std::string m_forcedInterfaceName;
     mutable std::vector<std::string> m_createdDirectories;
     bool m_versionIndependentCodeForced = false;
-    bool m_allMessagesReferencedByDefault = true;
-    bool m_allInterfacesReferencedByDefault = true;
-}; 
+};
 
-GenGenerator::GenGenerator() : 
+GenGenerator::GenGenerator() :
     m_impl(std::make_unique<GenGeneratorImpl>(*this))
 {
 }
@@ -567,7 +691,7 @@ int GenGenerator::genExec(const GenProgramOptions& options)
     if (optsResult == commsdsl::gen::GenGenerator::OptsProcessResult_Failure) {
         return -1;
     }
-    
+
     auto files = options.genGetInputFiles();
     if (files.empty()) {
         genLogger().genError("No input files are provided");
@@ -575,13 +699,15 @@ int GenGenerator::genExec(const GenProgramOptions& options)
     }
 
     if (!genPrepare(files)) {
+        genLogger().genError("Failed to prepare data structures for code generation");
         return -1;
     }
 
     if (!genWrite()) {
+        genLogger().genError("Code generation failed");
         return -2;
     }
-    
+
     return 0;
 }
 
@@ -598,6 +724,67 @@ void GenGenerator::genSetMinRemoteVersion(unsigned value)
 unsigned GenGenerator::genGetMinRemoteVersion() const
 {
     return m_impl->genGetMinRemoteVersion();
+}
+
+const std::string& GenGenerator::genGetCodeVersion() const
+{
+    return m_impl->genGetCodeVersion();
+}
+
+std::vector<std::string> GenGenerator::genGetCodeVersionTokens() const
+{
+    std::vector<std::string> tokens;
+    auto codeVersion = genGetCodeVersion();
+    if (codeVersion.empty()) {
+        return tokens;
+    }
+
+    tokens = util::genStrSplitByAnyChar(codeVersion, ".");
+    while (tokens.size() < GenVersionIdx_NumOfValues) {
+        tokens.push_back("0");
+    }
+
+    return tokens;
+}
+
+void GenGenerator::genSetCodeVersion(const std::string& value)
+{
+    m_impl->genSetCodeVersion(value);
+}
+
+void GenGenerator::genSetMessagesListFile(const std::string& value)
+{
+    m_impl->genSetMessagesListFile(value);
+}
+
+const std::string& GenGenerator::genGetMessagesListFile() const
+{
+    return m_impl->genGetMessagesListFile();
+}
+
+void GenGenerator::genSetForcedPlatform(const std::string& value)
+{
+    m_impl->genSetForcedPlatform(value);
+}
+
+const std::string& GenGenerator::genGetForcedPlatform() const
+{
+    return m_impl->genGetForcedPlatform();
+}
+
+void GenGenerator::genSetForcedInterface(const std::string& value)
+{
+    m_impl->genSetForcedInterface(value);
+}
+
+const std::string& GenGenerator::genGetForcedInterface() const
+{
+    return m_impl->genGetForcedInterface();
+}
+
+const GenInterface* GenGenerator::genForcedInterface() const
+{
+    return m_impl->genForcedInterface();
 }
 
 void GenGenerator::genSetNamespaceOverride(const std::string& value)
@@ -668,12 +855,12 @@ GenField* GenGenerator::genFindField(const std::string& externalRef)
     do {
         if (field->genIsPrepared()) {
             break;
-        }    
+        }
 
         if (field->genPrepare()) {
             break;
         }
-         
+
         genLogger().genWarning("Failed to prepare field: " + field->genParseObj().parseExternalRef());
         field = nullptr;
     } while (false);
@@ -685,7 +872,7 @@ const GenMessage* GenGenerator::genGindMessage(const std::string& externalRef) c
     return m_impl->genGindMessage(externalRef);
 }
 
-GenMessage* GenGenerator::genGindMessage(const std::string& externalRef) 
+GenMessage* GenGenerator::genGindMessage(const std::string& externalRef)
 {
     auto* msg = m_impl->genGindMessage(externalRef);
     do {
@@ -810,7 +997,7 @@ GenGenerator::GenMessagesAccessList GenGenerator::genGetAllMessagesIdSortedFromA
 {
     auto result = genGetAllMessagesFromAllSchemas();
     genSortMessages(result);
-    return result;    
+    return result;
 }
 
 GenGenerator::GenFramesAccessList GenGenerator::genGetAllFramesFromAllSchemas() const
@@ -840,7 +1027,7 @@ bool GenGenerator::genPrepare(const GenFilesList& files)
     // Make sure the logger is created
     [[maybe_unused]] auto& l = genLogger();
 
-    auto createCompleteFunc = 
+    auto createCompleteFunc =
         [this]()
         {
             return genCreateCompleteImpl();
@@ -863,7 +1050,7 @@ bool GenGenerator::genWrite()
     if (!m_impl->genWrite()) {
         return false;
     }
-    
+
     return genWriteImpl();
 }
 
@@ -886,7 +1073,7 @@ bool GenGenerator::genIsElementOptional(
 bool GenGenerator::genIsElementDeprecated(unsigned deprecatedSince) const
 {
     return genCurrentSchema().genIsElementDeprecated(deprecatedSince);
-} 
+}
 
 GenLogger& GenGenerator::genLogger()
 {
@@ -900,10 +1087,10 @@ GenLogger& GenGenerator::genLogger()
         newLogger = GenGenerator::genCreateLoggerImpl();
         assert(newLogger);
     }
-    
+
     auto& logger = *newLogger;
     m_impl->genSetLogger(std::move(newLogger));
-    return logger;    
+    return logger;
 }
 
 const GenLogger& GenGenerator::genLogger() const
@@ -1040,45 +1227,45 @@ GenFieldPtr GenGenerator::genCreateVariantField(ParseField parseObj, GenElem* pa
     return genCreateVariantFieldImpl(parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateCustomLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateCustomLayer(ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Custom);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Custom);
     return genCreateCustomLayerImpl(parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateSyncLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateSyncLayer(ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Sync);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Sync);
     return genCreateSyncLayerImpl(parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateSizeLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateSizeLayer(ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Size);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Size);
     return genCreateSizeLayerImpl(parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateIdLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateIdLayer(ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Id);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Id);
     return genCreateIdLayerImpl(parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateValueLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateValueLayer(ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Value);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Value);
     return genCreateValueLayerImpl(parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreatePayloadLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreatePayloadLayer(ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Payload);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Payload);
     return genCreatePayloadLayerImpl(parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateChecksumLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateChecksumLayer(ParseLayer parseObj, GenElem* parent)
 {
-    assert(parseObj.parseKind() == commsdsl::parse::ParseLayer::ParseKind::Checksum);
+    assert(parseObj.parseKind() == ParseLayer::ParseKind::Checksum);
     return genCreateChecksumLayerImpl(parseObj, parent);
 }
 
@@ -1135,30 +1322,10 @@ void GenGenerator::genReferenceAllMessages()
     m_impl->genReferenceAllMessages();
 }
 
-bool GenGenerator::genGetAllMessagesReferencedByDefault() const
-{
-    return m_impl->genGetAllMessagesReferencedByDefault();
-}
-
-void GenGenerator::genSetAllMessagesReferencedByDefault(bool value)
-{
-    m_impl->genSetAllMessagesReferencedByDefault(value);
-}
-
 void GenGenerator::genReferenceAllInterfaces()
 {
     m_impl->genReferenceAllInterfaces();
 }
-
-bool GenGenerator::genGetAllInterfacesReferencedByDefault() const
-{
-    return m_impl->genGetAllInterfacesReferencedByDefault();
-}
-
-void GenGenerator::genSetAllInterfacesReferencedByDefault(bool value)
-{
-    m_impl->genSetAllInterfacesReferencedByDefault(value);
-}    
 
 GenGenerator::OptsProcessResult GenGenerator::genProcessOptions(const GenProgramOptions& options)
 {
@@ -1169,13 +1336,13 @@ GenGenerator::OptsProcessResult GenGenerator::genProcessOptions(const GenProgram
     }
 
     if (options.genVersionRequested()) {
-        std::cout << 
-            commsdsl::versionMajor() << '.' << 
+        std::cout <<
+            commsdsl::versionMajor() << '.' <<
             commsdsl::versionMinor() << '.' <<
             commsdsl::versionPatch() << std::endl;
         return OptsProcessResult_EarlyExit;
-    }    
-    
+    }
+
     auto& logger = genLogger();
     if (options.genQuietRequested() && options.genDebugRequested()) {
         logger.genError("Cannot use both --quiet and --debug options at the same time");
@@ -1188,7 +1355,7 @@ GenGenerator::OptsProcessResult GenGenerator::genProcessOptions(const GenProgram
 
     if (options.genDebugRequested()) {
         logger.genSetMinLevel(commsdsl::parse::ParseErrorLevel_Debug);
-    }        
+    }
 
     if (options.genWarnAsErrRequested()) {
         logger.genSetWarnAsError();
@@ -1196,7 +1363,7 @@ GenGenerator::OptsProcessResult GenGenerator::genProcessOptions(const GenProgram
 
     if (options.genHasNamespaceOverride()) {
         genSetNamespaceOverride(options.genGetNamespace());
-    }    
+    }
 
     if (options.genHasForcedSchemaVersion()) {
         genForceSchemaVersion(options.genGetForcedSchemaVersion());
@@ -1204,9 +1371,13 @@ GenGenerator::OptsProcessResult GenGenerator::genProcessOptions(const GenProgram
 
     genSetOutputDir(options.genGetOutputDirectory());
     genSetCodeDir(options.genGetCodeInputDirectory());
-    genSetMultipleSchemasEnabled(options.genMultipleSchemasEnabled());    
+    genSetMultipleSchemasEnabled(options.genMultipleSchemasEnabled());
     genSetMinRemoteVersion(options.genGetMinRemoteVersion());
-    
+    genSetCodeVersion(options.genGetCodeVersion());
+    genSetMessagesListFile(options.genMessagesListFile());
+    genSetForcedPlatform(options.genForcedPlatform());
+    genSetForcedInterface(options.genForcedInterface());
+
     return genProcessOptionsImpl(options);
 }
 
@@ -1305,37 +1476,37 @@ GenFieldPtr GenGenerator::genCreateVariantFieldImpl(ParseField parseObj, GenElem
     return std::make_unique<GenVariantField>(*this, parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateCustomLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateCustomLayerImpl(ParseLayer parseObj, GenElem* parent)
 {
     return std::make_unique<GenCustomLayer>(*this, parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateSyncLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateSyncLayerImpl(ParseLayer parseObj, GenElem* parent)
 {
     return std::make_unique<GenSyncLayer>(*this, parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateSizeLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateSizeLayerImpl(ParseLayer parseObj, GenElem* parent)
 {
     return std::make_unique<GenSizeLayer>(*this, parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateIdLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateIdLayerImpl(ParseLayer parseObj, GenElem* parent)
 {
     return std::make_unique<GenIdLayer>(*this, parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateValueLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateValueLayerImpl(ParseLayer parseObj, GenElem* parent)
 {
     return std::make_unique<GenValueLayer>(*this, parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreatePayloadLayerImpl(ParseLayer parseObj, GenElem* parent)
 {
     return std::make_unique<GenPayloadLayer>(*this, parseObj, parent);
 }
 
-GenLayerPtr GenGenerator::genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent)
+GenLayerPtr GenGenerator::genCreateChecksumLayerImpl(ParseLayer parseObj, GenElem* parent)
 {
     return std::make_unique<GenChecksumLayer>(*this, parseObj, parent);
 }
@@ -1367,6 +1538,11 @@ bool GenGenerator::genCopyExtraSourceFiles(const std::vector<std::string>& reser
         return true;
     }
 
+    if (!fs::exists(inputDir)) {
+        genLogger().genError("Input directory \"" + inputDir + "\" doesn't exist");
+        return false;
+    }
+
     auto& outputDir = genGetOutputDir();
     auto pos = inputDir.size();
     auto endIter = fs::recursive_directory_iterator();
@@ -1374,7 +1550,7 @@ bool GenGenerator::genCopyExtraSourceFiles(const std::vector<std::string>& reser
         if (!iter->is_regular_file()) {
             continue;
         }
-        
+
         auto srcPath = iter->path();
         auto ext = srcPath.extension().string();
 
@@ -1452,7 +1628,7 @@ bool GenGenerator::genCopyExtraSourceFiles(const std::vector<std::string>& reser
             genLogger().genInfo("Updated " + destStr + " to have proper main namespace.");
         }
     }
-    return true;    
+    return true;
 }
 
 } // namespace gen

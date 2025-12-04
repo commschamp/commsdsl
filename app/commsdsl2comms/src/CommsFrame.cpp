@@ -23,7 +23,6 @@
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
-
 #include <algorithm>
 #include <cassert>
 #include <fstream>
@@ -36,7 +35,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-namespace 
+namespace
 {
 
 bool commsHasIdLayerInternal(const CommsFrame::CommsLayersList& commsLayers)
@@ -59,19 +58,18 @@ bool commsHasIdLayerInternal(const CommsFrame::CommsLayersList& commsLayers)
     });
 }
 
-} // namespace 
-   
+} // namespace
 
 CommsFrame::CommsFrame(CommsGenerator& generator, ParseFrame parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent)
 {
-}   
+}
 
 CommsFrame::~CommsFrame() = default;
 
 std::string CommsFrame::commsDefaultOptions() const
 {
-    return 
+    return
         commsCustomizationOptionsInternal(
             &CommsLayer::commsDefaultOptions,
             false);
@@ -79,7 +77,7 @@ std::string CommsFrame::commsDefaultOptions() const
 
 std::string CommsFrame::commsDataViewDefaultOptions() const
 {
-    return 
+    return
         commsCustomizationOptionsInternal(
             &CommsLayer::commsDataViewDefaultOptions,
             true);
@@ -87,7 +85,7 @@ std::string CommsFrame::commsDataViewDefaultOptions() const
 
 std::string CommsFrame::commsBareMetalDefaultOptions() const
 {
-    return 
+    return
         commsCustomizationOptionsInternal(
             &CommsLayer::commsBareMetalDefaultOptions,
             true);
@@ -95,7 +93,7 @@ std::string CommsFrame::commsBareMetalDefaultOptions() const
 
 std::string CommsFrame::commsMsgFactoryDefaultOptions() const
 {
-    return 
+    return
         commsCustomizationOptionsInternal(
             &CommsLayer::commsMsgFactoryDefaultOptions,
             true);
@@ -119,7 +117,7 @@ bool CommsFrame::genPrepareImpl()
         m_commsLayers.push_back(const_cast<CommsLayer*>(commsLayer));
     }
 
-    m_hasCommonCode = 
+    m_hasCommonCode =
         std::any_of(
             m_commsLayers.begin(), m_commsLayers.end(),
             [](const auto* l)
@@ -133,7 +131,7 @@ bool CommsFrame::genPrepareImpl()
 
 bool CommsFrame::genWriteImpl() const
 {
-    return 
+    return
         commsWriteCommonInternal() &&
         commsWriteDefInternal();
 }
@@ -153,13 +151,13 @@ bool CommsFrame::commsWriteCommonInternal() const
     assert(!dirPath.empty());
     if (!gen.genCreateDirectory(dirPath)) {
         return false;
-    }    
+    }
 
     std::ofstream stream(filePath);
     if (!stream) {
         gen.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }     
+    }
 
     static const std::string Templ =
         "#^#GENERATED#$#\n"
@@ -190,11 +188,11 @@ bool CommsFrame::commsWriteCommonInternal() const
         {"LAYERS_SUFFIX", strings::genLayersSuffixStr()},
         {"COMMON_SUFFIX", strings::genCommonSuffixStr()},
         {"BODY", commsCommonBodyInternal()},
-    };      
+    };
 
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
-    return stream.good();      
+    return stream.good();
 }
 
 bool CommsFrame::commsWriteDefInternal() const
@@ -208,13 +206,13 @@ bool CommsFrame::commsWriteDefInternal() const
     assert(!dirPath.empty());
     if (!gen.genCreateDirectory(dirPath)) {
         return false;
-    }    
+    }
 
     std::ofstream stream(filePath);
     if (!stream) {
         gen.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }    
+    }
 
     auto inputCodePrefix = comms::genInputCodePathFor(*this, gen);
     auto replaceCode = util::genReadFileContents(inputCodePrefix + strings::genReplaceFileSuffixStr());
@@ -319,7 +317,7 @@ std::string CommsFrame::commsCommonIncludesInternal() const
         std::move(fIncludes.begin(), fIncludes.end(), std::back_inserter(includes));
     }
 
-    comms::genPrepareIncludeStatement(includes); 
+    comms::genPrepareIncludeStatement(includes);
     return util::genStrListToString(includes, "\n", "\n");
 }
 
@@ -357,7 +355,7 @@ std::string CommsFrame::commsDefIncludesInternal() const
         std::move(fIncludes.begin(), fIncludes.end(), std::back_inserter(includes));
     }
 
-    comms::genPrepareIncludeStatement(includes); 
+    comms::genPrepareIncludeStatement(includes);
     return util::genStrListToString(includes, "\n", "\n");
 }
 
@@ -385,7 +383,7 @@ std::string CommsFrame::commsDefLayersDefInternal() const
     };
 
     if (hasInputMessages) {
-        std::string stackParams = 
+        std::string stackParams =
             "template<typename TMessage, typename TAllMessages>";
         std::string lastLayerParams = "<TMessage, TAllMessages>";
         repl.insert({
@@ -443,7 +441,7 @@ std::string CommsFrame::commsDefAccessDocInternal() const
             auto accName = comms::genAccessName(l->commsGenLayer().genParseObj().parseName());
             return
                 "///     @li @b Layer_" + accName + " type and @b layer_" + accName + "() function\n"
-                "///         for @ref " + className + 
+                "///         for @ref " + className +
                 strings::genLayersSuffixStr() + "::" + comms::genClassName(l->commsGenLayer().genParseObj().parseName()) + " layer.";
         });
     return util::genStrListToString(lines, "\n", "");
@@ -469,7 +467,7 @@ std::string CommsFrame::commsDefProtectedInternal() const
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
     "protected:\n"
     "    #^#CODE#$#\n";
 
@@ -486,7 +484,7 @@ std::string CommsFrame::commsDefPrivateInternal() const
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
     "private:\n"
     "    #^#CODE#$#\n";
 
@@ -534,7 +532,7 @@ std::string CommsFrame::commsCustomizationOptionsInternal(
         repl["EXT"] = " : public TBase::" + comms::genScopeFor(*this, genGenerator(), hasMainNs) + strings::genLayersSuffixStr();
     }
 
-    return util::genProcessTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2comms

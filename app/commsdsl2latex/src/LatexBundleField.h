@@ -38,16 +38,16 @@ public:
     const LatexFieldsList& latexMemberFields() const
     {
         return m_latexFields;
-    }    
+    }
 
 protected:
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
     virtual std::string latexExtraDetailsImpl() const override;
 
 private:
-    LatexFieldsList m_latexFields;        
+    LatexFieldsList m_latexFields;
 };
 
 } // namespace commsdsl2latex

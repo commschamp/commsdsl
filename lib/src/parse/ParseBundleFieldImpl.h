@@ -50,13 +50,12 @@ public:
     ParseOptCond parseValidCond() const
     {
         return ParseOptCond(m_validCond.get());
-    }    
+    }
 
     const ParseOptCondImplPtr& parseValidCondImpl() const
     {
         return m_validCond;
-    }    
-
+    }
 
 protected:
 
@@ -88,11 +87,11 @@ private:
     bool parseCopyValidCond();
 
     bool parseUpdateSingleCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);
-    bool parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);    
+    bool parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);
 
     ParseFieldsList m_members;
     std::vector<ParseAliasImplPtr> m_aliases;
-    ParseOptCondImplPtr m_validCond;    
+    ParseOptCondImplPtr m_validCond;
 };
 
 } // namespace parse

@@ -43,7 +43,7 @@ protected:
     virtual std::string commsCustomDefMembersCodeImpl() const override;
     virtual std::string commsCustomFieldOptsImpl() const override;
     virtual std::string commsCustomFieldDataViewOptsImpl() const override;
-    virtual std::string commsCustomFieldBareMetalOptsImpl() const override;    
+    virtual std::string commsCustomFieldBareMetalOptsImpl() const override;
 };
 
 } // namespace commsdsl2comms

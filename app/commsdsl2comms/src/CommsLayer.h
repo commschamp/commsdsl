@@ -47,7 +47,7 @@ public:
     static const CommsLayer* commsCast(const GenLayer* layer)
     {
         return dynamic_cast<const CommsLayer*>(layer);
-    }    
+    }
 
     bool commsPrepare();
 
@@ -77,19 +77,18 @@ public:
     const CommsField* commsMemberField() const
     {
         return m_commsMemberField;
-    }   
+    }
 
     CommsField* commsMemberField()
     {
         return m_commsMemberField;
-    }     
-
+    }
 
 protected:
     virtual CommsIncludesList commsDefIncludesImpl() const;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const;
     virtual bool commsDefHasInputMessagesImpl() const;
-    virtual GenStringsList commsDefExtraOptsImpl() const; 
+    virtual GenStringsList commsDefExtraOptsImpl() const;
     virtual bool commsIsCustomizableImpl() const;
     virtual GenStringsList commsExtraDataViewDefaultOptionsImpl() const;
     virtual GenStringsList commsExtraBareMetalDefaultOptionsImpl() const;
@@ -110,15 +109,15 @@ private:
     std::string commsDefMembersCodeInternal() const;
     std::string commsDefDocInternal() const;
     std::string commsCustomizationOptionsInternal(
-        CommsFieldOptsFunc fieldOptsFunc, 
+        CommsFieldOptsFunc fieldOptsFunc,
         CommsExtraLayerOptsFunc extraLayerOptsFunc,
         bool hasBase,
-        const std::string& customFieldOpts) const;  
+        const std::string& customFieldOpts) const;
 
     GenStringsList commsExtraDataViewDefaultOptionsInternal() const;
     GenStringsList commsExtraBareMetalDefaultOptionsInternal() const;
     GenStringsList commsExtraMsgFactoryDefaultOptionsInternal() const;
-    
+
     GenLayer& m_genLayer;
     CommsField* m_commsExternalField = nullptr;
     CommsField* m_commsMemberField = nullptr;

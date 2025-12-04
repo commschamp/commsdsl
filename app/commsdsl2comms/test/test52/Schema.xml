@@ -36,7 +36,7 @@
 
         <message name="Msg2" id="0" order="1">
             <int name="F1" type="uint32" />
-        </message>        
+        </message>
 
         <frame name="Frame">
             <id name="Id">
@@ -44,7 +44,7 @@
             </id>
             <payload name="Data" />
         </frame>
-    </ns>    
+    </ns>
 
     <!--interface name="Interface" /-->
 </schema>

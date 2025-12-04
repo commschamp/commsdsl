@@ -44,8 +44,7 @@ bool GenCustomLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool& s
 {
     auto obj = genCustomLayerParseObj();
     if (obj.parseSemanticLayerType() != ParseLayer::ParseKind::Checksum) {
-        success = true;
-        return false;
+        return Base::genForceCommsOrderImpl(layers, success);
     }
 
     auto iter =
@@ -61,7 +60,7 @@ bool GenCustomLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool& s
         assert(Should_not_happen);
         success = false;
         return false;
-    }    
+    }
 
     auto& untilStr = obj.parseChecksumUntilLayer();
     if (!untilStr.empty()) {
@@ -89,7 +88,7 @@ bool GenCustomLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool& s
 
         success = true;
         return false;
-    }   
+    }
 
     auto& fromStr = obj.parseChecksumFromLayer();
     if (fromStr.empty()) {
@@ -108,13 +107,12 @@ bool GenCustomLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool& s
                 return l->genParseObj().parseName() == fromStr;
             });
 
-
     if (fromIter == layers.end()) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         success = false;
         return false;
-    }            
+    }
 
     auto iterTmp = iter;
     std::advance(iterTmp, 1U);
@@ -128,7 +126,7 @@ bool GenCustomLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool& s
     layers.erase(iter);
     layers.insert(fromIter, std::move(thisPtr));
     success = true;
-    return true;         
+    return true;
 
 }
 

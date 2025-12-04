@@ -5,11 +5,11 @@
             <validValue name="M1" val="0" />
         </enum>
     </fields>
-    
+
     <message name="Msg1" id="MsgId.M1">
         <int name="F1" type="uint8"/>
     </message>
-    
+
 	<frame name="Frame">
         <sync name="Sync">
             <int name="Sync" type="uint16" defaultValue="0xabcd" validValue="0xabcd" failOnInvalid="true"/>
@@ -22,5 +22,5 @@
 		<checksum name="Checksum" alg="xor " from="Size">
             <int name="Checksum" type="uint16" />
         </checksum>
-    </frame>      
+    </frame>
 </schema>

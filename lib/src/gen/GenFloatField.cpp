@@ -97,7 +97,7 @@ public:
                 }
 
                 return compNames();
-            });   
+            });
 
         return true;
     }
@@ -109,7 +109,7 @@ public:
 
 private:
     GenSpecialsList m_specialsSorted;
-};       
+};
 
 GenFloatField::GenFloatField(GenGenerator& generator, ParseField parseObj, GenElem* parent) :
     Base(generator, parseObj, parent),
@@ -144,7 +144,7 @@ GenFloatField::GenFieldRefInfo GenFloatField::genProcessInnerRefImpl(const std::
         info.m_refType = FieldRefType_InnerValue;
     }
 
-    return info;    
+    return info;
 }
 
 GenFloatField::ParseFloatField GenFloatField::genFloatFieldParseObj() const

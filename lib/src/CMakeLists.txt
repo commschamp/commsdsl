@@ -2,12 +2,12 @@ set (INTERNAL_LIBXML_TGT)
 
 while (TRUE)
     if (NOT COMMSDSL_FORCE_INTERNAL_LIBXML_BUILD)
-        find_package(LibXml2 QUIET) 
+        find_package(LibXml2 QUIET)
         if (LIBXML2_FOUND)
             # Find again just to display info
-            find_package(LibXml2 REQUIRED) 
+            find_package(LibXml2 REQUIRED)
             break()
-        endif ()    
+        endif ()
     endif ()
 
     set (INTERNAL_LIBXML_TGT "libxml2_tgt")
@@ -18,11 +18,11 @@ while (TRUE)
     set (LIBXML2_LIB_NAME libxml2.a)
     if (WIN32)
         set (LIBXML2_LIB_NAME libxml2sd.lib)
-        if (("${CMAKE_BUILD_TYPE}" STREQUAL "Release") OR 
+        if (("${CMAKE_BUILD_TYPE}" STREQUAL "Release") OR
             ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel") OR
             ("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo"))
             set (LIBXML2_LIB_NAME libxml2s.lib)
-        endif ()          
+        endif ()
     endif ()
 
     include(ExternalProject)
@@ -38,7 +38,7 @@ while (TRUE)
         CMAKE_GENERATOR_PLATFORM ${CMAKE_GENERATOR_PLATFORM}
         CMAKE_GENERATOR_TOOLSET ${CMAKE_GENERATOR_TOOLSET}
         CMAKE_ARGS
-            -DCMAKE_INSTALL_PREFIX=${LIBXML2_INSTALL_DIR} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
+            -DCMAKE_INSTALL_PREFIX=${LIBXML2_INSTALL_DIR} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DBUILD_SHARED_LIBS=OFF -DLIBXML2_WITH_HTTP=OFF
             -DLIBXML2_WITH_ICONV=OFF -DLIBXML2_WITH_PROGRAMS=OFF -DLIBXML2_WITH_PYTHON=OFF
             -DLIBXML2_WITH_TESTS=OFF -DLIBXML2_WITH_THREADS=OFF
@@ -88,7 +88,7 @@ endif ()
 set (
     parse_src
     "parse/ParseAlias.cpp"
-    "parse/ParseAliasImpl.cpp"    
+    "parse/ParseAliasImpl.cpp"
     "parse/ParseBitfieldField.cpp"
     "parse/ParseBitfieldFieldImpl.cpp"
     "parse/ParseBundleField.cpp"
@@ -203,7 +203,7 @@ target_include_directories(${PROJECT_NAME}
 
 target_compile_options(${PROJECT_NAME} PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>: /wd4251>
-) 
+)
 
 if (COMMSDSL_INSTALL_LIBRARY)
     install(
@@ -234,7 +234,7 @@ if (COMMSDSL_INSTALL_LIBRARY_HEADERS)
     )
 
     install(
-        EXPORT LibCommsdslTargets 
+        EXPORT LibCommsdslTargets
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/LibCommsdsl/cmake/
         NAMESPACE cc::
     )
@@ -244,10 +244,10 @@ if (COMMSDSL_INSTALL_LIBRARY_HEADERS)
         ${CMAKE_BINARY_DIR}/LibCommsdslConfigVersion.cmake
         VERSION ${COMMSDSL_VERSION}
         COMPATIBILITY AnyNewerVersion)
-        
+
     install (
         FILES ${CMAKE_BINARY_DIR}/LibCommsdslConfigVersion.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/LibCommsdsl/cmake/
-    )     
+    )
 endif ()
-   
+

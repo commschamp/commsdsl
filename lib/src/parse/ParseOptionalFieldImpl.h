@@ -47,12 +47,12 @@ public:
     bool parseMissingOnReadFail() const
     {
         return m_state.m_missingOnReadFail;
-    }  
+    }
 
     bool parseMissingOnInvalid() const
     {
         return m_state.m_missingOnInvalid;
-    }      
+    }
 
     bool parseHasField() const
     {
@@ -119,7 +119,6 @@ private:
     bool parseStrToValue(
         const std::string& ref,
         ParseStrToValueFieldConvertFunc&& forwardFunc) const;
-
 
     struct ParseState
     {

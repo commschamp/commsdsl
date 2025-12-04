@@ -28,6 +28,7 @@
 #include "commsdsl/parse/ParseEndian.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace commsdsl
@@ -46,6 +47,7 @@ public:
     using ParseMessage = commsdsl::parse::ParseMessage;
     using ParseFrame = commsdsl::parse::ParseFrame;
     using ParseField = commsdsl::parse::ParseField;
+    using ParseLayer = commsdsl::parse::ParseLayer;
 
     using GenFilesList = std::vector<std::string>;
     using GenLoggerPtr = std::unique_ptr<GenLogger>;
@@ -67,6 +69,14 @@ public:
         OptsProcessResult_NumOfValues
     };
 
+    enum GenVersionIdx
+    {
+        GenVersionIdx_Major,
+        GenVersionIdx_Minor,
+        GenVersionIdx_Patch,
+        GenVersionIdx_NumOfValues
+    };
+
     GenGenerator();
     virtual ~GenGenerator();
 
@@ -75,7 +85,17 @@ public:
     void genForceSchemaVersion(unsigned value);
     void genSetMinRemoteVersion(unsigned value);
     unsigned genGetMinRemoteVersion() const;
-    void genSetNamespaceOverride(const std::string& value);    
+    const std::string& genGetCodeVersion() const;
+    std::vector<std::string> genGetCodeVersionTokens() const;
+    void genSetCodeVersion(const std::string& value);
+    void genSetMessagesListFile(const std::string& value);
+    const std::string& genGetMessagesListFile() const;
+    void genSetForcedPlatform(const std::string& value);
+    const std::string& genGetForcedPlatform() const;
+    void genSetForcedInterface(const std::string& value);
+    const std::string& genGetForcedInterface() const;
+    const GenInterface* genForcedInterface() const;
+    void genSetNamespaceOverride(const std::string& value);
 
     void genSetTopNamespace(const std::string& value);
     const std::string& genGetTopNamespace() const;
@@ -84,12 +104,12 @@ public:
     const std::string& genGetOutputDir() const;
 
     void genSetCodeDir(const std::string& dir);
-    const std::string& genGetCodeDir() const;   
+    const std::string& genGetCodeDir() const;
 
     void genSetMultipleSchemasEnabled(bool enabled);
     bool genGetMultipleSchemasEnabled() const;
 
-    void genSetVersionIndependentCodeForced(bool value = true); 
+    void genSetVersionIndependentCodeForced(bool value = true);
     bool genGetVersionIndependentCodeForced() const;
 
     const GenField* genFindField(const std::string& externalRef) const;
@@ -113,7 +133,7 @@ public:
     GenMessagesAccessList genGetAllMessagesFromAllSchemas() const;
     GenMessagesAccessList genGetAllMessagesIdSortedFromAllSchemas() const;
     GenFramesAccessList genGetAllFramesFromAllSchemas() const;
-    GenFieldsAccessList genGetAllFieldsFromAllSchemas() const;    
+    GenFieldsAccessList genGetAllFieldsFromAllSchemas() const;
 
     bool genPrepare(const GenFilesList& files);
     bool genWrite();
@@ -138,7 +158,7 @@ public:
     GenSchema& genCurrentSchema();
     const GenSchema& genCurrentSchema() const;
     GenSchema& genProtocolSchema();
-    const GenSchema& genProtocolSchema() const;    
+    const GenSchema& genProtocolSchema() const;
     bool genIsCurrentProtocolSchema() const;
 
     GenSchemaPtr genCreateSchema(ParseSchema parseObj, GenElem* parent = nullptr);
@@ -160,13 +180,13 @@ public:
     GenFieldPtr genCreateOptionalField(ParseField parseObj, GenElem* parent);
     GenFieldPtr genCreateVariantField(ParseField parseObj, GenElem* parent);
 
-    GenLayerPtr genCreateCustomLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreateSyncLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreateSizeLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreateIdLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreateValueLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreatePayloadLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreateChecksumLayer(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateCustomLayer(ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateSyncLayer(ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateSizeLayer(ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateIdLayer(ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateValueLayer(ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreatePayloadLayer(ParseLayer parseObj, GenElem* parent);
+    GenLayerPtr genCreateChecksumLayer(ParseLayer parseObj, GenElem* parent);
 
     unsigned genCurrentSchemaIdx() const;
     void genChooseCurrentSchema(unsigned idx);
@@ -177,12 +197,8 @@ public:
     bool genCreateDirectory(const std::string& path) const;
 
     void genReferenceAllMessages();
-    bool genGetAllMessagesReferencedByDefault() const;
-    void genSetAllMessagesReferencedByDefault(bool value = true);
 
     void genReferenceAllInterfaces();
-    bool genGetAllInterfacesReferencedByDefault() const;
-    void genSetAllInterfacesReferencedByDefault(bool value = true);    
 
     OptsProcessResult genProcessOptions(const GenProgramOptions& options);
 
@@ -209,13 +225,13 @@ protected:
     virtual GenFieldPtr genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent);
     virtual GenFieldPtr genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent);
 
-    virtual GenLayerPtr genCreateCustomLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreateSyncLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreateSizeLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreateIdLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreateValueLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateCustomLayerImpl(ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateSyncLayerImpl(ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateSizeLayerImpl(ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateIdLayerImpl(ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateValueLayerImpl(ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreatePayloadLayerImpl(ParseLayer parseObj, GenElem* parent);
+    virtual GenLayerPtr genCreateChecksumLayerImpl(ParseLayer parseObj, GenElem* parent);
 
     virtual bool genWriteImpl();
     virtual GenLoggerPtr genCreateLoggerImpl();
@@ -227,7 +243,7 @@ protected:
     bool genCopyExtraSourceFiles(const std::vector<std::string>& reservedExtensions) const;
 
 private:
-    std::unique_ptr<GenGeneratorImpl> m_impl;    
+    std::unique_ptr<GenGeneratorImpl> m_impl;
 };
 
 } // namespace gen

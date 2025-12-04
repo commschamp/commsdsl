@@ -15,20 +15,26 @@ function (test_func name)
         file(GLOB extra_bundle_files ${test_dir}/extra/*)
         string (REPLACE ";" "," extra_bundle_param_value "${extra_bundle_files}")
         set (extra_bundle_param --extra-messages-bundle "${extra_bundle_param_value}")
-    endif()    
+    endif()
+
+    set (extra_params)
+    if (EXISTS "${test_dir}/commsdsl2comms.params")
+        file (READ "${test_dir}/commsdsl2comms.params" extra_params_str)
+        string (REPLACE " " ";" extra_params "${extra_params_str}")
+    endif ()
 
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
     add_custom_target(${output_tgt} ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
-        COMMAND $<TARGET_FILE:${APP_NAME}> -d -s --warn-as-err -o ${output_dir}.tmp ${code_input_param} ${extra_bundle_param} ${schema_files}
+        COMMAND $<TARGET_FILE:${APP_NAME}> -d -s --warn-as-err -o ${output_dir}.tmp ${code_input_param} ${extra_bundle_param} ${extra_params} ${schema_files}
         COMMAND ${CMAKE_COMMAND}
-            -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="doc\;include" 
+            -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="doc\;include"
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
         DEPENDS "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_files} $<TARGET_FILE:${APP_NAME}>)
 
     if ("${CMAKE_VERSION}" VERSION_GREATER_EQUAL 3.15)
         set_target_properties(${output_tgt} PROPERTIES ADDITIONAL_CLEAN_FILES "${output_dir}.tmp;${output_dir}")
-    endif ()      
+    endif ()
 
     set (build_tgt ${APP_NAME}.${name}_build_tgt)
     set (build_dir ${output_dir}_build)
@@ -38,10 +44,10 @@ function (test_func name)
         COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
 
     execute_process (
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}/include")        
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}/include")
 
     execute_process (
-        COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/include/dummy.txt")               
+        COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/include/dummy.txt")
 
     ExternalProject_Add(
         ${build_tgt}
@@ -51,16 +57,17 @@ function (test_func name)
         BINARY_DIR ${build_dir}
         CMAKE_GENERATOR ${CMAKE_GENERATOR}
         CMAKE_GENERATOR_PLATFORM ${CMAKE_GENERATOR_PLATFORM}
-        CMAKE_GENERATOR_TOOLSET ${CMAKE_GENERATOR_TOOLSET}        
+        CMAKE_GENERATOR_TOOLSET ${CMAKE_GENERATOR_TOOLSET}
+        CMAKE_GENERATOR_INSTANCE ${CMAKE_GENERATOR_INSTANCE}
         LIST_SEPARATOR |
-        CMAKE_ARGS 
+        CMAKE_ARGS
             -DCMAKE_C_COMPILER=${COMMSDSL_TESTS_C_COMPILER} -DCMAKE_CXX_COMPILER=${COMMSDSL_TESTS_CXX_COMPILER}
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_EXE_LINKER_FLAGS=${CMAKE_EXE_LINKER_FLAGS}
             -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
             -DCMAKE_INSTALL_PREFIX=${install_dir}
             -DOPT_REQUIRE_COMMS_LIB=OFF
-    )          
+    )
 
     if (COMMSDSL_TEST_BUILD_DOC AND DOXYGEN_FOUND)
         ExternalProject_Add_Step(
@@ -70,13 +77,13 @@ function (test_func name)
             DEPENDEES "build"
             DEPENDERS "install"
         )
-    endif ()    
+    endif ()
 
-    add_dependencies(${APP_NAME}.all_tests ${build_tgt})  
+    add_dependencies(${APP_NAME}.all_tests ${build_tgt})
 
     if (NOT COMMSDSL_BUILD_COMMSDSL2COMMS_TESTS)
         return()
-    endif ()   
+    endif ()
 
     set (tests "${test_dir}/${name}Test.th")
 
@@ -88,7 +95,7 @@ function (test_func name)
     endif ()
 
     cc_cxxtest_add_test(NAME ${testName} SRC ${tests} ${valgrand_opt})
-    add_dependencies(${APP_NAME}.all_tests ${testName})     
+    add_dependencies(${APP_NAME}.all_tests ${testName})
 
     add_dependencies(${testName} ${build_tgt})
     target_include_directories (${testName} PRIVATE "${install_dir}/include")
@@ -97,14 +104,14 @@ function (test_func name)
         $<$<CXX_COMPILER_ID:MSVC>:/bigobj>
         $<$<CXX_COMPILER_ID:GNU>:-Wno-old-style-cast -ftemplate-depth=2048 ${COMMSDSL_SANITIZER_OPTS}>
         $<$<CXX_COMPILER_ID:Clang>:-Wno-old-style-cast -ftemplate-depth=2048 ${COMMSDSL_SANITIZER_OPTS}>
-    )    
+    )
 
     if (NOT "${COMMSDSL_SANITIZER_OPTS}" STREQUAL "")
         target_link_options(${testName} PRIVATE
             $<$<CXX_COMPILER_ID:GNU>:${COMMSDSL_SANITIZER_OPTS}>
             $<$<CXX_COMPILER_ID:Clang>:${COMMSDSL_SANITIZER_OPTS}>
-        ) 
-    endif ()    
+        )
+    endif ()
 
 endfunction ()
 
@@ -112,7 +119,7 @@ endfunction ()
 
 if (NOT BUILD_TESTING)
     return ()
-endif () 
+endif ()
 
 find_package(LibComms REQUIRED)
 
@@ -122,9 +129,9 @@ set (COMMSDSL_SANITIZER_OPTS)
 if (COMMSDSL_TEST_USE_SANITIZERS AND
     (NOT COMMSDSL_BUILD_WITH_SANITIZERS) AND
     ((CMAKE_COMPILER_IS_GNUCC) OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")))
-    set (COMMSDSL_SANITIZER_OPTS 
-        -fno-omit-frame-pointer 
-        -fno-sanitize-recover=address 
+    set (COMMSDSL_SANITIZER_OPTS
+        -fno-omit-frame-pointer
+        -fno-sanitize-recover=address
         -fsanitize=address
         -fno-sanitize-recover=undefined
         -fsanitize=undefined)

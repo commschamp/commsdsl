@@ -111,7 +111,7 @@ public:
     const std::string& parseDisplayName() const
     {
         return m_displayName;
-    }    
+    }
 
     const std::string& parseDescription() const
     {

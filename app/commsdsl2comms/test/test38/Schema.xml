@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema name="test38" endian="big" dslVersion="6">
     <fields>
-        
+
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
@@ -21,9 +21,9 @@
             <validValue name="V0" val="0" />
             <validValue name="V1" val="1" />
             <validValue name="V2" val="2" />
-        </enum>        
+        </enum>
     </fields>
-    
+
     <interface name="Message">
         <fields>
             <bitfield name="Flags">
@@ -36,13 +36,13 @@
                     <validValue name="V1" val="1" />
                     <validValue name="V2" val="2" />
                 </enum>
-            </bitfield>    
+            </bitfield>
         </fields>
         <alias name="F" field="$Flags" />
-        <alias name="B" field="$Flags.B" />        
+        <alias name="B" field="$Flags.B" />
         <alias name="E" field="$Flags.E" />
     </interface>
-    
+
 	<frame name="Frame">
         <size name="Size">
             <int name="Size" type="uint16" />
@@ -59,11 +59,11 @@
                     <validValue name="V1" val="1" />
                     <validValue name="V2" val="2" />
                 </enum>
-            </bitfield>    
+            </bitfield>
         </value>
         <payload name="Data" />
-    </frame>      
-    
+    </frame>
+
     <message name="Msg1" id="MsgId.M1" />
 
     <message name="Msg2" id="MsgId.M2">
@@ -72,10 +72,10 @@
         </optional>
         <optional name="F2" cond="!%Flags.B.B1" defaultMode="exists">
             <int name="ActF2" type="uint8" />
-        </optional>    
+        </optional>
         <optional name="F3" cond="%Flags.E != 0" defaultMode="missing">
             <int name="ActF3" type="uint8" />
-        </optional>            
+        </optional>
     </message>
 
     <message name="Msg3" id="MsgId.M3" constructAsReadCond="true" constructAsValidCond="true" failOnInvalid="true">
@@ -96,7 +96,7 @@
                 <construct value="%Flags.E = SomeEnum.V1" />
             </and>
         </construct>
-    </message>    
+    </message>
 
     <message name="Msg5" id="MsgId.M5" construct="%Flags.B.B1" failOnInvalid="true">
         <fields>
@@ -112,7 +112,7 @@
                 </or>
             </and>
         </validCond>
-    </message>   
+    </message>
 
     <message name="Msg6" id="MsgId.M6" failOnInvalid="true" constructAsValidCond="true">
         <fields>
@@ -121,7 +121,7 @@
             </optional>
             <optional name="F2" defaultMode="exists" cond="%Flags.B.B1">
                 <int name="ActF2" type="uint8" />
-            </optional>            
+            </optional>
         </fields>
         <construct>
             <and>
@@ -129,6 +129,6 @@
                 <construct value="%Flags.B.B1" />
             </and>
         </construct>
-    </message>        
+    </message>
 
 </schema>

@@ -80,7 +80,7 @@ const ParseXmlWrap::ParseNamesList& ParseBitfieldFieldImpl::parseSupportedTypes(
         common::parseRefStr()
     };
 
-    return Names;    
+    return Names;
 }
 
 ParseFieldImpl::ParseKind ParseBitfieldFieldImpl::parseKindImpl() const
@@ -135,7 +135,7 @@ bool ParseBitfieldFieldImpl::parseReuseImpl(const ParseFieldImpl& other)
 
     if (castedOther.m_validCond) {
         m_validCond = castedOther.m_validCond->parseClone();
-    }      
+    }
     return true;
 }
 
@@ -153,7 +153,7 @@ bool ParseBitfieldFieldImpl::parseReplaceMembersImpl(ParseFieldsList& members)
 {
     for (auto& mem : members) {
         assert(mem);
-        auto iter = 
+        auto iter =
             std::find_if(
                 m_members.begin(), m_members.end(),
                 [&mem](auto& currMem)
@@ -211,7 +211,7 @@ bool ParseBitfieldFieldImpl::parseStrToBoolImpl(const std::string& ref, bool& va
 bool ParseBitfieldFieldImpl::parseVerifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, ParseSemanticType type) const
 {
     if ((type == ParseSemanticType::Length) &&
-        (parseProtocol().parseIsSemanticTypeLengthSupported()) && 
+        (parseProtocol().parseIsSemanticTypeLengthSupported()) &&
         (parseProtocol().parseIsNonIntSemanticTypeLengthSupported())) {
         return true;
     }
@@ -411,7 +411,6 @@ bool ParseBitfieldFieldImpl::parseUpdateMultiValidCond()
     return parseUpdateMultiCondInternal(common::parseValidCondStr(), m_validCond);
 }
 
-
 bool ParseBitfieldFieldImpl::parseCopyValidCond()
 {
     auto& prop = common::parseCopyValidCondFromStr();
@@ -426,41 +425,41 @@ bool ParseBitfieldFieldImpl::parseCopyValidCond()
 
     if (!parseProtocol().parseIsPropertySupported(prop)) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                parseProtocol().parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << prop << "\" is not supported for dslVersion=" <<
+                parseProtocol().parseCurrSchema().parseDslVersion() << ".";
         return true;
-    }  
+    }
 
     auto* field = parseProtocol().parseFindField(copySrc);
     if (field == nullptr) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Field referenced by \"" << prop << "\" property (" + copySrc + ") is not found.";
-        return false;        
-    }     
+        return false;
+    }
 
     if (field->parseKind() != parseKind()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Cannot reference field of other cond in property \"" << prop << "\".";
         return false;
-    }      
+    }
 
     if (m_validCond) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "Cannot use \"" << prop << "\" property when the validity condition is copied from other field by other means";        
+            "Cannot use \"" << prop << "\" property when the validity condition is copied from other field by other means";
         return false;
     }
 
     auto* other = static_cast<const ParseBitfieldFieldImpl*>(field);
     if (!other->m_validCond) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "Field referenced by the \"" << prop << "\" property (" << copySrc << ") does not specify any validity conditions";        
+            "Field referenced by the \"" << prop << "\" property (" << copySrc << ") does not specify any validity conditions";
         return true;
     }
 
     m_validCond = other->m_validCond->parseClone();
     if (!m_validCond->parseVerify(m_members, parseGetNode(), parseProtocol())) {
         return false;
-    }   
+    }
 
     return true;
 }
@@ -478,10 +477,10 @@ bool ParseBitfieldFieldImpl::parseUpdateSingleCondInternal(const std::string& pr
 
     if (!parseProtocol().parseIsValidCondSupportedInCompositeFields()) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The property \"" << prop << "\" is not supported for <bitfield> field in dslVersion=" << 
-                parseProtocol().parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << prop << "\" is not supported for <bitfield> field in dslVersion=" <<
+                parseProtocol().parseCurrSchema().parseDslVersion() << ".";
         return true;
-    }          
+    }
 
     auto newCond = std::make_unique<ParseOptCondExprImpl>();
     if (!newCond->parse(iter->second, parseGetNode(), parseProtocol())) {
@@ -490,16 +489,16 @@ bool ParseBitfieldFieldImpl::parseUpdateSingleCondInternal(const std::string& pr
 
     if (newCond->parseHasInterfaceReference()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The condition \"" << prop << "\" in fields cannot reference interface fields.";           
+            "The condition \"" << prop << "\" in fields cannot reference interface fields.";
         return false;
     }
 
     if (!newCond->parseVerify(m_members, parseGetNode(), parseProtocol())) {
         return false;
-    }   
+    }
 
     cond = std::move(newCond);
-    return true; 
+    return true;
 }
 
 bool ParseBitfieldFieldImpl::parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond)
@@ -511,14 +510,14 @@ bool ParseBitfieldFieldImpl::parseUpdateMultiCondInternal(const std::string& pro
 
     if (!parseProtocol().parseIsValidCondSupportedInCompositeFields()) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The property \"" << prop << "\" is not supported for <bitfield> field in dslVersion=" << 
-                parseProtocol().parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << prop << "\" is not supported for <bitfield> field in dslVersion=" <<
+                parseProtocol().parseCurrSchema().parseDslVersion() << ".";
         return true;
-    }      
+    }
 
     if (condNodes.size() > 1U) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "Cannot use more that one child to the \"" << prop << "\" element.";        
+            "Cannot use more that one child to the \"" << prop << "\" element.";
         return false;
     }
 
@@ -530,9 +529,9 @@ bool ParseBitfieldFieldImpl::parseUpdateMultiCondInternal(const std::string& pro
     auto condChildren = ParseXmlWrap::parseGetChildren(condNodes.front(), ElemNames);
     if (condChildren.size() != condNodes.size()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "Only single \"" << common::parseAndStr() << "\" or \"" << common::parseOrStr() << "\" child of the \"" << prop << "\" element is supported.";           
+            "Only single \"" << common::parseAndStr() << "\" or \"" << common::parseOrStr() << "\" child of the \"" << prop << "\" element is supported.";
         return false;
-    }    
+    }
 
     auto iter = parseProps().find(prop);
     if (iter != parseProps().end()) {
@@ -540,7 +539,7 @@ bool ParseBitfieldFieldImpl::parseUpdateMultiCondInternal(const std::string& pro
             "Only single \"" << prop << "\" property is supported";
 
         return false;
-    }    
+    }
 
     auto newCond = std::make_unique<ParseOptCondListImpl>();
     newCond->parseOverrideCondStr(prop);
@@ -550,13 +549,13 @@ bool ParseBitfieldFieldImpl::parseUpdateMultiCondInternal(const std::string& pro
 
     if (newCond->parseHasInterfaceReference()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(condNodes.front()) <<
-            "The condition \"" << prop << "\" in fields cannot reference interface fields.";           
+            "The condition \"" << prop << "\" in fields cannot reference interface fields.";
         return false;
-    }    
+    }
 
     if (!newCond->parseVerify(m_members, condChildren.front(), parseProtocol())) {
         return false;
-    }    
+    }
 
     cond = std::move(newCond);
     return true;

@@ -58,7 +58,7 @@ ToolsQtNamespace::GenStringsList ToolsQtNamespace::toolsSourceFiles(const ToolsQ
         auto* toolsMessage = static_cast<const ToolsQtMessage*>(mPtr.get());
         assert(toolsMessage != nullptr);
         addToResult(toolsMessage->toolsSourceFiles(interface));
-    }    
+    }
 
     if (genHasFramesRecursive() &&
         genHasMessagesRecursive()) {

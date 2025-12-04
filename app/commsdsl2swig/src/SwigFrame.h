@@ -25,6 +25,9 @@ namespace commsdsl2swig
 {
 
 class SwigGenerator;
+class SwigInterface;
+class SwigInputMessages;
+class SwigMsgHandler;
 class SwigFrame final: public commsdsl::gen::GenFrame
 {
     using GenBase = commsdsl::gen::GenFrame;
@@ -34,7 +37,7 @@ public:
 
     using GenElem = commsdsl::gen::GenElem;
     using GenStringsList = commsdsl::gen::util::GenStringsList;
-    
+
     using SwigLayersList = SwigLayer::SwigLayersList;
 
     explicit SwigFrame(SwigGenerator& generator, ParseFrame parseObj, GenElem* parent);
@@ -47,25 +50,37 @@ public:
     static const SwigFrame* swigCast(const commsdsl::gen::GenFrame* i)
     {
         return static_cast<const SwigFrame*>(i);
-    }        
+    }
 
     const SwigLayersList& swigLayers() const
     {
         return m_swigLayers;
     }
 
-protected:    
+    const SwigInterface* swigInterface() const
+    {
+        return swigInterfaceInternal();
+    }
+
+    const SwigInputMessages* swigInput() const
+    {
+        return swigInputInternal();
+    }
+
+protected:
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
 private:
-
     std::string swigLayerDeclsInternal() const;
     std::string swigClassDeclInternal() const;
     std::string swigLayersAccDeclInternal() const;
     std::string swigLayersAccCodeInternal() const;
     std::string swigFrameCodeInternal() const;
     std::string swigAllFieldsInternal() const;
+    const SwigInterface* swigInterfaceInternal() const;
+    const SwigMsgHandler* swigMsgHandlerInternal() const;
+    const SwigInputMessages* swigInputInternal() const;
 
     SwigLayersList m_swigLayers;
     bool m_validFrame = true;

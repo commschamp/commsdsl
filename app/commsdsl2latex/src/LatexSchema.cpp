@@ -40,7 +40,7 @@ LatexSchema::~LatexSchema() = default;
 
 std::string LatexSchema::latexRelDirPath() const
 {
-    return genOrigNamespace();
+    return genMainNamespace();
 }
 
 std::string LatexSchema::latexRelFilePath() const
@@ -53,7 +53,7 @@ std::string LatexSchema::latexTitle() const
     auto& latexGenerator = LatexGenerator::latexCast(genGenerator());
     auto& displayName = genParseObj().parseDisplayName();
     if (!displayName.empty()) {
-        return LatexGenerator::latexEscDisplayName(displayName, std::string());
+        return LatexGenerator::latexEscString(displayName);
     }
 
     auto& schemas = latexGenerator.genSchemas();
@@ -63,10 +63,10 @@ std::string LatexSchema::latexTitle() const
 
     auto& name = genParseObj().parseName();
     if (&(latexGenerator.genProtocolSchema()) == this) {
-        return "Protocol \"" + LatexGenerator::latexEscDisplayName(name, std::string()) + "\"";
+        return "Protocol \"" + LatexGenerator::latexEscString(name) + "\"";
     }
 
-    return "Schema \"" + LatexGenerator::latexEscDisplayName(name, std::string()) + "\"";
+    return "Schema \"" + LatexGenerator::latexEscString(name) + "\"";
 }
 
 bool LatexSchema::genWriteImpl()
@@ -78,7 +78,7 @@ bool LatexSchema::genWriteImpl()
     assert(!dirPath.empty());
     if (!latexGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }    
+    }
 
     latexGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
@@ -95,7 +95,7 @@ bool LatexSchema::genWriteImpl()
             break;
         }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#GENERATED#$#\n"
             "#^#REPLACE_COMMENT#$#\n"
             "#^#SECTION#$#\n"
@@ -118,31 +118,31 @@ bool LatexSchema::genWriteImpl()
         };
 
         if (latexGenerator.latexHasCodeInjectionComments()) {
-            repl["REPLACE_COMMENT"] = 
+            repl["REPLACE_COMMENT"] =
                 latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
 
             if (repl["PREPEND"].empty()) {
                 repl["PREPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Prepend the details with \"" + prependFileName + "\".";
-            }                 
+            }
 
             if (repl["APPEND"].empty()) {
                 repl["APPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Append to file with \"" + appendFileName + "\".";
-            }                
-        };   
-        
+            }
+        };
+
         auto title = latexTitle();
         if (!title.empty()) {
             repl["SECTION"] = LatexGenerator::latexSectionDirective(*this) + '{' + title + '}';
             repl["LABEL"] = "\\label{" + LatexGenerator::latexLabelId(*this) + '}';
-            repl["DESCRIPTION"] = util::genStrMakeMultiline(genParseObj().parseDescription());
+            repl["DESCRIPTION"] = util::genStrMakeMultiline(LatexGenerator::latexEscString(genParseObj().parseDescription()));
 
             LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);
 
             if (repl["DESCRIPTION"].empty()) {
-                repl["DESCRIPTION"] = 
-                    LatexGenerator::latexSchemaCommentPrefix() + 
+                repl["DESCRIPTION"] =
+                    LatexGenerator::latexSchemaCommentPrefix() +
                         "Use \"" + strings::genDescriptionStr() + "\" DSL element property to introduce description";
-            }              
+            }
         }
 
         stream << util::genProcessTemplate(Templ, repl, true) << std::endl;

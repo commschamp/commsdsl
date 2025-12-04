@@ -43,7 +43,7 @@ private:
     std::string commsCustomizeDocInternal() const;
     std::string commsVersionDocInternal() const;
     std::string commsPlatformsDocInternal() const;
-    
+
     CommsGenerator& m_commsGenerator;
 };
 

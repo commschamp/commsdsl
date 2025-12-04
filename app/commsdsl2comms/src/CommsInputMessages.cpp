@@ -35,10 +35,10 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-namespace 
+namespace
 {
 
-const std::string ClientInputSuffixStr = "ClientInputMessages";    
+const std::string ClientInputSuffixStr = "ClientInputMessages";
 const std::string ServerInputSuffixStr = "ServerInputMessages";
 
 using CheckFunction = std::function<bool (const commsdsl::gen::GenMessage&)>;
@@ -56,13 +56,13 @@ bool writeFileInternal(
     assert(!dirPath.empty());
     if (!generator.genCreateDirectory(dirPath)) {
         return false;
-    }      
+    }
 
     std::ofstream stream(filePath);
     if (!stream) {
         generator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }    
+    }
 
     auto allMessages = parent.genGetAllMessagesIdSorted();
     util::GenStringsList includes = {
@@ -80,7 +80,7 @@ bool writeFileInternal(
         }
 
         auto scopeStr = comms::genScopeFor(*m, generator);
-        auto aliasStr = 
+        auto aliasStr =
             "using prefix_ ## " + comms::genClassName(m->genParseObj().parseName()) + " ## suffix_ = " + scopeStr + "<interface_, opts_>;";
         includes.push_back(comms::genRelHeaderPathFor(*m, generator));
         scopes.push_back(scopeStr + "<TBase, TOpt>");
@@ -118,7 +118,7 @@ bool writeFileInternal(
         "/// @brief Create type aliases for the #^#LOW_DESC#$# messages of the protocol using default options.\n"
         "/// @param prefix_ Prefix of the alias message type.\n"
         "/// @param suffix_ Suffix of the alias message type.\n"
-        "/// @param interface_ Type of the common message interface.\n"        
+        "/// @param interface_ Type of the common message interface.\n"
         "#define #^#PROT_PREFIX#$#_ALIASES_FOR_#^#MACRO_NAME#$#_DEFAULT_OPTIONS(prefix_, suffix_, interface_) \\\n"
         "    #^#PROT_PREFIX#$#_ALIASES_FOR_#^#MACRO_NAME#$#(prefix_, suffix_, interface_, #^#OPTIONS#$#)\n"
         ;
@@ -128,7 +128,7 @@ bool writeFileInternal(
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"NAME", name},
         {"NS_BEGIN", comms::genNamespaceBeginFor(parent, generator)},
-        {"NS_END", comms::genNamespaceEndFor(parent, generator)},          
+        {"NS_END", comms::genNamespaceEndFor(parent, generator)},
         {"OPTIONS", comms::genScopeForOptions(strings::genDefaultOptionsClassStr(), generator)},
         {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
         {"MESSAGES", util::genStrListToString(scopes, ",\n", "")},
@@ -144,17 +144,17 @@ bool writeFileInternal(
     if (!repl["EXTEND"].empty()) {
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
-    
+
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
 
-} // namespace 
-    
-CommsInputMessages::CommsInputMessages(CommsGenerator& generator, const CommsNamespace& parent) : 
+} // namespace
+
+CommsInputMessages::CommsInputMessages(CommsGenerator& generator, const CommsNamespace& parent) :
     m_generator(generator),
-    m_parent(parent) 
+    m_parent(parent)
 {
 }
 
@@ -170,14 +170,14 @@ bool CommsInputMessages::commsWrite() const
 
 bool CommsInputMessages::commsWriteAllMessagesInternal() const
 {
-    auto checkFunc = 
+    auto checkFunc =
         [](const commsdsl::gen::GenMessage& msg) noexcept
         {
             static_cast<void>(msg);
             return true;
         };
 
-    return 
+    return
         writeFileInternal(
             strings::genAllMessagesStr(),
             "All",
@@ -186,16 +186,15 @@ bool CommsInputMessages::commsWriteAllMessagesInternal() const
             checkFunc);
 }
 
-
 bool CommsInputMessages::commsWriteClientInputMessagesInternal() const
 {
-    auto checkFunc = 
+    auto checkFunc =
         [](const commsdsl::gen::GenMessage& msg)
         {
             return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Client;
         };
 
-    return 
+    return
         writeFileInternal(
             ClientInputSuffixStr,
             "Client input",
@@ -206,13 +205,13 @@ bool CommsInputMessages::commsWriteClientInputMessagesInternal() const
 
 bool CommsInputMessages::commsWriteServerInputMessagesInternal() const
 {
-    auto checkFunc = 
+    auto checkFunc =
         [](const commsdsl::gen::GenMessage& msg)
         {
             return msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Server;
         };
 
-    return 
+    return
         writeFileInternal(
             ServerInputSuffixStr,
             "Server input",
@@ -226,7 +225,7 @@ bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
     auto& platforms = m_generator.genCurrentSchema().platformNames();
     for (auto& p : platforms) {
 
-        auto platformCheckFunc = 
+        auto platformCheckFunc =
             [&p](const commsdsl::gen::GenMessage& msg)
             {
                 auto& msgPlatforms = msg.genParseObj().parsePlatforms();
@@ -237,7 +236,7 @@ bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
                 return std::find(msgPlatforms.begin(), msgPlatforms.end(), p) != msgPlatforms.end();
             };
 
-        auto allCheckFunc = 
+        auto allCheckFunc =
             [&platformCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
                 return platformCheckFunc(msg);
@@ -247,30 +246,30 @@ bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
             return false;
         }
 
-        auto clientCheckFunc = 
+        auto clientCheckFunc =
             [&platformCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
-                return 
+                return
                     platformCheckFunc(msg) &&
                     (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Client);
             };
 
         if (!writeFileInternal(comms::genClassName(p) + ClientInputSuffixStr, "Client input " + p + " platform", m_generator, m_parent, clientCheckFunc)) {
             return false;
-        }  
+        }
 
-        auto serverCheckFunc = 
+        auto serverCheckFunc =
             [&platformCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
-                return 
+                return
                     platformCheckFunc(msg) &&
                     (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Server);
             };
 
         if (!writeFileInternal(comms::genClassName(p) + ServerInputSuffixStr, "Server input " + p + " platform", m_generator, m_parent, serverCheckFunc)) {
             return false;
-        }                     
-    };        
+        }
+    };
 
     return true;
 }
@@ -280,13 +279,13 @@ bool CommsInputMessages::commsWriteExtraInputMessagesInternal() const
     auto& extraBundles = m_generator.commsExtraMessageBundles();
     for (auto& b : extraBundles) {
 
-        auto bundleCheckFunc = 
+        auto bundleCheckFunc =
             [&b](const commsdsl::gen::GenMessage& msg)
             {
                 return std::find(b.second.begin(), b.second.end(), &msg) != b.second.end();
             };
 
-        auto allCheckFunc = 
+        auto allCheckFunc =
             [&bundleCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
                 return bundleCheckFunc(msg);
@@ -296,33 +295,32 @@ bool CommsInputMessages::commsWriteExtraInputMessagesInternal() const
             return false;
         }
 
-        auto clientCheckFunc = 
+        auto clientCheckFunc =
             [&bundleCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
-                return 
+                return
                     bundleCheckFunc(msg) &&
                     (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Client);
             };
 
         if (!writeFileInternal(comms::genClassName(b.first) + ClientInputSuffixStr, "Client input " + b.first + " bundle", m_generator, m_parent, clientCheckFunc)) {
             return false;
-        }  
+        }
 
-        auto serverCheckFunc = 
+        auto serverCheckFunc =
             [&bundleCheckFunc](const commsdsl::gen::GenMessage& msg)
             {
-                return 
+                return
                     bundleCheckFunc(msg) &&
                     (msg.genParseObj().parseSender() != commsdsl::parse::ParseMessage::ParseSender::Server);
             };
 
         if (!writeFileInternal(comms::genClassName(b.first) + ServerInputSuffixStr, "Server input " + b.first + " bundle", m_generator, m_parent, serverCheckFunc)) {
             return false;
-        }                     
-    };        
+        }
+    };
 
     return true;
 }
-
 
 } // namespace commsdsl2comms

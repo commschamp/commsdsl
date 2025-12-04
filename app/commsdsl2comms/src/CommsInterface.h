@@ -46,10 +46,9 @@ public:
     const CommsFieldsList& commsFields() const
     {
         return m_commsFields;
-    }    
+    }
 
     const CommsField* commsFindValidReferencedField(const std::string& refStr) const;
-
 
 protected:
     virtual bool genPrepareImpl() override;
@@ -67,8 +66,8 @@ private:
     };
 
     bool commsCopyCodeFromInternal();
-    bool commsWriteCommonInternal() const;  
-    bool commsWriteDefInternal() const;  
+    bool commsWriteCommonInternal() const;
+    bool commsWriteDefInternal() const;
     std::string commsCommonIncludesInternal() const;
     std::string commsCommonFieldsCodeInternal() const;
     std::string commsDefIncludesInternal() const;
@@ -84,7 +83,7 @@ private:
 
     std::string m_name;
     std::string m_constructCode;
-    CommsFieldsList m_commsFields;  
+    CommsFieldsList m_commsFields;
     CommsCustomCode m_customCode;
 };
 

@@ -45,7 +45,7 @@ const std::string& TestGenerator::testFileGeneratedComment()
 bool TestGenerator::genWriteImpl()
 {
     assert(&genCurrentSchema() == &genProtocolSchema());
-    return 
+    return
         Test::testWrite(*this) &&
         TestCmake::testWrite(*this) &&
         testWriteExtraFilesInternal();
@@ -55,7 +55,7 @@ bool TestGenerator::testWriteExtraFilesInternal() const
 {
     const std::vector<std::string> ReservedExt = {
         strings::genSourcesFileSuffixStr(),
-    }; 
+    };
 
     return genCopyExtraSourceFiles(ReservedExt);
 }

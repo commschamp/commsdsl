@@ -30,13 +30,12 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2latex
 {
 
-namespace 
+namespace
 {
 
-const std::size_t InvalidLength = std::numeric_limits<std::size_t>::max();    
+const std::size_t InvalidLength = std::numeric_limits<std::size_t>::max();
 
-} // namespace 
-
+} // namespace
 
 LatexFrame::LatexFrame(LatexGenerator& generator, ParseFrame parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent)
@@ -57,12 +56,6 @@ std::string LatexFrame::latexTitle() const
     return "Frame \"" + name + "\"";
 }
 
-bool LatexFrame::genPrepareImpl()
-{
-    // TODO: layers
-    return true;
-}
-
 bool LatexFrame::genWriteImpl() const
 {
     auto relFilePath = latexRelFilePath();
@@ -77,7 +70,7 @@ bool LatexFrame::genWriteImpl() const
     assert(!dirPath.empty());
     if (!latexGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }    
+    }
 
     latexGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
@@ -94,7 +87,7 @@ bool LatexFrame::genWriteImpl() const
             break;
         }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#GENERATED#$#\n"
             "#^#REPLACE_COMMENT#$#\n"
             "#^#SECTION#$#"
@@ -112,7 +105,7 @@ bool LatexFrame::genWriteImpl() const
             {"GENERATED", LatexGenerator::latexFileGeneratedComment()},
             {"SECTION", latexSection()},
             {"LABEL", "\\label{" + LatexGenerator::latexLabelId(*this) + '}'},
-            {"DESCRIPTION", util::genStrMakeMultiline(genParseObj().parseDescription())},
+            {"DESCRIPTION", util::genStrMakeMultiline(LatexGenerator::latexEscString(genParseObj().parseDescription()))},
             {"PREPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(prependFileName))},
             {"APPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(appendFileName))},
             {"FIELDS", latexLayers()},
@@ -120,23 +113,23 @@ bool LatexFrame::genWriteImpl() const
 
         LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);
         if (repl["DESCRIPTION"].empty()) {
-            repl["DESCRIPTION"] = 
-                LatexGenerator::latexSchemaCommentPrefix() + 
+            repl["DESCRIPTION"] =
+                LatexGenerator::latexSchemaCommentPrefix() +
                     "Use \"" + strings::genDescriptionStr() + "\" DSL element property to introduce description";
-        }          
+        }
 
         if (latexGenerator.latexHasCodeInjectionComments()) {
-            repl["REPLACE_COMMENT"] = 
+            repl["REPLACE_COMMENT"] =
                 latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
 
             if (repl["PREPEND"].empty()) {
                 repl["PREPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Prepend to details with \"" + prependFileName + "\".";
-            } 
+            }
 
             if (repl["APPEND"].empty()) {
                 repl["APPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Append to file with \"" + appendFileName + "\".";
-            }                
-        };         
+            }
+        };
 
         stream << util::genProcessTemplate(Templ, repl, true) << std::endl;
     } while (false);
@@ -152,7 +145,7 @@ bool LatexFrame::genWriteImpl() const
 
 std::string LatexFrame::latexSection() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#REPLACE_COMMENT#$#\n"
         "#^#SECTION#$#{#^#TITLE#$#}\n"
         ;
@@ -169,9 +162,9 @@ std::string LatexFrame::latexSection() const
     }
 
     if (latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] = 
+        repl["REPLACE_COMMENT"] =
             latexGenerator.latexCodeInjectCommentPrefix() + "Replace the title value with contents of \"" + titleFileName + "\".";
-    };      
+    };
 
     return util::genProcessTemplate(Templ, repl);
 }
@@ -196,7 +189,7 @@ std::string LatexFrame::latexLayers() const
         std::string lengthStr("<variable>");
         if (layerField != nullptr) {
             auto minLength = layerField->genParseObj().parseMinLength();
-            auto maxLength = layerField->genParseObj().parseMaxLength();            
+            auto maxLength = layerField->genParseObj().parseMaxLength();
 
             lengthStr = std::to_string(minLength);
             do {
@@ -210,7 +203,7 @@ std::string LatexFrame::latexLayers() const
                 }
 
                 lengthStr += " - " + std::to_string(maxLength);
-            } while (false);                
+            } while (false);
         }
 
         auto refStr = "\\hyperref[" + LatexGenerator::latexLabelId(*lPtr) + "]{" + nameStr + "}";
@@ -219,26 +212,26 @@ std::string LatexFrame::latexLayers() const
         static const std::string LayerTempl = {
             "#^#SECTION#$#{#^#TITLE#$#}"
             "\\label{#^#LABEL#$#}\n\n"
-            "#^#DESCRIPTION#$#\n"                
+            "#^#DESCRIPTION#$#\n"
             "#^#NOINDENT#$#\n"
             "#^#FIELD_DESCRIPTION#$#\n"
             "#^#FIELD_INFO#$#\n"
             "#^#FIELD_EXTRA#$#\n"
-        };    
-        
+        };
+
         util::GenReplacementMap layerRepl = {
             {"SECTION", LatexGenerator::latexSectionDirective(*lPtr)},
             {"TITLE", "Frame Field \"" + nameStr + "\""},
             {"LABEL", LatexGenerator::latexLabelId(*lPtr)},
-            {"DESCRIPTION", layerParseObj.parseDescription()},
-        };        
+            {"DESCRIPTION", LatexGenerator::latexEscString(layerParseObj.parseDescription())},
+        };
 
         LatexGenerator::latexEnsureNewLineBreak(layerRepl["DESCRIPTION"]);
         if (layerRepl["DESCRIPTION"].empty()) {
-            layerRepl["DESCRIPTION"] = 
-                LatexGenerator::latexSchemaCommentPrefix() + 
+            layerRepl["DESCRIPTION"] =
+                LatexGenerator::latexSchemaCommentPrefix() +
                     "Use \"" + strings::genDescriptionStr() + "\" DSL element property to introduce description";
-        }        
+        }
 
         do {
             if (extField != nullptr) {
@@ -271,10 +264,10 @@ std::string LatexFrame::latexLayers() const
 
         } while (false);
 
-        fields.push_back(util::genProcessTemplate(LayerTempl, layerRepl));            
+        fields.push_back(util::genProcessTemplate(LayerTempl, layerRepl));
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "\\subsubparagraph{Frame Fields}\n"
         "\\label{#^#LABEL#$#}\n\n"
         "\\fbox{%\n"
@@ -288,7 +281,7 @@ std::string LatexFrame::latexLayers() const
         "\\smallskip\n\n"
         "#^#DETAILS#$#\n"
         "\n"
-        ;    
+        ;
 
     util::GenReplacementMap repl = {
         {"LABEL", LatexGenerator::latexLabelId(*this) + "_fields"},
@@ -296,7 +289,7 @@ std::string LatexFrame::latexLayers() const
         {"DETAILS", util::genStrListToString(fields, "\n", "\n")},
     };
 
-    return util::genProcessTemplate(Templ, repl);     
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2latex

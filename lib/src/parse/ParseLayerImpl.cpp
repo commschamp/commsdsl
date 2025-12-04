@@ -27,7 +27,6 @@
 #include "ParseXmlWrap.h"
 #include "parse_common.h"
 
-
 #include <algorithm>
 #include <cassert>
 #include <iterator>
@@ -355,10 +354,10 @@ bool ParseLayerImpl::parseUpdateDisplayName()
 
     if ((!parseDisplayName().empty()) && (!m_protocol.parseIsLayerDisplayNameSupported())) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The property \"" << propName << "\" of layer is not supported for dslVersion=" << 
-                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << propName << "\" of layer is not supported for dslVersion=" <<
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";
         m_displayName = &common::parseEmptyString();
-    }    
+    }
 
     return true;
 }
@@ -498,7 +497,6 @@ bool ParseLayerImpl::parseCheckFieldAsChild()
 
         fieldNode = fieldTypes.front();
     } while (false);
-
 
     do {
         if (fieldNode != nullptr) {

@@ -7,7 +7,7 @@
         </enum>
         <int name="I1" type="uint32" />
         <ref name="R1" field="I1" />
-        
+
         <int name="I2" type="uint16" defaultValue="5" />
         <enum name="E1" type="uint8">
             <validValue name="V0" val="0" />
@@ -26,17 +26,17 @@
         <bundle name="B2">
             <int name="mem0" type="uint8"/>
             <int name="mem1" type="uint8"/>
-        </bundle>   
-        
+        </bundle>
+
         <string name="S2" defaultValue="hello">
             <lengthPrefix>
                 <int name="Len" type="uint8" />
             </lengthPrefix>
         </string>
-        <data name="D1" defaultValue="abcdef0123">  
+        <data name="D1" defaultValue="abcdef0123">
             <lengthPrefix>
                 <int name="Len" type="uint8" />
-            </lengthPrefix>            
+            </lengthPrefix>
         </data>
         <list name="L1">
             <element>
@@ -44,16 +44,16 @@
             </element>
             <countPrefix>
                 <int name="Count" type="uint8" />
-            </countPrefix> 
+            </countPrefix>
             <elemLengthPrefix>
                 <int name="ElemLen" type="uint8" />
-            </elemLengthPrefix>             
-        </list> 
+            </elemLengthPrefix>
+        </list>
         <optional name="O1">
             <field>
                 <int name="O1" type="uint32" />
             </field>
-        </optional>   
+        </optional>
 
     </fields>
 
@@ -65,14 +65,13 @@
         <ref name="f5" field="S1" />
         <ref name="f6" field="F1" />
         <ref name="f7" field="B1" />
-        <ref name="f8" field="B2" />        
+        <ref name="f8" field="B2" />
         <ref name="f9" field="S2" />
-        <ref name="f10" field="D1" />         
-        <ref name="f11" field="L1" />  
-        <ref name="f12" field="O1" />  
+        <ref name="f10" field="D1" />
+        <ref name="f11" field="L1" />
+        <ref name="f12" field="O1" />
     </message>
-    
-    
+
     <message name="Msg2" id="MsgId.M2" sender="client" lengthOverride="none" nameOverride="extend" copyCodeFrom="Msg1">
         <enum name="F1" type="uint64">
             <validValue name="V1" val="0" />
@@ -86,5 +85,5 @@
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>       
+    </frame>
 </schema>

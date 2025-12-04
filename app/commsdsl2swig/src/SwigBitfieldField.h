@@ -19,7 +19,6 @@
 
 #include "commsdsl/gen/GenBitfieldField.h"
 
-
 namespace commsdsl2swig
 {
 
@@ -43,7 +42,7 @@ public:
 protected:
     // GenBase overrides
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
     // SwigBase overrides
     virtual std::string swigMembersDeclImpl() const override;
@@ -55,7 +54,7 @@ protected:
 
 private:
     bool swigPrepareInternal();
-    
+
     SwigFieldsList m_swigMembers;
 };
 

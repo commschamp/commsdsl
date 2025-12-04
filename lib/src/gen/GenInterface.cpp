@@ -57,7 +57,7 @@ public:
             m_fields.push_back(std::move(ptr));
         }
 
-        return true;        
+        return true;
     }
 
     bool genPrepare()
@@ -88,7 +88,7 @@ public:
             return true;
         }
 
-        bool result = 
+        bool result =
             std::all_of(
                 m_fields.begin(), m_fields.end(),
                 [](auto& fieldPtr) -> bool
@@ -135,7 +135,7 @@ private:
     GenElem* m_parent = nullptr;
     GenFieldsList m_fields;
     bool m_referenced = false;
-}; 
+};
 
 GenInterface::GenInterface(GenGenerator& generator, ParseInterface parseObj, GenElem* parent) :
     Base(parent),
@@ -227,7 +227,7 @@ bool GenInterface::genHasVersionField() const
             [](auto& f)
             {
                 return f->genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Version;
-            });    
+            });
 }
 
 bool GenInterface::genIsReferenced() const

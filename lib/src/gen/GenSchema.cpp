@@ -33,13 +33,13 @@ namespace commsdsl
 
 namespace gen
 {
-    
-namespace 
+
+namespace
 {
 
 const unsigned MaxDslVersion = COMMSDSL_MAJOR_VERSION;
 
-} // namespace 
+} // namespace
 
 class GenSchemaImpl
 {
@@ -72,7 +72,7 @@ public:
     const GenNamespacesList& genNamespaces() const
     {
         return m_namespaces;
-    }    
+    }
 
     const std::string& genSchemaName() const
     {
@@ -87,7 +87,7 @@ public:
         }
 
         return genSchemaName();
-    }    
+    }
 
     parse::ParseEndian genSchemaEndian() const
     {
@@ -138,7 +138,7 @@ public:
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
         }
-        return result;        
+        return result;
     }
 
     GenField* genFindField(const std::string& externalRef)
@@ -181,8 +181,8 @@ public:
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
         }
-        return result;        
-    }  
+        return result;
+    }
 
     GenMessage* genGindMessage(const std::string& externalRef)
     {
@@ -224,7 +224,7 @@ public:
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
         }
-        return result;        
+        return result;
     }
 
     const GenInterface* genFindInterface(const std::string& externalRef) const
@@ -258,8 +258,8 @@ public:
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
         }
-        return result;        
-    }                
+        return result;
+    }
 
     bool genCreateAll()
     {
@@ -288,23 +288,23 @@ public:
         }
 
         auto parsedSchemaVersion = m_parseObj.parseVersion();
-        if ((0 <= m_forcedSchemaVersion) && 
+        if ((0 <= m_forcedSchemaVersion) &&
             (parsedSchemaVersion < static_cast<decltype(parsedSchemaVersion)>(m_forcedSchemaVersion))) {
             m_generator.genLogger().genError("Cannot force version to be greater than " + util::genNumToString(parsedSchemaVersion));
             return false;
-        }   
+        }
 
         if (!m_versionIndependentCodeForced) {
             m_versionDependentCode = genAnyInterfaceHasVersion();
-        }       
+        }
 
         assert(!m_parseObj.parseName().empty());
         m_origNamespace = util::genStrToName(m_parseObj.parseName());
         if (m_mainNamespace.empty()) {
             m_mainNamespace = m_origNamespace;
-        }              
+        }
 
-        bool namespacesResult = 
+        bool namespacesResult =
             std::all_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& n)
@@ -323,7 +323,7 @@ public:
 
     bool genWrite()
     {
-        return 
+        return
             std::all_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& ns)
@@ -340,7 +340,7 @@ public:
     const GenGenerator& genGenerator() const
     {
         return m_generator;
-    }    
+    }
 
     GenFieldsAccessList genFindMessageIdFields() const
     {
@@ -350,7 +350,7 @@ public:
             std::move(nsResult.begin(), nsResult.end(), std::back_inserter(result));
         }
         return result;
-    }  
+    }
 
     bool genAnyInterfaceHasVersion() const
     {
@@ -361,7 +361,7 @@ public:
                 {
                     auto interfaces = n->genGetAllInterfaces();
 
-                    return 
+                    return
                         std::any_of(
                             interfaces.begin(), interfaces.end(),
                             [](auto& i)
@@ -378,12 +378,12 @@ public:
 
                             });
                 });
-    }      
+    }
 
     void genForceSchemaVersion(unsigned value)
     {
         m_forcedSchemaVersion = static_cast<decltype(m_forcedSchemaVersion)>(value);
-    }    
+    }
 
     const GenPlatformNamesList& platformNames()
     {
@@ -393,12 +393,12 @@ public:
     void genSetVersionIndependentCodeForced(bool value)
     {
         m_versionIndependentCodeForced = value;
-    }    
+    }
 
     bool genVersionDependentCode() const
     {
         return m_versionDependentCode;
-    }    
+    }
 
     const std::string& genMainNamespace() const
     {
@@ -408,18 +408,18 @@ public:
     const std::string& genOrigNamespace() const
     {
         return m_origNamespace;
-    }    
+    }
 
     GenFieldsAccessList genGetAllMessageIdFields() const
     {
         return m_messageIdFields;
-    }    
+    }
 
     void genSetMainNamespaceOverride(const std::string& value)
     {
         m_mainNamespace = value;
     }
-    
+
     bool genDoesElementExist(
         unsigned sinceVersion,
         unsigned deprecatedSince,
@@ -462,7 +462,7 @@ public:
         for (auto& nPtr : m_namespaces) {
             nPtr->genSetAllInterfacesReferenced();
         }
-    }    
+    }
 
     void genSetAllMessagesReferenced()
     {
@@ -473,7 +473,7 @@ public:
 
     bool genHasReferencedMessageIdField() const
     {
-        return 
+        return
             std::any_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& n)
@@ -484,7 +484,7 @@ public:
 
     bool genHasAnyReferencedMessage() const
     {
-        return 
+        return
             std::any_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& n)
@@ -495,14 +495,14 @@ public:
 
     bool genHasAnyReferencedComponent() const
     {
-        return 
+        return
             std::any_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& n)
                 {
                     return n->genHasAnyReferencedComponent();
                 });
-    }    
+    }
 
 private:
     GenGenerator& m_generator;
@@ -516,9 +516,9 @@ private:
     unsigned m_minRemoteVersion = 0U;
     bool m_versionIndependentCodeForced = false;
     bool m_versionDependentCode = false;
-}; 
+};
 
-GenSchema::GenSchema(GenGenerator& generator, ParseSchema parseObj, GenElem* parent) : 
+GenSchema::GenSchema(GenGenerator& generator, ParseSchema parseObj, GenElem* parent) :
     Base(parent),
     m_impl(std::make_unique<GenSchemaImpl>(generator, parseObj, this))
 {
@@ -546,7 +546,7 @@ parse::ParseEndian GenSchema::genSchemaEndian() const
     return m_impl->genSchemaEndian();
 }
 
-unsigned GenSchema::genSchemaVersion() const 
+unsigned GenSchema::genSchemaVersion() const
 {
     return m_impl->genSchemaVersion();
 }
@@ -569,12 +569,12 @@ GenField* GenSchema::genFindField(const std::string& externalRef)
     do {
         if (field->genIsPrepared()) {
             break;
-        }    
+        }
 
         if (field->genPrepare()) {
             break;
         }
-         
+
         m_impl->genGenerator().genLogger().genWarning("Failed to prepare field: " + field->genParseObj().parseExternalRef());
         field = nullptr;
     } while (false);
@@ -586,7 +586,7 @@ const GenMessage* GenSchema::genGindMessage(const std::string& externalRef) cons
     return m_impl->genGindMessage(externalRef);
 }
 
-GenMessage* GenSchema::genGindMessage(const std::string& externalRef) 
+GenMessage* GenSchema::genGindMessage(const std::string& externalRef)
 {
     auto* msg = m_impl->genGindMessage(externalRef);
     do {
@@ -674,7 +674,7 @@ GenSchema::GenFieldsAccessList GenSchema::genGetAllFields() const
         auto nList = n->genGetAllFields();
         result.insert(result.end(), nList.begin(), nList.end());
     }
-    return result;    
+    return result;
 }
 
 bool GenSchema::genCreateAll()
@@ -698,7 +698,7 @@ bool GenSchema::genWrite()
     if (!m_impl->genWrite()) {
         return false;
     }
-    
+
     return genWriteImpl();
 }
 
@@ -836,7 +836,6 @@ bool GenSchema::genWriteImpl()
 {
     return true;
 }
-
 
 } // namespace gen
 

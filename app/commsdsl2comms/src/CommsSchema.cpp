@@ -39,7 +39,7 @@ bool CommsSchema::commsHasAnyMessage() const
 bool CommsSchema::commsHasReferencedMsgId() const
 {
     auto allNs = genGetAllNamespaces();
-    return 
+    return
         std::any_of(
             allNs.begin(), allNs.end(),
             [](auto* ns)
@@ -51,7 +51,7 @@ bool CommsSchema::commsHasReferencedMsgId() const
 bool CommsSchema::commsHasAnyField() const
 {
     auto allNs = genGetAllNamespaces();
-    return 
+    return
         std::any_of(
             allNs.begin(), allNs.end(),
             [](auto* ns)
@@ -63,7 +63,7 @@ bool CommsSchema::commsHasAnyField() const
 bool CommsSchema::commsHasAnyGeneratedCode() const
 {
     auto allNs = genGetAllNamespaces();
-    return 
+    return
         std::any_of(
             allNs.begin(), allNs.end(),
             [](auto* ns)
@@ -79,9 +79,9 @@ const CommsField* CommsSchema::commsFindValidInterfaceReferencedField(const std:
         if (field != nullptr) {
             return field;
         }
-    } 
+    }
 
-    return nullptr;  
+    return nullptr;
 }
 
 } // namespace commsdsl2comms

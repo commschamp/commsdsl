@@ -14,7 +14,7 @@
                 <or>
                     <cond value="$Mem1 = NAN" />
                     <cond value="$Mem2 != 0" />
-                </or>                
+                </or>
                 <field>
                     <int name="I1" type="uint8" />
                 </field>

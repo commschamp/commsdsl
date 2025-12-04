@@ -36,7 +36,7 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
-    
+
     // CommsBase overrides
     virtual CommsIncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;

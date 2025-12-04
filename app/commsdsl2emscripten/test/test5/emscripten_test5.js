@@ -18,8 +18,8 @@ function allocHandler(instance)
         },
         clean: function() {
             this.clean_Msg1();
-        } 
-    });    
+        }
+    });
 
     return new DerivedHandler;
 }

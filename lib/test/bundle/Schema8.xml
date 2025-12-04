@@ -15,7 +15,7 @@
 
         <int name="Short" type="uint8">
             <special name="LongVariant" val="0xff" />
-        </int>        
+        </int>
 
         <bundle name="Bundle2">
             <int name="ParseType" type="uint8" defaultValidValue="1" failOnInvalid="true" />
@@ -26,6 +26,6 @@
                 </optional>
             </bundle>
             <string name="Value" />
-        </bundle>           
+        </bundle>
     </fields>
 </schema>

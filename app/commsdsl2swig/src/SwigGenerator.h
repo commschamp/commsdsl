@@ -21,7 +21,7 @@
 
 #include <string>
 
-namespace commsdsl2swig 
+namespace commsdsl2swig
 {
 
 class SwigInterface;
@@ -30,7 +30,7 @@ class SwigNamespace;
 class SwigGenerator final : public commsdsl::gen::GenGenerator
 {
     using GenBase = commsdsl::gen::GenGenerator;
-    
+
 public:
     using GenElem = commsdsl::gen::GenElem;
     using GenFieldPtr = commsdsl::gen::GenFieldPtr;
@@ -43,7 +43,7 @@ public:
     using GenProgramOptions = commsdsl::gen::GenProgramOptions;
 
     SwigGenerator();
-    
+
     static const std::string& swigFileGeneratedComment();
 
     static SwigGenerator& swigCast(commsdsl::gen::GenGenerator& generator)
@@ -54,13 +54,13 @@ public:
     static const SwigGenerator& swigCast(const commsdsl::gen::GenGenerator& generator)
     {
         return static_cast<const SwigGenerator&>(generator);
-    }    
-    
+    }
+
     std::string swigInputCodePathFor(const commsdsl::gen::GenElem& elem) const;
     std::string swigInputCodePathForFile(const std::string& name) const;
     std::string swigClassName(const commsdsl::gen::GenElem& elem) const;
     std::string swigScopeNameForRoot(const std::string& name) const;
-    std::string swigScopeNameForMsgId(const std::string& name, const SwigNamespace& parent) const;
+    std::string swigScopeNameForNamespaceMember(const std::string& name, const SwigNamespace& parent) const;
     std::string swigProtocolClassNameForRoot(const std::string& name) const;
     const std::string& swigConvertCppType(const std::string& str) const;
     const std::string& swigConvertIntType(commsdsl::parse::ParseIntField::ParseType value, std::size_t len) const;
@@ -69,20 +69,12 @@ public:
     static std::string swigDefInclude(const std::string& path);
 
     void swigSetMainNamespaceInNamesForced(bool value);
-    void swigSetForcedInterface(const std::string& value);
-    void swigSetHasProtocolVersion(bool value);
-    void swigSetMessagesListFile(const std::string& value);
-    void swigSetForcedPlatform(const std::string& value);
+    void swigSetHasCodeVersion(bool value);
 
-    bool swigHasProtocolVersion() const;
-
-    const SwigInterface* swigMainInterface() const;
-    SwigInterface* swigMainInterface();
+    bool swigHasCodeVersion() const;
 
 protected:
-    virtual bool genCreateCompleteImpl() override;
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() override;    
+    virtual bool genWriteImpl() override;
 
     virtual GenSchemaPtr genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, commsdsl::gen::GenElem* parent) override;
     virtual GenNamespacePtr genCreateNamespaceImpl(commsdsl::parse::ParseNamespace parseObj, commsdsl::gen::GenElem* parent) override;
@@ -101,7 +93,7 @@ protected:
     virtual GenFieldPtr genCreateListFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
     virtual GenFieldPtr genCreateRefFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
     virtual GenFieldPtr genCreateOptionalFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateVariantFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;    
+    virtual GenFieldPtr genCreateVariantFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
 
     virtual GenLayerPtr genCreateCustomLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
     virtual GenLayerPtr genCreateSyncLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
@@ -115,16 +107,9 @@ protected:
 
 private:
     bool swigWriteExtraFilesInternal() const;
-    bool swigReferenceRequestedInterfaceInternal();
-    bool swigReferenceRequestedMessagesInternal();
-    bool swigProcessMessagesListFileInternal();
-    bool swigProcessForcedPlatformInternal();
 
-    std::string m_forcedInterface;
-    std::string m_messagesListFile;
-    std::string m_forcedPlatform;
     bool m_mainNamespaceInNamesForced = false;
-    bool m_hasProtocolVersion = false;
+    bool m_hasCodeVersion = false;
 };
 
 } // namespace commsdsl2swig

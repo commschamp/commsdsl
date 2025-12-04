@@ -165,9 +165,9 @@ void MessageTestSuite::test4()
     TS_ASSERT_EQUALS(msg3.parseId(), 2);
     TS_ASSERT_EQUALS(msg3.parseCopyCodeFrom(), "Msg2");
     auto fields3 = msg3.parseFields();
-    TS_ASSERT_EQUALS(fields3.size(), 3U);   
+    TS_ASSERT_EQUALS(fields3.size(), 3U);
 
-    TS_ASSERT_EQUALS(fields3[1].parseKind(), commsdsl::parse::ParseField::ParseKind::Enum); 
+    TS_ASSERT_EQUALS(fields3[1].parseKind(), commsdsl::parse::ParseField::ParseKind::Enum);
 }
 
 void MessageTestSuite::test5()
@@ -508,7 +508,6 @@ void MessageTestSuite::test21()
     TS_ASSERT(msg1ConstructExpr.parseOp().empty());
     TS_ASSERT_EQUALS(msg1ConstructExpr.parseRight(), "%Flags.M1.B0");
 
-
     auto& msg2 = messages[1];
     auto msg2Construct = msg2.parseConstruct();
     TS_ASSERT_EQUALS(msg2Construct.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);
@@ -569,7 +568,6 @@ void MessageTestSuite::test26()
     TS_ASSERT(msg1ReadCondExpr.parseLeft().empty());
     TS_ASSERT(msg1ReadCondExpr.parseOp().empty());
     TS_ASSERT_EQUALS(msg1ReadCondExpr.parseRight(), "%Flags.M1.B0");
-
 
     auto& msg2 = messages[1];
     auto msg2ReadCond = msg2.parseReadCond();
@@ -651,7 +649,6 @@ void MessageTestSuite::test30()
     TS_ASSERT_EQUALS(msg1ReadCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::Expr);
 }
 
-
 void MessageTestSuite::test31()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema31.xml");
@@ -693,7 +690,7 @@ void MessageTestSuite::test32()
         auto validCond = msg1.parseValidCond();
         TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);
     }
-    
+
     {
         TS_ASSERT_LESS_THAN_EQUALS(2U, messages.size());
 
@@ -703,7 +700,7 @@ void MessageTestSuite::test32()
         TS_ASSERT_EQUALS(msg2.parseCopyCodeFrom(), "Msg1");
         auto validCond = msg2.parseValidCond();
         TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);
-    }    
+    }
 
     {
         TS_ASSERT_LESS_THAN_EQUALS(3U, messages.size());
@@ -720,8 +717,8 @@ void MessageTestSuite::test32()
 
         auto readCond = msg3.parseValidCond();
         TS_ASSERT(readCond.parseValid());
-        TS_ASSERT_EQUALS(readCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);        
-    }     
+        TS_ASSERT_EQUALS(readCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);
+    }
 
     {
         TS_ASSERT_LESS_THAN_EQUALS(4U, messages.size());
@@ -738,8 +735,8 @@ void MessageTestSuite::test32()
 
         auto readCond = msg4.parseReadCond();
         TS_ASSERT(readCond.parseValid());
-        TS_ASSERT_EQUALS(readCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);        
-    }     
+        TS_ASSERT_EQUALS(readCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);
+    }
 }
 
 void MessageTestSuite::test33()
@@ -764,13 +761,13 @@ void MessageTestSuite::test33()
 
         auto readCond = msg.parseReadCond();
         TS_ASSERT(readCond.parseValid());
-        TS_ASSERT_EQUALS(readCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);   
+        TS_ASSERT_EQUALS(readCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);
 
         auto validCond = msg.parseValidCond();
         TS_ASSERT(validCond.parseValid());
-        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);             
+        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);
     }
-    
+
     {
         TS_ASSERT_LESS_THAN_EQUALS(2U, messages.size());
 
@@ -784,7 +781,7 @@ void MessageTestSuite::test33()
 
         auto validCond = msg.parseValidCond();
         TS_ASSERT(!validCond.parseValid());
-    }    
+    }
 
     {
         TS_ASSERT_LESS_THAN_EQUALS(3U, messages.size());
@@ -795,11 +792,11 @@ void MessageTestSuite::test33()
 
         auto readCond = msg.parseReadCond();
         TS_ASSERT(readCond.parseValid());
-        TS_ASSERT_EQUALS(readCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);   
+        TS_ASSERT_EQUALS(readCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);
 
         auto validCond = msg.parseValidCond();
         TS_ASSERT(!validCond.parseValid());
-    }     
+    }
 
     {
         TS_ASSERT_LESS_THAN_EQUALS(4U, messages.size());
@@ -813,8 +810,8 @@ void MessageTestSuite::test33()
 
         auto validCond = msg.parseValidCond();
         TS_ASSERT(validCond.parseValid());
-        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);          
-    }    
+        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);
+    }
 
     {
         TS_ASSERT_LESS_THAN_EQUALS(5U, messages.size());
@@ -828,6 +825,6 @@ void MessageTestSuite::test33()
 
         auto validCond = msg.parseValidCond();
         TS_ASSERT(validCond.parseValid());
-        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);          
-    }      
+        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);
+    }
 }

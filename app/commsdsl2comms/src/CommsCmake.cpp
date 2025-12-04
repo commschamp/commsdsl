@@ -29,14 +29,6 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-namespace 
-{
-
-using GenReplacementMap = util::GenReplacementMap;
-
-} // namespace 
-    
-
 bool CommsCmake::commsWrite(CommsGenerator& generator)
 {
     CommsCmake obj(generator);
@@ -45,9 +37,9 @@ bool CommsCmake::commsWrite(CommsGenerator& generator)
 
 bool CommsCmake::commsWriteInternal() const
 {
-    auto filePath = 
+    auto filePath =
         util::genPathAddElem(
-            m_generator.genGetOutputDir(), strings::genCmakeListsFileStr());    
+            m_generator.genGetOutputDir(), strings::genCmakeListsFileStr());
 
     m_generator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
@@ -56,7 +48,7 @@ bool CommsCmake::commsWriteInternal() const
         return false;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "cmake_minimum_required (VERSION 3.10)\n"
         "project (\"#^#NAME#$#\")\n\n"
         "option (OPT_REQUIRE_COMMS_LIB \"Require COMMS library, find it and set as dependency to the protocol library\" ON)\n\n"
@@ -139,7 +131,7 @@ bool CommsCmake::commsWriteInternal() const
         "        DESTINATION ${CMAKE_INSTALL_LIBDIR}/${OPT_CMAKE_EXPORT_CONFIG_NAME}/cmake/)\n"
         "endif ()\n"
     ;
-    
+
     util::GenReplacementMap repl = {
         {"NAME", m_generator.genProtocolSchema().genMainNamespace()},
         {"CAP_NAME", util::genStrToUpper(m_generator.genProtocolSchema().genMainNamespace())},
@@ -151,8 +143,8 @@ bool CommsCmake::commsWriteInternal() const
         m_generator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
 } // namespace commsdsl2comms

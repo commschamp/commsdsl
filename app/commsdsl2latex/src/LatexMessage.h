@@ -65,7 +65,7 @@ private:
     std::string latexSection() const;
     std::string latexInfoDetails() const;
     std::string latexFields() const;
-    
+
     LatexFieldsList m_latexFields;
 };
 

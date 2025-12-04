@@ -49,7 +49,7 @@ public:
     void test35();
     void test36();
     void test37();
-    void test38();    
+    void test38();
     void test39();
     void test40();
     void test41();
@@ -873,10 +873,10 @@ void ListTestSuite::test41()
     TS_ASSERT_EQUALS(ns.parseName(), "ns1");
 
     auto fields = ns.parseFields();
-    auto parseFindField = 
+    auto parseFindField =
         [&fields](const std::string& name) -> const commsdsl::parse::ParseField*
         {
-            auto iter = 
+            auto iter =
                 std::find_if(
                     fields.begin(), fields.end(),
                     [&name](auto& f)
@@ -935,7 +935,7 @@ void ListTestSuite::test41()
         TS_ASSERT(listField.parseHasTermSuffixField());
         TS_ASSERT(listField.parseTermSuffixField().parseValid());
         TS_ASSERT_EQUALS(listField.parseTermSuffixField().parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
-    } while (false);    
+    } while (false);
 
     do {
         auto* field = parseFindField("L3");
@@ -958,7 +958,7 @@ void ListTestSuite::test41()
         TS_ASSERT(listField.parseHasTermSuffixField());
         TS_ASSERT(listField.parseTermSuffixField().parseValid());
         TS_ASSERT_EQUALS(listField.parseTermSuffixField().parseKind(), commsdsl::parse::ParseField::ParseKind::Int);
-    } while (false);      
+    } while (false);
 
     do {
         auto* field = parseFindField("L4");
@@ -984,7 +984,7 @@ void ListTestSuite::test41()
 
         commsdsl::parse::ParseIntField termField(listField.parseTermSuffixField());
         TS_ASSERT_EQUALS(termField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uint8);
-    } while (false);        
+    } while (false);
 
     do {
         auto* field = parseFindField("B1");
@@ -1011,7 +1011,7 @@ void ListTestSuite::test41()
         TS_ASSERT(!listField.parseHasTermSuffixField());
         TS_ASSERT(!listField.parseTermSuffixField().parseValid());
         TS_ASSERT_EQUALS(listField.parseDetachedTermSuffixFieldName(), "TermSuffix");
-    } while (false);      
+    } while (false);
 
 }
 
@@ -1038,10 +1038,10 @@ void ListTestSuite::test43()
     TS_ASSERT(ns.parseName().empty());
 
     auto fields = ns.parseFields();
-    auto parseFindField = 
+    auto parseFindField =
         [&fields](const std::string& name) -> const commsdsl::parse::ParseField*
         {
-            auto iter = 
+            auto iter =
                 std::find_if(
                     fields.begin(), fields.end(),
                     [&name](auto& f)

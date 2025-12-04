@@ -30,14 +30,18 @@ public:
 
     static bool emscriptenWrite(EmscriptenGenerator& generator);
     static void emscriptenAddSourceFiles(const EmscriptenGenerator& generator, GenStringsList& sources);
+    static std::string emscriptenRelHeader(const EmscriptenGenerator& generator);
 
 private:
     explicit EmscriptenVersion(EmscriptenGenerator& generator) : m_emscriptenGenerator(generator) {}
 
+    bool emscriptenWriteHeaderInternal() const;
     bool emscriptenWriteSrcInternal() const;
     std::string emscriptenSpecConstantsInternal() const;
     std::string emscriptenProtConstantsInternal() const;
-    
+    std::string emscriptenCodeVerConstantsInternal() const;
+    std::string emscriptenCodeVersionInternal() const;
+
     EmscriptenGenerator& m_emscriptenGenerator;
 };
 

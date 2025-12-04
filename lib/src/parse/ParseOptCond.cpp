@@ -121,7 +121,6 @@ ParseOptCondList::ParseCondList ParseOptCondList::parseConditions() const
     return castList(m_pImpl)->parseCondList();
 }
 
-
 } // namespace parse
 
 } // namespace commsdsl

@@ -30,7 +30,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigRefField::SwigRefField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+SwigRefField::SwigRefField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     SwigBase(static_cast<GenBase&>(*this))
 {
@@ -61,17 +61,17 @@ std::string SwigRefField::swigExtraPublicFuncsCodeImpl() const
     util::GenReplacementMap repl = {
         {"REF_TYPE", gen.swigClassName(field->swigGenField())},
         {"BASE_TYPE", field->swigTemplateScope()},
-    };    
+    };
 
     return util::genProcessTemplate(Templ, repl);
 }
 
 std::string SwigRefField::swigPublicDeclImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "using RefType = #^#REF_TYPE#$#;\n"
         "#^#REF_TYPE#$#& ref();\n"
-        "#^#FUNCS#$#\n";   
+        "#^#FUNCS#$#\n";
 
     auto& gen = SwigGenerator::swigCast(genGenerator());
     util::GenReplacementMap repl = {

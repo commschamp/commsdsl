@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "EmscriptenInterface.h"
+
 #include "commsdsl/gen/GenLayer.h"
 #include "commsdsl/gen/util.h"
 
@@ -45,7 +47,7 @@ public:
         return m_genLayer;
     }
 
-    bool emscriptenIsMainInterfaceSupported() const;
+    bool emscriptenIsInterfaceSupported(const EmscriptenInterface& iFace) const;
     std::string emscriptenFieldAccName() const;
     std::string emscriptenFieldAccFuncName() const;
     void emscriptenAddHeaderInclude(GenStringsList& includes) const;
@@ -53,7 +55,7 @@ public:
     std::string emscriptenSourceCode() const;
 
 protected:
-    virtual bool emscriptenIsMainInterfaceSupportedImpl() const;
+    virtual bool emscriptenIsInterfaceSupportedImpl(const EmscriptenInterface& iFace) const;
     virtual std::string emscriptenHeaderFieldDefImpl() const;
     virtual std::string emscriptenFieldClassNameImpl() const;
     virtual std::string emscriptenHeaderExtraFuncsImpl() const;
@@ -62,13 +64,13 @@ protected:
 
     std::string emscriptenTemplateScope() const;
 
-private:    
+private:
     std::string emscriptenHeaderFieldDefInternal() const;
     std::string emscriptenHeaderClassDefInternal() const;
     std::string emscriptenFieldClassNameInternal() const;
     std::string emscriptenSourceFieldBindInternal() const;
     std::string emscriptenSourceCodeInternal() const;
-    
+
 private:
     commsdsl::gen::GenLayer& m_genLayer;
 };

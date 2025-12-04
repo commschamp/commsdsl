@@ -39,7 +39,7 @@ public:
     GenSizeLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent = nullptr);
     virtual ~GenSizeLayer();
 
-protected:    
+protected:
     ParseSizeLayer genSizeLayerParseObj() const;
 };
 

@@ -51,7 +51,7 @@ void TestSuite::test2()
             0xde, 0xad, // F1
             0xbe, 0xef, // F3
         };
-        
+
         static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
 
         Frame::MsgPtr msgPtr;
@@ -72,7 +72,7 @@ void TestSuite::test2()
             0x05, // F2
             0xbe, 0xef, // F3
         };
-        
+
         static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
 
         Frame::MsgPtr msgPtr;
@@ -85,7 +85,7 @@ void TestSuite::test2()
         TS_ASSERT(msg->field_f2().doesExist());
         TS_ASSERT_EQUALS(msg->field_f2().field().value(), 0x05);
         TS_ASSERT_EQUALS(msg->field_f3().value(), 0xbeef);
-    } while (false);    
+    } while (false);
 }
 
 void TestSuite::test3()
@@ -98,7 +98,7 @@ void TestSuite::test3()
             0x01, // F2
             0x01, // F3
         };
-        
+
         static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
 
         Frame::MsgPtr msgPtr;
@@ -114,7 +114,7 @@ void TestSuite::test3()
         TS_ASSERT(msg->field_o2().isMissing());
         TS_ASSERT(msg->field_o3().isMissing());
     } while (false);
- 
+
 }
 
 void TestSuite::test4()
@@ -126,7 +126,7 @@ void TestSuite::test4()
             0x00, // F1.M1
             0x01, // F1.M2 // invalid
         };
-        
+
         static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
 
         Frame::MsgPtr msgPtr;
@@ -140,9 +140,9 @@ void TestSuite::test4()
         static const std::uint8_t Buf[] = {
             0x04, // MsgId.M4
             0x01, // F1.M1
-            0x01, // F1.M2 
+            0x01, // F1.M2
         };
-        
+
         static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
 
         Frame::MsgPtr msgPtr;
@@ -151,7 +151,7 @@ void TestSuite::test4()
         TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
         TS_ASSERT(msgPtr);
         TS_ASSERT(msgPtr->valid());
-    } while (false);    
+    } while (false);
 
     do {
         Msg4 msg;
@@ -161,7 +161,7 @@ void TestSuite::test4()
         TS_ASSERT(msg.doRefresh());
         TS_ASSERT(msg.doValid());
         TS_ASSERT_EQUALS(msg.field_f1().field_m2().getValue(), 0U);
-    } while (false);     
+    } while (false);
 }
 
 void TestSuite::test5()
@@ -173,7 +173,7 @@ void TestSuite::test5()
             0xde, 0xad, // F1
             0xbe, 0xef, // F3
         };
-        
+
         static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
 
         Frame::MsgPtr msgPtr;
@@ -194,7 +194,7 @@ void TestSuite::test5()
             0x05, // F2
             0xbe, 0xef, // F3
         };
-        
+
         static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
 
         Frame::MsgPtr msgPtr;
@@ -207,7 +207,7 @@ void TestSuite::test5()
         TS_ASSERT(msg->field_f2().doesExist());
         TS_ASSERT_EQUALS(msg->field_f2().field().value(), 0x05);
         TS_ASSERT_EQUALS(msg->field_f3().value(), 0xbeef);
-    } while (false);   
+    } while (false);
 
     do {
         Msg5 msg;
@@ -230,7 +230,7 @@ void TestSuite::test6()
             0x00, // M1
             0x01, // M2 // invalid
         };
-        
+
         static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
 
         Frame::MsgPtr msgPtr;
@@ -248,9 +248,9 @@ void TestSuite::test6()
         static const std::uint8_t Buf[] = {
             0x06, // MsgId.M6
             0x01, // M1
-            0x01, // M2 
+            0x01, // M2
         };
-        
+
         static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
 
         Frame::MsgPtr msgPtr;
@@ -261,7 +261,7 @@ void TestSuite::test6()
         auto* msg6 = dynamic_cast<Msg6*>(msgPtr.get());
         TS_ASSERT(msg6 != nullptr);
         TS_ASSERT(msg6->field_f1().doesExist());
-    } while (false);    
+    } while (false);
 
     do {
         Msg6 msg;
@@ -272,7 +272,7 @@ void TestSuite::test6()
         TS_ASSERT(msg.doRefresh());
         TS_ASSERT(msg.doValid());
         TS_ASSERT(msg.field_f1().isMissing());
-    } while (false);     
+    } while (false);
 }
 
 void TestSuite::test7()
@@ -309,7 +309,6 @@ void TestSuite::test8()
     TS_ASSERT_EQUALS(msg, castMsg);
 }
 
-
 void TestSuite::test9()
 {
     Msg9 msg;
@@ -331,5 +330,5 @@ void TestSuite::test9()
     TS_ASSERT(msgPtr);
 
     auto& castMsg = static_cast<const Msg9&>(*msgPtr);
-    TS_ASSERT_EQUALS(msg, castMsg);    
+    TS_ASSERT_EQUALS(msg, castMsg);
 }

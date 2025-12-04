@@ -32,20 +32,6 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-namespace 
-{
-
-enum CommsVersionIdx
-{
-    VersionIdx_major,
-    VersionIdx_minor,
-    VersionIdx_patch,
-    VersionIdx_numOfValues
-};
-
-} // namespace 
-    
-
 bool CommsVersion::commsWrite(CommsGenerator& generator)
 {
     auto& thisSchema = static_cast<CommsSchema&>(generator.genCurrentSchema());
@@ -68,7 +54,7 @@ bool CommsVersion::commsWriteInternal() const
         return false;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#GENERATED#$#\n"
         "/// @file\n"
         "/// @brief Contains protocol version definition.\n\n"
@@ -76,7 +62,7 @@ bool CommsVersion::commsWriteInternal() const
         "#include \"comms/version.h\"\n\n"
         "/// @brief Version of the protocol specification.\n"
         "#define #^#NS#$#_SPEC_VERSION (#^#VERSION#$#)\n\n"
-        "#^#PROT_VER_DEFINE#$#\n"
+        "#^#CODE_VER_DEFINE#$#\n"
         "namespace #^#PROT_NAMESPACE#$#\n"
         "{\n\n"
         "/// @brief Version of the protocol specification.\n"
@@ -84,13 +70,12 @@ bool CommsVersion::commsWriteInternal() const
         "{\n"
         "    return #^#NS#$#_SPEC_VERSION;\n"
         "}\n\n"
-        "#^#PROT_VER_FUNC#$#\n"
+        "#^#CODE_VER_FUNC#$#\n"
         "} // namespace #^#PROT_NAMESPACE#$#\n\n"
         "// Generated compile time check for minimal supported version of the COMMS library\n"
         "static_assert(COMMS_MAKE_VERSION(#^#COMMS_MIN#$#) <= comms::version(),\n"
         "    \"The version of COMMS library is too old\");\n\n"
         "#^#APPEND#$#\n";
-
 
     util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
@@ -98,11 +83,11 @@ bool CommsVersion::commsWriteInternal() const
         {"VERSION", util::genNumToString(m_commsGenerator.genCurrentSchema().genSchemaVersion())},
         {"NS", util::genStrToUpper(m_commsGenerator.genCurrentSchema().genMainNamespace())},
         {"COMMS_MIN", util::genStrReplace(CommsGenerator::commsMinCommsVersion(), ".", ", ")},
-        {"PROT_VER_DEFINE", commsProtVersionDefineInternal()},
-        {"PROT_VER_FUNC", commsProtVersionFuncsInternal()},
+        {"CODE_VER_DEFINE", commsCodeVersionDefineInternal()},
+        {"CODE_VER_FUNC", commsCodeVersionFuncsInternal()},
         {"APPEND", util::genReadFileContents(comms::genInputCodePathForRoot(strings::genVersionFileNameStr(), m_commsGenerator))},
-    };        
-    
+    };
+
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
 
@@ -110,50 +95,45 @@ bool CommsVersion::commsWriteInternal() const
         m_commsGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
-std::string CommsVersion::commsProtVersionDefineInternal() const
+std::string CommsVersion::commsCodeVersionDefineInternal() const
 {
-    auto& protVersion = m_commsGenerator.commsGetProtocolVersion();
-    if (protVersion.empty()) {
+    auto tokens = m_commsGenerator.genGetCodeVersionTokens();
+    if (tokens.empty()) {
         return strings::genEmptyString();
     }
 
-    auto tokens = util::genStrSplitByAnyChar(protVersion, ".");
-    while (tokens.size() < VersionIdx_numOfValues) {
-        tokens.push_back("0");
-    }
-
-    const std::string Templ = 
+    const std::string Templ =
         "/// @brief Major version of the protocol library.\n"
         "#define #^#NS#$#_MAJOR_VERSION (#^#MAJOR_VERSION#$#)\n\n"
         "/// @brief Minor version of the protocol library.\n"
-        "#define #^#NS#$#_MINOR_VERSION (#^#MINOR_VERSION#$#)\n\n"        
+        "#define #^#NS#$#_MINOR_VERSION (#^#MINOR_VERSION#$#)\n\n"
         "/// @brief Patch version of the protocol library.\n"
-        "#define #^#NS#$#_PATCH_VERSION (#^#PATCH_VERSION#$#)\n\n"        
+        "#define #^#NS#$#_PATCH_VERSION (#^#PATCH_VERSION#$#)\n\n"
         "/// @brief Full version of the protocol library as single number.\n"
         "#define #^#NS#$#_VERSION (COMMS_MAKE_VERSION(#^#NS#$#_MAJOR_VERSION, #^#NS#$#_MINOR_VERSION, #^#NS#$#_PATCH_VERSION))\n";
 
     util::GenReplacementMap repl = {
         {"NS", util::genStrToUpper(m_commsGenerator.genCurrentSchema().genMainNamespace())},
-        {"MAJOR_VERSION", tokens[VersionIdx_major]},
-        {"MINOR_VERSION", tokens[VersionIdx_minor]},
-        {"PATCH_VERSION", tokens[VersionIdx_patch]},
+        {"MAJOR_VERSION", tokens[CommsGenerator::GenVersionIdx_Major]},
+        {"MINOR_VERSION", tokens[CommsGenerator::GenVersionIdx_Minor]},
+        {"PATCH_VERSION", tokens[CommsGenerator::GenVersionIdx_Patch]},
     };
 
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string CommsVersion::commsProtVersionFuncsInternal() const
+std::string CommsVersion::commsCodeVersionFuncsInternal() const
 {
-    auto& protVersion = m_commsGenerator.commsGetProtocolVersion();
-    if (protVersion.empty()) {
+    auto& codeVersion = m_commsGenerator.genGetCodeVersion();
+    if (codeVersion.empty()) {
         return strings::genEmptyString();
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "/// @brief Major version of the protocol library\n"
         "inline constexpr unsigned versionMajor()\n"
         "{\n"
@@ -163,12 +143,12 @@ std::string CommsVersion::commsProtVersionFuncsInternal() const
         "inline constexpr unsigned versionMinor()\n"
         "{\n"
         "    return #^#NS#$#_MINOR_VERSION;\n"
-        "}\n\n"     
+        "}\n\n"
         "/// @brief Patch version of the protocol library\n"
         "inline constexpr unsigned versionPatch()\n"
         "{\n"
         "    return #^#NS#$#_PATCH_VERSION;\n"
-        "}\n\n"  
+        "}\n\n"
         "/// @brief Full version of the protocol library as a single number\n"
         "inline constexpr unsigned version()\n"
         "{\n"

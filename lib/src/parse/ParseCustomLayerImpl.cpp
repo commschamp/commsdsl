@@ -39,7 +39,7 @@ ParseLayerImpl::ParseKind ParseCustomLayerImpl::parseKindImpl() const
 
 bool ParseCustomLayerImpl::parseImpl()
 {
-    return 
+    return
         Base::parseImpl() &&
         parseUpdateIdReplacement() &&
         parseUpdateSemanticLayerType() &&
@@ -114,7 +114,7 @@ bool ParseCustomLayerImpl::parseUpdateSemanticLayerType()
 
     if (m_sematicLayerType != ParseKind::Custom) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "Cannot use \"" + prop + "\" property when semantic type was specified by other (deprecated) properties";        
+            "Cannot use \"" + prop + "\" property when semantic type was specified by other (deprecated) properties";
 
         return false;
     }
@@ -160,8 +160,8 @@ bool ParseCustomLayerImpl::parseUpdateChecksumFrom()
     if (m_sematicLayerType != ParseKind::Checksum) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Property \"" << prop << "\" is not applicable to selected \"" << common::parseSemanticLayerTypeStr() << "\", ignoring...";
-        return true;        
-    }    
+        return true;
+    }
 
     m_checksumFromLayer = iter->second;
     return true;
@@ -188,14 +188,14 @@ bool ParseCustomLayerImpl::parseUpdateChecksumUntil()
     if (m_sematicLayerType != ParseKind::Checksum) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Property \"" << prop << "\" is not applicable to selected \"" << common::parseSemanticLayerTypeStr() << "\", ignoring...";
-        return true;        
+        return true;
     }
 
     m_checksumUntilLayer = iter->second;
     return true;
 }
 
-bool ParseCustomLayerImpl::parseVerifyChecksumInternal(const ParseLayersList& layers) 
+bool ParseCustomLayerImpl::parseVerifyChecksumInternal(const ParseLayersList& layers)
 {
     if (m_sematicLayerType != ParseKind::Checksum) {
         return true;
@@ -205,9 +205,9 @@ bool ParseCustomLayerImpl::parseVerifyChecksumInternal(const ParseLayersList& la
     assert(thisIdx < layers.size());
 
     if (m_checksumFromLayer.empty() && m_checksumUntilLayer.empty()) {
-        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) << 
-            "Custom layer with " + common::parseSemanticLayerTypeStr() << "=\"" << common::parseChecksumStr() << "\" must set \"" << 
-            common::parseChecksumFromStr() << "\" or \"" << 
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "Custom layer with " + common::parseSemanticLayerTypeStr() << "=\"" << common::parseChecksumStr() << "\" must set \"" <<
+            common::parseChecksumFromStr() << "\" or \"" <<
             common::parseChecksumUntilStr() << "\" property to indicate on what values checksum is calculated.";
         return false;
     }

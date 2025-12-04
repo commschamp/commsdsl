@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include "commsdsl/gen/GenNamespace.h"
 #include "commsdsl/gen/util.h"
 
 #include <string>
@@ -23,25 +24,33 @@ namespace commsdsl2swig
 {
 
 class SwigGenerator;
+class SwigNamespace;
+
 class SwigMsgHandler
 {
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
+    using GenMessagesAccessList = commsdsl::gen::GenNamespace::GenMessagesAccessList;
 
-    static bool swigWrite(SwigGenerator& generator);
+    SwigMsgHandler(SwigGenerator& generator, const SwigNamespace& parent);
+    bool swigWrite() const;
 
-    static void swigAddFwdCode(const SwigGenerator& generator, GenStringsList& list);
-    static void swigAddClassCode(const SwigGenerator& generator, GenStringsList& list);
-    static void swigAddDef(const SwigGenerator& generator, GenStringsList& list);
-    static std::string swigClassName(const SwigGenerator& generator);
+    void swigAddFwdCode(GenStringsList& list) const;
+    void swigAddClassCode(GenStringsList& list) const;
+    void swigAddDef(GenStringsList& list) const;
+    std::string swigClassName() const;
 
 private:
-    explicit SwigMsgHandler(SwigGenerator& generator) : m_swigGenerator(generator) {}
-
-    bool swigWriteInternal() const;
     std::string swigClassDeclInternal() const;
-    
-    SwigGenerator& m_swigGenerator;    
+    GenMessagesAccessList swigMessagesListInternal() const;
+
+    SwigGenerator& m_swigGenerator;
+    const SwigNamespace& m_parent;
+
+    mutable bool m_written = false;
+    mutable bool m_fwdAdded = false;
+    mutable bool m_codeAdded = false;
+    mutable bool m_defAdded = false;
 };
 
 } // namespace commsdsl2swig

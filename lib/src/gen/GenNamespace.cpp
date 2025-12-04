@@ -33,7 +33,7 @@ namespace commsdsl
 namespace gen
 {
 
-namespace 
+namespace
 {
 
 template <typename TList>
@@ -44,27 +44,26 @@ bool genWriteElements(TList& list)
         [](auto& elem)
         {
             return elem->genWrite();
-        });    
+        });
 }
 
-} // namespace 
-    
+} // namespace
 
 class GenNamespaceImpl
 {
 public:
     using ParseNamespace = GenNamespace::ParseNamespace;
-    
+
     using GenNamespacesList = GenNamespace::GenNamespacesList;
     using GenFieldsList = GenNamespace::GenFieldsList;
     using GenInterfacesList = GenNamespace::GenInterfacesList;
     using GenMessagesList = GenNamespace::GenMessagesList;
     using GenFramesList = GenNamespace::GenFramesList;
 
-    GenNamespaceImpl(GenGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
+    GenNamespaceImpl(GenGenerator& generator, ParseNamespace parseObj, GenNamespace* holder) :
         m_generator(generator),
         m_parseObj(parseObj),
-        m_parent(parent)
+        m_holder(holder)
     {
     }
 
@@ -80,7 +79,7 @@ public:
             genCreateInterfaces() &&
             genCreateMessages() &&
             genCreateFrames();
-    }    
+    }
 
     bool genPrepare()
     {
@@ -129,7 +128,7 @@ public:
     GenInterfacesList& genInterfaces()
     {
         return m_interfaces;
-    }    
+    }
 
     const GenMessagesList& genMessages() const
     {
@@ -147,7 +146,7 @@ public:
             return true;
         }
 
-        return 
+        return
             std::any_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& ns)
@@ -162,14 +161,14 @@ public:
             return true;
         }
 
-        return 
+        return
             std::any_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& ns)
                 {
                     return ns->genHasMessagesRecursive();
                 });
-    }    
+    }
 
     GenGenerator& genGenerator()
     {
@@ -179,7 +178,7 @@ public:
     const GenGenerator& genGenerator() const
     {
         return m_generator;
-    }    
+    }
 
     void genSetAllInterfacesReferenced()
     {
@@ -197,21 +196,21 @@ public:
 
     bool genHasReferencedMessageIdField() const
     {
-        bool hasInFields = 
+        bool hasInFields =
             std::any_of(
                 m_fields.begin(), m_fields.end(),
                 [](auto& f)
                 {
-                    return 
-                        (f->genIsReferenced()) && 
+                    return
+                        (f->genIsReferenced()) &&
                         (f->genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::MessageId);
-                });   
+                });
 
         if (hasInFields) {
             return true;
         }
 
-        return 
+        return
             std::any_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& n)
@@ -222,25 +221,25 @@ public:
 
     bool genHasAnyReferencedMessage() const
     {
-        bool hasMessage = 
+        bool hasMessage =
             std::any_of(
                 m_messages.begin(), m_messages.end(),
                 [](auto& m)
                 {
                     return m->genIsReferenced();
-                });   
+                });
 
         if (hasMessage) {
             return true;
         }
 
-        return 
+        return
             std::any_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& n)
                 {
                     return n->genHasAnyReferencedMessage();
-                });        
+                });
     }
 
     bool genHasAnyReferencedComponent() const
@@ -249,50 +248,104 @@ public:
             return true;
         }
 
-        bool hasMessage = 
+        bool hasMessage =
             std::any_of(
                 m_messages.begin(), m_messages.end(),
                 [](auto& m)
                 {
                     return m->genIsReferenced();
-                });   
+                });
 
         if (hasMessage) {
             return true;
         }
 
-        bool hasInterface = 
+        bool hasInterface =
             std::any_of(
                 m_interfaces.begin(), m_interfaces.end(),
                 [](auto& i)
                 {
                     return i->genIsReferenced();
-                });   
+                });
 
         if (hasInterface) {
             return true;
-        }     
+        }
 
-        bool hasField = 
+        bool hasField =
             std::any_of(
                 m_fields.begin(), m_fields.end(),
                 [](auto& f)
                 {
                     return f->genIsReferenced();
-                });   
+                });
 
         if (hasField) {
             return true;
-        }             
+        }
 
-        return 
+        return
             std::any_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& n)
                 {
                     return n->genHasAnyReferencedComponent();
-                });        
-    }    
+                });
+    }
+
+    const GenInterface* genFindSuitableInterface() const
+    {
+        auto* iFace = m_generator.genForcedInterface();
+
+        if (iFace == nullptr) {
+            return genFindSuitableInterfaceInternal();
+        }
+
+        assert(iFace->genIsReferenced());
+        if (genIsSuitableInterface(*iFace)) {
+            return iFace;
+        }
+
+        return nullptr;
+    }
+
+    bool genIsSuitableInterface(const GenInterface& iFace) const
+    {
+        auto& thisNsInterfaces = genInterfaces();
+        auto iter =
+            std::find_if(
+                thisNsInterfaces.begin(), thisNsInterfaces.end(),
+                [&iFace](auto& iFacePtr)
+                {
+                    return &iFace == iFacePtr.get();
+                });
+
+        if (iter != thisNsInterfaces.end()) {
+            return true;
+        }
+
+        auto* parent = m_holder->genGetParent();
+        if (parent->genElemType() == GenElem::GenType_Namespace) {
+            return static_cast<const GenNamespace*>(parent)->genIsSuitableInterface(iFace);
+        }
+
+        auto allNamespaces = m_generator.genGetAllNamespaces();
+        auto nsIter =
+            std::find_if(
+                allNamespaces.begin(), allNamespaces.end(),
+                [](auto* ns)
+                {
+                    return ns->genName().empty();
+                });
+
+        if (nsIter == allNamespaces.end()) {
+            return false;
+        }
+
+        auto defaultNsInterfaces = (*nsIter)->genGetAllInterfaces();
+        auto iFaceIter = std::find(defaultNsInterfaces.begin(), defaultNsInterfaces.end(), &iFace);
+        return iFaceIter != defaultNsInterfaces.end();
+    }
 
 private:
     bool genCreateNamespaces()
@@ -300,7 +353,7 @@ private:
         auto namespaces = m_parseObj.parseNamespaces();
         m_namespaces.reserve(namespaces.size());
         for (auto& n : namespaces) {
-            auto ptr = m_generator.genCreateNamespace(n, m_parent);
+            auto ptr = m_generator.genCreateNamespace(n, m_holder);
             assert(ptr);
             if (!ptr->genCreateAll()) {
                 return false;
@@ -313,7 +366,7 @@ private:
 
     bool genPrepareNamespaces()
     {
-        return 
+        return
             std::all_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& n)
@@ -332,17 +385,17 @@ private:
         auto fields = m_parseObj.parseFields();
         m_fields.reserve(fields.size());
         for (auto& parseObj : fields) {
-            auto ptr = GenField::genCreate(m_generator, parseObj, m_parent);
+            auto ptr = GenField::genCreate(m_generator, parseObj, m_holder);
             assert(ptr);
             m_fields.push_back(std::move(ptr));
         }
 
         return true;
-    }    
+    }
 
     bool genPrepareFields()
     {
-        return 
+        return
             std::all_of(
                 m_fields.begin(), m_fields.end(),
                 [](auto& f)
@@ -358,21 +411,21 @@ private:
         auto interfaces = m_parseObj.parseInterfaces();
         m_interfaces.reserve(interfaces.size());
         for (auto& i : interfaces) {
-            auto ptr = m_generator.genCreateInterface(i, m_parent);
+            auto ptr = m_generator.genCreateInterface(i, m_holder);
             assert(ptr);
             if (!ptr->genCreateAll()) {
                 return false;
             }
-            
+
             m_interfaces.push_back(std::move(ptr));
         }
 
         return true;
-    }    
+    }
 
     bool genPrepareInterfaces()
     {
-        return 
+        return
             std::all_of(
                 m_interfaces.begin(), m_interfaces.end(),
                 [](auto& i)
@@ -387,20 +440,20 @@ private:
         auto messages = m_parseObj.parseMessages();
         m_messages.reserve(messages.size());
         for (auto& m : messages) {
-            auto ptr = m_generator.genCreateMessage(m, m_parent);
+            auto ptr = m_generator.genCreateMessage(m, m_holder);
             if (!ptr->genCreateAll()) {
                 return false;
-            }            
+            }
             assert(ptr);
             m_messages.push_back(std::move(ptr));
         }
 
         return true;
-    }    
+    }
 
     bool genPrepareMessages()
     {
-        return 
+        return
             std::all_of(
                 m_messages.begin(), m_messages.end(),
                 [](auto& m)
@@ -415,17 +468,17 @@ private:
         auto frames = m_parseObj.parseFrames();
         m_frames.reserve(frames.size());
         for (auto& f : frames) {
-            auto ptr = m_generator.genCreateFrame(f, m_parent);
+            auto ptr = m_generator.genCreateFrame(f, m_holder);
             assert(ptr);
             m_frames.push_back(std::move(ptr));
         }
 
         return true;
-    }    
+    }
 
     bool genPrepareFrames()
     {
-        return 
+        return
             std::all_of(
                 m_frames.begin(), m_frames.end(),
                 [](auto& f)
@@ -435,15 +488,76 @@ private:
                 });
     }
 
+    const GenInterface* genFindSuitableInterfaceInternal() const
+    {
+        auto& thisNsInterfaces = genInterfaces();
+        do {
+            if (thisNsInterfaces.empty()) {
+                break;
+            }
+
+            auto iter =
+                std::find_if(
+                    thisNsInterfaces.begin(), thisNsInterfaces.end(),
+                    [](auto& iFace)
+                    {
+                        return iFace->genIsReferenced();
+                    });
+
+            if (iter == thisNsInterfaces.end()) {
+                break;
+            }
+
+            return iter->get();
+        } while (false);
+
+        auto* parent = m_holder->genGetParent();
+        if (parent->genElemType() == GenElem::GenType_Namespace) {
+            return static_cast<const GenNamespace*>(parent)->genFindSuitableInterface();
+        }
+
+        auto allNamespaces = m_generator.genGetAllNamespaces();
+        auto iter =
+            std::find_if(
+                allNamespaces.begin(), allNamespaces.end(),
+                [](auto* ns)
+                {
+                    return ns->genName().empty();
+                });
+
+        if (iter == allNamespaces.end()) {
+            return nullptr;
+        }
+
+        auto defaultNsInterfaces = (*iter)->genGetAllInterfaces();
+        if (defaultNsInterfaces.empty()) {
+            return nullptr;
+        }
+
+        auto iFaceIter =
+            std::find_if(
+                defaultNsInterfaces.begin(), defaultNsInterfaces.end(),
+                [](auto* iFace)
+                {
+                    return iFace->genIsReferenced();
+                });
+
+        if (iFaceIter == defaultNsInterfaces.end()) {
+            return nullptr;
+        }
+
+        return *iFaceIter;
+    }
+
     GenGenerator& m_generator;
     ParseNamespace m_parseObj;
-    GenElem* m_parent = nullptr;
+    GenNamespace* m_holder = nullptr;
     GenNamespacesList m_namespaces;
     GenFieldsList m_fields;
     GenInterfacesList m_interfaces;
     GenMessagesList m_messages;
     GenFramesList m_frames;
-}; 
+};
 
 GenNamespace::GenNamespace(GenGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
     Base(parent),
@@ -538,7 +652,7 @@ GenNamespace::GenFieldsAccessList GenNamespace::genFindMessageIdFields() const
         if ((f->genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Enum) &&
             (f->genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Int)) {
             [[maybe_unused]] static constexpr bool Unexpected_kind = false;
-            assert(Unexpected_kind);  
+            assert(Unexpected_kind);
             continue;
         }
 
@@ -855,8 +969,8 @@ GenInterface* GenNamespace::genAddDefaultInterface()
         intList.erase(iter);
         return nullptr;
     }
-    
-    return iter->get();    
+
+    return iter->get();
 }
 
 void GenNamespace::genSetAllInterfacesReferenced()
@@ -882,6 +996,16 @@ bool GenNamespace::genHasAnyReferencedMessage() const
 bool GenNamespace::genHasAnyReferencedComponent() const
 {
     return m_impl->genHasAnyReferencedComponent();
+}
+
+const GenInterface* GenNamespace::genFindSuitableInterface() const
+{
+    return m_impl->genFindSuitableInterface();
+}
+
+bool GenNamespace::genIsSuitableInterface(const GenInterface& iFace) const
+{
+    return m_impl->genIsSuitableInterface(iFace);
 }
 
 GenElem::GenType GenNamespace::genElemTypeImpl() const

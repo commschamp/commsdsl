@@ -26,7 +26,7 @@ ToolsQtValueLayer::ToolsQtValueLayer(ToolsQtGenerator& generator, ParseLayer par
 {
 }
 
-bool ToolsQtValueLayer::genPrepareImpl() 
+bool ToolsQtValueLayer::genPrepareImpl()
 {
     return GenBase::genPrepareImpl() && ToolsBase::toolsPrepare();
 }

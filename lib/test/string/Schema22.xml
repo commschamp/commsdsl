@@ -8,6 +8,6 @@
         <string name="S2" defaultValue="^S1" />
         <string name="S3" defaultValue="\^S1" />
         <string name="S4" defaultValue="\\\\^S1" />
-        <string name="S5" defaultValue="\.\\\^S1" />                
+        <string name="S5" defaultValue="\.\\\^S1" />
     </fields>
 </schema>

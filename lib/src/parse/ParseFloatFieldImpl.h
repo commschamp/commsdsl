@@ -40,7 +40,6 @@ public:
     using ParseSpecialValueInfo = ParseFloatField::ParseSpecialValueInfo;
     using ParseSpecialValues = ParseFloatField::ParseSpecialValues;
 
-
     ParseFloatFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseFloatFieldImpl(const ParseFloatFieldImpl&);
 

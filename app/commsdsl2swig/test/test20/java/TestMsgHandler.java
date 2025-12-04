@@ -11,7 +11,7 @@ public class TestMsgHandler extends test20_swig.MsgHandler {
 
     public void handle_message_Msg2(test20_swig.message_Msg2 msg) {
         m_test.setMsg2(new test20_swig.message_Msg2(msg));
-    }    
+    }
 
     public void handle_Message(test20_swig.Message msg) {
         assert false;

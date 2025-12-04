@@ -17,6 +17,8 @@
 #pragma once
 
 #include "SwigField.h"
+#include "SwigInputMessages.h"
+#include "SwigMsgHandler.h"
 #include "SwigMsgId.h"
 
 #include "commsdsl/gen/GenNamespace.h"
@@ -26,6 +28,8 @@ namespace commsdsl2swig
 {
 
 class SwigGenerator;
+class SwigInterface;
+
 class SwigNamespace final: public commsdsl::gen::GenNamespace
 {
     using GenBase = commsdsl::gen::GenNamespace;
@@ -38,8 +42,8 @@ public:
     explicit SwigNamespace(SwigGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~SwigNamespace();
 
-    void swigAddCodeIncludes(GenStringsList& list) const; 
-    void swigAddCode(GenStringsList& list) const; 
+    void swigAddCodeIncludes(GenStringsList& list) const;
+    void swigAddCode(GenStringsList& list) const;
 
     void swigAddDef(GenStringsList& list) const;
 
@@ -50,15 +54,24 @@ public:
 
     std::string swigMsgIdClassName() const;
 
+    const SwigMsgId* swigMsgId() const;
+    const SwigMsgHandler* swigMsgHandler() const;
+    const SwigInputMessages* swigInputMessages() const;
+
+    bool swigHasInput() const;
+    const SwigInterface* swigInterface() const;
+
 protected:
-    virtual bool genPrepareImpl() override;    
+    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;
 
 private:
     using SwigFieldsList = SwigField::SwigFieldsList;
 
-    SwigFieldsList m_swigFields;   
-    SwigMsgId m_msgId;     
+    SwigFieldsList m_swigFields;
+    SwigMsgId m_msgId;
+    SwigMsgHandler m_handler;
+    SwigInputMessages m_input;
 };
 
 } // namespace commsdsl2swig

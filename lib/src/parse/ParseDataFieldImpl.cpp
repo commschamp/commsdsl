@@ -175,7 +175,7 @@ std::size_t ParseDataFieldImpl::parseMaxLengthImpl() const
         auto result = castedPrefix.parseMaxLength();
         common::parseAddToLength(static_cast<std::size_t>(castedPrefix.parseMaxValue()), result);
         return result;
-    } while (false);    
+    } while (false);
 
     return common::parseMaxPossibleLength();
 }
@@ -242,15 +242,15 @@ bool ParseDataFieldImpl::parseUpdateDefaultValidValue()
     }
 
     if (!parseProtocol().parseIsValidValueInStringAndDataSupported()) {
-        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) << 
-            "Property \"" << common::parseDefaultValidValueStr() << "\" for <data> field is not supported for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion() << ", ignoring...";        
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "Property \"" << common::parseDefaultValidValueStr() << "\" for <data> field is not supported for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion() << ", ignoring...";
         return true;
-    }     
+    }
 
     if (!parseStrToValue(iter->second, m_state.m_defaultValue)) {
         parseReportUnexpectedPropertyValue(propName, iter->second);
         return false;
-    }    
+    }
 
     if ((m_state.m_length != 0U) && (m_state.m_length < m_state.m_defaultValue.size())) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
@@ -337,7 +337,7 @@ bool ParseDataFieldImpl::parseUpdateValidValues()
             return std::lexicographical_compare(elem1.m_value.begin(), elem1.m_value.end(), elem2.m_value.begin(), elem2.m_value.end());
         });
 
-    return true;    
+    return true;
 }
 
 bool ParseDataFieldImpl::parseCheckPrefixFromRef()
@@ -386,7 +386,7 @@ bool ParseDataFieldImpl::parseCheckPrefixFromRef()
     if ((field->parseKind() != ParseKind::Int) && (field->parseSemanticType() != ParseSemanticType::Length)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "The field referenced by \"" << common::parseLengthPrefixStr() <<
-            "\" property (" << iter->second << ") must be of type \"" << common::parseIntStr() << 
+            "\" property (" << iter->second << ") must be of type \"" << common::parseIntStr() <<
             "\" or have semanticType=\"length\" property set.";
         return false;
     }
@@ -458,17 +458,16 @@ bool ParseDataFieldImpl::parseCheckPrefixAsChild()
 
     if ((field->parseKind() != ParseKind::Int) && (field->parseSemanticType() != ParseSemanticType::Length)) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The \"" << common::parseLengthPrefixStr() << "\" element must be of type \"" << common::parseIntStr() << 
+            "The \"" << common::parseLengthPrefixStr() << "\" element must be of type \"" << common::parseIntStr() <<
             "\" or have semanticType=\"length\" property set.";
         return false;
-    }      
+    }
 
     m_state.m_extPrefixField = nullptr;
     m_prefixField = std::move(field);
     m_state.m_detachedPrefixField.clear();
     return true;
 }
-
 
 bool ParseDataFieldImpl::parseCheckValidValueAsAttr(const ParseFieldImpl::ParsePropsMap& xmlAttrs)
 {
@@ -478,10 +477,10 @@ bool ParseDataFieldImpl::parseCheckValidValueAsAttr(const ParseFieldImpl::ParseP
     }
 
     if (!parseProtocol().parseIsValidValueInStringAndDataSupported()) {
-        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) << 
-            "Property \"" << common::parseValidValueStr() << "\" for <data> field is not supported for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion() << ", ignoring...";        
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "Property \"" << common::parseValidValueStr() << "\" for <data> field is not supported for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion() << ", ignoring...";
         return true;
-    }    
+    }
 
     ParseValidValueInfo info;
     if (!parseStrToValue(iter->second, info.m_value)) {
@@ -489,7 +488,7 @@ bool ParseDataFieldImpl::parseCheckValidValueAsAttr(const ParseFieldImpl::ParseP
                       "Property value \"" << common::parseValidValueStr() << "\" of <data> element \"" <<
                       parseName() << "\" cannot be properly parsed.";
         return false;
-    }    
+    }
 
     info.m_sinceVersion = parseGetSinceVersion();
     info.m_deprecatedSince = parseGetDeprecated();
@@ -506,10 +505,10 @@ bool ParseDataFieldImpl::parseCheckValidValueAsChild(::xmlNodePtr child)
     }
 
     if (!parseProtocol().parseIsValidValueInStringAndDataSupported()) {
-        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) << 
-            "Property \"" << common::parseValidValueStr() << "\" for <data> field is not supported for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion() << ", ignoring...";        
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "Property \"" << common::parseValidValueStr() << "\" for <data> field is not supported for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion() << ", ignoring...";
         return true;
-    }        
+    }
 
     ParseValidValueInfo info;
     if (!parseStrToValue(str, info.m_value)) {
@@ -517,7 +516,7 @@ bool ParseDataFieldImpl::parseCheckValidValueAsChild(::xmlNodePtr child)
                       "Property value \"" << common::parseValidValueStr() << "\" of <data> element \"" <<
                       parseName() << "\" cannot be properly parsed.";
         return false;
-    }    
+    }
 
     info.m_sinceVersion = parseGetSinceVersion();
     info.m_deprecatedSince = parseGetDeprecated();
@@ -529,7 +528,6 @@ bool ParseDataFieldImpl::parseCheckValidValueAsChild(::xmlNodePtr child)
     m_state.m_validValues.push_back(std::move(info));
     return true;
 }
-
 
 const ParseFieldImpl* ParseDataFieldImpl::parseGetPrefixField() const
 {

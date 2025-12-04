@@ -27,7 +27,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2emscripten
 {
 
-EmscriptenDataField::EmscriptenDataField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+EmscriptenDataField::EmscriptenDataField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     EmscriptenBase(static_cast<GenBase&>(*this))
 {
@@ -45,7 +45,7 @@ std::string EmscriptenDataField::emscriptenHeaderValueAccImpl() const
 
 std::string EmscriptenDataField::emscriptenHeaderExtraPublicFuncsImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "void assignJsArray(const emscripten::val& jsArray)\n"
         "{\n"
         "    Base::value() = #^#JS_ARRAY_FUNC#$#(jsArray);"
@@ -65,7 +65,7 @@ std::string EmscriptenDataField::emscriptenSourceBindValueAccImpl() const
 
 std::string EmscriptenDataField::emscriptenSourceBindFuncsImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         ".function(\"assignJsArray\", &#^#CLASS_NAME#$#::assignJsArray)"
         ;
 
@@ -73,7 +73,7 @@ std::string EmscriptenDataField::emscriptenSourceBindFuncsImpl() const
         {"CLASS_NAME", emscriptenBindClassName()}
     };
 
-    return util::genProcessTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2emscripten

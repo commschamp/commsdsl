@@ -8,5 +8,5 @@
     <fields>
         <int name="Int1" type="int32" semanticType="length" />
     </fields>
-           
+
 </schema>

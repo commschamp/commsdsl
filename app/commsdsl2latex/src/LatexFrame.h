@@ -53,7 +53,6 @@ public:
     std::string latexTitle() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;
 
 private:

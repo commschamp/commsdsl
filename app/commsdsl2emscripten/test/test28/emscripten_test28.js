@@ -24,12 +24,12 @@ function allocHandler(instance)
             if (this.msg2) {
                 this.msg2.delete();
             }
-        },   
+        },
         clean: function() {
             this.clean_Msg1();
             this.clean_Msg2();
-        } 
-    });    
+        }
+    });
 
     return new DerivedHandler;
 }
@@ -54,12 +54,12 @@ function allocVariant1Handler(instance)
             if (this.p2) {
                 this.p2.delete();
             }
-        },   
+        },
         clean: function() {
             this.clean_p1();
             this.clean_p2();
-        } 
-    });    
+        }
+    });
 
     return new DerivedHandler;
 }
@@ -85,8 +85,8 @@ function test1(instance) {
         frame.processInputData(buf, handler);
         assert(instance.eq_message_Msg1(msg, handler.msg1));
 
-        handler.msg1.field_variant1().ref().currentFieldExec(vh);   
-        assert(instance.eq_field_Variant1Members_P2(vh.p2, msg.field_variant1().ref().accessField_p2()))         
+        handler.msg1.field_variant1().ref().currentFieldExec(vh);
+        assert(instance.eq_field_Variant1Members_P2(vh.p2, msg.field_variant1().ref().accessField_p2()))
     }
     finally {
         buf.delete();

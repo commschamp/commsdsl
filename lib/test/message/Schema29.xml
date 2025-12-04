@@ -23,7 +23,7 @@
     <message name="Msg1" id="MsgId.Msg1" displayName="^Msg1Name" constructAsReadCond="true">
         <description>
             Expected to fail due to missing construct property.
-        </description> 
+        </description>
     </message>
 
 </schema>

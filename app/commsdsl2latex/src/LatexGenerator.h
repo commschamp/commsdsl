@@ -17,7 +17,7 @@
 
 #include "commsdsl/gen/GenGenerator.h"
 
-namespace commsdsl2latex 
+namespace commsdsl2latex
 {
 
 class LatexGenerator final : public commsdsl::gen::GenGenerator
@@ -41,6 +41,7 @@ public:
     static void latexWrapInputInPlace(std::string& filePath);
     static const std::string& latexSectionDirective(const GenElem& elem);
     static std::string latexLabelId(const GenElem& elem);
+    static std::string latexEscString(const std::string& str);
     static std::string latexEscDisplayName(const std::string& displayName, const std::string& name);
     static void latexEnsureNewLineBreak(std::string& str);
     static std::string latexIntegralToStr(std::intmax_t value, bool isUnsigned, std::size_t hexWidth = 0);
@@ -54,11 +55,11 @@ public:
     static const LatexGenerator& latexCast(const GenGenerator& generator)
     {
         return static_cast<const LatexGenerator&>(generator);
-    }    
+    }
 
     std::string latexRelPathFor(const GenElem& elem) const;
 
-    std::string latexInputCodePathForFile(const std::string& name) const;    
+    std::string latexInputCodePathForFile(const std::string& name) const;
 
     bool latexHasCodeInjectionComments() const
     {
@@ -66,7 +67,7 @@ public:
     }
 
 protected:
-    virtual bool genWriteImpl() override;    
+    virtual bool genWriteImpl() override;
 
     virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
     virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;

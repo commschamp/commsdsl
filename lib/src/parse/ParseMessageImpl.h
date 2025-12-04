@@ -114,7 +114,7 @@ public:
     bool parseIsFailOnInvalid() const
     {
         return m_state.m_failOnInvalid;
-    }       
+    }
 
     ParseSender parseSender() const
     {
@@ -129,7 +129,7 @@ public:
     ParseOverrideType parseWriteOverride() const
     {
         return m_state.m_writeOverride;
-    }    
+    }
 
     ParseOverrideType parseRefreshOverride() const
     {
@@ -149,7 +149,7 @@ public:
     ParseOverrideType parseNameOverride() const
     {
         return m_state.m_nameOverride;
-    }        
+    }
 
     const std::string& parseCopyCodeFrom() const
     {
@@ -164,12 +164,12 @@ public:
     ParseOptCond parseReadCond() const
     {
         return ParseOptCond(m_state.m_readCond.get());
-    }  
+    }
 
     ParseOptCond parseValidCond() const
     {
         return ParseOptCond(m_state.m_validCond.get());
-    }          
+    }
 
 protected:
     virtual ParseObjKind parseObjKindImpl() const override;
@@ -192,7 +192,7 @@ private:
         ParseOverrideType m_refreshOverride = ParseOverrideType_Any;
         ParseOverrideType m_lengthOverride = ParseOverrideType_Any;
         ParseOverrideType m_validOverride = ParseOverrideType_Any;
-        ParseOverrideType m_nameOverride = ParseOverrideType_Any;    
+        ParseOverrideType m_nameOverride = ParseOverrideType_Any;
         std::string m_copyCodeFrom;
         ParseOptCondImplPtr m_construct;
         ParseOptCondImplPtr m_readCond;
@@ -205,7 +205,7 @@ private:
 
         auto basicForwardAsTuple()
         {
-            return 
+            return
                 std::forward_as_tuple(
                     m_name,
                     m_displayName,
@@ -251,7 +251,7 @@ private:
             m_aliases.reserve(other.m_aliases.size());
             for (auto& a : other.m_aliases) {
                 m_aliases.push_back(a->parseClone());
-            }            
+            }
 
             if (other.m_construct) {
                 m_construct = other.m_construct->parseClone();
@@ -259,13 +259,13 @@ private:
 
             if (other.m_readCond) {
                 m_readCond = other.m_readCond->parseClone();
-            }    
+            }
 
             if (other.m_validCond) {
                 m_validCond = other.m_validCond->parseClone();
-            }    
+            }
 
-            return *this;          
+            return *this;
         }
     };
 
@@ -276,7 +276,7 @@ private:
     static const ParseXmlWrap::ParseNamesList& parseCommonProps();
     static const ParseXmlWrap::ParseNamesList& parseExtraProps();
     static const ParseXmlWrap::ParseNamesList& parseAllProps();
-    
+
     static ParseXmlWrap::ParseNamesList parseAllNames();
 
     bool parseValidateSinglePropInstance(const std::string& str, bool mustHave = false);
@@ -310,8 +310,8 @@ private:
     bool parseUpdateRefreshOverride();
     bool parseUpdateLengthOverride();
     bool parseUpdateValidOverride();
-    bool parseUpdateNameOverride();    
-    bool parseUpdateCopyOverrideCodeFrom();    
+    bool parseUpdateNameOverride();
+    bool parseUpdateCopyOverrideCodeFrom();
     bool parseCopyConstruct();
     bool parseCopyReadCond();
     bool parseCopyValidCond();
@@ -320,7 +320,7 @@ private:
     bool parseUpdateSingleReadCond();
     bool parseUpdateMultiReadCond();
     bool parseUpdateSingleValidCond();
-    bool parseUpdateMultiValidCond();    
+    bool parseUpdateMultiValidCond();
     bool parseCopyConstructToReadCond();
     bool parseCopyConstructToValidCond();
     bool parseUpdateExtraAttrs();
@@ -330,9 +330,9 @@ private:
     bool parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond, bool allowFieldsAccess = false);
     bool parseCopyCondInternal(
         const std::string& copyProp,
-        const std::string& fromProp, 
-        const ParseOptCondImplPtr& fromCond, 
-        const std::string& toProp, 
+        const std::string& fromProp,
+        const ParseOptCondImplPtr& fromCond,
+        const std::string& toProp,
         ParseOptCondImplPtr& toCond,
         bool allowOverride = true);
 
@@ -342,7 +342,7 @@ private:
     ParsePropsMap m_extraAttrs;
     ParseContentsList m_extraChildren;
     const ParseMessageImpl* m_copyFieldsFromMsg = nullptr;
-    const ParseBundleFieldImpl* m_copyFieldsFromBundle = nullptr;    
+    const ParseBundleFieldImpl* m_copyFieldsFromBundle = nullptr;
     ParseReusableState m_state;
 };
 

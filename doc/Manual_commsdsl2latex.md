@@ -5,7 +5,6 @@ The **commsdsl2latex** is a code generation tool provided by this project.
 It generates CMake project with [LaTeX](https://en.wikipedia.org/wiki/LaTeX) files
 that can be used to produce protocol specification in **pdf** and/or **html** formats.
 
-
 ## Command Line Arguments
 The **commsdsl2latex** utility has multiple command line arguments, please
 use `-h` option for the full list as well as default option values.

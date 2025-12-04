@@ -7,14 +7,14 @@
                 <validValue name="M2" val="2" />
             </enum>
         </fields>
-    
+
         <frame name="Generic">
             <size name="Size">
                 <field>
                     <int type="uintvar" name="Size" />
                 </field>
             </size>
-            <id name="Id" field="ns1.MsgId"/>        
+            <id name="Id" field="ns1.MsgId"/>
             <payload name="Data" />
         </frame>
     </ns>

@@ -35,7 +35,7 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
     virtual std::string latexDocImpl() const override;
     virtual std::string latexRefLabelIdImpl() const override;
@@ -43,10 +43,9 @@ protected:
     virtual std::string latexInfoDetailsImpl() const override;
     virtual bool latexIsOptionalImpl() const override;
 
-
 private:
     bool latexIsEmptyAlias() const;
-    
+
     LatexField* m_latexField = nullptr;
 };
 

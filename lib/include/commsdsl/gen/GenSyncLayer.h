@@ -39,7 +39,7 @@ public:
     GenSyncLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent = nullptr);
     virtual ~GenSyncLayer();
 
-protected:    
+protected:
     ParseSyncLayer genSyncLayerDslObj() const;
 };
 

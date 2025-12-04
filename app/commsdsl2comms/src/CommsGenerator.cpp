@@ -66,7 +66,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-const std::string CommsMinCommsVersion("5.4.4");    
+const std::string CommsMinCommsVersion("5.4.5");
 
 const std::string& CommsGenerator::commsFileGeneratedComment()
 {
@@ -91,7 +91,7 @@ void CommsGenerator::commsSetCustomizationLevel(const std::string& value)
     static const std::string Map[] = {
         /* Full */ "full",
         /* Limited */ "limited",
-        /* None */ "none",        
+        /* None */ "none",
     };
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == static_cast<unsigned>(CommsCustomizationLevel::NumOfValues));
@@ -103,16 +103,6 @@ void CommsGenerator::commsSetCustomizationLevel(const std::string& value)
     }
 
     m_customizationLevel = static_cast<CommsCustomizationLevel>(std::distance(std::begin(Map), iter));
-}
-
-const std::string& CommsGenerator::commsGetProtocolVersion() const
-{
-    return m_protocolVersion;
-}
-
-void CommsGenerator::commsSetProtocolVersion(const std::string& value)
-{
-    m_protocolVersion = value;
 }
 
 bool CommsGenerator::commsGetMainNamespaceInOptionsForced() const
@@ -156,7 +146,7 @@ bool CommsGenerator::genPrepareImpl()
         return false;
     }
 
-    return 
+    return
         commsPrepareExtraMessageBundlesInternal();
 }
 
@@ -280,11 +270,11 @@ CommsGenerator::GenLayerPtr CommsGenerator::genCreateChecksumLayerImpl(commsdsl:
     return std::make_unique<commsdsl2comms::CommsChecksumLayer>(*this, parseObj, parent);
 }
 
-bool CommsGenerator::genWriteImpl() 
+bool CommsGenerator::genWriteImpl()
 {
     for (auto idx = 0U; idx < genSchemas().size(); ++idx) {
         genChooseCurrentSchema(idx);
-        bool result = 
+        bool result =
             CommsFieldBase::commsWrite(*this) &&
             CommsVersion::commsWrite(*this) &&
             CommsDefaultOptions::commsWrite(*this);
@@ -295,7 +285,7 @@ bool CommsGenerator::genWriteImpl()
     }
 
     assert(&genCurrentSchema() == &genProtocolSchema());
-    return 
+    return
         CommsCmake::commsWrite(*this) &&
         CommsDoxygen::commsWrite(*this) &&
         commsWriteExtraFilesInternal();
@@ -306,7 +296,6 @@ CommsGenerator::OptsProcessResult CommsGenerator::genProcessOptionsImpl(const Ge
     auto& opts = CommsProgramOptions::commsCast(options);
     genSetVersionIndependentCodeForced(opts.commsVersionIndependentCodeRequested());
     commsSetCustomizationLevel(opts.commsGetCustomizationLevel());
-    commsSetProtocolVersion(opts.commsGetProtocolVersion());
     commsSetExtraInputBundles(opts.commsGetExtraInputBundles());
     commsSetMainNamespaceInOptionsForced(opts.commsIsMainNamespaceInOptionsForced());
 
@@ -387,7 +376,7 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
         strings::genIncFileSuffixStr(),
         strings::genAppendFileSuffixStr(),
         strings::genConstructFileSuffixStr(),
-    }; 
+    };
 
     return genCopyExtraSourceFiles(ReservedExt);
 }

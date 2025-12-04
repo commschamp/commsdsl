@@ -12,7 +12,7 @@ public class SwigTest {
 
     public void setMsg2(test20_swig.message_Msg2 msg) {
         m_msg2 = msg;
-    }    
+    }
 
     public void doTest1() {
         var msg = new test20_swig.message_Msg2();

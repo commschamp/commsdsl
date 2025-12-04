@@ -111,7 +111,6 @@ const ParseNamespace::ParseElementsList& ParseNamespace::parseExtraElements() co
     return m_pImpl->parseExtraChildren();
 }
 
-
 } // namespace parse
 
 } // namespace commsdsl

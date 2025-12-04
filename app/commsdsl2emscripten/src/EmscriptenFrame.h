@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "EmscriptenInterface.h"
 #include "EmscriptenLayer.h"
 
 #include "commsdsl/gen/GenFrame.h"
@@ -40,21 +41,22 @@ public:
     static const EmscriptenFrame* emscriptenCast(const commsdsl::gen::GenFrame* i)
     {
         return static_cast<const EmscriptenFrame*>(i);
-    }        
+    }
 
     void emscriptenAddSourceFiles(GenStringsList& sources) const;
     const EmscriptenNamespace* emscriptenFindInputNamespace() const;
 
+    const EmscriptenInterface* emscriptenInterface() const;
 
-protected:    
+protected:
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
 private:
     using EmscriptenLayersList = std::vector<EmscriptenLayer*>;
 
     bool emscriptenWriteHeaderInternal() const;
-    bool emscriptenWriteSourceInternal() const;    
+    bool emscriptenWriteSourceInternal() const;
 
     std::string emscriptenHeaderIncludesInternal() const;
     std::string emscriptenHeaderLayersInternal() const;
@@ -67,6 +69,8 @@ private:
     std::string emscriptenSourceCodeInternal() const;
     std::string emscriptenSourceBindInternal() const;
     std::string emscriptenSourceLayersAccBindInternal() const;
+
+    const EmscriptenInterface* emscriptenInterfaceInternal() const;
 
     EmscriptenLayersList m_emscriptenLayers;
     bool m_validFrame = true;

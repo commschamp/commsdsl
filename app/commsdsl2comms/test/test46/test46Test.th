@@ -42,7 +42,6 @@ void TestSuite::test1()
     auto outIter = &buf[0];
     auto es = frame.write(msg, outIter, buf.size());
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
-    
 
     const auto* readIter = &buf[0];
     Frame::MsgPtr msgPtr;
@@ -64,7 +63,6 @@ void TestSuite::test2()
     auto outIter = &buf[0];
     auto es = frame.write(msg, outIter, buf.size());
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
-    
 
     const auto* readIter = &buf[0];
     Frame::MsgPtr msgPtr;
@@ -86,7 +84,6 @@ void TestSuite::test3()
     auto outIter = &buf[0];
     auto es = frame.write(msg, outIter, buf.size());
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
-    
 
     const auto* readIter = &buf[0];
     Frame::MsgPtr msgPtr;

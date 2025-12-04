@@ -16,8 +16,10 @@
 #include "SwigLayer.h"
 
 #include "SwigField.h"
+#include "SwigFrame.h"
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
+#include "SwigNamespace.h"
 #include "SwigProtocolOptions.h"
 
 #include "commsdsl/gen/comms.h"
@@ -30,7 +32,6 @@
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
-
 
 namespace commsdsl2swig
 {
@@ -48,14 +49,14 @@ const SwigLayer* SwigLayer::swigCast(const commsdsl::gen::GenLayer* layer)
         return nullptr;
     }
 
-    auto* swigLayer = dynamic_cast<const SwigLayer*>(layer);    
+    auto* swigLayer = dynamic_cast<const SwigLayer*>(layer);
     assert(swigLayer != nullptr);
     return swigLayer;
 }
 
 std::string SwigLayer::swigDeclCode() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#MEMBER#$#\n"
         "class #^#CLASS_NAME#$#\n"
         "{\n"
@@ -115,7 +116,7 @@ void SwigLayer::swigAddCode(GenStringsList& list) const
 
     swigAddCodeImpl(list);
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#\n"
         "{\n"
         "    using Base = #^#COMMS_CLASS#$#;\n"
@@ -143,7 +144,7 @@ void SwigLayer::swigAddCode(GenStringsList& list) const
 
 void SwigLayer::swigAddToAllFieldsDecl(GenStringsList& list) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#CLASS_NAME#$#::Field #^#ACC_NAME#$#;\n";
 
     auto& gen = SwigGenerator::swigCast(m_genLayer.genGenerator());
@@ -196,11 +197,13 @@ std::string SwigLayer::swigFieldTypeImpl() const
 
 std::string SwigLayer::swigTemplateScope() const
 {
-    auto& gen = SwigGenerator::swigCast(m_genLayer.genGenerator());
-    auto* iFace = gen.swigMainInterface();
+    auto* frame = SwigFrame::swigCast(m_genLayer.genParentFrame());
+    auto* iFace = frame->swigInterface();
     assert(iFace != nullptr);
-    return m_genLayer.genTemplateScopeOfComms(gen.swigClassName(*iFace), strings::genAllMessagesStr(), SwigProtocolOptions::swigClassName(gen));
+    auto* input = frame->swigInput();
+    assert(input != nullptr);
+    auto& gen = SwigGenerator::swigCast(m_genLayer.genGenerator());
+    return m_genLayer.genTemplateScopeOfComms(gen.swigClassName(*iFace), input->swigClassName(), SwigProtocolOptions::swigClassName(gen));
 }
-
 
 } // namespace commsdsl2swig

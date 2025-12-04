@@ -42,16 +42,16 @@ bool SwigCmake::swigWriteInternal() const
     assert(!dirPath.empty());
     if (!m_swigGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     m_swigGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
         m_swigGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }     
+    }
 
-    const std::string Templ = 
+    const std::string Templ =
         "cmake_minimum_required (VERSION 3.12)\n"
         "project (#^#PROJ_NAME#$#_swig)\n\n"
         "option (OPT_USE_CCACHE \"Use ccache\" OFF)\n"
@@ -68,7 +68,7 @@ bool SwigCmake::swigWriteInternal() const
         "endif ()\n\n"
         "if (\"${OPT_PROTOCOL_NAME}\" STREQUAL \"\")\n"
         "    set (OPT_PROTOCOL_NAME #^#PROJ_NAME#$#)\n"
-        "endif ()\n\n"        
+        "endif ()\n\n"
         "if (\"${OPT_PROTOCOL_TARGET}\" STREQUAL \"\")\n"
         "    set (OPT_PROTOCOL_TARGET cc::${OPT_PROTOCOL_NAME})\n"
         "endif ()\n\n"
@@ -114,10 +114,10 @@ bool SwigCmake::swigWriteInternal() const
         "    target_compile_options(#^#PROJ_NAME#$#_swig_${lang} PRIVATE\n"
         "        $<$<CXX_COMPILER_ID:GNU>:-ftemplate-depth=2048 -fconstexpr-depth=4096>\n"
         "        $<$<CXX_COMPILER_ID:Clang>:-ftemplate-depth=2048 -fconstexpr-depth=4096 -fbracket-depth=2048>\n"
-        "    )\n"        
+        "    )\n"
         "endforeach()\n\n"
         "#^#APPEND#$#"
-        ;      
+        ;
 
     util::GenReplacementMap repl = {
         {"PROJ_NAME", m_swigGenerator.genProtocolSchema().genMainNamespace()},
@@ -146,7 +146,7 @@ std::string SwigCmake::swigPrependInternal() const
         return fromFile;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "# Use #^#FILE_NAME#$##^#SUFFIX#$# to add extra code here to find appropriate libraries and/or update swig global behaviour\n";
 
     util::GenReplacementMap repl = {
@@ -166,7 +166,7 @@ std::string SwigCmake::swigPrependLangInternal() const
         return fromFile;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "# Use #^#FILE_NAME#$##^#SUFFIX#$# to add extra code here to set swig variables to update language specific behavior\n";
 
     util::GenReplacementMap repl = {
@@ -186,7 +186,7 @@ std::string SwigCmake::swigAppendInternal() const
         return fromFile;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "# Use #^#FILE_NAME#$##^#SUFFIX#$# to add extra code here to link previosly created language specific targets to language binding libraries\n";
 
     util::GenReplacementMap repl = {

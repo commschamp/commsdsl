@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test3"
-        id="1"
-        endian="big"
-        version="5">
+<schema name="test3" endian="big" version="5">
     <ns name="ns1">
         <fields>
             <int name="Int1" type="uint32" />

@@ -19,17 +19,17 @@
             <lengthPrefix>
                 <int name="length" type="uint8" />
             </lengthPrefix>
-            <validValue value="03 04" />            
+            <validValue value="03 04" />
             <validValue value="05 06" />
         </data>
 
         <data name="D5" reuse="D4" defaultValue="0304" failOnInvalid="true" />
     </fields>
-    
+
     <interface name="Message">
         <int name="version" type="uint8" semanticType="version" />
-    </interface>      
-    
+    </interface>
+
     <message name="Msg1" id="MsgId.M1">
         <ref name="f1" field="D1" />
         <ref name="f2" field="D2" />
@@ -41,14 +41,14 @@
             </lengthPrefix>
         </data>
     </message>
-    
+
     <message name="Msg2" id="MsgId.M2">
         <ref name="f1" field="D4" />
         <ref name="f2" field="D5" failOnInvalid="true" />
     </message>
-        
+
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>       
+    </frame>
 </schema>

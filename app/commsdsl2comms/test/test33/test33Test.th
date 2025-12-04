@@ -4,6 +4,7 @@
 #include "test33/Message.h"
 #include "test33/message/Msg1.h"
 #include "test33/frame/Frame.h"
+#include "test33/Version.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
@@ -11,6 +12,7 @@ public:
     void test1();
     void test2();
     void test3();
+    void test4();
 
     using Interface =
         test33::Message<
@@ -119,5 +121,12 @@ void TestSuite::test3()
         TS_ASSERT(std::equal(outBuf.begin(), outBuf.end(), std::begin(Buf)));
     } while (false);
 
+}
+
+void TestSuite::test4()
+{
+    TS_ASSERT_EQUALS(TEST33_MAJOR_VERSION, 1);
+    TS_ASSERT_EQUALS(TEST33_MINOR_VERSION, 2);
+    TS_ASSERT_EQUALS(TEST33_PATCH_VERSION, 3);
 }
 

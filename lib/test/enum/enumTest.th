@@ -28,7 +28,7 @@ public:
     void test17();
     void test18();
     void test19();
-    void test20();   
+    void test20();
     void test21();
     void test22();
     void test23();
@@ -611,7 +611,7 @@ void EnumTestSuite::test23()
     TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 8);
     TS_ASSERT_EQUALS(values.size(), 1);
     auto& v1 = values.find("V1")->second;
-    TS_ASSERT_EQUALS(v1.m_value, 8);    
+    TS_ASSERT_EQUALS(v1.m_value, 8);
 }
 
 void EnumTestSuite::test24()

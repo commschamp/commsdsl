@@ -33,13 +33,12 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2comms
 {
 
-namespace 
+namespace
 {
 
 const auto CommsMaxBits = std::numeric_limits<std::uintmax_t>::digits;
 
-} // namespace 
-    
+} // namespace
 
 CommsSetField::CommsSetField(CommsGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
@@ -49,8 +48,8 @@ CommsSetField::CommsSetField(CommsGenerator& generator, ParseField parseObj, Gen
 
 bool CommsSetField::genPrepareImpl()
 {
-    return 
-        GenBase::genPrepareImpl() && 
+    return
+        GenBase::genPrepareImpl() &&
         commsPrepare();
 }
 
@@ -72,7 +71,7 @@ std::string CommsSetField::commsCommonCodeBodyImpl() const
 {
     static const std::string Templ = {
         "#^#NAME_FUNC#$#\n"
-        "#^#BIT_NAME_FUNC#$#\n"        
+        "#^#BIT_NAME_FUNC#$#\n"
     };
 
     util::GenReplacementMap repl = {
@@ -94,7 +93,7 @@ CommsSetField::CommsIncludesList CommsSetField::commsDefIncludesImpl() const
 
 std::string CommsSetField::commsDefBaseClassImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "comms::field::BitmaskValue<\n"
         "    #^#PROT_NAMESPACE#$#::field::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
         "    #^#FIELD_OPTS#$#\n"
@@ -113,7 +112,7 @@ std::string CommsSetField::commsDefBaseClassImpl() const
 
 std::string CommsSetField::commsDefPublicCodeImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#BITS_ACCESS#$#\n"
         "#^#BIT_NAME#$#";
 
@@ -222,7 +221,6 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
         else if (commsdsl::parse::ParseProtocol::parseNotYetDeprecated() <= std::get<1>(info.first)) {
             condTempl = &VersionFromCondTempl;
         }
-
 
         util::GenReplacementMap repl = {
             {"BITS_MASK", util::genNumToString(info.second.m_reservedMask, true)},
@@ -380,9 +378,9 @@ bool CommsSetField::commsIsVersionDependentImpl() const
                 return
                     (minVersion < elem.second.m_sinceVersion) ||
                     (elem.second.m_deprecatedSince < maxVersion);
-            });    
+            });
 
-    return (iter != bits.end());     
+    return (iter != bits.end());
 }
 
 std::size_t CommsSetField::commsMinLengthImpl() const
@@ -434,7 +432,7 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
             ++nextBit;
         }
 
-        auto getDisplayNameFunc = 
+        auto getDisplayNameFunc =
             [](auto& infoPair) -> const std::string&
             {
                 if (infoPair.second.m_displayName.empty()) {
@@ -449,15 +447,15 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
             };
 
         ++nextBit;
-        auto addElementNameFunc = 
-            [&names, getDisplayNameFunc](auto& infoPair) 
+        auto addElementNameFunc =
+            [&names, getDisplayNameFunc](auto& infoPair)
             {
                 names.push_back('\"' + getDisplayNameFunc(infoPair) + '\"');
             };
 
         auto bitIter = bits.find(b.second);
         assert(bitIter != bits.end());
-        if ((!obj.parseIsNonUniqueAllowed()) || 
+        if ((!obj.parseIsNonUniqueAllowed()) ||
             (genGenerator().genSchemaOf(*this).genSchemaVersion() < bitIter->second.m_deprecatedSince) ||
             (obj.parseIsUnique())) {
             addElementNameFunc(*bitIter);
@@ -486,7 +484,7 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
     std::string body;
     do {
         if (names.empty()) {
-            body = 
+            body =
                 "static_cast<void>(idx);\n"
                 "return nullptr;";
             break;
@@ -565,7 +563,7 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
         }
     }
 
-    auto getDeprecatedStr = 
+    auto getDeprecatedStr =
         [&deprecatedBits](const std::string& n) -> std::string
         {
             auto iter = deprecatedBits.find(n);
@@ -573,10 +571,10 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
                 return strings::genEmptyString();
             }
 
-            return 
+            return
                 "\n"
                 "///          Deprecated since version " + std::to_string(iter->second) + '.';
-        };    
+        };
 
     if (obj.parseIsUnique() && (((usedBits + 1) & usedBits) == 0U)) {
         // sequential
@@ -598,9 +596,9 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
             names.begin(), names.end(), std::back_inserter(accessDoc),
             [&getDeprecatedStr](auto& n)
             {
-                return 
-                    "///      @li @b BitIdx_" + n + ", @b getBitValue_" + n + 
-                    "() and @b setBitValue_" + n + "()." + 
+                return
+                    "///      @li @b BitIdx_" + n + ", @b getBitValue_" + n +
+                    "() and @b setBitValue_" + n + "()." +
                     getDeprecatedStr(n);
             });
 
@@ -648,8 +646,8 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
         names.begin(), names.end(), std::back_inserter(accessDoc),
         [&getDeprecatedStr](auto& n)
         {
-            return 
-                "///      @li @b getBitValue_" + n + "() and @b setBitValue_" + 
+            return
+                "///      @li @b getBitValue_" + n + "() and @b setBitValue_" +
                 n + "()." + getDeprecatedStr(n);
         });
 
@@ -675,7 +673,7 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
         {"BITS_DOC", util::genStrListToString(bitsDoc, "\n", "")},
         {"BITS", util::genStrListToString(bitsList, ",\n", "")},
     };
-    return util::genProcessTemplate(Templ, repl);    
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsSetField::commsDefBitNameFuncCodeInternal() const
@@ -805,7 +803,6 @@ void CommsSetField::commsAddReservedBitsOptInternal(commsdsl::gen::util::GenStri
             reservedValue &= ~(bitMask);
             continue;
         }
-
 
         if (!bitInfo.second.m_reserved) {
             reservedMask &= ~(bitMask);

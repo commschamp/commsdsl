@@ -2,7 +2,7 @@
 <schema name="Schema9"
         id="1"
         endian="big">
-    <ns name="ns1">        
+    <ns name="ns1">
         <fields>
             <data name="Data1" defaultValue="abcdef0123" length="10" />
             <int name="Prefix" type="uint8" />

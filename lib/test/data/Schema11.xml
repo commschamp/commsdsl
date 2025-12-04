@@ -2,7 +2,7 @@
 <schema name="Schema11"
         id="5"
         endian="big">
-    <ns name="ns1">        
+    <ns name="ns1">
         <fields>
             <enum name="Prefix" type="uint8" >
                 <validValue name="V1" val="1" />

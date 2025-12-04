@@ -34,7 +34,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2comms
 {
 
-namespace 
+namespace
 {
 
 const std::size_t CommsMaxRangesInOpts = 5U;
@@ -44,8 +44,7 @@ std::uintmax_t commsAsBigUnsigned(std::intmax_t val)
     return static_cast<std::uintmax_t>(val);
 }
 
-} // namespace 
-    
+} // namespace
 
 CommsEnumField::CommsEnumField(CommsGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
@@ -59,7 +58,7 @@ CommsEnumField::GenStringsList CommsEnumField::commsEnumValues() const
     if (m_validRanges.empty()) {
         return result;
     }
-    
+
     auto& revValues = genSortedRevValues();
     GenStringsList valuesStrings;
     valuesStrings.reserve(revValues.size() + 3);
@@ -86,7 +85,6 @@ CommsEnumField::GenStringsList CommsEnumField::commsEnumValues() const
 
         static const std::string Templ =
             "#^#NAME#$# = #^#VALUE#$#, ";
-
 
         std::string valStr = genValueToString(v.first);
         std::string docStr;
@@ -149,13 +147,13 @@ CommsEnumField::GenStringsList CommsEnumField::commsEnumValues() const
         }
     }
 
-    return valuesStrings;    
+    return valuesStrings;
 }
 
 bool CommsEnumField::genPrepareImpl()
 {
-    return 
-        GenBase::genPrepareImpl() && 
+    return
+        GenBase::genPrepareImpl() &&
         commsPrepare() &&
         commsPrepareValidRangesInternal();
 }
@@ -177,7 +175,7 @@ CommsEnumField::CommsIncludesList CommsEnumField::commsCommonIncludesImpl() cons
     if (msgIdNs != nullptr) {
         auto inc = comms::genRelHeaderForMsgId(strings::genMsgIdEnumNameStr(), genGenerator(), *msgIdNs);
         result.push_back(std::move(inc));
-    }  
+    }
 
     if ((CommsMaxRangesInOpts < m_validRanges.size()) ||
         (!commsIsDirectValueNameMappingInternal())) {
@@ -187,12 +185,12 @@ CommsEnumField::CommsIncludesList CommsEnumField::commsCommonIncludesImpl() cons
         });
     }
 
-    return result;  
+    return result;
 }
 
 std::string CommsEnumField::commsCommonCodeBodyImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#ENUM_DEF#$#\n"
         "#^#VALUE_NAME_MAP_DEF#$#\n"
         "#^#NAME_FUNC#$#\n"
@@ -213,7 +211,7 @@ std::string CommsEnumField::commsCommonCodeBodyImpl() const
 
 std::string CommsEnumField::commsCommonCodeExtraImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "\n"
         "/// @brief Values enumerator for\n"
         "///     @ref #^#SCOPE#$# field.\n"
@@ -240,14 +238,14 @@ std::string CommsEnumField::commsDefExtraDoxigenImpl() const
     auto* msgIdNs = commsNamespaceForMsgId();
     if (msgIdNs != nullptr) {
         return "@see @ref " + comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), genGenerator(), *msgIdNs);
-    }   
+    }
 
-    return "@see @ref " + comms::genCommonScopeFor(*this, genGenerator()) + "::ValueType"; 
+    return "@see @ref " + comms::genCommonScopeFor(*this, genGenerator()) + "::ValueType";
 }
 
 std::string CommsEnumField::commsDefBaseClassImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "comms::field::EnumValue<\n"
         "    #^#PROT_NAMESPACE#$#::field::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
         "    #^#COMMON_SCOPE#$#::ValueType#^#COMMA#$#\n"
@@ -261,7 +259,7 @@ std::string CommsEnumField::commsDefBaseClassImpl() const
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(parseObj.parseEndian())},
         {"COMMON_SCOPE", comms::genCommonScopeFor(*this, gen)},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
-    };         
+    };
 
     if (!repl["FIELD_OPTS"].empty()) {
         repl["COMMA"] = ",";
@@ -272,12 +270,12 @@ std::string CommsEnumField::commsDefBaseClassImpl() const
 
 std::string CommsEnumField::commsDefPublicCodeImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Re-definition of the value type.\n"
         "using ValueType = typename Base::ValueType;\n\n"
         "#^#VALUE_NAMES_MAP_DEFS#$#\n"
         "#^#VALUE_NAME#$#\n"
-        "#^#VALUE_NAMES_MAP#$#\n"    
+        "#^#VALUE_NAMES_MAP#$#\n"
     ;
 
     util::GenReplacementMap repl = {
@@ -385,7 +383,6 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
         (type == commsdsl::parse::ParseEnumField::ParseType::Uint64) ||
         (type == commsdsl::parse::ParseEnumField::ParseType::Uintvar);
 
-
     util::GenStringsList conditions;
     for (auto& l : rangesToProcess) {
         assert(!l.empty());
@@ -410,7 +407,6 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
                 "if (Base::getValue() == static_cast<typename Base::ValueType>(#^#MIN_VALUE#$#)) {\n"
                 "    return true;\n"
                 "}";
-
 
             std::string minValue;
             std::string maxValue;
@@ -476,7 +472,7 @@ bool CommsEnumField::commsIsVersionDependentImpl() const
                 return
                     (minVersion < elem.m_sinceVersion) ||
                     (elem.m_deprecatedSince < maxVersion);
-            });    
+            });
 
     return (iter != m_validRanges.end());
 }
@@ -504,14 +500,14 @@ std::string CommsEnumField::commsCompPrepValueStrImpl([[maybe_unused]] const std
     }
     catch (...) {
         // nothing to do
-    }    
+    }
 
     auto obj = genEnumFieldParseObj();
     auto& values = obj.parseValues();
     auto iter = values.find(value);
     if (iter != values.end()) {
         return util::genNumToString(iter->second.m_value);
-    }    
+    }
 
     auto lastDot = value.find_last_of(".");
     if (lastDot == std::string::npos) {
@@ -534,7 +530,7 @@ std::string CommsEnumField::commsCompPrepValueStrImpl([[maybe_unused]] const std
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return CommsBase::commsCompPrepValueStrImpl(accStr, value);
-    }    
+    }
 
     return util::genNumToString(otherIter->second.m_value);
 }
@@ -589,7 +585,6 @@ bool CommsEnumField::commsPrepareValidRangesInternal()
         (type == commsdsl::parse::ParseEnumField::ParseType::Uint64) ||
         (type == commsdsl::parse::ParseEnumField::ParseType::Uintvar);
 
-
     // Sort
     std::sort(
         m_validRanges.begin(), m_validRanges.end(),
@@ -638,7 +633,7 @@ bool CommsEnumField::commsPrepareValidRangesInternal()
 
                 assert(commsAsBigUnsigned(iter->m_min) <= commsAsBigUnsigned(nextIter->m_min));
                 nextIter->m_deprecatedSince = 0U; // invalidate next range
-                iter->m_max = 
+                iter->m_max =
                     static_cast<decltype(iter->m_max)>(
                         std::max(commsAsBigUnsigned(iter->m_max), commsAsBigUnsigned(nextIter->m_max)));
             }
@@ -650,7 +645,7 @@ bool CommsEnumField::commsPrepareValidRangesInternal()
 
                 assert(iter->m_min <= nextIter->m_min);
                 nextIter->m_deprecatedSince = 0U; // invalidate next range
-                iter->m_max = std::max(iter->m_max, nextIter->m_max);                
+                iter->m_max = std::max(iter->m_max, nextIter->m_max);
             }
         }
     }
@@ -687,7 +682,7 @@ bool CommsEnumField::commsIsDirectValueNameMappingInternal() const
         return false;
     }
 
-    return true;    
+    return true;
 }
 
 std::string CommsEnumField::commsCommonEnumInternal() const
@@ -704,8 +699,8 @@ std::string CommsEnumField::commsCommonEnumInternal() const
             {"SCOPE", comms::genScopeFor(*this, gen)},
             {"MSG_ID", comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), gen, *msgIdNs)}
         };
-        return util::genProcessTemplate(Templ, repl);        
-    } 
+        return util::genProcessTemplate(Templ, repl);
+    }
 
     static const std::string Templ =
         "/// @brief Values enumerator for\n"
@@ -714,7 +709,7 @@ std::string CommsEnumField::commsCommonEnumInternal() const
         "{\n"
         "    #^#VALUES#$#\n"
         "};\n"
-    ;    
+    ;
 
     auto values = commsEnumValues();
     util::GenReplacementMap repl = {
@@ -722,12 +717,12 @@ std::string CommsEnumField::commsCommonEnumInternal() const
         {"TYPE", comms::genCppIntTypeFor(genEnumFieldParseObj().parseType(), genEnumFieldParseObj().parseMaxLength())},
         {"VALUES", util::genStrListToString(values, "\n", "")}
     };
-    return util::genProcessTemplate(Templ, repl);        
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string CommsEnumField::commsCommonValueNameMapInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Single value name info entry\n"
         "using ValueNameInfo = #^#NAME_INFO_TYPE#$#;\n\n"
         "/// @brief Type returned from @ref valueNamesMap() member function.\n"
@@ -753,13 +748,12 @@ std::string CommsEnumField::commsCommonValueNameFuncCodeInternal() const
     }
     assert(!body.empty());
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Retrieve name of the enum value\n"
         "static const char* valueName(ValueType val)\n"
         "{\n"
         "    #^#BODY#$#\n"
         "}\n";
-
 
     util::GenReplacementMap repl = {
         {"BODY", std::move(body)}
@@ -769,20 +763,19 @@ std::string CommsEnumField::commsCommonValueNameFuncCodeInternal() const
 
 const std::string& CommsEnumField::commsCommonValueNameDirectBodyInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "auto namesMapInfo = valueNamesMap();\n"
         "if (namesMapInfo.second <= static_cast<std::size_t>(val)) {\n"
         "    return nullptr;\n"
         "}\n\n"
         "return namesMapInfo.first[static_cast<std::size_t>(val)];";
 
-
-    return Templ;    
+    return Templ;
 }
 
 const std::string& CommsEnumField::commsCommonValueNameBinSearchBodyInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "auto namesMapInfo = valueNamesMap();\n"
         "auto begIter = namesMapInfo.first;\n"
         "auto endIter = begIter + namesMapInfo.second;\n"
@@ -796,7 +789,6 @@ const std::string& CommsEnumField::commsCommonValueNameBinSearchBodyInternal() c
         "    return nullptr;\n"
         "}\n\n"
         "return iter->second;";
-
 
     return Templ;
 }
@@ -812,13 +804,12 @@ std::string CommsEnumField::commsCommonValueNamesMapFuncCodeInternal() const
     }
     assert(!body.empty());
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Retrieve map of enum value names\n"
         "static ValueNamesMapInfo valueNamesMap()\n"
         "{\n"
         "    #^#BODY#$#\n"
         "}\n";
-
 
     util::GenReplacementMap repl = {
         {"BODY", std::move(body)}
@@ -846,7 +837,7 @@ std::string CommsEnumField::commsCommonValueNamesMapDirectBodyInternal() const
             ++nextValue;
         }
 
-        auto getDisplayNameFunc = 
+        auto getDisplayNameFunc =
             [](auto& infoPair) -> const std::string&
             {
                 if (infoPair.second.m_displayName.empty()) {
@@ -861,8 +852,8 @@ std::string CommsEnumField::commsCommonValueNamesMapDirectBodyInternal() const
             };
 
         ++nextValue;
-        auto addElementNameFunc = 
-            [&names, getDisplayNameFunc](auto& infoPair) 
+        auto addElementNameFunc =
+            [&names, getDisplayNameFunc](auto& infoPair)
             {
                 names.push_back('\"' + getDisplayNameFunc(infoPair) + '\"');
             };
@@ -895,13 +886,12 @@ std::string CommsEnumField::commsCommonValueNamesMapDirectBodyInternal() const
         addElementNameFunc(*valIter);
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "static const char* Map[] = {\n"
         "    #^#NAMES#$#\n"
         "};\n"
         "static const std::size_t MapSize = std::extent<decltype(Map)>::value;\n\n"
         "return std::make_pair(&Map[0], MapSize);";
-
 
     util::GenReplacementMap repl = {
         {"NAMES", util::genStrListToString(names, ",\n", "")}
@@ -924,13 +914,12 @@ std::string CommsEnumField::commsCommonValueNamesMapBinSearchBodyInternal() cons
         names = commsCommonValueNameBinSearchPairsInternal();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "static const ValueNameInfo Map[] = {\n"
         "    #^#NAMES#$#\n"
         "};\n"
         "static const std::size_t MapSize = std::extent<decltype(Map)>::value;\n\n"
         "return std::make_pair(&Map[0], MapSize);";
-
 
     util::GenReplacementMap repl = {
         {"NAMES", std::move(names)}
@@ -966,7 +955,7 @@ std::string CommsEnumField::commsCommonBigUnsignedValueNameBinSearchPairsInterna
         assert(revIter != revValues.end());
         auto& v = *revIter;
 
-        auto getDisplayNameFunc = 
+        auto getDisplayNameFunc =
             [](auto& infoPair) -> const std::string&
             {
                 if (infoPair.second.m_displayName.empty()) {
@@ -980,10 +969,10 @@ std::string CommsEnumField::commsCommonBigUnsignedValueNameBinSearchPairsInterna
                 return infoPair.second.m_displayName;
             };
 
-        auto addElementNameFunc = 
+        auto addElementNameFunc =
             [&names, &v, &firstElem, &lastValue, getDisplayNameFunc](auto& infoPair)
             {
-                auto str = 
+                auto str =
                     "std::make_pair(ValueType::" +
                     v.second + ", \"" + getDisplayNameFunc(infoPair) +
                     "\")";
@@ -1040,7 +1029,7 @@ std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
             continue;
         }
 
-        auto getDisplayNameFunc = 
+        auto getDisplayNameFunc =
             [](auto& infoPair) -> const std::string&
             {
                 if (infoPair.second.m_displayName.empty()) {
@@ -1054,7 +1043,7 @@ std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
                 return infoPair.second.m_displayName;
             };
 
-        auto getValueStrFunc = 
+        auto getValueStrFunc =
             [this, msgIdNs](const std::string& s)
             {
                 if (msgIdNs != nullptr) {
@@ -1064,10 +1053,10 @@ std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
                 return "ValueType::" + s;
             };
 
-        auto addElementNameFunc = 
-            [&names, &v, &firstElem, &lastValue, getDisplayNameFunc, &getValueStrFunc](auto& infoPair) 
+        auto addElementNameFunc =
+            [&names, &v, &firstElem, &lastValue, getDisplayNameFunc, &getValueStrFunc](auto& infoPair)
             {
-                auto str = 
+                auto str =
                     "std::make_pair(" +
                     getValueStrFunc(v.second) +
                     ", \"" + getDisplayNameFunc(infoPair) +
@@ -1123,7 +1112,7 @@ std::string CommsEnumField::commsDefFieldOptsInternal() const
 
 std::string CommsEnumField::commsDefValueNameMapInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Single value name info entry.\n"
         "using ValueNameInfo = #^#COMMON_SCOPE#$#::ValueNameInfo;\n\n"
         "/// @brief Type returned from @ref valueNamesMap() member function.\n"
@@ -1139,7 +1128,7 @@ std::string CommsEnumField::commsDefValueNameMapInternal() const
 
 std::string CommsEnumField::commsDefValueNameFuncCodeInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Retrieve name of the enum value.\n"
         "/// @see @ref #^#COMMON_SCOPE#$#::valueName().\n"
         "static const char* valueName(ValueType val)\n"
@@ -1151,12 +1140,12 @@ std::string CommsEnumField::commsDefValueNameFuncCodeInternal() const
         "static const char* valueNameOf(ValueType val)\n"
         "{\n"
         "    return #^#COMMON_SCOPE#$#::valueName(val);\n"
-        "}\n\n"        
+        "}\n\n"
         "/// @brief Retrieve name of the @b current value\n"
         "const char* valueName() const\n"
         "{\n"
         "    return valueName(Base::getValue());\n"
-        "}\n";        
+        "}\n";
 
     util::GenReplacementMap repl = {
         {"COMMON_SCOPE", comms::genCommonScopeFor(*this, genGenerator())}
@@ -1166,14 +1155,13 @@ std::string CommsEnumField::commsDefValueNameFuncCodeInternal() const
 
 std::string CommsEnumField::commsDefValueNamesMapFuncCodeInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "/// @brief Retrieve map of enum value names.\n"
         "/// @see @ref #^#COMMON_SCOPE#$#::valueNamesMap().\n"
         "static ValueNamesMapInfo valueNamesMap()\n"
         "{\n"
         "    return #^#COMMON_SCOPE#$#::valueNamesMap();\n"
         "}\n";
-
 
     util::GenReplacementMap repl = {
         {"COMMON_SCOPE", comms::genCommonScopeFor(*this, genGenerator())}

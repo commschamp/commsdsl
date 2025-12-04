@@ -31,7 +31,7 @@ class GenDataFieldImpl
 public:
     using ParseDataField = GenDataField::ParseDataField;
 
-    GenDataFieldImpl(GenGenerator& generator, ParseDataField parseObj, GenElem* parent): 
+    GenDataFieldImpl(GenGenerator& generator, ParseDataField parseObj, GenElem* parent):
         m_generator(generator),
         m_dataParseObj(parseObj),
         m_parent(parent)
@@ -77,7 +77,7 @@ public:
     const GenField* genMemberPrefixField() const
     {
         return m_memberPrefixField.get();
-    }    
+    }
 
     void genSetReferenced()
     {
@@ -91,7 +91,7 @@ private:
     GenElem* m_parent = nullptr;
     GenField* m_externalPrefixField = nullptr;
     GenFieldPtr m_memberPrefixField;
-};    
+};
 
 GenDataField::GenDataField(GenGenerator& generator, ParseField parseObj, GenElem* parent) :
     Base(generator, parseObj, parent),

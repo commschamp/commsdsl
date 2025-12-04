@@ -28,11 +28,11 @@ namespace commsdsl2latex
 
 LatexBitfieldField::LatexBitfieldField(LatexGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
-    LatexBase(static_cast<GenBase&>(*this)) 
+    LatexBase(static_cast<GenBase&>(*this))
 {
-}   
+}
 
-bool LatexBitfieldField::genPrepareImpl() 
+bool LatexBitfieldField::genPrepareImpl()
 {
     if (!GenBase::genPrepareImpl()) {
         return false;
@@ -51,7 +51,7 @@ std::string LatexBitfieldField::latexInfoDetailsImpl() const
 {
     GenStringsList list;
     auto parseObj = genBitfieldFieldParseObj();
-    
+
     list.push_back(latexEndianInfo(parseObj.parseEndian()));
     return util::genStrListToString(list, "\\\\\\hline\n", "\\\\");
 }
@@ -62,19 +62,19 @@ std::string LatexBitfieldField::latexExtraDetailsImpl() const
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "\\subsubparagraph{Member Fields}\n"
         "\\label{#^#LABEL#$#}\n\n"
         "#^#DETAILS#$#\n"
         "\n"
-        ;    
+        ;
 
     util::GenReplacementMap repl = {
         {"LABEL", LatexGenerator::latexLabelId(*this) + "_members"},
         {"DETAILS", LatexField::latexMembersDetails(m_latexFields)},
     };
 
-    return util::genProcessTemplate(Templ, repl);      
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2latex

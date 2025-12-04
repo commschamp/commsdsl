@@ -8,15 +8,15 @@
         <enum name="MsgId" type="uint8">
             <validValue name="Msg1" val="0" displayName="^Msg1Name" />
             <validValue name="Msg2" val="1" displayName="^Msg2Name" />
-        </enum>    
+        </enum>
         <int name="F1" type="uint8" defaultValue="1">
             <special name="S1" val="10" />
         </int>
     </fields>
-    
+
     <message name="Msg1" id="MsgId.Msg1" displayName="^Msg1Name">
         <int name="F1" type="uint16" defaultValue="F1">
             <special name="S1" val="F1.S1" />
         </int>
-    </message>    
+    </message>
 </schema>

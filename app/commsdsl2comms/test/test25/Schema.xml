@@ -9,7 +9,7 @@
         <int name="E1" type="uint32" />
         <int name="Version" type="uint8" />
     </fields>
-    
+
     <message name="Msg1" id="MsgId.M1">
         <int name="P1" type="uint8" />
         <int name="P2" type="uint8" />
@@ -31,7 +31,7 @@
             <elemFixedLength value="true" />
             <sinceVersion value="3" />
         </list>
-    </message>    
+    </message>
 
     <message name="Msg3" id="MsgId.M3">
         <bitfield name="F1">
@@ -39,15 +39,15 @@
             <int name="SomeOtherVal" type="uint8" bitLength="4" />
         </bitfield>
         <list name="F2" element="E1" countPrefix="$F1.F2Len" />
-    </message>      
+    </message>
 
     <interface name="Message">
         <int name="version" type="uint8" semanticType="version" />
-    </interface>      
+    </interface>
 
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <value name="Version" field="Version" interfaceFieldName="version" />
         <payload name="Data" />
-    </frame>     
+    </frame>
 </schema>

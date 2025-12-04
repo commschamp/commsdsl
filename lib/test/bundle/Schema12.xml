@@ -10,13 +10,13 @@
             <int name="ParseType" type="uint8" defaultValidValue="1" failOnInvalid="true" />
             <int name="Length" type="uint8" semanticType="length" />
             <int name="Value" type="uint32" availableLengthLimit="true" />
-        </bundle>  
+        </bundle>
 
         <bundle name="B2" reuse="B1">
             <replace>
                 <int name="ParseType" type="uint8" defaultValidValue="2" failOnInvalid="true" />
                 <string name="Value" />
             </replace>
-        </bundle>                
+        </bundle>
     </fields>
 </schema>

@@ -45,8 +45,13 @@ const std::string GenFullNamespaceStr("n," + GenNamespaceStr);
 const std::string GenMinRemoteVerStr("min-remote-version");
 const std::string GenFullMinRemoteVerStr("m," + GenMinRemoteVerStr);
 const std::string GenForceVerStr("force-schema-version");
+const std::string GenCodeVerStr("code-version");
+const std::string GenFullCodeVerStr("V," + GenCodeVerStr);
+const std::string GenMessagesListStr("messages-list");
+const std::string GenForcePlatformStr("force-platform");
+const std::string GenForceInterfaceStr("force-interface");
 
-}    
+}
 
 class GenProgramOptionsImpl
 {
@@ -71,7 +76,7 @@ public:
                 m_opts.begin(), m_opts.end(),
                 [&tokens](auto& oPtr)
                 {
-                    return 
+                    return
                         std::any_of(
                             tokens.begin(), tokens.end(),
                             [&oPtr](auto& t)
@@ -98,7 +103,7 @@ public:
                 assert(false); // Should not happen
                 continue;
             }
-            
+
             if (opt != nullptr) {
                 assert(opt->m_hasParam);
                 opt->m_value = std::move(nextStr);
@@ -116,7 +121,7 @@ public:
                 continue;
             }
 
-            auto processOptFunc = 
+            auto processOptFunc =
                 [this, &opt, &nextStr](const std::string& optStr, OptInfosMap& map)
                 {
                     auto iter = map.find(optStr);
@@ -213,7 +218,6 @@ public:
                 right += Ind;
             }
 
-            
             right += util::genStrReplace(util::genStrMakeMultiline(optPtr->m_desc, 60), "\n", Ind);
             opts.push_back(left + right);
         }
@@ -225,7 +229,7 @@ public:
         util::GenReplacementMap repl = {
             std::make_pair("OPTS_LIST", util::genStrListToString(opts, "\n"))
         };
-        
+
         return util::genProcessTemplate(Templ, repl);
     }
 
@@ -254,7 +258,7 @@ private:
 
         for (auto idx = 0U; idx < tokens.size(); ++idx) {
             auto& t = tokens[idx];
-            
+
             assert(!t.empty());
             if ((idx == 0) && (t.size() == 1)) {
                 opt->m_shortOpt = t;
@@ -266,7 +270,7 @@ private:
             }
 
             opt->m_longOpt = t;
-        }   
+        }
 
         m_opts.push_back(std::move(opt));
     }
@@ -322,7 +326,7 @@ private:
         }
 
         return optInfo->m_value;
-    }    
+    }
 
     OptInfosList m_opts;
     OptInfosMap m_shortOpts;
@@ -330,39 +334,70 @@ private:
     GenStringsList m_args;
     std::string m_app;
 };
-    
-GenProgramOptions::GenProgramOptions() : 
+
+GenProgramOptions::GenProgramOptions() :
     m_impl(std::make_unique<GenProgramOptionsImpl>())
 {
 }
- 
-GenProgramOptions::~GenProgramOptions() = default;
 
+GenProgramOptions::~GenProgramOptions() = default;
 
 GenProgramOptions& GenProgramOptions::genAddCommonOptions()
 {
-    return 
+    return
         (*this)
             (GenFullHelpOptStr, "Show this help")
             (GenVersionOptStr, "Print version string and exit.")
             (GenFullQuietStr, "Quiet, show only warnings and errors.")
             (GenFullDebugStr, "Show debug logging.")
-            (GenFullWarnAsErrStr, "Treat warnings as errors.")            
-            (GenFullOutputDirStr, "Output directory path. When not provided current is used.", true)        
-            (GenFullInputFilesListStr, "File containing list of input files.", true)        
+            (GenFullWarnAsErrStr, "Treat warnings as errors.")
+            (GenFullOutputDirStr, "Output directory path. When not provided current is used.", true)
+            (GenFullInputFilesListStr, "File containing list of input files.", true)
             (GenFullInputFilesPrefixStr, "Prefix for the values from the list file.", true)
             (GenFullCodeInputDirStr, "Directory with code updates.", true)
             (GenFullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")
-            (GenFullNamespaceStr, 
+            (GenFullNamespaceStr,
                 "Force main namespace change. Defaults to schema name. "
                 "In case of having multiple schemas the renaming happends to the last protocol one. "
                 "Renaming of non-protocol or multiple schemas is allowed using <orig_name>:<new_name> comma separated pairs.",
-                true) 
+                true)
             (GenFullMinRemoteVerStr, "Set minimal supported remote version. Defaults to 0.", true)
-            (GenForceVerStr, 
+            (GenForceVerStr,
                 "Force schema version. Must not be greater than version specified in schema file.", true)
 
             ;
+}
+
+GenProgramOptions& GenProgramOptions::genAddCodeVersionOptions()
+{
+    return
+        (*this)
+            (GenFullCodeVerStr,
+                "Specify semantic version of the generated protocol code using <major>.<minor>.<patch> "
+                "format to make this information available in the generated code", true)
+        ;
+}
+
+GenProgramOptions& GenProgramOptions::genAddMessagesSelectionOptions()
+{
+    return
+        (*this)
+            (GenMessagesListStr,
+                "Path to the file containing list of messages that need to be supported. "
+                "In case the message resides in a namespace its name must be "
+                "specified in the same way as being referenced in CommsDSL (\'Namespace.MessageName\'). "
+                "If not provided all the defined messages are going to be supported.",
+                true)
+            (GenForcePlatformStr, "Support only messages applicable to specified platform. Requires protocol schema to define it.", true)
+        ;
+}
+
+GenProgramOptions& GenProgramOptions::genAddInterfaceSelectionOptions()
+{
+    return
+        (*this)
+            (GenForceInterfaceStr, "Force usage of the provided interface (CommsDSL reference string).", true)
+        ;
 }
 
 GenProgramOptions& GenProgramOptions::genRemoveMinRemoteVersionOptions()
@@ -451,12 +486,12 @@ GenProgramOptions::GenStringsList GenProgramOptions::genGetInputFiles() const
         if (fileName.empty()) {
             break;
         }
-        
+
         std::ifstream stream(fileName);
         if (!stream) {
             break;
         }
-        
+
         std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
 
         result = util::genStrSplitByAnyChar(contents, "\r\n");
@@ -515,6 +550,25 @@ unsigned GenProgramOptions::genGetForcedSchemaVersion() const
     return commsdsl::gen::util::genStrToUnsigned(genValue(GenForceVerStr));
 }
 
+const std::string& GenProgramOptions::genGetCodeVersion() const
+{
+    return genValue(GenCodeVerStr);
+}
+
+const std::string& GenProgramOptions::genMessagesListFile() const
+{
+    return genValue(GenMessagesListStr);
+}
+
+const std::string& GenProgramOptions::genForcedPlatform() const
+{
+    return genValue(GenForcePlatformStr);
+}
+
+const std::string& GenProgramOptions::genForcedInterface() const
+{
+    return genValue(GenForceInterfaceStr);
+}
 
 } // namespace gen
 

@@ -65,7 +65,7 @@ public:
     void emscriptenSetListElement()
     {
         m_listElement = true;
-    }    
+    }
 
 protected:
     virtual void emscriptenHeaderAddExtraIncludesImpl(GenStringsList& incs) const;
@@ -102,7 +102,7 @@ private:
     bool emscriptenWriteSrcInternal() const;
     std::string emscriptenHeaderIncludesInternal() const;
     std::string emscriptenHeaderClassInternal() const;
-    std::string emscriptenHeaderCommonPublicFuncsInternal() const;    
+    std::string emscriptenHeaderCommonPublicFuncsInternal() const;
     std::string emscriptenSourceIncludesInternal() const;
     std::string emscriptenSourceBindInternal() const;
     std::string emscriptenSourceBindCommonInternal(bool skipVersionOptCheck = false) const;

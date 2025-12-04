@@ -30,7 +30,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-EmscriptenFloatField::EmscriptenFloatField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) : 
+EmscriptenFloatField::EmscriptenFloatField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     EmscriptenBase(static_cast<GenBase&>(*this))
 {
@@ -48,7 +48,7 @@ std::string EmscriptenFloatField::emscriptenHeaderValueAccImpl() const
 
 std::string EmscriptenFloatField::emscriptenHeaderExtraPublicFuncsImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "static bool hasSpecials()\n"
         "{\n"
         "    return Base::hasSpecials();\n"
@@ -68,7 +68,7 @@ std::string EmscriptenFloatField::emscriptenHeaderExtraPublicFuncsImpl() const
 
 std::string EmscriptenFloatField::emscriptenSourceBindFuncsImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         ".class_function(\"hasSpecials\", &#^#CLASS_NAME#$#::hasSpecials)\n"
         "#^#SPECIALS#$#\n"
         ".class_function(\"displayDecimals\", &#^#CLASS_NAME#$#::displayDecimals)";
@@ -115,7 +115,7 @@ std::string EmscriptenFloatField::emscriptenHeaderSpecialsInternal() const
         };
 
         specialsList.push_back(util::genProcessTemplate(Templ, repl));
-    }    
+    }
 
     return util::genStrListToString(specialsList, "\n", "");
 }
@@ -146,9 +146,9 @@ std::string EmscriptenFloatField::emscriptenSourceSpecialsBindInternal() const
         repl["SPEC_ACC"] = comms::genClassName(s.first);
 
         specialsList.push_back(util::genProcessTemplate(Templ, repl));
-    }    
+    }
 
-    return util::genStrListToString(specialsList, "\n", "");    
+    return util::genStrListToString(specialsList, "\n", "");
 }
 
 } // namespace commsdsl2emscripten

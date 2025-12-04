@@ -30,7 +30,7 @@ class GenBitfieldFieldImpl
 {
 public:
     using ParseBitfieldField = GenBitfieldField::ParseBitfieldField;
-    
+
     using GenFieldsList = GenBitfieldField::GenFieldsList;
 
     GenBitfieldFieldImpl(GenGenerator& generator, ParseBitfieldField dslObj, GenElem* parent) :
@@ -109,7 +109,7 @@ GenBitfieldField::GenFieldRefInfo GenBitfieldField::genProcessInnerRefImpl(const
     auto& memFields = genMembers();
     if (!memFields.empty()) {
         return genProcessMemberRef(memFields, refStr);
-    }    
+    }
 
     return Base::genProcessInnerRefImpl(refStr);
 }

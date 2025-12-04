@@ -12,8 +12,8 @@
         </fields>
         <message name="Msg1" id="ns1.MsgId.Msg1">
             <description>
-                This 
-                is 
+                This
+                is
                 multiline
                 description
             </description>

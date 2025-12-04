@@ -23,7 +23,6 @@ class MsgHandler(test20.MsgHandler):
     def handle_Message(self, msg):
         sys.exit("shouldn't happen")
 
-
 class TestProtocol(unittest.TestCase):
     def test_1(self):
         m = test20.message_Msg2()
@@ -32,8 +31,6 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(m.field_f1().ref().getScaled(), 100.0)
         self.assertEqual(m.field_f1().ref().getValue(), 10000)
 
-
 if __name__ == '__main__':
     unittest.main()
-
 

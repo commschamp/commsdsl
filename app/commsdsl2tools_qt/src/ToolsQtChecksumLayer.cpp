@@ -26,7 +26,7 @@ ToolsQtChecksumLayer::ToolsQtChecksumLayer(ToolsQtGenerator& generator, ParseLay
 {
 }
 
-bool ToolsQtChecksumLayer::genPrepareImpl() 
+bool ToolsQtChecksumLayer::genPrepareImpl()
 {
     return GenBase::genPrepareImpl() && ToolsBase::toolsPrepare();
 }

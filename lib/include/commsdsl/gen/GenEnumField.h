@@ -33,7 +33,7 @@ class GenEnumFieldImpl;
 class COMMSDSL_API GenEnumField : public GenField
 {
     using Base = GenField;
-    
+
 public:
     using ParseField = commsdsl::parse::ParseField;
     using ParseEnumField = commsdsl::parse::ParseEnumField;
@@ -63,12 +63,12 @@ public:
 
     bool genIsUnsignedType() const;
 
-protected:    
+protected:
     virtual bool genPrepareImpl() override;
     virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
 
 private:
-    std::unique_ptr<GenEnumFieldImpl> m_impl;        
+    std::unique_ptr<GenEnumFieldImpl> m_impl;
 };
 
 } // namespace gen

@@ -37,11 +37,7 @@ public:
     }
 
     bool swigIsMainNamespaceInNamesForced() const;
-    bool swigHasForcedInterface() const;
-    const std::string& swigGetForcedInterface() const;
-    bool swigHasProtocolVersion() const;
-    const std::string& swigMessagesListFile() const;
-    const std::string& swigForcedPlatform() const;
+    bool swigHasCodeVersion() const;
 };
 
 } // namespace commsdsl2swig

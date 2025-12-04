@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <string>
+
 namespace commsdsl2test
 {
 
@@ -28,7 +30,10 @@ private:
     explicit Test(TestGenerator& generator) : m_testGenerator(generator) {}
 
     bool testWriteInputTest() const;
+
 private:
+    std::string testCodeVersionInternal() const;
+
     TestGenerator& m_testGenerator;
 };
 

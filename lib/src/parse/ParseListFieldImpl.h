@@ -56,7 +56,6 @@ public:
         return ParseField(m_elementField.get());
     }
 
-
     bool parseHasCountPrefixField() const
     {
         return (m_state.m_extCountPrefixField != nullptr) ||
@@ -135,13 +134,12 @@ public:
     const std::string& parseDetachedTermSuffixFieldName() const
     {
         return m_state.m_detachedTermSuffixField;
-    }    
+    }
 
     bool parseElemFixedLength() const
     {
         return m_state.m_elemFixedLength;
     }
-
 
 protected:
     virtual ParseKind parseKindImpl() const override;

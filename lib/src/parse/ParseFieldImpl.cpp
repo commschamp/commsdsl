@@ -278,7 +278,7 @@ bool ParseFieldImpl::parseIsComparableToValue(const std::string& val) const
     if (iter != std::end(NumericSemanticTypes)) {
         bool ok = false;
         [[maybe_unused]] auto value = common::parseStrToIntMax(val, &ok);
-        return ok;        
+        return ok;
     }
 
     return parseIsComparableToValueImpl(val);
@@ -372,9 +372,9 @@ bool ParseFieldImpl::parseVerifyMinLength() const
     if (static_cast<unsigned>(m_state.m_validateMinLength) != len) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "The calculated minimal length of the field is " << len <<
-            " while expected is " << m_state.m_validateMinLength << " (specified with \"" << common::parseValidateMinLengthStr() << "\" property).";                
+            " while expected is " << m_state.m_validateMinLength << " (specified with \"" << common::parseValidateMinLengthStr() << "\" property).";
         return false;
-    }    
+    }
 
     return true;
 }
@@ -391,7 +391,7 @@ ParseFieldImpl::ParseFieldRefInfo ParseFieldImpl::parseProcessSiblingRef(const P
     if ((!refStr.empty()) && ((refStr[0] == '#') || (refStr[0] == '?'))) {
         info = parseProcessSiblingRef(siblings, refStr.substr(1));
         do {
-            if ((info.m_field == nullptr) || 
+            if ((info.m_field == nullptr) ||
                 (info.m_refType != ParseFieldRefType::FieldRefType_Field)) {
                 info = ParseFieldRefInfo();
                 break;
@@ -452,7 +452,7 @@ ParseFieldImpl::ParseFieldRefInfo ParseFieldImpl::parseProcessInnerRef(const std
     auto& memFields = parseMembers();
     if (!memFields.empty()) {
         return parseProcessSiblingRef(memFields, refStr);
-    }    
+    }
 
     return parseProcessInnerRefImpl(refStr);
 }
@@ -473,7 +473,7 @@ bool ParseFieldImpl::parseIsValidRefType(ParseFieldRefType type) const
         return true;
     }
 
-    if ((type == FieldRefType_Exists) && 
+    if ((type == FieldRefType_Exists) &&
         ((parseGetSinceVersion() > 0U) || (parseGetDeprecated() < ParseProtocol::parseNotYetDeprecated()))) {
         return true;
     }
@@ -570,8 +570,8 @@ bool ParseFieldImpl::parseIsComparableToFieldImpl([[maybe_unused]] const ParseFi
 }
 
 bool ParseFieldImpl::parseStrToNumericImpl(
-    [[maybe_unused]] const std::string& ref, 
-    [[maybe_unused]] std::intmax_t& val, 
+    [[maybe_unused]] const std::string& ref,
+    [[maybe_unused]] std::intmax_t& val,
     [[maybe_unused]] bool& isBigUnsigned) const
 {
     if (parseProtocol().parseIsFieldValueReferenceSupported()) {
@@ -637,7 +637,7 @@ bool ParseFieldImpl::parseValidateBitLengthValueImpl(::xmlNodePtr node, [[maybe_
 {
     parseLogError() << ParseXmlWrap::parseLogPrefix(node) <<
         "The field of kind \"" << parseKindStr() << "\" cannot be used or referenced as a member of \"" <<
-        common::parseBitparseFieldStr() << "\".";    
+        common::parseBitparseFieldStr() << "\".";
     return false;
 }
 
@@ -728,7 +728,7 @@ void ParseFieldImpl::parseCheckAndReportDeprecatedPropertyValue(const std::strin
 
     if (m_protocol.parseIsPropertyDeprecated(propName)) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "Property \"" << propName << "\" is deprecated in DSL version " << parseProtocol().parseCurrSchema().parseDslVersion();                
+            "Property \"" << propName << "\" is deprecated in DSL version " << parseProtocol().parseCurrSchema().parseDslVersion();
     }
 }
 
@@ -745,7 +745,7 @@ bool ParseFieldImpl::parseValidateAndUpdateBoolPropValue(const std::string& prop
 
     if (!m_protocol.parseIsPropertySupported(propName)) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "Property \"" << propName << "\" is not available for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion();                
+            "Property \"" << propName << "\" is not available for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion();
         return true;
     }
 
@@ -769,12 +769,12 @@ bool ParseFieldImpl::parseValidateAndUpdateOverrideTypePropValue(const std::stri
     if (iter == m_props.end()) {
         value = ParseOverrideType_Any;
         return true;
-    }    
+    }
 
     if (!m_protocol.parseIsOverrideTypeSupported()) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
-            "The property \"" << propName << "\" is not supported for dslVersion=" << 
-                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << propName << "\" is not supported for dslVersion=" <<
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";
         return true;
     }
 
@@ -789,7 +789,7 @@ bool ParseFieldImpl::parseValidateAndUpdateOverrideTypePropValue(const std::stri
     auto valIter = Map.find(common::parseToLowerCopy(iter->second));
     if (valIter == Map.end()) {
         parseReportUnexpectedPropertyValue(propName, iter->second);
-        return false;        
+        return false;
     }
 
     value = valIter->second;
@@ -1080,7 +1080,7 @@ bool ParseFieldImpl::parseCheckReuse()
         auto codeIter = m_props.find(codeProp);
         if (codeIter == m_props.end()) {
             break;
-        }  
+        }
 
         bool copyCode = false;
         if (!parseValidateAndUpdateBoolPropValue(codeProp, copyCode)) {
@@ -1091,7 +1091,7 @@ bool ParseFieldImpl::parseCheckReuse()
             break;
         }
 
-        m_state.m_copyCodeFrom = valueStr; 
+        m_state.m_copyCodeFrom = valueStr;
     } while (false);
     return parseReuseImpl(*field);
 }
@@ -1113,7 +1113,7 @@ bool ParseFieldImpl::parseCheckReplace()
     if (!m_protocol.parseIsMemberReplaceSupported()) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
             "Replacing members with \"" << common::parseReplaceStr() << "\" child element is unavaliable "
-            "for selected DSL version, ignoring...";        
+            "for selected DSL version, ignoring...";
         return true;
     }
 
@@ -1144,7 +1144,7 @@ bool ParseFieldImpl::parseCheckReplace()
         }
 
         replMembers.push_back(std::move(field));
-    }  
+    }
 
     assert(!replMembers.empty());
     return parseReplaceMembersImpl(replMembers);
@@ -1368,20 +1368,20 @@ bool ParseFieldImpl::parseUpdateCopyOverrideCodeFrom()
     auto iter = m_props.find(prop);
     if (iter == m_props.end()) {
         return true;
-    }  
+    }
 
     if (!m_protocol.parseIsPropertySupported(prop)) {
         parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
-            "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.parseCurrSchema().parseDslVersion() << ".";        
+            "The property \"" << prop << "\" is not supported for dslVersion=" <<
+                m_protocol.parseCurrSchema().parseDslVersion() << ".";
         return true;
-    }    
+    }
 
     auto* field = m_protocol.parseFindField(iter->second);
     if (field == nullptr) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Field referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
-        return false;        
+        return false;
     }
 
     m_state.m_copyCodeFrom = iter->second;
@@ -1411,7 +1411,7 @@ bool ParseFieldImpl::parseUpdateValidateMinLength()
     if (!ok) {
         parseReportUnexpectedPropertyValue(propStr, iter->second);
         return false;
-    }    
+    }
     return true;
 }
 
@@ -1447,7 +1447,6 @@ bool ParseFieldImpl::parseUpdateExtraChildren(const ParseXmlWrap::ParseNamesList
     std::move(extraChildren.begin(), extraChildren.end(), std::back_inserter(m_state.m_extraChildren));
     return true;
 }
-
 
 const ParseFieldImpl::ParseCreateMap& ParseFieldImpl::parseCreateMap()
 {

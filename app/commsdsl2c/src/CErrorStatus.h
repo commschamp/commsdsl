@@ -1,5 +1,5 @@
 //
-// Copyright 2022 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2025 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,16 +19,29 @@
 
 #include <string>
 
-namespace commsdsl2swig
+namespace commsdsl2c
 {
 
-class SwigGenerator;
-class SwigAllMessages
+class CGenerator;
+class CErrorStatus
 {
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    static void swigAddCode(const SwigGenerator& generator, GenStringsList& list);
+    static std::string cName(const CGenerator& generator);
+    static std::string cRelHeader(const CGenerator& generator);
+    static std::string cRelSourcePath(const CGenerator& generator);
+    static void cAddSourceFiles(const CGenerator& generator, GenStringsList& sources);
+
+    static bool cWrite(CGenerator& generator);
+
+private:
+    explicit CErrorStatus(CGenerator& generator);
+
+    bool cWriteHeaderInternal();
+    bool cWriteSourceInternal();
+
+    CGenerator& m_cGenerator;
 };
 
-} // namespace commsdsl2swig
+} // namespace commsdsl2c

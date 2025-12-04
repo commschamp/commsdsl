@@ -33,7 +33,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2latex
 {
 
-namespace 
+namespace
 {
 
 std::string latexFloatValToString(double val, const commsdsl::parse::ParseFloatField& parseObj)
@@ -56,22 +56,22 @@ std::string latexFloatValToString(double val, const commsdsl::parse::ParseFloatF
         if (castVal == std::numeric_limits<float>::lowest()) {
             return ("(min)");
         }
-        
+
         if (castVal == std::numeric_limits<float>::max()) {
             return ("(max)");
-        }        
+        }
     }
 
     if (parseObj.parseType() == commsdsl::parse::ParseFloatField::ParseType::Double) {
         if (val == std::numeric_limits<double>::lowest()) {
             return ("(min)");
         }
-        
+
         if (val == std::numeric_limits<double>::max()) {
             return ("(max)");
-        }        
-    }  
-    
+        }
+    }
+
     auto displayDecimals = parseObj.parseDisplayDecimals();
     if (displayDecimals == 0) {
         return std::to_string(val);
@@ -80,28 +80,26 @@ std::string latexFloatValToString(double val, const commsdsl::parse::ParseFloatF
     std::stringstream stream;
     stream << std::fixed << std::setprecision(displayDecimals) << val;
     return stream.str();
-}  
+}
 
-} // namespace 
-    
+} // namespace
 
 LatexFloatField::LatexFloatField(LatexGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
-    LatexBase(static_cast<GenBase&>(*this)) 
+    LatexBase(static_cast<GenBase&>(*this))
 {
-}   
+}
 
 bool LatexFloatField::genWriteImpl() const
 {
     return latexWrite();
 }
 
-
 std::string LatexFloatField::latexInfoDetailsImpl() const
 {
     GenStringsList list;
     auto parseObj = genFloatFieldParseObj();
-    
+
     list.push_back(latexEndianInfo(parseObj.parseEndian()));
 
     do {
@@ -120,11 +118,11 @@ std::string LatexFloatField::latexInfoDetailsImpl() const
             if (!genGenerator().genDoesElementExist(r.m_sinceVersion, r.m_deprecatedSince, true)) {
                 continue;
             }
-                
+
             if ((r.m_min == r.m_max) || (std::isnan(r.m_min))) {
                 values.push_back(latexFloatValToString(r.m_min, parseObj));
                 continue;
-            }                
+            }
 
             values.push_back("[" + latexFloatValToString(r.m_min, parseObj) + " - " + latexFloatValToString(r.m_max, parseObj) + "]");
         }
@@ -142,7 +140,7 @@ std::string LatexFloatField::latexInfoDetailsImpl() const
 std::string LatexFloatField::latexExtraDetailsImpl() const
 {
     auto parseObj = genFloatFieldParseObj();
-    auto& specials = parseObj.parseSpecialValues();    
+    auto& specials = parseObj.parseSpecialValues();
 
     struct SpecialInfo
     {
@@ -199,14 +197,14 @@ std::string LatexFloatField::latexExtraDetailsImpl() const
         lines.push_back(std::move(l));
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "\\subsubparagraph{Special Values}\n"
         "\\label{#^#LABEL#$#}\n\n"
         "\\fbox{%\n"
         "\\begin{tabular}{l|l|p{7cm}}\n"
         "\\textbf{Value} & \\textbf{Name}& \\textbf{Description}\\\\\n"
         "\\hline\n"
-        "\\hline\n"        
+        "\\hline\n"
         "#^#LINES#$#\n"
         "\\end{tabular}\n"
         "}\n"

@@ -2,7 +2,7 @@
 <schema name="Schema2"
         id="1"
         endian="little">
-        
+
     <ns name="my_ns">
         <fields>
             <int name="Int1" type="int16" defaultValue="500" validMin="400" description="some desc" scaling="1/10" displayName="Int 1" pseudo="true"/>
@@ -25,7 +25,7 @@
                 <defaultValue>500</defaultValue>
                 <displayName>Int 3</displayName>
                 <pseudo>1</pseudo>
-            </int>            
+            </int>
         </fields>
     </ns>
 </schema>

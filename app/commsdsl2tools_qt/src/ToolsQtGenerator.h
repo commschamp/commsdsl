@@ -27,7 +27,7 @@
 
 #include <map>
 
-namespace commsdsl2tools_qt 
+namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator final : public commsdsl::gen::GenGenerator
@@ -75,7 +75,7 @@ public:
     const GenFramesAccessList& toolsGetSelectedFrames() const
     {
         return m_selectedFrames;
-    }    
+    }
 
     const ToolsFramesPerInterfaceMap& toolsGetSelectedFramesPerInterface() const
     {
@@ -92,7 +92,7 @@ public:
     static const ToolsQtGenerator& toolsCast(const commsdsl::gen::GenGenerator& generator)
     {
         return static_cast<const ToolsQtGenerator&>(generator);
-    }    
+    }
 
     void toolsSetMainNamespaceInOptionsForced(bool value);
     bool toolsHasMulitpleInterfaces() const;
@@ -104,7 +104,7 @@ public:
     static const std::string& toolsNamespaceEnd();
 
     std::string toolsNamespaceBeginForInterface(const commsdsl::gen::GenInterface& interface) const;
-    std::string toolsNamespaceEndForInterface(const commsdsl::gen::GenInterface& interface) const;    
+    std::string toolsNamespaceEndForInterface(const commsdsl::gen::GenInterface& interface) const;
 
     static const std::string& toolsScopePrefix();
     std::string toolsScopePrefixForInterface(const commsdsl::gen::GenInterface& interface) const;
@@ -125,7 +125,7 @@ protected:
     virtual GenLayerPtr genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
     virtual GenLayerPtr genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
 
-    virtual bool genWriteImpl() override;   
+    virtual bool genWriteImpl() override;
     virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
 
 private:

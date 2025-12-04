@@ -25,7 +25,7 @@ class LatexCmake
 {
 public:
     static bool latexWrite(LatexGenerator& generator);
-    
+
 private:
     explicit LatexCmake(LatexGenerator& generator) : m_latexGenerator(generator) {}
 

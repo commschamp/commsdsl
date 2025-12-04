@@ -9,7 +9,7 @@
         <string name="Msg1Name" defaultValue="Message 1" />
         <string name="Msg2Name" defaultValue="Message 2" />
         <string name="Msg3Name" defaultValue="Message 3" />
-            
+
         <enum name="MsgId" type="uint8" semanticType="messageId">
             <validValue name="M1" val="1" displayName="^Msg1Name" />
             <validValue name="M2" val="2" displayName="^Msg2Name" />
@@ -20,13 +20,13 @@
             <validValue name="Sum8" val="0" />
             <validValue name="Crc16" val="1" />
             <validValue name="Crc32" val="2" />
-        </enum>    
+        </enum>
     </fields>
-    
+
     <interface name="Interface" description="Common Interface for all the messages.">
         <ref field="ChecksumType" />
-    </interface>    
-        
+    </interface>
+
     <frame name="Frame">
         <sync name="Sync">
             <int name="SyncField" type="uint16" defaultValue="0xabcd" />
@@ -39,23 +39,23 @@
         <payload name="Data" />
         <custom name="Checksum" semanticLayerType="checksum" checksumFrom="Sync">
             <int name="ChecksumField" type="uint32"/>
-        </custom>         
+        </custom>
     </frame>
-    
+
     <message name="Msg1" id="MsgId.M1" displayName="^Msg1Name">
         <int name="F1" type="uint16" />
     </message>
 
     <message name="Msg2" id="MsgId.M2" displayName="^Msg2Name">
         <int name="F1" type="uint32" />
-    </message>      
-    
+    </message>
+
     <message name="Msg3" id="MsgId.M3" displayName="^Msg3Name">
         <string name="F1" >
             <lengthPrefix>
                 <int name="Length" type="uint8" />
             </lengthPrefix>
         </string>
-    </message>    
-    
+    </message>
+
 </schema>

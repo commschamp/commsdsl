@@ -34,15 +34,15 @@ public:
     CommsOptionalField(CommsGenerator& generator, ParseField parseObj, GenElem* parent);
 
     static std::string commsDslCondToString(
-        const CommsGenerator& generator, 
-        const CommsFieldsList& siblings, 
-        const commsdsl::parse::ParseOptCond& cond, 
+        const CommsGenerator& generator,
+        const CommsFieldsList& siblings,
+        const commsdsl::parse::ParseOptCond& cond,
         bool bracketsWrap = false);
 
 protected:
     // GenBase overrides
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
     // CommsBase overrides
     virtual CommsIncludesList commsCommonIncludesImpl() const override;
@@ -62,7 +62,6 @@ protected:
     virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const override;
     virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
 
-
 private:
     bool commsCheckCondSupportedInternal() const;
     std::string commsDefFieldRefInternal() const;
@@ -75,29 +74,29 @@ private:
     std::string commsDslCondToStringInternal(const CommsFieldsList& siblings, const commsdsl::parse::ParseOptCond& cond, bool bracketsWrap = false) const;
     std::string commsMemberAccessStringInternal(const std::string& accStr) const;
     static std::string commsDslCondToStringFieldValueCompInternal(
-        const CommsField* field, 
+        const CommsField* field,
         const std::string& accStr,
-        const std::string& op, 
+        const std::string& op,
         const std::string& value);
 
     static std::string commsDslCondToStringFieldFieldCompInternal(
-        const CommsField* leftField, 
+        const CommsField* leftField,
         const std::string& leftAccStr,
-        const std::string& op, 
-        const CommsField* rightField, 
-        const std::string& rightAccStr);  
+        const std::string& op,
+        const CommsField* rightField,
+        const std::string& rightAccStr);
 
     static std::string commsDslCondToStringFieldSizeCompInternal(
-        const CommsField* field, 
+        const CommsField* field,
         const std::string& accStr,
-        const std::string& op, 
-        const std::string& value);   
+        const std::string& op,
+        const std::string& value);
 
     static std::string commsDslCondToStringFieldExistsCompInternal(
-        const CommsField* field, 
+        const CommsField* field,
         const std::string& accStr,
         const std::string& op);
-          
+
     CommsField* m_commsExternalField = nullptr;
     CommsField* m_commsMemberField = nullptr;
 };

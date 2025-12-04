@@ -53,10 +53,8 @@ class TestProtocol(unittest.TestCase):
 
         # Due to missing version handling in the frame
         # the message can't be created
-        self.assertIsNone(self.msg1)        
-
+        self.assertIsNone(self.msg1)
 
 if __name__ == '__main__':
     unittest.main()
-
 

@@ -31,7 +31,7 @@ class Checksum : public
     >
 {
     // Repeat base type
-    using Base = 
+    using Base =
         comms::frame::ChecksumLayer<
             TField,
             comms::frame::checksum::Crc_32,
@@ -42,8 +42,8 @@ class Checksum : public
 
 public:
     // Repeat types defined in the base class (not visible by default)
-    using Field = typename Base::Field; 
- 
+    using Field = typename Base::Field;
+
     // Override default way of calculating checksum
     template <typename TMsg, typename TIter>
     static typename Field::ValueType calculateChecksum(const TMsg* msgPtr, TIter& iter, std::size_t len, bool& checksumValid)
@@ -52,28 +52,28 @@ public:
             checksumValid = false;
             return static_cast<typename Field::ValueType>(0);
         }
-    
+
         checksumValid = true;
         auto checksumType = msgPtr->transportField_checksumType().value();
         if (checksumType == test46::field::ChecksumTypeCommon::ValueType::Sum8) {
             using Calc = comms::frame::checksum::BasicSum<std::uint8_t>;
             return Calc()(iter, len);
         }
-    
+
         if (checksumType == ChecksumType::Crc16) {
             using Calc = comms::frame::checksum::Crc_16;
             return Calc()(iter, len);
-        }        
-    
+        }
+
         if (checksumType == ChecksumType::Crc32) {
             using Calc = comms::frame::checksum::Crc_32;
             return Calc()(iter, len);
-        }        
-    
+        }
+
         checksumValid = false;
         return static_cast<typename Field::ValueType>(0);
-    }    
- 
+    }
+
     // Due to the fact that the used checksums have different lengths, the
     // functionality of reading a field's value also needs to be customized.
     template <typename TMsg, typename TIter>
@@ -82,23 +82,23 @@ public:
         if (msgPtr == nullptr) {
             return comms::ErrorStatus::ProtocolError;
         }
-    
+
         auto checksumType = msgPtr->transportField_checksumType().value();
         if (checksumType == ChecksumType::Sum8) {
             return readFieldInternal<std::uint8_t>(field, iter, len);
         }
- 
+
         if (checksumType == ChecksumType::Crc16) {
             return readFieldInternal<std::uint16_t>(field, iter, len);
         }
- 
+
         if (checksumType == ChecksumType::Crc32) {
             return readFieldInternal<std::uint32_t>(field, iter, len);
         }
- 
+
         return comms::ErrorStatus::ProtocolError;
     }
- 
+
     // Due to the fact that the used checksums have different lengths, the
     // functionality of reading a field's value also needs to be customized.
     template <typename TMsg, typename TIter>
@@ -107,23 +107,23 @@ public:
         if (msgPtr == nullptr) {
             return comms::ErrorStatus::ProtocolError;
         }
-    
+
         auto checksumType = msgPtr->transportField_checksumType().value();
         if (checksumType == ChecksumType::Sum8) {
             return writeFieldInternal<std::uint8_t>(field, iter, len);
         }
- 
+
         if (checksumType == ChecksumType::Crc16) {
             return writeFieldInternal<std::uint16_t>(field, iter, len);
         }
- 
+
         if (checksumType == ChecksumType::Crc32) {
             return writeFieldInternal<std::uint32_t>(field, iter, len);
         }
- 
+
         return comms::ErrorStatus::ProtocolError;
     }
- 
+
     // Due to the fact that the used checksums have different lengths, the
     // functionality of calculating the field's length needs to be overridden
     template <typename TMsg>
@@ -133,21 +133,21 @@ public:
         if (checksumType == ChecksumType::Sum8) {
             return sizeof(std::uint8_t);
         }
- 
+
         if (checksumType == ChecksumType::Crc16) {
             return sizeof(std::uint16_t);
         }
- 
+
         if (checksumType == ChecksumType::Crc32) {
             return sizeof(std::uint32_t);
         }
- 
+
         static constexpr bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
         COMMS_ASSERT(Should_not_happen);
         return 0;
     }
- 
+
 private:
     using ChecksumType = test46::field::ChecksumTypeCommon::ValueType;
 
@@ -160,11 +160,11 @@ private:
         if (es != comms::ErrorStatus::Success) {
             return es;
         }
-    
+
         field = comms::field_cast<Field>(fieldTmp);
         return es;
     }
- 
+
     template <typename TTmpType, typename TIter>
     static comms::ErrorStatus writeFieldInternal(const Field& field, TIter& iter, std::size_t len)
     {
@@ -173,12 +173,10 @@ private:
         return fieldTmp.write(iter, len);
     }
 };
-   
+
 } // namespace layer
 
 } // namespace frame
 
 } // namespace test46
-
-
 

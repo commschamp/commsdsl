@@ -18,7 +18,7 @@ class MsgHandler(test48.MsgHandler):
     def handle_message_Msg2(self, msg):
         self.msg2 = True
         if (self.testObj is not None):
-            self.testObj.msg2 = test48.message_Msg2(msg) 
+            self.testObj.msg2 = test48.message_Msg2(msg)
 
     def handle_message_Msg3(self, msg):
         self.msg3 = True
@@ -63,8 +63,6 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(f.getValue(), 123);
         self.assertEqual(f.field_len().getValue(), 123);
 
-
 if __name__ == '__main__':
     unittest.main()
-
 

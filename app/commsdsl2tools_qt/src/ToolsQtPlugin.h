@@ -44,7 +44,7 @@ public:
         m_description(description),
         m_pluginId(pluginId)
     {
-    }        
+    }
 
     bool toolsPrepare();
     bool toolsWrite();
@@ -60,7 +60,7 @@ private:
     bool toolsWritePluginSrcInternal();
     bool toolsWritePluginJsonInternal();
     bool toolsWritePluginConfigInternal();
-    
+
     const std::string& toolsAdjustedNameInternal() const;
     std::string toolsProtClassNameInternal() const;
     std::string toolsPluginClassNameInternal() const;
@@ -78,6 +78,5 @@ private:
 };
 
 using ToolsQtPluginPtr = ToolsQtPlugin::ToolsPtr;
-
 
 } // namespace commsdsl2tools_qt

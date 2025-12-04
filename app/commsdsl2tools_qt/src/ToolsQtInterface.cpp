@@ -36,7 +36,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2tools_qt
 {
 
-namespace 
+namespace
 {
 
 unsigned toolsGetHexMsgIdWidthInternal(const commsdsl::gen::GenInterface& interface)
@@ -56,8 +56,7 @@ unsigned toolsGetHexMsgIdWidthInternal(const commsdsl::gen::GenInterface& interf
     return enumMsgIdField->genHexWidth();
 }
 
-} // namespace 
-    
+} // namespace
 
 ToolsQtInterface::ToolsQtInterface(ToolsQtGenerator& generator, ParseInterface parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent)
@@ -113,7 +112,7 @@ bool ToolsQtInterface::toolsWriteHeaderInternal() const
         return false;
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#GENERATED#$#\n"
         "\n"
         "#pragma once\n\n"
@@ -133,7 +132,7 @@ bool ToolsQtInterface::toolsWriteHeaderInternal() const
         ToolsQtDefaultOptions::toolsRelHeaderPath(gen)
     };
 
-    comms::genPrepareIncludeStatement(includes);    
+    comms::genPrepareIncludeStatement(includes);
 
     util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
@@ -144,7 +143,7 @@ bool ToolsQtInterface::toolsWriteHeaderInternal() const
         {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*this)},
         {"DEF", toolsHeaderCodeInternal()},
     };
-    
+
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
@@ -170,7 +169,7 @@ bool ToolsQtInterface::toolsWriteSrcInternal() const
         return false;
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
         "#^#TOP_NS_BEGIN#$#\n"
@@ -189,7 +188,7 @@ bool ToolsQtInterface::toolsWriteSrcInternal() const
         {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*this)},
         {"DEF", toolsSrcCodeInternal()},
     };
-    
+
     stream << util::genProcessTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
@@ -197,7 +196,7 @@ bool ToolsQtInterface::toolsWriteSrcInternal() const
 
 std::string ToolsQtInterface::toolsHeaderCodeInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "class #^#CLASS_NAME#$# : public cc_tools_qt::ToolsMessage\n"
         "{\n"
         "public:\n"
@@ -227,7 +226,7 @@ std::string ToolsQtInterface::toolsHeaderCodeInternal() const
 
 std::string ToolsQtInterface::toolsSrcCodeInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#() = default;\n\n"
         "#^#CLASS_NAME#$#::~#^#CLASS_NAME#$#() noexcept = default;\n\n"
         "#^#ID_FUNC#$#\n"
@@ -237,7 +236,6 @@ std::string ToolsQtInterface::toolsSrcCodeInternal() const
         {"CLASS_NAME", comms::genClassName(toolsNameInternal())},
     };
 
-
     auto hexWidth = toolsGetHexMsgIdWidthInternal(*this);
     if (0U < hexWidth) {
         auto func =
@@ -246,9 +244,9 @@ std::string ToolsQtInterface::toolsSrcCodeInternal() const
             "    return QString(\"0x%1\").arg(numericIdImpl(), " + std::to_string(hexWidth) + ", 16, QChar('0')).toUpper();\n"
             "}\n";
         repl["ID_FUNC"] = std::move(func);
-    }    
+    }
 
-    return util::genProcessTemplate(Templ, repl);         
+    return util::genProcessTemplate(Templ, repl);
 }
 
 const std::string& ToolsQtInterface::toolsNameInternal() const

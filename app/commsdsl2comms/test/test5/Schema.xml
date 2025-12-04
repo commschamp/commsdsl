@@ -8,7 +8,7 @@
         <string name="Msg10Name" defaultValue="Message10" />
         <string name="Msg20Name" defaultValue="Message20" />
         <string name="Msg25Name" defaultValue="Message25" />
-        
+
         <enum name="MsgId" type="uint8" semanticType="messageId" hexAssign="true">
             <validValue name="m1" val="1" displayName="^Msg1Name"/>
             <validValue name="m2" val="2" displayName="^Msg2Name" />
@@ -18,20 +18,20 @@
             <validValue name="m20" val="20" displayName="^Msg20Name" />
             <validValue name="m25" val="25" displayName="^Msg25Name" />
         </enum>
-        
+
         <enum name="E1" type="uint16">
             <validValue name="V1" val="1" displayName="Value1">
                 <description>
                     Some very very very very very very very very very very very very
-                    very very very very long long long long long long long long long 
+                    very very very very long long long long long long long long long
                     long long long description.
                 </description>
             </validValue>
             <validValue name="V2" val="2" description="Short description"/>
             <validValue name="V5" val="5" displayName="Value 5"/>
             <validValue name="V10" val="10" displayName="Value 10"/>
-        </enum>   
-        
+        </enum>
+
         <enum name="E2" type="uint16" nonUniqueAllowed="true">
             <validValue name="V1" val="1" />
             <validValue name="V3" val="3" />
@@ -42,9 +42,9 @@
             <validValue name="V12" val="12" />
             <validValue name="V12_2" val="12" />
             <validValue name="V15" val="15" />
-        </enum>                
+        </enum>
     </fields>
-    
+
     <message name="Msg1" id="MsgId.m1" displayName="^Msg1Name">
         <ref name="f1" field="E1" />
         <ref name="f2" field="MsgId" />
@@ -58,5 +58,5 @@
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>    
+    </frame>
 </schema>

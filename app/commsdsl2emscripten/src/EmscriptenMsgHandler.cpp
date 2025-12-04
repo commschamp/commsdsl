@@ -35,14 +35,13 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2emscripten
 {
 
-namespace 
+namespace
 {
 
 const std::string EmscriptenClassName("MsgHandler");
 const std::string EmscriptenWrapperClassName(EmscriptenClassName + "Wrapper");
 
-} // namespace 
-    
+} // namespace
 
 EmscriptenMsgHandler::EmscriptenMsgHandler(EmscriptenGenerator& generator, const EmscriptenNamespace& parent) :
     m_emscriptenGenerator(generator),
@@ -52,8 +51,8 @@ EmscriptenMsgHandler::EmscriptenMsgHandler(EmscriptenGenerator& generator, const
 
 bool EmscriptenMsgHandler::emscriptenWrite() const
 {
-    return 
-        emscriptenWriteHeaderInternal() && 
+    return
+        emscriptenWriteHeaderInternal() &&
         emscriptenWriteSrcInternal();
 }
 
@@ -79,16 +78,16 @@ bool EmscriptenMsgHandler::emscriptenWriteHeaderInternal() const
     assert(!dirPath.empty());
     if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     m_emscriptenGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
         m_emscriptenGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }     
+    }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#GENERATED#$#\n\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
@@ -103,7 +102,7 @@ bool EmscriptenMsgHandler::emscriptenWriteHeaderInternal() const
         "};\n"
         ;
 
-    auto* iFace = m_emscriptenGenerator.emscriptenMainInterface();
+    auto* iFace = m_parent.emscriptenInterface();;
     assert(iFace != nullptr);
 
     util::GenReplacementMap repl = {
@@ -133,16 +132,16 @@ bool EmscriptenMsgHandler::emscriptenWriteSrcInternal() const
     assert(!dirPath.empty());
     if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     m_emscriptenGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
         m_emscriptenGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }     
+    }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#GENERATED#$#\n\n"
         "#include \"#^#HEADER#$#\"\n\n"
         "#include <emscripten/bind.h>\n"
@@ -187,7 +186,7 @@ bool EmscriptenMsgHandler::emscriptenWriteSrcInternal() const
 
 std::string EmscriptenMsgHandler::emscriptenHeaderIncludesInternal() const
 {
-    auto* iFace = m_emscriptenGenerator.emscriptenMainInterface();
+    auto* iFace = m_parent.emscriptenInterface();
     assert(iFace != nullptr);
     auto* parentNs = iFace->genParentNamespace();
     assert(parentNs != nullptr);
@@ -199,7 +198,7 @@ std::string EmscriptenMsgHandler::emscriptenHeaderIncludesInternal() const
     auto* emscriptenNs = EmscriptenNamespace::emscriptenCast(parentNs);
     emscriptenNs->emscriptenAddCommsMessageIncludes(includes);
     emscriptenNs->emscriptenAddInputMessageFwdIncludes(includes);
-    
+
     if (!emscriptenNs->emscriptenHasInput()) {
         auto allNs = m_emscriptenGenerator.genGetAllNamespaces();
         for (auto* ns : allNs) {
@@ -215,7 +214,7 @@ std::string EmscriptenMsgHandler::emscriptenHeaderIncludesInternal() const
 
 std::string EmscriptenMsgHandler::emscriptenHeaderHandleFuncsInternal() const
 {
-    auto* iFace = m_emscriptenGenerator.emscriptenMainInterface();
+    auto* iFace = m_parent.emscriptenInterface();
     assert(iFace != nullptr);
 
     util::GenReplacementMap repl = {
@@ -225,18 +224,18 @@ std::string EmscriptenMsgHandler::emscriptenHeaderHandleFuncsInternal() const
     if (EmscriptenProtocolOptions::emscriptenIsDefined(m_emscriptenGenerator)) {
         repl["PROT_OPTS"] = ", " + EmscriptenProtocolOptions::emscriptenClassName(m_emscriptenGenerator);
     }
-    
+
     util::GenStringsList funcs;
 
-    auto allMessages = m_emscriptenGenerator.genGetAllMessagesIdSorted();
+    auto allMessages = emscriptenMessagesListInternal();
     funcs.reserve(allMessages.size());
-    
+
     for (auto* m : allMessages) {
         if (!m->genIsReferenced()) {
             continue;
         }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "void handle(#^#COMMS_CLASS#$#<#^#INTERFACE#$##^#PROT_OPTS#$#>& msg);\n"
             "virtual void handle_#^#CLASS_NAME#$#(#^#CLASS_NAME#$#* msg);\n";
 
@@ -250,7 +249,7 @@ std::string EmscriptenMsgHandler::emscriptenHeaderHandleFuncsInternal() const
 
 std::string EmscriptenMsgHandler::emscriptenSourceHandleFuncsInternal() const
 {
-    auto* iFace = m_emscriptenGenerator.emscriptenMainInterface();
+    auto* iFace = m_parent.emscriptenInterface();
     assert(iFace != nullptr);
 
     util::GenReplacementMap repl = {
@@ -260,19 +259,19 @@ std::string EmscriptenMsgHandler::emscriptenSourceHandleFuncsInternal() const
 
     if (EmscriptenProtocolOptions::emscriptenIsDefined(m_emscriptenGenerator)) {
         repl["PROT_OPTS"] = ", " + EmscriptenProtocolOptions::emscriptenClassName(m_emscriptenGenerator);
-    }    
+    }
 
     util::GenStringsList funcs;
 
-    auto allMessages = m_emscriptenGenerator.genGetAllMessagesIdSorted();
+    auto allMessages = emscriptenMessagesListInternal();
     funcs.reserve(allMessages.size() + 1U);
-    
+
     for (auto* m : allMessages) {
         if (!m->genIsReferenced()) {
             continue;
         }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "void #^#CLASS_NAME#$#::handle(#^#COMMS_CLASS#$#<#^#INTERFACE#$##^#PROT_OPTS#$#>& msg) { handle_#^#MSG_CLASS#$#(static_cast<#^#MSG_CLASS#$#*>(&msg)); }\n"
             "void #^#CLASS_NAME#$#::handle_#^#MSG_CLASS#$#(#^#MSG_CLASS#$#* msg) { handle_#^#INTERFACE#$#(msg); }\n";
 
@@ -281,7 +280,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceHandleFuncsInternal() const
         funcs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    static const std::string InterfaceTempl = 
+    static const std::string InterfaceTempl =
         "void #^#CLASS_NAME#$#::handle_#^#INTERFACE#$#(#^#INTERFACE#$#* msg) { static_cast<void>(msg); }\n";
 
     funcs.push_back(util::genProcessTemplate(InterfaceTempl, repl));
@@ -290,7 +289,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceHandleFuncsInternal() const
 
 std::string EmscriptenMsgHandler::emscriptenSourceWrapperClassInternal() const
 {
-    const std::string Templ = 
+    const std::string Templ =
         "struct #^#WRAPPER#$# : public emscripten::wrapper<#^#CLASS_NAME#$#>\n"
         "{\n"
         "    EMSCRIPTEN_WRAPPER(#^#WRAPPER#$#);\n\n"
@@ -308,18 +307,17 @@ std::string EmscriptenMsgHandler::emscriptenSourceWrapperClassInternal() const
 
 std::string EmscriptenMsgHandler::emscriptenSourceWrapperFuncsInternal() const
 {
-    const std::string Templ = 
+    const std::string Templ =
         "virtual void handle_#^#TYPE#$#(#^#TYPE#$#* msg) override\n"
         "{\n"
         "    call<void>(\"handle_#^#TYPE#$#\", emscripten::val(msg));\n"
         "}\n";
 
-
     util::GenStringsList funcs;
 
-    auto allMessages = m_emscriptenGenerator.genGetAllMessagesIdSorted();
+    auto allMessages = emscriptenMessagesListInternal();
     funcs.reserve(allMessages.size() + 1U);
-    
+
     for (auto* m : allMessages) {
         if (!m->genIsReferenced()) {
             continue;
@@ -332,12 +330,12 @@ std::string EmscriptenMsgHandler::emscriptenSourceWrapperFuncsInternal() const
         funcs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    auto* iFace = m_emscriptenGenerator.emscriptenMainInterface();
+    auto* iFace = m_parent.emscriptenInterface();
     assert(iFace != nullptr);
 
     util::GenReplacementMap repl = {
         {"TYPE", m_emscriptenGenerator.emscriptenClassName(*iFace)}
-    };    
+    };
 
     funcs.push_back(util::genProcessTemplate(Templ, repl));
     return util::genStrListToString(funcs, "\n", "\n");
@@ -345,7 +343,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceWrapperFuncsInternal() const
 
 std::string EmscriptenMsgHandler::emscriptenSourceBindInternal() const
 {
-    const std::string Templ = 
+    const std::string Templ =
         "EMSCRIPTEN_BINDINGS(#^#CLASS_NAME#$#) {\n"
         "    emscripten::class_<#^#CLASS_NAME#$#>(\"#^#CLASS_NAME#$#\")\n"
         "        .constructor<>()\n"
@@ -365,7 +363,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceBindInternal() const
 
 std::string EmscriptenMsgHandler::emscriptenSourceBindFuncsInternal() const
 {
-    const std::string Templ = 
+    const std::string Templ =
         ".function(\"handle_#^#TYPE#$#\", emscripten::optional_override([](#^#HANDLER#$#& self, #^#TYPE#$#* msg) { self.#^#HANDLER#$#::handle_#^#TYPE#$#(msg);}), emscripten::allow_raw_pointers())";
 
     util::GenReplacementMap repl = {
@@ -374,9 +372,9 @@ std::string EmscriptenMsgHandler::emscriptenSourceBindFuncsInternal() const
 
     util::GenStringsList funcs;
 
-    auto allMessages = m_emscriptenGenerator.genGetAllMessagesIdSorted();
+    auto allMessages = emscriptenMessagesListInternal();
     funcs.reserve(allMessages.size() + 1U);
-    
+
     for (auto* m : allMessages) {
         if (!m->genIsReferenced()) {
             continue;
@@ -386,13 +384,23 @@ std::string EmscriptenMsgHandler::emscriptenSourceBindFuncsInternal() const
         funcs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    auto* iFace = m_emscriptenGenerator.emscriptenMainInterface();
+    auto* iFace = m_parent.emscriptenInterface();
     assert(iFace != nullptr);
 
     repl["TYPE"] = m_emscriptenGenerator.emscriptenClassName(*iFace);
     funcs.push_back(util::genProcessTemplate(Templ, repl));
 
     return util::genStrListToString(funcs, "\n", "");
+}
+
+EmscriptenMsgHandler::GenMessagesAccessList EmscriptenMsgHandler::emscriptenMessagesListInternal() const
+{
+    auto allMessages = m_parent.genGetAllMessagesIdSorted();
+    if (allMessages.empty() && m_parent.genName().empty()) {
+        allMessages = m_emscriptenGenerator.genCurrentSchema().genGetAllMessagesIdSorted();
+    }
+
+    return allMessages;
 }
 
 } // namespace commsdsl2emscripten

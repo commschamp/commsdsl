@@ -47,7 +47,7 @@ public:
     ParseOptCond parseValidCond() const
     {
         return ParseOptCond(m_validCond.get());
-    }       
+    }
 
 protected:
 
@@ -76,7 +76,7 @@ private:
     bool parseCopyValidCond();
 
     bool parseUpdateSingleCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);
-    bool parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);    
+    bool parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);
 
     ParseEndian m_endian = ParseEndian_NumOfValues;
     ParseFieldsList m_members;

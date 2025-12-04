@@ -37,7 +37,7 @@ public:
 
 private:
     std::string emscriptenIdsInternal() const;
-    
+
     EmscriptenGenerator& m_emscriptenGenerator;
     const EmscriptenNamespace& m_parent;
 };

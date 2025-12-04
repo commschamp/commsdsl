@@ -11,7 +11,7 @@
             <bit name="B1" idx="1" />
         </set>
     </fields>
-    
+
     <message name="Msg1" id="MsgId.M1">
         <ref name="F1" field="S1" />
         <optional name="F2" cond="$F1.B0">
@@ -21,5 +21,5 @@
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>       
+    </frame>
 </schema>

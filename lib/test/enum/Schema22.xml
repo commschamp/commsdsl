@@ -11,7 +11,7 @@
             </enum>
             <enum name="Enum2" type="int16">
                 <validValue name="V1" val="ns1.Enum1.V1"/>
-            </enum>        
+            </enum>
         </fields>
     </ns>
 </schema>

@@ -7,7 +7,7 @@
                 <validValue name="M2" val="2" />
             </enum>
         </fields>
-        
+
         <frame name="Generic">
             <custom name="Header" myprot.extraProp="Hello">
                 <field>
@@ -17,7 +17,7 @@
                     </bundle>
                 </field>
                 <myprot.extraChild>Hello</myprot.extraChild>
-            </custom>        
+            </custom>
             <payload name="Data" />
         </frame>
     </ns>

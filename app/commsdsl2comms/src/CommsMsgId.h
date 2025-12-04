@@ -32,7 +32,7 @@ public:
 private:
     std::string commsTypeInternal() const;
     std::string commsIdsInternal() const;
-    
+
     CommsGenerator& m_commsGenerator;
     const CommsNamespace& m_parent;
 };

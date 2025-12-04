@@ -30,7 +30,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigVariantField::SwigVariantField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+SwigVariantField::SwigVariantField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     SwigBase(static_cast<GenBase&>(*this))
 {
@@ -38,7 +38,7 @@ SwigVariantField::SwigVariantField(SwigGenerator& generator, ParseField parseObj
 
 bool SwigVariantField::genPrepareImpl()
 {
-    return 
+    return
         GenBase::genPrepareImpl() &&
         swigPrepareInternal();
 }
@@ -47,7 +47,6 @@ bool SwigVariantField::genWriteImpl() const
 {
     return swigWrite();
 }
-
 
 std::string SwigVariantField::swigMembersDeclImpl() const
 {
@@ -88,7 +87,7 @@ std::string SwigVariantField::swigExtraPublicFuncsDeclImpl() const
         accFuncs.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#SIZE_T#$# currentField() const;\n"
         "void selectField(#^#SIZE_T#$# idx);\n"
         "void reset();\n"
@@ -128,7 +127,7 @@ std::string SwigVariantField::swigExtraPublicFuncsCodeImpl() const
     GenStringsList cases;
     cases.reserve(m_swigMembers.size());
     for (auto idx = 0U; idx < m_swigMembers.size(); ++idx) {
-        static const std::string Templ = 
+        static const std::string Templ =
             "case #^#IDX#$#: handler.handle_#^#ACC_NAME#$#(accessField_#^#ACC_NAME#$#()); break;\n";
 
         util::GenReplacementMap repl = {
@@ -136,10 +135,10 @@ std::string SwigVariantField::swigExtraPublicFuncsCodeImpl() const
             {"IDX", util::genNumToString(idx)}
         };
 
-        cases.push_back(util::genProcessTemplate(Templ, repl));        
+        cases.push_back(util::genProcessTemplate(Templ, repl));
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#MEMBERS#$#\n"
         "#^#SIZE_T#$# totalFields() const\n"
         "{\n"
@@ -165,7 +164,7 @@ std::string SwigVariantField::swigExtraPublicFuncsCodeImpl() const
 
 void SwigVariantField::swigAddDefImpl(GenStringsList& list) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "%feature(\"director\") #^#CLASS_NAME#$#_Handler;";
 
     auto& gen = SwigGenerator::swigCast(genGenerator());
@@ -177,14 +176,14 @@ void SwigVariantField::swigAddDefImpl(GenStringsList& list) const
 
     for (auto* m : m_swigMembers) {
         m->swigAddDef(list);
-    }    
+    }
 }
 
 void SwigVariantField::swigAddMembersCodeImpl(GenStringsList& list) const
 {
     for (auto* m : m_swigMembers) {
         m->swigAddCode(list);
-    }    
+    }
 
     swigAddHandlerCodeInternal(list);
 }
@@ -200,7 +199,7 @@ std::string SwigVariantField::swigHandlerDeclInternal() const
     auto& gen = SwigGenerator::swigCast(genGenerator());
     GenStringsList accessFuncs;
     for (auto* m : m_swigMembers) {
-        static const std::string Templ = 
+        static const std::string Templ =
             "virtual void handle_#^#ACC_NAME#$#(#^#CLASS_NAME#$#& field);\n";
 
         util::GenReplacementMap repl = {
@@ -209,9 +208,9 @@ std::string SwigVariantField::swigHandlerDeclInternal() const
         };
 
         accessFuncs.push_back(util::genProcessTemplate(Templ, repl));
-    }    
+    }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "struct #^#CLASS_NAME#$#_Handler\n"
         "{\n"
         "    virtual ~#^#CLASS_NAME#$#_Handler();\n\n"
@@ -232,7 +231,7 @@ void SwigVariantField::swigAddHandlerCodeInternal(GenStringsList& list) const
     auto& gen = SwigGenerator::swigCast(genGenerator());
     GenStringsList accessFuncs;
     for (auto* m : m_swigMembers) {
-        static const std::string Templ = 
+        static const std::string Templ =
             "virtual void handle_#^#ACC_NAME#$#(#^#CLASS_NAME#$#& field) { static_cast<void>(field); }\n";
 
         util::GenReplacementMap repl = {
@@ -241,9 +240,9 @@ void SwigVariantField::swigAddHandlerCodeInternal(GenStringsList& list) const
         };
 
         accessFuncs.push_back(util::genProcessTemplate(Templ, repl));
-    }    
+    }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "struct #^#CLASS_NAME#$#_Handler\n"
         "{\n"
         "    virtual ~#^#CLASS_NAME#$#_Handler() = default;\n\n"

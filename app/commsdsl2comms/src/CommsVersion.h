@@ -30,8 +30,8 @@ private:
     explicit CommsVersion(CommsGenerator& generator) : m_commsGenerator(generator) {}
 
     bool commsWriteInternal() const;
-    std::string commsProtVersionDefineInternal() const;
-    std::string commsProtVersionFuncsInternal() const;
+    std::string commsCodeVersionDefineInternal() const;
+    std::string commsCodeVersionFuncsInternal() const;
 
     CommsGenerator& m_commsGenerator;
 };

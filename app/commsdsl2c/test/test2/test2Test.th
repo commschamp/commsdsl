@@ -1,0 +1,56 @@
+#include "cxxtest/TestSuite.h"
+
+#include "cc_c/test2/Interface.h"
+#include "cc_c/test2/frame/Frame.h"
+#include "cc_c/test2/message/Msg1.h"
+#include "cc_c/test2/message/Msg2.h"
+
+#include <cstdint>
+#include <cstddef>
+#include <memory>
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+
+private:
+    struct Deleter
+    {
+        void operator()(test2_frame_Frame* ptr)
+        {
+            test2_frame_Frame_free(ptr);
+        }
+
+        void operator()(test2_Interface* ptr)
+        {
+            test2_frame_Frame_deleteMsg(ptr);
+        }
+    };
+
+    using FramePtr = std::unique_ptr<test2_frame_Frame, Deleter>;
+    using IntefacePtr = std::unique_ptr<test2_Interface, Deleter>;
+};
+
+void TestSuite::test1()
+{
+    FramePtr frame(test2_frame_Frame_alloc());
+    IntefacePtr iFace(test2_frame_Frame_createMsg(frame.get(), test2_MsgId_Msg1, 0U));
+    TS_ASSERT(iFace);
+
+    auto* msg1 = test2_message_Msg1_fromInterface(iFace.get());
+    auto* f1 = test2_message_Msg1_field_f1(msg1);
+    test2_message_Msg1Fields_F1_setValue(f1, 0x02030405);
+
+    const std::uint8_t ExpBuf[] = {0x1, 0x2, 0x3, 0x4, 0x5};
+    const std::size_t ExpBufSize = std::extent<decltype(ExpBuf)>::value;
+
+    auto length = test2_frame_Frame_messageLength(frame.get(), iFace.get());
+
+    std::vector<std::uint8_t> outBuf(length + 10);
+    auto bufLen = outBuf.size();
+    auto es = test2_frame_Frame_writeMessage(frame.get(), iFace.get(), outBuf.data(), &bufLen);
+    TS_ASSERT_EQUALS(es, test2_ErrorStatus_Success);
+    TS_ASSERT_EQUALS(bufLen, ExpBufSize);
+    TS_ASSERT(std::equal(std::begin(outBuf), std::begin(outBuf) + bufLen, ExpBuf));
+}

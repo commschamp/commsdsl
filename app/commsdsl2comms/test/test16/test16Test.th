@@ -56,7 +56,6 @@ void TestSuite::test2()
     TS_ASSERT_EQUALS(f1.value()[0].value(), std::string("hello"));
     TS_ASSERT_EQUALS(f1.value()[1].value(), std::string("bla"));
 
-
     std::vector<std::uint8_t> outBuf(BufSize);
     auto writeIter = comms::writeIteratorFor<Interface>(&outBuf[0]);
     es = frame.write(*msgPtr, writeIter, outBuf.size());

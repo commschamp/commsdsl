@@ -213,7 +213,6 @@ const ParseMessage::ParsePlatformsList& ParseMessage::parsePlatforms() const
     return m_pImpl->parsePlatforms();
 }
 
-
 } // namespace parse
 
 } // namespace commsdsl

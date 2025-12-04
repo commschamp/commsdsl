@@ -34,7 +34,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2comms
 {
 
-namespace 
+namespace
 {
 
 std::string commsBytesToString(const std::vector<std::uint8_t> value)
@@ -48,11 +48,10 @@ std::string commsBytesToString(const std::vector<std::uint8_t> value)
     }
 
     std::string bytesStr = util::genStrListToString(bytes, ", ", "");
-    return util::genStrMakeMultiline(bytesStr);    
+    return util::genStrMakeMultiline(bytesStr);
 }
 
-} // namespace 
-    
+} // namespace
 
 CommsDataField::CommsDataField(CommsGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
@@ -80,7 +79,7 @@ bool CommsDataField::genWriteImpl() const
     return commsWrite();
 }
 
-CommsDataField::CommsIncludesList CommsDataField::commsCommonIncludesImpl() const 
+CommsDataField::CommsIncludesList CommsDataField::commsCommonIncludesImpl() const
 {
     if (m_commsMemberPrefixField == nullptr) {
         return CommsIncludesList();
@@ -114,10 +113,10 @@ CommsDataField::CommsIncludesList CommsDataField::commsDefIncludesImpl() const
         auto obj = genDataFieldParseObj();
         if (!obj.parseDefaultValue().empty()) {
             result.insert(result.end(), {
-                "<iterator>",  
+                "<iterator>",
                 "comms/util/assign.h",
-            });            
-        }   
+            });
+        }
 
         auto& validValues = obj.parseValidValues();
         if (!validValues.empty()) {
@@ -125,8 +124,8 @@ CommsDataField::CommsIncludesList CommsDataField::commsDefIncludesImpl() const
                 "<algorithm>",
                 "<iterator>",
                 "comms/util/ArrayView.h",
-            });            
-        }            
+            });
+        }
 
         if (m_commsMemberPrefixField != nullptr) {
             auto extraIncs = m_commsMemberPrefixField->commsDefIncludes();
@@ -161,12 +160,12 @@ std::string CommsDataField::commsDefMembersCodeImpl() const
 
 std::string CommsDataField::commsDefBaseClassImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
     "comms::field::ArrayList<\n"
     "    #^#PROT_NAMESPACE#$#::field::FieldBase<>,\n"
     "    std::uint8_t#^#COMMA#$#\n"
     "    #^#FIELD_OPTS#$#\n"
-    ">";    
+    ">";
 
     util::GenReplacementMap repl = {
         {"PROT_NAMESPACE", genGenerator().genSchemaOf(*this).genMainNamespace()},
@@ -250,14 +249,14 @@ std::string CommsDataField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
         static const std::string Templ =
             "#^#DATA_FIELD#$#.forceReadLength(\n"
             "    static_cast<std::size_t>(#^#LEN_VALUE#$#));\n";
-        
+
         return util::genProcessTemplate(Templ, repl);
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "if (#^#COND#$#) {\n"
         "    #^#DATA_FIELD#$#.forceReadLength(\n"
-        "        static_cast<std::size_t>(#^#LEN_VALUE#$#));\n"        
+        "        static_cast<std::size_t>(#^#LEN_VALUE#$#));\n"
         "}";
 
     repl["COND"] = util::genStrListToString(conditions, " &&\n", "");
@@ -293,7 +292,7 @@ std::string CommsDataField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
         return strings::genEmptyString();
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "auto lenValue = #^#LEN_VALUE#$#;\n"
         "auto realLength = #^#DATA_FIELD#$#.value().size();\n"
         "if (static_cast<std::size_t>(lenValue) == realLength) {\n"
@@ -334,7 +333,7 @@ std::string CommsDataField::commsDefValidFuncBodyImpl() const
             continue;
         }
 
-        static const std::string DefTempl = 
+        static const std::string DefTempl =
             "static const std::uint8_t #^#NAME#$#[] = {\n"
             "    #^#BYTES#$#\n"
             "};\n";
@@ -349,7 +348,7 @@ std::string CommsDataField::commsDefValidFuncBodyImpl() const
         values.push_back("MapElem(std::begin(" + name + "), std::end(" + name + "))");
     }
 
-    static const std::string Templ = 
+    static const std::string Templ =
         "if (!Base::valid()) {\n"
         "    return false;\n"
         "}\n\n"
@@ -400,7 +399,7 @@ std::string CommsDataField::commsMembersCustomizationOptionsBodyImpl(CommsFieldO
 
 CommsDataField::GenStringsList CommsDataField::commsExtraDataViewDefaultOptionsImpl() const
 {
-    return 
+    return
         GenStringsList{
             "comms::option::app::OrigDataView"
         };
@@ -411,16 +410,16 @@ CommsDataField::GenStringsList CommsDataField::commsExtraBareMetalDefaultOptions
     auto obj = genDataFieldParseObj();
     auto fixedLength = obj.parseFixedLength();
     if (fixedLength != 0U) {
-        return 
+        return
             GenStringsList{
                 "comms::option::app::SequenceFixedSizeUseFixedSizeStorage"
-            };        
+            };
     }
 
-    return 
+    return
         GenStringsList{
             "comms::option::app::FixedSizeStorage<DEFAULT_SEQ_FIXED_STORAGE_SIZE>"
-        };    
+        };
 }
 
 std::size_t CommsDataField::commsMaxLengthImpl() const
@@ -430,7 +429,7 @@ std::size_t CommsDataField::commsMaxLengthImpl() const
         return CommsBase::commsMaxLengthImpl();
     }
 
-    return comms::genMaxPossibleLength();    
+    return comms::genMaxPossibleLength();
 }
 
 std::string CommsDataField::commsSizeAccessStrImpl([[maybe_unused]] const std::string& accStr, const std::string& prefix) const

@@ -6,17 +6,17 @@
             <validValue name="M2" val="2" />
         </enum>
 
-        <int name="I1" type="uint8" />  
+        <int name="I1" type="uint8" />
         <enum name="E1" type="uint8" defaultValue="V1" >
             <validValue name="V1" val="1" />
             <validValue name="V2" val="2" />
-        </enum>                  
+        </enum>
     </fields>
-    
+
     <interface name="Message">
         <int name="version" type="uint8" semanticType="version" />
-    </interface>      
-    
+    </interface>
+
     <message name="Msg1" id="MsgId.M1">
         <int name="m1" reuse="I1" validRange="[0,5]" />
         <int name="m2" type="uint8" />
@@ -50,9 +50,9 @@
         <optional name="o8" defaultMode="missing" field="I1" cond="$m6.b0"  sinceVersion="2"/>
         <optional name="o9" defaultMode="exists" field="I1" cond="!$m6.b1"  sinceVersion="2"/>
     </message>
-    
+
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>       
+    </frame>
 </schema>

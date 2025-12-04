@@ -8,7 +8,7 @@
             <countPrefix>
                 <int name="P" type="uint8" />
             </countPrefix>
-        </list>        
+        </list>
         <bundle name="B1">
             <int name="P1" type="uint8" />
             <list reuse="L1" lengthPrefix="$P1" />

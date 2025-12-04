@@ -85,7 +85,6 @@ public:
         return m_genField;
     }
 
-
     std::string commsDefaultOptions() const;
     std::string commsDataViewDefaultOptions() const;
     std::string commsBareMetalDefaultOptions() const;
@@ -129,7 +128,7 @@ protected:
     virtual GenStringsList commsExtraDataViewDefaultOptionsImpl() const;
     virtual GenStringsList commsExtraBareMetalDefaultOptionsImpl() const;
     virtual std::size_t commsMinLengthImpl() const;
-    virtual std::size_t commsMaxLengthImpl() const;    
+    virtual std::size_t commsMaxLengthImpl() const;
     virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const;
     virtual std::string commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const;
     virtual void commsCompOptChecksImpl(const std::string& accStr, GenStringsList& checks, const std::string& prefix) const;
@@ -169,8 +168,8 @@ private:
 
     bool commsCopyCodeFromInternal();
     bool commsPrepareOverrideInternal(
-        commsdsl::parse::ParseOverrideType type, 
-        std::string& codePathPrefix, 
+        commsdsl::parse::ParseOverrideType type,
+        std::string& codePathPrefix,
         const std::string& suffix,
         std::string& customCode,
         const std::string& name,
@@ -206,7 +205,7 @@ private:
     std::string commsDefMembersCodeInternal() const;
     std::string commsCommonMembersCodeInternal() const;
     std::string commsCustomizationOptionsInternal(
-        CommsFieldOptsFunc fieldOptsFunc, 
+        CommsFieldOptsFunc fieldOptsFunc,
         CommsExtraFieldOptsFunc extraFieldOptsFunc,
         bool hasBase) const;
     GenStringsList commsExtraDataViewDefaultOptionsInternal() const;

@@ -22,7 +22,7 @@
 namespace commsdsl2emscripten
 {
 
-EmscriptenChecksumLayer::EmscriptenChecksumLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent) : 
+EmscriptenChecksumLayer::EmscriptenChecksumLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     EmscriptenBase(static_cast<GenBase&>(*this))
 {

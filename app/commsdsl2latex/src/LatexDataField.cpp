@@ -31,28 +31,27 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2latex
 {
 
-namespace 
+namespace
 {
 
 std::string latexDataStr(const std::vector<std::uint8_t>& data)
 {
     std::stringstream stream;
     stream << "0x" << std::hex;
-    
+
     for (auto b : data) {
         stream << std::setw(2) << std::setfill('0') << static_cast<unsigned>(b);
     }
     return stream.str();
 }
 
-} // namespace 
-    
+} // namespace
 
 LatexDataField::LatexDataField(LatexGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
-    LatexBase(static_cast<GenBase&>(*this)) 
+    LatexBase(static_cast<GenBase&>(*this))
 {
-}   
+}
 
 bool LatexDataField::genWriteImpl() const
 {
@@ -109,7 +108,7 @@ std::string LatexDataField::latexInfoDetailsImpl() const
         }
 
         list.push_back("\\textbf{Detached Length Prefix} & \\nameref{" + sibling->latexRefLabelId() + "}");
-    } while (false);       
+    } while (false);
 
     if (list.empty()) {
         return strings::genEmptyString();

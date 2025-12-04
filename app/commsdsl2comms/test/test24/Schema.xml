@@ -10,7 +10,7 @@
             <validValue name="M3" val="3" />
         </enum>
     </fields>
-    
+
     <message name="Msg1" id="MsgId.M1">
         <int name="Longitude" type="int64" length="5" displayDecimals="11" >
             <scaling value="1/100000000000" />
@@ -23,5 +23,5 @@
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>       
+    </frame>
 </schema>

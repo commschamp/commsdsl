@@ -59,7 +59,7 @@ bool SwigMsgId::swigWrite() const
         return false;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "enum #^#CLASS_NAME#$# : #^#TYPE#$#\n"
@@ -81,8 +81,8 @@ bool SwigMsgId::swigWrite() const
         m_swigGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true; 
+
+    return true;
 }
 
 void SwigMsgId::swigAddDef(GenStringsList& list) const
@@ -92,7 +92,7 @@ void SwigMsgId::swigAddDef(GenStringsList& list) const
 
 void SwigMsgId::swigAddCode(GenStringsList& list) const
 {
-    const std::string Templ = 
+    const std::string Templ =
         "using #^#SWIG_TYPE#$# = #^#COMMS_TYPE#$#;\n";
 
     auto commsType = comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), m_swigGenerator, m_parent);
@@ -108,7 +108,7 @@ void SwigMsgId::swigAddCode(GenStringsList& list) const
 
 std::string SwigMsgId::swigClassName() const
 {
-    return m_swigGenerator.swigScopeNameForMsgId(strings::genMsgIdEnumNameStr(), m_parent);
+    return m_swigGenerator.swigScopeNameForNamespaceMember(strings::genMsgIdEnumNameStr(), m_parent);
 }
 
 void SwigMsgId::swigAddCodeIncludes(GenStringsList& list) const
@@ -128,7 +128,7 @@ std::string SwigMsgId::swigTypeInternal() const
     }
 
     auto allMessages = m_swigGenerator.genCurrentSchema().genGetAllMessages();
-    auto iter = 
+    auto iter =
         std::max_element(
             allMessages.begin(), allMessages.end(),
             [](auto* first, auto* second)
@@ -163,7 +163,7 @@ std::string SwigMsgId::swigIdsInternal() const
     }
 
     if (allMsgIds.size() == 1U) {
-        auto* msgIdField = allMsgIds.front();    
+        auto* msgIdField = allMsgIds.front();
         assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Enum);
         auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
         auto enumValues = castedMsgIdField->swigEnumValues();
@@ -199,7 +199,7 @@ std::string SwigMsgId::swigIdsInternal() const
 
 std::string SwigMsgId::swigCodeInternal() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "const auto #^#CLASS_NAME#$#_#^#NAME#$# = #^#SCOPE#$#_#^#NAME#$#;\n";
 
     auto scope = comms::genScopeForMsgId(strings::genMsgIdEnumNameStr(), m_swigGenerator, m_parent);
@@ -210,11 +210,10 @@ std::string SwigMsgId::swigCodeInternal() const
     }
 
     if (allMsgIds.size() == 1U) {
-        auto* msgIdField = allMsgIds.front();      
+        auto* msgIdField = allMsgIds.front();
         assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Enum);
         auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
         auto enumValues = castedMsgIdField->swigEnumValues();
-
 
         static const std::string CommentPrefix("// ---");
         static const std::string EqStr(" = ");
@@ -251,7 +250,7 @@ std::string SwigMsgId::swigCodeInternal() const
         if (!m->genIsReferenced()) {
             continue;
         }
-                
+
         util::GenReplacementMap repl = {
             {"CLASS_NAME", swigClassName()},
             {"SCOPE", scope},

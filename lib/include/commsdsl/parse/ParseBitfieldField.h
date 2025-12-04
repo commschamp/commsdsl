@@ -38,7 +38,7 @@ public:
 
     ParseEndian parseEndian() const;
     ParseMembers parseMembers() const;
-    ParseOptCond parseValidCond() const;    
+    ParseOptCond parseValidCond() const;
 };
 
 } // namespace parse

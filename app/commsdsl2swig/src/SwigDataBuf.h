@@ -37,7 +37,7 @@ private:
     explicit SwigDataBuf(SwigGenerator& generator) : m_swigGenerator(generator) {}
 
     bool swigWriteInternal() const;
-    
+
     SwigGenerator& m_swigGenerator;
 };
 

@@ -2,7 +2,7 @@
 <schema name="Schema12"
         id="1"
         endian="little">
-        
+
     <fields>
         <enum name="Enum1" type="int32">
             <validValue name="Val1" val="101" />

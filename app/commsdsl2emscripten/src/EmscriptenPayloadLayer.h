@@ -37,7 +37,7 @@ public:
 
 protected:
     virtual std::string emscriptenHeaderFieldDefImpl() const override;
-    virtual std::string emscriptenFieldClassNameImpl() const override;    
+    virtual std::string emscriptenFieldClassNameImpl() const override;
     virtual std::string emscriptenSourceFieldBindImpl() const override;
 };
 

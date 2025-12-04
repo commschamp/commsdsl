@@ -33,7 +33,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-SwigEnumField::SwigEnumField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+SwigEnumField::SwigEnumField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     SwigBase(static_cast<GenBase&>(*this))
 {
@@ -42,7 +42,7 @@ SwigEnumField::SwigEnumField(SwigGenerator& generator, ParseField parseObj, GenE
 SwigEnumField::GenStringsList SwigEnumField::swigEnumValues() const
 {
     GenStringsList result;
-    
+
     auto obj = genEnumFieldParseObj();
     auto& revValues = genSortedRevValues();
     util::GenStringsList valuesStrings;
@@ -69,7 +69,6 @@ SwigEnumField::GenStringsList SwigEnumField::swigEnumValues() const
 
         static const std::string Templ =
             "#^#NAME#$# = #^#VALUE#$#, ";
-
 
         std::string valStr = genValueToString(v.first);
 
@@ -98,7 +97,7 @@ SwigEnumField::GenStringsList SwigEnumField::swigEnumValues() const
         }
     }
 
-    return valuesStrings;    
+    return valuesStrings;
 }
 
 bool SwigEnumField::genWriteImpl() const
@@ -110,25 +109,24 @@ std::string SwigEnumField::swigValueTypeDeclImpl() const
 {
     auto& gen = SwigGenerator::swigCast(genGenerator());
 
-
     static const std::string Templ =
         "enum class ValueType : #^#TYPE#$#\n"
         "{\n"
         "    #^#VALUES#$#\n"
         "};\n"
-    ;    
+    ;
 
     auto values = swigEnumValues();
     util::GenReplacementMap repl = {
         {"TYPE", gen.swigConvertIntType(genEnumFieldParseObj().parseType(), genEnumFieldParseObj().parseMaxLength())},
         {"VALUES", util::genStrListToString(values, "\n", "")}
     };
-    return util::genProcessTemplate(Templ, repl); 
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string SwigEnumField::swigExtraPublicFuncsDeclImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "static const char* valueNameOf(#^#TYPE#$# val);\n"
         "const char* valueName() const;\n"
     ;
@@ -144,7 +142,7 @@ std::string SwigEnumField::swigExtraPublicFuncsDeclImpl() const
 
 std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "#^#VALUE_TYPE#$#\n"
         "static const char* valueNameOf(#^#TYPE#$# val)\n"
         "{\n"
@@ -159,7 +157,7 @@ std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
     };
 
     if (genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::MessageId) {
-        std::string valTempl = 
+        std::string valTempl =
             "#^#TYPE#$#\n"
             "const ValueType& getValue() const\n"
             "{\n"
@@ -168,12 +166,12 @@ std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
             "}\n";
 
         if (!swigGenField().genParseObj().parseIsFixedValue()) {
-            valTempl += 
+            valTempl +=
                 "\n"
                 "void setValue(const ValueType& val)\n"
                 "{\n"
                 "    Base::setValue(static_cast<Base::ValueType>(val));\n"
-                "}\n";            
+                "}\n";
         }
 
         util::GenReplacementMap valRepl = {

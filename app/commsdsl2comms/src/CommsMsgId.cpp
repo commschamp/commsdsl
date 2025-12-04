@@ -36,13 +36,6 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2comms
 {
 
-namespace 
-{
-
-using GenReplacementMap = commsdsl::gen::util::GenReplacementMap;
-
-} // namespace 
-    
 CommsMsgId::CommsMsgId(CommsGenerator& generator, const CommsNamespace& parent) :
     m_commsGenerator(generator),
     m_parent(parent)
@@ -67,7 +60,7 @@ bool CommsMsgId::commsWrite() const
         return false;
     }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#GENERATED#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of message ids enumeration.\n\n"
@@ -89,7 +82,7 @@ bool CommsMsgId::commsWrite() const
         {"TYPE", commsTypeInternal()},
         {"IDS", commsIdsInternal()},
         {"NS_BEGIN", comms::genNamespaceBeginFor(m_parent, m_commsGenerator)},
-        {"NS_END", comms::genNamespaceEndFor(m_parent, m_commsGenerator)},           
+        {"NS_END", comms::genNamespaceEndFor(m_parent, m_commsGenerator)},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -98,8 +91,8 @@ bool CommsMsgId::commsWrite() const
         m_commsGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
         return false;
     }
-    
-    return true;    
+
+    return true;
 }
 
 std::string CommsMsgId::commsTypeInternal() const
@@ -114,7 +107,7 @@ std::string CommsMsgId::commsTypeInternal() const
     }
 
     auto allMessages = m_parent.genGetAllMessages();
-    auto iter = 
+    auto iter =
         std::max_element(
             allMessages.begin(), allMessages.end(),
             [](auto* first, auto* second)
@@ -148,7 +141,7 @@ std::string CommsMsgId::commsIdsInternal() const
         allMsgIdFields = m_commsGenerator.genCurrentSchema().genGetAllMessageIdFields();
     }
 
-    if (allMsgIdFields.size() == 1U) {    
+    if (allMsgIdFields.size() == 1U) {
         auto* msgIdField = allMsgIdFields.front();
         assert(msgIdField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Enum);
         auto* castedMsgIdField = static_cast<const CommsEnumField*>(msgIdField);

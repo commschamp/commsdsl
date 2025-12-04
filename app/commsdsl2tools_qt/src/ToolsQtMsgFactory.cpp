@@ -35,7 +35,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2tools_qt
 {
 
-namespace 
+namespace
 {
 
 const std::string ToolsMsgFactoryName = "MsgFactory";
@@ -84,7 +84,7 @@ bool ToolsQtMsgFactory::toolsWriteHeaderInternal() const
     auto& logger = m_toolsGenerator.genLogger();
 
     auto& allInterfaces = m_toolsGenerator.toolsGetSelectedInterfaces();
-    
+
     for (auto* iFace : allInterfaces) {
         assert(iFace != nullptr);
         auto filePath = m_toolsGenerator.genGetOutputDir() + '/' + toolsRelHeaderPath(*iFace);
@@ -94,7 +94,7 @@ bool ToolsQtMsgFactory::toolsWriteHeaderInternal() const
         assert(!dirPath.empty());
         if (!m_toolsGenerator.genCreateDirectory(dirPath)) {
             return false;
-        }        
+        }
 
         util::GenStringsList includes = {
             "cc_tools_qt/ToolsMsgFactory.h",
@@ -108,7 +108,7 @@ bool ToolsQtMsgFactory::toolsWriteHeaderInternal() const
             return false;
         }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#GENERATED#$#\n"
             "#pragma once\n\n"
             "#^#INCLUDES#$#\n"
@@ -128,11 +128,11 @@ bool ToolsQtMsgFactory::toolsWriteHeaderInternal() const
             {"TOP_NS_BEGIN", m_toolsGenerator.toolsNamespaceBeginForInterface(*iFace)},
             {"TOP_NS_END", m_toolsGenerator.toolsNamespaceEndForInterface(*iFace)},
             {"NS_BEGIN", comms::genNamespaceBeginFor(m_parent, m_toolsGenerator)},
-            {"NS_END", comms::genNamespaceEndFor(m_parent, m_toolsGenerator)},             
+            {"NS_END", comms::genNamespaceEndFor(m_parent, m_toolsGenerator)},
             {"DEF", toolsHeaderCodeInternal()},
             {"FACTORY_NAMESPACE", strings::genFactoryNamespaceStr()}
         };
-        
+
         stream << util::genProcessTemplate(Templ, repl, true);
         stream.flush();
         if (!stream.good()) {
@@ -149,7 +149,7 @@ bool ToolsQtMsgFactory::toolsWriteSourceInternal() const
     auto& logger = m_toolsGenerator.genLogger();
 
     auto& allInterfaces = m_toolsGenerator.toolsGetSelectedInterfaces();
-    
+
     for (auto* iFace : allInterfaces) {
         assert(iFace != nullptr);
         auto filePath = m_toolsGenerator.genGetOutputDir() + '/' + toolsRelPathInternal(*iFace) + strings::genCppSourceSuffixStr();
@@ -160,7 +160,7 @@ bool ToolsQtMsgFactory::toolsWriteSourceInternal() const
         assert(!dirPath.empty());
         if (!m_toolsGenerator.genCreateDirectory(dirPath)) {
             return false;
-        }        
+        }
 
         std::ofstream stream(filePath);
         if (!stream) {
@@ -168,12 +168,12 @@ bool ToolsQtMsgFactory::toolsWriteSourceInternal() const
             return false;
         }
 
-        static const std::string Templ = 
+        static const std::string Templ =
             "#^#GENERATED#$#\n"
             "\n"
             "#include \"#^#CLASS_NAME#$#.h\"\n\n"
             "#^#INCLUDES#$#\n"
-            "#^#TOP_NS_BEGIN#$#\n"        
+            "#^#TOP_NS_BEGIN#$#\n"
             "#^#NS_BEGIN#$#\n"
             "namespace #^#FACTORY_NAMESPACE#$#\n"
             "{\n\n"
@@ -191,10 +191,10 @@ bool ToolsQtMsgFactory::toolsWriteSourceInternal() const
             {"TOP_NS_BEGIN", m_toolsGenerator.toolsNamespaceBeginForInterface(*iFace)},
             {"TOP_NS_END", m_toolsGenerator.toolsNamespaceEndForInterface(*iFace)},
             {"NS_BEGIN", comms::genNamespaceBeginFor(m_parent, m_toolsGenerator)},
-            {"NS_END", comms::genNamespaceEndFor(m_parent, m_toolsGenerator)},              
+            {"NS_END", comms::genNamespaceEndFor(m_parent, m_toolsGenerator)},
             {"FACTORY_NAMESPACE", strings::genFactoryNamespaceStr()}
         };
-        
+
         stream << util::genProcessTemplate(Templ, repl, true);
         stream.flush();
         if (!stream.good()) {
@@ -207,7 +207,7 @@ bool ToolsQtMsgFactory::toolsWriteSourceInternal() const
 
 std::string ToolsQtMsgFactory::toolsHeaderCodeInternal() const
 {
-    const std::string Templ = 
+    const std::string Templ =
         "class #^#CLASS_NAME#$# : public cc_tools_qt::ToolsMsgFactory\n"
         "{\n"
         "public:\n"
@@ -216,7 +216,7 @@ std::string ToolsQtMsgFactory::toolsHeaderCodeInternal() const
         "\n"
         "protected:\n"
         "    virtual MessagesListInternal createAllMessagesImpl() override;\n"
-        "};\n";  
+        "};\n";
 
     util::GenReplacementMap repl = {
         {"CLASS_NAME", ToolsMsgFactoryName},
@@ -227,7 +227,7 @@ std::string ToolsQtMsgFactory::toolsHeaderCodeInternal() const
 
 std::string ToolsQtMsgFactory::toolsSourceCodeInternal(const commsdsl::gen::GenInterface& iFace) const
 {
-    const std::string Templ = 
+    const std::string Templ =
         "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#() = default;\n"
         "#^#CLASS_NAME#$#::~#^#CLASS_NAME#$#() = default;\n\n"
         "#^#CLASS_NAME#$#::MessagesListInternal #^#CLASS_NAME#$#::createAllMessagesImpl()\n"
@@ -238,14 +238,13 @@ std::string ToolsQtMsgFactory::toolsSourceCodeInternal(const commsdsl::gen::GenI
         "        };\n"
         "}\n";
 
-
     util::GenStringsList scopes;
     auto allMessages = m_toolsGenerator.genGetAllMessagesIdSorted();
     for (auto* m : allMessages) {
         assert(m != nullptr);
 
         scopes.push_back("cc_tools_qt::ToolsMessagePtr(new " + ToolsQtMessage::toolsCast(*m).toolsClassScope(iFace) + ")");
-    }    
+    }
 
     util::GenReplacementMap repl = {
         {"CLASS_NAME", ToolsMsgFactoryName},
@@ -263,7 +262,7 @@ std::string ToolsQtMsgFactory::toolsSourceIncludesInternal(const commsdsl::gen::
         assert(m != nullptr);
         auto& castedMsg = ToolsQtMessage::toolsCast(*m);
         includes.push_back(castedMsg.toolsHeaderPath(iFace));
-    }   
+    }
 
     comms::genPrepareIncludeStatement(includes);
     return util::genStrListToString(includes, "\n", "\n");

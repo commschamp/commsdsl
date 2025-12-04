@@ -5,15 +5,15 @@
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
         </enum>
-        
+
         <enum name="Prop" type="uint8">
             <validValue name="P1" val="0" />
             <validValue name="P2" val="1" />
         </enum>
-        
+
         <int name="PropType" type="uint8" failOnInvalid="true" fixedValue="true" />
         <int name="PropLength" type="uint8" displayName="Length" semanticType="length"/>
-        
+
         <variant name="Variant1">
             <bundle name="P1">
                 <int name="Type" reuse="PropType" validValue="Prop.P1" defaultValue="Prop.P1"/>
@@ -32,22 +32,22 @@
                 <data name="Value" />
             </bundle>
         </variant>
-        
+
         <int name="Version" type="uint8" semanticType="version" />
     </fields>
-    
+
     <interface name="Message">
         <ref field="Version" />
-    </interface>      
-    
+    </interface>
+
     <message name="Msg1" id="MsgId.M1">
         <ref name="f1" field="Variant1" />
         <int name="f2" type="uint16" />
     </message>
-    
+
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <value name="Version" field="Version" interfaceFieldName="Version" />
         <payload name="Data" />
-    </frame>       
+    </frame>
 </schema>

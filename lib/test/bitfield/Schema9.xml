@@ -5,11 +5,11 @@
             <members>
                 <int name="M1" type="uint8" bitLength="5" />
                 <int name="M2" type="uint8" bitLength="3" />
-            </members>   
+            </members>
             <members>
                 <int name="M3" type="uint8" bitLength="5" />
                 <int name="M4" type="uint8" bitLength="3" />
-            </members>   
+            </members>
         </bitfield>
     </fields>
 </schema>

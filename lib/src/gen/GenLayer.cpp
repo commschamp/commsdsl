@@ -34,7 +34,7 @@ namespace gen
 
 class GenLayerImpl
 {
-public:    
+public:
     using ParseLayer = GenLayer::ParseLayer;
 
     GenLayerImpl(GenGenerator& generator, const ParseLayer& parseObj, GenElem* parent) :
@@ -89,7 +89,6 @@ public:
         return m_parseObj;
     }
 
-
     GenField* genExternalField()
     {
         return m_externalField;
@@ -108,7 +107,7 @@ public:
     const GenField* genMemberField() const
     {
         return m_memberField.get();
-    }        
+    }
 
     GenGenerator& genGenerator()
     {
@@ -118,14 +117,14 @@ public:
     const GenGenerator& genGenerator() const
     {
         return m_generator;
-    }    
+    }
 
 private:
     GenGenerator& m_generator;
     ParseLayer m_parseObj;
     GenElem* m_parent = nullptr;
     GenField* m_externalField = nullptr;
-    GenFieldPtr m_memberField;    
+    GenFieldPtr m_memberField;
 };
 
 GenLayer::GenLayer(GenGenerator& generator, const ParseLayer& parseObj, GenElem* parent) :
@@ -155,7 +154,7 @@ GenLayer::GenPtr GenLayer::genCreate(GenGenerator& generator, ParseLayer dslobj,
     auto idx = static_cast<std::size_t>(dslobj.parseKind());
     if (MapSize <= idx) {
         [[maybe_unused]] static constexpr bool Unexpected_kind = false;
-        assert(Unexpected_kind);          
+        assert(Unexpected_kind);
         return GenPtr();
     }
 
@@ -229,7 +228,7 @@ std::string GenLayer::genTemplateScopeOfComms(const std::string& iFaceStr, const
     auto optLevelScope = comms::genScopeFor(*parent, genGenerator()) + strings::genLayersSuffixStr();
     assert(optLevelScope.size() < commsScope.size());
     assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
-    
+
     auto result = optLevelScope + optionsParams + commsScope.substr(optLevelScope.size());
 
     auto* frame = static_cast<const GenFrame*>(parent);
@@ -237,9 +236,9 @@ std::string GenLayer::genTemplateScopeOfComms(const std::string& iFaceStr, const
     auto allLayers = frame->getCommsOrderOfLayers(success);
     assert(success);
 
-    auto iter = 
+    auto iter =
         std::find_if(
-            allLayers.begin(), allLayers.end(), 
+            allLayers.begin(), allLayers.end(),
             [this](const auto* l)
             {
                 return this == l;
@@ -250,10 +249,10 @@ std::string GenLayer::genTemplateScopeOfComms(const std::string& iFaceStr, const
         return result;
     }
 
-    auto addIdParams = 
+    auto addIdParams =
         [&iFaceStr, &allMessagesStr, &result]()
         {
-            static const std::string Templ = 
+            static const std::string Templ =
                 "<#^#INTERFACE#$#, #^#ALL_MESSAGES#$#>";
 
             util::GenReplacementMap repl = {
@@ -279,11 +278,18 @@ std::string GenLayer::genTemplateScopeOfComms(const std::string& iFaceStr, const
         auto customKind = customLayer.genCustomLayerParseObj().parseSemanticLayerType();
         if (customKind == ParseLayer::ParseKind::Id) {
             addIdParams();
-            break;            
+            break;
         }
     }
 
     return result;
+}
+
+const GenFrame* GenLayer::genParentFrame() const
+{
+    auto* parent = genGetParent();
+    assert(parent->genElemType() == GenType_Frame);
+    return static_cast<const commsdsl::gen::GenFrame*>(parent);
 }
 
 GenElem::GenType GenLayer::genElemTypeImpl() const
@@ -301,8 +307,37 @@ bool GenLayer::genWriteImpl() const
     return true;
 }
 
-bool GenLayer::genForceCommsOrderImpl([[maybe_unused]] GenLayersAccessList& layers, bool& success) const
+bool GenLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const
 {
+    auto iter =
+        std::find_if(
+            layers.begin(), layers.end(),
+            [this](const auto* l)
+            {
+                return l == this;
+            });
+
+    if (iter == layers.end()) {
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
+        assert(Should_not_happen);
+        success = false;
+        return false;
+    }
+
+    auto payloadIter =
+        std::find_if(
+            iter, layers.end(),
+            [](const auto* l)
+            {
+                return l->genParseObj().parseKind() == ParseLayer::ParseKind::Payload;
+            });
+
+    if (payloadIter == layers.end()) {
+        genGenerator().genLogger().genError("Frame layer \"" + genName() + "\" is expected to precede <payload>.");
+        success = false;
+        return false;
+    }
+
     success = true;
     return false;
 }

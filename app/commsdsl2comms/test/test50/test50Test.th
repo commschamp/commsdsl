@@ -44,7 +44,6 @@ void TestSuite::test1()
     TS_ASSERT(msg1->field_f5().doesExist());
     TS_ASSERT_EQUALS(msg1->field_f5().field().value(), 0xa);
 
-
     std::vector<std::uint8_t> outBuf(BufSize);
     auto writeIter = &outBuf[0];
     es = frame.write(*msg1, writeIter, outBuf.size());

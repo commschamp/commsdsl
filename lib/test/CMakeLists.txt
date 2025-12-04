@@ -8,7 +8,7 @@ function (test_func name)
     if (COMMSDSL_VALGRIND_TESTS AND VALGRIND_EXECUTABLE)
         set (valgrand_opt VALGRIND_EXECUTABLE ${VALGRIND_EXECUTABLE})
     endif ()
-    cc_cxxtest_add_test(NAME ${testName} SRC ${tests} ${valgrand_opt} NO_COMMS_LIB_DEP)    
+    cc_cxxtest_add_test(NAME ${testName} SRC ${tests} ${valgrand_opt} NO_COMMS_LIB_DEP)
 
     target_compile_definitions (${testName} PRIVATE "-DSCHEMAS_DIR=\"${testDir}\"")
     target_link_libraries(${testName} PRIVATE ${COMMON_TEST_LIB_NAME} ${PROJECT_NAME})
@@ -17,7 +17,7 @@ function (test_func name)
         $<$<CXX_COMPILER_ID:MSVC>: /wd4251>
     )
 
-    add_dependencies(libcommsdsl.all_tests ${testName}) 
+    add_dependencies(libcommsdsl.all_tests ${testName})
 
 endfunction ()
 
@@ -25,7 +25,7 @@ endfunction ()
 
 if (NOT BUILD_TESTING)
     return ()
-endif ()  
+endif ()
 
 include_directories (
     "${CMAKE_CURRENT_SOURCE_DIR}"

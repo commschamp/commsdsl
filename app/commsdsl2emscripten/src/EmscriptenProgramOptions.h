@@ -21,7 +21,6 @@
 #include <string>
 #include <vector>
 
-
 namespace commsdsl2emscripten
 {
 
@@ -38,11 +37,7 @@ public:
     }
 
     bool emscriptenIsMainNamespaceInNamesForced() const;
-    bool emscriptenHasForcedInterface() const;
-    const std::string& emscriptenGetForcedInterface() const;
-    bool emscriptenHasProtocolVersion() const;
-    const std::string& emscriptenMessagesListFile() const;
-    const std::string& emscriptenForcedPlatform() const;
+    bool emscriptenHasCodeVersion() const;
 };
 
 } // namespace commsdsl2emscripten

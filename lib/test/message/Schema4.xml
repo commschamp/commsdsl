@@ -20,7 +20,7 @@
             <fields>
                 <int name="field3" type="uint16" />
             </fields>
-        </message>  
+        </message>
 
         <message name="Msg3" id="MsgId.Msg3" sinceVersion="2" copyFieldsFrom="Msg2" copyCodeFrom="Msg2">
             <replace>
@@ -34,7 +34,7 @@
                     <bit name="B0" idx="0" />
                 </set>
             </fields>
-        </message>              
+        </message>
 
     </messages>
 </schema>

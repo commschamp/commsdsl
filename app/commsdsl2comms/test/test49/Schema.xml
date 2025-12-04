@@ -13,12 +13,12 @@
                 <special name="HasLong" val="0xff" />
             </int>
             <optional name="Long" defaultMode="missing" cond="$Short = 0xff">
-                <int name="ActLong" type="uint16" /> 
+                <int name="ActLong" type="uint16" />
             </optional>
-        </bundle>        
+        </bundle>
 
     </fields>
-    
+
     <message name="Msg1" id="MsgId.M1">
         <ref field="B1" name="F1" />
         <optional name="F2" cond="$F1 != 0">
@@ -29,5 +29,5 @@
     <frame name="Frame">
         <id name="Id" field="MsgId" />
         <payload name="Data" />
-    </frame>     
+    </frame>
 </schema>

@@ -39,7 +39,7 @@ public:
         {
             static_cast<void>(msg);
             ++m_msg2Received;
-        }        
+        }
 
         void handle(Interface& msg)
         {
@@ -69,14 +69,14 @@ void TestSuite::test1()
 
     TS_ASSERT_EQUALS(handler.m_msg1Received, 1U);
     TS_ASSERT_EQUALS(handler.m_msg2Received, 1U);
-    TS_ASSERT_EQUALS(handler.m_unrecognizedReceived, 0U); 
+    TS_ASSERT_EQUALS(handler.m_unrecognizedReceived, 0U);
 }
 
 void TestSuite::test2()
 {
     Msg1 msg1;
     msg1.field_f1().value() = 0xab;
-    
+
     Frame frame;
 
     std::vector<std::uint8_t> output;

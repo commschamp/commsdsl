@@ -69,7 +69,7 @@ public:
     GenField* genMemberTermSuffixField();
     const GenField* genMemberTermSuffixField() const;
 
-protected:    
+protected:
     virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl() override;
 

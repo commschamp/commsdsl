@@ -45,10 +45,10 @@ public:
     static const ToolsQtInterface& toolsCast(const commsdsl::gen::GenInterface& val)
     {
         return static_cast<const ToolsQtInterface&>(val);
-    }    
+    }
 
 protected:
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
 private:
     bool toolsWriteHeaderInternal() const;

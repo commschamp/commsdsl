@@ -53,7 +53,7 @@ protected:
     virtual bool genWriteImpl() override;
 
 private:
-    std::string latexNamespaceInputs() const;    
+    std::string latexNamespaceInputs() const;
 };
 
 } // namespace commsdsl2latex

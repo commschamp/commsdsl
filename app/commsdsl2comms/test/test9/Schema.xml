@@ -8,7 +8,7 @@
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
         </enum>
-        
+
         <float name="F1" type="float" defaultValue="null" displayDecimals="2">
             <special name="null" val="NaN" />
             <special name="s1" val="-inf" displayName="Special 1"/>
@@ -19,9 +19,9 @@
             <validValue value="-inf" />
             <validRange value="[s3, s4]" />
         </float>
-        
+
         <float name="F2" type="float" validFullRange="true" />
-        
+
         <float name="F3" type="double" validCheckVersion="true" displayDecimals="1">
             <validValue value="nan" />
             <validRange value="[0, 1.4]" />
@@ -30,12 +30,11 @@
             <validRange value="[4.0, 5.1]" sinceVersion="2" deprecated="3" />
         </float>
     </fields>
-    
-    
+
     <interface name="Message">
         <int name="version" type="uint8" semanticType="version" />
-    </interface>      
-    
+    </interface>
+
     <message name="Msg1" id="MsgId.M1">
         <ref field="F1" />
         <ref field="F2" />
@@ -44,5 +43,5 @@
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>       
+    </frame>
 </schema>

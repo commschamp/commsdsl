@@ -11,6 +11,6 @@
 
         <data name="Data2" reuse="Data1" >
             <validValue value="0708" />
-        </data>        
+        </data>
     </fields>
 </schema>

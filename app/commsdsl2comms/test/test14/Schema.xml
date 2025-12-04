@@ -21,17 +21,17 @@
         <string name="S5" defaultValidValue="bla1">
             <lengthPrefix>
                 <int name="length" type="uint8" />
-            </lengthPrefix>        
+            </lengthPrefix>
             <validValue value="bla2" />
             <validValue value="bla3" />
         </string>
         <string name="S6" reuse="S5" defaultValue="bla2" failOnInvalid="true" />
     </fields>
-    
+
     <interface name="Message">
         <int name="version" type="uint8" semanticType="version" />
-    </interface>      
-    
+    </interface>
+
     <message name="Msg1" id="MsgId.M1">
         <ref name="f1" field="S1" />
         <ref name="f2" field="S2" />
@@ -43,7 +43,7 @@
                 <int name="length" type="uint8" />
             </lengthPrefix>
         </string>
-                
+
     </message>
 
     <message name="Msg2" id="MsgId.M2">
@@ -53,5 +53,5 @@
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>       
+    </frame>
 </schema>

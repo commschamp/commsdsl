@@ -10,8 +10,8 @@
                 <endian value="Little" />
             </int>
         </fields>
-    </ns> 
-           
+    </ns>
+
     <ns name="ns1">
         <fields>
             <int reuse="ns2.Int1" type="uint16" length="1" defaultValue="100" />

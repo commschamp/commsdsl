@@ -27,19 +27,18 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2emscripten
 {
 
-namespace 
+namespace
 {
 
 const std::string EmscriptenClassName("DataBuf");
 
-} // namespace 
-    
+} // namespace
 
 bool EmscriptenDataBuf::emscriptenWrite(EmscriptenGenerator& generator)
 {
     EmscriptenDataBuf obj(generator);
-    return 
-        obj.emscriptenWriteHeaderInternal() && 
+    return
+        obj.emscriptenWriteHeaderInternal() &&
         obj.emscriptenWriteSrcInternal();
 }
 
@@ -77,16 +76,16 @@ bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
     assert(!dirPath.empty());
     if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     m_emscriptenGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
         m_emscriptenGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }     
+    }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#GENERATED#$#\n\n"
         "#include <cstdint>\n"
         "#include <vector>\n\n"
@@ -114,7 +113,6 @@ bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
     return true;
 }
 
-
 bool EmscriptenDataBuf::emscriptenWriteSrcInternal() const
 {
     auto filePath = m_emscriptenGenerator.emscriptenAbsSourceForRoot(EmscriptenClassName);
@@ -122,16 +120,16 @@ bool EmscriptenDataBuf::emscriptenWriteSrcInternal() const
     assert(!dirPath.empty());
     if (!m_emscriptenGenerator.genCreateDirectory(dirPath)) {
         return false;
-    }       
+    }
 
     m_emscriptenGenerator.genLogger().genInfo("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
         m_emscriptenGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
         return false;
-    }     
+    }
 
-    const std::string Templ = 
+    const std::string Templ =
         "#^#GENERATED#$#\n\n"
         "#include \"#^#HEADER#$#\"\n\n"
         "#include <emscripten/bind.h>\n\n"

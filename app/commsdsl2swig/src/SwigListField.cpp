@@ -31,13 +31,13 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-SwigListField::SwigListField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) : 
+SwigListField::SwigListField(SwigGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
     SwigBase(static_cast<GenBase&>(*this))
 {
 }
 
-bool SwigListField::genPrepareImpl() 
+bool SwigListField::genPrepareImpl()
 {
     if (!GenBase::genPrepareImpl()) {
         return false;
@@ -49,7 +49,7 @@ bool SwigListField::genPrepareImpl()
     }
 
     assert(elem != nullptr);
-    SwigField::swigCast(elem)->swigSetListElement();    
+    SwigField::swigCast(elem)->swigSetListElement();
 
     return true;
 }
@@ -71,7 +71,7 @@ std::string SwigListField::swigMembersDeclImpl() const
 
 std::string SwigListField::swigValueTypeDeclImpl() const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "using ValueType = std::vector<#^#ELEM#$#>;\n";
 
     auto* elem = genMemberElementField();
@@ -90,14 +90,14 @@ std::string SwigListField::swigValueTypeDeclImpl() const
 
 std::string SwigListField::swigValueAccDeclImpl() const
 {
-    return 
-        "ValueType& value();\n" + 
+    return
+        "ValueType& value();\n" +
         SwigBase::swigValueAccDeclImpl();
 }
 
 std::string SwigListField::swigExtraPublicFuncsCodeImpl() const
 {
-    std::string templ = 
+    std::string templ =
         "using ValueType = std::vector<#^#ELEM#$#>;\n\n"
         "ValueType& value()\n"
         "{\n"
@@ -109,12 +109,12 @@ std::string SwigListField::swigExtraPublicFuncsCodeImpl() const
         "}\n";
 
     if (!swigGenField().genParseObj().parseIsFixedValue()) {
-        templ += 
+        templ +=
             "\n"
             "void setValue(const ValueType& val)\n"
             "{\n"
             "    Base::setValue(reinterpret_cast<const Base::ValueType&>(val));\n"
-            "}\n";        
+            "}\n";
     }
 
     auto* elem = genMemberElementField();
@@ -128,7 +128,7 @@ std::string SwigListField::swigExtraPublicFuncsCodeImpl() const
         {"ELEM", SwigGenerator::swigCast(genGenerator()).swigClassName(*elem)}
     };
 
-    return util::genProcessTemplate(templ, repl);        
+    return util::genProcessTemplate(templ, repl);
 }
 
 void SwigListField::swigAddDefImpl(GenStringsList& list) const
@@ -136,7 +136,7 @@ void SwigListField::swigAddDefImpl(GenStringsList& list) const
     auto* elem = genMemberElementField();
     if (elem == nullptr) {
         elem = genExternalElementField();
-    }   
+    }
 
     SwigField::swigCast(elem)->swigAddDef(list);
 }
@@ -146,12 +146,11 @@ void SwigListField::swigAddMembersCodeImpl(GenStringsList& list) const
     auto* elem = genMemberElementField();
     if (elem == nullptr) {
         elem = genExternalElementField();
-    }    
+    }
 
     assert(elem != nullptr);
 
     SwigField::swigCast(elem)->swigAddCode(list);
 }
-
 
 } // namespace commsdsl2swig

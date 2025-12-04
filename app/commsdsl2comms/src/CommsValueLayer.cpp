@@ -56,13 +56,13 @@ CommsValueLayer::CommsIncludesList CommsValueLayer::commsDefIncludesImpl() const
 
 std::string CommsValueLayer::commsDefBaseTypeImpl(const std::string& prevName) const
 {
-    static const std::string Templ = 
+    static const std::string Templ =
         "comms::frame::TransportValueLayer<\n"
         "    #^#FIELD_TYPE#$#,\n"
         "    #^#INTERFACE_FIELD_IDX#$#,\n"
         "    #^#PREV_LAYER#$##^#COMMA#$#\n"
         "    #^#EXTRA_OPTS#$#\n"
-        ">";    
+        ">";
 
     util::GenReplacementMap repl = {
         {"FIELD_TYPE", commsDefFieldType()},
@@ -87,6 +87,5 @@ std::string CommsValueLayer::commsDefExtraOptsInternal() const
     }
     return util::genStrListToString(result, ",\n", "");
 }
-
 
 } // namespace commsdsl2comms

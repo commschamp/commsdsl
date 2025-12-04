@@ -50,7 +50,7 @@ public:
 
 void TestSuite::test1()
 {
-    static const std::uint8_t Buf1[] = 
+    static const std::uint8_t Buf1[] =
     {
         1, 0, 0x4, 0x1, 0x2, 0x3, 0x4, 0xab, 0xcd
     };
@@ -136,7 +136,7 @@ void TestSuite::test4()
 
 void TestSuite::test5()
 {
-    static const std::uint8_t Buf1[] = 
+    static const std::uint8_t Buf1[] =
     {
         1, 0, 0x1, 0xff, 0xab, 0xcd
     };
@@ -168,7 +168,7 @@ void TestSuite::test5()
 
 void TestSuite::test6()
 {
-    static const std::uint8_t Buf1[] = 
+    static const std::uint8_t Buf1[] =
     {
         1, 2, 0x2, 0xff, 0xff, 0xab, 0xcd
     };
@@ -200,7 +200,7 @@ void TestSuite::test6()
 
 void TestSuite::test7()
 {
-    static const std::uint8_t Buf1[] = 
+    static const std::uint8_t Buf1[] =
     {
         1, 3, 0x1, 0x1, 0xab, 0xcd
     };
@@ -233,7 +233,7 @@ void TestSuite::test7()
 
 void TestSuite::test8()
 {
-    static const std::uint8_t Buf1[] = 
+    static const std::uint8_t Buf1[] =
     {
         3, 0, 0x4, 0x1, 0x2, 0x3, 0x4, 0xab, 0xcd
     };
@@ -256,7 +256,7 @@ void TestSuite::test8()
 
 void TestSuite::test9()
 {
-    std::vector<std::uint8_t> buf = 
+    std::vector<std::uint8_t> buf =
     {
         3, 5, 0xff, 0x1, 0xff
     };

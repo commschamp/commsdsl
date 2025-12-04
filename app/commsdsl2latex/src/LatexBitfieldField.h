@@ -37,13 +37,13 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
     virtual std::string latexInfoDetailsImpl() const override;
     virtual std::string latexExtraDetailsImpl() const override;
 
 private:
-    LatexFieldsList m_latexFields;    
+    LatexFieldsList m_latexFields;
 };
 
 } // namespace commsdsl2latex

@@ -34,7 +34,7 @@ namespace
 constexpr bool Unexpected_call_on_invalid_schema_object = false;
 #endif
 
-}    
+}
 
 ParseSchema::ParseSchema(const ParseSchemaImpl* impl)
   : m_pImpl(impl)
@@ -55,7 +55,6 @@ const std::string& ParseSchema::parseName() const
 
     return m_pImpl->parseName();
 }
-
 
 const std::string& ParseSchema::parseDisplayName() const
 {

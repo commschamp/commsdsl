@@ -36,7 +36,7 @@ public:
     bool latexIsPassThroughToMember() const;
 
 protected:
-    virtual bool genWriteImpl() const override;    
+    virtual bool genWriteImpl() const override;
 
     virtual std::string latexDocImpl() const override;
     virtual std::string latexDescriptionImpl() const override;

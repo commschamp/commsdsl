@@ -4,7 +4,7 @@
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
         </enum>
-        
+
         <set name="S1" length="3">
             <bit name="b3" idx="3" />
             <bit name="b2" idx="2" defaultValue="true" />
@@ -12,9 +12,9 @@
             <bit name="b5" idx="5" sinceVersion="3" deprecated="4" />
             <bit name="b4" idx="4" deprecated="3" />
             <bit name="b1" idx="1" reserved="true" reservedValue="true" defaultValue="true" />
-        </set>   
+        </set>
     </fields>
-    
+
     <message name="Msg1" id="MsgId.M1">
         <ref name="f1" field="S1" />
         <set name="f2" type="uint8">
@@ -25,5 +25,5 @@
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />
-    </frame>       
+    </frame>
 </schema>

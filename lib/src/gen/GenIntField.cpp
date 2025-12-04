@@ -55,7 +55,7 @@ public:
                 }
 
                 return elem1.second.m_value < elem2.second.m_value;
-            });   
+            });
 
         return true;
     }
@@ -67,7 +67,7 @@ public:
 
 private:
     GenSpecialsList m_specialsSorted;
-};   
+};
 
 GenIntField::GenIntField(GenGenerator& generator, commsdsl::parse::ParseField parseObj, GenElem* parent) :
     Base(generator, parseObj, parent),
@@ -121,7 +121,7 @@ GenIntField::GenFieldRefInfo GenIntField::genProcessInnerRefImpl(const std::stri
         info.m_refType = FieldRefType_InnerValue;
     }
 
-    return info;    
+    return info;
 }
 
 GenIntField::ParseIntField GenIntField::genIntFieldParseObj() const

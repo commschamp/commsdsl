@@ -64,7 +64,7 @@
 
     <message name="Msg3" id="MsgId.Msg3" displayName="^Msg3Name" copyReadCondFrom="Msg1">
         <int name="F1" type="uint8" />
-    </message>    
+    </message>
 
     <message name="Msg4" id="MsgId.Msg4" copyValidCondFrom="Msg1">
         <int name="F1" type="uint8" />

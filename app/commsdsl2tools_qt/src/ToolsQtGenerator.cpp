@@ -53,9 +53,9 @@ namespace commsdsl2tools_qt
 namespace
 {
 
-const std::string MinToolsQtVersion("6.0.4");    
+const std::string MinToolsQtVersion("6.0.5");
 
-} // namespace 
+} // namespace
 
 const std::string& ToolsQtGenerator::toolsFileGeneratedComment()
 {
@@ -86,7 +86,7 @@ ToolsQtGenerator::GenStringsList ToolsQtGenerator::toolsSourceFilesForInterface(
         auto fResult = ToolsQtFrame::toolsCast(f)->toolsSourceFiles(interface);
         result.reserve(result.size() + fResult.size());
         std::move(fResult.begin(), fResult.end(), std::back_inserter(result));
-    }   
+    }
 
     return result;
 }
@@ -111,7 +111,7 @@ bool ToolsQtGenerator::toolsHasMulitpleInterfaces() const
 {
     auto interfaces = toolsGetSelectedInterfaces();
     assert(!interfaces.empty());
-    return (1U < interfaces.size());    
+    return (1U < interfaces.size());
 }
 
 bool ToolsQtGenerator::toolsHasMainNamespaceInOptions() const
@@ -193,7 +193,7 @@ std::string ToolsQtGenerator::toolsScopePrefixForInterface(const commsdsl::gen::
     return toolsScopePrefix() + scopeStr + "::";
 }
 
-bool ToolsQtGenerator::genPrepareImpl() 
+bool ToolsQtGenerator::genPrepareImpl()
 {
     genChooseProtocolSchema();
     if (!GenBase::genPrepareImpl()) {
@@ -211,7 +211,7 @@ bool ToolsQtGenerator::genPrepareImpl()
             assert(interfacePtr != nullptr);
 
             if (interfacePtr->genParseObj().parseValid()) {
-                info.m_interface = interfacePtr->genParseObj().parseExternalRef();    
+                info.m_interface = interfacePtr->genParseObj().parseExternalRef();
             }
             else {
                 info.m_interface = interfacePtr->genName();
@@ -238,14 +238,14 @@ bool ToolsQtGenerator::genPrepareImpl()
 
         if (info.m_pluginId.empty()) {
             info.m_pluginId = info.m_name;
-        }        
+        }
 
         m_plugins.push_back(
             std::make_unique<ToolsQtPlugin>(
                 *this, info.m_frame, info.m_interface, info.m_name, info.m_desc, info.m_pluginId));
     }
 
-    bool result = 
+    bool result =
         toolsPrepareSelectedInterfacesInternal() &&
         toolsPrepareSelectedFramesInternal();
 
@@ -253,7 +253,7 @@ bool ToolsQtGenerator::genPrepareImpl()
         return false;
     }
 
-    return 
+    return
         std::all_of(
             m_plugins.begin(), m_plugins.end(),
             [](auto& pPtr)
@@ -320,7 +320,7 @@ ToolsQtGenerator::GenLayerPtr ToolsQtGenerator::genCreateChecksumLayerImpl(comms
 bool ToolsQtGenerator::genWriteImpl()
 {
     genChooseProtocolSchema();
-    bool result =  
+    bool result =
         ToolsQtCmake::toolsWrite(*this) &&
         ToolsQtDefaultOptions::toolsWrite(*this) &&
         ToolsQtVersion::toolsWrite(*this);
@@ -329,7 +329,7 @@ bool ToolsQtGenerator::genWriteImpl()
         return false;
     }
 
-    result = 
+    result =
         std::all_of(
             m_plugins.begin(), m_plugins.end(),
             [](auto& pluginPtr)
@@ -341,7 +341,7 @@ bool ToolsQtGenerator::genWriteImpl()
         return false;
     }
 
-    return toolsWriteExtraFilesInternal();            
+    return toolsWriteExtraFilesInternal();
 }
 
 ToolsQtGenerator::OptsProcessResult ToolsQtGenerator::genProcessOptionsImpl(const GenProgramOptions& options)
@@ -410,7 +410,7 @@ bool ToolsQtGenerator::toolsPrepareSelectedInterfacesInternal()
         }
     }
 
-    return true;    
+    return true;
 }
 
 bool ToolsQtGenerator::toolsPrepareSelectedFramesInternal()
@@ -440,7 +440,7 @@ bool ToolsQtGenerator::toolsPrepareSelectedFramesInternal()
         m_selectedFrames = genGetAllFrames();
     }
 
-    return true;    
+    return true;
 }
 
 bool ToolsQtGenerator::toolsWriteExtraFilesInternal() const
@@ -454,7 +454,7 @@ bool ToolsQtGenerator::toolsWriteExtraFilesInternal() const
         strings::genIncFileSuffixStr(),
         strings::genAppendFileSuffixStr(),
         strings::genSourcesFileSuffixStr(),
-    }; 
+    };
 
     return genCopyExtraSourceFiles(ReservedExt);
 }

@@ -25,6 +25,8 @@ namespace commsdsl2swig
 {
 
 class SwigGenerator;
+class SwigInterface;
+class SwigMsgHandler;
 class SwigMessage final: public commsdsl::gen::GenMessage
 {
     using GenBase = commsdsl::gen::GenMessage;
@@ -38,16 +40,16 @@ public:
     virtual ~SwigMessage();
 
     void swigAddCodeIncludes(GenStringsList& list) const;
-    void swigAddCode(GenStringsList& list) const; 
+    void swigAddCode(GenStringsList& list) const;
     void swigAddDef(GenStringsList& list) const;
 
     static const SwigMessage* swigCast(const commsdsl::gen::GenMessage* i)
     {
         return static_cast<const SwigMessage*>(i);
-    }    
+    }
 
 protected:
-    virtual bool genPrepareImpl() override;    
+    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;
 
 private:
@@ -57,8 +59,10 @@ private:
     std::string swigClassDeclInternal() const;
     std::string swigFieldsAccDeclInternal() const;
     std::string swigFieldsAccCodeInternal() const;
+    const SwigInterface* swigGetInterfaceInternal() const;
+    const SwigMsgHandler* swigMsgHandlerInternal() const;
 
-    SwigFieldsList m_swigFields;    
+    SwigFieldsList m_swigFields;
 };
 
 } // namespace commsdsl2swig

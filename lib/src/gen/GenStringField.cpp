@@ -29,11 +29,11 @@ namespace gen
 class GenStringFieldImpl
 {
     using Base = GenField;
-    
+
 public:
     using ParseStringField = GenStringField::ParseStringField;
 
-    GenStringFieldImpl(GenGenerator& generator, ParseStringField parseObj, GenElem* parent): 
+    GenStringFieldImpl(GenGenerator& generator, ParseStringField parseObj, GenElem* parent):
         m_generator(generator),
         m_parseObj(parseObj),
         m_parent(parent)
@@ -79,7 +79,7 @@ public:
     const GenField* genMemberPrefixField() const
     {
         return m_memberPrefixField.get();
-    }    
+    }
 
     void genSetReferenced()
     {
@@ -94,7 +94,6 @@ private:
     GenField* m_externalPrefixField = nullptr;
     GenFieldPtr m_memberPrefixField;
 };
-
 
 GenStringField::GenStringField(GenGenerator& generator, ParseField parseObj, GenElem* parent) :
     Base(generator, parseObj, parent),

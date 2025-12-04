@@ -50,12 +50,12 @@ public:
         void handle(Msg4& msg)
         {
             m_msg4.reset(new Msg4(msg));
-        }      
+        }
 
         void handle(Msg5& msg)
         {
             m_msg5.reset(new Msg5(msg));
-        }             
+        }
 
         void handle(Interface& msg)
         {
@@ -75,7 +75,7 @@ public:
         const std::unique_ptr<Msg3>& getMsg3() const
         {
             return m_msg3;
-        }        
+        }
 
         void reset()
         {
@@ -170,7 +170,7 @@ void TestSuite::test3()
     Frame::MsgPtr msgPtr;
     auto* readIter = &outBuf[0];
     es = comms::processSingle(readIter, outBuf.size(), frame, msgPtr);
-    TS_ASSERT_EQUALS(es, comms::ErrorStatus::InvalidMsgData);    
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::InvalidMsgData);
 }
 
 void TestSuite::test4()
@@ -208,7 +208,6 @@ void TestSuite::test6()
     msg.transportField_flags().field_b().setBitValue_B0(false);
     msg.doRefresh();
     TS_ASSERT(!msg.doValid());
-
 
     Frame frame;
 

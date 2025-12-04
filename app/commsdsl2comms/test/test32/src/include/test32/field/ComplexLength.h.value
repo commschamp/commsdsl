@@ -1,4 +1,4 @@
-/// @brief Get value 
+/// @brief Get value
 std::size_t getValue() const
 {
     if (!field_short().isLongPresent()) {
@@ -8,7 +8,7 @@ std::size_t getValue() const
     return static_cast<std::size_t>(field_long().field().value());
 }
 
-/// @brief Set value 
+/// @brief Set value
 template <typename U>
 void setValue(U&& val)
 {

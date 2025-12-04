@@ -3,4 +3,3 @@
 template <typename TOpt = test21::options::DefaultOptions, typename... TExtraOpts>
 using B1 = B1Orig<TOpt, TExtraOpts...>;
 
-

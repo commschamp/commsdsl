@@ -103,8 +103,8 @@ public:
 
     bool parseIsFeatureSupported(unsigned minDslVersion) const;
     bool parseIsFeatureDeprecated(unsigned deprecatedVersion) const;
-    bool parseIsPropertySupported(const std::string& name) const;    
-    bool parseIsPropertyDeprecated(const std::string& name) const;    
+    bool parseIsPropertySupported(const std::string& name) const;
+    bool parseIsPropertyDeprecated(const std::string& name) const;
     bool parseIsFieldValueReferenceSupported() const;
     bool parseIsSemanticTypeLengthSupported() const;
     bool parseIsSemanticTypeRefInheritanceSupported() const;
