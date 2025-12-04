@@ -432,6 +432,10 @@ std::string CDoxygen::cOutputDocInternal() const
 
     util::GenStringsList msgItems;
     for (auto* m : messages) {
+        if (!m->genIsReferenced()) {
+            continue;
+        }
+        
         static const std::string Templ =
             "/// @li @ref #^#NAME#$# defined in @b #^#PATH#$#."
             ;

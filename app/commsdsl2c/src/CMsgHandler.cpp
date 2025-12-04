@@ -279,7 +279,6 @@ std::string CMsgHandler::cHeaderFwdInternal() const
     util::GenStringsList fwd;
     fwd.reserve(allMessages.size() + 1U);
     for (auto* m : allMessages) {
-
         auto* cMsg = CMessage::cCast(m);
         util::GenReplacementMap repl = {
             {"NAME", cMsg->cName()},
@@ -329,7 +328,6 @@ std::string CMsgHandler::cCommsHeaderFuncsInternal() const
 
     funcs.reserve(funcs.size() + 1U);
     for (auto* m : allMessages) {
-
         static const std::string Templ =
             "void handle(::#^#COMMS_SCOPE#$#<#^#INTERFACE_COMMS_NAME#$#, #^#OPTS#$#>& msg);"
             ;
@@ -439,6 +437,15 @@ CMsgHandler::GenMessagesAccessList CMsgHandler::cMessagesListInternal() const
     if (allMessages.empty() && m_parent.genName().empty()) {
         allMessages = m_cGenerator.genCurrentSchema().genGetAllMessagesIdSorted();
     }
+
+    allMessages.erase(
+        std::remove_if(
+            allMessages.begin(), allMessages.end(),
+            [](auto* m)
+            {
+                return !m->genIsReferenced();
+            }),
+        allMessages.end());
 
     return allMessages;
 }

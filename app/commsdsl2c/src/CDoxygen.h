@@ -40,14 +40,6 @@ private:
     bool cWriteMainpageInternal() const;
     std::string cInputDocInternal() const;
     std::string cOutputDocInternal() const;
-    // std::string cMessagesDocInternal() const;
-    // std::string cFieldsDocInternal() const;
-    // std::string cInterfaceDocInternal() const;
-    // std::string cFrameDocInternal() const;
-    // std::string cDispatchDocInternal() const;
-    // std::string cCustomizeDocInternal() const;
-    // std::string cVersionDocInternal() const;
-    // std::string cPlatformsDocInternal() const;
 
     CGenerator& m_cGenerator;
     std::vector<const CFrame*> m_frames;
