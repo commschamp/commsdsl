@@ -37,7 +37,18 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Prepare Install
-      run: sudo apt-get update --fix-missing    
+      run: sudo apt-get update --fix-missing
+
+    - name: List biggest packages
+      run: |
+        echo "Listing 100 largest packages"; \
+        dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100; \
+        df -h
+
+    - name: Clean unused packages
+      run: |
+        sudo apt-get remove -y google-chrome-stable firefox powershell 'php.*' '^dotnet-.*'; \
+        sudo apt-get clean
       
     - name: Install Packages
       run: |
