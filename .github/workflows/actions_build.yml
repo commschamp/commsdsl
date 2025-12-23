@@ -47,7 +47,7 @@ jobs:
 
     - name: Clean unused packages
       run: |
-        sudo apt-get remove -y google-chrome-stable firefox powershell 'php.*' '^dotnet-.*'; \
+        sudo apt-get remove -y microsoft-edge-stable azure-cli `^google-cloud-cli.*` google-chrome-stable firefox powershell 'php.*' '^dotnet-.*' '^llvm-.*' '^clang-tools-.*'; \
         sudo apt-get clean
       
     - name: Install Packages
