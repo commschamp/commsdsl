@@ -112,6 +112,10 @@ class COMMSDSL_API ParseSyncLayer : public ParseLayer
 public:
     explicit ParseSyncLayer(const ParseSyncLayerImpl* impl);
     explicit ParseSyncLayer(ParseLayer layer);
+
+    bool parseSeekField() const;
+    bool parseHasEscField() const;
+    ParseField parseEscField() const;
 };
 
 class ParseChecksumLayerImpl;

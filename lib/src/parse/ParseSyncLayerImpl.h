@@ -29,8 +29,42 @@ class ParseSyncLayerImpl final : public ParseLayerImpl
 public:
     ParseSyncLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
 
+    bool parseHasEscField() const
+    {
+        return
+            (m_extEscField != nullptr) ||
+            static_cast<bool>(m_escField);
+    }
+
+    ParseField parseEscField() const
+    {
+        if (m_extEscField != nullptr) {
+            return ParseField(m_extEscField);
+        }
+
+        return ParseField(m_escField.get());
+    }
+
+    bool parseSeekField() const
+    {
+        return m_seekField;
+    }
+
 protected:
     virtual ParseKind parseKindImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPossiblePropsNamesImpl() const override;
+    virtual bool parseImpl() override;
+
+private:
+    bool parseUpdateSeekFieldInternal();
+    bool parseUpdateEscFieldInternal();
+    bool parseCheckEscFieldFromRefInternal();
+    bool parseCheckEscFieldAsChildInternal();
+
+    const ParseFieldImpl* m_extEscField = nullptr;
+    ParseFieldImplPtr m_escField;
+    bool m_seekField = false;
 };
 
 } // namespace parse

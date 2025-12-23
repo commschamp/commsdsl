@@ -178,6 +178,8 @@ const std::string& parseConstructAsValidCondStr();
 const std::string& parseCopyConstructFromStr();
 const std::string& parseCopyReadCondFromStr();
 const std::string& parseCopyValidCondFromStr();
+const std::string& parseSeekFieldStr();
+const std::string& parseEscFieldStr();
 
 char parseSiblingRefPrefix();
 char parseStringRefPrefix();

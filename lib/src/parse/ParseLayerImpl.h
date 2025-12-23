@@ -136,6 +136,7 @@ protected:
     virtual ParseObjKind parseObjKindImpl() const override final;
     virtual ParseKind parseKindImpl() const = 0;
     virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPossiblePropsNamesImpl() const;
     virtual bool parseImpl();
     virtual bool parseVerifyImpl(const ParseLayersList& layers);
     virtual bool parseMustHaveFieldImpl() const;

@@ -53,6 +53,12 @@ const ParseCustomLayerImpl* asCustom(const ParseLayerImpl* layer)
     return static_cast<const ParseCustomLayerImpl*>(layer);
 }
 
+const ParseSyncLayerImpl* asSync(const ParseLayerImpl* layer)
+{
+    assert(layer != nullptr);
+    return static_cast<const ParseSyncLayerImpl*>(layer);
+}
+
 } // namespace
 
 ParseLayer::ParseLayer(const ParseLayerImpl* impl) :
@@ -188,6 +194,21 @@ ParseSyncLayer::ParseSyncLayer(ParseLayer layer) :
     Base(layer)
 {
     assert(parseKind() == ParseKind::Sync);
+}
+
+bool ParseSyncLayer::parseSeekField() const
+{
+    return asSync(m_pImpl)->parseSeekField();
+}
+
+bool ParseSyncLayer::parseHasEscField() const
+{
+    return asSync(m_pImpl)->parseHasEscField();
+}
+
+ParseField ParseSyncLayer::parseEscField() const
+{
+    return asSync(m_pImpl)->parseEscField();
 }
 
 ParseChecksumLayer::ParseChecksumLayer(const ParseChecksumLayerImpl* impl) :

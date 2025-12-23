@@ -310,6 +310,8 @@ bool ParseProtocolImpl::parseIsPropertySupported(const std::string& name) const
         {common::parseCopyConstructFromStr(), 7U},
         {common::parseCopyReadCondFromStr(), 7U},
         {common::parseCopyValidCondFromStr(), 7U},
+        {common::parseSeekFieldStr(), 7U},
+        {common::parseEscFieldStr(), 7U},
     };
 
     auto iter = Map.find(name);
