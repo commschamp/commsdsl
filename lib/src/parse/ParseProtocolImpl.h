@@ -127,6 +127,7 @@ public:
     bool parseIsNamespaceDisplayNameSupported() const;
     bool parseIsFrameDisplayNameSupported() const;
     bool parseIsLayerDisplayNameSupported() const;
+    bool parseIsSyncSuffixLayerSupported() const;
 
     void parseSetMultipleSchemasEnabled(bool value)
     {

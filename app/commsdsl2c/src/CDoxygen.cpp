@@ -435,7 +435,7 @@ std::string CDoxygen::cOutputDocInternal() const
         if (!m->genIsReferenced()) {
             continue;
         }
-        
+
         static const std::string Templ =
             "/// @li @ref #^#NAME#$# defined in @b #^#PATH#$#."
             ;

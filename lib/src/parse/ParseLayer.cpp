@@ -211,6 +211,16 @@ ParseField ParseSyncLayer::parseEscField() const
     return asSync(m_pImpl)->parseEscField();
 }
 
+const std::string& ParseSyncLayer::parseFromLayer() const
+{
+    return asSync(m_pImpl)->parseFrom();
+}
+
+bool ParseSyncLayer::parseIsAfterPayload() const
+{
+    return asSync(m_pImpl)->parseIsAfterPayload();
+}
+
 ParseChecksumLayer::ParseChecksumLayer(const ParseChecksumLayerImpl* impl) :
     Base(impl)
 {

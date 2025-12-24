@@ -27,7 +27,8 @@ namespace parse
 {
 
 ParseSyncLayerImpl::ParseSyncLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol) :
-    Base(node, protocol)
+    Base(node, protocol),
+    m_from(&common::parseEmptyString())
 {
 }
 
@@ -40,6 +41,7 @@ const ParseXmlWrap::ParseNamesList& ParseSyncLayerImpl::parseExtraPropsNamesImpl
 {
     static const ParseXmlWrap::ParseNamesList Names = {
         common::parseSeekFieldStr(),
+        common::parseFromStr(),
     };
 
     return Names;
@@ -58,7 +60,58 @@ bool ParseSyncLayerImpl::parseImpl()
 {
     return
         parseUpdateSeekFieldInternal() &&
-        parseUpdateEscFieldInternal();
+        parseUpdateEscFieldInternal() &&
+        parseUpdateFromInternal();
+}
+
+bool ParseSyncLayerImpl::parseVerifyImpl(const ParseLayersList& layers)
+{
+    auto thisIdx = parseFindThisLayerIndex(layers);
+    assert(thisIdx < layers.size());
+
+    auto payloadIdx = parseFindLayerIndex(layers, ParseKind::Payload);
+    if (layers.size() <= payloadIdx) {
+
+        // For some reason no payload is available, cannot verify
+        return true;
+    }
+
+    m_afterPayload = (payloadIdx < thisIdx);
+    if ((!m_afterPayload) && parseFrom().empty()) {
+        return true;
+    }
+
+    if (!m_afterPayload) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "The usage of \"" << common::parseFromStr() << "\" property is allowed only when <sync> layer follows <payload>.";
+        return false;
+    }
+
+    // After payload
+    if ((!m_seekField) && (parseFrom().empty())) {
+        return true;
+    }
+
+    if (m_seekField && parseFrom().empty()) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "The usage of \"" << common::parseFromStr() << "\" property is required when \""
+                << common::parseSeekFieldStr() << "\" property is set to true for <sync> after <payload>.";
+        return false;
+    }
+
+    auto fromIdx = parseFindLayerIndex(layers, parseFrom());
+    if (layers.size() <= fromIdx) {
+        parseReportUnexpectedPropertyValue(common::parseFromStr(), parseFrom());
+        return false;
+    }
+
+    if (payloadIdx < fromIdx) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "Layer \"" << parseFrom() << "\" specified by the \"" << common::parseFromStr() << "\" must appear before <payload>.";
+        return false;
+    }
+
+    return true;
 }
 
 bool ParseSyncLayerImpl::parseUpdateSeekFieldInternal()
@@ -112,6 +165,27 @@ bool ParseSyncLayerImpl::parseUpdateEscFieldInternal()
             "Property \"" << prop << "\" is not supported for selected dslVersion, ignoring...";
         m_extEscField = nullptr;
         m_escField.reset();
+        return true;
+    }
+
+    return true;
+}
+
+bool ParseSyncLayerImpl::parseUpdateFromInternal()
+{
+    auto& prop = common::parseFromStr();
+    if (!parseValidateAndUpdateStringPropValue(prop, m_from)) {
+        return false;
+    }
+
+    if (parseFrom().empty()) {
+        return true;
+    }
+
+    if (!parseProtocol().parseIsSyncSuffixLayerSupported()) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "Property \"" << prop << "\" of <sync> layer is not supported for selected dslVersion, ignoring...";
+        m_from = nullptr;
         return true;
     }
 
