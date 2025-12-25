@@ -41,14 +41,13 @@ public:
     TEST55_WRAP_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(Wrap,,WrapInterface);
     TEST55_PROT_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(Prot,,Interface);
 
-    template <typename TVec>
-    void postProcessRead(TVec& vec)
+    void postProcessRead(std::vector<std::uint8_t>& vec)
     {
         bool keepNextByte = false;
         vec.erase(
             std::remove_if(
                 vec.begin(), vec.end(),
-                [&vec, &keepNextByte](auto& byte)
+                [&vec, &keepNextByte](std::uint8_t& byte)
                 {
                     if (keepNextByte) {
                         keepNextByte = false;
