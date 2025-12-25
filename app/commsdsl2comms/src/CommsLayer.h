@@ -85,6 +85,7 @@ public:
     }
 
 protected:
+    virtual CommsIncludesList commsCommonIncludesImpl() const;
     virtual CommsIncludesList commsDefIncludesImpl() const;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const;
     virtual bool commsDefHasInputMessagesImpl() const;
@@ -97,6 +98,8 @@ protected:
     virtual std::string commsCustomFieldOptsImpl() const;
     virtual std::string commsCustomFieldDataViewOptsImpl() const;
     virtual std::string commsCustomFieldBareMetalOptsImpl() const;
+    virtual std::string commsExtraMemberFieldsDefsImpl() const;
+    virtual std::string commsExtraMemberFieldsCommonCodeImpl() const;
 
     std::string commsDefFieldType() const;
     std::string commsDefExtraOpts() const;

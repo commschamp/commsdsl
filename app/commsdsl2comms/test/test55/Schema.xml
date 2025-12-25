@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test55" endian="big">
+    <description>
+        Testing sync layer with seek and escape field
+    </description>
+    <ns name="prot">
+        <fields>
+            <enum name="MsgId" type="uint8" semanticType="messageId" >
+                <validValue name="M1" val="0" />
+                <validValue name="M2" val="1" />
+            </enum>
+        </fields>
+
+        <interface name="Message" />
+
+        <message name="Msg1" id="prot.MsgId.M1">
+            <int name="F1" type="uint16" />
+        </message>
+
+        <message name="Msg2" id="prot.MsgId.M2">
+            <string name="F1" />
+        </message>
+
+        <frame name="Frame">
+            <id name="Id" field="prot.MsgId" />
+            <payload name="Data" />
+        </frame>
+    </ns>
+    <ns name="wrap">
+        <fields>
+            <int name="EscField" type="uint8" defaultValue="Val">
+                <special name="Val" val="0x10" />
+            </int>
+        </fields>
+
+        <interface name="Message" />
+
+        <message name="PseudoMsg" id="0">
+            <data name="Data" />
+        </message>
+
+        <frame name="WrapFrame">
+            <sync name="Prefix" seekField="true">
+                <field>
+                    <int name="SyncField" type="uint8" defaultValue="0x02" />
+                </field>
+                <escField>
+                    <int name="Esc" reuse="wrap.EscField" />
+                </escField>
+            </sync>
+            <id name="Id">
+                <int name="IdField" type="uint8" defaultValue="0" pseudo="true" />
+            </id>
+            <payload name="Data" />
+            <sync name="Suffix" seekField="true" from="Id" escField="wrap.EscField">
+                <int name="SyncField" type="uint8" defaultValue="0x03" />
+            </sync>
+        </frame>
+    </ns>
+</schema>

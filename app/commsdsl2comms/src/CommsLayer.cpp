@@ -58,19 +58,20 @@ CommsLayer::CommsIncludesList CommsLayer::commsCommonIncludes() const
         std::move(fieldIncs.begin(), fieldIncs.end(), std::back_inserter(result));
     }
 
-    // auto otherIncs = commsCommonIncludesImpl();
-    // std::move(otherIncs.begin(), otherIncs.end(), std::back_inserter(result));
+    auto otherIncs = commsCommonIncludesImpl();
+    std::move(otherIncs.begin(), otherIncs.end(), std::back_inserter(result));
     return result;
 }
 
 std::string CommsLayer::commsCommonCode() const
 {
-    if (m_commsMemberField == nullptr) {
-        return strings::genEmptyString();
+    std::string memCode;
+    if (m_commsMemberField != nullptr) {
+        memCode = m_commsMemberField->commsCommonCode();
     }
 
-    auto code = m_commsMemberField->commsCommonCode();
-    if (code.empty()) {
+    std::string extraCode = commsExtraMemberFieldsCommonCodeImpl();
+    if (memCode.empty() && extraCode.empty()) {
         return strings::genEmptyString();
     }
 
@@ -80,6 +81,7 @@ std::string CommsLayer::commsCommonCode() const
         "struct #^#CLASS_NAME#$##^#MEMBERS_SUFFIX#$##^#COMMON_SUFFIX#$#\n"
         "{\n"
         "    #^#CODE#$#\n"
+        "    #^#EXTRA_CODE#$#\n"
         "};\n";
 
     util::GenReplacementMap repl = {
@@ -87,7 +89,8 @@ std::string CommsLayer::commsCommonCode() const
         {"MEMBERS_SUFFIX", strings::genMembersSuffixStr()},
         {"COMMON_SUFFIX", strings::genCommonSuffixStr()},
         {"CLASS_NAME", comms::genClassName(m_genLayer.genParseObj().parseName())},
-        {"CODE", std::move(code)},
+        {"CODE", std::move(memCode)},
+        {"EXTRA_CODE", std::move(extraCode)},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -215,6 +218,11 @@ std::string CommsLayer::commsMsgFactoryDefaultOptions() const
         );
 }
 
+CommsLayer::CommsIncludesList CommsLayer::commsCommonIncludesImpl() const
+{
+    return CommsIncludesList();
+}
+
 CommsLayer::CommsIncludesList CommsLayer::commsDefIncludesImpl() const
 {
     return CommsIncludesList();
@@ -272,6 +280,16 @@ std::string CommsLayer::commsCustomFieldDataViewOptsImpl() const
 }
 
 std::string CommsLayer::commsCustomFieldBareMetalOptsImpl() const
+{
+    return std::string();
+}
+
+std::string CommsLayer::commsExtraMemberFieldsDefsImpl() const
+{
+    return std::string();
+}
+
+std::string CommsLayer::commsExtraMemberFieldsCommonCodeImpl() const
 {
     return std::string();
 }
@@ -353,7 +371,8 @@ std::string CommsLayer::commsDefMembersCodeInternal() const
         return code;
     }
 
-    if (m_commsMemberField == nullptr) {
+    auto extraMembersDefs = commsExtraMemberFieldsDefsImpl();
+    if ((m_commsMemberField == nullptr) && extraMembersDefs.empty()) {
         return strings::genEmptyString();
     }
 
@@ -362,13 +381,18 @@ std::string CommsLayer::commsDefMembersCodeInternal() const
         "struct #^#CLASS_NAME#$##^#SUFFIX#$#\n"
         "{\n"
         "    #^#FIELD_DEF#$#\n"
+        "    #^#EXTRA_MEMBERS#$#\n"
         "};\n";
 
     util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(m_genLayer.genParseObj().parseName())},
         {"SUFFIX", strings::genMembersSuffixStr()},
-        {"FIELD_DEF", m_commsMemberField->commsDefCode()},
+        {"EXTRA_MEMBERS", std::move(extraMembersDefs)}
     };
+
+    if (m_commsMemberField != nullptr) {
+        repl["FIELD_DEF"] = m_commsMemberField->commsDefCode();
+    }
 
     return util::genProcessTemplate(Templ, repl);
 }

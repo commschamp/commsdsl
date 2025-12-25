@@ -29,6 +29,7 @@ namespace commsdsl
 namespace gen
 {
 
+class GenSyncLayerImpl;
 class COMMSDSL_API GenSyncLayer : public GenLayer
 {
     using Base = GenLayer;
@@ -39,8 +40,20 @@ public:
     GenSyncLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent = nullptr);
     virtual ~GenSyncLayer();
 
+    GenField* genExternalEscField();
+    const GenField* genExternalEscField() const;
+
+    GenField* genMemberEscField();
+    const GenField* genMemberEscField() const;
+
 protected:
+    virtual bool genPrepareImpl() override;
+    virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const override final;
+
     ParseSyncLayer genSyncLayerDslObj() const;
+
+private:
+    std::unique_ptr<GenSyncLayerImpl> m_impl;
 };
 
 } // namespace gen
