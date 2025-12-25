@@ -58,6 +58,11 @@ std::string LatexStringField::latexInfoDetailsImpl() const
     } while (false);
 
     do {
+        if (parseObj.parseIsPseudo()) {
+            list.push_back("\\textbf{Pseudo Field} & " + strings::genYesStr());
+            break;
+        }
+
         auto fixedLength = parseObj.parseFixedLength();
         if (fixedLength != 0U) {
             list.push_back("\\textbf{Fixed Length} & " + LatexGenerator::latexIntegralToStr(fixedLength) + " Bytes");
@@ -95,7 +100,7 @@ std::string LatexStringField::latexInfoDetailsImpl() const
         if (!parseObj.parseHasZeroTermSuffix()) {
             break;
         }
-        list.push_back("\\textbf{Zero Termination Suffix} & YES");
+        list.push_back("\\textbf{Zero Termination Suffix} & " + strings::genYesStr());
     } while (false);
 
     if (list.empty()) {

@@ -262,6 +262,11 @@ std::string LatexField::latexInfoDetails() const
     } while (false);
 
     do {
+        if (parseObj.parseIsPseudo()) {
+            lines.push_back("\\textbf{Pseudo Field} & " + strings::genYesStr());
+            break;
+        }
+
         auto minLength = parseObj.parseMinLength();
         auto maxLength = parseObj.parseMaxLength();
 
