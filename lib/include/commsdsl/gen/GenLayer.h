@@ -74,6 +74,8 @@ protected:
     virtual bool genWriteImpl() const;
     virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const;
 
+    bool genAdjustSuffixLayersOrder(GenLayersAccessList& layers, bool& success) const;
+
 private:
     std::unique_ptr<GenLayerImpl> m_impl;
 };

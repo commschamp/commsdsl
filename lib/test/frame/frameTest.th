@@ -44,6 +44,8 @@ public:
     void test33();
     void test34();
     void test35();
+    void test36();
+    void test37();
 };
 
 void FrameTestSuite::setUp()
@@ -792,5 +794,21 @@ void FrameTestSuite::test35()
     m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema35.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test36()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema36.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test37()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema37.xml");
     TS_ASSERT(protocol);
 }

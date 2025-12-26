@@ -31,6 +31,7 @@
 #include <cassert>
 #include <iterator>
 #include <limits>
+#include <map>
 #include <set>
 
 namespace commsdsl
@@ -38,6 +39,23 @@ namespace commsdsl
 
 namespace parse
 {
+
+namespace
+{
+
+const std::string& parseRetrieveSyncFrom(const ParseLayerImpl& layer)
+{
+    assert(layer.parseKind() == ParseLayerImpl::ParseKind::Sync);
+    return static_cast<const ParseSyncLayerImpl&>(layer).parseFrom();
+}
+
+const std::string& parseRetrieveChecksumFrom(const ParseLayerImpl& layer)
+{
+    assert(layer.parseKind() == ParseLayerImpl::ParseKind::Checksum);
+    return static_cast<const ParseChecksumLayerImpl&>(layer).parseFrom();
+}
+
+} // namespace
 
 ParseLayerImpl::ParsePtr ParseLayerImpl::parseCreate(
     const std::string& kind,
@@ -242,6 +260,45 @@ bool ParseLayerImpl::parseVerifyBeforePayload(const ParseLayerImpl::ParseLayersL
             "This layer is expected to be before the \"" << common::parsePayloadStr() <<
             "\" one.";
         return false;
+    }
+
+    return true;
+}
+
+bool ParseLayerImpl::parseVerifySuffixLayersOrder(const ParseLayersList& layers, std::size_t payloadIdx, std::size_t layerIdx, std::size_t fromIdx)
+{
+    for (auto midIdx = payloadIdx + 1U; midIdx < layerIdx; ++midIdx) {
+        auto& midLayerPtr = layers[midIdx];
+        assert(midLayerPtr);
+
+        using FromRetrieveFunc = const std::string& (*)(const ParseLayerImpl& layer);
+        static const std::map<ParseKind, FromRetrieveFunc> Map = {
+            {ParseKind::Sync, &parseRetrieveSyncFrom},
+            {ParseKind::Checksum, &parseRetrieveChecksumFrom},
+        };
+
+        auto iter = Map.find(midLayerPtr->parseKind());
+        if (iter == Map.end()) {
+            continue;
+        }
+
+        auto func = iter->second;
+        auto& midFrom = func(*midLayerPtr);
+
+        if (midFrom.empty()) {
+            continue;
+        }
+
+        auto midFromIdx = parseFindLayerIndex(layers, midFrom);
+        if (midFromIdx < fromIdx) {
+            auto layerIter = Map.find(layers[layerIdx]->parseKind());
+            assert(layerIter != Map.end());
+            auto layerFunc = layerIter->second;
+
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+                "Layer \"" << layerFunc(*layers[layerIdx]) << "\" specified by the \"" << common::parseFromStr() << "\" follows \"" << midFrom << "\" specified by the preceding layer.";
+            return false;
+        }
     }
 
     return true;

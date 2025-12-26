@@ -15,6 +15,7 @@
 
 #include "ParseSyncLayerImpl.h"
 
+#include "ParseChecksumLayerImpl.h"
 #include "ParseProtocolImpl.h"
 #include "parse_common.h"
 
@@ -111,7 +112,7 @@ bool ParseSyncLayerImpl::parseVerifyImpl(const ParseLayersList& layers)
         return false;
     }
 
-    return true;
+    return parseVerifySuffixLayersOrder(layers, payloadIdx, thisIdx, fromIdx);
 }
 
 bool ParseSyncLayerImpl::parseUpdateSeekFieldInternal()
@@ -180,6 +181,12 @@ bool ParseSyncLayerImpl::parseUpdateFromInternal()
 
     if (parseFrom().empty()) {
         return true;
+    }
+
+    if (!m_seekField) {
+        parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "The usage of \"" << prop << "\" is allowed only in conjunction with setting \"" << common::parseSeekFieldStr() << "\" to true.";
+        return false;
     }
 
     if (!parseProtocol().parseIsSyncSuffixLayerSupported()) {

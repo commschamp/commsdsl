@@ -17,15 +17,6 @@ public:
     void test1();
     void test2();
 
-    struct Handler
-    {
-        template <typename TMsg>
-        void handle(TMsg& msg)
-        {
-            static_cast<void>(msg);
-        }
-    };
-
     using WrapInterface = test55::wrap::Message<>;
     using WrapFrame = test55::wrap::frame::WrapFrame<WrapInterface>;
 

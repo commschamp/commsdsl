@@ -180,19 +180,17 @@ bool GenSyncLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool& suc
         return false;
     }
 
-    auto iterTmp = iter;
-    std::advance(iterTmp, 1U);
-    if (iterTmp == nextIter) {
-        // Already in place
-        success = true;
-        return false;
+    auto dist = std::distance(iter, nextIter);
+    if (dist < 0) {
+        // Not relocated yet
+        genGenerator().genLogger().genDebug("Relocating \"" + genParseObj().parseName() + "\" to precede \"" + (*nextIter)->genParseObj().parseName() + "\"");
+        auto* thisPtr = *iter;
+        layers.erase(iter);
+        layers.insert(nextIter, thisPtr);
     }
 
-    auto thisPtr = std::move(*iter);
-    layers.erase(iter);
-    layers.insert(nextIter, std::move(thisPtr));
-    success = true;
-    return true;
+    // Already in place
+    return genAdjustSuffixLayersOrder(layers, success);
 }
 
 GenSyncLayer::ParseSyncLayer GenSyncLayer::genSyncLayerDslObj() const

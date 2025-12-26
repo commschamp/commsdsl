@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema36" endian="big">
+    <!-- Testing <sync> layer after <payload> with invalid from -->
+    <frame name="Frame">
+        <sync name="Sync">
+            <int name="Sync" type="uint16" defaultValue="0xabcd" />
+        </sync>
+        <size name="Size">
+            <int  name="Size" type="uint16" />
+        </size>
+        <id name="Id">
+            <int  name="Id" type="uint8" />
+        </id>
+        <payload name="Data" />
+        <checksum name="Checksum" alg="crc-ccitt" from="Size">
+            <field>
+                <int name="Checksum" type="uint16" />
+            </field>
+        </checksum>
+        <sync name="Sync2" seekField="true" from="Data">
+            <int name="Sync2" type="uint16" defaultValue="0xdead" />
+        </sync>
+    </frame>
+</schema>

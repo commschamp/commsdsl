@@ -87,6 +87,11 @@ bool ParseChecksumLayerImpl::parseVerifyImpl(const ParseLayerImpl::ParseLayersLi
                 "Layer \"" << parseFrom() << "\" must appear before the \"" << parseName() << "\".";
             return false;
         }
+
+        auto payloadIdx = parseFindLayerIndex(layers, ParseKind::Payload);
+        if (!parseVerifySuffixLayersOrder(layers, payloadIdx, thisIdx, fromIdx)) {
+            return false;
+        }
     }
 
     if (!parseUntil().empty()) {

@@ -23,8 +23,9 @@
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+#include <iterator>
 
 namespace commsdsl
 {
@@ -338,6 +339,79 @@ bool GenLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success
         return false;
     }
 
+    success = true;
+    return false;
+}
+
+bool GenLayer::genAdjustSuffixLayersOrder(GenLayersAccessList& layers, bool& success) const
+{
+    auto* frame = genParentFrame();
+    assert(frame != nullptr);
+    auto& origLayers = frame->genLayers();
+    auto thisOrigIter =
+        std::find_if(
+            origLayers.begin(), origLayers.end(),
+            [this](auto& lPtr)
+            {
+                return lPtr.get() == this;
+            });
+
+    assert(thisOrigIter != origLayers.end());
+
+    auto origPayloadIter =
+        std::find_if(
+            origLayers.begin(), origLayers.end(),
+            [](const auto& lPtr)
+            {
+                return lPtr->genParseObj().parseKind() == commsdsl::parse::ParseLayer::ParseKind::Payload;
+            });
+
+    auto thisIter =
+        std::find_if(
+            layers.begin(), layers.end(),
+            [this](const auto* l)
+            {
+                return l == this;
+            });
+    assert(thisIter != layers.end());
+
+    auto payloadIter =
+        std::find_if(
+            layers.begin(), layers.end(),
+            [](const auto* l)
+            {
+                return l->genParseObj().parseKind() == commsdsl::parse::ParseLayer::ParseKind::Payload;
+            });
+
+    for (auto iter = origPayloadIter + 1U; iter != thisOrigIter; ++iter) {
+        auto* otherLayer = iter->get();
+        auto otherIter =
+            std::find_if(
+                layers.begin(), layers.end(),
+                [otherLayer](const auto* l)
+                {
+                    return l == otherLayer;
+                });
+        assert(otherIter != layers.end());
+
+        auto payloadDist = std::distance(payloadIter, otherIter);
+        if (0 < payloadDist) {
+            // The other layer is not relocated yet
+            continue;
+        }
+
+        auto dist = std::distance(thisIter, otherIter);
+        if (dist < 0) {
+            // The wrapping order is incorrect
+            auto* thisPtr = *thisIter;
+            layers.erase(thisIter);
+            layers.insert(otherIter, thisPtr);
+            success = true;
+            return true;
+        }
+    }
+
+    // All suffix layers are in correct order
     success = true;
     return false;
 }
