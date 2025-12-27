@@ -46,6 +46,9 @@ public:
     void test35();
     void test36();
     void test37();
+    void test38();
+    void test39();
+    void test40();
 };
 
 void FrameTestSuite::setUp()
@@ -811,4 +814,66 @@ void FrameTestSuite::test37()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema37.xml");
     TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test38()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema38.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test39()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema39.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.parseName().empty());
+
+    auto frames = ns.parseFrames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& f1 = frames[0];
+    auto layers = f1.parseLayers();
+    TS_ASSERT(!layers.empty());
+
+    auto& l = layers.back();
+    TS_ASSERT_EQUALS(l.parseKind(), commsdsl::parse::ParseLayer::ParseKind::Sync);
+    commsdsl::parse::ParseSyncLayer sync(l);
+    TS_ASSERT(!sync.parseSeekField());
+    TS_ASSERT(!sync.parseHasEscField());
+    TS_ASSERT(sync.parseFromLayer().empty());
+    TS_ASSERT(sync.parseVerifyBeforeRead());
+}
+
+void FrameTestSuite::test40()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema40.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.parseName().empty());
+
+    auto frames = ns.parseFrames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& f1 = frames[0];
+    auto layers = f1.parseLayers();
+    TS_ASSERT(!layers.empty());
+
+    auto& l = layers.back();
+    TS_ASSERT_EQUALS(l.parseKind(), commsdsl::parse::ParseLayer::ParseKind::Sync);
+    commsdsl::parse::ParseSyncLayer sync(l);
+    TS_ASSERT(!sync.parseSeekField());
+    TS_ASSERT(!sync.parseHasEscField());
+    TS_ASSERT_EQUALS(sync.parseFromLayer(), "Id");
+    TS_ASSERT(sync.parseVerifyBeforeRead());
 }

@@ -117,6 +117,7 @@ public:
     bool parseHasEscField() const;
     ParseField parseEscField() const;
     const std::string& parseFromLayer() const;
+    bool parseVerifyBeforeRead() const;
     bool parseIsAfterPayload() const;
 };
 

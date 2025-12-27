@@ -216,6 +216,11 @@ const std::string& ParseSyncLayer::parseFromLayer() const
     return asSync(m_pImpl)->parseFrom();
 }
 
+bool ParseSyncLayer::parseVerifyBeforeRead() const
+{
+    return asSync(m_pImpl)->parseVerifyBeforeRead();
+}
+
 bool ParseSyncLayer::parseIsAfterPayload() const
 {
     return asSync(m_pImpl)->parseIsAfterPayload();

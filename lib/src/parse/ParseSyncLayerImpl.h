@@ -50,6 +50,11 @@ public:
         return m_seekField;
     }
 
+    bool parseVerifyBeforeRead() const
+    {
+        return m_verifyBeforeRead;
+    }
+
     const std::string& parseFrom() const
     {
         return *m_from;
@@ -70,6 +75,7 @@ protected:
 private:
     bool parseUpdateSeekFieldInternal();
     bool parseUpdateEscFieldInternal();
+    bool parseUpdateVerifyBeforeReadInternal();
     bool parseUpdateFromInternal();
     bool parseCheckEscFieldFromRefInternal();
     bool parseCheckEscFieldAsChildInternal();
@@ -78,6 +84,7 @@ private:
     ParseFieldImplPtr m_escField;
     const std::string* m_from = nullptr;
     bool m_seekField = false;
+    bool m_verifyBeforeRead = false;
     bool m_afterPayload = false;
 };
 

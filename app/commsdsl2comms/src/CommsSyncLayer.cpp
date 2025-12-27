@@ -133,6 +133,10 @@ std::string CommsSyncLayer::commsDefBaseTypeImpl(const std::string& prevName) co
         opts.push_back("comms::option::def::FrameLayerSeekField<" + escFieldOpt + ">");
     }
 
+    if (parseObj.parseVerifyBeforeRead()) {
+        opts.push_back("comms::option::def::FrameLayerVerifyBeforeRead");
+    }
+
     util::GenReplacementMap repl = {
         {"FIELD_TYPE", commsDefFieldType()},
         {"PREV_LAYER", prevName},
