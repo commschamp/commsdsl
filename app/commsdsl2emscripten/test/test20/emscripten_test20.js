@@ -1,5 +1,5 @@
 var assert = require('assert');
-var factory = require('test20_emscripten.js');
+var factory = require('t20_emscripten.js');
 
 function allocHandler(instance)
 {

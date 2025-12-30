@@ -1,0 +1,5 @@
+/// @brief Set value as meters
+void t20_field_Int2_setMeters(t20_field_Int2* field, double val);
+
+/// @brief Get value as meters
+double t20_field_Int2_getMeters(const t20_field_Int2* field);

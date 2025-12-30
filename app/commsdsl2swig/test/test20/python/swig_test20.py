@@ -2,12 +2,12 @@ import os
 import sys
 import unittest
 
-import test20
+import t20
 
-class MsgHandler(test20.MsgHandler):
+class MsgHandler(t20.MsgHandler):
 
     def __init__(self, msgFunc = None):
-        test20.MsgHandler.__init__(self)
+        t20.MsgHandler.__init__(self)
         self.msgFunc = msgFunc
 
     def handle_message_Msg1(self, msg):
@@ -25,7 +25,7 @@ class MsgHandler(test20.MsgHandler):
 
 class TestProtocol(unittest.TestCase):
     def test_1(self):
-        m = test20.message_Msg2()
+        m = t20.message_Msg2()
         m.field_f1().ref().setMeters(0.1)
         self.assertEqual(m.field_f1().ref().getMeters(), 0.1)
         self.assertEqual(m.field_f1().ref().getScaled(), 100.0)
