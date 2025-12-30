@@ -637,9 +637,6 @@ bool LatexField::latexIsOptional() const
 
     auto* parent = m_genField.genGetParent();
     assert(parent != nullptr);
-    if (comms::genSinceVersionOf(*parent) < dslObj.parseSinceVersion()) {
-        return true;
-    }
 
     if ((dslObj.parseDeprecatedSince() < commsdsl::parse::ParseProtocol::parseNotYetDeprecated()) &&
         (dslObj.parseIsDeprecatedRemoved())) {
@@ -650,6 +647,10 @@ bool LatexField::latexIsOptional() const
         auto parentType = parent->genElemType();
         if (parentType != GenElem::GenType_Field) {
             break;
+        }
+
+        if (comms::genSinceVersionOf(*parent) < dslObj.parseSinceVersion()) {
+            return true;
         }
 
         auto* parentField = static_cast<const GenField*>(parent);
