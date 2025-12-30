@@ -79,6 +79,11 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::vector<
 
     auto protSchemas = protocol->parseSchemas();
     TS_ASSERT_LESS_THAN_EQUALS(protSchemas.size(), schemas.size());
+
+    if (!validateResult) {
+        return protocol;
+    }
+
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
         auto& s = schemas[idx];
         auto& protSchema = protSchemas[idx];
@@ -100,6 +105,11 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::vector<
         TS_ASSERT_LESS_THAN(slashPos, dotPos);
         ++slashPos;
         auto expSchemaName = s.substr(slashPos, dotPos - slashPos);
+        auto atPos = expSchemaName.find_first_of('@');
+        if (atPos != std::string::npos) {
+            expSchemaName = expSchemaName.substr(0, atPos);
+        }
+
         TS_ASSERT_EQUALS(protSchema.parseName(), expSchemaName);
     }
     return protocol;
