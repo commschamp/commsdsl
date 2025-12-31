@@ -97,23 +97,21 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         return false;
     }
 
-    auto replacePath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genReplaceFileSuffixStr());
-    auto replaceCode = util::genReadFileContents(replacePath);
-
-    if (!replaceCode.empty()) {
+    bool hasReplace = false;
+    auto replaceCode = m_toolsGenerator.genReadCodeInjectCode(relPath + strings::genReplaceFileSuffixStr(), "Replace the whole file", &hasReplace);
+    if (hasReplace) {
         stream << replaceCode;
         stream.flush();
         return stream.good();
     }
 
-    auto extendPath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genExtendFileSuffixStr());
-    auto extendCode = util::genReadFileContents(extendPath);
-
-    auto incPath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genIncFileSuffixStr());
-    auto incCode = util::genReadFileContents(incPath);
+    bool hasExtend = false;
+    auto extendCode = m_toolsGenerator.genReadCodeInjectCode(relPath + strings::genExtendFileSuffixStr(), "Extend", &hasExtend);
+    auto incCode = m_toolsGenerator.genReadCodeInjectCode(relPath + strings::genIncFileSuffixStr(), "Add includes here");
 
     static const std::string Templ =
         "#^#GENERATED#$#\n"
+        "#^#REPLACE#$#\n"
         "#pragma once\n\n"
         "#include \"cc_tools_qt/ToolsProtocol.h\"\n\n"
         "#^#INC#$#\n\n"
@@ -139,6 +137,7 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
 
     util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
+        {"REPLACE", std::move(replaceCode)},
         {"TOP_NS_BEGIN", m_toolsGenerator.toolsNamespaceBegin()},
         {"TOP_NS_END", m_toolsGenerator.toolsNamespaceEnd()},
         {"MAIN_NS", m_toolsGenerator.genCurrentSchema().genMainNamespace()},
@@ -147,7 +146,7 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         {"INC", incCode},
     };
 
-    if (!extendCode.empty()) {
+    if (hasExtend) {
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
@@ -175,20 +174,17 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         return false;
     }
 
-    auto replacePath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genReplaceFileSuffixStr());
-    auto replaceCode = util::genReadFileContents(replacePath);
-
-    if (!replaceCode.empty()) {
+    bool hasReplace = false;
+    auto replaceCode = m_toolsGenerator.genReadCodeInjectCode(relPath + strings::genReplaceFileSuffixStr(), "Replace the whole file", &hasReplace);
+    if (hasReplace) {
         stream << replaceCode;
         stream.flush();
         return stream.good();
     }
 
-    auto extendPath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genExtendFileSuffixStr());
-    auto extendCode = util::genReadFileContents(extendPath);
-
-    auto incPath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genIncFileSuffixStr());
-    auto incCode = util::genReadFileContents(incPath);
+    bool hasExtend = false;
+    auto extendCode = m_toolsGenerator.genReadCodeInjectCode(relPath + strings::genExtendFileSuffixStr(), "Add extending class code here", &hasExtend);
+    auto incCode = m_toolsGenerator.genReadCodeInjectCode(relPath + strings::genIncFileSuffixStr(), "Add includes here");
 
     util::GenStringsList includes = {
         m_toolsFramePtr->toolsHeaderFilePath(*m_toolsInterfacePtr)
@@ -197,6 +193,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
 
     static const std::string Templ =
         "#^#GENERATED#$#\n"
+        "#^#REPLACE#$#\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
         "#^#INCLUDES#$#\n"
         "\n"
@@ -224,6 +221,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
 
     util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
+        {"REPLACE", std::move(replaceCode)},
         {"TOP_NS_BEGIN", m_toolsGenerator.toolsNamespaceBegin()},
         {"TOP_NS_END", m_toolsGenerator.toolsNamespaceEnd()},
         {"MAIN_NS", m_toolsGenerator.genCurrentSchema().genMainNamespace()},
@@ -235,7 +233,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         {"EXTEND", extendCode},
     };
 
-    if (!extendCode.empty()) {
+    if (hasExtend) {
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
@@ -263,19 +261,17 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
         return false;
     }
 
-    auto replaceFilePath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genReplaceFileSuffixStr());
-    auto replaceCode = util::genReadFileContents(replaceFilePath);
-    if (!replaceCode.empty()) {
+    bool hasReplace = false;
+    auto replaceCode = m_toolsGenerator.genReadCodeInjectCode(relPath + strings::genReplaceFileSuffixStr(), "Replace the whole file", &hasReplace);
+    if (hasReplace) {
         stream << replaceCode;
         stream.flush();
         return stream.good();
     }
 
-    auto extendPath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genExtendFileSuffixStr());
-    auto extendCode = util::genReadFileContents(extendPath);
-
-    auto incPath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genIncFileSuffixStr());
-    auto incCode = util::genReadFileContents(incPath);
+    bool hasExtend = false;
+    auto extendCode = m_toolsGenerator.genReadCodeInjectCode(relPath + strings::genExtendFileSuffixStr(), "Extend", &hasExtend);
+    auto incCode = m_toolsGenerator.genReadCodeInjectCode(relPath + strings::genIncFileSuffixStr(), "Add includes here");
 
     static const std::string Templ =
         "#^#GENERATED#$#\n"
@@ -320,7 +316,7 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
         {"INC", incCode},
     };
 
-    if (!extendCode.empty()) {
+    if (hasExtend) {
         repl["ORIG"] = strings::genOrigSuffixStr();
         repl["EXTEND_COMMENT"] = "// Make sure to add the following lines in the actual deriving class.";
         repl["COMMENT"] = "// ";
@@ -350,19 +346,17 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
         return false;
     }
 
-    auto replaceFilePath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genReplaceFileSuffixStr());
-    auto replaceCode = util::genReadFileContents(replaceFilePath);
-    if (!replaceCode.empty()) {
+    bool hasReplace = false;
+    auto replaceCode = m_toolsGenerator.genReadCodeInjectCode(relPath + strings::genReplaceFileSuffixStr(), "Replace the whole file", &hasReplace);
+    if (hasReplace) {
         stream << replaceCode;
         stream.flush();
         return stream.good();
     }
 
-    auto extendPath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genExtendFileSuffixStr());
-    auto extendCode = util::genReadFileContents(extendPath);
-
-    auto incPath = util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), relPath + strings::genIncFileSuffixStr());
-    auto incCode = util::genReadFileContents(incPath);
+    bool hasExtend = false;
+    auto extendCode = m_toolsGenerator.genReadCodeInjectCode(relPath + strings::genExtendFileSuffixStr(), "Add extending class code here", &hasExtend);
+    auto incCode = m_toolsGenerator.genReadCodeInjectCode(relPath + strings::genIncFileSuffixStr(), "Add includes here");
 
     static const std::string Templ =
         "#^#GENERATED#$#\n"
@@ -400,7 +394,7 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
         {"INC", incCode},
     };
 
-    if (!extendCode.empty()) {
+    if (hasExtend) {
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 

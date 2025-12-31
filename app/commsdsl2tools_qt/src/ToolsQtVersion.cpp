@@ -80,7 +80,7 @@ bool ToolsQtVersion::toolsWriteInternal() const
         {"NS", util::genStrToUpper(m_toolsGenerator.genProtocolSchema().genMainNamespace())},
         {"VERSION", util::genNumToString(m_toolsGenerator.genProtocolSchema().genSchemaVersion())},
         {"CODE_VERSION", toolsCodeVersionInternal()},
-        {"APPEND", util::genReadFileContents(m_toolsGenerator.genGetCodeDir() + '/' + toolsRelHeaderPath(m_toolsGenerator) + strings::genAppendFileSuffixStr())},
+        {"APPEND", m_toolsGenerator.genReadCodeInjectCode(toolsRelHeaderPath(m_toolsGenerator) + strings::genAppendFileSuffixStr(), "Append here")},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);

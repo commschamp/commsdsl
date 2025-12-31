@@ -166,7 +166,7 @@ bool ToolsQtCmake::toolsWriteInternal() const
         {"PLUGINS_LIST", util::genStrListToString(pluginInvokes, "\n", "")},
         {"TOP_NS", "cc_tools_qt_plugin"},
         {"MAIN_NS", m_toolsGenerator.genProtocolSchema().genMainNamespace()},
-        {"EXTRA_SOURCES", util::genReadFileContents(util::genPathAddElem(m_toolsGenerator.genGetCodeDir(), strings::genCmakeListsFileStr()) + strings::genSourcesFileSuffixStr())},
+        {"EXTRA_SOURCES", m_toolsGenerator.genReadScriptCodeInjectCode(strings::genCmakeListsFileStr() + strings::genSourcesFileSuffixStr(), "Append to sources")},
     };
 
     auto str = commsdsl::gen::util::genProcessTemplate(Template, repl, true);
