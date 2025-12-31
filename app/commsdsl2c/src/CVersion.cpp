@@ -69,7 +69,7 @@ bool CVersion::cWriteHeaderInternal() const
         {"VERSION", util::genNumToString(m_cGenerator.genProtocolSchema().genSchemaVersion())},
         {"PREFIX", util::genStrToUpper(m_cGenerator.cNamesPrefix())},
         {"CODE_VER_DEFINE", cCodeVersionDefineInternal()},
-        {"APPEND", util::genReadFileContents(m_cGenerator.cInputAbsRootHeaderFor(strings::genVersionFileNameStr()))},
+        {"APPEND", m_cGenerator.genReadCodeInjectCode(m_cGenerator.cInputRelRootHeaderFor(strings::genVersionFileNameStr()) + strings::genAppendFileSuffixStr(), "Append here")},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);

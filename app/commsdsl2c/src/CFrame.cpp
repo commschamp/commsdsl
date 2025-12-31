@@ -191,7 +191,7 @@ bool CFrame::cWriteHeaderInternal() const
         {"CPP_GUARD_BEGIN", CGenerator::cCppGuardBegin()},
         {"CPP_GUARD_END", CGenerator::cCppGuardEnd()},
         {"FRAME", cHeaderFrameCodeInternal()},
-        {"APPEND", util::genReadFileContents(cGenerator.cInputAbsHeaderFor(*this) + strings::genAppendFileSuffixStr())},
+        {"APPEND", cGenerator.genReadCodeInjectCode(cGenerator.cInputRelHeaderFor(*this) + strings::genAppendFileSuffixStr(), "Append here")},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -233,7 +233,7 @@ bool CFrame::cWriteSourceInternal() const
         {"INCLUDES", cSourceIncludesInternal()},
         {"LAYERS", cSourceLayersCodeInternal()},
         {"FRAME", cSourceFrameCodeInternal()},
-        {"APPEND", util::genReadFileContents(cGenerator.cInputAbsSourceFor(*this) + strings::genAppendFileSuffixStr())},
+        {"APPEND", cGenerator.genReadCodeInjectCode(cGenerator.cInputRelSourceFor(*this) + strings::genAppendFileSuffixStr(), "Append here")},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -308,7 +308,7 @@ std::string CFrame::cHeaderIncludesInternal() const
     auto& cGenerator = CGenerator::cCast(genGenerator());
     util::GenReplacementMap repl = {
         {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
-        {"EXTRA", util::genReadFileContents(cGenerator.cInputAbsHeaderFor(*this) + strings::genIncFileSuffixStr())},
+        {"EXTRA", cGenerator.genReadCodeInjectCode(cGenerator.cInputRelHeaderFor(*this) + strings::genIncFileSuffixStr(), "Add includes here")},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -488,7 +488,7 @@ std::string CFrame::cSourceIncludesInternal() const
     auto& cGenerator = CGenerator::cCast(genGenerator());
     util::GenReplacementMap repl = {
         {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
-        {"EXTRA", util::genReadFileContents(cGenerator.cInputAbsSourceFor(*this) + strings::genIncFileSuffixStr())},
+        {"EXTRA", cGenerator.genReadCodeInjectCode(cGenerator.cInputRelSourceFor(*this) + strings::genIncFileSuffixStr(), "Add includes here")},
     };
 
     return util::genProcessTemplate(Templ, repl);

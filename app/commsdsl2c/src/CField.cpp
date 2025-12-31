@@ -595,7 +595,7 @@ bool CField::cWriteHeaderInternal() const
         {"GENERATED", CGenerator::cFileGeneratedComment()},
         {"INCLUDES", cHeaderIncludesInternal()},
         {"CODE", cHeaderCode()},
-        {"APPEND", util::genReadFileContents(generator.cInputAbsHeaderFor(m_genField) + strings::genAppendFileSuffixStr())},
+        {"APPEND", generator.genReadCodeInjectCode(generator.cInputRelHeaderFor(m_genField) + strings::genAppendFileSuffixStr(), "Append here")},
         {"CPP_GUARD_BEGIN", CGenerator::cCppGuardBegin()},
         {"CPP_GUARD_END", CGenerator::cCppGuardEnd()},
     };
@@ -637,7 +637,7 @@ bool CField::cWriteSrcInternal() const
         {"HEADER", generator.cRelHeaderFor(m_genField)},
         {"INCLUDES", cSourceIncludesInternal()},
         {"CODE", cSourceCode()},
-        {"APPEND", util::genReadFileContents(generator.cInputAbsSourceFor(m_genField) + strings::genAppendFileSuffixStr())},
+        {"APPEND", generator.genReadCodeInjectCode(generator.cInputRelSourceFor(m_genField) + strings::genAppendFileSuffixStr(), "Append here")},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -696,7 +696,7 @@ std::string CField::cHeaderIncludesInternal() const
     auto& cGenerator = CGenerator::cCast(m_genField.genGenerator());
     util::GenReplacementMap repl = {
         {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
-        {"EXTRA", util::genReadFileContents(cGenerator.cInputAbsHeaderFor(m_genField) + strings::genIncFileSuffixStr())},
+        {"EXTRA", cGenerator.genReadCodeInjectCode(cGenerator.cInputRelHeaderFor(m_genField) + strings::genIncFileSuffixStr(), "Add includes here")},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -716,7 +716,7 @@ std::string CField::cSourceIncludesInternal() const
 
     util::GenReplacementMap repl = {
         {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
-        {"EXTRA", util::genReadFileContents(cGenerator.cInputAbsSourceFor(m_genField) + strings::genIncFileSuffixStr())},
+        {"EXTRA", cGenerator.genReadCodeInjectCode(cGenerator.cInputRelSourceFor(m_genField) + strings::genIncFileSuffixStr(), "Add includes here")},
     };
 
     return util::genProcessTemplate(Templ, repl);
