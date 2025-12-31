@@ -467,7 +467,7 @@ bool EmscriptenField::emscriptenWriteHeaderInternal() const
         {"GENERATED", EmscriptenGenerator::emscriptenFileGeneratedComment()},
         {"INCLUDES", emscriptenHeaderIncludesInternal()},
         {"CLASS", emscriptenHeaderClass()},
-        {"APPEND", util::genReadFileContents(generator.emscriptenInputAbsHeaderFor(m_genField) + strings::genAppendFileSuffixStr())}
+        {"APPEND", generator.genReadCodeInjectCode(strings::genIncludeDirStr() + '/' + generator.emscriptenRelHeaderFor(m_genField) + strings::genAppendFileSuffixStr(), "Append here")},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -505,7 +505,7 @@ bool EmscriptenField::emscriptenWriteSrcInternal() const
         {"GENERATED", EmscriptenGenerator::emscriptenFileGeneratedComment()},
         {"INCLUDES", emscriptenSourceIncludesInternal()},
         {"CODE", emscriptenSourceCode()},
-        {"APPEND", util::genReadFileContents(generator.emscriptenInputAbsSourceFor(m_genField) + strings::genAppendFileSuffixStr())}
+        {"APPEND", generator.genReadCodeInjectCode(generator.emscriptenRelSourceFor(m_genField) + strings::genAppendFileSuffixStr(), "Append here")},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);
@@ -533,7 +533,7 @@ std::string EmscriptenField::emscriptenHeaderIncludesInternal() const
 
     comms::genPrepareIncludeStatement(includes);
     auto result = util::genStrListToString(includes, "\n", "\n");
-    result.append(util::genReadFileContents(generator.emscriptenInputAbsHeaderFor(m_genField) + strings::genIncFileSuffixStr()));
+    result.append(generator.genReadCodeInjectCode(generator.emscriptenInputRelHeaderFor(m_genField) + strings::genIncFileSuffixStr(), "Add includes here"));
     return result;
 }
 
@@ -545,10 +545,10 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
     std::string protectedCode;
     std::string privateCode;
     if (comms::genIsGlobalField(m_genField)) {
-        auto inputCodePrefix = generator.emscriptenInputAbsHeaderFor(m_genField);
-        publicCode = util::genReadFileContents(inputCodePrefix + strings::genPublicFileSuffixStr());
-        protectedCode = util::genReadFileContents(inputCodePrefix + strings::genProtectedFileSuffixStr());
-        privateCode = util::genReadFileContents(inputCodePrefix + strings::genPrivateFileSuffixStr());
+        auto inputCodePrefix = generator.emscriptenInputRelHeaderFor(m_genField);
+        publicCode = generator.genReadCodeInjectCode(inputCodePrefix + strings::genPublicFileSuffixStr(), "Add public code here");
+        protectedCode = generator.genReadCodeInjectCode(inputCodePrefix + strings::genProtectedFileSuffixStr(), "Add protected code here");
+        privateCode = generator.genReadCodeInjectCode(inputCodePrefix + strings::genPrivateFileSuffixStr(), "Add private code here");
     }
 
     if (!protectedCode.empty()) {
@@ -727,7 +727,7 @@ std::string EmscriptenField::emscriptenSourceBindInternal() const
         {"VALUE_ACC", emscriptenSourceBindValueAccImpl()},
         {"FUNCS", emscriptenSourceBindFuncsImpl()},
         {"COMMON", emscriptenSourceBindCommonInternal()},
-        {"CUSTOM", util::genReadFileContents(generator.emscriptenInputAbsSourceFor(m_genField) + strings::genBindFileSuffixStr())},
+        {"CUSTOM", generator.genReadCodeInjectCode(generator.emscriptenInputRelSourceFor(m_genField) + strings::genBindFileSuffixStr(), "Add extra binds here")},
         {"VECTOR", emscriptenSourceRegisterVectorInternal()},
         {"EXTRA", emscriptenSourceBindExtraImpl()},
     };

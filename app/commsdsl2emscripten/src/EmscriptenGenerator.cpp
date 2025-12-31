@@ -203,14 +203,24 @@ std::string EmscriptenGenerator::emscriptenAbsSourceFor(const commsdsl::gen::Gen
     return genGetOutputDir() + '/' + emscriptenRelSourceFor(elem);
 }
 
+std::string EmscriptenGenerator::emscriptenInputRelHeaderFor(const commsdsl::gen::GenElem& elem) const
+{
+    return strings::genIncludeDirStr() + '/' + emscriptenRelHeaderFor(elem);
+}
+
 std::string EmscriptenGenerator::emscriptenInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const
 {
-    return genGetCodeDir() + '/' + strings::genIncludeDirStr() + '/' + emscriptenRelHeaderFor(elem);
+    return genGetCodeDir() + '/' + emscriptenInputRelHeaderFor(elem);
+}
+
+std::string EmscriptenGenerator::emscriptenInputRelSourceFor(const commsdsl::gen::GenElem& elem) const
+{
+    return emscriptenRelSourceFor(elem);
 }
 
 std::string EmscriptenGenerator::emscriptenInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const
 {
-    return genGetCodeDir() + '/' + emscriptenRelSourceFor(elem);
+    return genGetCodeDir() + '/' + emscriptenInputRelSourceFor(elem);
 }
 
 std::string EmscriptenGenerator::emscriptenScopeToName(const std::string& scope)
