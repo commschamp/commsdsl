@@ -82,9 +82,9 @@ void SwigInterface::swigAddCode(GenStringsList& list) const
         {"MSG_HANDLER", handler->swigClassName()},
     };
 
-    std::string publicCode = util::genReadFileContents(gen.swigInputCodePathFor(*this) + strings::genPublicFileSuffixStr());
-    std::string protectedCode = util::genReadFileContents(gen.swigInputCodePathFor(*this) + strings::genProtectedFileSuffixStr());
-    std::string privateCode = util::genReadFileContents(gen.swigInputCodePathFor(*this) + strings::genPrivateFileSuffixStr());
+    std::string publicCode = gen.genReadCodeInjectCode(gen.swigInputCodeRelPathFor(*this) + strings::genPublicFileSuffixStr(), "Add extra public code here");
+    std::string protectedCode = gen.genReadCodeInjectCode(gen.swigInputCodeRelPathFor(*this) + strings::genProtectedFileSuffixStr(), "Add extra protected code here");
+    std::string privateCode = gen.genReadCodeInjectCode(gen.swigInputCodeRelPathFor(*this) + strings::genPrivateFileSuffixStr(), "Add extra private code here");
 
     if (!protectedCode.empty()) {
         static const std::string TemplTmp =
@@ -268,7 +268,7 @@ std::string SwigInterface::swigClassDeclInternal() const
     util::GenReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"FIELDS", swigFieldsAccDeclInternal()},
-        {"CUSTOM", util::genReadFileContents(gen.swigInputCodePathFor(*this) + strings::genAppendFileSuffixStr())},
+        {"CUSTOM", gen.genReadCodeInjectCode(gen.swigInputCodeRelPathFor(*this) + strings::genAppendFileSuffixStr(), "Add extra public code here")},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
         {"MSG_ID", parentNs->swigMsgIdClassName()},
         {"DATA_BUF", SwigDataBuf::swigClassName(gen)},

@@ -57,13 +57,15 @@ bool Swig::swigWriteInternal()
     }
 
     do {
-        auto replaceFile = util::genReadFileContents(m_swigGenerator.swigInputCodePathForFile(swigName + strings::genReplaceFileSuffixStr()));
-        if (!replaceFile.empty()) {
+        bool hasReplace = false;
+        auto replaceFile = m_swigGenerator.genReadCodeInjectCode(swigName + strings::genReplaceFileSuffixStr(), "Replace the whole file with", &hasReplace);
+        if (hasReplace) {
             stream << replaceFile;
             break;
         }
 
         const std::string Templ =
+            "#^#REPLACE#$#\n"
             "%module(directors=\"1\") #^#NS#$#\n\n"
             "#^#LANG_DEFS#$#\n"
             "#^#PREPEND#$#\n"
@@ -73,6 +75,7 @@ bool Swig::swigWriteInternal()
             ;
 
         util::GenReplacementMap repl = {
+            {"REPLACE", std::move(replaceFile)},
             {"NS", m_swigGenerator.genProtocolSchema().genMainNamespace()},
             {"LANG_DEFS", swigLangDefsInternal()},
             {"CODE", swigCodeBlockInternal()},
@@ -226,39 +229,13 @@ std::string Swig::swigLangDefsInternal() const
 std::string Swig::swigPrependInternal() const
 {
     auto swigName = swigFileNameInternal();
-    auto fromFile = util::genReadFileContents(m_swigGenerator.swigInputCodePathForFile(swigName + strings::genPrependFileSuffixStr()));
-    if (!fromFile.empty()) {
-        return fromFile;
-    }
-
-    const std::string Templ =
-        "// Use #^#NAME#$##^#SUFFIX#$# file to inject code here.\n";
-
-    util::GenReplacementMap repl = {
-        {"NAME", swigName},
-        {"SUFFIX", strings::genPrependFileSuffixStr()}
-    };
-
-    return util::genProcessTemplate(Templ, repl);
+    return m_swigGenerator.genReadCodeInjectCode(swigName + strings::genPrependFileSuffixStr(), "Inject code here");
 }
 
 std::string Swig::swigAppendInternal() const
 {
     auto swigName = swigFileNameInternal();
-    auto fromFile = util::genReadFileContents(m_swigGenerator.swigInputCodePathForFile(swigName + strings::genAppendFileSuffixStr()));
-    if (!fromFile.empty()) {
-        return fromFile;
-    }
-
-    const std::string Templ =
-        "// Use #^#NAME#$##^#SUFFIX#$# file to inject code here.\n";
-
-    util::GenReplacementMap repl = {
-        {"NAME", swigName},
-        {"SUFFIX", strings::genAppendFileSuffixStr()}
-    };
-
-    return util::genProcessTemplate(Templ, repl);
+    return m_swigGenerator.genReadCodeInjectCode(swigName + strings::genAppendFileSuffixStr(), "Append code here");
 }
 
 std::string Swig::swigFileNameInternal() const

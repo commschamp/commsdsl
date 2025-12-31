@@ -124,7 +124,7 @@ bool SwigCmake::swigWriteInternal() const
         {"PREPEND", swigPrependInternal()},
         {"PREPEND_LANG", swigPrependLangInternal()},
         {"APPEND", swigAppendInternal()},
-        {"EXTRA_SOURCES", util::genReadFileContents(util::genPathAddElem(m_swigGenerator.genGetCodeDir(), strings::genCmakeListsFileStr()) + strings::genSourcesFileSuffixStr())},
+        {"EXTRA_SOURCES", m_swigGenerator.genReadScriptCodeInjectCode(strings::genCmakeListsFileStr() + strings::genSourcesFileSuffixStr(), "Add extra sources here")},
     };
 
     auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
@@ -140,61 +140,18 @@ bool SwigCmake::swigWriteInternal() const
 
 std::string SwigCmake::swigPrependInternal() const
 {
-    auto& name = strings::genCmakeListsFileStr();
-    auto fromFile = util::genReadFileContents(m_swigGenerator.swigInputCodePathForFile(name + strings::genPrependFileSuffixStr()));
-    if (!fromFile.empty()) {
-        return fromFile;
-    }
-
-    const std::string Templ =
-        "# Use #^#FILE_NAME#$##^#SUFFIX#$# to add extra code here to find appropriate libraries and/or update swig global behaviour\n";
-
-    util::GenReplacementMap repl = {
-        {"FILE_NAME", name},
-        {"SUFFIX", strings::genPrependFileSuffixStr()},
-    };
-
-    return util::genProcessTemplate(Templ, repl);
+    return m_swigGenerator.genReadScriptCodeInjectCode(strings::genCmakeListsFileStr() + strings::genPrependFileSuffixStr(), "Add extra code here to find appropriate libraries and/or update swig global behaviour");
 }
 
 std::string SwigCmake::swigPrependLangInternal() const
 {
-    auto& name = strings::genCmakeListsFileStr();
     std::string langSuffix(strings::genPrependFileSuffixStr() + "_lang");
-    auto fromFile = util::genReadFileContents(m_swigGenerator.swigInputCodePathForFile(name + langSuffix));
-    if (!fromFile.empty()) {
-        return fromFile;
-    }
-
-    const std::string Templ =
-        "# Use #^#FILE_NAME#$##^#SUFFIX#$# to add extra code here to set swig variables to update language specific behavior\n";
-
-    util::GenReplacementMap repl = {
-        {"FILE_NAME", name},
-        {"SUFFIX", langSuffix}
-    };
-
-    return util::genProcessTemplate(Templ, repl);
+    return m_swigGenerator.genReadScriptCodeInjectCode(strings::genCmakeListsFileStr() + langSuffix, "Add extra code here to set swig variables to update language specific behavior");
 }
 
 std::string SwigCmake::swigAppendInternal() const
 {
-    auto& name = strings::genCmakeListsFileStr();
-    auto& suffix = strings::genAppendFileSuffixStr();
-    auto fromFile = util::genReadFileContents(m_swigGenerator.swigInputCodePathForFile(name + suffix));
-    if (!fromFile.empty()) {
-        return fromFile;
-    }
-
-    const std::string Templ =
-        "# Use #^#FILE_NAME#$##^#SUFFIX#$# to add extra code here to link previosly created language specific targets to language binding libraries\n";
-
-    util::GenReplacementMap repl = {
-        {"FILE_NAME", name},
-        {"SUFFIX", suffix},
-    };
-
-    return util::genProcessTemplate(Templ, repl);
+    return m_swigGenerator.genReadScriptCodeInjectCode(strings::genCmakeListsFileStr() + strings::genAppendFileSuffixStr(), "Add extra code here to to link previosly created language specific targets to language binding libraries");
 }
 
 } // namespace commsdsl2swig
