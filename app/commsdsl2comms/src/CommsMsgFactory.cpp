@@ -361,7 +361,8 @@ bool commsWriteFileInternal(
                 return elem.second.size() <= 1U;
             });
 
-        util::GenReplacementMap repl = {
+    bool classExtended = false;
+    util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"NS_BEGIN", comms::genNamespaceBeginFor(parent, generator)},
         {"NS_END", comms::genNamespaceEndFor(parent, generator)},
@@ -370,8 +371,8 @@ bool commsWriteFileInternal(
         {"POLICY", *policyStr},
         {"DESC", desc},
         {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
-        {"EXTEND", util::genReadFileContents(comms::genInputCodePathForFactory(name, generator, parent) + strings::genExtendFileSuffixStr())},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForFactory(name, generator, parent) + strings::genAppendFileSuffixStr())},
+        {"EXTEND", generator.genReadCodeInjectCode(comms::genInputCodeRelPathForFactory(name, generator, parent) + strings::genExtendFileSuffixStr(), "Extend class", &classExtended)},
+        {"APPEND", generator.genReadCodeInjectCode(comms::genInputCodeRelPathForFactory(name, generator, parent) + strings::genAppendFileSuffixStr(), "Append here")},
         {"HAS_UNIQUE_IDS", util::genBoolToString(hasUniqueIds)},
         {"IN_PLACE_ALLOC", util::genBoolToString(inPlaceAlloc)},
         {"CAN_ALLOCATE", "true"},
@@ -379,7 +380,7 @@ bool commsWriteFileInternal(
         {"CREATE_CODE", commsGetMsgAllocCodeInternal(mappedMessages, generator, codeFunc, hasUniqueIds)},
     };
 
-    if (!repl["EXTEND"].empty()) {
+    if (classExtended) {
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 

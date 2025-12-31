@@ -57,12 +57,20 @@ protected:
 private:
     struct CommsCustomCode
     {
+        std::string m_construct;
         std::string m_inc;
         std::string m_public;
         std::string m_protected;
         std::string m_private;
         std::string m_extend;
         std::string m_append;
+
+        bool m_hasInc = false;
+        bool m_hasPublic = false;
+        bool m_hasProtected = false;
+        bool m_hasPrivate = false;
+        bool m_hasExtend = false;
+        bool m_hasAppend = false;
     };
 
     bool commsCopyCodeFromInternal();
@@ -82,7 +90,6 @@ private:
     std::string commsDefFieldsAliasesInternal() const;
 
     std::string m_name;
-    std::string m_constructCode;
     CommsFieldsList m_commsFields;
     CommsCustomCode m_customCode;
 };

@@ -122,10 +122,10 @@ bool CommsDoxygen::commsWriteConfInternal() const
 
     util::GenReplacementMap repl = {
         {"PROJ_NAME", m_commsGenerator.genCurrentSchema().genDisplayName()},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForDoc(FileName, m_commsGenerator) + strings::genAppendFileSuffixStr())}
+        {"APPEND", m_commsGenerator.genReadScriptCodeInjectCode(comms::genInputCodeRelPathForDoc(FileName) + strings::genAppendFileSuffixStr(), "Append here")},
     };
 
-    return commsWriteFileInternal(FileName, util::genProcessTemplate(Templ, repl), m_commsGenerator);
+    return commsWriteFileInternal(FileName, util::genProcessTemplate(Templ, repl, true), m_commsGenerator);
 }
 
 bool CommsDoxygen::commsWriteLayoutInternal() const
@@ -395,10 +395,10 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
 
     util::GenReplacementMap repl = {
         {"SCHEMAS", util::genStrListToString(elems, "", "")},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForDoc(FileName, m_commsGenerator) + strings::genAppendFileSuffixStr())}
+        {"APPEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForDoc(FileName) + strings::genAppendFileSuffixStr(), "Append here")},
     };
 
-    return commsWriteFileInternal(FileName, util::genProcessTemplate(Templ, repl), m_commsGenerator);
+    return commsWriteFileInternal(FileName, util::genProcessTemplate(Templ, repl, true), m_commsGenerator);
 }
 
 bool CommsDoxygen::commsWriteMainpageInternal() const
@@ -445,7 +445,7 @@ bool CommsDoxygen::commsWriteMainpageInternal() const
         {"DISPATCH_DOC", commsDispatchDocInternal()},
         {"CUSTOMIZE_DOC", commsCustomizeDocInternal()},
         {"VERSION_DOC", commsVersionDocInternal()},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForDoc(FileName, m_commsGenerator) + strings::genAppendFileSuffixStr())},
+        {"APPEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForDoc(FileName) + strings::genAppendFileSuffixStr(), "Append here")},
         {"TITLE", m_commsGenerator.genCurrentSchema().genParseObj().parseDisplayName()},
         {"DESC", std::move(desc)},
     };
@@ -454,7 +454,7 @@ bool CommsDoxygen::commsWriteMainpageInternal() const
         repl["TITLE"] = "\"" + m_commsGenerator.genCurrentSchema().genSchemaName() + "\" Binary Protocol Library";
     }
 
-    return commsWriteFileInternal(FileName, util::genProcessTemplate(Templ, repl), m_commsGenerator);
+    return commsWriteFileInternal(FileName, util::genProcessTemplate(Templ, repl, true), m_commsGenerator);
 }
 
 std::string CommsDoxygen::commsMessagesDocInternal() const

@@ -41,6 +41,7 @@ const std::string& aliasTempl()
 {
     static const std::string Templ =
         "#^#GENERATED#$#\n"
+        "#^#REPLACE#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of <b>\"#^#CLASS_NAME#$##^#SUFFIX#$#\"</b> interface class.\n"
         "\n"
@@ -67,6 +68,7 @@ const std::string& classTempl()
 {
     static const std::string Templ =
         "#^#GENERATED#$#\n"
+        "#^#REPLACE#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of <b>\"#^#CLASS_NAME#$#\"</b> interface class.\n"
         "\n"
@@ -95,15 +97,6 @@ const std::string& classTempl()
         "#^#NS_END#$#\n";
 
     return Templ;
-}
-
-void commsReadCustomCodeInternal(const std::string& codePath, std::string& code)
-{
-    if (!util::genIsFileReadable(codePath)) {
-        return;
-    }
-
-    code = util::genReadFileContents(codePath);
 }
 
 } // namespace
@@ -166,15 +159,16 @@ bool CommsInterface::genPrepareImpl()
         m_name = strings::genMessageClassStr();
     }
 
-    auto inputCodePrefix = comms::genInputCodePathFor(*this, genGenerator());
+    auto& generator = genGenerator();
+    auto inputCodePrefix = comms::genInputCodeRelPathFor(*this, generator);
+    m_customCode.m_construct = generator.genReadCodeInjectCode(inputCodePrefix + strings::genConstructFileSuffixStr(), "Replace default constructor");
+    m_customCode.m_inc = generator.genReadCodeInjectCode(inputCodePrefix + strings::genIncFileSuffixStr(), "Add includes", &m_customCode.m_hasInc);
+    m_customCode.m_public = generator.genReadCodeInjectCode(inputCodePrefix + strings::genPublicFileSuffixStr(), "Add extra public code", &m_customCode.m_hasPublic);
+    m_customCode.m_protected = generator.genReadCodeInjectCode(inputCodePrefix + strings::genProtectedFileSuffixStr(), "Add extra protected code", &m_customCode.m_hasProtected);
+    m_customCode.m_private = generator.genReadCodeInjectCode(inputCodePrefix + strings::genPrivateFileSuffixStr(), "Add extra private code", &m_customCode.m_hasPrivate);
+    m_customCode.m_extend = generator.genReadCodeInjectCode(inputCodePrefix + strings::genExtendFileSuffixStr(), "Extend class", &m_customCode.m_hasExtend);
+    m_customCode.m_append = generator.genReadCodeInjectCode(inputCodePrefix + strings::genAppendFileSuffixStr(), "Append here", &m_customCode.m_hasAppend);
 
-    commsReadCustomCodeInternal(inputCodePrefix + strings::genConstructFileSuffixStr(), m_constructCode);
-    commsReadCustomCodeInternal(inputCodePrefix + strings::genIncFileSuffixStr(), m_customCode.m_inc);
-    commsReadCustomCodeInternal(inputCodePrefix + strings::genPublicFileSuffixStr(), m_customCode.m_public);
-    commsReadCustomCodeInternal(inputCodePrefix + strings::genProtectedFileSuffixStr(), m_customCode.m_protected);
-    commsReadCustomCodeInternal(inputCodePrefix + strings::genPrivateFileSuffixStr(), m_customCode.m_private);
-    commsReadCustomCodeInternal(inputCodePrefix + strings::genExtendFileSuffixStr(), m_customCode.m_extend);
-    commsReadCustomCodeInternal(inputCodePrefix + strings::genAppendFileSuffixStr(), m_customCode.m_append);
     m_commsFields = CommsField::commsTransformFieldsList(genFields());
 
     return true;
@@ -209,7 +203,21 @@ bool CommsInterface::commsCopyCodeFromInternal()
 
     auto* commsIface = dynamic_cast<const CommsInterface*>(origIface);
     assert(commsIface != nullptr);
-    m_customCode = commsIface->m_customCode;
+    auto& otherCode = commsIface->m_customCode;
+    auto copyCode =
+        [](const std::string& from, bool flag, std::string& to)
+        {
+            if (flag) {
+                to = from;
+            }
+        };
+
+    copyCode(otherCode.m_inc, otherCode.m_hasInc, m_customCode.m_inc);
+    copyCode(otherCode.m_public, otherCode.m_hasPublic, m_customCode.m_public);
+    copyCode(otherCode.m_protected, otherCode.m_hasProtected, m_customCode.m_protected);
+    copyCode(otherCode.m_private, otherCode.m_hasPrivate, m_customCode.m_private);
+    copyCode(otherCode.m_append, otherCode.m_hasAppend, m_customCode.m_append);
+    // .extend code is not copied on purpose
     return true;
 }
 
@@ -297,15 +305,17 @@ bool CommsInterface::commsWriteDefInternal() const
         };
 
     auto genFilePath = comms::genHeaderPathFor(*this, gen);
-    auto codePathPrefix = comms::genInputCodePathFor(*this, gen);
-    auto replaceContent = util::genReadFileContents(codePathPrefix + strings::genReplaceFileSuffixStr());
-    if (!replaceContent.empty()) {
-        return writeFunc(genFilePath, replaceContent);
+    auto inputRelPath = comms::genInputCodeRelPathFor(*this, gen);
+    bool codeReplaced = false;
+    auto replaceCode = genGenerator().genReadCodeInjectCode(inputRelPath + strings::genReplaceFileSuffixStr(), "Replace the whole file", &codeReplaced);
+    if (codeReplaced) {
+        return writeFunc(genFilePath, replaceCode);
     }
 
     auto obj = genParseObj();
     util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
+        {"REPLACE", std::move(replaceCode)},
         {"CLASS_NAME", m_name},
         {"INCLUDES", commsDefIncludesInternal()},
         {"CUSTOM_INCLUDES", m_customCode.m_inc},
@@ -318,13 +328,13 @@ bool CommsInterface::commsWriteDefInternal() const
         {"APPEND", m_customCode.m_append}
     };
 
-    if (!repl["EXTEND"].empty()) {
+    if (m_customCode.m_hasExtend) {
         repl["SUFFIX"] = strings::genOrigSuffixStr();
     }
 
     bool useClass =
         (!m_commsFields.empty()) ||
-        (!m_constructCode.empty()) ||
+        (!m_customCode.m_construct.empty()) ||
         (!m_customCode.m_public.empty()) ||
         (!m_customCode.m_protected.empty()) ||
         (!m_customCode.m_private.empty());
@@ -526,7 +536,7 @@ std::string CommsInterface::commsDefPublicInternal() const
     ;
 
     util::GenReplacementMap repl = {
-        {"CONSTRUCT", m_constructCode},
+        {"CONSTRUCT", m_customCode.m_construct},
         {"ACCESS", commsDefFieldsAccessInternal()},
         {"ALIASES", commsDefFieldsAliasesInternal()},
         {"EXTRA", m_customCode.m_public},

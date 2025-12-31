@@ -58,15 +58,6 @@ bool commsIsOverrideCodeRequired(commsdsl::parse::ParseOverrideType value)
         (value == commsdsl::parse::ParseOverrideType_Extend);
 }
 
-void commsReadCustomCodeInternal(const std::string& codePath, std::string& code)
-{
-    if (!util::genIsFileReadable(codePath)) {
-        return;
-    }
-
-    code = util::genReadFileContents(codePath);
-}
-
 std::pair<const CommsField*, std::string> commsFindInterfaceFieldInternal(const CommsGenerator& generator, const std::string& refStr)
 {
     auto& currSchema = CommsSchema::commsCast(generator.genCurrentSchema());
@@ -245,27 +236,31 @@ bool CommsMessage::genPrepareImpl()
         return false;
     }
 
-    auto codePathPrefix = comms::genInputCodePathFor(*this, genGenerator());
     auto obj = genParseObj();
+
     bool overrides =
-        commsPrepareOverrideInternal(obj.parseReadOverride(), codePathPrefix, strings::genReadFileSuffixStr(), m_customCode.m_read, "read", &CommsMessage::commsPrepareCustomReadFromBodyInternal) &&
-        commsPrepareOverrideInternal(obj.parseWriteOverride(), codePathPrefix, strings::genWriteFileSuffixStr(), m_customCode.m_write, "write", &CommsMessage::commsPrepareCustomWriteFromBodyInternal) &&
-        commsPrepareOverrideInternal(obj.parseRefreshOverride(), codePathPrefix, strings::genRefreshFileSuffixStr(), m_customCode.m_refresh, "refresh", &CommsMessage::commsPrepareCustomRefreshFromBodyInternal) &&
-        commsPrepareOverrideInternal(obj.parseLengthOverride(), codePathPrefix, strings::genLengthFileSuffixStr(), m_customCode.m_length, "length", &CommsMessage::commsPrepareCustomLengthFromBodyInternal) &&
-        commsPrepareOverrideInternal(obj.parseValidOverride(), codePathPrefix, strings::genValidFileSuffixStr(), m_customCode.m_valid, "valid", &CommsMessage::commsPrepareCustomValidFromBodyInternal) &&
-        commsPrepareOverrideInternal(obj.parseNameOverride(), codePathPrefix, strings::genNameFileSuffixStr(), m_customCode.m_name, "name", &CommsMessage::commsPrepareCustomNameFromBodyInternal);
+        commsPrepareOverrideInternal(obj.parseReadOverride(), "read", &CommsMessage::commsCustomReadCodeInternal, m_customCode.m_read, &m_customCode.m_hasRead) &&
+        commsPrepareOverrideInternal(obj.parseWriteOverride(), "write", &CommsMessage::commsCustomWriteCodeInternal, m_customCode.m_write, &m_customCode.m_hasWrite) &&
+        commsPrepareOverrideInternal(obj.parseRefreshOverride(), "refresh", &CommsMessage::commsCustomRefreshCodeInternal, m_customCode.m_refresh, &m_customCode.m_hasRefresh) &&
+        commsPrepareOverrideInternal(obj.parseLengthOverride(), "length", &CommsMessage::commsCustomLengthCodeInternal, m_customCode.m_length, &m_customCode.m_hasLength) &&
+        commsPrepareOverrideInternal(obj.parseValidOverride(), "valid", &CommsMessage::commsCustomValidCodeInternal, m_customCode.m_valid, &m_customCode.m_hasValid) &&
+        commsPrepareOverrideInternal(obj.parseNameOverride(), "name", &CommsMessage::commsCustomNameCodeInternal, m_customCode.m_name, &m_customCode.m_hasName)
+        ;
 
     if (!overrides) {
         return false;
     }
 
-    commsReadCustomCodeInternal(codePathPrefix + strings::genConstructFileSuffixStr(), m_customConstruct);
-    commsReadCustomCodeInternal(codePathPrefix + strings::genIncFileSuffixStr(), m_customCode.m_inc);
-    commsReadCustomCodeInternal(codePathPrefix + strings::genPublicFileSuffixStr(), m_customCode.m_public);
-    commsReadCustomCodeInternal(codePathPrefix + strings::genProtectedFileSuffixStr(), m_customCode.m_protected);
-    commsReadCustomCodeInternal(codePathPrefix + strings::genPrivateFileSuffixStr(), m_customCode.m_private);
-    commsReadCustomCodeInternal(codePathPrefix + strings::genExtendFileSuffixStr(), m_customCode.m_extend);
-    commsReadCustomCodeInternal(codePathPrefix + strings::genAppendFileSuffixStr(), m_customCode.m_append);
+    auto& generator = genGenerator();
+    auto inputCodePrefix = comms::genInputCodeRelPathFor(*this, generator);
+    m_customCode.m_construct = generator.genReadCodeInjectCode(inputCodePrefix + strings::genConstructFileSuffixStr(), "Replace default constructor", &m_customCode.m_hasConstruct);
+    m_customCode.m_constructBody = generator.genReadCodeInjectCode(inputCodePrefix + strings::genConstructBodyFileSuffixStr(), "Replace default constructor body only", &m_customCode.m_hasConstructBody);
+    m_customCode.m_inc = generator.genReadCodeInjectCode(inputCodePrefix + strings::genIncFileSuffixStr(), "Add includes", &m_customCode.m_hasInc);
+    m_customCode.m_public = generator.genReadCodeInjectCode(inputCodePrefix + strings::genPublicFileSuffixStr(), "Add extra public code", &m_customCode.m_hasPublic);
+    m_customCode.m_protected = generator.genReadCodeInjectCode(inputCodePrefix + strings::genProtectedFileSuffixStr(), "Add extra protected code", &m_customCode.m_hasProtected);
+    m_customCode.m_private = generator.genReadCodeInjectCode(inputCodePrefix + strings::genPrivateFileSuffixStr(), "Add extra private code", &m_customCode.m_hasPrivate);
+    m_customCode.m_extend = generator.genReadCodeInjectCode(inputCodePrefix + strings::genExtendFileSuffixStr(), "Extend class", &m_customCode.m_hasExtend);
+    m_customCode.m_append = generator.genReadCodeInjectCode(inputCodePrefix + strings::genAppendFileSuffixStr(), "Append here", &m_customCode.m_hasAppend);
 
     m_commsFields = CommsField::commsTransformFieldsList(genFields());
     m_bundledReadPrepareCodes.reserve(m_commsFields.size());
@@ -304,56 +299,92 @@ bool CommsMessage::commsCopyCodeFromInternal()
 
     auto* commsMsg = dynamic_cast<CommsMessage*>(origMsg);
     assert(commsMsg != nullptr);
-    m_customCode = commsMsg->m_customCode;
+    auto& otherCode = commsMsg->m_customCode;
+    auto copyCode =
+        [](const std::string& from, bool flag, std::string& to)
+        {
+            if (flag) {
+                to = from;
+            }
+        };
+
+    copyCode(otherCode.m_constructBody, otherCode.m_hasConstructBody, m_customCode.m_constructBody);
+    copyCode(otherCode.m_read, otherCode.m_hasRead, m_customCode.m_read);
+    copyCode(otherCode.m_write, otherCode.m_hasWrite, m_customCode.m_write);
+    copyCode(otherCode.m_refresh, otherCode.m_hasRefresh, m_customCode.m_refresh);
+    copyCode(otherCode.m_length, otherCode.m_hasLength, m_customCode.m_length);
+    copyCode(otherCode.m_valid, otherCode.m_hasValid, m_customCode.m_valid);
+    copyCode(otherCode.m_name, otherCode.m_hasName, m_customCode.m_name);
+    copyCode(otherCode.m_inc, otherCode.m_hasInc, m_customCode.m_inc);
+    copyCode(otherCode.m_public, otherCode.m_hasPublic, m_customCode.m_public);
+    copyCode(otherCode.m_protected, otherCode.m_hasProtected, m_customCode.m_protected);
+    copyCode(otherCode.m_private, otherCode.m_hasPrivate, m_customCode.m_private);
+    copyCode(otherCode.m_append, otherCode.m_hasAppend, m_customCode.m_append);
+    // .construct, .extend code is not copied on purpose
     return true;
 }
 
 bool CommsMessage::commsPrepareOverrideInternal(
     commsdsl::parse::ParseOverrideType type,
-    std::string& codePathPrefix,
-    const std::string& suffix,
-    std::string& customCode,
     const std::string& name,
-    CommsBodyCustomCodeFunc bodyFunc)
+    CommsCustomCodeFunc codeFunc,
+    std::string& code,
+    bool* hasCode)
 {
+    auto updateHasCodeFlag =
+        [hasCode](bool val)
+        {
+            if (hasCode != nullptr) {
+                *hasCode = val;
+            }
+        };
+
     do {
         if (!commsIsOverrideCodeAllowed(type)) {
-            customCode.clear();
+            code.clear();
+            updateHasCodeFlag(false);
             break;
         }
 
-        auto contents = util::genReadFileContents(codePathPrefix + suffix);
-        if (!contents.empty()) {
-            customCode = std::move(contents);
+        bool hasCodeTmp = false;
+        auto customCode = (this->*codeFunc)(hasCodeTmp);
+        if ((hasCodeTmp) || (code.empty())) {
+            code = std::move(customCode);
+            updateHasCodeFlag(hasCodeTmp);
             break;
         }
 
-        if (bodyFunc == nullptr) {
-            break;
-        }
-
-        auto bodyContents = bodyFunc(codePathPrefix);
-        if (!bodyContents.empty()) {
-            customCode = std::move(bodyContents);
-            break;
-        }
     } while (false);
 
-    if (customCode.empty() && commsIsOverrideCodeRequired(type)) {
+    if (code.empty() && commsIsOverrideCodeRequired(type)) {
         genGenerator().genLogger().genError(
             "Overriding \"" + name + "\" operation is not provided in injected code for message \"" +
-            genParseObj().parseExternalRef() + "\". Expected overriding file is \"" + codePathPrefix + suffix + ".");
+            genParseObj().parseExternalRef() + "\".");
         return false;
     }
 
     return true;
 }
 
-std::string CommsMessage::commsPrepareCustomReadFromBodyInternal(const std::string& codePathPrefix)
+std::string CommsMessage::commsCustomReadCodeInternal(bool& hasRealCode) const
 {
-    auto contents = util::genReadFileContents(codePathPrefix + strings::genReadBodyFileSuffixStr());
-    if (contents.empty()) {
-        return std::string();
+    auto relPath = comms::genInputCodeRelPathFor(*this, genGenerator());
+    auto& generator = genGenerator();
+    bool hasFullFunc = false;
+    bool hasBody = false;
+    auto code = generator.genReadCodeInjectCode(relPath + strings::genReadFileSuffixStr(), "Override full doRead() function", &hasFullFunc);
+    std::string bodyCode;
+    if (!hasFullFunc) {
+        bodyCode = generator.genReadCodeInjectCode(relPath + strings::genReadBodyFileSuffixStr(), "Override body only of doRead() function", &hasBody);
+    }
+
+    hasRealCode = hasFullFunc || hasBody;
+    if (hasFullFunc) {
+        return code;
+    }
+
+    if (!hasRealCode) {
+        return code + bodyCode;
     }
 
     static const std::string Templ =
@@ -365,17 +396,31 @@ std::string CommsMessage::commsPrepareCustomReadFromBodyInternal(const std::stri
         "}\n";
 
     util::GenReplacementMap repl = {
-        {"BODY", std::move(contents)},
+        {"BODY", std::move(bodyCode)},
     };
 
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string CommsMessage::commsPrepareCustomWriteFromBodyInternal(const std::string& codePathPrefix)
+std::string CommsMessage::commsCustomWriteCodeInternal(bool& hasRealCode) const
 {
-    auto contents = util::genReadFileContents(codePathPrefix + strings::genWriteBodyFileSuffixStr());
-    if (contents.empty()) {
-        return std::string();
+    auto& generator = genGenerator();
+    auto relPath = comms::genInputCodeRelPathFor(*this, generator);
+    bool hasFullFunc = false;
+    bool hasBody = false;
+    auto code = generator.genReadCodeInjectCode(relPath + strings::genWriteFileSuffixStr(), "Override full doWrite() function", &hasFullFunc);
+    std::string bodyCode;
+    if (!hasFullFunc) {
+        bodyCode = generator.genReadCodeInjectCode(relPath + strings::genWriteBodyFileSuffixStr(), "Override body only of doWrite() function", &hasBody);
+    }
+
+    hasRealCode = hasFullFunc || hasBody;
+    if (hasFullFunc) {
+        return code;
+    }
+
+    if (!hasRealCode) {
+        return code + bodyCode;
     }
 
     static const std::string Templ =
@@ -387,17 +432,31 @@ std::string CommsMessage::commsPrepareCustomWriteFromBodyInternal(const std::str
         "}\n";
 
     util::GenReplacementMap repl = {
-        {"BODY", std::move(contents)},
+        {"BODY", std::move(bodyCode)},
     };
 
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string CommsMessage::commsPrepareCustomRefreshFromBodyInternal(const std::string& codePathPrefix)
+std::string CommsMessage::commsCustomRefreshCodeInternal(bool& hasRealCode) const
 {
-    auto contents = util::genReadFileContents(codePathPrefix + strings::genRefreshBodyFileSuffixStr());
-    if (contents.empty()) {
-        return std::string();
+    auto relPath = comms::genInputCodeRelPathFor(*this, genGenerator());
+    auto& generator = genGenerator();
+    bool hasFullFunc = false;
+    bool hasBody = false;
+    auto code = generator.genReadCodeInjectCode(relPath + strings::genRefreshFileSuffixStr(), "Override full doRefresh() function", &hasFullFunc);
+    std::string bodyCode;
+    if (!hasFullFunc) {
+        bodyCode = generator.genReadCodeInjectCode(relPath + strings::genRefreshBodyFileSuffixStr(), "Override body only of doRefresh() function", &hasBody);
+    }
+
+    hasRealCode = hasFullFunc || hasBody;
+    if (hasFullFunc) {
+        return code;
+    }
+
+    if (!hasRealCode) {
+        return code + bodyCode;
     }
 
     static const std::string Templ =
@@ -408,17 +467,31 @@ std::string CommsMessage::commsPrepareCustomRefreshFromBodyInternal(const std::s
         "}\n";
 
     util::GenReplacementMap repl = {
-        {"BODY", std::move(contents)},
+        {"BODY", std::move(bodyCode)},
     };
 
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string CommsMessage::commsPrepareCustomLengthFromBodyInternal(const std::string& codePathPrefix)
+std::string CommsMessage::commsCustomLengthCodeInternal(bool& hasRealCode) const
 {
-    auto contents = util::genReadFileContents(codePathPrefix + strings::genLengthBodyFileSuffixStr());
-    if (contents.empty()) {
-        return std::string();
+    auto relPath = comms::genInputCodeRelPathFor(*this, genGenerator());
+    auto& generator = genGenerator();
+    bool hasFullFunc = false;
+    bool hasBody = false;
+    auto code = generator.genReadCodeInjectCode(relPath + strings::genLengthFileSuffixStr(), "Override full doLength() function", &hasFullFunc);
+    std::string bodyCode;
+    if (!hasFullFunc) {
+        bodyCode = generator.genReadCodeInjectCode(relPath + strings::genLengthBodyFileSuffixStr(), "Override body only of doLength() function", &hasBody);
+    }
+
+    hasRealCode = hasFullFunc || hasBody;
+    if (hasFullFunc) {
+        return code;
+    }
+
+    if (!hasRealCode) {
+        return code + bodyCode;
     }
 
     static const std::string Templ =
@@ -429,17 +502,31 @@ std::string CommsMessage::commsPrepareCustomLengthFromBodyInternal(const std::st
         "}\n";
 
     util::GenReplacementMap repl = {
-        {"BODY", std::move(contents)},
+        {"BODY", std::move(bodyCode)},
     };
 
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string CommsMessage::commsPrepareCustomValidFromBodyInternal(const std::string& codePathPrefix)
+std::string CommsMessage::commsCustomValidCodeInternal(bool& hasRealCode) const
 {
-    auto contents = util::genReadFileContents(codePathPrefix + strings::genValidBodyFileSuffixStr());
-    if (contents.empty()) {
-        return std::string();
+    auto relPath = comms::genInputCodeRelPathFor(*this, genGenerator());
+    auto& generator = genGenerator();
+    bool hasFullFunc = false;
+    bool hasBody = false;
+    auto code = generator.genReadCodeInjectCode(relPath + strings::genValidFileSuffixStr(), "Override full doValid() function", &hasFullFunc);
+    std::string bodyCode;
+    if (!hasFullFunc) {
+        bodyCode = generator.genReadCodeInjectCode(relPath + strings::genValidBodyFileSuffixStr(), "Override body only of doValid() function", &hasBody);
+    }
+
+    hasRealCode = hasFullFunc || hasBody;
+    if (hasFullFunc) {
+        return code;
+    }
+
+    if (!hasRealCode) {
+        return code + bodyCode;
     }
 
     static const std::string Templ =
@@ -450,17 +537,31 @@ std::string CommsMessage::commsPrepareCustomValidFromBodyInternal(const std::str
         "}\n";
 
     util::GenReplacementMap repl = {
-        {"BODY", std::move(contents)},
+        {"BODY", std::move(bodyCode)},
     };
 
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string CommsMessage::commsPrepareCustomNameFromBodyInternal(const std::string& codePathPrefix)
+std::string CommsMessage::commsCustomNameCodeInternal(bool& hasRealCode) const
 {
-    auto contents = util::genReadFileContents(codePathPrefix + strings::genNameBodyFileSuffixStr());
-    if (contents.empty()) {
-        return std::string();
+    auto relPath = comms::genInputCodeRelPathFor(*this, genGenerator());
+    auto& generator = genGenerator();
+    bool hasFullFunc = false;
+    bool hasBody = false;
+    auto code = generator.genReadCodeInjectCode(relPath + strings::genNameFileSuffixStr(), "Override full doName() function", &hasFullFunc);
+    std::string bodyCode;
+    if (!hasFullFunc) {
+        bodyCode = generator.genReadCodeInjectCode(relPath + strings::genNameBodyFileSuffixStr(), "Override body only of doName() function", &hasBody);
+    }
+
+    hasRealCode = hasFullFunc || hasBody;
+    if (hasFullFunc) {
+        return code;
+    }
+
+    if (!hasRealCode) {
+        return code + bodyCode;
     }
 
     static const std::string Templ =
@@ -471,7 +572,7 @@ std::string CommsMessage::commsPrepareCustomNameFromBodyInternal(const std::stri
         "}\n";
 
     util::GenReplacementMap repl = {
-        {"BODY", std::move(contents)},
+        {"BODY", std::move(bodyCode)},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -552,14 +653,16 @@ bool CommsMessage::commsWriteDefInternal() const
         };
 
     auto genFilePath = comms::genHeaderPathFor(*this, gen);
-    auto codePathPrefix = comms::genInputCodePathFor(*this, gen);
-    auto replaceContent = util::genReadFileContents(codePathPrefix + strings::genReplaceFileSuffixStr());
-    if (!replaceContent.empty()) {
-        return writeFunc(genFilePath, replaceContent);
+    auto inputRelPath = comms::genInputCodeRelPathFor(*this, gen);
+    bool codeReplaced = false;
+    auto replaceCode = genGenerator().genReadCodeInjectCode(inputRelPath + strings::genReplaceFileSuffixStr(), "Replace the whole file", &codeReplaced);
+    if (codeReplaced) {
+        return writeFunc(genFilePath, replaceCode);
     }
 
     static const std::string Templ =
         "#^#GENERATED#$#\n"
+        "#^#REPLACE#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of <b>\"#^#MESSAGE_NAME#$#\"</b> message and its fields.\n"
         "\n"
@@ -609,6 +712,7 @@ bool CommsMessage::commsWriteDefInternal() const
     auto obj = genParseObj();
     util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
+        {"REPLACE", std::move(replaceCode)},
         {"MESSAGE_NAME", util::genDisplayName(obj.parseDisplayName(), obj.parseName())},
         {"INCLUDES", commsDefIncludesInternal()},
         {"CUSTOM_INCLUDES", m_customCode.m_inc},
@@ -629,7 +733,7 @@ bool CommsMessage::commsWriteDefInternal() const
         {"APPEND", m_customCode.m_append}
     };
 
-    if (!m_customCode.m_extend.empty()) {
+    if (m_customCode.m_hasExtend) {
         repl["SUFFIX"] = strings::genOrigSuffixStr();
     }
 
@@ -731,26 +835,42 @@ std::string CommsMessage::commsDefIncludesInternal() const
 
 std::string CommsMessage::commsDefConstructInternal() const
 {
-    if (!m_customConstruct.empty()) {
-        return m_customConstruct;
-    }
-
-    if (m_internalConstruct.empty()) {
-        return strings::genEmptyString();
+    if (m_customCode.m_hasConstruct) {
+        return m_customCode.m_construct;
     }
 
     static const std::string Templ =
         "#^#CLASS_NAME#$##^#SUFFIX#$#()\n"
         "{\n"
         "    #^#CODE#$#\n"
-        "}\n";
+        "}\n"
+        "#^#CUSTOM#$#\n";
+
+    if (m_customCode.m_hasConstructBody) {
+        util::GenReplacementMap repl = {
+            {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
+            {"CODE", m_customCode.m_constructBody},
+            {"CUSTOM", m_customCode.m_construct},
+        };
+
+        if (m_customCode.m_hasExtend) {
+            repl["SUFFIX"] = strings::genOrigSuffixStr();
+        }
+
+        return util::genProcessTemplate(Templ, repl);
+    }
+
+    if (m_internalConstruct.empty()) {
+        return m_customCode.m_construct + m_customCode.m_constructBody;
+    }
 
     util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
-        {"CODE", m_internalConstruct}
+        {"CODE", m_internalConstruct},
+        {"CUSTOM", m_customCode.m_construct + m_customCode.m_constructBody},
     };
 
-    if (!m_customCode.m_extend.empty()) {
+    if (m_customCode.m_hasExtend) {
         repl["SUFFIX"] = strings::genOrigSuffixStr();
     }
 
@@ -781,7 +901,7 @@ std::string CommsMessage::commsDefDocDetailsInternal() const
 {
     auto desc = util::genStrMakeMultiline(genParseObj().parseDescription());
     if (!desc.empty()) {
-        static const std::string DocPrefix = strings::genDoxygenPrefixStr() + strings::genIncFileSuffixStr();
+        static const std::string DocPrefix = strings::genDoxygenPrefixStr();
         desc.insert(desc.begin(), DocPrefix.begin(), DocPrefix.end());
         static const std::string DocNewLineRepl("\n" + DocPrefix);
         desc = util::genStrReplace(desc, "\n", DocNewLineRepl);
@@ -824,7 +944,7 @@ std::string CommsMessage::commsDefBaseClassInternal() const
         repl["COMMA"] = ",";
     }
 
-    if (!m_customCode.m_extend.empty()) {
+    if (m_customCode.m_hasExtend) {
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
@@ -855,7 +975,7 @@ std::string CommsMessage::commsDefExtraOptionsInternal() const
                 return !code.empty();
             });
 
-    if ((!m_customCode.m_refresh.empty()) || hasGeneratedRefresh) {
+    if (m_customCode.m_hasRefresh || hasGeneratedRefresh) {
         util::genAddToStrList("comms::option::def::HasCustomRefresh", opts);
     }
 
@@ -884,7 +1004,7 @@ std::string CommsMessage::commsDefPublicInternal() const
         "    #^#REFRESH#$#\n"
     ;
 
-    auto inputCodePrefix = comms::genInputCodePathFor(*this, genGenerator());
+    auto inputCodePrefix = comms::genInputCodeAbsPathFor(*this, genGenerator());
     util::GenReplacementMap repl = {
         {"CONSTRUCT", commsDefConstructInternal()},
         {"ACCESS", commsDefFieldsAccessInternal()},
@@ -968,7 +1088,7 @@ std::string CommsMessage::commsDefPrivateInternal() const
     }
 
     bool hasPrivateConstruct =
-        (!m_internalConstruct.empty()) && (!m_customConstruct.empty());
+        (!m_internalConstruct.empty()) && (m_customCode.m_hasConstruct || m_customCode.m_hasConstructBody);
 
     if (reads.empty() && refreshes.empty() && m_customCode.m_private.empty() && (!hasPrivateConstruct)) {
         return strings::genEmptyString();
@@ -1148,15 +1268,11 @@ std::string CommsMessage::commsDefNameFuncInternal() const
             {"SCOPE", comms::genCommonScopeFor(*this, genGenerator())},
         };
 
-        if (!m_customCode.m_name.empty()) {
+        if (m_customCode.m_hasName) {
             repl["ORIG"] = strings::genOrigSuffixStr();
         }
 
         origCode = util::genProcessTemplate(Templ, repl);
-    }
-
-    if (m_customCode.m_name.empty()) {
-        return origCode;
     }
 
     static const std::string Templ =
@@ -1292,16 +1408,12 @@ std::string CommsMessage::commsDefReadFuncInternal() const
             {"READS", std::move(readsCode)},
         };
 
-        if (!m_customCode.m_read.empty()) {
+        if (m_customCode.m_hasRead) {
             repl["ORIG"] = strings::genOrigSuffixStr();
         }
 
         origCode = util::genProcessTemplate(Templ, repl);
     } while (false);
-
-    if (m_customCode.m_read.empty()) {
-        return origCode;
-    }
 
     static const std::string Templ =
        "#^#ORIG#$#\n"
@@ -1353,16 +1465,12 @@ std::string CommsMessage::commsDefRefreshFuncInternal() const
             {"FIELDS", util::genStrListToString(fields, "\n", "")},
         };
 
-        if (!m_customCode.m_refresh.empty()) {
+        if (m_customCode.m_hasRefresh) {
             repl["ORIG"] = strings::genOrigSuffixStr();
         }
 
         origCode = util::genProcessTemplate(Templ, repl);
     } while (false);
-
-    if (m_customCode.m_refresh.empty()) {
-        return origCode;
-    }
 
     static const std::string Templ =
        "#^#ORIG#$#\n"
@@ -1383,7 +1491,7 @@ std::string CommsMessage::commsDefPrivateConstructInternal() const
         return strings::genEmptyString();
     }
 
-    if (m_customConstruct.empty()) {
+    if (m_customCode.m_hasConstruct || m_customCode.m_hasConstructBody) {
         // The construct code is already in the constructor
         return strings::genEmptyString();
     }
@@ -1554,7 +1662,7 @@ std::string CommsMessage::commsDefOrigValidCodeInternal() const
 {
     auto obj = genParseObj();
 
-    if ((!m_customCode.m_valid.empty()) && (!commsHasOrigCode(obj.parseValidOverride()))) {
+    if ((m_customCode.m_hasValid) && (!commsHasOrigCode(obj.parseValidOverride()))) {
         return strings::genEmptyString();
     }
 
@@ -1586,7 +1694,7 @@ std::string CommsMessage::commsDefOrigValidCodeInternal() const
         {"CODE", std::move(str)},
     };
 
-    if (!m_customCode.m_valid.empty()) {
+    if (m_customCode.m_hasValid) {
         repl["SUFFIX"] = strings::genOrigSuffixStr();
     }
 
@@ -1596,13 +1704,6 @@ std::string CommsMessage::commsDefOrigValidCodeInternal() const
 std::string CommsMessage::commsDefValidFuncInternal() const
 {
     auto orig = commsDefOrigValidCodeInternal();
-    if (m_customCode.m_valid.empty()) {
-        return orig;
-    }
-
-    if (orig.empty()) {
-        return m_customCode.m_valid;
-    }
 
     static const std::string Templ =
         "#^#ORIG#$#\n"

@@ -143,12 +143,18 @@ std::string genHeaderPathRoot(const std::string& name, const GenGenerator& gener
 std::string genSourcePathRoot(const std::string& name, const GenGenerator& generator);
 std::string genPathForDoc(const std::string& name, const GenGenerator& generator);
 
-std::string genInputCodePathFor(const GenElem& elem, const GenGenerator& generator);
-std::string genInputCodePathForRoot(const std::string& name, const GenGenerator& generator);
-std::string genInputCodePathForDoc(const std::string& name, const GenGenerator& generator);
-std::string genInputCodePathForOptions(const std::string& name, const GenGenerator& generator);
-std::string genInputCodePathForInput(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
-std::string genInputCodePathForFactory(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
+std::string genInputCodeRelPathFor(const GenElem& elem, const GenGenerator& generator);
+std::string genInputCodeAbsPathFor(const GenElem& elem, const GenGenerator& generator);
+std::string genInputCodeRelPathForRoot(const std::string& name, const GenGenerator& generator);
+std::string genInputCodeAbsPathForRoot(const std::string& name, const GenGenerator& generator);
+std::string genInputCodeRelPathForDoc(const std::string& name);
+std::string genInputCodeAbsPathForDoc(const std::string& name, const GenGenerator& generator);
+std::string genInputCodeRelPathForOptions(const std::string& name, const GenGenerator& generator);
+std::string genInputCodeAbsPathForOptions(const std::string& name, const GenGenerator& generator);
+std::string genInputCodeRelPathForInput(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
+std::string genInputCodeAbsPathForInput(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
+std::string genInputCodeRelPathForFactory(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
+std::string genInputCodeAbsPathForFactory(const std::string& name, const GenGenerator& generator, const GenNamespace& ns);
 
 std::string genNamespaceBeginFor(
     const GenElem& elem,

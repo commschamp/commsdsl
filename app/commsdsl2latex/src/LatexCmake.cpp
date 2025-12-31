@@ -175,7 +175,7 @@ std::string LatexCmake::latexSectionHtml() const
     };
 
     if (m_latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] =latexCodeInjectPrefix() + "Use \"" + replaceFileName + "\" file to replace default HTML generation section.";
+        repl["REPLACE_COMMENT"] = latexCodeInjectPrefix() + "Use \"" + replaceFileName + "\" file to replace default HTML generation section.";
 
         if (repl["APPEND"].empty()) {
             repl["APPEND"] = latexCodeInjectPrefix() + "Use \"" + appendFileName + "\" file to append to default HTML generation section.";

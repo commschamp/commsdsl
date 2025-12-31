@@ -665,49 +665,79 @@ std::string genPathForDoc(const std::string& name, const GenGenerator& generator
     return generator.genGetOutputDir() + '/' + strings::genDocDirStr() + '/' + name;
 }
 
-std::string genInputCodePathFor(const GenElem& elem, const GenGenerator& generator)
+std::string genInputCodeRelPathFor(const GenElem& elem, const GenGenerator& generator)
 {
     return
-        generator.genGetCodeDir() + '/' + strings::genIncludeDirStr() + '/' +
+        strings::genIncludeDirStr() + '/' +
         generator.genSchemaOf(elem).genOrigNamespace() + '/' +
         comms::genRelHeaderPathFor(elem, generator, false);
 }
 
-std::string genInputCodePathForRoot(const std::string& name, const GenGenerator& generator)
+std::string genInputCodeAbsPathFor(const GenElem& elem, const GenGenerator& generator)
+{
+    return generator.genGetCodeDir() + '/' + genInputCodeRelPathFor(elem, generator);
+}
+
+std::string genInputCodeRelPathForRoot(const std::string& name, const GenGenerator& generator)
 {
     return
-        generator.genGetCodeDir() + '/' + strings::genIncludeDirStr() + '/' +
+        strings::genIncludeDirStr() + '/' +
         generator.genCurrentSchema().genOrigNamespace() + '/' +
         comms::genRelHeaderForRoot(name, generator, false);
 }
 
-std::string genInputCodePathForDoc(const std::string& name, const GenGenerator& generator)
+std::string genInputCodeAbsPathForRoot(const std::string& name, const GenGenerator& generator)
 {
-    return generator.genGetCodeDir() + '/' + strings::genDocDirStr() + '/' + name;
+    return generator.genGetCodeDir() + '/' + genInputCodeRelPathForRoot(name, generator);
 }
 
-std::string genInputCodePathForOptions(const std::string& name, const GenGenerator& generator)
+std::string genInputCodeRelPathForDoc(const std::string& name)
+{
+    return strings::genDocDirStr() + '/' + name;
+}
+
+std::string genInputCodeAbsPathForDoc(const std::string& name, const GenGenerator& generator)
+{
+    return generator.genGetCodeDir() + '/' + genInputCodeRelPathForDoc(name);
+}
+
+std::string genInputCodeRelPathForOptions(const std::string& name, const GenGenerator& generator)
 {
     return
-        generator.genGetCodeDir() + '/' + strings::genIncludeDirStr() + '/' +
+        strings::genIncludeDirStr() + '/' +
         generator.genCurrentSchema().genOrigNamespace() + '/' +
         comms::genRelHeaderForOptions(name, generator, false);
 }
 
-std::string genInputCodePathForInput(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
+std::string genInputCodeAbsPathForOptions(const std::string& name, const GenGenerator& generator)
+{
+    return generator.genGetCodeDir() + '/' + genInputCodeRelPathForOptions(name, generator);
+}
+
+std::string genInputCodeRelPathForInput(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
 {
     return
-        generator.genGetCodeDir() + '/' + strings::genIncludeDirStr() + '/' +
+        strings::genIncludeDirStr() + '/' +
         generator.genCurrentSchema().genOrigNamespace() + '/' +
         comms::genRelHeaderForInput(name, generator, ns, false);
 }
 
-std::string genInputCodePathForFactory(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
+std::string genInputCodeAbsPathForInput(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
+{
+    return generator.genGetCodeDir() + '/' + genInputCodeRelPathForInput(name, generator, ns);
+}
+
+std::string genInputCodeRelPathForFactory(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
 {
     return
-        generator.genGetCodeDir() + '/' + strings::genIncludeDirStr() + '/' +
+        strings::genIncludeDirStr() + '/' +
         generator.genCurrentSchema().genOrigNamespace() + '/' +
         comms::genRelHeaderForFactory(name, generator, ns);
+}
+
+std::string genInputCodeAbsPathForFactory(const std::string& name, const GenGenerator& generator, const GenNamespace& ns)
+{
+    return generator.genGetCodeDir() + '/' + genInputCodeRelPathForFactory(name, generator, ns);
 }
 
 std::string genNamespaceBeginFor(

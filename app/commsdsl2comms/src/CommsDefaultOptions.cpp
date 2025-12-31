@@ -226,17 +226,18 @@ bool CommsDefaultOptions::commsWriteDefaultOptionsInternal() const
         "} // namespace options\n\n"
         "} // namespace #^#PROT_NAMESPACE#$#\n";
 
+    bool classExtended = false;
     auto& name = strings::genDefaultOptionsClassStr();
     util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", m_commsGenerator.genCurrentSchema().genMainNamespace()},
         {"CLASS_NAME", name},
         {"BODY", commsOptionsBodyInternal(m_commsGenerator, &CommsNamespace::commsDefaultOptions, false)},
-        {"EXTEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_commsGenerator) + strings::genExtendFileSuffixStr())},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_commsGenerator) + strings::genAppendFileSuffixStr())},
+        {"EXTEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForOptions(name, m_commsGenerator) + strings::genExtendFileSuffixStr(), "Extend class", &classExtended)},
+        {"APPEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForOptions(name, m_commsGenerator) + strings::genAppendFileSuffixStr(), "Append here")},
     };
 
-    if (!repl["EXTEND"].empty()) {
+    if (classExtended) {
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
@@ -248,15 +249,16 @@ bool CommsDefaultOptions::commsWriteClientDefaultOptionsInternal() const
 {
     util::GenReplacementMap repl = commsExtInitialRepl(m_commsGenerator);
     auto name = "Client" + strings::genDefaultOptionsClassStr();
+    bool classExtended = false;
     repl.insert({
         {"DESC", "client"},
         {"NAME", "Client"},
         {"BODY", commsOptionsBodyInternal(m_commsGenerator, &CommsNamespace::commsClientDefaultOptions, true)},
-        {"EXTEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_commsGenerator) + strings::genExtendFileSuffixStr())},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_commsGenerator) + strings::genAppendFileSuffixStr())},
+        {"EXTEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForOptions(name, m_commsGenerator) + strings::genExtendFileSuffixStr(), "Extend class", &classExtended)},
+        {"APPEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForOptions(name, m_commsGenerator) + strings::genAppendFileSuffixStr(), "Append here")},
     });
 
-    if (!repl["EXTEND"].empty()) {
+    if (classExtended) {
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
@@ -268,15 +270,16 @@ bool CommsDefaultOptions::commsWriteServerDefaultOptionsInternal() const
 {
     util::GenReplacementMap repl = commsExtInitialRepl(m_commsGenerator);
     auto name = "Server" + strings::genDefaultOptionsClassStr();
+    bool classExtended = false;
     repl.insert({
         {"DESC", "server"},
         {"NAME", "Server"},
         {"BODY", commsOptionsBodyInternal(m_commsGenerator, &CommsNamespace::commsServerDefaultOptions, true)},
-        {"EXTEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_commsGenerator) + strings::genExtendFileSuffixStr())},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_commsGenerator) + strings::genAppendFileSuffixStr())},
+        {"EXTEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForOptions(name, m_commsGenerator) + strings::genExtendFileSuffixStr(), "Extend class", &classExtended)},
+        {"APPEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForOptions(name, m_commsGenerator) + strings::genAppendFileSuffixStr(), "Append here")},
     });
 
-    if (!repl["EXTEND"].empty()) {
+    if (classExtended) {
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
@@ -288,15 +291,16 @@ bool CommsDefaultOptions::commsWriteDataViewDefaultOptionsInternal() const
 {
     util::GenReplacementMap repl = commsExtInitialRepl(m_commsGenerator);
     auto name = strings::genDataViewStr() + strings::genDefaultOptionsClassStr();
+    bool classExtended = false;
     repl.insert({
         {"DESC", "data view"},
         {"NAME", strings::genDataViewStr()},
         {"BODY", commsOptionsBodyInternal(m_commsGenerator, &CommsNamespace::commsDataViewDefaultOptions, true)},
-        {"EXTEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_commsGenerator) + strings::genExtendFileSuffixStr())},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_commsGenerator) + strings::genAppendFileSuffixStr())},
+        {"EXTEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForOptions(name, m_commsGenerator) + strings::genExtendFileSuffixStr(), "Extend class", &classExtended)},
+        {"APPEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForOptions(name, m_commsGenerator) + strings::genAppendFileSuffixStr(), "Append here")},
     });
 
-    if (!repl["EXTEND"].empty()) {
+    if (classExtended) {
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
@@ -315,16 +319,17 @@ bool CommsDefaultOptions::commsWriteBareMetalDefaultOptionsInternal() const
 
     util::GenReplacementMap repl = commsExtInitialRepl(m_commsGenerator);
     auto name = strings::genBareMetalStr() + strings::genDefaultOptionsClassStr();
+    bool classExtended = false;
     repl.insert({
         {"DESC", "bare metal"},
         {"NAME", strings::genBareMetalStr()},
         {"BODY", commsOptionsBodyInternal(m_commsGenerator, &CommsNamespace::commsBareMetalDefaultOptions, true)},
         {"EXTRA", std::move(extra)},
-        {"EXTEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_commsGenerator) + strings::genExtendFileSuffixStr())},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_commsGenerator) + strings::genAppendFileSuffixStr())},
+        {"EXTEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForOptions(name, m_commsGenerator) + strings::genExtendFileSuffixStr(), "Extend class", &classExtended)},
+        {"APPEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForOptions(name, m_commsGenerator) + strings::genAppendFileSuffixStr(), "Append here")},
     });
 
-    if (!repl["EXTEND"].empty()) {
+    if (classExtended) {
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
@@ -496,6 +501,7 @@ bool CommsDefaultOptions::commsWriteSingleMsgFactoryDefaultOptionsInternal(
 
     comms::genPrepareIncludeStatement(includes);
 
+    bool classExtended = false;
     util::GenReplacementMap repl = commsExtInitialRepl(m_commsGenerator);
     repl.insert({
         {"DESC", messagesDesc + " messages " + allocDesc + " allocation"},
@@ -503,11 +509,11 @@ bool CommsDefaultOptions::commsWriteSingleMsgFactoryDefaultOptionsInternal(
         {"MSG_FACTORIES", util::genStrListToString(allFactories, "\n", "\n")},
         {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
         {"BODY", commsOptionsBodyInternal(m_commsGenerator, &CommsNamespace::commsMsgFactoryDefaultOptions, true)},
-        {"EXTEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_commsGenerator) + strings::genExtendFileSuffixStr())},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForOptions(name, m_commsGenerator) + strings::genAppendFileSuffixStr())},
+        {"EXTEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForOptions(name, m_commsGenerator) + strings::genExtendFileSuffixStr(), "Extend class", &classExtended)},
+        {"APPEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForOptions(name, m_commsGenerator) + strings::genAppendFileSuffixStr(), "Append here")},
     });
 
-    if (!repl["EXTEND"].empty()) {
+    if (classExtended) {
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
