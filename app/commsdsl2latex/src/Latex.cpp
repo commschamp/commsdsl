@@ -66,8 +66,9 @@ bool Latex::latexWriteInternal()
 
     do {
         auto replaceFileName = latexDocTexFileName(m_latexGenerator) + strings::genReplaceFileSuffixStr();
-        auto replaceContents = util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(replaceFileName));
-        if (!replaceContents.empty()) {
+        bool hasReplace = false;
+        auto replaceContents = m_latexGenerator.genReadCodeInjectCode(replaceFileName, "Replace the whole file", &hasReplace);
+        if (hasReplace) {
             stream << replaceContents;
             break;
         }
@@ -93,11 +94,7 @@ bool Latex::latexWriteInternal()
             {"MACRO", latexMacroInternal()},
             {"CONTENTS", latexContentsInternal()},
             {"TITLE", latexTitleInternal()},
-        };
-
-        if (m_latexGenerator.latexHasCodeInjectionComments()) {
-            repl["REPLACE_COMMENT"] =
-                m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
+            {"REPLACE_COMMENT", std::move(replaceContents)},
         };
 
         auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
@@ -128,8 +125,9 @@ bool Latex::latexWriteCfgInternal()
 
     do {
         auto replaceFileName = docName + strings::genReplaceFileSuffixStr();
-        auto replaceContents = util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(replaceFileName));
-        if (!replaceContents.empty()) {
+        bool hasReplace = false;
+        auto replaceContents = m_latexGenerator.genReadCodeInjectCode(replaceFileName, "Replace the whole file", &hasReplace);
+        if (hasReplace) {
             stream << replaceContents;
             break;
         }
@@ -145,11 +143,7 @@ bool Latex::latexWriteCfgInternal()
 
         util::GenReplacementMap repl = {
             {"GEN_COMMENT", m_latexGenerator.latexFileGeneratedComment()},
-        };
-
-        if (m_latexGenerator.latexHasCodeInjectionComments()) {
-            repl["REPLACE_COMMENT"] =
-                m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
+            {"REPLACE_COMMENT", std::move(replaceContents)},
         };
 
         auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
@@ -168,8 +162,9 @@ bool Latex::latexWriteCfgInternal()
 std::string Latex::latexDocumentInternal() const
 {
     auto replaceFileName = latexDocTexFileName(m_latexGenerator) + strings::genDocumentFileSuffixStr();
-    auto replaceContents = util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(replaceFileName));
-    if (!replaceContents.empty()) {
+    bool hasReplace = false;
+    auto replaceContents = m_latexGenerator.genReadCodeInjectCode(replaceFileName, "Replace document class definition", &hasReplace);
+    if (hasReplace) {
         return replaceContents;
     }
 
@@ -178,10 +173,8 @@ std::string Latex::latexDocumentInternal() const
         "\\documentclass{article}\n"
     ;
 
-    util::GenReplacementMap repl;
-    if (m_latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] =
-            m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace document class definition with \"" + replaceFileName + "\".";
+    util::GenReplacementMap repl {
+        {"REPLACE_COMMENT", std::move(replaceContents)},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -190,8 +183,9 @@ std::string Latex::latexDocumentInternal() const
 std::string Latex::latexPackageInternal() const
 {
     auto replaceFileName = latexDocTexFileName(m_latexGenerator) + strings::genPackageFileSuffixStr();
-    auto replaceContents = util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(replaceFileName));
-    if (!replaceContents.empty()) {
+    bool hasReplace = false;
+    auto replaceContents = m_latexGenerator.genReadCodeInjectCode(replaceFileName, "Replace packages definition", &hasReplace);
+    if (hasReplace) {
         return replaceContents;
     }
 
@@ -212,16 +206,8 @@ std::string Latex::latexPackageInternal() const
 
     auto appendFileName = latexDocTexFileName(m_latexGenerator) + strings::genPackageAppendFileSuffixStr();
     util::GenReplacementMap repl = {
-        {"APPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(appendFileName))},
-    };
-
-    if (m_latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] =
-            m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace packages definition with \"" + replaceFileName + "\".";
-
-        if (repl["APPEND"].empty()) {
-            repl["APPEND"] = m_latexGenerator.latexCodeInjectCommentPrefix() + "Append packages definition with \"" + appendFileName + "\".";
-        }
+        {"REPLACE_COMMENT", std::move(replaceContents)},
+        {"APPEND", m_latexGenerator.genReadCodeInjectCode(appendFileName, "Append packages definition")},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -230,8 +216,9 @@ std::string Latex::latexPackageInternal() const
 std::string Latex::latexMacroInternal() const
 {
     auto replaceFileName = latexDocTexFileName(m_latexGenerator) + strings::genMacroFileSuffixStr();
-    auto replaceContents = util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(replaceFileName));
-    if (!replaceContents.empty()) {
+    bool hasReplace = false;
+    auto replaceContents = m_latexGenerator.genReadCodeInjectCode(replaceFileName, "Replace macros definition", &hasReplace);
+    if (hasReplace) {
         return replaceContents;
     }
 
@@ -254,16 +241,8 @@ std::string Latex::latexMacroInternal() const
 
     auto appendFileName = latexDocTexFileName(m_latexGenerator) + strings::genMacroAppendFileSuffixStr();
     util::GenReplacementMap repl = {
-        {"APPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(appendFileName))},
-    };
-
-    if (m_latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] =
-            m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace macros definition with \"" + replaceFileName + "\".";
-
-        if (repl["APPEND"].empty()) {
-            repl["APPEND"] = m_latexGenerator.latexCodeInjectCommentPrefix() + "Append macros definition with \"" + appendFileName + "\".";
-        }
+        {"REPLACE_COMMENT", std::move(replaceContents)},
+        {"APPEND", m_latexGenerator.genReadCodeInjectCode(appendFileName, "Append macros definition")},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -272,8 +251,9 @@ std::string Latex::latexMacroInternal() const
 std::string Latex::latexContentsInternal() const
 {
     auto replaceFileName = latexDocTexFileName(m_latexGenerator) + strings::genContentFileSuffixStr();
-    auto replaceContents = util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(replaceFileName));
-    if (!replaceContents.empty()) {
+    bool hasReplace = false;
+    auto replaceContents = m_latexGenerator.genReadCodeInjectCode(replaceFileName, "Replace document content", &hasReplace);
+    if (hasReplace) {
         return replaceContents;
     }
 
@@ -295,21 +275,10 @@ std::string Latex::latexContentsInternal() const
     auto prependFileName = latexDocTexFileName(m_latexGenerator) + strings::genContentPrependFileSuffixStr();
     auto appendFileName = latexDocTexFileName(m_latexGenerator) + strings::genContentAppendFileSuffixStr();
     util::GenReplacementMap repl = {
-        {"PREPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(prependFileName))},
-        {"APPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(appendFileName))},
         {"INPUTS", util::genStrListToString(schemaInputs, "\n", "")},
-    };
-
-    if (m_latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] =
-            m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace document content with \"" + replaceFileName + "\".";
-
-        if (repl["PREPEND"].empty()) {
-            repl["PREPEND"] = m_latexGenerator.latexCodeInjectCommentPrefix() + "Prepend generated content with \"" + prependFileName + "\".";
-        }
-        if (repl["APPEND"].empty()) {
-            repl["APPEND"] = m_latexGenerator.latexCodeInjectCommentPrefix() + "Append generated content with \"" + appendFileName + "\".";
-        }
+        {"REPLACE_COMMENT", std::move(replaceContents)},
+        {"PREPEND", m_latexGenerator.genReadCodeInjectCode(prependFileName, "Prepend generated content")},
+        {"APPEND", m_latexGenerator.genReadCodeInjectCode(appendFileName, "Append generated content")},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -318,8 +287,9 @@ std::string Latex::latexContentsInternal() const
 std::string Latex::latexTitleInternal() const
 {
     auto replaceFileName = latexDocTexFileName(m_latexGenerator) + strings::genTitleFileSuffixStr();
-    auto replaceContents = util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(replaceFileName));
-    if (!replaceContents.empty()) {
+    bool hasReplace = false;
+    auto replaceContents = m_latexGenerator.genReadCodeInjectCode(replaceFileName, "Replace title (whole section)", &hasReplace);
+    if (hasReplace) {
         return replaceContents;
     }
 
@@ -339,16 +309,8 @@ std::string Latex::latexTitleInternal() const
     auto appendFileName = latexDocTexFileName(m_latexGenerator) + strings::genTitleAppendFileSuffixStr();
     util::GenReplacementMap repl = {
         {"TITLE", std::move(title)},
-        {"APPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(appendFileName))},
-    };
-
-    if (m_latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] =
-            m_latexGenerator.latexCodeInjectCommentPrefix() + "Replace title (whole section) with \"" + replaceFileName + "\".";
-
-        if (repl["APPEND"].empty()) {
-            repl["APPEND"] = m_latexGenerator.latexCodeInjectCommentPrefix() + "Append to title info with \"" + appendFileName + "\".";
-        }
+        {"REPLACE_COMMENT", std::move(replaceContents)},
+        {"APPEND", m_latexGenerator.genReadCodeInjectCode(appendFileName, "Append to title info")},
     };
 
     return util::genProcessTemplate(Templ, repl);

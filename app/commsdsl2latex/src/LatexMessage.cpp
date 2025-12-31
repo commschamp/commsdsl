@@ -109,8 +109,9 @@ bool LatexMessage::genWriteImpl() const
 
     do {
         auto replaceFileName = relFilePath + strings::genReplaceFileSuffixStr();
-        auto replaceContents = util::genReadFileContents(latexGenerator.latexInputCodePathForFile(replaceFileName));
-        if (!replaceContents.empty()) {
+        bool hasReplace = false;
+        auto replaceContents = latexGenerator.genReadCodeInjectCode(replaceFileName, "Replace the whole file", &hasReplace);
+        if (hasReplace) {
             stream << replaceContents;
             break;
         }
@@ -134,10 +135,11 @@ bool LatexMessage::genWriteImpl() const
             {"SECTION", latexSection()},
             {"LABEL", "\\label{" + LatexGenerator::latexLabelId(*this) + '}'},
             {"DESCRIPTION", util::genStrMakeMultiline(LatexGenerator::latexEscString(genParseObj().parseDescription()))},
-            {"PREPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(prependFileName))},
-            {"APPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(appendFileName))},
             {"INFO", latexInfoDetails()},
             {"FIELDS_SUMMARY", latexFields()},
+            {"REPLACE_COMMENT", std::move(replaceContents)},
+            {"PREPEND", latexGenerator.genReadCodeInjectCode(prependFileName, "Prepend to details")},
+            {"APPEND", latexGenerator.genReadCodeInjectCode(appendFileName, "Append to file")},
         };
 
         LatexGenerator::latexEnsureNewLineBreak(repl["DESCRIPTION"]);
@@ -146,19 +148,6 @@ bool LatexMessage::genWriteImpl() const
                 LatexGenerator::latexSchemaCommentPrefix() +
                     "Use \"" + strings::genDescriptionStr() + "\" DSL element property to introduce description";
         }
-
-        if (latexGenerator.latexHasCodeInjectionComments()) {
-            repl["REPLACE_COMMENT"] =
-                latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
-
-            if (repl["PREPEND"].empty()) {
-                repl["PREPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Prepend to details with \"" + prependFileName + "\".";
-            }
-
-            if (repl["APPEND"].empty()) {
-                repl["APPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Append to file with \"" + appendFileName + "\".";
-            }
-        };
 
         stream << util::genProcessTemplate(Templ, repl, true) << std::endl;
     } while (false);
@@ -181,19 +170,16 @@ std::string LatexMessage::latexSection() const
 
     auto& latexGenerator = LatexGenerator::latexCast(genGenerator());
     auto titleFileName = latexRelFilePath() + strings::genTitleFileSuffixStr();
+    bool hasTitle = false;
     util::GenReplacementMap repl = {
         {"SECTION", LatexGenerator::latexSectionDirective(*this)},
-        {"TITLE", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(titleFileName))},
+        {"TITLE", latexGenerator.genReadCodeInjectCode(titleFileName, "Replace the title value", &hasTitle)},
     };
 
-    if (repl["TITLE"].empty()) {
+    if (!hasTitle) {
+        repl["REPLACE_COMMENT"] = std::move(repl["TITLE"]);
         repl["TITLE"] = latexTitle();
     }
-
-    if (latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] =
-            latexGenerator.latexCodeInjectCommentPrefix() + "Replace the title value with contents of \"" + titleFileName + "\".";
-    };
 
     return util::genProcessTemplate(Templ, repl);
 }

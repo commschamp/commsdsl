@@ -565,8 +565,9 @@ bool LatexField::latexWrite() const
 
     do {
         auto replaceFileName = latexRelFilePath() + strings::genReplaceFileSuffixStr();
-        auto replaceContents = util::genReadFileContents(latexGenerator.latexInputCodePathForFile(replaceFileName));
-        if (!replaceContents.empty()) {
+        bool hasReplace = false;
+        auto replaceContents = latexGenerator.genReadCodeInjectCode(replaceFileName, "Replace the whole file", &hasReplace);
+        if (hasReplace) {
             stream << replaceContents;
             break;
         }
@@ -579,11 +580,7 @@ bool LatexField::latexWrite() const
         util::GenReplacementMap repl = {
             {"GENERATED", LatexGenerator::latexFileGeneratedComment()},
             {"DOC", latexDoc()},
-        };
-
-        if (latexGenerator.latexHasCodeInjectionComments()) {
-            repl["REPLACE_COMMENT"] =
-                latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
+            {"REPLACE_COMMENT", std::move(replaceContents)},
         };
 
         stream << util::genProcessTemplate(Templ, repl, true) << std::endl;
@@ -610,18 +607,14 @@ std::string LatexField::latexSection() const
         {"SECTION", LatexGenerator::latexSectionDirective(m_genField)},
     };
 
+    bool hasTitle = false;
     if (comms::genIsGlobalField(m_genField)) {
         auto titleFileName = latexRelFilePath() + strings::genTitleFileSuffixStr();
-        repl["TITLE"] = util::genReadFileContents(latexGenerator.latexInputCodePathForFile(titleFileName));
-
-        if (latexGenerator.latexHasCodeInjectionComments()) {
-            repl["REPLACE_COMMENT"] =
-                latexGenerator.latexCodeInjectCommentPrefix() + "Replace the title value with contents of \"" + titleFileName + "\".";
-        };
-
+        repl["TITLE"] = latexGenerator.genReadCodeInjectCode(titleFileName, "Replace the title value", &hasTitle);
     }
 
-    if (repl["TITLE"].empty()) {
+    if (!hasTitle) {
+        repl["REPLACE_COMMENT"] = std::move(repl["TITLE"]);
         repl["TITLE"] = latexTitle();
     }
 
@@ -706,21 +699,8 @@ std::string LatexField::latexDocImpl() const
         auto prependFileName = relFilePath + strings::genPrependFileSuffixStr();
         auto appendFileName = relFilePath + strings::genAppendFileSuffixStr();
 
-        repl["PREPEND"] = util::genReadFileContents(latexGenerator.latexInputCodePathForFile(appendFileName));
-        repl["APPEND"] = util::genReadFileContents(latexGenerator.latexInputCodePathForFile(prependFileName));
-
-        if (!latexGenerator.latexHasCodeInjectionComments()) {
-            break;
-        };
-
-        if (repl["PREPEND"].empty()) {
-            repl["PREPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Prepend to details with \"" + prependFileName + "\".";
-        }
-
-        if (repl["APPEND"].empty()) {
-            repl["APPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Append to file with \"" + appendFileName + "\".";
-        }
-
+        repl["PREPEND"] = latexGenerator.genReadCodeInjectCode(prependFileName, "Prepend to details");
+        repl["APPEND"] = latexGenerator.genReadCodeInjectCode(appendFileName, "Append to file");
     } while (false);
 
     return util::genProcessTemplate(Templ, repl);

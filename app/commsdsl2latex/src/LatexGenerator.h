@@ -35,7 +35,6 @@ public:
     using GenFieldPtr = commsdsl::gen::GenFieldPtr;
 
     static const std::string& latexFileGeneratedComment();
-    static const std::string& latexCodeInjectCommentPrefix();
     static const std::string& latexSchemaCommentPrefix();
     static std::string latexWrapInput(const std::string& filePath);
     static void latexWrapInputInPlace(std::string& filePath);
@@ -61,11 +60,6 @@ public:
 
     std::string latexInputCodePathForFile(const std::string& name) const;
 
-    bool latexHasCodeInjectionComments() const
-    {
-        return m_hasCodeInjectionComments;
-    }
-
 protected:
     virtual bool genWriteImpl() override;
 
@@ -87,12 +81,10 @@ protected:
     virtual GenFieldPtr genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent) override;
     virtual GenFieldPtr genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent) override;
 
-    virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
+    virtual const std::string& genCommentPrefixImpl() const override;
 
 private:
     bool latexWriteExtraFilesInternal() const;
-
-    bool m_hasCodeInjectionComments = false;
 };
 
 } // namespace commsdsl2latex

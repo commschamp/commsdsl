@@ -139,12 +139,6 @@ const std::string& LatexGenerator::latexFileGeneratedComment()
     return Str;
 }
 
-const std::string& LatexGenerator::latexCodeInjectCommentPrefix()
-{
-    static const std::string Str = "% [CODE INJECT]: ";
-    return Str;
-}
-
 const std::string& LatexGenerator::latexSchemaCommentPrefix()
 {
     static const std::string Str = "% [SCHEMA]: ";
@@ -371,14 +365,6 @@ LatexGenerator::GenFieldPtr LatexGenerator::genCreateVariantFieldImpl(ParseField
     return std::make_unique<LatexVariantField>(*this, parseObj, parent);
 }
 
-LatexGenerator::OptsProcessResult LatexGenerator::genProcessOptionsImpl(const GenProgramOptions& options)
-{
-    auto& opts = LatexProgramOptions::latexCast(options);
-    m_hasCodeInjectionComments = opts.latexCodeInjectCommentsRequested();
-
-    return OptsProcessResult_Continue;
-}
-
 bool LatexGenerator::latexWriteExtraFilesInternal() const
 {
     const std::vector<std::string> ReservedExt = {
@@ -400,6 +386,12 @@ bool LatexGenerator::latexWriteExtraFilesInternal() const
     };
 
     return genCopyExtraSourceFiles(ReservedExt);
+}
+
+const std::string& LatexGenerator::genCommentPrefixImpl() const
+{
+    static const std::string Str = "% ";
+    return Str;
 }
 
 } // namespace commsdsl2latex
