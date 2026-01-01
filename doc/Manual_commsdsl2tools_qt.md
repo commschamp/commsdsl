@@ -51,6 +51,14 @@ purpose `-c` option with path to directory containing custom code snippets is us
 ```
 $> /path/to/commsdsl2tools_qt -c /path/to/custom/code/snippets schema.xml
 ```
+
+In order to see what code injection elements are available using what files, temporarily use `--code-inject-comments`
+command line option and review the generated files. The generated code will be populated with
+`// [CODE INJECT]: ` comment lines indicating places where code injection is possible.
+```
+$> /path/to/commsdsl2tools_qt --code-inject-comments ...
+```
+
 Please read [Custom Code](#custom-code) section below for more details on
 how to format and where to place the custom code.
 
