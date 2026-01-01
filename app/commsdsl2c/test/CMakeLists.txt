@@ -162,6 +162,9 @@ foreach (name ${tests})
 
     add_dependencies(${APP_NAME}.all_tests ${build_tgt})
 
+    execute_process (
+        COMMAND ${CMAKE_COMMAND} -E rm -f "${output_dir}/dummy.txt")
+
     if (NOT EXISTS ${this_test_dir}/${name}Test.th)
         continue()
     endif ()

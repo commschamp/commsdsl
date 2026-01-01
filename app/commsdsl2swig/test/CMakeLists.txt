@@ -107,4 +107,7 @@ foreach (name ${tests})
             include (${update_inc})
         endif ()
     endforeach()
+
+    execute_process (
+        COMMAND ${CMAKE_COMMAND} -E rm -f "${output_dir}/dummy.txt")
 endforeach ()

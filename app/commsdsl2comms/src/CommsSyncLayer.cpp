@@ -49,7 +49,6 @@ bool CommsSyncLayer::genPrepareImpl()
 
     commsSetForcedFailOnInvalidField();
     return true;
-
 }
 
 CommsSyncLayer::CommsIncludesList CommsSyncLayer::commsCommonIncludesImpl() const

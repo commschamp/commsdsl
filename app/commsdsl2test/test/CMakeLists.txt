@@ -92,4 +92,6 @@ foreach (name ${tests})
 
     add_dependencies(${APP_NAME}.all_tests ${build_tgt})
 
+    execute_process (
+        COMMAND ${CMAKE_COMMAND} -E rm -f "${output_dir}/dummy.txt")
 endforeach ()

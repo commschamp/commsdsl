@@ -114,4 +114,7 @@ foreach (name ${tests})
         set_property(TEST ${APP_NAME}.${name} PROPERTY ENVIRONMENT "NODE_PATH=${install_dir}/js")
     endif ()
 
+    execute_process (
+        COMMAND ${CMAKE_COMMAND} -E rm -f "${output_dir}/dummy.txt")
+
 endforeach ()
