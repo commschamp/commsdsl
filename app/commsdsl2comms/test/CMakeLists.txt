@@ -70,10 +70,16 @@ function (test_func name)
     )
 
     if (COMMSDSL_TEST_BUILD_DOC AND DOXYGEN_FOUND)
+        set (doc_tgt "doc_${name}")
+        if (EXISTS "${test_dir}/doc.tgt")
+            file (READ "${test_dir}/doc.tgt" doc_tgt_tmp)
+            string (STRIP "${doc_tgt_tmp}" doc_tgt)
+        endif()
+
         ExternalProject_Add_Step(
             ${build_tgt}
             "doc"
-            COMMAND ${CMAKE_COMMAND} --build ${build_dir} --target doc_${name}
+            COMMAND ${CMAKE_COMMAND} --build ${build_dir} --target ${doc_tgt}
             DEPENDEES "build"
             DEPENDERS "install"
         )
