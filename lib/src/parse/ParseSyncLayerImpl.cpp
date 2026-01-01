@@ -69,6 +69,10 @@ bool ParseSyncLayerImpl::parseImpl()
 
 bool ParseSyncLayerImpl::parseVerifyImpl(const ParseLayersList& layers)
 {
+    if (!parseProtocol().parseIsSyncSuffixLayerSupported()) {
+        return Base::parseVerifyImpl(layers);
+    }
+
     auto thisIdx = parseFindThisLayerIndex(layers);
     assert(thisIdx < layers.size());
 

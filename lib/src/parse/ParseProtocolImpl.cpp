@@ -360,8 +360,8 @@ bool ParseProtocolImpl::parseIsPropertySupported(const std::string& name) const
         {common::parseCopyConstructFromStr(), 7U},
         {common::parseCopyReadCondFromStr(), 7U},
         {common::parseCopyValidCondFromStr(), 7U},
-        {common::parseSeekFieldStr(), 7U},
-        {common::parseEscFieldStr(), 7U},
+        {common::parseSeekFieldStr(), 8U},
+        {common::parseEscFieldStr(), 8U},
     };
 
     auto iter = Map.find(name);
@@ -502,7 +502,7 @@ bool ParseProtocolImpl::parseIsLayerDisplayNameSupported() const
 
 bool ParseProtocolImpl::parseIsSyncSuffixLayerSupported() const
 {
-    return parseIsFeatureSupported(7U);
+    return parseIsFeatureSupported(8U);
 }
 
 void ParseProtocolImpl::parseCbXmlErrorFunc(void* userData, const xmlError* err)
