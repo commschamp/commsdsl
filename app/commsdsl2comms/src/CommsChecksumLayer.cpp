@@ -171,7 +171,7 @@ std::string CommsChecksumLayer::commsDefExtraOptInternal() const
 {
     std::string result;
     if (genChecksumDslObj().parseVerifyBeforeRead()) {
-        result = "comms::option::def::ChecksumLayerVerifyBeforeRead";
+        result = "comms::option::def::FrameLayerVerifyBeforeRead";
     }
     return result;
 }
