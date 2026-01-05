@@ -231,24 +231,44 @@ std::string CGenerator::cAbsPathForDoc(const std::string& name) const
     return genGetOutputDir() + '/' + cRelPathForDoc(name);
 }
 
+std::string CGenerator::cInputRelHeaderFor(const GenElem& elem) const
+{
+    return strings::genIncludeDirStr() + '/' + cRelHeaderFor(elem);
+}
+
 std::string CGenerator::cInputAbsHeaderFor(const GenElem& elem) const
 {
-    return genGetCodeDir() + '/' + strings::genIncludeDirStr() + '/' + cRelHeaderFor(elem);
+    return genGetCodeDir() + '/' + cInputRelHeaderFor(elem);
+}
+
+std::string CGenerator::cInputRelSourceFor(const GenElem& elem) const
+{
+    return cRelSourceFor(elem);
 }
 
 std::string CGenerator::cInputAbsSourceFor(const GenElem& elem) const
 {
-    return genGetCodeDir() + '/' + cRelSourceFor(elem);
+    return genGetCodeDir() + '/' + cInputRelSourceFor(elem);
+}
+
+std::string CGenerator::cInputRelPathForDoc(const std::string& name) const
+{
+    return cRelPathForDoc(name);
 }
 
 std::string CGenerator::cInputAbsPathForDoc(const std::string& name) const
 {
-    return genGetCodeDir() + '/' + cRelPathForDoc(name);
+    return genGetCodeDir() + '/' + cInputRelPathForDoc(name);
+}
+
+std::string CGenerator::cInputRelRootHeaderFor(const std::string& name) const
+{
+    return strings::genIncludeDirStr() + '/' + cRelRootHeaderFor(name);
 }
 
 std::string CGenerator::cInputAbsRootHeaderFor(const std::string& name) const
 {
-    return genGetCodeDir() + '/' + cRelRootHeaderFor(name);
+    return genGetCodeDir() + '/' + cInputRelRootHeaderFor(name);
 }
 
 std::string CGenerator::cNameFor(const GenElem& elem) const

@@ -84,7 +84,7 @@ foreach (name ${tests})
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
     add_custom_target(${output_tgt} ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
-        COMMAND $<TARGET_FILE:${APP_NAME}> -d -s --warn-as-err ${code_input_param} ${msgs_params} ${extra_params} -o ${output_dir}.tmp ${schema_files}
+        COMMAND $<TARGET_FILE:${APP_NAME}> -d -s --warn-as-err --code-inject-comments ${code_input_param} ${msgs_params} ${extra_params} -o ${output_dir}.tmp ${schema_files}
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="."
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
@@ -145,16 +145,25 @@ foreach (name ${tests})
     )
 
     if (COMMSDSL_TEST_BUILD_DOC AND DOXYGEN_FOUND)
+        set (doc_tgt "doc_${name}_c")
+        if (EXISTS "${this_test_dir}/doc.tgt")
+            file (READ "${this_test_dir}/doc.tgt" doc_tgt_tmp)
+            string (STRIP "${doc_tgt_tmp}" doc_tgt)
+        endif()
+
         ExternalProject_Add_Step(
             ${build_tgt}
             "doc"
-            COMMAND ${CMAKE_COMMAND} --build ${build_dir} --target doc_${name}_c
+            COMMAND ${CMAKE_COMMAND} --build ${build_dir} --target ${doc_tgt}
             DEPENDEES "build"
             DEPENDERS "install"
         )
     endif ()
 
     add_dependencies(${APP_NAME}.all_tests ${build_tgt})
+
+    execute_process (
+        COMMAND ${CMAKE_COMMAND} -E rm -f "${output_dir}/dummy.txt")
 
     if (NOT EXISTS ${this_test_dir}/${name}Test.th)
         continue()

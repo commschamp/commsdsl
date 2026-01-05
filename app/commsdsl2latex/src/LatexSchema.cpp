@@ -89,8 +89,9 @@ bool LatexSchema::genWriteImpl()
 
     do {
         auto replaceFileName = latexRelFilePath() + strings::genReplaceFileSuffixStr();
-        auto replaceContents = util::genReadFileContents(latexGenerator.latexInputCodePathForFile(replaceFileName));
-        if (!replaceContents.empty()) {
+        bool hasReplace = false;
+        auto replaceContents = latexGenerator.genReadCodeInjectCode(replaceFileName, "Replace the whole file", &hasReplace);
+        if (hasReplace) {
             stream << replaceContents;
             break;
         }
@@ -113,21 +114,9 @@ bool LatexSchema::genWriteImpl()
         util::GenReplacementMap repl = {
             {"GENERATED", LatexGenerator::latexFileGeneratedComment()},
             {"INPUTS", latexNamespaceInputs()},
-            {"PREPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(prependFileName))},
-            {"APPEND", util::genReadFileContents(latexGenerator.latexInputCodePathForFile(appendFileName))},
-        };
-
-        if (latexGenerator.latexHasCodeInjectionComments()) {
-            repl["REPLACE_COMMENT"] =
-                latexGenerator.latexCodeInjectCommentPrefix() + "Replace the whole file with \"" + replaceFileName + "\".";
-
-            if (repl["PREPEND"].empty()) {
-                repl["PREPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Prepend the details with \"" + prependFileName + "\".";
-            }
-
-            if (repl["APPEND"].empty()) {
-                repl["APPEND"] = latexGenerator.latexCodeInjectCommentPrefix() + "Append to file with \"" + appendFileName + "\".";
-            }
+            {"REPLACE_COMMENT", std::move(replaceContents)},
+            {"PREPEND", latexGenerator.genReadCodeInjectCode(prependFileName, "Prepend to details")},
+            {"APPEND", latexGenerator.genReadCodeInjectCode(appendFileName, "Append to file")},
         };
 
         auto title = latexTitle();

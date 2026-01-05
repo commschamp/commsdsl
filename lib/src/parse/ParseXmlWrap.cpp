@@ -171,6 +171,10 @@ bool ParseXmlWrap::parseChildrenAsProps(
     ParsePropsMap& result,
     bool mustHaveValue)
 {
+    if (names.empty()) {
+        return true;
+    }
+
     auto children = parseGetChildren(node);
     for (auto* c : children) {
         std::string cName(reinterpret_cast<const char*>(c->name));

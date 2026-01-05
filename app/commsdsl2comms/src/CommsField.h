@@ -146,9 +146,11 @@ protected:
 
 private:
     using CommsExtraFieldOptsFunc = GenStringsList (CommsField::*)() const;
+    using CommsCustomCodeFunc = std::string (CommsField::*)(bool& hasCode) const;
 
     struct CommsCustomCode
     {
+        std::string m_constructBody;
         std::string m_value;
         std::string m_read;
         std::string m_write;
@@ -160,8 +162,30 @@ private:
         std::string m_public;
         std::string m_protected;
         std::string m_private;
-        std::string m_extend;
         std::string m_append;
+
+        bool m_hasConstructBody = false;
+        bool m_hasValue = false;
+        bool m_hasRead = false;
+        bool m_hasWrite = false;
+        bool m_hasRefresh = false;
+        bool m_hasLength = false;
+        bool m_hasValid = false;
+        bool m_hasName = false;
+        bool m_hasInc = false;
+        bool m_hasPublic = false;
+        bool m_hasProtected = false;
+        bool m_hasPrivate = false;
+        bool m_hasAppend = false;
+    };
+
+    struct CommsExtraCustomCode
+    {
+        std::string m_construct;
+        std::string m_extend;
+
+        bool m_hasConstruct = false;
+        bool m_hasExtend = false;
     };
 
     using CommsBodyCustomCodeFunc = std::string (*)(const std::string& codePathPrefix);
@@ -169,17 +193,17 @@ private:
     bool commsCopyCodeFromInternal();
     bool commsPrepareOverrideInternal(
         commsdsl::parse::ParseOverrideType type,
-        std::string& codePathPrefix,
-        const std::string& suffix,
-        std::string& customCode,
         const std::string& name,
-        CommsBodyCustomCodeFunc bodyFunc = nullptr);
-    static std::string commsPrepareCustomReadFromBodyInternal(const std::string& codePathPrefix);
-    static std::string commsPrepareCustomWriteFromBodyInternal(const std::string& codePathPrefix);
-    static std::string commsPrepareCustomRefreshFromBodyInternal(const std::string& codePathPrefix);
-    static std::string commsPrepareCustomLengthFromBodyInternal(const std::string& codePathPrefix);
-    static std::string commsPrepareCustomValidFromBodyInternal(const std::string& codePathPrefix);
-    static std::string commsPrepareCustomNameFromBodyInternal(const std::string& codePathPrefix);
+        CommsCustomCodeFunc codeFunc,
+        std::string& code,
+        bool* hasCode);
+    std::string commsCustomValueCodeInternal(bool& hasRealCode) const;
+    std::string commsCustomReadCodeInternal(bool& hasRealCode) const;
+    std::string commsCustomWriteCodeInternal(bool& hasRealCode) const;
+    std::string commsCustomRefreshCodeInternal(bool& hasRealCode) const;
+    std::string commsCustomLengthCodeInternal(bool& hasRealCode) const;
+    std::string commsCustomValidCodeInternal(bool& hasRealCode) const;
+    std::string commsCustomNameCodeInternal(bool& hasRealCode) const;
     bool commsWriteCommonInternal() const;
     bool commsWriteDefInternal() const;
     std::string commsFieldDefCodeInternal() const;
@@ -213,7 +237,7 @@ private:
 
     GenField& m_genField;
     CommsCustomCode m_customCode;
-    std::string m_customConstruct;
+    CommsExtraCustomCode m_extraCustomCode;
     bool m_forcedFailOnInvalid = false;
     bool m_forcedPseudo = false;
 };

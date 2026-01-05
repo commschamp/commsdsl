@@ -75,6 +75,7 @@ const std::string& genPrependFileSuffixStr();
 const std::string& genPrependLangFileSuffixStr();
 const std::string& genBindFileSuffixStr();
 const std::string& genConstructFileSuffixStr();
+const std::string& genConstructBodyFileSuffixStr();
 const std::string& genSourcesFileSuffixStr();
 const std::string& genForceEmptyDisplayNameStr();
 const std::string& genFieldBaseClassStr();

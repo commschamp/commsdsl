@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema9_2">
+    <fields>
+        <int name="F1" type="uint16" />
+    </fields>
+</schema>

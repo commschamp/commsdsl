@@ -112,6 +112,9 @@ public:
     void genSetVersionIndependentCodeForced(bool value = true);
     bool genGetVersionIndependentCodeForced() const;
 
+    void genSetCodeInjectCommentsRequested(bool value = true);
+    bool genGetCodeInjectCommentsRequested() const;
+
     const GenField* genFindField(const std::string& externalRef) const;
     GenField* genFindField(const std::string& externalRef);
     const GenMessage* genGindMessage(const std::string& externalRef) const;
@@ -202,6 +205,17 @@ public:
 
     OptsProcessResult genProcessOptions(const GenProgramOptions& options);
 
+    std::string genReadCodeInjectCode(
+        const std::string& relPath,
+        const std::string& comment,
+        bool* realCodeInjected = nullptr,
+        const std::string& forcedCommentPrefix = std::string()) const;
+
+    std::string genReadScriptCodeInjectCode(
+        const std::string& relPath,
+        const std::string& comment,
+        bool* realCodeInjected = nullptr) const;
+
 protected:
     virtual bool genCreateCompleteImpl();
     virtual bool genPrepareImpl();
@@ -237,6 +251,8 @@ protected:
     virtual GenLoggerPtr genCreateLoggerImpl();
 
     virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options);
+
+    virtual const std::string& genCommentPrefixImpl() const;
 
     GenNamespace* genAddDefaultNamespace();
 

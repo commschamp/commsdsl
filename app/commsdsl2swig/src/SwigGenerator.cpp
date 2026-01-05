@@ -77,12 +77,17 @@ const std::string& SwigGenerator::swigFileGeneratedComment()
     return Str;
 }
 
-std::string SwigGenerator::swigInputCodePathFor(const commsdsl::gen::GenElem& elem) const
+std::string SwigGenerator::swigInputCodeRelPathFor(const commsdsl::gen::GenElem& elem) const
 {
-    return genGetCodeDir() + '/' + strings::genIncludeDirStr() + '/' + comms::genRelHeaderPathFor(elem, *this);
+    return strings::genIncludeDirStr() + '/' + comms::genRelHeaderPathFor(elem, *this);
 }
 
-std::string SwigGenerator::swigInputCodePathForFile(const std::string& name) const
+std::string SwigGenerator::swigInputCodeAbsPathFor(const commsdsl::gen::GenElem& elem) const
+{
+    return genGetCodeDir() + '/' + swigInputCodeRelPathFor(elem);
+}
+
+std::string SwigGenerator::swigInputCodeAbsPathForFile(const std::string& name) const
 {
     return genGetCodeDir() + '/' + name;
 }

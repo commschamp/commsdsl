@@ -313,6 +313,12 @@ const std::string& genConstructFileSuffixStr()
     return Str;
 }
 
+const std::string& genConstructBodyFileSuffixStr()
+{
+    static const std::string Str(".construct_body");
+    return Str;
+}
+
 const std::string& genSourcesFileSuffixStr()
 {
     static const std::string Str(".sources");

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test57" endian="big">
+    <description>
+        Testing sync suffix with verifyBeforeRead property
+    </description>
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="0" />
+            <validValue name="M2" val="1" />
+        </enum>
+    </fields>
+
+    <message name="Msg1" id="MsgId.M1">
+        <data name="F1" />
+    </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <string name="F1" />
+    </message>
+
+    <frame name="Frame">
+        <sync name="Prefix">
+            <int name="PrefixField" type="uint16" defaultValue="0x3d3d" />
+        </sync>
+        <size name="Size">
+            <int name="SizeField" type="uint16" />
+        </size>
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+        <sync name="Suffix" verifyBeforeRead="true" from="Id">
+            <int name="SuffixField" type="uint16" defaultValue="0x4040" />
+        </sync>
+    </frame>
+</schema>

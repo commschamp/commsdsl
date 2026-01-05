@@ -214,9 +214,10 @@ bool CommsFrame::commsWriteDefInternal() const
         return false;
     }
 
-    auto inputCodePrefix = comms::genInputCodePathFor(*this, gen);
-    auto replaceCode = util::genReadFileContents(inputCodePrefix + strings::genReplaceFileSuffixStr());
-    if (!replaceCode.empty()) {
+    auto inputRelPath = comms::genInputCodeRelPathFor(*this, gen);
+    bool codeReplaced = false;
+    auto replaceCode = genGenerator().genReadCodeInjectCode(inputRelPath + strings::genReplaceFileSuffixStr(), "Replace the whole file", &codeReplaced);
+    if (codeReplaced) {
         stream << replaceCode;
         stream.flush();
         return stream.good();
@@ -224,6 +225,7 @@ bool CommsFrame::commsWriteDefInternal() const
 
     static const std::string Templ =
         "#^#GENERATED#$#\n"
+        "#^#REPLACE#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of <b>\"#^#CLASS_NAME#$#\"</b> frame class.\n"
         "\n"
@@ -274,9 +276,10 @@ bool CommsFrame::commsWriteDefInternal() const
         "#^#NS_END#$#\n"
         "#^#APPEND#$#\n";
 
-    auto extendCode = util::genReadFileContents(inputCodePrefix + strings::genExtendFileSuffixStr());
+    bool classExtended = false;
     util::GenReplacementMap repl =  {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
+        {"REPLACE", std::move(replaceCode)},
         {"INCLUDES", commsDefIncludesInternal()},
         {"NS_BEGIN", comms::genNamespaceBeginFor(*this, gen)},
         {"NS_END", comms::genNamespaceEndFor(*this, gen)},
@@ -289,14 +292,14 @@ bool CommsFrame::commsWriteDefInternal() const
         {"INPUT_MESSAGES", commsDefInputMessagesParamInternal()},
         {"ACCESS_FUNCS_DOC", commsDefAccessDocInternal()},
         {"LAYERS_ACCESS_LIST", commsDefAccessListInternal()},
-        {"PUBLIC", util::genReadFileContents(inputCodePrefix + strings::genPublicFileSuffixStr())},
+        {"PUBLIC", gen.genReadCodeInjectCode(inputRelPath + strings::genPublicFileSuffixStr(), "Add public code")},
         {"PROTECTED", commsDefProtectedInternal()},
         {"PRIVATE", commsDefPrivateInternal()},
-        {"EXTEND", extendCode},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathFor(*this, gen) + strings::genAppendFileSuffixStr())}
+        {"EXTEND", gen.genReadCodeInjectCode(inputRelPath + strings::genExtendFileSuffixStr(), "Extend class", &classExtended)},
+        {"APPEND", gen.genReadCodeInjectCode(inputRelPath + strings::genAppendFileSuffixStr(), "Append here")},
     };
 
-    if (!extendCode.empty()) {
+    if (classExtended) {
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
@@ -462,7 +465,7 @@ std::string CommsFrame::commsDefAccessListInternal() const
 
 std::string CommsFrame::commsDefProtectedInternal() const
 {
-    auto code = util::genReadFileContents(comms::genInputCodePathFor(*this, genGenerator()) + strings::genProtectedFileSuffixStr());
+    auto code = genGenerator().genReadCodeInjectCode(comms::genInputCodeRelPathFor(*this, genGenerator()) + strings::genProtectedFileSuffixStr(), "Add protected code");
     if (code.empty()) {
         return strings::genEmptyString();
     }
@@ -479,7 +482,7 @@ std::string CommsFrame::commsDefProtectedInternal() const
 
 std::string CommsFrame::commsDefPrivateInternal() const
 {
-    auto code = util::genReadFileContents(comms::genInputCodePathFor(*this, genGenerator()) + strings::genPrivateFileSuffixStr());
+    auto code = genGenerator().genReadCodeInjectCode(comms::genInputCodeRelPathFor(*this, genGenerator()) + strings::genPrivateFileSuffixStr(), "Add private code");
     if (code.empty()) {
         return strings::genEmptyString();
     }

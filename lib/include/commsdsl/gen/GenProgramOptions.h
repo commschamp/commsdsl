@@ -66,6 +66,7 @@ public:
     unsigned genGetMinRemoteVersion() const;
     bool genHasForcedSchemaVersion() const;
     unsigned genGetForcedSchemaVersion() const;
+    bool genCodeInjectComments() const;
     const std::string& genGetCodeVersion() const;
     const std::string& genMessagesListFile() const;
     const std::string& genForcedPlatform() const;

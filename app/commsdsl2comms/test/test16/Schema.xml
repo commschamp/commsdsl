@@ -4,6 +4,7 @@
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
+            <validValue name="M3" val="3" />
         </enum>
 
         <int name="DataCount" type="uint8" />
@@ -44,11 +45,15 @@
         <ref name="f1" field="L1" />
         <ref name="f2" field="L2" />
         <ref name="f3" field="L3" />
-        <list name="f4" reuse="L3" elemLengthPrefix="DataCount" elemFixedLength="true" sinceVersion="2" />
+        <list name="f4" reuse="L3" elemLengthPrefix="DataCount" elemFixedLength="true" sinceVersion="4" />
     </message>
 
     <message name="Msg2" id="MsgId.M2">
         <ref name="f1" field="L4" />
+    </message>
+
+    <message name="Msg3" id="MsgId.M3">
+        <int name="F1" type="uint16" sinceVersion="2" />
     </message>
 
     <frame name="Frame">

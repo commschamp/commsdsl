@@ -35,8 +35,6 @@ public:
     {
         return static_cast<const LatexProgramOptions&>(options);
     }
-
-    bool latexCodeInjectCommentsRequested() const;
 };
 
 } // namespace commsdsl2latex

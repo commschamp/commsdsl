@@ -85,7 +85,7 @@ bool CommsVersion::commsWriteInternal() const
         {"COMMS_MIN", util::genStrReplace(CommsGenerator::commsMinCommsVersion(), ".", ", ")},
         {"CODE_VER_DEFINE", commsCodeVersionDefineInternal()},
         {"CODE_VER_FUNC", commsCodeVersionFuncsInternal()},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForRoot(strings::genVersionFileNameStr(), m_commsGenerator))},
+        {"APPEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForRoot(strings::genVersionFileNameStr(), m_commsGenerator) + strings::genAppendFileSuffixStr(), "Append here")},
     };
 
     stream << util::genProcessTemplate(Templ, repl, true);

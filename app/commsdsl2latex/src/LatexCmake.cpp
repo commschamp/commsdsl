@@ -29,17 +29,6 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2latex
 {
 
-namespace
-{
-
-const std::string& latexCodeInjectPrefix()
-{
-    static const std::string Str = "# [CODE_INJECT]: ";
-    return Str;
-}
-
-} // namespace
-
 bool LatexCmake::latexWrite(LatexGenerator& generator)
 {
     LatexCmake obj(generator);
@@ -98,8 +87,9 @@ bool LatexCmake::latexWriteInternal()
 std::string LatexCmake::latexSectionPdf() const
 {
     auto replaceFileName = strings::genCmakeListsFileStr() + strings::genPdfFileSuffixStr();
-    auto replaceContents = util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(replaceFileName));
-    if (!replaceContents.empty()) {
+    bool hasReplace = false;
+    auto replaceContents = m_latexGenerator.genReadScriptCodeInjectCode(replaceFileName, "Replace default PDF generation section", &hasReplace);
+    if (hasReplace) {
         return replaceContents;
     }
 
@@ -123,16 +113,9 @@ std::string LatexCmake::latexSectionPdf() const
     auto appendFileName = strings::genCmakeListsFileStr() + strings::genPdfAppendFileSuffixStr();
     util::GenReplacementMap repl = {
         {"FILE_BASE", Latex::latexDocFileBaseName(m_latexGenerator)},
-        {"APPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(appendFileName))},
+        {"REPLACE_COMMENT", std::move(replaceContents)},
+        {"APPEND", m_latexGenerator.genReadScriptCodeInjectCode(appendFileName, "Append to default PDF generation section")}
     };
-
-    if (m_latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] = latexCodeInjectPrefix() + "Use \"" + replaceFileName + "\" file to replace default PDF generation section.";
-
-        if (repl["APPEND"].empty()) {
-            repl["APPEND"] = latexCodeInjectPrefix() + "Use \"" + appendFileName + "\" file to append to default PDF generation section.";
-        }
-    }
 
     return util::genProcessTemplate(Templ, repl);
 }
@@ -140,8 +123,9 @@ std::string LatexCmake::latexSectionPdf() const
 std::string LatexCmake::latexSectionHtml() const
 {
     auto replaceFileName = strings::genCmakeListsFileStr() + strings::genHtmlFileSuffixStr();
-    auto replaceContents = util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(replaceFileName));
-    if (!replaceContents.empty()) {
+    bool hasReplace = false;
+    auto replaceContents = m_latexGenerator.genReadScriptCodeInjectCode(replaceFileName, "Replace default HTML generation section", &hasReplace);
+    if (hasReplace) {
         return replaceContents;
     }
 
@@ -169,22 +153,11 @@ std::string LatexCmake::latexSectionHtml() const
     auto cmdAppendFileName = strings::genCmakeListsFileStr() + strings::genHtmlCmdAppendFileSuffixStr();
     util::GenReplacementMap repl = {
         {"FILE_BASE", Latex::latexDocFileBaseName(m_latexGenerator)},
-        {"APPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(appendFileName))},
-        {"CMD_APPEND", util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(cmdAppendFileName))},
         {"CFG_FILE", Latex::latexDocCfgFileName(m_latexGenerator)},
+        {"REPLACE_COMMENT", std::move(replaceContents)},
+        {"APPEND", m_latexGenerator.genReadScriptCodeInjectCode(appendFileName, "Append to default HTML generation section")},
+        {"CMD_APPEND", m_latexGenerator.genReadScriptCodeInjectCode(cmdAppendFileName, "Append to default HTML generation commands")},
     };
-
-    if (m_latexGenerator.latexHasCodeInjectionComments()) {
-        repl["REPLACE_COMMENT"] =latexCodeInjectPrefix() + "Use \"" + replaceFileName + "\" file to replace default HTML generation section.";
-
-        if (repl["APPEND"].empty()) {
-            repl["APPEND"] = latexCodeInjectPrefix() + "Use \"" + appendFileName + "\" file to append to default HTML generation section.";
-        }
-
-        if (repl["CMD_APPEND"].empty()) {
-            repl["CMD_APPEND"] = latexCodeInjectPrefix() + "Use \"" + cmdAppendFileName + "\" file to append to default HTML generation commands.";
-        }
-    }
 
     return util::genProcessTemplate(Templ, repl);
 }
@@ -192,16 +165,7 @@ std::string LatexCmake::latexSectionHtml() const
 std::string LatexCmake::latexAppendInternal() const
 {
     auto replaceFileName = strings::genCmakeListsFileStr() + strings::genAppendFileSuffixStr();
-    auto replaceContents = util::genReadFileContents(m_latexGenerator.latexInputCodePathForFile(replaceFileName));
-    if (!replaceContents.empty()) {
-        return replaceContents;
-    }
-
-    if (m_latexGenerator.latexHasCodeInjectionComments()) {
-        return latexCodeInjectPrefix() + "Use \"" + replaceFileName + "\" file to append extra code to this file.";
-    }
-
-    return strings::genEmptyString();
+    return m_latexGenerator.genReadScriptCodeInjectCode(replaceFileName, "Append extra code to this file");
 }
 
 } // namespace commsdsl2latex

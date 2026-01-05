@@ -161,7 +161,7 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
         "#^#TOP_NS_END#$#\n"
     ;
 
-    auto codePrefix = m_toolsGenerator.genGetCodeDir() + '/' + toolsRelHeaderPath(m_toolsGenerator);
+    auto codeRelPrefix = toolsRelHeaderPath(m_toolsGenerator);
 
     util::GenStringsList includes {
         ToolsQtVersion::toolsRelHeaderPath(m_toolsGenerator)
@@ -184,20 +184,21 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
 
     comms::genPrepareIncludeStatement(includes);
 
+    bool hasExtend = false;
     util::GenReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"INCLUDES", util::genStrListToString(includes, "\n", "")},
-        {"EXTRA_INCLUDES", util::genReadFileContents(codePrefix + strings::genIncFileSuffixStr())},
+        {"EXTRA_INCLUDES", m_toolsGenerator.genReadCodeInjectCode(codeRelPrefix + strings::genIncFileSuffixStr(), "Add extra includes")},
         {"TOP_NS_BEGIN", m_toolsGenerator.toolsNamespaceBegin()},
         {"TOP_NS_END", m_toolsGenerator.toolsNamespaceEnd()},
         {"PROT_NAMESPACE", m_toolsGenerator.genProtocolSchema().genMainNamespace()},
         {"NAME", strings::genDefaultOptionsClassStr()},
-        {"EXTEND", util::genReadFileContents(codePrefix + strings::genExtendFileSuffixStr())},
-        {"APPEND", util::genReadFileContents(codePrefix + strings::genAppendFileSuffixStr())},
+        {"EXTEND", m_toolsGenerator.genReadCodeInjectCode(codeRelPrefix + strings::genExtendFileSuffixStr(), "Extend options", &hasExtend)},
+        {"APPEND", m_toolsGenerator.genReadCodeInjectCode(codeRelPrefix + strings::genAppendFileSuffixStr(), "Append here")},
         {"OPTS_BASE", toolsBaseCodeInternal(m_toolsGenerator, m_toolsGenerator.genSchemas().size() - 1U)},
     };
 
-    if (!repl["EXTEND"].empty()) {
+    if (hasExtend) {
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 

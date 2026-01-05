@@ -54,12 +54,14 @@ purpose `-c` option with path to directory containing custom documentation (late
 ```
 $> /path/to/commsdsl2latex -c /path/to/custom/doc/elements schema.xml
 ```
-In order to see what code injection elements are available using what files, use `--code-inject-comments`
-command line option and review the generated files.
+
+In order to see what code injection elements are available using what files, temporarily use `--code-inject-comments`
+command line option and review the generated files. The generated code will be populated with
+`% [CODE INJECT]: ` comment lines indicating places where code injection is possible.
 ```
 $> /path/to/commsdsl2latex --code-inject-comments ...
 ```
-The generated files will contain multiple comment lines starting with `% [CODE INJECT]: ` prefix.
+
 For example:
 ```
 % [CODE INJECT]: Replace packages definition with "test1_doc.tex.package".

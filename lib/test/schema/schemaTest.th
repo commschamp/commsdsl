@@ -17,6 +17,7 @@ public:
     void test6();
     void test7();
     void test8();
+    void test9();
 };
 
 void SchemaTestSuite::setUp()
@@ -177,4 +178,19 @@ void SchemaTestSuite::test8()
     auto schema = protocol->parseLastParsedSchema();
     TS_ASSERT_EQUALS(schema.parseName(), "Schema8");
     TS_ASSERT(schema.parseDisplayName().empty());
+}
+
+void SchemaTestSuite::test9()
+{
+    std::vector<std::string> schemas = {
+        SCHEMAS_DIR "/Schema9_1@1.xml",
+        SCHEMAS_DIR "/Schema9_2.xml",
+        SCHEMAS_DIR "/Schema9_1@2.xml",
+    };
+
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(schemas, true);
+    TS_ASSERT(protocol);
 }

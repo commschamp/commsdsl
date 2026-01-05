@@ -31,6 +31,7 @@
 #include <cassert>
 #include <iterator>
 #include <limits>
+#include <map>
 #include <set>
 
 namespace commsdsl
@@ -38,6 +39,23 @@ namespace commsdsl
 
 namespace parse
 {
+
+namespace
+{
+
+const std::string& parseRetrieveSyncFrom(const ParseLayerImpl& layer)
+{
+    assert(layer.parseKind() == ParseLayerImpl::ParseKind::Sync);
+    return static_cast<const ParseSyncLayerImpl&>(layer).parseFrom();
+}
+
+const std::string& parseRetrieveChecksumFrom(const ParseLayerImpl& layer)
+{
+    assert(layer.parseKind() == ParseLayerImpl::ParseKind::Checksum);
+    return static_cast<const ParseChecksumLayerImpl&>(layer).parseFrom();
+}
+
+} // namespace
 
 ParseLayerImpl::ParsePtr ParseLayerImpl::parseCreate(
     const std::string& kind,
@@ -58,23 +76,12 @@ bool ParseLayerImpl::parse()
 {
     m_props = ParseXmlWrap::parseNodeProps(m_node);
 
-    if (!ParseXmlWrap::parseChildrenAsProps(m_node, parseCommonProps(), m_protocol.parseLogger(), m_props)) {
-        return false;
-    }
-
-    auto& extraPropsNames = parseExtraPropsNamesImpl();
-    do {
-        if (extraPropsNames.empty()) {
-            break;
-        }
-
-        if (!ParseXmlWrap::parseChildrenAsProps(m_node, extraPropsNames, m_protocol.parseLogger(), m_props)) {
-            return false;
-        }
-
-    } while (false);
-
-    if (!ParseXmlWrap::parseChildrenAsProps(m_node, parseCommonPossibleProps(), m_protocol.parseLogger(), m_props, false)) {
+    auto& extraPropNames = parseExtraPropsNamesImpl();
+    auto& extrePossiblePropNames = parseExtraPossiblePropsNamesImpl();
+    if ((!ParseXmlWrap::parseChildrenAsProps(m_node, parseCommonProps(), m_protocol.parseLogger(), m_props)) ||
+        (!ParseXmlWrap::parseChildrenAsProps(m_node, extraPropNames, m_protocol.parseLogger(), m_props)) ||
+        (!ParseXmlWrap::parseChildrenAsProps(m_node, parseCommonPossibleProps(), m_protocol.parseLogger(), m_props, false)) ||
+        (!ParseXmlWrap::parseChildrenAsProps(m_node, extrePossiblePropNames, m_protocol.parseLogger(), m_props, false))) {
         return false;
     }
 
@@ -94,17 +101,16 @@ bool ParseLayerImpl::parse()
 
     ParseXmlWrap::ParseNamesList expectedProps = parseCommonProps();
     expectedProps.insert(expectedProps.end(), parseCommonPossibleProps().begin(), parseCommonPossibleProps().end());
-    expectedProps.insert(expectedProps.end(), extraPropsNames.begin(), extraPropsNames.end());
+    expectedProps.insert(expectedProps.end(), extraPropNames.begin(), extraPropNames.end());
+    expectedProps.insert(expectedProps.end(), extrePossiblePropNames.begin(), extrePossiblePropNames.end());
     if (!parseUpdateExtraAttrs(expectedProps)) {
         return false;
     }
 
-    ParseXmlWrap::ParseNamesList expectedChildren = parseCommonProps();
-    expectedChildren.insert(expectedChildren.end(), parseCommonPossibleProps().begin(), parseCommonPossibleProps().end());
-    expectedChildren.insert(expectedChildren.end(), extraPropsNames.begin(), extraPropsNames.end());
-
     auto supportedFields = ParseFieldImpl::parseSupportedTypes();
+    ParseXmlWrap::ParseNamesList expectedChildren = expectedProps; // copy
     expectedChildren.insert(expectedChildren.end(), supportedFields.begin(), supportedFields.end());
+
     if (!parseUpdateExtraChildren(expectedChildren)) {
         return false;
     }
@@ -173,6 +179,11 @@ ParseObject::ParseObjKind ParseLayerImpl::parseObjKindImpl() const
 }
 
 const ParseXmlWrap::ParseNamesList& ParseLayerImpl::parseExtraPropsNamesImpl() const
+{
+    return ParseXmlWrap::parseEmptyNamesList();
+}
+
+const ParseXmlWrap::ParseNamesList& ParseLayerImpl::parseExtraPossiblePropsNamesImpl() const
 {
     return ParseXmlWrap::parseEmptyNamesList();
 }
@@ -249,6 +260,45 @@ bool ParseLayerImpl::parseVerifyBeforePayload(const ParseLayerImpl::ParseLayersL
             "This layer is expected to be before the \"" << common::parsePayloadStr() <<
             "\" one.";
         return false;
+    }
+
+    return true;
+}
+
+bool ParseLayerImpl::parseVerifySuffixLayersOrder(const ParseLayersList& layers, std::size_t payloadIdx, std::size_t layerIdx, std::size_t fromIdx)
+{
+    for (auto midIdx = payloadIdx + 1U; midIdx < layerIdx; ++midIdx) {
+        auto& midLayerPtr = layers[midIdx];
+        assert(midLayerPtr);
+
+        using FromRetrieveFunc = const std::string& (*)(const ParseLayerImpl& layer);
+        static const std::map<ParseKind, FromRetrieveFunc> Map = {
+            {ParseKind::Sync, &parseRetrieveSyncFrom},
+            {ParseKind::Checksum, &parseRetrieveChecksumFrom},
+        };
+
+        auto iter = Map.find(midLayerPtr->parseKind());
+        if (iter == Map.end()) {
+            continue;
+        }
+
+        auto func = iter->second;
+        auto& midFrom = func(*midLayerPtr);
+
+        if (midFrom.empty()) {
+            continue;
+        }
+
+        auto midFromIdx = parseFindLayerIndex(layers, midFrom);
+        if (midFromIdx < fromIdx) {
+            auto layerIter = Map.find(layers[layerIdx]->parseKind());
+            assert(layerIter != Map.end());
+            auto layerFunc = layerIter->second;
+
+            parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+                "Layer \"" << layerFunc(*layers[layerIdx]) << "\" specified by the \"" << common::parseFromStr() << "\" follows \"" << midFrom << "\" specified by the preceding layer.";
+            return false;
+        }
     }
 
     return true;

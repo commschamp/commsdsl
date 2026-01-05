@@ -560,17 +560,18 @@ std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::
 
 std::string ToolsQtFrame::toolsProtTransportMsgHeaderExtraIncInternal(const commsdsl::gen::GenInterface& iFace) const
 {
-    auto incFile = genGenerator().genGetCodeDir() + '/' + toolsRelPathInternal(iFace) + ToolsProtTransportMsgSuffix + strings::genCppHeaderSuffixStr() + strings::genIncFileSuffixStr();
-    return util::genReadFileContents(incFile);
+    auto incFile = toolsRelPathInternal(iFace) + ToolsProtTransportMsgSuffix + strings::genCppHeaderSuffixStr() + strings::genIncFileSuffixStr();
+    return genGenerator().genReadCodeInjectCode(incFile, "Add includes here");
 }
 
 std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::gen::GenInterface& iFace) const
 {
     std::string readCode;
     do {
-        auto readOverrideFile = genGenerator().genGetCodeDir() + '/' + toolsRelPathInternal(iFace) + ToolsProtTransportMsgSuffix + strings::genCppHeaderSuffixStr() + strings::genReadFileSuffixStr();
-        readCode = util::genReadFileContents(readOverrideFile);
-        if (!readCode.empty()) {
+        auto readOverrideFile = toolsRelPathInternal(iFace) + ToolsProtTransportMsgSuffix + strings::genCppHeaderSuffixStr() + strings::genReadFileSuffixStr();
+        bool hasRead = false;
+        readCode = genGenerator().genReadCodeInjectCode(readOverrideFile, "Override default read", &hasRead);
+        if (hasRead) {
             break;
         }
 
@@ -605,11 +606,13 @@ std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::
             "        es = Base::template doReadFrom<#^#IDX#$#>(iter, len);\n"
             "    }\n\n"
             "    return es;\n"
-            "}\n";
+            "}\n"
+            "#^#CUSTOM#$#\n";
 
         util::GenReplacementMap repl = {
             {"OFFSET", util::genNumToString(payloadOffset)},
             {"IDX", util::genNumToString(readUntilIdx)},
+            {"CUSTOM", std::move(readCode)},
         };
 
         readCode = util::genProcessTemplate(Templ, repl);

@@ -87,7 +87,7 @@ bool TestCmake::testWriteInternal() const
         {"FRAME_SCOPE", commsdsl::gen::comms::genScopeFor(*firstFrame, m_testGenerator)},
         {"OPTIONS_SCOPE", commsdsl::gen::comms::genScopeForOptions(commsdsl::gen::strings::genDefaultOptionsStr(), m_testGenerator)},
         {"INPUT_SCOPE", commsdsl::gen::comms::genScopeForInput(commsdsl::gen::strings::genAllMessagesStr(), m_testGenerator, *inputNs)},
-        {"EXTRA_SOURCES", util::genReadFileContents(util::genPathAddElem(m_testGenerator.genGetCodeDir(), strings::genCmakeListsFileStr()) + strings::genSourcesFileSuffixStr())},
+        {"EXTRA_SOURCES", m_testGenerator.genReadScriptCodeInjectCode(strings::genCmakeListsFileStr() + strings::genSourcesFileSuffixStr(), "Add extra sources here")},
     };
 
     static const std::string Template =

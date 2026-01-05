@@ -77,6 +77,11 @@ std::string LatexDataField::latexInfoDetailsImpl() const
     } while (false);
 
     do {
+        if (parseObj.parseIsPseudo()) {
+            list.push_back("\\textbf{Pseudo Field} & " + strings::genYesStr());
+            break;
+        }
+
         auto fixedLength = parseObj.parseFixedLength();
         if (fixedLength != 0U) {
             list.push_back("\\textbf{Fixed Length} & " + LatexGenerator::latexIntegralToStr(fixedLength) + " Bytes");

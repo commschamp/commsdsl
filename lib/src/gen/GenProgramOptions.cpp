@@ -50,6 +50,7 @@ const std::string GenFullCodeVerStr("V," + GenCodeVerStr);
 const std::string GenMessagesListStr("messages-list");
 const std::string GenForcePlatformStr("force-platform");
 const std::string GenForceInterfaceStr("force-interface");
+const std::string GenCodeInjectCommentsStr("code-inject-comments");
 
 }
 
@@ -364,7 +365,9 @@ GenProgramOptions& GenProgramOptions::genAddCommonOptions()
             (GenFullMinRemoteVerStr, "Set minimal supported remote version. Defaults to 0.", true)
             (GenForceVerStr,
                 "Force schema version. Must not be greater than version specified in schema file.", true)
-
+            (GenCodeInjectCommentsStr,
+                "Show code injection comments in the generated files. "
+                "They serve as guidance of what can be injected and where.")
             ;
 }
 
@@ -548,6 +551,11 @@ bool GenProgramOptions::genHasForcedSchemaVersion() const
 unsigned GenProgramOptions::genGetForcedSchemaVersion() const
 {
     return commsdsl::gen::util::genStrToUnsigned(genValue(GenForceVerStr));
+}
+
+bool GenProgramOptions::genCodeInjectComments() const
+{
+    return genIsOptUsed(GenCodeInjectCommentsStr);
 }
 
 const std::string& GenProgramOptions::genGetCodeVersion() const

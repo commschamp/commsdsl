@@ -144,7 +144,7 @@ bool CDoxygen::cWriteConfInternal() const
 
     util::GenReplacementMap repl = {
         {"PROJ_NAME", m_cGenerator.genProtocolSchema().genDisplayName()},
-        {"APPEND", util::genReadFileContents(m_cGenerator.cInputAbsPathForDoc(FileName) + strings::genAppendFileSuffixStr())},
+        {"APPEND", m_cGenerator.genReadScriptCodeInjectCode(m_cGenerator.cInputRelPathForDoc(FileName) + strings::genAppendFileSuffixStr(), "Append here")},
     };
 
     return cWriteFileInternal(FileName, util::genProcessTemplate(Templ, repl), m_cGenerator);
@@ -360,7 +360,7 @@ bool CDoxygen::cWriteMainpageInternal() const
     util::GenReplacementMap repl = {
         {"INPUT", cInputDocInternal()},
         {"OUTPUT", cOutputDocInternal()},
-        {"APPEND", util::genReadFileContents(m_cGenerator.cInputAbsPathForDoc(FileName) + strings::genAppendFileSuffixStr())},
+        {"APPEND", m_cGenerator.genReadCodeInjectCode(m_cGenerator.cInputRelPathForDoc(FileName) + strings::genAppendFileSuffixStr(), "Append here")},
         {"TITLE", "\"C\" Interface for the \"" + dispName + "\" Protocol Definition."},
         {"DESC", schemaObj.parseDescription()},
     };
@@ -435,7 +435,7 @@ std::string CDoxygen::cOutputDocInternal() const
         if (!m->genIsReferenced()) {
             continue;
         }
-        
+
         static const std::string Templ =
             "/// @li @ref #^#NAME#$# defined in @b #^#PATH#$#."
             ;

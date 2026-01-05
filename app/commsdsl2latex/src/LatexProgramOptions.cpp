@@ -18,25 +18,9 @@
 namespace commsdsl2latex
 {
 
-namespace
-{
-
-const std::string LatexCodeInjectCommentsStr("code-inject-comments");
-
-} // namespace
-
 LatexProgramOptions::LatexProgramOptions()
 {
-    genAddCommonOptions()
-    (LatexCodeInjectCommentsStr,
-        "Show code injection comments in the generated TEX files. "
-        "They serve as guidance of what can be injected and where")
-    ;
-}
-
-bool LatexProgramOptions::latexCodeInjectCommentsRequested() const
-{
-    return genIsOptUsed(LatexCodeInjectCommentsStr);
+    genAddCommonOptions();
 }
 
 } // namespace commsdsl2latex

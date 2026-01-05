@@ -29,8 +29,63 @@ class ParseSyncLayerImpl final : public ParseLayerImpl
 public:
     ParseSyncLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
 
+    bool parseHasEscField() const
+    {
+        return
+            (m_extEscField != nullptr) ||
+            static_cast<bool>(m_escField);
+    }
+
+    ParseField parseEscField() const
+    {
+        if (m_extEscField != nullptr) {
+            return ParseField(m_extEscField);
+        }
+
+        return ParseField(m_escField.get());
+    }
+
+    bool parseSeekField() const
+    {
+        return m_seekField;
+    }
+
+    bool parseVerifyBeforeRead() const
+    {
+        return m_verifyBeforeRead;
+    }
+
+    const std::string& parseFrom() const
+    {
+        return *m_from;
+    }
+
+    bool parseIsAfterPayload() const
+    {
+        return m_afterPayload;
+    }
+
 protected:
     virtual ParseKind parseKindImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const override;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPossiblePropsNamesImpl() const override;
+    virtual bool parseImpl() override;
+    virtual bool parseVerifyImpl(const ParseLayersList& layers) override;
+
+private:
+    bool parseUpdateSeekFieldInternal();
+    bool parseUpdateEscFieldInternal();
+    bool parseUpdateVerifyBeforeReadInternal();
+    bool parseUpdateFromInternal();
+    bool parseCheckEscFieldFromRefInternal();
+    bool parseCheckEscFieldAsChildInternal();
+
+    const ParseFieldImpl* m_extEscField = nullptr;
+    ParseFieldImplPtr m_escField;
+    const std::string* m_from = nullptr;
+    bool m_seekField = false;
+    bool m_verifyBeforeRead = false;
+    bool m_afterPayload = false;
 };
 
 } // namespace parse

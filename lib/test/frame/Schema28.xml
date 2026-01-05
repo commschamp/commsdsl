@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema28" endian="big">
+    <!-- Testing sync layer with seekField and external escField -->
+    <fields>
+        <int name="EscSync" type="uint16" defaultValue="0xdead" />
+    </fields>
+    <frame name="Frame">
+        <sync name="Sync" seekField="true" escField="EscSync">
+            <int name="Sync" type="uint16" defaultValue="0xabcd" />
+        </sync>
+        <size name="Size">
+            <int  name="Size" type="uint16" />
+        </size>
+        <id name="Id">
+            <int  name="Id" type="uint8" />
+        </id>
+        <payload name="Data" />
+    </frame>
+</schema>

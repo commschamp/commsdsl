@@ -400,8 +400,7 @@ std::string SwigField::swigClassDeclInternal() const
     }
 
     if (comms::genIsGlobalField(m_genField)) {
-        repl["CUSTOM"] =
-            util::genReadFileContents(generator.swigInputCodePathFor(m_genField) + strings::genPublicFileSuffixStr());
+        repl["CUSTOM"] = generator.genReadCodeInjectCode(generator.swigInputCodeRelPathFor(m_genField) + strings::genPublicFileSuffixStr(), "Add custom interface here");
     }
 
     return util::genProcessTemplate(Templ, repl);
@@ -442,9 +441,9 @@ std::string SwigField::swigClassCodeInternal() const
 {
     auto& gen = SwigGenerator::swigCast(m_genField.genGenerator());
 
-    std::string publicCode = util::genReadFileContents(gen.swigInputCodePathFor(m_genField) + strings::genPublicFileSuffixStr());
-    std::string protectedCode = util::genReadFileContents(gen.swigInputCodePathFor(m_genField) + strings::genProtectedFileSuffixStr());
-    std::string privateCode = util::genReadFileContents(gen.swigInputCodePathFor(m_genField) + strings::genPrivateFileSuffixStr());
+    std::string publicCode = gen.genReadCodeInjectCode(gen.swigInputCodeRelPathFor(m_genField) + strings::genPublicFileSuffixStr(), "Add extra public code here");
+    std::string protectedCode = gen.genReadCodeInjectCode(gen.swigInputCodeRelPathFor(m_genField) + strings::genProtectedFileSuffixStr(), "Add extra protected code here");
+    std::string privateCode = gen.genReadCodeInjectCode(gen.swigInputCodeRelPathFor(m_genField) + strings::genPrivateFileSuffixStr(), "Add extra private code here");
     std::string extraFuncs = swigExtraPublicFuncsCodeImpl();
 
     if (!protectedCode.empty()) {

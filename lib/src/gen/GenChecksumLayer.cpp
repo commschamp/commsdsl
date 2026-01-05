@@ -52,7 +52,7 @@ bool GenChecksumLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool&
         return false;
     }
 
-    auto obj = checksumDslObj();
+    auto obj = genChecksumDslObj();
     auto& untilStr = obj.parseUntilLayer();
     if (!untilStr.empty()) {
         assert(obj.parseFromLayer().empty());
@@ -81,6 +81,7 @@ bool GenChecksumLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool&
         return false;
     }
 
+    genGenerator().genLogger().genDebug("Layer \"" + genParseObj().parseName() + "\" is a suffix expected to be relocated");
     auto& fromStr = obj.parseFromLayer();
     if (fromStr.empty()) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
@@ -105,22 +106,20 @@ bool GenChecksumLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool&
         return false;
     }
 
-    auto iterTmp = iter;
-    std::advance(iterTmp, 1U);
-    if (iterTmp == fromIter) {
-        // Already in place
-        success = true;
-        return false;
+    auto dist = std::distance(iter, fromIter);
+    if (dist < 0) {
+        // Not relocated yet
+        genGenerator().genLogger().genDebug("Relocating \"" + genParseObj().parseName() + "\" to precede \"" + (*fromIter)->genParseObj().parseName() + "\"");
+        auto* thisPtr = *iter;
+        layers.erase(iter);
+        layers.insert(fromIter, thisPtr);
     }
 
-    auto thisPtr = std::move(*iter);
-    layers.erase(iter);
-    layers.insert(fromIter, std::move(thisPtr));
-    success = true;
-    return true;
+    // Already in place
+    return genAdjustSuffixLayersOrder(layers, success);
 }
 
-GenChecksumLayer::ParseChecksumLayer GenChecksumLayer::checksumDslObj() const
+GenChecksumLayer::ParseChecksumLayer GenChecksumLayer::genChecksumDslObj() const
 {
     return ParseChecksumLayer(genParseObj());
 }

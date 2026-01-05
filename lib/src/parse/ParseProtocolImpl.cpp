@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <iterator>
 #include <numeric>
 #include <type_traits>
 
@@ -130,6 +131,10 @@ const ParseFieldImpl* ParseProtocolImpl::parseFindField(const std::string& ref, 
         return nullptr;
     }
 
+    if (!parseCanRefSchema(parsedRef.first, ref)) {
+        return nullptr;
+    }
+
     return parsedRef.first->parseFindField(parsedRef.second, checkRef);
 }
 
@@ -141,6 +146,10 @@ const ParseMessageImpl* ParseProtocolImpl::parseFindMessage(const std::string& r
         return nullptr;
     }
 
+    if (!parseCanRefSchema(parsedRef.first, ref)) {
+        return nullptr;
+    }
+
     return parsedRef.first->parseFindMessage(parsedRef.second, checkRef);
 }
 
@@ -149,6 +158,10 @@ const ParseInterfaceImpl* ParseProtocolImpl::parseFindInterface(const std::strin
     assert(!ref.empty());
     auto parsedRef = parseExternalRef(ref);
     if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
+        return nullptr;
+    }
+
+    if (!parseCanRefSchema(parsedRef.first, ref)) {
         return nullptr;
     }
 
@@ -267,6 +280,43 @@ bool ParseProtocolImpl::parseStrToData(
             });
 }
 
+bool ParseProtocolImpl::parseStrToStringValue(
+    const std::string &str,
+    std::string &val) const
+{
+    if (str.empty() || (!parseIsFieldValueReferenceSupported())) {
+        val = str;
+        return true;
+    }
+
+    static const char Prefix = common::parseStringRefPrefix();
+    if (str[0] == Prefix) {
+        return parseStrToString(std::string(str, 1), true, val);
+    }
+
+    auto prefixPos = str.find_first_of(Prefix);
+    if (prefixPos == std::string::npos) {
+        val = str;
+        return true;
+    }
+
+    assert(0U < prefixPos);
+    bool allBackSlashes =
+        std::all_of(
+            str.begin(), str.begin() + static_cast<std::ptrdiff_t>(prefixPos),
+            [](char ch)
+            {
+                return ch == '\\';
+            });
+    if (!allBackSlashes) {
+        val = str;
+        return true;
+    }
+
+    val.assign(str, 1, std::string::npos);
+    return true;
+}
+
 bool ParseProtocolImpl::parseIsFeatureSupported(unsigned minDslVersion) const
 {
     auto currDslVersion = parseCurrSchema().parseDslVersion();
@@ -310,6 +360,8 @@ bool ParseProtocolImpl::parseIsPropertySupported(const std::string& name) const
         {common::parseCopyConstructFromStr(), 7U},
         {common::parseCopyReadCondFromStr(), 7U},
         {common::parseCopyValidCondFromStr(), 7U},
+        {common::parseSeekFieldStr(), 8U},
+        {common::parseEscFieldStr(), 8U},
     };
 
     auto iter = Map.find(name);
@@ -446,6 +498,11 @@ bool ParseProtocolImpl::parseIsFrameDisplayNameSupported() const
 bool ParseProtocolImpl::parseIsLayerDisplayNameSupported() const
 {
     return parseIsFeatureSupported(7U);
+}
+
+bool ParseProtocolImpl::parseIsSyncSuffixLayerSupported() const
+{
+    return parseIsFeatureSupported(8U);
 }
 
 void ParseProtocolImpl::parseCbXmlErrorFunc(void* userData, const xmlError* err)
@@ -840,6 +897,36 @@ std::pair<const ParseSchemaImpl*, std::string> ParseProtocolImpl::parseExternalR
     return std::make_pair(iter->get(), std::move(restRef));
 }
 
+bool ParseProtocolImpl::parseCanRefSchema(const ParseSchemaImpl* schema, const std::string& externalRef) const
+{
+    if (schema == &parseCurrSchema()) {
+        return true;
+    }
+
+    auto findSchemaInternal =
+        [this](const ParseSchemaImpl* s)
+        {
+            return
+                std::find_if(
+                    m_schemas.begin(), m_schemas.end(),
+                    [s](auto& sPtr)
+                    {
+                        return sPtr.get() == s;
+                    });
+        };
+
+    auto schemaIter = findSchemaInternal(schema);
+    auto currIter = findSchemaInternal(&parseCurrSchema());
+    auto diff = std::distance(schemaIter, currIter);
+    assert(diff != 0);
+    if (diff < 0) {
+        parseLogError() << "Invalid inter-schema reference: \"" << externalRef << "\", elements from schema \"" << schema->parseName() <<
+            "\" that have been defined later cannot be referenced from schema \"" << parseCurrSchema().parseName() << "\" that have been defined earlier.";
+    }
+
+    return (0 < diff);
+}
+
 ParseLogWrapper ParseProtocolImpl::parseLogError() const
 {
     return commsdsl::parse::parseLogError(m_logger);
@@ -848,43 +935,6 @@ ParseLogWrapper ParseProtocolImpl::parseLogError() const
 ParseLogWrapper ParseProtocolImpl::parseLogWarning() const
 {
     return commsdsl::parse::parseLogWarning(m_logger);
-}
-
-bool ParseProtocolImpl::parseStrToStringValue(
-    const std::string &str,
-    std::string &val) const
-{
-    if (str.empty() || (!parseIsFieldValueReferenceSupported())) {
-        val = str;
-        return true;
-    }
-
-    static const char Prefix = common::parseStringRefPrefix();
-    if (str[0] == Prefix) {
-        return parseStrToString(std::string(str, 1), true, val);
-    }
-
-    auto prefixPos = str.find_first_of(Prefix);
-    if (prefixPos == std::string::npos) {
-        val = str;
-        return true;
-    }
-
-    assert(0U < prefixPos);
-    bool allBackSlashes =
-        std::all_of(
-            str.begin(), str.begin() + static_cast<std::ptrdiff_t>(prefixPos),
-            [](char ch)
-            {
-                return ch == '\\';
-            });
-    if (!allBackSlashes) {
-        val = str;
-        return true;
-    }
-
-    val.assign(str, 1, std::string::npos);
-    return true;
 }
 
 } // namespace parse

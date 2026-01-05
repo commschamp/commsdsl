@@ -126,10 +126,10 @@ if (COMMSDSL_BUILD_UNIT_TESTS)
 
     if (COMMSDSL_VALGRIND_TESTS)
         find_program(VALGRIND_EXECUTABLE NAMES "valgrind")
-    endif ()    
+    endif ()
 
     enable_testing()
-endif ()    
+endif ()
 
 include(GNUInstallDirs)
 

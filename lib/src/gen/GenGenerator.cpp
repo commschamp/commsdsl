@@ -288,6 +288,16 @@ public:
         return m_versionIndependentCodeForced;
     }
 
+    void genSetCodeInjectCommentsRequested(bool value)
+    {
+        m_codeInjectCommentsRequested = value;
+    }
+
+    bool genGetCodeInjectCommentsRequested() const
+    {
+        return m_codeInjectCommentsRequested;
+    }
+
     const GenField* genFindField(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
@@ -672,6 +682,7 @@ private:
     std::string m_forcedInterfaceName;
     mutable std::vector<std::string> m_createdDirectories;
     bool m_versionIndependentCodeForced = false;
+    bool m_codeInjectCommentsRequested = false;
 };
 
 GenGenerator::GenGenerator() :
@@ -840,6 +851,16 @@ void GenGenerator::genSetVersionIndependentCodeForced(bool value)
 bool GenGenerator::genGetVersionIndependentCodeForced() const
 {
     return m_impl->genGetVersionIndependentCodeForced();
+}
+
+void GenGenerator::genSetCodeInjectCommentsRequested(bool value)
+{
+    m_impl->genSetCodeInjectCommentsRequested(value);
+}
+
+bool GenGenerator::genGetCodeInjectCommentsRequested() const
+{
+    return m_impl->genGetCodeInjectCommentsRequested();
 }
 
 const GenField* GenGenerator::genFindField(const std::string& externalRef) const
@@ -1377,8 +1398,59 @@ GenGenerator::OptsProcessResult GenGenerator::genProcessOptions(const GenProgram
     genSetMessagesListFile(options.genMessagesListFile());
     genSetForcedPlatform(options.genForcedPlatform());
     genSetForcedInterface(options.genForcedInterface());
+    genSetCodeInjectCommentsRequested(options.genCodeInjectComments());
 
     return genProcessOptionsImpl(options);
+}
+
+std::string GenGenerator::genReadCodeInjectCode(
+    const std::string& relPath,
+    const std::string& comment,
+    bool* realCodeInjected,
+    const std::string& forcedCommentPrefix) const
+{
+    auto path = genGetCodeDir();
+    if (!path.empty()) {
+        path += '/';
+    }
+    path += relPath;
+
+    auto updateRealCodeInjected =
+        [realCodeInjected](bool val)
+        {
+            if (realCodeInjected != nullptr) {
+                *realCodeInjected = val;
+            }
+        };
+
+    auto code = util::genReadFileContents(path);
+    if (!code.empty()) {
+        updateRealCodeInjected(true);
+        return code;
+    }
+
+    updateRealCodeInjected(false);
+    if (!genGetCodeInjectCommentsRequested()) {
+        return code;
+    }
+
+    code = forcedCommentPrefix;
+    if (code.empty()) {
+        code = genCommentPrefixImpl();
+    }
+
+    code += "[CODE INJECT]: ";
+    code += comment;
+    code += " with \"" + relPath + "\".\n";
+    return code;
+}
+
+std::string GenGenerator::genReadScriptCodeInjectCode(
+    const std::string& relPath,
+    const std::string& comment,
+    bool* realCodeInjected) const
+{
+    return genReadCodeInjectCode(relPath, comment, realCodeInjected, "# ");
 }
 
 bool GenGenerator::genCreateCompleteImpl()
@@ -1524,6 +1596,12 @@ GenGenerator::GenLoggerPtr GenGenerator::genCreateLoggerImpl()
 GenGenerator::OptsProcessResult GenGenerator::genProcessOptionsImpl([[maybe_unused]] const GenProgramOptions& options)
 {
     return OptsProcessResult_Continue;
+}
+
+const std::string& GenGenerator::genCommentPrefixImpl() const
+{
+    static const std::string Str = "// ";
+    return Str;
 }
 
 GenNamespace* GenGenerator::genAddDefaultNamespace()

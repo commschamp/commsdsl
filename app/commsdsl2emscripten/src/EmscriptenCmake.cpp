@@ -136,9 +136,9 @@ bool EmscriptenCmake::emscriptenWriteInternal() const
 
     util::GenReplacementMap repl = {
         {"PROJ_NAME", m_emscriptenGenerator.genProtocolSchema().genMainNamespace()},
-        {"APPEND", util::genReadFileContents(util::genPathAddElem(m_emscriptenGenerator.genGetCodeDir(), strings::genCmakeListsFileStr()) + strings::genAppendFileSuffixStr())},
+        {"APPEND", m_emscriptenGenerator.genReadScriptCodeInjectCode(strings::genCmakeListsFileStr() + strings::genAppendFileSuffixStr(), "Append here")},
         {"SOURCES", util::genStrListToString(sources, "\n", "")},
-        {"EXTRA_SOURCES", util::genReadFileContents(util::genPathAddElem(m_emscriptenGenerator.genGetCodeDir(), strings::genCmakeListsFileStr()) + strings::genSourcesFileSuffixStr())},
+        {"EXTRA_SOURCES", m_emscriptenGenerator.genReadScriptCodeInjectCode(strings::genCmakeListsFileStr() + strings::genSourcesFileSuffixStr(), "Append source files here")},
     };
 
     auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);

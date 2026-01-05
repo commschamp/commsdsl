@@ -63,6 +63,8 @@ private:
 
     struct CommsCustomCode
     {
+        std::string m_construct;
+        std::string m_constructBody;
         std::string m_read;
         std::string m_write;
         std::string m_refresh;
@@ -75,24 +77,39 @@ private:
         std::string m_private;
         std::string m_extend;
         std::string m_append;
+
+        bool m_hasConstruct = false;
+        bool m_hasConstructBody = false;
+        bool m_hasRead = false;
+        bool m_hasWrite = false;
+        bool m_hasRefresh = false;
+        bool m_hasLength = false;
+        bool m_hasValid = false;
+        bool m_hasName = false;
+        bool m_hasInc = false;
+        bool m_hasPublic = false;
+        bool m_hasProtected = false;
+        bool m_hasPrivate = false;
+        bool m_hasExtend = false;
+        bool m_hasAppend = false;
     };
 
-    using CommsBodyCustomCodeFunc = std::string (*)(const std::string& codePathPrefix);
+    using CommsCustomCodeFunc = std::string (CommsMessage::*)(bool& hasCode) const;
 
     bool commsCopyCodeFromInternal();
     bool commsPrepareOverrideInternal(
         commsdsl::parse::ParseOverrideType type,
-        std::string& codePathPrefix,
-        const std::string& suffix,
-        std::string& customCode,
         const std::string& name,
-        CommsBodyCustomCodeFunc bodyFunc);
-    static std::string commsPrepareCustomReadFromBodyInternal(const std::string& codePathPrefix);
-    static std::string commsPrepareCustomWriteFromBodyInternal(const std::string& codePathPrefix);
-    static std::string commsPrepareCustomRefreshFromBodyInternal(const std::string& codePathPrefix);
-    static std::string commsPrepareCustomLengthFromBodyInternal(const std::string& codePathPrefix);
-    static std::string commsPrepareCustomValidFromBodyInternal(const std::string& codePathPrefix);
-    static std::string commsPrepareCustomNameFromBodyInternal(const std::string& codePathPrefix);
+        CommsCustomCodeFunc codeFunc,
+        std::string& code,
+        bool* hasCode);
+
+    std::string commsCustomReadCodeInternal(bool& hasRealCode) const;
+    std::string commsCustomWriteCodeInternal(bool& hasRealCode) const;
+    std::string commsCustomRefreshCodeInternal(bool& hasRealCode) const;
+    std::string commsCustomLengthCodeInternal(bool& hasRealCode) const;
+    std::string commsCustomValidCodeInternal(bool& hasRealCode) const;
+    std::string commsCustomNameCodeInternal(bool& hasRealCode) const;
     bool commsWriteCommonInternal() const;
     bool commsWriteDefInternal() const;
     std::string commsCommonIncludesInternal() const;
@@ -135,7 +152,6 @@ private:
     commsdsl::gen::util::GenStringsList m_bundledReadPrepareCodes;
     commsdsl::gen::util::GenStringsList m_bundledRefreshCodes;
     std::string m_internalConstruct;
-    std::string m_customConstruct;
     CommsCustomCode m_customCode;
 };
 

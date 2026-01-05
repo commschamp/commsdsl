@@ -902,6 +902,18 @@ const std::string& parseCopyValidCondFromStr()
     return Str;
 }
 
+const std::string& parseSeekFieldStr()
+{
+    static const std::string Str("seekField");
+    return Str;
+}
+
+const std::string& parseEscFieldStr()
+{
+    static const std::string Str("escField");
+    return Str;
+}
+
 char parseSiblingRefPrefix()
 {
     return '$';

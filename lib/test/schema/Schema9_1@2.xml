@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema9_1">
+    <!-- Referencing field in the later defined schema -->
+    <message name="M1" id="0">
+        <ref field="@Schema9_2.F1" />
+    </message>
+</schema>

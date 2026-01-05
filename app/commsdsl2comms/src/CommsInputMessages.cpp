@@ -124,6 +124,7 @@ bool writeFileInternal(
         ;
 
     comms::genPrepareIncludeStatement(includes);
+    bool classExtended = false;
     util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"NAME", name},
@@ -132,8 +133,8 @@ bool writeFileInternal(
         {"OPTIONS", comms::genScopeForOptions(strings::genDefaultOptionsClassStr(), generator)},
         {"INCLUDES", util::genStrListToString(includes, "\n", "\n")},
         {"MESSAGES", util::genStrListToString(scopes, ",\n", "")},
-        {"EXTEND", util::genReadFileContents(comms::genInputCodePathForInput(name, generator, parent) + strings::genExtendFileSuffixStr())},
-        {"APPEND", util::genReadFileContents(comms::genInputCodePathForInput(name, generator, parent) + strings::genAppendFileSuffixStr())},
+        {"EXTEND", generator.genReadCodeInjectCode(comms::genInputCodeRelPathForInput(name, generator, parent) + strings::genExtendFileSuffixStr(), "Extend class", &classExtended)},
+        {"APPEND", generator.genReadCodeInjectCode(comms::genInputCodeRelPathForInput(name, generator, parent) + strings::genAppendFileSuffixStr(), "Append here")},
         {"PROT_PREFIX", util::genStrToUpper(util::genStrReplace(comms::genScopeFor(parent, generator), "::", "_"))},
         {"MACRO_NAME", util::genStrToMacroName(name)},
         {"ALIASES", util::genStrListToString(aliases, " \\\n", "\n")},
@@ -141,7 +142,7 @@ bool writeFileInternal(
         {"LOW_DESC", util::genStrToLower(desc)},
     };
 
-    if (!repl["EXTEND"].empty()) {
+    if (classExtended) {
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 

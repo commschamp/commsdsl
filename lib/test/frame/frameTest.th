@@ -34,6 +34,21 @@ public:
     void test23();
     void test24();
     void test25();
+    void test26();
+    void test27();
+    void test28();
+    void test29();
+    void test30();
+    void test31();
+    void test32();
+    void test33();
+    void test34();
+    void test35();
+    void test36();
+    void test37();
+    void test38();
+    void test39();
+    void test40();
 };
 
 void FrameTestSuite::setUp()
@@ -615,4 +630,250 @@ void FrameTestSuite::test25()
     m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema25.xml");
     TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test26()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema26.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.parseName().empty());
+
+    auto frames = ns.parseFrames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& f1 = frames[0];
+    auto layers = f1.parseLayers();
+    TS_ASSERT(!layers.empty());
+
+    auto& l1 = layers[0];
+    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseLayer::ParseKind::Sync);
+    commsdsl::parse::ParseSyncLayer sync(l1);
+    TS_ASSERT(sync.parseSeekField());
+    TS_ASSERT(!sync.parseHasEscField());
+}
+
+void FrameTestSuite::test27()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema27.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.parseName().empty());
+
+    auto frames = ns.parseFrames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& f1 = frames[0];
+    auto layers = f1.parseLayers();
+    TS_ASSERT(!layers.empty());
+
+    auto& l1 = layers[0];
+    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseLayer::ParseKind::Sync);
+    commsdsl::parse::ParseSyncLayer sync(l1);
+    TS_ASSERT(sync.parseSeekField());
+    TS_ASSERT(sync.parseHasEscField());
+    TS_ASSERT(sync.parseEscField().parseValid());
+}
+
+void FrameTestSuite::test28()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema28.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.parseName().empty());
+
+    auto frames = ns.parseFrames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& f1 = frames[0];
+    auto layers = f1.parseLayers();
+    TS_ASSERT(!layers.empty());
+
+    auto& l1 = layers[0];
+    TS_ASSERT_EQUALS(l1.parseKind(), commsdsl::parse::ParseLayer::ParseKind::Sync);
+    commsdsl::parse::ParseSyncLayer sync(l1);
+    TS_ASSERT(sync.parseSeekField());
+    TS_ASSERT(sync.parseHasEscField());
+    TS_ASSERT(sync.parseEscField().parseValid());
+}
+
+void FrameTestSuite::test29()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema29.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test30()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema30.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.parseName().empty());
+
+    auto frames = ns.parseFrames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& f1 = frames[0];
+    auto layers = f1.parseLayers();
+    TS_ASSERT(!layers.empty());
+
+    auto& l = layers.back();
+    TS_ASSERT_EQUALS(l.parseKind(), commsdsl::parse::ParseLayer::ParseKind::Sync);
+    commsdsl::parse::ParseSyncLayer sync(l);
+    TS_ASSERT(!sync.parseSeekField());
+    TS_ASSERT(!sync.parseHasEscField());
+    TS_ASSERT(sync.parseIsAfterPayload());
+}
+
+void FrameTestSuite::test31()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema31.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test32()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema32.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.parseName().empty());
+
+    auto frames = ns.parseFrames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& f1 = frames[0];
+    auto layers = f1.parseLayers();
+    TS_ASSERT(!layers.empty());
+
+    auto& l = layers.back();
+    TS_ASSERT_EQUALS(l.parseKind(), commsdsl::parse::ParseLayer::ParseKind::Sync);
+    commsdsl::parse::ParseSyncLayer sync(l);
+    TS_ASSERT(sync.parseSeekField());
+    TS_ASSERT_EQUALS(sync.parseFromLayer(), "Data");
+    TS_ASSERT(!sync.parseHasEscField());
+}
+
+void FrameTestSuite::test33()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema33.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test34()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema34.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test35()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema35.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test36()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema36.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test37()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema37.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test38()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema38.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test39()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema39.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.parseName().empty());
+
+    auto frames = ns.parseFrames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& f1 = frames[0];
+    auto layers = f1.parseLayers();
+    TS_ASSERT(!layers.empty());
+
+    auto& l = layers.back();
+    TS_ASSERT_EQUALS(l.parseKind(), commsdsl::parse::ParseLayer::ParseKind::Sync);
+    commsdsl::parse::ParseSyncLayer sync(l);
+    TS_ASSERT(!sync.parseSeekField());
+    TS_ASSERT(!sync.parseHasEscField());
+    TS_ASSERT(sync.parseFromLayer().empty());
+    TS_ASSERT(sync.parseVerifyBeforeRead());
+}
+
+void FrameTestSuite::test40()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema40.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.parseName().empty());
+
+    auto frames = ns.parseFrames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& f1 = frames[0];
+    auto layers = f1.parseLayers();
+    TS_ASSERT(!layers.empty());
+
+    auto& l = layers.back();
+    TS_ASSERT_EQUALS(l.parseKind(), commsdsl::parse::ParseLayer::ParseKind::Sync);
+    commsdsl::parse::ParseSyncLayer sync(l);
+    TS_ASSERT(!sync.parseSeekField());
+    TS_ASSERT(!sync.parseHasEscField());
+    TS_ASSERT_EQUALS(sync.parseFromLayer(), "Id");
+    TS_ASSERT(sync.parseVerifyBeforeRead());
 }

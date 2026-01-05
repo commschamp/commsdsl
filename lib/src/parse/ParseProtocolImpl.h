@@ -127,6 +127,7 @@ public:
     bool parseIsNamespaceDisplayNameSupported() const;
     bool parseIsFrameDisplayNameSupported() const;
     bool parseIsLayerDisplayNameSupported() const;
+    bool parseIsSyncSuffixLayerSupported() const;
 
     void parseSetMultipleSchemasEnabled(bool value)
     {
@@ -162,6 +163,7 @@ private:
     bool parseValidateAllMessages();
     bool parseStrToValue(const std::string& ref, bool checkRef, ParseStrToValueConvertFunc&& func) const;
     std::pair<const ParseSchemaImpl*, std::string> parseExternalRef(const std::string& externalRef) const;
+    bool parseCanRefSchema(const ParseSchemaImpl* schema, const std::string& externalRef) const;
 
     ParseLogWrapper parseLogError() const;
     ParseLogWrapper parseLogWarning() const;

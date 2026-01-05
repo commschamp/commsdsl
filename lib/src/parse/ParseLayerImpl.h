@@ -136,6 +136,7 @@ protected:
     virtual ParseObjKind parseObjKindImpl() const override final;
     virtual ParseKind parseKindImpl() const = 0;
     virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const;
+    virtual const ParseXmlWrap::ParseNamesList& parseExtraPossiblePropsNamesImpl() const;
     virtual bool parseImpl();
     virtual bool parseVerifyImpl(const ParseLayersList& layers);
     virtual bool parseMustHaveFieldImpl() const;
@@ -145,6 +146,7 @@ protected:
     void parseReportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
     bool parseVerifySingleLayer(const ParseLayersList& layers, const std::string& kindStr);
     bool parseVerifyBeforePayload(const ParseLayersList& layers);
+    bool parseVerifySuffixLayersOrder(const ParseLayersList& layers, std::size_t payloadIdx, std::size_t layerIdx, std::size_t fromIdx);
     std::size_t parseFindThisLayerIndex(const ParseLayersList& layers) const;
     std::size_t parseFindLayerIndex(const ParseLayersList& layers, ParseKind lKind);
     std::size_t parseFindLayerIndex(const ParseLayersList& layers, const std::string& name);

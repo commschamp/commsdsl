@@ -56,8 +56,9 @@ public:
         return static_cast<const SwigGenerator&>(generator);
     }
 
-    std::string swigInputCodePathFor(const commsdsl::gen::GenElem& elem) const;
-    std::string swigInputCodePathForFile(const std::string& name) const;
+    std::string swigInputCodeRelPathFor(const commsdsl::gen::GenElem& elem) const;
+    std::string swigInputCodeAbsPathFor(const commsdsl::gen::GenElem& elem) const;
+    std::string swigInputCodeAbsPathForFile(const std::string& name) const;
     std::string swigClassName(const commsdsl::gen::GenElem& elem) const;
     std::string swigScopeNameForRoot(const std::string& name) const;
     std::string swigScopeNameForNamespaceMember(const std::string& name, const SwigNamespace& parent) const;
