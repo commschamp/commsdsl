@@ -9,4 +9,5 @@ add_subdirectory (commsdsl2latex)
 add_subdirectory (commsdsl2swig)
 add_subdirectory (commsdsl2test)
 add_subdirectory (commsdsl2tools_qt)
+add_subdirectory (commsdsl2wireshark)
 

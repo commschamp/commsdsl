@@ -1709,6 +1709,14 @@ bool GenGenerator::genCopyExtraSourceFiles(const std::vector<std::string>& reser
     return true;
 }
 
+std::string GenGenerator::genVersionStr()
+{
+    return
+        "v" + std::to_string(commsdsl::versionMajor()) +'.' +
+        std::to_string(commsdsl::versionMinor()) + '.' +
+        std::to_string(commsdsl::versionPatch());
+}
+
 } // namespace gen
 
 } // namespace commsdsl

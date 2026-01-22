@@ -6,8 +6,6 @@ set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2comms/test)
 set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
 file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
 
-find_package(LibComms REQUIRED)
-
 add_custom_target(${APP_NAME}.all_tests
     COMMAND ${CMAKE_COMMAND} -E echo "All ${APP_NAME} tests are built")
 

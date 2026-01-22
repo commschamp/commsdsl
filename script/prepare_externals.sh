@@ -122,7 +122,7 @@ function build_cc_tools_qt() {
         ${COMMON_USE_CCACHE:+"-DCC_TOOLS_QT_USE_CCACHE=${COMMON_USE_CCACHE}"} \
         ${COMMON_CCACHE_EXECUTABLE:+"-DCC_TOOLS_QT_CCACHE_EXECUTABLE=${COMMON_CCACHE_EXECUTABLE}"} \
         ${CC_TOOLS_QT_MAJOR_QT_VERSION:+"-DCC_TOOLS_QT_MAJOR_QT_VERSION=${CC_TOOLS_QT_MAJOR_QT_VERSION}"} \
-        -DCC_TOOLS_QT_BUILD_APPS=OFF  
+        -DCC_TOOLS_QT_BUILD_APPS=OFF
     cmake --build ${CC_TOOLS_QT_BUILD_DIR} --config ${COMMON_BUILD_TYPE} --target install ${procs_param}
 }
 
@@ -133,6 +133,4 @@ build_comms
 if [ -z "${CC_TOOLS_QT_SKIP}" ]; then
     build_cc_tools_qt
 fi
-
-
 

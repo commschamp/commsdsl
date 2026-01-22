@@ -258,6 +258,8 @@ protected:
 
     bool genCopyExtraSourceFiles(const std::vector<std::string>& reservedExtensions) const;
 
+    static std::string genVersionStr();
+
 private:
     std::unique_ptr<GenGeneratorImpl> m_impl;
 };
