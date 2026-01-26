@@ -21,6 +21,7 @@ namespace commsdsl2wireshark
 WiresharkProgramOptions::WiresharkProgramOptions()
 {
     genAddCommonOptions();
+    genAddInterfaceSelectionOptions();
 }
 
 } // namespace commsdsl2wireshark

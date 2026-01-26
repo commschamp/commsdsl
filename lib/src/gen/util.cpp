@@ -557,7 +557,7 @@ std::string genProcessTemplate(const std::string& templ, const GenReplacementMap
             nextTemplPos = nextNewLinePos + 1;
         } while (false);
 
-        result.insert(result.end(), templ.begin() + templPos, templ.begin() + posToCopyUntil);
+        result.append(templ.begin() + templPos, templ.begin() + posToCopyUntil);
         templPos = nextTemplPos;
 
         if (value.empty()) {

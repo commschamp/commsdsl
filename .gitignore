@@ -1,9 +1,12 @@
 # Build directories
 build*
 CMakeLists.txt.user*
+compile_commands.json
 .vscode
 *creator.user
 externals*
+.agent
+.cache
 
 # Prerequisites
 *.d

@@ -26,12 +26,15 @@ class Wireshark
 public:
     static bool wiresharkWrite(WiresharkGenerator& generator);
     static std::string wiresharkFileName(const WiresharkGenerator& generator);
+    static const std::string& wiresharkProtocolObjName(const WiresharkGenerator& generator);
 
 private:
     explicit Wireshark(WiresharkGenerator& generator) : m_wiresharkGenerator(generator) {}
 
 private:
-    bool wiresharkWriteInternal();
+    bool wiresharkWriteInternal() const;
+    std::string wiresharkProtocolDefInternal() const;
+    std::string wiresharkDissectFuncInternal() const;
 
     WiresharkGenerator& m_wiresharkGenerator;
 };

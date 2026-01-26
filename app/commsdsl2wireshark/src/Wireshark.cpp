@@ -40,7 +40,12 @@ std::string Wireshark::wiresharkFileName(const WiresharkGenerator& generator)
     return generator.genProtocolSchema().genMainNamespace() + ".lua";
 }
 
-bool Wireshark::wiresharkWriteInternal()
+const std::string& Wireshark::wiresharkProtocolObjName(const WiresharkGenerator& generator)
+{
+    return generator.genProtocolSchema().genMainNamespace();
+}
+
+bool Wireshark::wiresharkWriteInternal() const
 {
     auto fileName = wiresharkFileName(m_wiresharkGenerator);
     auto filePath = util::genPathAddElem(m_wiresharkGenerator.genGetOutputDir(), fileName);
@@ -55,10 +60,16 @@ bool Wireshark::wiresharkWriteInternal()
     do {
         const std::string Templ =
             "#^#GEN_COMMENT#$#\n"
+            "#^#PROTOCOL#$#\n"
+            "#^#DISSECT_FUNC#$#\n"
+            "return #^#NAME#$#\n"
             ;
 
         util::GenReplacementMap repl = {
             {"GEN_COMMENT", m_wiresharkGenerator.wiresharkFileGeneratedComment()},
+            {"PROTOCOL", wiresharkProtocolDefInternal()},
+            {"DISSECT_FUNC", wiresharkDissectFuncInternal()},
+            {"NAME", wiresharkProtocolObjName(m_wiresharkGenerator)},
         };
 
         auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
@@ -72,6 +83,47 @@ bool Wireshark::wiresharkWriteInternal()
     }
 
     return true;
+}
+
+std::string Wireshark::wiresharkProtocolDefInternal() const
+{
+    const std::string Templ =
+        "local #^#NAME#$# = Proto(\"#^#NAME#$#\", \"#^#DISP_NAME#$#\")\n"
+        ;
+
+    auto& nsName = wiresharkProtocolObjName(m_wiresharkGenerator);
+    util::GenReplacementMap repl = {
+        {"NAME", nsName},
+        {"DISP_NAME", util::genDisplayName(m_wiresharkGenerator.genProtocolSchema().genParseObj().parseDisplayName(), nsName)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string Wireshark::wiresharkDissectFuncInternal() const
+{
+    const std::string Templ =
+        "-- Main Dissector Entry Point\n"
+        "function #^#NAME#$#.dissector(tvb, pinfo, tree)\n"
+        "    #^#REPLACE#$#\n"
+        "    #^#BODY#$#\n"
+        "end\n"
+        ;
+
+    bool bodyReplaced = false;
+    auto replacePath = m_wiresharkGenerator.wiresharkInputRelPathFor("dissector") + strings::genReplaceFileSuffixStr();
+    auto replaceCode = m_wiresharkGenerator.genReadCodeInjectCode(replacePath, "Replace body", &bodyReplaced);
+
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkProtocolObjName(m_wiresharkGenerator)},
+        {"REPLACE", std::move(replaceCode)},
+    };
+
+    if (!bodyReplaced) {
+        // TODO: Add frame function
+    }
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2wireshark

@@ -44,6 +44,16 @@ const std::string& WiresharkGenerator::wiresharkFileGeneratedComment()
     return Str;
 }
 
+std::string WiresharkGenerator::wiresharkInputRelPathFor(const std::string& name) const
+{
+    return Wireshark::wiresharkFileName(*this) + '.' + name;
+}
+
+std::string WiresharkGenerator::wiresharkInputAbsPathFor(const std::string& name) const
+{
+    return genGetCodeDir() + '/' + wiresharkInputRelPathFor(name);
+}
+
 WiresharkGenerator::OptsProcessResult WiresharkGenerator::genProcessOptionsImpl(
     [[maybe_unused]] const GenProgramOptions& options)
 {
@@ -60,6 +70,8 @@ bool WiresharkGenerator::wiresharkWriteExtraFilesInternal() const
 {
     const std::vector<std::string> ReservedExt = {
         strings::genAppendFileSuffixStr(),
+        strings::genReplaceFileSuffixStr(),
+        strings::genExtendFileSuffixStr(),
     };
 
     return genCopyExtraSourceFiles(ReservedExt);

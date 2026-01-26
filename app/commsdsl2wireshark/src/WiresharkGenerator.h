@@ -48,6 +48,9 @@ public:
 
     static const std::string& wiresharkFileGeneratedComment();
 
+    std::string wiresharkInputRelPathFor(const std::string& name) const;
+    std::string wiresharkInputAbsPathFor(const std::string& name) const;
+
 protected:
     virtual bool genWriteImpl() override;
     virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
