@@ -25,6 +25,10 @@ class WiresharkGenerator final : public commsdsl::gen::GenGenerator
     using GenBase = commsdsl::gen::GenGenerator;
 
 public:
+    using ParseNamespace = commsdsl::parse::ParseNamespace;
+    using ParseSchema = commsdsl::parse::ParseSchema;
+    using ParseFrame = commsdsl::parse::ParseFrame;
+
     using GenElem = commsdsl::gen::GenElem;
     using GenSchemaPtr = commsdsl::gen::GenSchemaPtr;
     using GenNamespacePtr = commsdsl::gen::GenNamespacePtr;
@@ -52,9 +56,11 @@ public:
     std::string wiresharkInputAbsPathFor(const std::string& name) const;
 
 protected:
-    virtual bool genWriteImpl() override;
-    virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
+    virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, commsdsl::gen::GenElem* parent) override;
+    virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, commsdsl::gen::GenElem* parent) override;
 
+    virtual bool genWriteImpl() override;
     virtual const std::string& genCommentPrefixImpl() const override;
 
 private:

@@ -13,16 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "WiresharkProgramOptions.h"
+#include "WiresharkFrame.h"
+
+#include "WiresharkGenerator.h"
 
 namespace commsdsl2wireshark
 {
 
-WiresharkProgramOptions::WiresharkProgramOptions()
+WiresharkFrame::WiresharkFrame(WiresharkGenerator& generator, ParseFrame parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent)
 {
-    genAddCommonOptions();
-    genAddMessagesSelectionOptions();
-    genAddInterfaceSelectionOptions();
 }
+
+WiresharkFrame::~WiresharkFrame() = default;
 
 } // namespace commsdsl2wireshark

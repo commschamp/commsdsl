@@ -1,7 +1,10 @@
 set (src
     Wireshark.cpp
+    WiresharkFrame.cpp
     WiresharkGenerator.cpp
+    WiresharkNamespace.cpp
     WiresharkProgramOptions.cpp
+    WiresharkSchema.cpp
     main.cpp
 )
 

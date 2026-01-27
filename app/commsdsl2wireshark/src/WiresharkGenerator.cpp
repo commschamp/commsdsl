@@ -16,7 +16,9 @@
 #include "WiresharkGenerator.h"
 
 #include "Wireshark.h"
-#include "WiresharkProgramOptions.h"
+#include "WiresharkFrame.h"
+#include "WiresharkNamespace.h"
+#include "WiresharkSchema.h"
 
 #include "commsdsl/gen/strings.h"
 
@@ -28,6 +30,21 @@ namespace commsdsl2wireshark
 {
 
 WiresharkGenerator::WiresharkGenerator() = default;
+
+WiresharkGenerator::GenSchemaPtr WiresharkGenerator::genCreateSchemaImpl(ParseSchema parseObj, commsdsl::gen::GenElem* parent)
+{
+    return std::make_unique<WiresharkSchema>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenNamespacePtr WiresharkGenerator::genCreateNamespaceImpl(ParseNamespace parseObj, commsdsl::gen::GenElem* parent)
+{
+    return std::make_unique<WiresharkNamespace>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenFramePtr WiresharkGenerator::genCreateFrameImpl(ParseFrame parseObj, commsdsl::gen::GenElem* parent)
+{
+    return std::make_unique<WiresharkFrame>(*this, parseObj, parent);
+}
 
 bool WiresharkGenerator::genWriteImpl()
 {
@@ -52,12 +69,6 @@ std::string WiresharkGenerator::wiresharkInputRelPathFor(const std::string& name
 std::string WiresharkGenerator::wiresharkInputAbsPathFor(const std::string& name) const
 {
     return genGetCodeDir() + '/' + wiresharkInputRelPathFor(name);
-}
-
-WiresharkGenerator::OptsProcessResult WiresharkGenerator::genProcessOptionsImpl(
-    [[maybe_unused]] const GenProgramOptions& options)
-{
-    return OptsProcessResult_Continue;
 }
 
 const std::string& WiresharkGenerator::genCommentPrefixImpl() const

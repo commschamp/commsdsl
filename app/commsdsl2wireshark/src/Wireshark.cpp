@@ -16,6 +16,7 @@
 #include "Wireshark.h"
 
 #include "WiresharkGenerator.h"
+#include "WiresharkSchema.h"
 
 #include "commsdsl/gen/util.h"
 #include "commsdsl/gen/strings.h"
@@ -45,6 +46,16 @@ const std::string& Wireshark::wiresharkProtocolObjName(const WiresharkGenerator&
     return generator.genProtocolSchema().genMainNamespace();
 }
 
+std::string Wireshark::wiresharkCreateFieldFuncName(const WiresharkGenerator& generator)
+{
+    return wiresharkProtocolObjName(generator) + "_createField";
+}
+
+std::string Wireshark::wiresharkFieldsListName(const WiresharkGenerator& generator)
+{
+    return wiresharkProtocolObjName(generator) + "_fields_list";
+}
+
 bool Wireshark::wiresharkWriteInternal() const
 {
     auto fileName = wiresharkFileName(m_wiresharkGenerator);
@@ -61,15 +72,22 @@ bool Wireshark::wiresharkWriteInternal() const
         const std::string Templ =
             "#^#GEN_COMMENT#$#\n"
             "#^#PROTOCOL#$#\n"
+            "#^#FIELDS_REG#$#\n"
+            "#^#CODE#$#\n"
             "#^#DISSECT_FUNC#$#\n"
+            "#^#NAME#$#.fields = #^#FIELDS_LIST#$#\n"
+            "\n"
             "return #^#NAME#$#\n"
             ;
 
         util::GenReplacementMap repl = {
             {"GEN_COMMENT", m_wiresharkGenerator.wiresharkFileGeneratedComment()},
             {"PROTOCOL", wiresharkProtocolDefInternal()},
+            {"FIELDS_REG", wiresharkFieldsRegistrationInternal()},
             {"DISSECT_FUNC", wiresharkDissectFuncInternal()},
             {"NAME", wiresharkProtocolObjName(m_wiresharkGenerator)},
+            {"FIELDS_LIST", wiresharkFieldsListName(m_wiresharkGenerator)},
+            {"CODE", wiresharkCodeInternal()},
         };
 
         auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
@@ -106,6 +124,12 @@ std::string Wireshark::wiresharkDissectFuncInternal() const
         "-- Main Dissector Entry Point\n"
         "function #^#NAME#$#.dissector(tvb, pinfo, tree)\n"
         "    #^#REPLACE#$#\n"
+        "    if tvb:len() == 0 then\n"
+        "        return\n"
+        "    end\n"
+        "\n"
+        "    pinfo.cols.protocol = #^#NAME#$#.name\n"
+        "\n"
         "    #^#BODY#$#\n"
         "end\n"
         ;
@@ -124,6 +148,42 @@ std::string Wireshark::wiresharkDissectFuncInternal() const
     }
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string Wireshark::wiresharkFieldsRegistrationInternal() const
+{
+    const std::string Templ =
+        "-- Field Management\n"
+        "local #^#LIST#$# = {}\n"
+        "\n"
+        "-- Invoke this function every time the field is created\n"
+        "local function #^#NAME#$#(obj)\n"
+        "    table.insert(#^#LIST#$#, obj)\n"
+        "    return obj\n"
+        "end\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"LIST", wiresharkFieldsListName(m_wiresharkGenerator)},
+        {"NAME", wiresharkCreateFieldFuncName(m_wiresharkGenerator)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string Wireshark::wiresharkCodeInternal() const
+{
+    util::GenStringsList elems;
+    for (auto& sPtr : m_wiresharkGenerator.genSchemas()) {
+        auto str = WiresharkSchema::wiresharkCast(*sPtr).wiresharkDissectCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        elems.push_back(std::move(str));
+    }
+
+    return util::genStrListToString(elems, "\n", "");
 }
 
 } // namespace commsdsl2wireshark

@@ -13,16 +13,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "WiresharkProgramOptions.h"
+#include "WiresharkNamespace.h"
+
+#include "WiresharkGenerator.h"
 
 namespace commsdsl2wireshark
 {
 
-WiresharkProgramOptions::WiresharkProgramOptions()
+WiresharkNamespace::WiresharkNamespace(WiresharkGenerator& generator, ParseNamespace parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent)
 {
-    genAddCommonOptions();
-    genAddMessagesSelectionOptions();
-    genAddInterfaceSelectionOptions();
+}
+
+WiresharkNamespace::~WiresharkNamespace() = default;
+
+std::string WiresharkNamespace::wiresharkDissectCode() const
+{
+    // TODO:
+    return std::string();
 }
 
 } // namespace commsdsl2wireshark
