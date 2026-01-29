@@ -15,38 +15,24 @@
 
 #pragma once
 
-#include "commsdsl/gen/GenFrame.h"
+#include "WiresharkField.h"
+
+#include "commsdsl/gen/GenDataField.h"
 
 namespace commsdsl2wireshark
 {
 
 class WiresharkGenerator;
-class WiresharkFrame final : public commsdsl::gen::GenFrame
+class WiresharkDataField final : public commsdsl::gen::GenDataField, public WiresharkField
 {
-    using GenBase = commsdsl::gen::GenFrame;
+    using GenBase = commsdsl::gen::GenDataField;
+    using WiresharkBase = WiresharkField;
 
 public:
+    using ParseField = commsdsl::parse::ParseField;
     using GenElem = commsdsl::gen::GenElem;
-    using GenFrame = commsdsl::gen::GenFrame;
 
-    WiresharkFrame(WiresharkGenerator& generator, ParseFrame parseObj, GenElem* parent);
-    virtual ~WiresharkFrame();
-
-    static WiresharkFrame& wiresharkCast(GenFrame& generator)
-    {
-        return static_cast<WiresharkFrame&>(generator);
-    }
-
-    static const WiresharkFrame& wiresharkCast(const GenFrame& generator)
-    {
-        return static_cast<const WiresharkFrame&>(generator);
-    }
-
-    std::string wiresharkDissectName() const;
-    std::string wiresharkDissectCode() const;
-
-private:
-    std::string wiresharkDissectBodyInternal() const;
+    WiresharkDataField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
 };
 
 } // namespace commsdsl2wireshark

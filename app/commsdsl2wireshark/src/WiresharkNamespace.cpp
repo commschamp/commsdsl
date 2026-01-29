@@ -15,7 +15,13 @@
 
 #include "WiresharkNamespace.h"
 
+#include "WiresharkField.h"
+#include "WiresharkFrame.h"
 #include "WiresharkGenerator.h"
+
+#include "commsdsl/gen/util.h"
+
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2wireshark
 {
@@ -30,7 +36,49 @@ WiresharkNamespace::~WiresharkNamespace() = default;
 std::string WiresharkNamespace::wiresharkDissectCode() const
 {
     // TODO:
-    return std::string();
+    static const std::string Templ =
+        "#^#NAMESPACES#$#\n"
+        "#^#FIELDS#$#\n"
+        "#^#FRAMES#$#\n"
+        ;
+
+    util::GenStringsList namespaces;
+    for (auto& nsPtr : genNamespaces()) {
+        auto str = WiresharkNamespace::wiresharkCast(*nsPtr).wiresharkDissectCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        namespaces.push_back(std::move(str));
+    }
+
+    util::GenStringsList fields;
+    for (auto& fPtr : genFields()) {
+        auto str = WiresharkField::wiresharkCast(fPtr.get())->wiresharkDissectCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        fields.push_back(std::move(str));
+    }
+
+    util::GenStringsList frames;
+    for (auto& fPtr : genFrames()) {
+        auto str = WiresharkFrame::wiresharkCast(*fPtr).wiresharkDissectCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        frames.push_back(std::move(str));
+    }
+
+    util::GenReplacementMap repl = {
+        {"NAMESPACES", util::genStrListToString(namespaces, "\n", "")},
+        {"FIELDS", util::genStrListToString(fields, "\n", "")},
+        {"FRAMES", util::genStrListToString(frames, "\n", "")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2wireshark

@@ -15,38 +15,48 @@
 
 #pragma once
 
-#include "commsdsl/gen/GenFrame.h"
+#include "commsdsl/gen/GenField.h"
+#include "commsdsl/gen/util.h"
+
+#include <string>
+#include <vector>
 
 namespace commsdsl2wireshark
 {
 
-class WiresharkGenerator;
-class WiresharkFrame final : public commsdsl::gen::GenFrame
+class WiresharkField
 {
-    using GenBase = commsdsl::gen::GenFrame;
-
 public:
-    using GenElem = commsdsl::gen::GenElem;
-    using GenFrame = commsdsl::gen::GenFrame;
+    using GenField = commsdsl::gen::GenField;
+    using GenStringsList = commsdsl::gen::util::GenStringsList;
+    using WiresharkFieldsList = std::vector<WiresharkField*>;
 
-    WiresharkFrame(WiresharkGenerator& generator, ParseFrame parseObj, GenElem* parent);
-    virtual ~WiresharkFrame();
+    explicit WiresharkField(commsdsl::gen::GenField& field);
+    virtual ~WiresharkField();
 
-    static WiresharkFrame& wiresharkCast(GenFrame& generator)
+    static const WiresharkField* wiresharkCast(const GenField* field);
+    static WiresharkField* wiresharkCast(GenField* field);
+
+    static WiresharkFieldsList wiresharkTransformFieldsList(const GenField::GenFieldsList& fields);
+
+    GenField& wiresharkGenField()
     {
-        return static_cast<WiresharkFrame&>(generator);
+        return m_genField;
     }
 
-    static const WiresharkFrame& wiresharkCast(const GenFrame& generator)
+    const GenField& wiresharkGenField() const
     {
-        return static_cast<const WiresharkFrame&>(generator);
+        return m_genField;
     }
 
     std::string wiresharkDissectName() const;
     std::string wiresharkDissectCode() const;
 
 private:
+    std::string wiresharkFieldRegistrationInternal() const;
     std::string wiresharkDissectBodyInternal() const;
+
+    GenField& m_genField;
 };
 
 } // namespace commsdsl2wireshark

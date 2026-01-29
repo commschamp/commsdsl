@@ -13,12 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "WiresharkFrame.h"
+#include "WiresharkField.h"
 
 #include "WiresharkGenerator.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
+
+#include <cassert>
 
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
@@ -26,32 +28,72 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2wireshark
 {
 
-WiresharkFrame::WiresharkFrame(WiresharkGenerator& generator, ParseFrame parseObj, GenElem* parent) :
-    GenBase(generator, parseObj, parent)
+WiresharkField::WiresharkField(GenField& field) :
+    m_genField(field)
 {
 }
 
-WiresharkFrame::~WiresharkFrame() = default;
+WiresharkField::~WiresharkField() = default;
 
-std::string WiresharkFrame::wiresharkDissectName() const
+const WiresharkField* WiresharkField::wiresharkCast(const GenField* field)
 {
-    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
-    return wiresharkGenerator.wiresharkDissectNameFor(*this);
+    if (field == nullptr) {
+        return nullptr;
+    }
+
+    return dynamic_cast<const WiresharkField*>(field);
 }
 
-std::string WiresharkFrame::wiresharkDissectCode() const
+WiresharkField* WiresharkField::wiresharkCast(GenField* field)
 {
+    if (field == nullptr) {
+        return nullptr;
+    }
+
+    return dynamic_cast<WiresharkField*>(field);
+}
+
+WiresharkField::WiresharkFieldsList WiresharkField::wiresharkTransformFieldsList(const GenField::GenFieldsList& fields)
+{
+    WiresharkFieldsList result;
+    result.reserve(fields.size());
+    for (auto& f : fields) {
+        auto* wiresharkField = const_cast<WiresharkField*>(wiresharkCast(f.get()));
+        assert(wiresharkField != nullptr);
+        result.push_back(wiresharkField);
+    }
+
+    return result;
+}
+
+std::string WiresharkField::wiresharkDissectName() const
+{
+    if (!m_genField.genIsReferenced()) {
+        return strings::genEmptyString();
+    }
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    return wiresharkGenerator.wiresharkDissectNameFor(m_genField);
+}
+
+std::string WiresharkField::wiresharkDissectCode() const
+{
+    if (!m_genField.genIsReferenced()) {
+        return strings::genEmptyString();
+    }
+
     static const std::string Templ =
+        "#^#REG#$#\n"
         "#^#PREPEND#$#\n"
-        "local function #^#NAME#$##^#SUFFIX#$#(tvb, tree)\n"
+        "local function #^#NAME#$##^#SUFFIX#$#(tvb, tree, offset, offsetLimit)\n"
         "    #^#REPLACE#$#\n"
         "    #^#BODY#$#\n"
         "end\n"
         "#^#EXTEND#$#\n"
         ;
 
-    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
-    auto relPath = wiresharkGenerator.wiresharkInputRelPathFor(*this);
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    auto relPath = wiresharkGenerator.wiresharkInputRelPathFor(m_genField);
     auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
     auto prependFileName = relPath + strings::genPrependFileSuffixStr();
     auto extendFileName = relPath + strings::genExtendFileSuffixStr();
@@ -59,6 +101,7 @@ std::string WiresharkFrame::wiresharkDissectCode() const
     bool replaced = false;
     bool extended = false;
     util::GenReplacementMap repl = {
+        {"REG", wiresharkFieldRegistrationInternal()},
         {"NAME", wiresharkDissectName()},
         {"REPLACE", wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &replaced)},
         {"PREPEND", wiresharkGenerator.genReadCodeInjectCode(prependFileName, "Prepend here")},
@@ -76,7 +119,13 @@ std::string WiresharkFrame::wiresharkDissectCode() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkFrame::wiresharkDissectBodyInternal() const
+std::string WiresharkField::wiresharkFieldRegistrationInternal() const
+{
+    // TODO:
+    return std::string();
+}
+
+std::string WiresharkField::wiresharkDissectBodyInternal() const
 {
     // TODO:
     return std::string();

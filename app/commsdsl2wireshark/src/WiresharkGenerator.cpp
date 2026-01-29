@@ -16,34 +16,110 @@
 #include "WiresharkGenerator.h"
 
 #include "Wireshark.h"
+#include "WiresharkBitfieldField.h"
+#include "WiresharkBundleField.h"
+#include "WiresharkDataField.h"
+#include "WiresharkEnumField.h"
+#include "WiresharkFloatField.h"
 #include "WiresharkFrame.h"
+#include "WiresharkIntField.h"
+#include "WiresharkListField.h"
 #include "WiresharkNamespace.h"
+#include "WiresharkOptionalField.h"
+#include "WiresharkRefField.h"
 #include "WiresharkSchema.h"
+#include "WiresharkSetField.h"
+#include "WiresharkStringField.h"
+#include "WiresharkVariantField.h"
 
+#include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
 
 #include <cassert>
 
+namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2wireshark
 {
 
 WiresharkGenerator::WiresharkGenerator() = default;
 
-WiresharkGenerator::GenSchemaPtr WiresharkGenerator::genCreateSchemaImpl(ParseSchema parseObj, commsdsl::gen::GenElem* parent)
+WiresharkGenerator::GenSchemaPtr WiresharkGenerator::genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent)
 {
     return std::make_unique<WiresharkSchema>(*this, parseObj, parent);
 }
 
-WiresharkGenerator::GenNamespacePtr WiresharkGenerator::genCreateNamespaceImpl(ParseNamespace parseObj, commsdsl::gen::GenElem* parent)
+WiresharkGenerator::GenNamespacePtr WiresharkGenerator::genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent)
 {
     return std::make_unique<WiresharkNamespace>(*this, parseObj, parent);
 }
 
-WiresharkGenerator::GenFramePtr WiresharkGenerator::genCreateFrameImpl(ParseFrame parseObj, commsdsl::gen::GenElem* parent)
+WiresharkGenerator::GenFramePtr WiresharkGenerator::genCreateFrameImpl(ParseFrame parseObj, GenElem* parent)
 {
     return std::make_unique<WiresharkFrame>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenFieldPtr WiresharkGenerator::genCreateIntFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkIntField>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenFieldPtr WiresharkGenerator::genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkEnumField>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenFieldPtr WiresharkGenerator::genCreateSetFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkSetField>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenFieldPtr WiresharkGenerator::genCreateFloatFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkFloatField>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenFieldPtr WiresharkGenerator::genCreateBitfieldFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkBitfieldField>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenFieldPtr WiresharkGenerator::genCreateBundleFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkBundleField>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenFieldPtr WiresharkGenerator::genCreateStringFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkStringField>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenFieldPtr WiresharkGenerator::genCreateDataFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkDataField>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenFieldPtr WiresharkGenerator::genCreateListFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkListField>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenFieldPtr WiresharkGenerator::genCreateRefFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkRefField>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenFieldPtr WiresharkGenerator::genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkOptionalField>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenFieldPtr WiresharkGenerator::genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkVariantField>(*this, parseObj, parent);
 }
 
 bool WiresharkGenerator::genWriteImpl()
@@ -61,9 +137,36 @@ const std::string& WiresharkGenerator::wiresharkFileGeneratedComment()
     return Str;
 }
 
+std::string WiresharkGenerator::wiresharkScopeToName(const std::string& scope) const
+{
+    return util::genStrReplace(scope, "::", "_");
+}
+
+std::string WiresharkGenerator::wiresharkDissectNameFor(const GenElem& elem) const
+{
+    auto scope = comms::genScopeFor(elem, *this, false);
+    auto protName = Wireshark::wiresharkProtocolObjName(*this);
+    return protName + '_' + wiresharkScopeToName(scope) + "_read";
+}
+
+std::string WiresharkGenerator::wiresharkInputRelPathPrefix() const
+{
+    return Wireshark::wiresharkFileName(*this) + '-';
+}
+
+std::string WiresharkGenerator::wiresharkInputRelPathFor(const GenElem& elem) const
+{
+    return wiresharkInputRelPathPrefix() + wiresharkDissectNameFor(elem);
+}
+
+std::string WiresharkGenerator::wiresharkInputAbsPathFor(const GenElem& elem) const
+{
+    return genGetCodeDir() + '/' + wiresharkInputRelPathFor(elem);
+}
+
 std::string WiresharkGenerator::wiresharkInputRelPathFor(const std::string& name) const
 {
-    return Wireshark::wiresharkFileName(*this) + '.' + name;
+    return wiresharkInputRelPathPrefix() + name;
 }
 
 std::string WiresharkGenerator::wiresharkInputAbsPathFor(const std::string& name) const
@@ -81,8 +184,9 @@ bool WiresharkGenerator::wiresharkWriteExtraFilesInternal() const
 {
     const std::vector<std::string> ReservedExt = {
         strings::genAppendFileSuffixStr(),
-        strings::genReplaceFileSuffixStr(),
         strings::genExtendFileSuffixStr(),
+        strings::genPrependFileSuffixStr(),
+        strings::genReplaceFileSuffixStr(),
     };
 
     return genCopyExtraSourceFiles(ReservedExt);

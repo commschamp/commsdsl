@@ -1,10 +1,23 @@
 set (src
     Wireshark.cpp
+    WiresharkBitfieldField.cpp
+    WiresharkBundleField.cpp
+    WiresharkDataField.cpp
+    WiresharkEnumField.cpp
+    WiresharkField.cpp
+    WiresharkFloatField.cpp
     WiresharkFrame.cpp
     WiresharkGenerator.cpp
+    WiresharkIntField.cpp
+    WiresharkListField.cpp
     WiresharkNamespace.cpp
+    WiresharkOptionalField.cpp
     WiresharkProgramOptions.cpp
+    WiresharkRefField.cpp
     WiresharkSchema.cpp
+    WiresharkSetField.cpp
+    WiresharkStringField.cpp
+    WiresharkVariantField.cpp
     main.cpp
 )
 
