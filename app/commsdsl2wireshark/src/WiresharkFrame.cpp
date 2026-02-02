@@ -42,6 +42,7 @@ std::string WiresharkFrame::wiresharkDissectName() const
 std::string WiresharkFrame::wiresharkDissectCode() const
 {
     static const std::string Templ =
+        "#^#LAYERS#$#\n"
         "#^#PREPEND#$#\n"
         "local function #^#NAME#$##^#SUFFIX#$#(tvb, tree)\n"
         "    #^#REPLACE#$#\n"
@@ -59,10 +60,11 @@ std::string WiresharkFrame::wiresharkDissectCode() const
     bool replaced = false;
     bool extended = false;
     util::GenReplacementMap repl = {
+        {"LAYERS", wiresharkLayersDissectCodeInternal()},
         {"NAME", wiresharkDissectName()},
         {"REPLACE", wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &replaced)},
         {"PREPEND", wiresharkGenerator.genReadCodeInjectCode(prependFileName, "Prepend here")},
-        {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend this function body", &extended)},
+        {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
     };
 
     if (!replaced) {
@@ -76,10 +78,38 @@ std::string WiresharkFrame::wiresharkDissectCode() const
     return util::genProcessTemplate(Templ, repl);
 }
 
+bool WiresharkFrame::genPrepareImpl()
+{
+    if (!GenBase::genPrepareImpl()) {
+        return false;
+    }
+
+    for (auto& lPtr : genLayers()) {
+        m_wiresharkLayers.push_back(WiresharkLayer::wiresharkCast(lPtr.get()));
+    }
+
+    return true;
+}
+
 std::string WiresharkFrame::wiresharkDissectBodyInternal() const
 {
     // TODO:
     return std::string();
+}
+
+std::string WiresharkFrame::wiresharkLayersDissectCodeInternal() const
+{
+    util::GenStringsList layers;
+    for (auto* l : m_wiresharkLayers) {
+        auto str = l->wiresharkDissectCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        layers.push_back(std::move(str));
+    }
+
+    return util::genStrListToString(layers, "\n", "\n");
 }
 
 } // namespace commsdsl2wireshark

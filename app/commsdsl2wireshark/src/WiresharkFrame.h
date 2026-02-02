@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "WiresharkLayer.h"
+
 #include "commsdsl/gen/GenFrame.h"
 
 namespace commsdsl2wireshark
@@ -28,6 +30,8 @@ class WiresharkFrame final : public commsdsl::gen::GenFrame
 public:
     using GenElem = commsdsl::gen::GenElem;
     using GenFrame = commsdsl::gen::GenFrame;
+
+    using WiresharkLayersAccessList = std::vector<const WiresharkLayer*>;
 
     WiresharkFrame(WiresharkGenerator& generator, ParseFrame parseObj, GenElem* parent);
     virtual ~WiresharkFrame();
@@ -45,8 +49,14 @@ public:
     std::string wiresharkDissectName() const;
     std::string wiresharkDissectCode() const;
 
+protected:
+    virtual bool genPrepareImpl() override;
+
 private:
     std::string wiresharkDissectBodyInternal() const;
+    std::string wiresharkLayersDissectCodeInternal() const;
+
+    WiresharkLayersAccessList m_wiresharkLayers;
 };
 
 } // namespace commsdsl2wireshark

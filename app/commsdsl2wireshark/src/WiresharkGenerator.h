@@ -37,6 +37,8 @@ public:
     using GenProgramOptions = commsdsl::gen::GenProgramOptions;
     using GenGenerator = commsdsl::gen::GenGenerator;
     using GenFieldPtr = commsdsl::gen::GenFieldPtr;
+    using GenLayerPtr = commsdsl::gen::GenLayerPtr;
+    using ParseLayer = commsdsl::parse::ParseLayer;
 
     WiresharkGenerator();
 
@@ -65,6 +67,14 @@ protected:
     virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
     virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
     virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent) override;
+
+    virtual GenLayerPtr genCreateCustomLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    virtual GenLayerPtr genCreateSyncLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    virtual GenLayerPtr genCreateSizeLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    virtual GenLayerPtr genCreateIdLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    virtual GenLayerPtr genCreateValueLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    virtual GenLayerPtr genCreatePayloadLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    virtual GenLayerPtr genCreateChecksumLayerImpl(ParseLayer parseObj, GenElem* parent) override;
 
     virtual GenFieldPtr genCreateIntFieldImpl(ParseField parseObj, GenElem* parent) override;
     virtual GenFieldPtr genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent) override;

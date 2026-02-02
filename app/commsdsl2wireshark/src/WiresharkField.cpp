@@ -15,13 +15,16 @@
 
 #include "WiresharkField.h"
 
+#include "Wireshark.h"
 #include "WiresharkGenerator.h"
 
+#include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
 #include <cassert>
 
+namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
 
@@ -101,11 +104,11 @@ std::string WiresharkField::wiresharkDissectCode() const
     bool replaced = false;
     bool extended = false;
     util::GenReplacementMap repl = {
-        {"REG", wiresharkFieldRegistrationInternal()},
+        {"REG", wiresharkFieldRegistrationImpl()},
         {"NAME", wiresharkDissectName()},
         {"REPLACE", wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &replaced)},
         {"PREPEND", wiresharkGenerator.genReadCodeInjectCode(prependFileName, "Prepend here")},
-        {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend this function body", &extended)},
+        {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
     };
 
     if (!replaced) {
@@ -119,10 +122,23 @@ std::string WiresharkField::wiresharkDissectCode() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkField::wiresharkFieldRegistrationInternal() const
+std::string WiresharkField::wiresharkFieldObjName(const std::string& suffix) const
 {
-    // TODO:
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    auto scope = comms::genScopeFor(m_genField, wiresharkGenerator, false);
+    return Wireshark::wiresharkProtocolObjName(wiresharkGenerator) + '_' + util::genStrReplace(scope, "::", "_") + suffix;
+}
+
+std::string WiresharkField::wiresharkFieldRegistrationImpl() const
+{
     return std::string();
+}
+
+std::string WiresharkField::wiresharkFieldRefName() const
+{
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    auto scope = comms::genScopeFor(m_genField, wiresharkGenerator, false);
+    return Wireshark::wiresharkProtocolObjName(wiresharkGenerator) + '.' + util::genStrReplace(scope, "::", ".");
 }
 
 std::string WiresharkField::wiresharkDissectBodyInternal() const

@@ -601,6 +601,12 @@ const std::string& genValueTypeStr()
     return Str;
 }
 
+const std::string& genSpecialsSuffixStr()
+{
+    static const std::string Str("_specials");
+    return Str;
+}
+
 char genSiblingRefPrefix()
 {
     return '$';

@@ -18,18 +18,25 @@
 #include "Wireshark.h"
 #include "WiresharkBitfieldField.h"
 #include "WiresharkBundleField.h"
+#include "WiresharkChecksumLayer.h"
+#include "WiresharkCustomLayer.h"
 #include "WiresharkDataField.h"
 #include "WiresharkEnumField.h"
 #include "WiresharkFloatField.h"
 #include "WiresharkFrame.h"
+#include "WiresharkIdLayer.h"
 #include "WiresharkIntField.h"
 #include "WiresharkListField.h"
 #include "WiresharkNamespace.h"
 #include "WiresharkOptionalField.h"
+#include "WiresharkPayloadLayer.h"
 #include "WiresharkRefField.h"
 #include "WiresharkSchema.h"
 #include "WiresharkSetField.h"
+#include "WiresharkSizeLayer.h"
 #include "WiresharkStringField.h"
+#include "WiresharkSyncLayer.h"
+#include "WiresharkValueLayer.h"
 #include "WiresharkVariantField.h"
 
 #include "commsdsl/gen/comms.h"
@@ -60,6 +67,41 @@ WiresharkGenerator::GenNamespacePtr WiresharkGenerator::genCreateNamespaceImpl(P
 WiresharkGenerator::GenFramePtr WiresharkGenerator::genCreateFrameImpl(ParseFrame parseObj, GenElem* parent)
 {
     return std::make_unique<WiresharkFrame>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenLayerPtr WiresharkGenerator::genCreateCustomLayerImpl(ParseLayer parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkCustomLayer>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenLayerPtr WiresharkGenerator::genCreateSyncLayerImpl(ParseLayer parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkSyncLayer>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenLayerPtr WiresharkGenerator::genCreateSizeLayerImpl(ParseLayer parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkSizeLayer>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenLayerPtr WiresharkGenerator::genCreateIdLayerImpl(ParseLayer parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkIdLayer>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenLayerPtr WiresharkGenerator::genCreateValueLayerImpl(ParseLayer parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkValueLayer>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenLayerPtr WiresharkGenerator::genCreatePayloadLayerImpl(ParseLayer parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkPayloadLayer>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenLayerPtr WiresharkGenerator::genCreateChecksumLayerImpl(ParseLayer parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkChecksumLayer>(*this, parseObj, parent);
 }
 
 WiresharkGenerator::GenFieldPtr WiresharkGenerator::genCreateIntFieldImpl(ParseField parseObj, GenElem* parent)

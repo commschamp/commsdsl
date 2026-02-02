@@ -123,6 +123,7 @@ const std::string& genLittleStr();
 const std::string& genDescriptionStr();
 const std::string& genCommsNameSuffixStr();
 const std::string& genValueTypeStr();
+const std::string& genSpecialsSuffixStr();
 
 char genSiblingRefPrefix();
 char genStringRefPrefix();

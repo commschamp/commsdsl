@@ -15,34 +15,24 @@
 
 #pragma once
 
-#include "WiresharkField.h"
+#include "WiresharkLayer.h"
 
-#include "commsdsl/gen/GenIntField.h"
-
-#include <string>
+#include "commsdsl/gen/GenSizeLayer.h"
 
 namespace commsdsl2wireshark
 {
 
 class WiresharkGenerator;
-class WiresharkIntField final : public commsdsl::gen::GenIntField, public WiresharkField
+class WiresharkSizeLayer final : public commsdsl::gen::GenSizeLayer, public WiresharkLayer
 {
-    using GenBase = commsdsl::gen::GenIntField;
-    using WiresharkBase = WiresharkField;
+    using GenBase = commsdsl::gen::GenSizeLayer;
+    using WiresharkBase = WiresharkLayer;
 
 public:
-    using ParseField = commsdsl::parse::ParseField;
+    using ParseLayer = commsdsl::parse::ParseLayer;
     using GenElem = commsdsl::gen::GenElem;
 
-    WiresharkIntField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
-
-    static const std::string& wiresharkIntegralType(ParseIntField::ParseType type, std::size_t len);
-
-protected:
-    std::string wiresharkFieldRegistrationImpl() const override;
-
-private:
-    std::string wiresharkSpecialsInternal() const;
+    WiresharkSizeLayer(WiresharkGenerator& generator, ParseLayer parseObj, GenElem* parent);
 };
 
 } // namespace commsdsl2wireshark

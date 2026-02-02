@@ -15,34 +15,43 @@
 
 #pragma once
 
-#include "WiresharkField.h"
-
-#include "commsdsl/gen/GenIntField.h"
+#include "commsdsl/gen/GenLayer.h"
 
 #include <string>
 
 namespace commsdsl2wireshark
 {
 
-class WiresharkGenerator;
-class WiresharkIntField final : public commsdsl::gen::GenIntField, public WiresharkField
+class WiresharkLayer
 {
-    using GenBase = commsdsl::gen::GenIntField;
-    using WiresharkBase = WiresharkField;
-
 public:
-    using ParseField = commsdsl::parse::ParseField;
-    using GenElem = commsdsl::gen::GenElem;
+    using GenLayer = commsdsl::gen::GenLayer;
 
-    WiresharkIntField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
+    explicit WiresharkLayer(GenLayer& layer);
+    virtual ~WiresharkLayer();
 
-    static const std::string& wiresharkIntegralType(ParseIntField::ParseType type, std::size_t len);
+    static const WiresharkLayer* wiresharkCast(const GenLayer* layer);
+    static WiresharkLayer* wiresharkCast(GenLayer* layer);
+
+    GenLayer& wiresharkGenLayer()
+    {
+        return m_genLayer;
+    }
+
+    const GenLayer& wiresharkGenLayer() const
+    {
+        return m_genLayer;
+    }
+
+    std::string wiresharkDissectName() const;
+    std::string wiresharkDissectCode() const;
 
 protected:
-    std::string wiresharkFieldRegistrationImpl() const override;
+    virtual std::string wiresharkDissectBodyImpl() const;
 
 private:
-    std::string wiresharkSpecialsInternal() const;
-};
+    std::string wiresharkFieldDissectCodeInternal() const;
 
+    GenLayer& m_genLayer;
+};
 } // namespace commsdsl2wireshark
