@@ -122,11 +122,11 @@ std::string WiresharkField::wiresharkDissectCode() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkField::wiresharkFieldObjName(const std::string& suffix) const
+std::string WiresharkField::wiresharkFieldObjName() const
 {
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
     auto scope = comms::genScopeFor(m_genField, wiresharkGenerator, false);
-    return Wireshark::wiresharkProtocolObjName(wiresharkGenerator) + '_' + util::genStrReplace(scope, "::", "_") + suffix;
+    return Wireshark::wiresharkProtocolObjName(wiresharkGenerator) + '_' + util::genStrReplace(scope, "::", "_");
 }
 
 std::string WiresharkField::wiresharkFieldRegistrationImpl() const
@@ -141,10 +141,26 @@ std::string WiresharkField::wiresharkFieldRefName() const
     return Wireshark::wiresharkProtocolObjName(wiresharkGenerator) + '.' + util::genStrReplace(scope, "::", ".");
 }
 
+std::string WiresharkField::wiresharkForcedIntegralFieldMask() const
+{
+    // TODO:  for <bitfield> members
+    return strings::genNilStr();
+}
+
 std::string WiresharkField::wiresharkDissectBodyInternal() const
 {
     // TODO:
     return std::string();
+}
+
+std::string WiresharkField::wiresharkFieldDescriptionStr() const
+{
+    auto obj = m_genField.genParseObj();
+    if (obj.parseDescription().empty()) {
+        return strings::genNilStr();
+    }
+
+    return "\"" + obj.parseDescription() + "\"";
 }
 
 } // namespace commsdsl2wireshark

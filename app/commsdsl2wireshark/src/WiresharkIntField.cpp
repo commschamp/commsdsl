@@ -102,9 +102,10 @@ std::string WiresharkIntField::wiresharkFieldRegistrationImpl() const
 {
     static const std::string Templ =
         "#^#SPECIALS#$#\n"
-        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", base.DEC_HEX#^#SUFFIX#$#))\n"
+        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", base.DEC_HEX, #^#SPECIALS_NAME#$#, #^#MASK#$#, #^#DESC#$#))\n"
     ;
 
+    auto mask = wiresharkForcedIntegralFieldMask();
     auto obj = genIntFieldParseObj();
     util::GenReplacementMap repl = {
         {"SPECIALS", wiresharkSpecialsInternal()},
@@ -113,14 +114,13 @@ std::string WiresharkIntField::wiresharkFieldRegistrationImpl() const
         {"TYPE", wiresharkIntegralType(obj.parseType(), obj.parseMaxLength())},
         {"REF_NAME", wiresharkFieldRefName()},
         {"DISP_NAME", util::genDisplayName(obj.parseDisplayName(), obj.parseName())},
+        {"SPECIALS_NAME", strings::genNilStr()},
+        {"MASK", wiresharkForcedIntegralFieldMask()},
+        {"DESC", wiresharkFieldDescriptionStr()},
     };
 
     if (!repl["SPECIALS"].empty()) {
-        repl["SUFFIX"] += ", " + wiresharkFieldObjName() + strings::genSpecialsSuffixStr();
-    }
-
-    if (!obj.parseDescription().empty()) {
-        repl["SUFFIX"] += ", \"" + obj.parseDescription() + "\"";
+        repl["SPECIALS_NAME"] = wiresharkFieldObjName() + strings::genValsSuffixStr();
     }
 
     assert(!repl["TYPE"].empty());
@@ -129,8 +129,41 @@ std::string WiresharkIntField::wiresharkFieldRegistrationImpl() const
 
 std::string WiresharkIntField::wiresharkSpecialsInternal() const
 {
-    // TODO
-    return std::string();
+    auto& specials = genSpecialsSortedByValue();
+    if (specials.empty()) {
+        return strings::genEmptyString();
+    }
+
+    util::GenStringsList elems;
+    for (auto& s : specials) {
+        static const std::string Templ =
+            "[#^#VAL#$#] = \"#^#NAME#$#\"";
+
+        util::GenReplacementMap repl = {
+            {"NAME", util::genDisplayName(s.second.m_displayName, s.first)},
+            {"VAL", std::to_string(s.second.m_value)},
+        };
+
+        if ((s.second.m_value < 0) && genIsUnsignedType()) {
+            repl["VAL"] = std::to_string(static_cast<std::uintmax_t>(s.second.m_value));
+        }
+
+        elems.push_back(util::genProcessTemplate(Templ, repl));
+    }
+
+    static const std::string Templ =
+        "local #^#NAME#$##^#SUFFIX#$# = {\n"
+        "    #^#ELEMS#$#\n"
+        "}\n"
+    ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkFieldObjName()},
+        {"SUFFIX",  strings::genValsSuffixStr()},
+        {"ELEMS", util::genStrListToString(elems, ",\n", "")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2wireshark

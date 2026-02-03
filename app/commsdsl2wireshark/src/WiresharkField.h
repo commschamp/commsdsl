@@ -51,12 +51,14 @@ public:
 
     std::string wiresharkDissectName() const;
     std::string wiresharkDissectCode() const;
-    std::string wiresharkFieldObjName(const std::string& suffix = std::string()) const;
+    std::string wiresharkFieldObjName() const;
 
 protected:
     virtual std::string wiresharkFieldRegistrationImpl() const;
 
     std::string wiresharkFieldRefName() const;
+    std::string wiresharkForcedIntegralFieldMask() const;
+    std::string wiresharkFieldDescriptionStr() const;
 
 private:
     std::string wiresharkDissectBodyInternal() const;

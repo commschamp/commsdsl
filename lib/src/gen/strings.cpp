@@ -601,9 +601,15 @@ const std::string& genValueTypeStr()
     return Str;
 }
 
-const std::string& genSpecialsSuffixStr()
+const std::string& genValsSuffixStr()
 {
-    static const std::string Str("_specials");
+    static const std::string Str("_vals");
+    return Str;
+}
+
+const std::string& genNilStr()
+{
+    static const std::string Str("nil");
     return Str;
 }
 
