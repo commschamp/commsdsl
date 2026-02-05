@@ -15,7 +15,19 @@
 
 #include "WiresharkSetField.h"
 
+#include "Wireshark.h"
 #include "WiresharkGenerator.h"
+#include "WiresharkIntField.h"
+
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+#include <cassert>
+#include <iomanip>
+#include <sstream>
+
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2wireshark
 {
@@ -24,6 +36,99 @@ WiresharkSetField::WiresharkSetField(WiresharkGenerator& generator, ParseField p
     GenBase(generator, parseObj, parent),
     WiresharkBase(static_cast<GenBase&>(*this))
 {
+}
+
+std::string WiresharkSetField::wiresharkFieldRegistrationImpl() const
+{
+    static const std::string Templ =
+        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", base.HEX, #^#NIL#$#, #^#MASK#$#, #^#DESC#$#))\n"
+        "#^#BITS#$#\n"
+    ;
+
+    auto parseObj = genSetFieldParseObj();
+    util::GenReplacementMap repl = {
+        {"BITS", wiresharkBitsInternal()},
+        {"OBJ_NAME", wiresharkFieldObjName()},
+        {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
+        {"TYPE", WiresharkIntField::wiresharkIntegralType(parseObj.parseType(), parseObj.parseMaxLength())},
+        {"REF_NAME", wiresharkFieldRefName()},
+        {"DISP_NAME", util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName())},
+        {"MASK", wiresharkForcedIntegralFieldMask()},
+        {"DESC", wiresharkFieldDescriptionStr()},
+        {"NIL", strings::genNilStr()},
+    };
+
+    assert(!repl["TYPE"].empty());
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkSetField::wiresharkBitsInternal() const
+{
+    GenStringsList elems;
+
+    auto parseObj = genSetFieldParseObj();
+    auto& bits = parseObj.parseBits();
+    auto& revBits = parseObj.parseRevBits();
+
+    auto refName = wiresharkFieldRefName();
+    auto parentWidth = wiresharkBitParentWidthInternal();
+
+    for (auto b : revBits) {
+        auto iter = bits.find(b.second);
+        assert(iter != bits.end());
+        if (iter == bits.end()) {
+            continue;
+        }
+
+        auto& bitInfo = *iter;
+
+        static const std::string Templ =
+            "local #^#BIT_OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bool(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", #^#PARENT_WIDTH#$#, #^#NIL#$#, #^#MASK#$#, #^#DESC#$#))\n"
+        ;
+
+        util::GenReplacementMap repl = {
+            {"BIT_OBJ_NAME", wiresharkBitObjName(bitInfo.first)},
+            {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
+            {"REF_NAME", refName + '.' + bitInfo.first},
+            {"DISP_NAME", util::genDisplayName(bitInfo.second.m_displayName, bitInfo.first)},
+            {"MASK", wiresharkBitMaskInternal(bitInfo.second.m_idx)},
+            {"DESC", strings::genNilStr()},
+            {"NIL", strings::genNilStr()},
+            {"PARENT_WIDTH", parentWidth},
+        };
+
+        if (!bitInfo.second.m_description.empty()) {
+            repl["DESC"] = '\"' + bitInfo.second.m_description + '\"';
+        }
+
+        elems.push_back(util::genProcessTemplate(Templ, repl));
+    }
+
+    return util::genStrListToString(elems, "", "");
+}
+
+std::string WiresharkSetField::wiresharkBitMaskInternal(unsigned idx) const
+{
+    // TODO: parent mask
+
+    auto mask = 1U << idx;
+    auto parseObj = genSetFieldParseObj();
+    std::stringstream stream;
+    stream << std::hex << "0x" << std::uppercase <<
+        std::setfill('0') << std::setw(static_cast<int>(parseObj.parseMaxLength() * 2U)) << mask;
+    return stream.str();
+}
+
+std::string WiresharkSetField::wiresharkBitParentWidthInternal() const
+{
+    // TODO: parent width
+
+    return std::to_string(genParseObj().parseMaxLength() * 8U);
+}
+
+std::string WiresharkSetField::wiresharkBitObjName(const std::string& bitName) const
+{
+    return wiresharkFieldObjName() + '_' + bitName;
 }
 
 } // namespace commsdsl2wireshark
