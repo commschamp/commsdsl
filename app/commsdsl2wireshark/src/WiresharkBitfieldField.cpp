@@ -15,7 +15,23 @@
 
 #include "WiresharkBitfieldField.h"
 
+#include "Wireshark.h"
 #include "WiresharkGenerator.h"
+#include "WiresharkIntField.h"
+
+#include "commsdsl/gen/util.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/parse/ParseIntField.h"
+
+#include <cassert>
+#include <iomanip>
+#include <sstream>
+#include <type_traits>
+
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
+
+using ParseIntField = commsdsl::parse::ParseIntField;
 
 namespace commsdsl2wireshark
 {
@@ -24,6 +40,122 @@ WiresharkBitfieldField::WiresharkBitfieldField(WiresharkGenerator& generator, Pa
     GenBase(generator, parseObj, parent),
     WiresharkBase(static_cast<GenBase&>(*this))
 {
+}
+
+std::string WiresharkBitfieldField::wiresharkForcedBitfieldMask(const WiresharkField& member) const
+{
+    std::size_t bitOffset = 0U;
+    for (auto& mPtr : genMembers()) {
+        auto parseObj = mPtr->genParseObj();
+        auto bitLen = parseObj.parseBitLength();
+        assert(bitLen != 0U);
+        if (mPtr.get() == &member.wiresharkGenField()) {
+            auto mask = ((1ULL << bitLen) - 1U) << bitOffset;
+            std::stringstream stream;
+            stream << "0x" << std::hex << std::setfill('0') << std::setw(static_cast<int>(genParseObj().parseMaxLength() * 2)) << mask;
+            return stream.str();
+        }
+
+        bitOffset += bitLen;
+    }
+
+    [[maybe_unused]] static constexpr bool Should_not_happen = false;
+    assert(Should_not_happen);
+    return strings::genNilStr();
+}
+
+std::string WiresharkBitfieldField::wiresharkIntegralType() const
+{
+    using ParseType = ParseIntField::ParseType;
+    static const ParseType TypeMap[] = {
+        ParseType::Uint8,
+        ParseType::Uint16,
+        ParseType::Uint32,
+        ParseType::Uint32,
+        ParseType::Uint64,
+        ParseType::Uint64,
+        ParseType::Uint64,
+        ParseType::Uint64,
+    };
+    static const std::size_t TypeMapSize = std::extent_v<decltype(TypeMap)>;
+
+    auto parseObj = genParseObj();
+    auto len = parseObj.parseMaxLength();
+    if (TypeMapSize < len) {
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
+        assert(Should_not_happen);
+        return strings::genEmptyString();
+    }
+    auto idx = len - 1U;
+    return WiresharkIntField::wiresharkIntegralType(TypeMap[idx], len);
+}
+
+unsigned WiresharkBitfieldField::wiresharkMaskShiftFor(const WiresharkField& member) const
+{
+    unsigned bitOffset = 0U;
+    for (auto& mPtr : genMembers()) {
+        auto parseObj = mPtr->genParseObj();
+        auto bitLen = parseObj.parseBitLength();
+        assert(bitLen != 0U);
+        if (mPtr.get() == &member.wiresharkGenField()) {
+            return bitOffset;
+        }
+
+        bitOffset += static_cast<decltype(bitOffset)>(bitLen);
+    }
+
+    [[maybe_unused]] static constexpr bool Should_not_happen = false;
+    assert(Should_not_happen);
+    return 0U;
+}
+
+bool WiresharkBitfieldField::genPrepareImpl()
+{
+    if (!GenBase::genPrepareImpl()) {
+        return false;
+    }
+
+    m_wiresharkFields = wiresharkTransformFieldsList(genMembers());
+    // TODO: force mask
+    return true;
+}
+
+std::string WiresharkBitfieldField::wiresharkFieldRegistrationImpl() const
+{
+    static const std::string Templ =
+        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", base.HEX, #^#NIL#$#, #^#MASK#$#, #^#DESC#$#))\n"
+    ;
+
+    auto mask = wiresharkForcedIntegralFieldMask();
+    auto obj = genParseObj();
+    util::GenReplacementMap repl = {
+        {"OBJ_NAME", wiresharkFieldObjName()},
+        {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
+        {"TYPE", wiresharkIntegralType()},
+        {"REF_NAME", wiresharkFieldRefName()},
+        {"DISP_NAME", util::genDisplayName(obj.parseDisplayName(), obj.parseName())},
+        {"NIL", strings::genNilStr()},
+        {"MASK", wiresharkForcedIntegralFieldMask()},
+        {"DESC", wiresharkFieldDescriptionStr()},
+    };
+
+    assert(!repl["TYPE"].empty());
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkBitfieldField::wiresharkMembersDissectCodeImpl() const
+{
+    util::GenStringsList elems;
+    for (auto* f : m_wiresharkFields) {
+        auto str = f->wiresharkDissectCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        elems.push_back(std::move(str));
+    }
+
+    return util::genStrListToString(elems, "\n", "\n");
 }
 
 } // namespace commsdsl2wireshark

@@ -55,9 +55,12 @@ public:
 
 protected:
     virtual std::string wiresharkFieldRegistrationImpl() const;
+    virtual std::string wiresharkMembersDissectCodeImpl() const;
 
     std::string wiresharkFieldRefName() const;
     std::string wiresharkForcedIntegralFieldMask() const;
+    std::string wiresharkForcedIntegralFieldType() const;
+    unsigned wiresharkForcedMaskShift() const;
     std::string wiresharkFieldDescriptionStr() const;
 
 private:

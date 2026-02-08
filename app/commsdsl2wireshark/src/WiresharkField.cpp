@@ -16,13 +16,16 @@
 #include "WiresharkField.h"
 
 #include "Wireshark.h"
+#include "WiresharkBitfieldField.h"
 #include "WiresharkGenerator.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
+#include "commsdsl/parse/ParseField.h"
 
 #include <cassert>
+#include <utility>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
@@ -30,6 +33,27 @@ namespace util = commsdsl::gen::util;
 
 namespace commsdsl2wireshark
 {
+
+namespace
+{
+
+const WiresharkBitfieldField* wiresharkParentBitfieldInternal(const WiresharkField& field)
+{
+    auto* parent = field.wiresharkGenField().genGetParent();
+    assert(parent != nullptr);
+    if (parent->genElemType() != commsdsl::gen::GenElem::GenType_Field) {
+        return nullptr;
+    }
+
+    auto* asField = static_cast<const commsdsl::gen::GenField*>(parent);
+    if (asField->genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Bitfield) {
+        return nullptr;
+    }
+
+    return static_cast<const WiresharkBitfieldField*>(asField);
+}
+
+} // namespace
 
 WiresharkField::WiresharkField(GenField& field) :
     m_genField(field)
@@ -86,6 +110,7 @@ std::string WiresharkField::wiresharkDissectCode() const
     }
 
     static const std::string Templ =
+        "#^#MEMBERS#$#\n"
         "#^#REG#$#\n"
         "#^#PREPEND#$#\n"
         "local function #^#NAME#$##^#SUFFIX#$#(tvb, tree, offset, offsetLimit)\n"
@@ -104,6 +129,7 @@ std::string WiresharkField::wiresharkDissectCode() const
     bool replaced = false;
     bool extended = false;
     util::GenReplacementMap repl = {
+        {"MEMBERS", wiresharkMembersDissectCodeImpl()},
         {"REG", wiresharkFieldRegistrationImpl()},
         {"NAME", wiresharkDissectName()},
         {"REPLACE", wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &replaced)},
@@ -134,6 +160,11 @@ std::string WiresharkField::wiresharkFieldRegistrationImpl() const
     return std::string();
 }
 
+std::string WiresharkField::wiresharkMembersDissectCodeImpl() const
+{
+    return std::string();
+}
+
 std::string WiresharkField::wiresharkFieldRefName() const
 {
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
@@ -143,8 +174,32 @@ std::string WiresharkField::wiresharkFieldRefName() const
 
 std::string WiresharkField::wiresharkForcedIntegralFieldMask() const
 {
-    // TODO:  for <bitfield> members
-    return strings::genNilStr();
+    auto* parentBitfield = wiresharkParentBitfieldInternal(*this);
+    if (parentBitfield == nullptr) {
+        return strings::genNilStr();
+    }
+
+    return parentBitfield->wiresharkForcedBitfieldMask(*this);
+}
+
+std::string WiresharkField::wiresharkForcedIntegralFieldType() const
+{
+    auto* parentBitfield = wiresharkParentBitfieldInternal(*this);
+    if (parentBitfield == nullptr) {
+        return strings::genEmptyString();
+    }
+
+    return parentBitfield->wiresharkIntegralType();
+}
+
+unsigned WiresharkField::wiresharkForcedMaskShift() const
+{
+    auto* parentBitfield = wiresharkParentBitfieldInternal(*this);
+    if (parentBitfield == nullptr) {
+        return 0U;
+    }
+
+    return parentBitfield->wiresharkMaskShiftFor(*this);
 }
 
 std::string WiresharkField::wiresharkDissectBodyInternal() const

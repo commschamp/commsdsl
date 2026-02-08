@@ -50,13 +50,17 @@ std::string WiresharkSetField::wiresharkFieldRegistrationImpl() const
         {"BITS", wiresharkBitsInternal()},
         {"OBJ_NAME", wiresharkFieldObjName()},
         {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
-        {"TYPE", WiresharkIntField::wiresharkIntegralType(parseObj.parseType(), parseObj.parseMaxLength())},
+        {"TYPE", wiresharkForcedIntegralFieldType()},
         {"REF_NAME", wiresharkFieldRefName()},
         {"DISP_NAME", util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName())},
         {"MASK", wiresharkForcedIntegralFieldMask()},
         {"DESC", wiresharkFieldDescriptionStr()},
         {"NIL", strings::genNilStr()},
     };
+
+    if (repl["TYPE"].empty()) {
+        repl["TYPE"] = WiresharkIntField::wiresharkIntegralType(parseObj.parseType(), parseObj.parseMaxLength());
+    }
 
     assert(!repl["TYPE"].empty());
     return util::genProcessTemplate(Templ, repl);
@@ -86,12 +90,13 @@ std::string WiresharkSetField::wiresharkBitsInternal() const
             "local #^#BIT_OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bool(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", #^#PARENT_WIDTH#$#, #^#NIL#$#, #^#MASK#$#, #^#DESC#$#))\n"
         ;
 
+        auto forcedShift = wiresharkForcedMaskShift();
         util::GenReplacementMap repl = {
             {"BIT_OBJ_NAME", wiresharkBitObjName(bitInfo.first)},
             {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
             {"REF_NAME", refName + '.' + bitInfo.first},
             {"DISP_NAME", util::genDisplayName(bitInfo.second.m_displayName, bitInfo.first)},
-            {"MASK", wiresharkBitMaskInternal(bitInfo.second.m_idx)},
+            {"MASK", wiresharkBitMaskInternal(bitInfo.second.m_idx + forcedShift)},
             {"DESC", strings::genNilStr()},
             {"NIL", strings::genNilStr()},
             {"PARENT_WIDTH", parentWidth},
@@ -109,8 +114,6 @@ std::string WiresharkSetField::wiresharkBitsInternal() const
 
 std::string WiresharkSetField::wiresharkBitMaskInternal(unsigned idx) const
 {
-    // TODO: parent mask
-
     auto mask = 1U << idx;
     auto parseObj = genSetFieldParseObj();
     std::stringstream stream;

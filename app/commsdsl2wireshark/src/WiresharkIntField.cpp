@@ -111,7 +111,7 @@ std::string WiresharkIntField::wiresharkFieldRegistrationImpl() const
         {"SPECIALS", wiresharkSpecialsInternal()},
         {"OBJ_NAME", wiresharkFieldObjName()},
         {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
-        {"TYPE", wiresharkIntegralType(obj.parseType(), obj.parseMaxLength())},
+        {"TYPE", wiresharkForcedIntegralFieldType()},
         {"REF_NAME", wiresharkFieldRefName()},
         {"DISP_NAME", util::genDisplayName(obj.parseDisplayName(), obj.parseName())},
         {"SPECIALS_NAME", strings::genNilStr()},
@@ -121,6 +121,13 @@ std::string WiresharkIntField::wiresharkFieldRegistrationImpl() const
 
     if (!repl["SPECIALS"].empty()) {
         repl["SPECIALS_NAME"] = wiresharkFieldObjName() + strings::genValsSuffixStr();
+    }
+
+    if (repl["TYPE"].empty()) {
+        repl["TYPE"] = wiresharkIntegralType(obj.parseType(), obj.parseMaxLength());
+    }
+    else if (!genIsUnsignedType() && (repl["TYPE"].front() == 'u')) {
+        repl["TYPE"] = repl["TYPE"].substr(1U);
     }
 
     assert(!repl["TYPE"].empty());
