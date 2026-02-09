@@ -40,6 +40,7 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
+
     virtual std::string wiresharkFieldRegistrationImpl(const std::string& objName, const std::string& refName) const override;
     virtual std::string wiresharkMembersDissectCodeImpl() const override;
 

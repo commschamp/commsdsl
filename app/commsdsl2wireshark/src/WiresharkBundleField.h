@@ -33,6 +33,15 @@ public:
     using GenElem = commsdsl::gen::GenElem;
 
     WiresharkBundleField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
+
+protected:
+    virtual bool genPrepareImpl() override;
+
+    virtual std::string wiresharkFieldRegistrationImpl(const std::string& objName, const std::string& refName) const override;
+    virtual std::string wiresharkMembersDissectCodeImpl() const override;
+
+private:
+    WiresharkFieldsList m_wiresharkFields;
 };
 
 } // namespace commsdsl2wireshark

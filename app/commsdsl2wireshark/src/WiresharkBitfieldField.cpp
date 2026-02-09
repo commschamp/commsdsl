@@ -116,7 +116,6 @@ bool WiresharkBitfieldField::genPrepareImpl()
     }
 
     m_wiresharkFields = wiresharkTransformFieldsList(genMembers());
-    // TODO: force mask
     return true;
 }
 
