@@ -17,6 +17,8 @@
 
 #include "WiresharkGenerator.h"
 
+#include <cassert>
+
 namespace commsdsl2wireshark
 {
 
@@ -24,6 +26,34 @@ WiresharkRefField::WiresharkRefField(WiresharkGenerator& generator, ParseField p
     GenBase(generator, parseObj, parent),
     WiresharkBase(static_cast<GenBase&>(*this))
 {
+}
+
+bool WiresharkRefField::genPrepareImpl()
+{
+    if (!GenBase::genPrepareImpl()) {
+        return false;
+    }
+
+    m_wiresharkField = WiresharkField::wiresharkCast(genReferencedField());
+    assert(m_wiresharkField != nullptr);
+    return true;
+}
+
+std::string WiresharkRefField::wiresharkFieldRegistrationImpl(const std::string& objName, const std::string& refName) const
+{
+    auto thisObjName = objName;
+    auto thisRefName = refName;
+
+    if (thisObjName.empty()) {
+        thisObjName = wiresharkFieldObjName();
+    }
+
+    if (thisRefName.empty()) {
+        thisRefName = wiresharkFieldRefName();
+    }
+
+    assert(m_wiresharkField != nullptr);
+    return m_wiresharkField->wiresharkFieldRegistration(objName, refName);
 }
 
 } // namespace commsdsl2wireshark

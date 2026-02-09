@@ -84,10 +84,18 @@ bool WiresharkFrame::genPrepareImpl()
         return false;
     }
 
-    for (auto& lPtr : genLayers()) {
-        m_wiresharkLayers.push_back(WiresharkLayer::wiresharkCast(lPtr.get()));
+    bool success = true;
+    auto reorderedLayers = genCommsOrderOfLayers(success);
+    if (!success) {
+        return false;
     }
 
+    for (auto* l : reorderedLayers) {
+        m_wiresharkLayers.push_back(WiresharkLayer::wiresharkCast(l));
+    }
+
+    // TODO: validate frame
+    m_validFrame = true;
     return true;
 }
 

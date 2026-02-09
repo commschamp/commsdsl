@@ -55,7 +55,7 @@ public:
     GenGenerator& genGenerator();
     const GenGenerator& genGenerator() const;
 
-    GenLayersAccessList getCommsOrderOfLayers(bool& success) const;
+    GenLayersAccessList genCommsOrderOfLayers(bool& success) const;
 
     const GenNamespace* genParentNamespace() const;
 

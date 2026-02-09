@@ -112,7 +112,7 @@ bool CFrame::genPrepareImpl()
     }
 
     bool success = true;
-    auto reorderedLayers = getCommsOrderOfLayers(success);
+    auto reorderedLayers = genCommsOrderOfLayers(success);
     if (!success) {
         return false;
     }

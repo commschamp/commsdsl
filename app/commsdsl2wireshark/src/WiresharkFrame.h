@@ -57,6 +57,7 @@ private:
     std::string wiresharkLayersDissectCodeInternal() const;
 
     WiresharkLayersAccessList m_wiresharkLayers;
+    bool m_validFrame = false;
 };
 
 } // namespace commsdsl2wireshark

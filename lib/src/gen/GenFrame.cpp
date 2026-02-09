@@ -154,7 +154,7 @@ const GenGenerator& GenFrame::genGenerator() const
     return m_impl->genGenerator();
 }
 
-GenFrame::GenLayersAccessList GenFrame::getCommsOrderOfLayers(bool& success) const
+GenFrame::GenLayersAccessList GenFrame::genCommsOrderOfLayers(bool& success) const
 {
     GenLayersAccessList result;
     for (auto& lPtr : genLayers()) {

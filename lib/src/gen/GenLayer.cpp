@@ -234,7 +234,7 @@ std::string GenLayer::genTemplateScopeOfComms(const std::string& iFaceStr, const
 
     auto* frame = static_cast<const GenFrame*>(parent);
     [[maybe_unused]] bool success = true;
-    auto allLayers = frame->getCommsOrderOfLayers(success);
+    auto allLayers = frame->genCommsOrderOfLayers(success);
     assert(success);
 
     auto iter =
