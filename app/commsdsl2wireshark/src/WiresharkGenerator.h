@@ -32,12 +32,14 @@ public:
     using GenElem = commsdsl::gen::GenElem;
     using GenSchemaPtr = commsdsl::gen::GenSchemaPtr;
     using GenNamespacePtr = commsdsl::gen::GenNamespacePtr;
+    using GenInterfacePtr = commsdsl::gen::GenInterfacePtr;
     using GenMessagePtr = commsdsl::gen::GenMessagePtr;
     using GenFramePtr = commsdsl::gen::GenFramePtr;
     using GenProgramOptions = commsdsl::gen::GenProgramOptions;
     using GenGenerator = commsdsl::gen::GenGenerator;
     using GenFieldPtr = commsdsl::gen::GenFieldPtr;
     using GenLayerPtr = commsdsl::gen::GenLayerPtr;
+    using ParseMessage = commsdsl::parse::ParseMessage;
     using ParseLayer = commsdsl::parse::ParseLayer;
 
     WiresharkGenerator();
@@ -67,6 +69,7 @@ protected:
     virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
     virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
     virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent) override;
+    virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent) override;
 
     virtual GenLayerPtr genCreateCustomLayerImpl(ParseLayer parseObj, GenElem* parent) override;
     virtual GenLayerPtr genCreateSyncLayerImpl(ParseLayer parseObj, GenElem* parent) override;

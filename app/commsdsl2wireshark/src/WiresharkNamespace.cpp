@@ -18,6 +18,7 @@
 #include "WiresharkField.h"
 #include "WiresharkFrame.h"
 #include "WiresharkGenerator.h"
+#include "WiresharkMessage.h"
 
 #include "commsdsl/gen/util.h"
 
@@ -39,6 +40,7 @@ std::string WiresharkNamespace::wiresharkDissectCode() const
     static const std::string Templ =
         "#^#NAMESPACES#$#\n"
         "#^#FIELDS#$#\n"
+        "#^#MESSAGES#$#\n"
         "#^#FRAMES#$#\n"
         ;
 
@@ -62,6 +64,16 @@ std::string WiresharkNamespace::wiresharkDissectCode() const
         fields.push_back(std::move(str));
     }
 
+    util::GenStringsList messages;
+    for (auto& mPtr : genMessages()) {
+        auto str = WiresharkMessage::wiresharkCast(*mPtr).wiresharkDissectCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        messages.push_back(std::move(str));
+    }
+
     util::GenStringsList frames;
     for (auto& fPtr : genFrames()) {
         auto str = WiresharkFrame::wiresharkCast(*fPtr).wiresharkDissectCode();
@@ -75,6 +87,7 @@ std::string WiresharkNamespace::wiresharkDissectCode() const
     util::GenReplacementMap repl = {
         {"NAMESPACES", util::genStrListToString(namespaces, "\n", "")},
         {"FIELDS", util::genStrListToString(fields, "\n", "")},
+        {"MESSAGES", util::genStrListToString(messages, "\n", "")},
         {"FRAMES", util::genStrListToString(frames, "\n", "")},
     };
 

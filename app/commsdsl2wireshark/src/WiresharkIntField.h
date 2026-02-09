@@ -39,7 +39,7 @@ public:
     static const std::string& wiresharkIntegralType(ParseIntField::ParseType type, std::size_t len);
 
 protected:
-    std::string wiresharkFieldRegistrationImpl() const override;
+    std::string wiresharkFieldRegistrationImpl(const std::string& objName, const std::string& refName) const override;
 
 private:
     std::string wiresharkSpecialsInternal() const;

@@ -130,7 +130,7 @@ std::string WiresharkField::wiresharkDissectCode() const
     bool extended = false;
     util::GenReplacementMap repl = {
         {"MEMBERS", wiresharkMembersDissectCodeImpl()},
-        {"REG", wiresharkFieldRegistrationImpl()},
+        {"REG", wiresharkFieldRegistration()},
         {"NAME", wiresharkDissectName()},
         {"REPLACE", wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &replaced)},
         {"PREPEND", wiresharkGenerator.genReadCodeInjectCode(prependFileName, "Prepend here")},
@@ -155,7 +155,12 @@ std::string WiresharkField::wiresharkFieldObjName() const
     return Wireshark::wiresharkProtocolObjName(wiresharkGenerator) + '_' + util::genStrReplace(scope, "::", "_");
 }
 
-std::string WiresharkField::wiresharkFieldRegistrationImpl() const
+std::string WiresharkField::wiresharkFieldRegistration(const std::string& objName, const std::string& refName) const
+{
+    return wiresharkFieldRegistrationImpl(objName, refName);
+}
+
+std::string WiresharkField::wiresharkFieldRegistrationImpl([[maybe_unused]] const std::string& objName, [[maybe_unused]] const std::string& refName) const
 {
     return std::string();
 }
@@ -200,6 +205,16 @@ unsigned WiresharkField::wiresharkForcedMaskShift() const
     }
 
     return parentBitfield->wiresharkMaskShiftFor(*this);
+}
+
+unsigned WiresharkField::wiresharkForcedBitLength() const
+{
+    auto* parentBitfield = wiresharkParentBitfieldInternal(*this);
+    if (parentBitfield == nullptr) {
+        return 0U;
+    }
+
+    return static_cast<unsigned>(parentBitfield->genParseObj().parseMaxLength() * 8U);
 }
 
 std::string WiresharkField::wiresharkDissectBodyInternal() const

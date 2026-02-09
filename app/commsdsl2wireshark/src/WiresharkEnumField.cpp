@@ -36,7 +36,7 @@ WiresharkEnumField::WiresharkEnumField(WiresharkGenerator& generator, ParseField
 {
 }
 
-std::string WiresharkEnumField::wiresharkFieldRegistrationImpl() const
+std::string WiresharkEnumField::wiresharkFieldRegistrationImpl(const std::string& objName, const std::string& refName) const
 {
     static const std::string Templ =
         "#^#VALS#$#\n"
@@ -46,16 +46,24 @@ std::string WiresharkEnumField::wiresharkFieldRegistrationImpl() const
     auto obj = genEnumFieldParseObj();
     util::GenReplacementMap repl = {
         {"VALS", wiresharkValsInternal()},
-        {"OBJ_NAME", wiresharkFieldObjName()},
+        {"OBJ_NAME", objName},
         {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
         {"TYPE", wiresharkForcedIntegralFieldType()},
-        {"REF_NAME", wiresharkFieldRefName()},
+        {"REF_NAME", refName},
         {"DISP_NAME", util::genDisplayName(obj.parseDisplayName(), obj.parseName())},
         {"VALS_NAME", wiresharkFieldObjName() + strings::genValsSuffixStr()},
         {"BASE", "base.DEC_HEX"},
         {"MASK", wiresharkForcedIntegralFieldMask()},
         {"DESC", wiresharkFieldDescriptionStr()},
     };
+
+    if (repl["OBJ_NAME"].empty()) {
+        repl["OBJ_NAME"] = wiresharkFieldObjName();
+    }
+
+    if (repl["REF_NAME"].empty()) {
+        repl["REF_NAME"] = wiresharkFieldRefName();
+    }
 
     if (obj.parseHexAssign()) {
         repl["BASE"] = "base.HEX_DEC";

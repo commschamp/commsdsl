@@ -14,6 +14,7 @@ set (src
     WiresharkIntField.cpp
     WiresharkLayer.cpp
     WiresharkListField.cpp
+    WiresharkMessage.cpp
     WiresharkNamespace.cpp
     WiresharkOptionalField.cpp
     WiresharkPayloadLayer.cpp

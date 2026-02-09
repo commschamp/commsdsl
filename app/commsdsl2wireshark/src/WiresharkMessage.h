@@ -17,31 +17,39 @@
 
 #include "WiresharkField.h"
 
-#include "commsdsl/gen/GenBitfieldField.h"
+#include "commsdsl/gen/GenMessage.h"
 
 namespace commsdsl2wireshark
 {
 
 class WiresharkGenerator;
-class WiresharkBitfieldField final : public commsdsl::gen::GenBitfieldField, public WiresharkField
+class WiresharkMessage final : public commsdsl::gen::GenMessage
 {
-    using GenBase = commsdsl::gen::GenBitfieldField;
-    using WiresharkBase = WiresharkField;
+    using GenBase = commsdsl::gen::GenMessage;
 
 public:
-    using ParseField = commsdsl::parse::ParseField;
     using GenElem = commsdsl::gen::GenElem;
+    using GenMessage = commsdsl::gen::GenMessage;
+    using WiresharkFieldsList = WiresharkField::WiresharkFieldsList;
 
-    WiresharkBitfieldField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
+    WiresharkMessage(WiresharkGenerator& generator, ParseMessage parseObj, GenElem* parent);
+    virtual ~WiresharkMessage();
 
-    std::string wiresharkForcedBitfieldMask(const WiresharkField& member) const;
-    std::string wiresharkIntegralType() const;
-    unsigned wiresharkMaskShiftFor(const WiresharkField& member) const;
+    static WiresharkMessage& wiresharkCast(GenMessage& generator)
+    {
+        return static_cast<WiresharkMessage&>(generator);
+    }
+
+    static const WiresharkMessage& wiresharkCast(const GenMessage& generator)
+    {
+        return static_cast<const WiresharkMessage&>(generator);
+    }
+
+    std::string wiresharkDissectName() const;
+    std::string wiresharkDissectCode() const;
 
 protected:
     virtual bool genPrepareImpl() override;
-    virtual std::string wiresharkFieldRegistrationImpl(const std::string& objName, const std::string& refName) const override;
-    virtual std::string wiresharkMembersDissectCodeImpl() const override;
 
 private:
     WiresharkFieldsList m_wiresharkFields;
