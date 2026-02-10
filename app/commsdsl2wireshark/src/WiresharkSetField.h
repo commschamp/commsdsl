@@ -35,13 +35,13 @@ public:
     WiresharkSetField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    std::string wiresharkFieldRegistrationImpl(const std::string& objName, const std::string& refName) const override;
+    std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
 
 private:
-    std::string wiresharkBitsInternal() const;
+    std::string wiresharkBitsInternal(const WiresharkField* refField) const;
     std::string wiresharkBitMaskInternal(unsigned idx) const;
-    std::string wiresharkBitParentWidthInternal() const;
-    std::string wiresharkBitObjName(const std::string& bitName) const;
+    std::string wiresharkBitParentWidthInternal(const WiresharkField* refField) const;
+    std::string wiresharkBitObjName(const WiresharkField* refField, const std::string& bitName) const;
 };
 
 } // namespace commsdsl2wireshark

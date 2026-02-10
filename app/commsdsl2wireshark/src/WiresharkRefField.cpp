@@ -36,24 +36,19 @@ bool WiresharkRefField::genPrepareImpl()
 
     m_wiresharkField = WiresharkField::wiresharkCast(genReferencedField());
     assert(m_wiresharkField != nullptr);
+
+    // TODO: copy vs alias
     return true;
 }
 
-std::string WiresharkRefField::wiresharkFieldRegistrationImpl(const std::string& objName, const std::string& refName) const
+std::string WiresharkRefField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
-    auto thisObjName = objName;
-    auto thisRefName = refName;
-
-    if (thisObjName.empty()) {
-        thisObjName = wiresharkFieldObjName();
-    }
-
-    if (thisRefName.empty()) {
-        thisRefName = wiresharkFieldRefName();
+    if (refField == nullptr) {
+        refField = this;
     }
 
     assert(m_wiresharkField != nullptr);
-    return m_wiresharkField->wiresharkFieldRegistration(objName, refName);
+    return m_wiresharkField->wiresharkFieldRegistration(refField);
 }
 
 } // namespace commsdsl2wireshark

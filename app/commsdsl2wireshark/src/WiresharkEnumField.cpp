@@ -36,7 +36,7 @@ WiresharkEnumField::WiresharkEnumField(WiresharkGenerator& generator, ParseField
 {
 }
 
-std::string WiresharkEnumField::wiresharkFieldRegistrationImpl(const std::string& objName, const std::string& refName) const
+std::string WiresharkEnumField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
         "#^#VALS#$#\n"
@@ -45,25 +45,17 @@ std::string WiresharkEnumField::wiresharkFieldRegistrationImpl(const std::string
 
     auto obj = genEnumFieldParseObj();
     util::GenReplacementMap repl = {
-        {"VALS", wiresharkValsInternal()},
-        {"OBJ_NAME", objName},
+        {"VALS", wiresharkValsInternal(refField)},
+        {"OBJ_NAME", wiresharkFieldObjName(refField)},
         {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
-        {"TYPE", wiresharkForcedIntegralFieldType()},
-        {"REF_NAME", refName},
-        {"DISP_NAME", util::genDisplayName(obj.parseDisplayName(), obj.parseName())},
-        {"VALS_NAME", wiresharkFieldObjName() + strings::genValsSuffixStr()},
+        {"TYPE", wiresharkForcedIntegralFieldType(refField)},
+        {"REF_NAME", wiresharkFieldRefName(refField)},
+        {"DISP_NAME", wiresharkFieldDisplayNameStr(refField)},
+        {"VALS_NAME", wiresharkFieldObjName(refField) + strings::genValsSuffixStr()},
         {"BASE", "base.DEC_HEX"},
-        {"MASK", wiresharkForcedIntegralFieldMask()},
-        {"DESC", wiresharkFieldDescriptionStr()},
+        {"MASK", wiresharkForcedIntegralFieldMask(refField)},
+        {"DESC", wiresharkFieldDescriptionStr(refField)},
     };
-
-    if (repl["OBJ_NAME"].empty()) {
-        repl["OBJ_NAME"] = wiresharkFieldObjName();
-    }
-
-    if (repl["REF_NAME"].empty()) {
-        repl["REF_NAME"] = wiresharkFieldRefName();
-    }
 
     if (obj.parseHexAssign()) {
         repl["BASE"] = "base.HEX_DEC";
@@ -80,7 +72,7 @@ std::string WiresharkEnumField::wiresharkFieldRegistrationImpl(const std::string
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkEnumField::wiresharkValsInternal() const
+std::string WiresharkEnumField::wiresharkValsInternal(const WiresharkField* refField) const
 {
     auto& values = genSortedRevValues();
     assert(!values.empty());
@@ -118,7 +110,7 @@ std::string WiresharkEnumField::wiresharkValsInternal() const
     ;
 
     util::GenReplacementMap repl = {
-        {"NAME", wiresharkFieldObjName()},
+        {"NAME", wiresharkFieldObjName(refField)},
         {"SUFFIX",  strings::genValsSuffixStr()},
         {"ELEMS", util::genStrListToString(elems, ",\n", "")},
     };

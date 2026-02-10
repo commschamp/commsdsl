@@ -39,7 +39,7 @@ WiresharkSetField::WiresharkSetField(WiresharkGenerator& generator, ParseField p
 {
 }
 
-std::string WiresharkSetField::wiresharkFieldRegistrationImpl(const std::string& objName, const std::string& refName) const
+std::string WiresharkSetField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
         "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", base.HEX, #^#NIL#$#, #^#MASK#$#, #^#DESC#$#))\n"
@@ -48,24 +48,16 @@ std::string WiresharkSetField::wiresharkFieldRegistrationImpl(const std::string&
 
     auto parseObj = genSetFieldParseObj();
     util::GenReplacementMap repl = {
-        {"BITS", wiresharkBitsInternal()},
-        {"OBJ_NAME", objName},
+        {"BITS", wiresharkBitsInternal(refField)},
+        {"OBJ_NAME", wiresharkFieldObjName(refField)},
         {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
-        {"TYPE", wiresharkForcedIntegralFieldType()},
-        {"REF_NAME", refName},
-        {"DISP_NAME", util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName())},
-        {"MASK", wiresharkForcedIntegralFieldMask()},
-        {"DESC", wiresharkFieldDescriptionStr()},
+        {"TYPE", wiresharkForcedIntegralFieldType(refField)},
+        {"REF_NAME", wiresharkFieldRefName(refField)},
+        {"DISP_NAME", wiresharkFieldDisplayNameStr(refField)},
+        {"MASK", wiresharkForcedIntegralFieldMask(refField)},
+        {"DESC", wiresharkFieldDescriptionStr(refField)},
         {"NIL", strings::genNilStr()},
     };
-
-    if (repl["OBJ_NAME"].empty()) {
-        repl["OBJ_NAME"] = wiresharkFieldObjName();
-    }
-
-    if (repl["REF_NAME"].empty()) {
-        repl["REF_NAME"] = wiresharkFieldRefName();
-    }
 
     if (repl["TYPE"].empty()) {
         repl["TYPE"] = WiresharkIntField::wiresharkIntegralType(parseObj.parseType(), parseObj.parseMaxLength());
@@ -75,7 +67,7 @@ std::string WiresharkSetField::wiresharkFieldRegistrationImpl(const std::string&
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkSetField::wiresharkBitsInternal() const
+std::string WiresharkSetField::wiresharkBitsInternal(const WiresharkField* refField) const
 {
     GenStringsList elems;
 
@@ -83,8 +75,8 @@ std::string WiresharkSetField::wiresharkBitsInternal() const
     auto& bits = parseObj.parseBits();
     auto& revBits = parseObj.parseRevBits();
 
-    auto refName = wiresharkFieldRefName();
-    auto parentWidth = wiresharkBitParentWidthInternal();
+    auto refName = wiresharkFieldRefName(refField);
+    auto parentWidth = wiresharkBitParentWidthInternal(refField);
 
     for (auto b : revBits) {
         auto iter = bits.find(b.second);
@@ -99,9 +91,9 @@ std::string WiresharkSetField::wiresharkBitsInternal() const
             "local #^#BIT_OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bool(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", #^#PARENT_WIDTH#$#, #^#NIL#$#, #^#MASK#$#, #^#DESC#$#))\n"
         ;
 
-        auto forcedShift = wiresharkForcedMaskShift();
+        auto forcedShift = wiresharkForcedMaskShift(refField);
         util::GenReplacementMap repl = {
-            {"BIT_OBJ_NAME", wiresharkBitObjName(bitInfo.first)},
+            {"BIT_OBJ_NAME", wiresharkBitObjName(refField, bitInfo.first)},
             {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
             {"REF_NAME", refName + '.' + bitInfo.first},
             {"DISP_NAME", util::genDisplayName(bitInfo.second.m_displayName, bitInfo.first)},
@@ -131,14 +123,14 @@ std::string WiresharkSetField::wiresharkBitMaskInternal(unsigned idx) const
     return stream.str();
 }
 
-std::string WiresharkSetField::wiresharkBitParentWidthInternal() const
+std::string WiresharkSetField::wiresharkBitParentWidthInternal(const WiresharkField* refField) const
 {
-    return std::to_string(std::max(genParseObj().parseMaxLength() * 8U, static_cast<std::size_t>(wiresharkForcedBitLength())));
+    return std::to_string(std::max(genParseObj().parseMaxLength() * 8U, static_cast<std::size_t>(wiresharkForcedBitLength(refField))));
 }
 
-std::string WiresharkSetField::wiresharkBitObjName(const std::string& bitName) const
+std::string WiresharkSetField::wiresharkBitObjName(const WiresharkField* refField, const std::string& bitName) const
 {
-    return wiresharkFieldObjName() + '_' + bitName;
+    return wiresharkFieldObjName(refField) + '_' + bitName;
 }
 
 } // namespace commsdsl2wireshark

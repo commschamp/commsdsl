@@ -49,21 +49,22 @@ public:
         return m_genField;
     }
 
-    std::string wiresharkDissectName() const;
-    std::string wiresharkDissectCode() const;
-    std::string wiresharkFieldObjName() const;
-    std::string wiresharkFieldRegistration(const std::string& objName = std::string(), const std::string& refName = std::string()) const;
+    std::string wiresharkDissectName(const WiresharkField* refField = nullptr) const;
+    std::string wiresharkDissectCode(const WiresharkField* refField = nullptr) const;
+    std::string wiresharkFieldObjName(const WiresharkField* refField) const;
+    std::string wiresharkFieldRegistration(const WiresharkField* refField) const;
 
 protected:
-    virtual std::string wiresharkFieldRegistrationImpl(const std::string& objName, const std::string& refName) const;
-    virtual std::string wiresharkMembersDissectCodeImpl() const;
+    virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const;
+    virtual std::string wiresharkMembersDissectCodeImpl(const WiresharkField* refField) const;
 
-    std::string wiresharkFieldRefName() const;
-    std::string wiresharkForcedIntegralFieldMask() const;
-    std::string wiresharkForcedIntegralFieldType() const;
-    unsigned wiresharkForcedMaskShift() const;
-    unsigned wiresharkForcedBitLength() const;
-    std::string wiresharkFieldDescriptionStr() const;
+    std::string wiresharkFieldRefName(const WiresharkField* refField) const;
+    std::string wiresharkForcedIntegralFieldMask(const WiresharkField* refField) const;
+    std::string wiresharkForcedIntegralFieldType(const WiresharkField* refField) const;
+    unsigned wiresharkForcedMaskShift(const WiresharkField* refField) const;
+    unsigned wiresharkForcedBitLength(const WiresharkField* refField) const;
+    std::string wiresharkFieldDescriptionStr(const WiresharkField* refField) const;
+    std::string wiresharkFieldDisplayNameStr(const WiresharkField* refField) const;
 
 private:
     std::string wiresharkDissectBodyInternal() const;

@@ -98,37 +98,28 @@ const std::string& WiresharkIntField::wiresharkIntegralType(ParseIntField::Parse
     return iter->second;
 }
 
-std::string WiresharkIntField::wiresharkFieldRegistrationImpl(const std::string& objName, const std::string& refName) const
+std::string WiresharkIntField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
         "#^#SPECIALS#$#\n"
         "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", base.DEC_HEX, #^#SPECIALS_NAME#$#, #^#MASK#$#, #^#DESC#$#))\n"
     ;
 
-    auto mask = wiresharkForcedIntegralFieldMask();
     auto obj = genIntFieldParseObj();
     util::GenReplacementMap repl = {
-        {"SPECIALS", wiresharkSpecialsInternal()},
-        {"OBJ_NAME", objName},
+        {"SPECIALS", wiresharkSpecialsInternal(refField)},
+        {"OBJ_NAME", wiresharkFieldObjName(refField)},
         {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
-        {"TYPE", wiresharkForcedIntegralFieldType()},
-        {"REF_NAME", refName},
-        {"DISP_NAME", util::genDisplayName(obj.parseDisplayName(), obj.parseName())},
+        {"TYPE", wiresharkForcedIntegralFieldType(refField)},
+        {"REF_NAME", wiresharkFieldRefName(refField)},
+        {"DISP_NAME", wiresharkFieldDisplayNameStr(refField)},
         {"SPECIALS_NAME", strings::genNilStr()},
-        {"MASK", wiresharkForcedIntegralFieldMask()},
-        {"DESC", wiresharkFieldDescriptionStr()},
+        {"MASK", wiresharkForcedIntegralFieldMask(refField)},
+        {"DESC", wiresharkFieldDescriptionStr(refField)},
     };
 
-    if (repl["OBJ_NAME"].empty()) {
-        repl["OBJ_NAME"] = wiresharkFieldObjName();
-    }
-
-    if (repl["REF_NAME"].empty()) {
-        repl["REF_NAME"] = wiresharkFieldRefName();
-    }
-
     if (!repl["SPECIALS"].empty()) {
-        repl["SPECIALS_NAME"] = wiresharkFieldObjName() + strings::genValsSuffixStr();
+        repl["SPECIALS_NAME"] = repl["OBJ_NAME"] + strings::genValsSuffixStr();
     }
 
     if (repl["TYPE"].empty()) {
@@ -142,7 +133,7 @@ std::string WiresharkIntField::wiresharkFieldRegistrationImpl(const std::string&
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkIntField::wiresharkSpecialsInternal() const
+std::string WiresharkIntField::wiresharkSpecialsInternal(const WiresharkField* refField) const
 {
     auto& specials = genSpecialsSortedByValue();
     if (specials.empty()) {
@@ -173,7 +164,7 @@ std::string WiresharkIntField::wiresharkSpecialsInternal() const
     ;
 
     util::GenReplacementMap repl = {
-        {"NAME", wiresharkFieldObjName()},
+        {"NAME", wiresharkFieldObjName(refField)},
         {"SUFFIX",  strings::genValsSuffixStr()},
         {"ELEMS", util::genStrListToString(elems, ",\n", "")},
     };

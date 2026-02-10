@@ -35,10 +35,10 @@ public:
     WiresharkEnumField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    std::string wiresharkFieldRegistrationImpl(const std::string& objName, const std::string& refName) const override;
+    std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
 
 private:
-    std::string wiresharkValsInternal() const;
+    std::string wiresharkValsInternal(const WiresharkField* refField) const;
 };
 
 } // namespace commsdsl2wireshark

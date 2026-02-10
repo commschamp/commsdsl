@@ -119,42 +119,33 @@ bool WiresharkBitfieldField::genPrepareImpl()
     return true;
 }
 
-std::string WiresharkBitfieldField::wiresharkFieldRegistrationImpl(const std::string& objName, const std::string& refName) const
+std::string WiresharkBitfieldField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
         "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", base.HEX, #^#NIL#$#, #^#MASK#$#, #^#DESC#$#))\n"
     ;
 
-    auto mask = wiresharkForcedIntegralFieldMask();
     auto obj = genParseObj();
     util::GenReplacementMap repl = {
-        {"OBJ_NAME", objName},
+        {"OBJ_NAME", wiresharkFieldObjName(refField)},
         {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
         {"TYPE", wiresharkIntegralType()},
-        {"REF_NAME", refName},
-        {"DISP_NAME", util::genDisplayName(obj.parseDisplayName(), obj.parseName())},
+        {"REF_NAME", wiresharkFieldRefName(refField)},
+        {"DISP_NAME", wiresharkFieldDisplayNameStr(refField)},
         {"NIL", strings::genNilStr()},
-        {"MASK", wiresharkForcedIntegralFieldMask()},
-        {"DESC", wiresharkFieldDescriptionStr()},
+        {"MASK", wiresharkForcedIntegralFieldMask(refField)},
+        {"DESC", wiresharkFieldDescriptionStr(refField)},
     };
-
-    if (repl["OBJ_NAME"].empty()) {
-        repl["OBJ_NAME"] = wiresharkFieldObjName();
-    }
-
-    if (repl["REF_NAME"].empty()) {
-        repl["REF_NAME"] = wiresharkFieldRefName();
-    }
 
     assert(!repl["TYPE"].empty());
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkBitfieldField::wiresharkMembersDissectCodeImpl() const
+std::string WiresharkBitfieldField::wiresharkMembersDissectCodeImpl(const WiresharkField* refField) const
 {
     util::GenStringsList elems;
     for (auto* f : m_wiresharkFields) {
-        auto str = f->wiresharkDissectCode();
+        auto str = f->wiresharkDissectCode(refField);
         if (str.empty()) {
             continue;
         }

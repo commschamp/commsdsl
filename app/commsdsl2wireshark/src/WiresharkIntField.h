@@ -39,10 +39,10 @@ public:
     static const std::string& wiresharkIntegralType(ParseIntField::ParseType type, std::size_t len);
 
 protected:
-    std::string wiresharkFieldRegistrationImpl(const std::string& objName, const std::string& refName) const override;
+    std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
 
 private:
-    std::string wiresharkSpecialsInternal() const;
+    std::string wiresharkSpecialsInternal(const WiresharkField* refField) const;
 };
 
 } // namespace commsdsl2wireshark
