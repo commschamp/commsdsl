@@ -57,13 +57,16 @@ public:
     static const std::string& wiresharkFileGeneratedComment();
 
     std::string wiresharkScopeToName(const std::string& scope) const;
+    std::string wiresharkFuncNameFor(const GenElem& elem, const std::string& suffix) const;
     std::string wiresharkDissectNameFor(const GenElem& elem) const;
 
     std::string wiresharkInputRelPathPrefix() const;
-    std::string wiresharkInputRelPathFor(const GenElem& elem) const;
-    std::string wiresharkInputAbsPathFor(const GenElem& elem) const;
-    std::string wiresharkInputRelPathFor(const std::string& name) const;
-    std::string wiresharkInputAbsPathFor(const std::string& name) const;
+    std::string wiresharkInputDissectRelPathFor(const GenElem& elem) const;
+    std::string wiresharkInputDissectAbsPathFor(const GenElem& elem) const;
+    std::string wiresharkInputDissectRelPathFor(const std::string& name) const;
+    std::string wiresharkInputDissectAbsPathFor(const std::string& name) const;
+    std::string wiresharkInputRelPathFor(const GenElem& elem, const std::string& suffix) const;
+    std::string wiresharkInputAbsPathFor(const GenElem& elem, const std::string& suffix) const;
 
 protected:
     virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;

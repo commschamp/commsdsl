@@ -40,7 +40,7 @@ std::string WiresharkEnumField::wiresharkFieldRegistrationImpl(const WiresharkFi
 {
     static const std::string Templ =
         "#^#VALS#$#\n"
-        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", #^#BASE#$#, #^#VALS_NAME#$#, #^#MASK#$#, #^#DESC#$#))\n"
+        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, #^#BASE#$#, #^#VALS_NAME#$#, #^#MASK#$#, #^#DESC#$#))\n"
     ;
 
     auto obj = genEnumFieldParseObj();
@@ -50,7 +50,7 @@ std::string WiresharkEnumField::wiresharkFieldRegistrationImpl(const WiresharkFi
         {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
         {"TYPE", wiresharkForcedIntegralFieldType(refField)},
         {"REF_NAME", wiresharkFieldRefName(refField)},
-        {"DISP_NAME", wiresharkFieldDisplayNameStr(refField)},
+        {"DISP_NAME", wiresharkFieldNameVarNameStr(refField)},
         {"VALS_NAME", wiresharkFieldObjName(refField) + strings::genValsSuffixStr()},
         {"BASE", "base.DEC_HEX"},
         {"MASK", wiresharkForcedIntegralFieldMask(refField)},
@@ -116,6 +116,15 @@ std::string WiresharkEnumField::wiresharkValsInternal(const WiresharkField* refF
     };
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+bool WiresharkEnumField::genPrepareImpl()
+{
+    if ((!GenBase::genPrepareImpl()) ||
+        (!WiresharkBase::wiresharkPrepare())) {
+        return false;
+    }
+    return true;
 }
 
 } // namespace commsdsl2wireshark

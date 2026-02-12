@@ -49,6 +49,7 @@ public:
         return m_genField;
     }
 
+    bool wiresharkPrepare();
     std::string wiresharkDissectName(const WiresharkField* refField = nullptr) const;
     std::string wiresharkDissectCode(const WiresharkField* refField = nullptr) const;
     std::string wiresharkFieldObjName(const WiresharkField* refField) const;
@@ -65,11 +66,38 @@ protected:
     unsigned wiresharkForcedBitLength(const WiresharkField* refField) const;
     std::string wiresharkFieldDescriptionStr(const WiresharkField* refField) const;
     std::string wiresharkFieldDisplayNameStr(const WiresharkField* refField) const;
+    std::string wiresharkFieldNameVarNameStr(const WiresharkField* refField) const;
 
 private:
+    using WiresharkCustomCodeFunc = std::string (WiresharkField::*)(bool& hasCode) const;
+
+    struct WiresharkCustomCode
+    {
+        std::string m_read;
+        std::string m_valid;
+        std::string m_name;
+
+        bool m_hasRead = false;
+        bool m_hasValid = false;
+        bool m_hasName = false;
+    };
+
+    bool wiresharkCopyCodeFromInternal();
+    bool wiresharkPrepareOverrideInternal(
+        commsdsl::parse::ParseOverrideType type,
+        const std::string& name,
+        WiresharkCustomCodeFunc codeFunc,
+        std::string& code,
+        bool& hasCode);
+
+    std::string wiresharkNameDefInternal(const WiresharkField* refField) const;
     std::string wiresharkDissectBodyInternal() const;
+    std::string wiresharkCustomReadCodeInternal(bool& hasRealCode) const;
+    std::string wiresharkCustomValidCodeInternal(bool& hasRealCode) const;
+    std::string wiresharkCustomNameCodeInternal(bool& hasRealCode) const;
 
     GenField& m_genField;
+    WiresharkCustomCode m_customCode;
 };
 
 } // namespace commsdsl2wireshark

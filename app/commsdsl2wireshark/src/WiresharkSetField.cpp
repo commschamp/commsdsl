@@ -42,7 +42,7 @@ WiresharkSetField::WiresharkSetField(WiresharkGenerator& generator, ParseField p
 std::string WiresharkSetField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
-        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", base.HEX, #^#NIL#$#, #^#MASK#$#, #^#DESC#$#))\n"
+        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.HEX, #^#NIL#$#, #^#MASK#$#, #^#DESC#$#))\n"
         "#^#BITS#$#\n"
     ;
 
@@ -53,7 +53,7 @@ std::string WiresharkSetField::wiresharkFieldRegistrationImpl(const WiresharkFie
         {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
         {"TYPE", wiresharkForcedIntegralFieldType(refField)},
         {"REF_NAME", wiresharkFieldRefName(refField)},
-        {"DISP_NAME", wiresharkFieldDisplayNameStr(refField)},
+        {"DISP_NAME", wiresharkFieldNameVarNameStr(refField)},
         {"MASK", wiresharkForcedIntegralFieldMask(refField)},
         {"DESC", wiresharkFieldDescriptionStr(refField)},
         {"NIL", strings::genNilStr()},
@@ -131,6 +131,15 @@ std::string WiresharkSetField::wiresharkBitParentWidthInternal(const WiresharkFi
 std::string WiresharkSetField::wiresharkBitObjName(const WiresharkField* refField, const std::string& bitName) const
 {
     return wiresharkFieldObjName(refField) + '_' + bitName;
+}
+
+bool WiresharkSetField::genPrepareImpl()
+{
+    if ((!GenBase::genPrepareImpl()) ||
+        (!WiresharkBase::wiresharkPrepare())) {
+        return false;
+    }
+    return true;
 }
 
 } // namespace commsdsl2wireshark

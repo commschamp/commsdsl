@@ -607,6 +607,24 @@ const std::string& genValsSuffixStr()
     return Str;
 }
 
+const std::string& genReadSuffixStr()
+{
+    static const std::string Str("_read");
+    return Str;
+}
+
+const std::string& genValidSuffixStr()
+{
+    static const std::string Str("_valid");
+    return Str;
+}
+
+const std::string& genNameSuffixStr()
+{
+    static const std::string Str("_name");
+    return Str;
+}
+
 const std::string& genNilStr()
 {
     static const std::string Str("nil");

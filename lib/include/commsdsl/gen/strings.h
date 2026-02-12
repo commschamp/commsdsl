@@ -124,6 +124,9 @@ const std::string& genDescriptionStr();
 const std::string& genCommsNameSuffixStr();
 const std::string& genValueTypeStr();
 const std::string& genValsSuffixStr();
+const std::string& genReadSuffixStr();
+const std::string& genValidSuffixStr();
+const std::string& genNameSuffixStr();
 const std::string& genNilStr();
 
 char genSiblingRefPrefix();

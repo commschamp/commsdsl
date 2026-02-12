@@ -190,11 +190,16 @@ std::string WiresharkGenerator::wiresharkScopeToName(const std::string& scope) c
     return util::genStrReplace(scope, "::", "_");
 }
 
-std::string WiresharkGenerator::wiresharkDissectNameFor(const GenElem& elem) const
+std::string WiresharkGenerator::wiresharkFuncNameFor(const GenElem& elem, const std::string& suffix) const
 {
     auto scope = comms::genScopeFor(elem, *this, false);
     auto protName = Wireshark::wiresharkProtocolObjName(*this);
-    return protName + '_' + wiresharkScopeToName(scope) + "_read";
+    return protName + '_' + wiresharkScopeToName(scope) + suffix;
+}
+
+std::string WiresharkGenerator::wiresharkDissectNameFor(const GenElem& elem) const
+{
+    return wiresharkFuncNameFor(elem, strings::genReadSuffixStr());
 }
 
 std::string WiresharkGenerator::wiresharkInputRelPathPrefix() const
@@ -202,24 +207,34 @@ std::string WiresharkGenerator::wiresharkInputRelPathPrefix() const
     return Wireshark::wiresharkFileName(*this) + '-';
 }
 
-std::string WiresharkGenerator::wiresharkInputRelPathFor(const GenElem& elem) const
+std::string WiresharkGenerator::wiresharkInputDissectRelPathFor(const GenElem& elem) const
 {
     return wiresharkInputRelPathPrefix() + wiresharkDissectNameFor(elem);
 }
 
-std::string WiresharkGenerator::wiresharkInputAbsPathFor(const GenElem& elem) const
+std::string WiresharkGenerator::wiresharkInputDissectAbsPathFor(const GenElem& elem) const
 {
-    return genGetCodeDir() + '/' + wiresharkInputRelPathFor(elem);
+    return genGetCodeDir() + '/' + wiresharkInputDissectRelPathFor(elem);
 }
 
-std::string WiresharkGenerator::wiresharkInputRelPathFor(const std::string& name) const
+std::string WiresharkGenerator::wiresharkInputDissectRelPathFor(const std::string& name) const
 {
     return wiresharkInputRelPathPrefix() + name;
 }
 
-std::string WiresharkGenerator::wiresharkInputAbsPathFor(const std::string& name) const
+std::string WiresharkGenerator::wiresharkInputDissectAbsPathFor(const std::string& name) const
 {
-    return genGetCodeDir() + '/' + wiresharkInputRelPathFor(name);
+    return genGetCodeDir() + '/' + wiresharkInputDissectRelPathFor(name);
+}
+
+std::string WiresharkGenerator::wiresharkInputRelPathFor(const GenElem& elem, const std::string& suffix) const
+{
+    return wiresharkInputRelPathPrefix() + wiresharkFuncNameFor(elem, suffix);
+}
+
+std::string WiresharkGenerator::wiresharkInputAbsPathFor(const GenElem& elem, const std::string& suffix) const
+{
+    return genGetCodeDir() + '/' + wiresharkInputRelPathFor(elem, suffix);
 }
 
 const std::string& WiresharkGenerator::genCommentPrefixImpl() const

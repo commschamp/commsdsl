@@ -35,7 +35,8 @@ WiresharkBundleField::WiresharkBundleField(WiresharkGenerator& generator, ParseF
 
 bool WiresharkBundleField::genPrepareImpl()
 {
-    if (!GenBase::genPrepareImpl()) {
+    if ((!GenBase::genPrepareImpl()) ||
+        (!WiresharkBase::wiresharkPrepare())) {
         return false;
     }
 
@@ -46,7 +47,7 @@ bool WiresharkBundleField::genPrepareImpl()
 std::string WiresharkBundleField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
-        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bytes(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", base.SPACE, #^#DESC#$#))\n"
+        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bytes(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.SPACE, #^#DESC#$#))\n"
     ;
 
     auto obj = genParseObj();
@@ -54,7 +55,7 @@ std::string WiresharkBundleField::wiresharkFieldRegistrationImpl(const Wireshark
         {"OBJ_NAME", wiresharkFieldObjName(refField)},
         {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
         {"REF_NAME", wiresharkFieldRefName(refField)},
-        {"DISP_NAME", wiresharkFieldDisplayNameStr(refField)},
+        {"DISP_NAME", wiresharkFieldNameVarNameStr(refField)},
         {"DESC", wiresharkFieldDescriptionStr(refField)},
     };
 

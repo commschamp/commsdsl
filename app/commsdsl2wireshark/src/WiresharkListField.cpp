@@ -26,4 +26,13 @@ WiresharkListField::WiresharkListField(WiresharkGenerator& generator, ParseField
 {
 }
 
+bool WiresharkListField::genPrepareImpl()
+{
+    if ((!GenBase::genPrepareImpl()) ||
+        (!WiresharkBase::wiresharkPrepare())) {
+        return false;
+    }
+    return true;
+}
+
 } // namespace commsdsl2wireshark

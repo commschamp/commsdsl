@@ -135,7 +135,7 @@ std::string Wireshark::wiresharkDissectFuncInternal() const
         ;
 
     bool bodyReplaced = false;
-    auto replacePath = m_wiresharkGenerator.wiresharkInputRelPathFor(wiresharkProtocolObjName(m_wiresharkGenerator) + ".dissector") + strings::genReplaceFileSuffixStr();
+    auto replacePath = m_wiresharkGenerator.wiresharkInputDissectRelPathFor(wiresharkProtocolObjName(m_wiresharkGenerator) + ".dissector") + strings::genReplaceFileSuffixStr();
     auto replaceCode = m_wiresharkGenerator.genReadCodeInjectCode(replacePath, "Replace body", &bodyReplaced);
 
     util::GenReplacementMap repl = {

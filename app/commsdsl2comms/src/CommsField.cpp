@@ -92,13 +92,13 @@ bool CommsField::commsPrepare()
     auto& obj = m_genField.genParseObj();
 
     bool overrides =
-        commsPrepareOverrideInternal(obj.parseValueOverride(), "value", &CommsField::commsCustomValueCodeInternal, m_customCode.m_value, &m_customCode.m_hasValue) &&
-        commsPrepareOverrideInternal(obj.parseReadOverride(), "read", &CommsField::commsCustomReadCodeInternal, m_customCode.m_read, &m_customCode.m_hasRead) &&
-        commsPrepareOverrideInternal(obj.parseWriteOverride(), "write", &CommsField::commsCustomWriteCodeInternal, m_customCode.m_write, &m_customCode.m_hasWrite) &&
-        commsPrepareOverrideInternal(obj.parseRefreshOverride(), "refresh", &CommsField::commsCustomRefreshCodeInternal, m_customCode.m_refresh, &m_customCode.m_hasRefresh) &&
-        commsPrepareOverrideInternal(obj.parseLengthOverride(), "length", &CommsField::commsCustomLengthCodeInternal, m_customCode.m_length, &m_customCode.m_hasLength) &&
-        commsPrepareOverrideInternal(obj.parseValidOverride(), "valid", &CommsField::commsCustomValidCodeInternal, m_customCode.m_valid, &m_customCode.m_hasValid) &&
-        commsPrepareOverrideInternal(obj.parseNameOverride(), "name", &CommsField::commsCustomNameCodeInternal, m_customCode.m_name, &m_customCode.m_hasName)
+        commsPrepareOverrideInternal(obj.parseValueOverride(), "value", &CommsField::commsCustomValueCodeInternal, m_customCode.m_value, m_customCode.m_hasValue) &&
+        commsPrepareOverrideInternal(obj.parseReadOverride(), "read", &CommsField::commsCustomReadCodeInternal, m_customCode.m_read, m_customCode.m_hasRead) &&
+        commsPrepareOverrideInternal(obj.parseWriteOverride(), "write", &CommsField::commsCustomWriteCodeInternal, m_customCode.m_write, m_customCode.m_hasWrite) &&
+        commsPrepareOverrideInternal(obj.parseRefreshOverride(), "refresh", &CommsField::commsCustomRefreshCodeInternal, m_customCode.m_refresh, m_customCode.m_hasRefresh) &&
+        commsPrepareOverrideInternal(obj.parseLengthOverride(), "length", &CommsField::commsCustomLengthCodeInternal, m_customCode.m_length, m_customCode.m_hasLength) &&
+        commsPrepareOverrideInternal(obj.parseValidOverride(), "valid", &CommsField::commsCustomValidCodeInternal, m_customCode.m_valid, m_customCode.m_hasValid) &&
+        commsPrepareOverrideInternal(obj.parseNameOverride(), "name", &CommsField::commsCustomNameCodeInternal, m_customCode.m_name, m_customCode.m_hasName)
         ;
 
     if (!overrides) {
@@ -850,7 +850,7 @@ bool CommsField::commsPrepareOverrideInternal(
     const std::string& name,
     CommsCustomCodeFunc codeFunc,
     std::string& code,
-    bool* hasCode)
+    bool& hasCode)
 {
     if (commsIsOverrideCodeRequired(type) && (!comms::genIsGlobalField(m_genField))) {
         m_genField.genGenerator().genLogger().genError(
@@ -859,32 +859,24 @@ bool CommsField::commsPrepareOverrideInternal(
         return false;
     }
 
-    auto updateHasCodeFlag =
-        [hasCode](bool val)
-        {
-            if (hasCode != nullptr) {
-                *hasCode = val;
-            }
-        };
-
     do {
         if (!commsIsOverrideCodeAllowed(type)) {
             code.clear();
-            updateHasCodeFlag(false);
+            hasCode = false;
             break;
         }
 
         bool hasCodeTmp = false;
         auto customCode = (this->*codeFunc)(hasCodeTmp);
-        if ((hasCodeTmp) || (code.empty())) {
+        if ((hasCodeTmp) || (!hasCode)) {
             code = std::move(customCode);
-            updateHasCodeFlag(hasCodeTmp);
+            hasCode = hasCode || hasCodeTmp;
             break;
         }
 
     } while (false);
 
-    if (code.empty() && commsIsOverrideCodeRequired(type)) {
+    if ((!hasCode) && commsIsOverrideCodeRequired(type)) {
         m_genField.genGenerator().genLogger().genError(
             "Overriding \"" + name + "\" operation is not provided in injected code for field \"" +
             m_genField.genParseObj().parseExternalRef() + "\".");

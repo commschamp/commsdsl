@@ -102,7 +102,7 @@ std::string WiresharkIntField::wiresharkFieldRegistrationImpl(const WiresharkFie
 {
     static const std::string Templ =
         "#^#SPECIALS#$#\n"
-        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", base.DEC_HEX, #^#SPECIALS_NAME#$#, #^#MASK#$#, #^#DESC#$#))\n"
+        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.DEC_HEX, #^#SPECIALS_NAME#$#, #^#MASK#$#, #^#DESC#$#))\n"
     ;
 
     auto obj = genIntFieldParseObj();
@@ -112,7 +112,7 @@ std::string WiresharkIntField::wiresharkFieldRegistrationImpl(const WiresharkFie
         {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
         {"TYPE", wiresharkForcedIntegralFieldType(refField)},
         {"REF_NAME", wiresharkFieldRefName(refField)},
-        {"DISP_NAME", wiresharkFieldDisplayNameStr(refField)},
+        {"DISP_NAME", wiresharkFieldNameVarNameStr(refField)},
         {"SPECIALS_NAME", strings::genNilStr()},
         {"MASK", wiresharkForcedIntegralFieldMask(refField)},
         {"DESC", wiresharkFieldDescriptionStr(refField)},
@@ -170,6 +170,15 @@ std::string WiresharkIntField::wiresharkSpecialsInternal(const WiresharkField* r
     };
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+bool WiresharkIntField::genPrepareImpl()
+{
+    if ((!GenBase::genPrepareImpl()) ||
+        (!WiresharkBase::wiresharkPrepare())) {
+        return false;
+    }
+    return true;
 }
 
 } // namespace commsdsl2wireshark

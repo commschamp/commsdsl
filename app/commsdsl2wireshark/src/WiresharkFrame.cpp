@@ -52,7 +52,7 @@ std::string WiresharkFrame::wiresharkDissectCode() const
         ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
-    auto relPath = wiresharkGenerator.wiresharkInputRelPathFor(*this);
+    auto relPath = wiresharkGenerator.wiresharkInputDissectRelPathFor(*this);
     auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
     auto prependFileName = relPath + strings::genPrependFileSuffixStr();
     auto extendFileName = relPath + strings::genExtendFileSuffixStr();

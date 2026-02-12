@@ -30,7 +30,8 @@ WiresharkRefField::WiresharkRefField(WiresharkGenerator& generator, ParseField p
 
 bool WiresharkRefField::genPrepareImpl()
 {
-    if (!GenBase::genPrepareImpl()) {
+    if ((!GenBase::genPrepareImpl()) ||
+        (!WiresharkBase::wiresharkPrepare())) {
         return false;
     }
 

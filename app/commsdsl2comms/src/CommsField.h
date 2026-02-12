@@ -196,7 +196,7 @@ private:
         const std::string& name,
         CommsCustomCodeFunc codeFunc,
         std::string& code,
-        bool* hasCode);
+        bool& hasCode);
     std::string commsCustomValueCodeInternal(bool& hasRealCode) const;
     std::string commsCustomReadCodeInternal(bool& hasRealCode) const;
     std::string commsCustomWriteCodeInternal(bool& hasRealCode) const;

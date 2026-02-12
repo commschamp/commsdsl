@@ -26,4 +26,13 @@ WiresharkOptionalField::WiresharkOptionalField(WiresharkGenerator& generator, Pa
 {
 }
 
+bool WiresharkOptionalField::genPrepareImpl()
+{
+    if ((!GenBase::genPrepareImpl()) ||
+        (!WiresharkBase::wiresharkPrepare())) {
+        return false;
+    }
+    return true;
+}
+
 } // namespace commsdsl2wireshark

@@ -35,7 +35,8 @@ public:
     WiresharkSetField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
+    virtual bool genPrepareImpl() override;
+    virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
 
 private:
     std::string wiresharkBitsInternal(const WiresharkField* refField) const;

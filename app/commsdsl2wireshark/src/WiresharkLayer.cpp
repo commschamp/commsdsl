@@ -75,7 +75,7 @@ std::string WiresharkLayer::wiresharkDissectCode() const
     ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genLayer.genGenerator());
-    auto relPath = wiresharkGenerator.wiresharkInputRelPathFor(m_genLayer);
+    auto relPath = wiresharkGenerator.wiresharkInputDissectRelPathFor(m_genLayer);
     auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
     auto prependFileName = relPath + strings::genPrependFileSuffixStr();
     auto extendFileName = relPath + strings::genExtendFileSuffixStr();

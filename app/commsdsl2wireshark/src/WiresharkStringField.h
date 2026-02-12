@@ -33,6 +33,9 @@ public:
     using GenElem = commsdsl::gen::GenElem;
 
     WiresharkStringField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
+
+protected:
+    virtual bool genPrepareImpl() override;
 };
 
 } // namespace commsdsl2wireshark

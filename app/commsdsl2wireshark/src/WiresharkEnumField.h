@@ -35,7 +35,8 @@ public:
     WiresharkEnumField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
+    virtual bool genPrepareImpl() override;
+    virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
 
 private:
     std::string wiresharkValsInternal(const WiresharkField* refField) const;
