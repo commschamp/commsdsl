@@ -37,10 +37,15 @@ public:
 protected:
     virtual bool genPrepareImpl() override;
 
+    virtual std::string wiresharkDissectNameImpl(const WiresharkField* refField) const override;
+    virtual std::string wiresharkFieldObjNameImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
 
 private:
-    const WiresharkField* m_wiresharkField = nullptr;
+    bool wiresharkIsAliasInternal() const;
+
+    WiresharkField* m_wiresharkField = nullptr;
+    bool m_alias = false;
 };
 
 } // namespace commsdsl2wireshark

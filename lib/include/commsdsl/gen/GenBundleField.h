@@ -44,7 +44,7 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
-    virtual void genSetReferencedImpl() override;
+    virtual void genSetReferencedImpl(bool referenced) override;
     virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
 
     ParseBundleField genBundleFieldParseObj() const;

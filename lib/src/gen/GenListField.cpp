@@ -275,18 +275,18 @@ public:
         return m_memberTermSuffixField.get();
     }
 
-    void genSetReferenced()
+    void genSetReferenced(bool referenced)
     {
-        GenField::genSetFieldReferencedIfExists(m_externalElementField);
-        GenField::genSetFieldReferencedIfExists(m_memberElementField.get());
-        GenField::genSetFieldReferencedIfExists(m_externalCountPrefixField);
-        GenField::genSetFieldReferencedIfExists(m_memberCountPrefixField.get());
-        GenField::genSetFieldReferencedIfExists(m_externalLengthPrefixField);
-        GenField::genSetFieldReferencedIfExists(m_memberLengthPrefixField.get());
-        GenField::genSetFieldReferencedIfExists(m_externalElemLengthPrefixField);
-        GenField::genSetFieldReferencedIfExists(m_memberElemLengthPrefixField.get());
-        GenField::genSetFieldReferencedIfExists(m_externalTermSuffixField);
-        GenField::genSetFieldReferencedIfExists(m_memberTermSuffixField.get());
+        GenField::genSetFieldReferencedIfExists(m_externalElementField, referenced);
+        GenField::genSetFieldReferencedIfExists(m_memberElementField.get(), referenced);
+        GenField::genSetFieldReferencedIfExists(m_externalCountPrefixField, referenced);
+        GenField::genSetFieldReferencedIfExists(m_memberCountPrefixField.get(), referenced);
+        GenField::genSetFieldReferencedIfExists(m_externalLengthPrefixField, referenced);
+        GenField::genSetFieldReferencedIfExists(m_memberLengthPrefixField.get(), referenced);
+        GenField::genSetFieldReferencedIfExists(m_externalElemLengthPrefixField, referenced);
+        GenField::genSetFieldReferencedIfExists(m_memberElemLengthPrefixField.get(), referenced);
+        GenField::genSetFieldReferencedIfExists(m_externalTermSuffixField, referenced);
+        GenField::genSetFieldReferencedIfExists(m_memberTermSuffixField.get(), referenced);
     }
 
 private:
@@ -419,9 +419,9 @@ bool GenListField::genPrepareImpl()
     return m_impl->genPrepare();
 }
 
-void GenListField::genSetReferencedImpl()
+void GenListField::genSetReferencedImpl(bool referenced)
 {
-    m_impl->genSetReferenced();
+    m_impl->genSetReferenced(referenced);
 }
 
 GenListField::ParseListField GenListField::genListFieldParseObj() const

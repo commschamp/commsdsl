@@ -73,9 +73,9 @@ public:
     const GenGenerator& genGenerator() const;
 
     bool genIsReferenced() const;
-    void genSetReferenced();
+    void genSetReferenced(bool referenced = true);
 
-    static void genSetFieldReferencedIfExists(GenField* field);
+    static void genSetFieldReferencedIfExists(GenField* field, bool referenced = true);
 
     std::string genTemplateScopeOfComms(const std::string& protOptionsStr) const;
 
@@ -90,7 +90,7 @@ protected:
     virtual GenType genElemTypeImpl() const override final;
     virtual bool genPrepareImpl();
     virtual bool genWriteImpl() const;
-    virtual void genSetReferencedImpl();
+    virtual void genSetReferencedImpl(bool referenced);
     virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const;
 
 private:

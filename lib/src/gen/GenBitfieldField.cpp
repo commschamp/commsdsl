@@ -66,10 +66,10 @@ public:
         return m_members;
     }
 
-    void genSetReferenced()
+    void genSetReferenced(bool referenced)
     {
         for (auto& m : m_members) {
-            m->genSetReferenced();
+            m->genSetReferenced(referenced);
         }
     }
 
@@ -99,9 +99,9 @@ bool GenBitfieldField::genPrepareImpl()
     return m_impl->genPrepare();
 }
 
-void GenBitfieldField::genSetReferencedImpl()
+void GenBitfieldField::genSetReferencedImpl(bool referenced)
 {
-    m_impl->genSetReferenced();
+    m_impl->genSetReferenced(referenced);
 }
 
 GenBitfieldField::GenFieldRefInfo GenBitfieldField::genProcessInnerRefImpl(const std::string& refStr) const

@@ -71,7 +71,7 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
-    virtual void genSetReferencedImpl() override;
+    virtual void genSetReferencedImpl(bool referenced) override;
 
     ParseListField genListFieldParseObj() const;
 

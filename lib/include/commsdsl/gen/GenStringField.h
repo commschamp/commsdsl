@@ -49,7 +49,7 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
-    virtual void genSetReferencedImpl() override;
+    virtual void genSetReferencedImpl(bool referenced) override;
 
 private:
     std::unique_ptr<GenStringFieldImpl> m_impl;

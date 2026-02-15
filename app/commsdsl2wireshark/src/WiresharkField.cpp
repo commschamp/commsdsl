@@ -132,17 +132,7 @@ bool WiresharkField::wiresharkPrepare()
 
 std::string WiresharkField::wiresharkDissectName(const WiresharkField* refField) const
 {
-    const auto* genField = &m_genField;
-    if (refField != nullptr) {
-        genField = &(refField->wiresharkGenField());
-    }
-
-    if (!genField->genIsReferenced()) {
-        return strings::genEmptyString();
-    }
-
-    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genField->genGenerator());
-    return wiresharkGenerator.wiresharkDissectNameFor(*genField);
+    return wiresharkDissectNameImpl(refField);
 }
 
 std::string WiresharkField::wiresharkDissectCode(const WiresharkField* refField) const
@@ -153,6 +143,7 @@ std::string WiresharkField::wiresharkDissectCode(const WiresharkField* refField)
     }
 
     if (!genField->genIsReferenced()) {
+        genField->genGenerator().genLogger().genDebug("Field " + genField->genName() + " is not really referenced, skipping dissect code generation");
         return strings::genEmptyString();
     }
 
@@ -200,6 +191,31 @@ std::string WiresharkField::wiresharkDissectCode(const WiresharkField* refField)
 
 std::string WiresharkField::wiresharkFieldObjName(const WiresharkField* refField) const
 {
+    return wiresharkFieldObjNameImpl(refField);
+}
+
+std::string WiresharkField::wiresharkFieldRegistration(const WiresharkField* refField) const
+{
+    return wiresharkFieldRegistrationImpl(refField);
+}
+
+std::string WiresharkField::wiresharkDissectNameImpl(const WiresharkField* refField) const
+{
+    const auto* genField = &m_genField;
+    if (refField != nullptr) {
+        genField = &(refField->wiresharkGenField());
+    }
+
+    if (!genField->genIsReferenced()) {
+        return strings::genEmptyString();
+    }
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genField->genGenerator());
+    return wiresharkGenerator.wiresharkDissectNameFor(*genField);
+}
+
+std::string WiresharkField::wiresharkFieldObjNameImpl(const WiresharkField* refField) const
+{
     const auto* genField = &m_genField;
     if (refField != nullptr) {
         genField = &(refField->wiresharkGenField());
@@ -207,11 +223,6 @@ std::string WiresharkField::wiresharkFieldObjName(const WiresharkField* refField
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genField->genGenerator());
     auto scope = comms::genScopeFor(*genField, wiresharkGenerator, false);
     return Wireshark::wiresharkProtocolObjName(wiresharkGenerator) + '_' + util::genStrReplace(scope, "::", "_");
-}
-
-std::string WiresharkField::wiresharkFieldRegistration(const WiresharkField* refField) const
-{
-    return wiresharkFieldRegistrationImpl(refField);
 }
 
 std::string WiresharkField::wiresharkFieldRegistrationImpl([[maybe_unused]] const WiresharkField* refField) const
@@ -234,6 +245,11 @@ std::string WiresharkField::wiresharkFieldRefName(const WiresharkField* refField
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genField->genGenerator());
     auto scope = comms::genScopeFor(*genField, wiresharkGenerator, false);
     return Wireshark::wiresharkProtocolObjName(wiresharkGenerator) + '.' + util::genStrReplace(scope, "::", ".");
+}
+
+bool WiresharkField::wiresharkIsBitfieldMember() const
+{
+    return wiresharkParentBitfieldInternal(*this) != nullptr;
 }
 
 std::string WiresharkField::wiresharkForcedIntegralFieldMask(const WiresharkField* refField) const
@@ -340,6 +356,14 @@ std::string WiresharkField::wiresharkFieldDisplayNameStr(const WiresharkField* r
 std::string WiresharkField::wiresharkFieldNameVarNameStr(const WiresharkField* refField) const
 {
     return wiresharkFieldObjName(refField) + strings::genNameSuffixStr();
+}
+
+bool WiresharkField::wiresharkHasOverrideCode() const
+{
+    return
+        m_customCode.m_hasRead ||
+        m_customCode.m_hasValid ||
+        m_customCode.m_hasName;
 }
 
 bool WiresharkField::wiresharkCopyCodeFromInternal()

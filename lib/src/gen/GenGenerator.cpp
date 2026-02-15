@@ -623,7 +623,7 @@ private:
                 return false;
             }
 
-            m->genSetReferenced(true);
+            m->genSetReferenced();
         }
 
         return true;
@@ -651,7 +651,7 @@ private:
                     (std::find(messagePlatforms.begin(), messagePlatforms.end(), m_forcedPlatform) != messagePlatforms.end());
 
                 if (messageSupported) {
-                    const_cast<GenMessage*>(m)->genSetReferenced(true);
+                    const_cast<GenMessage*>(m)->genSetReferenced();
                 }
             }
         }

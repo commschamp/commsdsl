@@ -81,10 +81,10 @@ public:
         return m_memberPrefixField.get();
     }
 
-    void genSetReferenced()
+    void genSetReferenced(bool referenced)
     {
-        GenField::genSetFieldReferencedIfExists(m_externalPrefixField);
-        GenField::genSetFieldReferencedIfExists(m_memberPrefixField.get());
+        GenField::genSetFieldReferencedIfExists(m_externalPrefixField, referenced);
+        GenField::genSetFieldReferencedIfExists(m_memberPrefixField.get(), referenced);
     }
 
 private:
@@ -129,9 +129,9 @@ bool GenStringField::genPrepareImpl()
     return m_impl->genPrepare();
 }
 
-void GenStringField::genSetReferencedImpl()
+void GenStringField::genSetReferencedImpl(bool referenced)
 {
-    m_impl->genSetReferenced();
+    m_impl->genSetReferenced(referenced);
 }
 
 GenStringField::ParseStringField GenStringField::genStringFieldParseObj() const

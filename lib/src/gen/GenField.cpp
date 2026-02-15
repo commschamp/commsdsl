@@ -70,19 +70,25 @@ public:
 
     bool genIsReferenced() const
     {
-        return m_referenced;
+        return m_referencedCnt > 0;
     }
 
-    void genSetReferenced()
+    void genSetReferenced(bool referenced)
     {
-        m_referenced = true;
+        if (referenced) {
+            ++m_referencedCnt;
+            return;
+        }
+
+        // Can be negative temporarily
+        --m_referencedCnt;
     }
 
 private:
     GenGenerator& m_generator;
     ParseField m_parseObj;
+    int m_referencedCnt = 0;
     bool m_prepared = false;
-    bool m_referenced = false;
 };
 
 GenField::GenField(GenGenerator& generator, const ParseField& parseObj, GenElem* parent) :
@@ -180,16 +186,16 @@ bool GenField::genIsReferenced() const
     return m_impl->genIsReferenced();
 }
 
-void GenField::genSetReferenced()
+void GenField::genSetReferenced(bool referenced)
 {
-    m_impl->genSetReferenced();
-    genSetReferencedImpl();
+    m_impl->genSetReferenced(referenced);
+    genSetReferencedImpl(referenced);
 }
 
-void GenField::genSetFieldReferencedIfExists(GenField* field)
+void GenField::genSetFieldReferencedIfExists(GenField* field, bool referenced)
 {
     if (field != nullptr) {
-        field->genSetReferenced();
+        field->genSetReferenced(referenced);
     }
 }
 
@@ -309,7 +315,7 @@ bool GenField::genWriteImpl() const
     return true;
 }
 
-void GenField::genSetReferencedImpl()
+void GenField::genSetReferencedImpl([[maybe_unused]] bool referenced)
 {
 }
 

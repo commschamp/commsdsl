@@ -78,10 +78,10 @@ public:
         return m_memberField.get();
     }
 
-    void genSetReferenced()
+    void genSetReferenced(bool referenced)
     {
-        GenField::genSetFieldReferencedIfExists(m_externalField);
-        GenField::genSetFieldReferencedIfExists(m_memberField.get());
+        GenField::genSetFieldReferencedIfExists(m_externalField, referenced);
+        GenField::genSetFieldReferencedIfExists(m_memberField.get(), referenced);
     }
 
 private:
@@ -126,9 +126,9 @@ bool GenOptionalField::genPrepareImpl()
     return m_impl->genPrepare();
 }
 
-void GenOptionalField::genSetReferencedImpl()
+void GenOptionalField::genSetReferencedImpl(bool referenced)
 {
-    m_impl->genSetReferenced();
+    m_impl->genSetReferenced(referenced);
 }
 
 GenOptionalField::ParseOptionalField GenOptionalField::genOptionalFieldParseObj() const

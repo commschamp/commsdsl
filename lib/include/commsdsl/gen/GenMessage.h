@@ -51,7 +51,7 @@ public:
     bool genPrepare();
     bool genWrite() const;
     bool genIsReferenced() const;
-    void genSetReferenced(bool value);
+    void genSetReferenced(bool value = true);
 
     ParseMessage genParseObj() const;
 

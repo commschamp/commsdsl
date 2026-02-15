@@ -206,7 +206,7 @@ bool GenMessage::genIsReferenced() const
     return m_impl->genIsReferenced();
 }
 
-void GenMessage::genSetReferenced(bool value = true)
+void GenMessage::genSetReferenced(bool value)
 {
     m_impl->genSetReferenced(value);
 }

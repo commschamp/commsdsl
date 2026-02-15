@@ -183,14 +183,14 @@ public:
     void genSetAllInterfacesReferenced()
     {
         for (auto& iPtr : m_interfaces) {
-            iPtr->genSetReferenced(true);
+            iPtr->genSetReferenced();
         }
     }
 
     void genSetAllMessagesReferenced()
     {
         for (auto& mPtr : m_messages) {
-            mPtr->genSetReferenced(true);
+            mPtr->genSetReferenced();
         }
     }
 
@@ -964,7 +964,7 @@ GenInterface* GenNamespace::genAddDefaultInterface()
     }
 
     auto iter = intList.insert(intList.begin(), genGenerator().genCreateInterface(commsdsl::parse::ParseInterface(nullptr), this));
-    (*iter)->genSetReferenced(true);
+    (*iter)->genSetReferenced();
     if (!(*iter)->genPrepare()) {
         intList.erase(iter);
         return nullptr;
