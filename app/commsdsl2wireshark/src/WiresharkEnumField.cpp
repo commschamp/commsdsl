@@ -88,6 +88,10 @@ std::string WiresharkEnumField::wiresharkValsInternal(const WiresharkField* refF
             continue;
         }
 
+        if (!genGenerator().genDoesElementExist(iter->second.m_sinceVersion, iter->second.m_deprecatedSince, true)) {
+            continue;
+        }
+
         static const std::string Templ =
             "[#^#VAL#$#] = \"#^#NAME#$#\"";
 

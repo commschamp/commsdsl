@@ -19,6 +19,8 @@
 
 #include "commsdsl/gen/GenFloatField.h"
 
+#include <string>
+
 namespace commsdsl2wireshark
 {
 
@@ -30,12 +32,20 @@ class WiresharkFloatField final : public commsdsl::gen::GenFloatField, public Wi
 
 public:
     using ParseField = commsdsl::parse::ParseField;
+    using ParseFloatField = commsdsl::parse::ParseFloatField;
     using GenElem = commsdsl::gen::GenElem;
 
     WiresharkFloatField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
     virtual bool genPrepareImpl() override;
+
+    virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
+
+private:
+    std::string wiresharkSpecialsInternal(const WiresharkField* refField) const;
+    std::string wiresharkSpecialValStrInternal(double val) const;
+    const std::string& wiresharkFloatTypeInternal() const;
 };
 
 } // namespace commsdsl2wireshark

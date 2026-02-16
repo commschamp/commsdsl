@@ -23,6 +23,7 @@
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/parse/ParseIntField.h"
 
+#include <algorithm>
 #include <cassert>
 #include <iomanip>
 #include <sstream>
@@ -117,6 +118,17 @@ bool WiresharkBitfieldField::genPrepareImpl()
     }
 
     m_wiresharkFields = wiresharkTransformFieldsList(genMembers());
+
+    auto& generator = genGenerator();
+    m_wiresharkFields.erase(
+        std::remove_if(
+            m_wiresharkFields.begin(), m_wiresharkFields.end(),
+            [&generator](auto* fPtr)
+            {
+                auto parseObj = fPtr->wiresharkGenField().genParseObj();
+                return !generator.genDoesElementExist(parseObj.parseSinceVersion(), parseObj.parseDeprecatedSince(), parseObj.parseIsDeprecatedRemoved());
+            }),
+        m_wiresharkFields.end());
     return true;
 }
 

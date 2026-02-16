@@ -21,6 +21,8 @@
 #include "commsdsl/gen/util.h"
 #include "commsdsl/gen/strings.h"
 
+#include <algorithm>
+
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
 
@@ -41,6 +43,16 @@ bool WiresharkBundleField::genPrepareImpl()
     }
 
     m_wiresharkFields = wiresharkTransformFieldsList(genMembers());
+    auto& generator = genGenerator();
+    m_wiresharkFields.erase(
+        std::remove_if(
+            m_wiresharkFields.begin(), m_wiresharkFields.end(),
+            [&generator](auto* fPtr)
+            {
+                auto parseObj = fPtr->wiresharkGenField().genParseObj();
+                return !generator.genDoesElementExist(parseObj.parseSinceVersion(), parseObj.parseDeprecatedSince(), parseObj.parseIsDeprecatedRemoved());
+            }),
+        m_wiresharkFields.end());
     return true;
 }
 

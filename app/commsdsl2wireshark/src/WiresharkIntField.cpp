@@ -98,6 +98,15 @@ const std::string& WiresharkIntField::wiresharkIntegralType(ParseIntField::Parse
     return iter->second;
 }
 
+bool WiresharkIntField::genPrepareImpl()
+{
+    if ((!GenBase::genPrepareImpl()) ||
+        (!WiresharkBase::wiresharkPrepare())) {
+        return false;
+    }
+    return true;
+}
+
 std::string WiresharkIntField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
@@ -142,6 +151,10 @@ std::string WiresharkIntField::wiresharkSpecialsInternal(const WiresharkField* r
 
     util::GenStringsList elems;
     for (auto& s : specials) {
+        if (!genGenerator().genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
+            continue;
+        }
+
         static const std::string Templ =
             "[#^#VAL#$#] = \"#^#NAME#$#\"";
 
@@ -157,6 +170,10 @@ std::string WiresharkIntField::wiresharkSpecialsInternal(const WiresharkField* r
         elems.push_back(util::genProcessTemplate(Templ, repl));
     }
 
+    if (elems.empty()) {
+        return strings::genEmptyString();
+    }
+
     static const std::string Templ =
         "local #^#NAME#$##^#SUFFIX#$# = {\n"
         "    #^#ELEMS#$#\n"
@@ -170,15 +187,6 @@ std::string WiresharkIntField::wiresharkSpecialsInternal(const WiresharkField* r
     };
 
     return util::genProcessTemplate(Templ, repl);
-}
-
-bool WiresharkIntField::genPrepareImpl()
-{
-    if ((!GenBase::genPrepareImpl()) ||
-        (!WiresharkBase::wiresharkPrepare())) {
-        return false;
-    }
-    return true;
 }
 
 } // namespace commsdsl2wireshark

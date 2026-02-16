@@ -87,6 +87,10 @@ std::string WiresharkSetField::wiresharkBitsInternal(const WiresharkField* refFi
 
         auto& bitInfo = *iter;
 
+        if (!genGenerator().genDoesElementExist(bitInfo.second.m_sinceVersion, bitInfo.second.m_deprecatedSince, true)) {
+            continue;
+        }
+
         static const std::string Templ =
             "local #^#BIT_OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bool(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", #^#PARENT_WIDTH#$#, #^#NIL#$#, #^#MASK#$#, #^#DESC#$#))\n"
         ;
