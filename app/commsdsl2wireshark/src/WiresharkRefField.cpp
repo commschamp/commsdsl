@@ -80,10 +80,28 @@ std::string WiresharkRefField::wiresharkDissectNameImpl(const WiresharkField* re
     return m_wiresharkField->wiresharkDissectName(refField);
 }
 
+std::string WiresharkRefField::wiresharkDissectCodeImpl(const WiresharkField* refField) const
+{
+    if (m_alias) {
+        return WiresharkBase::wiresharkDissectCodeImpl(refField);
+    }
+
+    if (refField == nullptr) {
+        refField = this;
+    }
+
+    assert(m_wiresharkField != nullptr);
+    return m_wiresharkField->wiresharkDissectCode(refField);
+}
+
 std::string WiresharkRefField::wiresharkFieldObjNameImpl(const WiresharkField* refField) const
 {
-    if (!m_alias) {
+    if (m_alias) {
         return WiresharkBase::wiresharkFieldObjNameImpl(refField);
+    }
+
+    if (refField == nullptr) {
+        refField = this;
     }
 
     assert(m_wiresharkField != nullptr);

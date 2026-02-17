@@ -15,7 +15,14 @@
 
 #include "WiresharkListField.h"
 
+#include "Wireshark.h"
 #include "WiresharkGenerator.h"
+
+#include "commsdsl/gen/util.h"
+#include "commsdsl/gen/strings.h"
+
+namespace util = commsdsl::gen::util;
+namespace strings = commsdsl::gen::strings;
 
 namespace commsdsl2wireshark
 {
@@ -33,6 +40,49 @@ bool WiresharkListField::genPrepareImpl()
         return false;
     }
     return true;
+}
+
+std::string WiresharkListField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
+{
+    static const std::string Templ =
+        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bytes(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.SPACE, #^#DESC#$#))\n"
+    ;
+
+    util::GenReplacementMap repl = {
+        {"OBJ_NAME", wiresharkFieldObjName(refField)},
+        {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
+        {"REF_NAME", wiresharkFieldRefName(refField)},
+        {"DISP_NAME", wiresharkFieldNameVarNameStr(refField)},
+        {"DESC", wiresharkFieldDescriptionStr(refField)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkListField::wiresharkMembersDissectCodeImpl(const WiresharkField* refField) const
+{
+    util::GenStringsList elems;
+
+    auto wiresharkAddDisectCodeInternal =
+        [&elems, refField](const GenField* field)
+        {
+            if (field != nullptr) {
+                elems.push_back(WiresharkField::wiresharkCast(field)->wiresharkDissectCode(refField));
+            }
+        };
+
+    wiresharkAddDisectCodeInternal(genMemberElementField());
+    wiresharkAddDisectCodeInternal(genMemberCountPrefixField());
+    wiresharkAddDisectCodeInternal(genMemberLengthPrefixField());
+    wiresharkAddDisectCodeInternal(genMemberElemLengthPrefixField());
+    wiresharkAddDisectCodeInternal(genMemberTermSuffixField());
+
+    genGenerator().genLogger().genDebug("There are " + std::to_string(elems.size()) + " member elements of the " + genName() + " list field");
+    if (elems.empty()) {
+        return strings::genEmptyString();
+    }
+
+    return util::genStrListToString(elems, "\n", "");
 }
 
 } // namespace commsdsl2wireshark
