@@ -15,7 +15,14 @@
 
 #include "WiresharkStringField.h"
 
+#include "Wireshark.h"
 #include "WiresharkGenerator.h"
+
+#include "commsdsl/gen/util.h"
+#include "commsdsl/gen/strings.h"
+
+namespace util = commsdsl::gen::util;
+namespace strings = commsdsl::gen::strings;
 
 namespace commsdsl2wireshark
 {
@@ -33,6 +40,37 @@ bool WiresharkStringField::genPrepareImpl()
         return false;
     }
     return true;
+}
+
+std::string WiresharkStringField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
+{
+    static const std::string Templ =
+        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.string#^#Z#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.UNICODE, #^#DESC#$#))\n"
+    ;
+
+    util::GenReplacementMap repl = {
+        {"OBJ_NAME", wiresharkFieldObjName(refField)},
+        {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
+        {"REF_NAME", wiresharkFieldRefName(refField)},
+        {"DISP_NAME", wiresharkFieldNameVarNameStr(refField)},
+        {"DESC", wiresharkFieldDescriptionStr(refField)},
+    };
+
+    if (genStringFieldParseObj().parseHasZeroTermSuffix()) {
+        repl["Z"] = "z";
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkStringField::wiresharkMembersDissectCodeImpl(const WiresharkField* refField) const
+{
+    auto* prefixField = genMemberPrefixField();
+    if (prefixField == nullptr) {
+        return strings::genEmptyString();
+    }
+
+    return WiresharkField::wiresharkCast(prefixField)->wiresharkDissectCode(refField);
 }
 
 } // namespace commsdsl2wireshark
