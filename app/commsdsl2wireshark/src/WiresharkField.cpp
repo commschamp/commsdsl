@@ -483,7 +483,7 @@ std::string WiresharkField::wiresharkCustomNameCodeInternal(bool& hasRealCode) c
     auto relPath = wiresharkGenerator.wiresharkInputRelPathFor(m_genField, strings::genNameSuffixStr());
     auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
     m_genField.genGenerator().genLogger().genDebug("Looking for \"" + replaceFileName + "\" to replace name functionality");
-    return wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace name definition", &hasRealCode);
+    return wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace name value", &hasRealCode);
 }
 
 } // namespace commsdsl2wireshark
