@@ -115,6 +115,8 @@ public:
         return m_extraChildren;
     }
 
+    std::string parseInnerRef(bool schemaRef = true) const;
+
 protected:
     ParseLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseLayerImpl(const ParseLayerImpl&) = delete;

@@ -39,6 +39,20 @@ bool WiresharkListField::genPrepareImpl()
         (!WiresharkBase::wiresharkPrepare())) {
         return false;
     }
+
+    // auto forceReferencedFunc =
+    //     [](GenField* field)
+    //     {
+    //         if (field != nullptr) {
+    //             field->genSetReferenced();
+    //         }
+    //     };
+
+    // forceReferencedFunc(genExternalElementField());
+    // forceReferencedFunc(genExternalCountPrefixField());
+    // forceReferencedFunc(genExternalLengthPrefixField());
+    // forceReferencedFunc(genExternalElemLengthPrefixField());
+    // forceReferencedFunc(genExternalTermSuffixField());
     return true;
 }
 
@@ -59,25 +73,25 @@ std::string WiresharkListField::wiresharkFieldRegistrationImpl(const WiresharkFi
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkListField::wiresharkMembersDissectCodeImpl(const WiresharkField* refField) const
+std::string WiresharkListField::wiresharkMembersDissectCodeImpl() const
 {
     util::GenStringsList elems;
 
-    auto wiresharkAddDisectCodeInternal =
-        [&elems, refField](const GenField* field)
+    auto addDisectCodeFunc =
+        [&elems](auto* field)
         {
             if (field != nullptr) {
-                elems.push_back(WiresharkField::wiresharkCast(field)->wiresharkDissectCode(refField));
+                elems.push_back(WiresharkField::wiresharkCast(field)->wiresharkDissectCode());
             }
         };
 
-    wiresharkAddDisectCodeInternal(genMemberElementField());
-    wiresharkAddDisectCodeInternal(genMemberCountPrefixField());
-    wiresharkAddDisectCodeInternal(genMemberLengthPrefixField());
-    wiresharkAddDisectCodeInternal(genMemberElemLengthPrefixField());
-    wiresharkAddDisectCodeInternal(genMemberTermSuffixField());
+    addDisectCodeFunc(genMemberElementField());
+    addDisectCodeFunc(genMemberCountPrefixField());
+    addDisectCodeFunc(genMemberLengthPrefixField());
+    addDisectCodeFunc(genMemberElemLengthPrefixField());
+    addDisectCodeFunc(genMemberTermSuffixField());
 
-    genGenerator().genLogger().genDebug("There are " + std::to_string(elems.size()) + " member elements of the " + genName() + " list field");
+    genGenerator().genLogger().genDebug("There are " + std::to_string(elems.size()) + " member elements of the " + genParseObj().parseInnerRef() + " list field");
     if (elems.empty()) {
         return strings::genEmptyString();
     }

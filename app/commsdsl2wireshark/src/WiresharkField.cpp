@@ -150,6 +150,24 @@ std::string WiresharkField::wiresharkFieldRegistration(const WiresharkField* ref
     return wiresharkFieldRegistrationImpl(refField);
 }
 
+const std::string& WiresharkField::wiresharkCustomNameCode(const WiresharkField* refField) const
+{
+    if (refField != nullptr) {
+        return refField->wiresharkCustomNameCode();
+    }
+
+    return m_customCode.m_name;
+}
+
+bool WiresharkField::wiresharkHasCustomNameCode(const WiresharkField* refField) const
+{
+    if (refField != nullptr) {
+        return refField->wiresharkHasCustomNameCode();
+    }
+
+    return m_customCode.m_hasName;
+}
+
 std::string WiresharkField::wiresharkDissectNameImpl(const WiresharkField* refField) const
 {
     const auto* genField = &m_genField;
@@ -167,15 +185,17 @@ std::string WiresharkField::wiresharkDissectNameImpl(const WiresharkField* refFi
 
 std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refField) const
 {
+    if ((refField != nullptr) && comms::genIsGlobalField(m_genField) && (!m_genField.genIsReferenced())) {
+        m_genField.genGenerator().genLogger().genDebug("Field " + m_genField.genParseObj().parseInnerRef() + " is not really referenced, skipping dissect code generation");
+        return strings::genEmptyString();
+    }
+
     const auto* genField = &m_genField;
     if (refField != nullptr) {
         genField = &(refField->wiresharkGenField());
     }
 
-    if (!genField->genIsReferenced()) {
-        genField->genGenerator().genLogger().genDebug("Field " + genField->genName() + " is not really referenced, skipping dissect code generation");
-        return strings::genEmptyString();
-    }
+    m_genField.genGenerator().genLogger().genDebug("Generating dissect code for field " + m_genField.genParseObj().parseInnerRef());
 
     // TODO: valid function if needed
     static const std::string Templ =
@@ -190,7 +210,7 @@ std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refFi
         "#^#EXTEND#$#\n"
         ;
 
-    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genField->genGenerator());
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
     auto relPath = wiresharkGenerator.wiresharkInputDissectRelPathFor(*genField);
     auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
     auto prependFileName = relPath + strings::genPrependFileSuffixStr();
@@ -199,7 +219,6 @@ std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refFi
     bool replaced = false;
     bool extended = false;
     util::GenReplacementMap repl = {
-        {"MEMBERS", wiresharkMembersDissectCodeImpl(refField)},
         {"REG", wiresharkFieldRegistration(refField)},
         {"NAME", wiresharkDissectName(refField)},
         {"REPLACE", wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &replaced)},
@@ -207,6 +226,10 @@ std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refFi
         {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
         {"NAME_VAR", wiresharkNameDefInternal(refField)},
     };
+
+    if (refField == nullptr) {
+        repl["MEMBERS"] = wiresharkMembersDissectCodeImpl();
+    }
 
     if (!replaced) {
         repl["BODY"] = wiresharkDissectBodyInternal();
@@ -235,7 +258,7 @@ std::string WiresharkField::wiresharkFieldRegistrationImpl([[maybe_unused]] cons
     return std::string();
 }
 
-std::string WiresharkField::wiresharkMembersDissectCodeImpl([[maybe_unused]] const WiresharkField* refField) const
+std::string WiresharkField::wiresharkMembersDissectCodeImpl() const
 {
     return std::string();
 }
@@ -444,15 +467,13 @@ std::string WiresharkField::wiresharkNameDefInternal(const WiresharkField* refFi
     ;
 
     util::GenReplacementMap repl = {
+        {"COMMENT", wiresharkCustomNameCode(refField)},
         {"VAR_NAME", wiresharkFieldNameVarNameStr(refField)},
         {"NAME", wiresharkFieldDisplayNameStr(refField)},
     };
 
-    if (m_customCode.m_hasName) {
-        repl["NAME"] = m_customCode.m_name;
-    }
-    else {
-        repl["COMMENT"] = m_customCode.m_name;
+    if (wiresharkHasCustomNameCode(refField)) {
+        repl["NAME"] = std::move(repl["COMMENT"]);
     }
 
     return util::genProcessTemplate(Templ, repl);
@@ -469,7 +490,7 @@ std::string WiresharkField::wiresharkCustomReadCodeInternal(bool& hasRealCode) c
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
     auto relPath = wiresharkGenerator.wiresharkInputDissectRelPathFor(m_genField);
     auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
-    m_genField.genGenerator().genLogger().genDebug("Looking for \"" + replaceFileName + "\" to replace read functionality");
+    //m_genField.genGenerator().genLogger().genDebug("Looking for \"" + replaceFileName + "\" to replace read functionality");
     return wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &hasRealCode);
 }
 
@@ -478,7 +499,7 @@ std::string WiresharkField::wiresharkCustomValidCodeInternal(bool& hasRealCode) 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
     auto relPath = wiresharkGenerator.wiresharkInputRelPathFor(m_genField, strings::genValidSuffixStr());
     auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
-    m_genField.genGenerator().genLogger().genDebug("Looking for \"" + replaceFileName + "\" to replace valid functionality");
+    //m_genField.genGenerator().genLogger().genDebug("Looking for \"" + replaceFileName + "\" to replace valid functionality");
     return wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &hasRealCode);
 }
 
@@ -487,7 +508,7 @@ std::string WiresharkField::wiresharkCustomNameCodeInternal(bool& hasRealCode) c
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
     auto relPath = wiresharkGenerator.wiresharkInputRelPathFor(m_genField, strings::genNameSuffixStr());
     auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
-    m_genField.genGenerator().genLogger().genDebug("Looking for \"" + replaceFileName + "\" to replace name functionality");
+    //m_genField.genGenerator().genLogger().genDebug("Looking for \"" + replaceFileName + "\" to replace name functionality");
     return wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace name value", &hasRealCode);
 }
 

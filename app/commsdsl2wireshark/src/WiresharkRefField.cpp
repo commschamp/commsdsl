@@ -63,10 +63,10 @@ bool WiresharkRefField::genPrepareImpl()
 
     m_alias = wiresharkIsAliasInternal();
 
-    if (!m_alias) {
-        genGenerator().genLogger().genDebug(m_wiresharkField->wiresharkGenField().genParseObj().parseExternalRef() + " field is not really referenced by " + genName());
-        m_wiresharkField->wiresharkGenField().genSetReferenced(false);
-    }
+    // if (!m_alias) {
+    //     genGenerator().genLogger().genDebug(m_wiresharkField->wiresharkGenField().genParseObj().parseInnerRef() + " field is not really referenced by " + genParseObj().parseInnerRef());
+    //     m_wiresharkField->wiresharkGenField().genSetReferenced(false);
+    // }
     return true;
 }
 
@@ -86,6 +86,7 @@ std::string WiresharkRefField::wiresharkDissectCodeImpl(const WiresharkField* re
         return WiresharkBase::wiresharkDissectCodeImpl(refField);
     }
 
+    genGenerator().genLogger().genDebug("!!! Dissect code for " + genParseObj().parseInnerRef());
     if (refField == nullptr) {
         refField = this;
     }

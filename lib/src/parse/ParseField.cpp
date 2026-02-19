@@ -111,6 +111,12 @@ std::string ParseField::parseExternalRef(bool schemaRef) const
     return m_pImpl->parseExternalRef(schemaRef);
 }
 
+std::string ParseField::parseInnerRef(bool schemaRef) const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->parseInnerRef(schemaRef);
+}
+
 bool ParseField::parseIsPseudo() const
 {
     assert(m_pImpl != nullptr);

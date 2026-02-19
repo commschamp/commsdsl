@@ -20,8 +20,11 @@
 #include "ParseDataFieldImpl.h"
 #include "ParseEnumFieldImpl.h"
 #include "ParseFloatFieldImpl.h"
+#include "ParseInterfaceImpl.h"
 #include "ParseIntFieldImpl.h"
+#include "ParseLayerImpl.h"
 #include "ParseListFieldImpl.h"
+#include "ParseMessageImpl.h"
 #include "ParseNamespaceImpl.h"
 #include "ParseOptionalFieldImpl.h"
 #include "ParseProtocolImpl.h"
@@ -47,6 +50,41 @@ namespace parse
 namespace {
 
 const unsigned ParseMinDslVersionForLengthSemanticType  = 2U;
+
+std::string parseInnerRefInternal_Namespace(bool schemaRef, const ParseObject* parent)
+{
+    assert(parent->parseObjKind() == ParseObject::ParseObjKind::Namespace);
+    auto& parentCast = static_cast<const ParseNamespaceImpl&>(*parent);
+    return parentCast.parseExternalRef(schemaRef);
+}
+
+std::string parseInnerRefInternal_Field(bool schemaRef, const ParseObject* parent)
+{
+    assert(parent->parseObjKind() == ParseObject::ParseObjKind::Field);
+    auto& parentCast = static_cast<const ParseFieldImpl&>(*parent);
+    return parentCast.parseInnerRef(schemaRef);
+}
+
+std::string parseInnerRefInternal_Message(bool schemaRef, const ParseObject* parent)
+{
+    assert(parent->parseObjKind() == ParseObject::ParseObjKind::Message);
+    auto& parentCast = static_cast<const ParseMessageImpl&>(*parent);
+    return parentCast.parseExternalRef(schemaRef);
+}
+
+std::string parseInnerRefInternal_Interface(bool schemaRef, const ParseObject* parent)
+{
+    assert(parent->parseObjKind() == ParseObject::ParseObjKind::Interface);
+    auto& parentCast = static_cast<const ParseInterfaceImpl&>(*parent);
+    return parentCast.parseExternalRef(schemaRef);
+}
+
+std::string parseInnerRefInternal_Layer(bool schemaRef, const ParseObject* parent)
+{
+    assert(parent->parseObjKind() == ParseObject::ParseObjKind::Layer);
+    auto& parentCast = static_cast<const ParseLayerImpl&>(*parent);
+    return parentCast.parseInnerRef(schemaRef);
+}
 
 } // namespace
 
@@ -264,6 +302,35 @@ std::string ParseFieldImpl::parseExternalRef(bool schemaRef) const
     }
 
     return nsRef + '.' + parseName();
+}
+
+std::string ParseFieldImpl::parseInnerRef(bool schemaRef) const
+{
+    auto* parent = parseGetParent();
+    assert(parent != nullptr);
+
+    auto parentObjKind = parent->parseObjKind();
+    using ParentFunc = std::string (*)(bool, const ParseObject*);
+    static const std::map<ParseObjKind, ParentFunc> Map = {
+        {ParseObjKind::Namespace, &parseInnerRefInternal_Namespace},
+        {ParseObjKind::Field, &parseInnerRefInternal_Field},
+        {ParseObjKind::Message, &parseInnerRefInternal_Message},
+        {ParseObjKind::Interface, &parseInnerRefInternal_Interface},
+        {ParseObjKind::Layer, &parseInnerRefInternal_Layer},
+    };
+
+    auto iter = Map.find(parentObjKind);
+    assert(iter != Map.end());
+    if (iter == Map.end()) {
+        return common::parseEmptyString();
+    }
+
+    auto refStr = iter->second(schemaRef, parent);
+    if (!refStr.empty()) {
+        refStr += '.';
+    }
+
+    return refStr + parseName();
 }
 
 bool ParseFieldImpl::parseIsComparableToValue(const std::string& val) const

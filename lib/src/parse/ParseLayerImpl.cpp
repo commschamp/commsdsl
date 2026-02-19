@@ -149,6 +149,15 @@ ParseXmlWrap::ParseNamesList ParseLayerImpl::parseSupportedTypes()
     return result;
 }
 
+std::string ParseLayerImpl::parseInnerRef(bool schemaRef) const
+{
+    auto* parent = parseGetParent();
+    assert(parent != nullptr);
+    assert(parent->parseObjKind() == ParseObjKind::Frame);
+    auto* frame = static_cast<const ParseFrameImpl*>(parent);
+    return frame->parseExternalRef(schemaRef);
+}
+
 ParseLayerImpl::ParseLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol)
   : m_node(node),
     m_protocol(protocol),
@@ -370,7 +379,7 @@ const ParseXmlWrap::ParseNamesList& ParseLayerImpl::parseCommonProps()
     return CommonNames;
 }
 
-const ParseXmlWrap::ParseNamesList&ParseLayerImpl::parseCommonPossibleProps()
+const ParseXmlWrap::ParseNamesList& ParseLayerImpl::parseCommonPossibleProps()
 {
     static const ParseXmlWrap::ParseNamesList CommonNames = {
         common::parseFieldStr()

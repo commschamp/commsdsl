@@ -79,6 +79,7 @@ public:
     unsigned parseDeprecatedSince() const;
     bool parseIsDeprecatedRemoved() const;
     std::string parseExternalRef(bool schemaRef = true) const;
+    std::string parseInnerRef(bool schemaRef = true) const;
     bool parseIsPseudo() const;
     bool parseIsFixedValue() const;
     bool parseIsCustomizable() const;

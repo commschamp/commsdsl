@@ -63,14 +63,14 @@ std::string WiresharkStringField::wiresharkFieldRegistrationImpl(const Wireshark
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkStringField::wiresharkMembersDissectCodeImpl(const WiresharkField* refField) const
+std::string WiresharkStringField::wiresharkMembersDissectCodeImpl() const
 {
     auto* prefixField = genMemberPrefixField();
     if (prefixField == nullptr) {
         return strings::genEmptyString();
     }
 
-    return WiresharkField::wiresharkCast(prefixField)->wiresharkDissectCode(refField);
+    return WiresharkField::wiresharkCast(prefixField)->wiresharkDissectCode();
 }
 
 } // namespace commsdsl2wireshark

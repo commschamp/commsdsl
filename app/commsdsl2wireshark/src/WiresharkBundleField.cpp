@@ -74,11 +74,11 @@ std::string WiresharkBundleField::wiresharkFieldRegistrationImpl(const Wireshark
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkBundleField::wiresharkMembersDissectCodeImpl(const WiresharkField* refField) const
+std::string WiresharkBundleField::wiresharkMembersDissectCodeImpl() const
 {
     util::GenStringsList elems;
     for (auto* f : m_wiresharkFields) {
-        auto str = f->wiresharkDissectCode(refField);
+        auto str = f->wiresharkDissectCode();
         if (str.empty()) {
             continue;
         }

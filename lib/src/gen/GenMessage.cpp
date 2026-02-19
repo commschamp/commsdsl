@@ -187,7 +187,7 @@ bool GenMessage::genPrepare()
 
 bool GenMessage::genWrite() const
 {
-    genGenerator().genLogger().genDebug("Attempt to generate code for message: " + genParseObj().parseExternalRef());
+    //genGenerator().genLogger().genDebug("Attempt to generate code for message: " + genParseObj().parseExternalRef());
     if (!m_impl->genWrite()) {
         return false;
     }
