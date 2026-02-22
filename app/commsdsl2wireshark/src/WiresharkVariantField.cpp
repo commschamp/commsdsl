@@ -15,7 +15,16 @@
 
 #include "WiresharkVariantField.h"
 
+#include "Wireshark.h"
 #include "WiresharkGenerator.h"
+
+#include "commsdsl/gen/util.h"
+#include "commsdsl/gen/strings.h"
+
+#include <algorithm>
+
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2wireshark
 {
@@ -32,7 +41,52 @@ bool WiresharkVariantField::genPrepareImpl()
         (!WiresharkBase::wiresharkPrepare())) {
         return false;
     }
+
+    m_wiresharkFields = wiresharkTransformFieldsList(genMembers());
+    auto& generator = genGenerator();
+    m_wiresharkFields.erase(
+        std::remove_if(
+            m_wiresharkFields.begin(), m_wiresharkFields.end(),
+            [&generator](auto* fPtr)
+            {
+                auto parseObj = fPtr->wiresharkGenField().genParseObj();
+                return !generator.genDoesElementExist(parseObj.parseSinceVersion(), parseObj.parseDeprecatedSince(), parseObj.parseIsDeprecatedRemoved());
+            }),
+        m_wiresharkFields.end());
     return true;
+}
+
+std::string WiresharkVariantField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
+{
+    static const std::string Templ =
+        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bytes(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.SPACE, #^#DESC#$#))\n"
+    ;
+
+    auto obj = genParseObj();
+    util::GenReplacementMap repl = {
+        {"OBJ_NAME", wiresharkFieldObjName(refField)},
+        {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
+        {"REF_NAME", wiresharkFieldRefName(refField)},
+        {"DISP_NAME", wiresharkFieldNameVarNameStr(refField)},
+        {"DESC", wiresharkFieldDescriptionStr(refField)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkVariantField::wiresharkMembersDissectCodeImpl() const
+{
+    util::GenStringsList elems;
+    for (auto* f : m_wiresharkFields) {
+        auto str = f->wiresharkDissectCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        elems.push_back(std::move(str));
+    }
+
+    return util::genStrListToString(elems, "\n", "\n");
 }
 
 } // namespace commsdsl2wireshark
