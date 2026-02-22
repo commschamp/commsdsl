@@ -17,6 +17,12 @@
 
 #include "WiresharkGenerator.h"
 
+#include "commsdsl/gen/util.h"
+#include "commsdsl/gen/strings.h"
+
+namespace util = commsdsl::gen::util;
+namespace strings = commsdsl::gen::strings;
+
 namespace commsdsl2wireshark
 {
 
@@ -33,6 +39,16 @@ bool WiresharkOptionalField::genPrepareImpl()
         return false;
     }
     return true;
+}
+
+std::string WiresharkOptionalField::wiresharkMembersDissectCodeImpl() const
+{
+    auto* memField = genMemberField();
+    if (memField == nullptr) {
+        return strings::genEmptyString();
+    }
+
+    return WiresharkField::wiresharkCast(memField)->wiresharkDissectCode();
 }
 
 } // namespace commsdsl2wireshark

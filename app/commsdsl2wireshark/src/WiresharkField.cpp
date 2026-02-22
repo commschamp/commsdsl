@@ -253,9 +253,22 @@ std::string WiresharkField::wiresharkFieldObjNameImpl(const WiresharkField* refF
     return Wireshark::wiresharkProtocolObjName(wiresharkGenerator) + '_' + util::genStrReplace(scope, "::", "_");
 }
 
-std::string WiresharkField::wiresharkFieldRegistrationImpl([[maybe_unused]] const WiresharkField* refField) const
+std::string WiresharkField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
-    return std::string();
+    static const std::string Templ =
+        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bytes(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.SPACE, #^#DESC#$#))\n"
+    ;
+
+    auto obj = m_genField.genParseObj();
+    util::GenReplacementMap repl = {
+        {"OBJ_NAME", wiresharkFieldObjName(refField)},
+        {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(m_genField.genGenerator()))},
+        {"REF_NAME", wiresharkFieldRefName(refField)},
+        {"DISP_NAME", wiresharkFieldNameVarNameStr(refField)},
+        {"DESC", wiresharkFieldDescriptionStr(refField)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string WiresharkField::wiresharkMembersDissectCodeImpl() const

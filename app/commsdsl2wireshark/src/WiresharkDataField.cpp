@@ -15,7 +15,6 @@
 
 #include "WiresharkDataField.h"
 
-#include "Wireshark.h"
 #include "WiresharkGenerator.h"
 
 #include "commsdsl/gen/util.h"
@@ -40,23 +39,6 @@ bool WiresharkDataField::genPrepareImpl()
         return false;
     }
     return true;
-}
-
-std::string WiresharkDataField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
-{
-    static const std::string Templ =
-        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bytes(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.SPACE, #^#DESC#$#))\n"
-    ;
-
-    util::GenReplacementMap repl = {
-        {"OBJ_NAME", wiresharkFieldObjName(refField)},
-        {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
-        {"REF_NAME", wiresharkFieldRefName(refField)},
-        {"DISP_NAME", wiresharkFieldNameVarNameStr(refField)},
-        {"DESC", wiresharkFieldDescriptionStr(refField)},
-    };
-
-    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string WiresharkDataField::wiresharkMembersDissectCodeImpl() const
