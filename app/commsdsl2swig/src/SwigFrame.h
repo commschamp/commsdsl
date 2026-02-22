@@ -47,9 +47,9 @@ public:
     void swigAddCode(GenStringsList& list) const;
     void swigAddDef(GenStringsList& list) const;
 
-    static const SwigFrame* swigCast(const commsdsl::gen::GenFrame* i)
+    static const SwigFrame* swigCast(const commsdsl::gen::GenFrame* obj)
     {
-        return static_cast<const SwigFrame*>(i);
+        return static_cast<const SwigFrame*>(obj);
     }
 
     const SwigLayersList& swigLayers() const

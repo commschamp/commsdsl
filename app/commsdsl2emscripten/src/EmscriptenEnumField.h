@@ -36,9 +36,9 @@ public:
 
     EmscriptenEnumField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent);
 
-    static const EmscriptenEnumField* emscriptenCast(const commsdsl::gen::GenField* f)
+    static const EmscriptenEnumField* emscriptenCast(const commsdsl::gen::GenField* obj)
     {
-        return static_cast<const EmscriptenEnumField*>(f);
+        return static_cast<const EmscriptenEnumField*>(obj);
     }
 
     std::string emscriptenBindValues(const EmscriptenNamespace* forcedParent = nullptr) const;

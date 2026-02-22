@@ -35,14 +35,14 @@ public:
     LatexSchema(LatexGenerator& generator, ParseSchema parseObj, GenElem* parent);
     virtual ~LatexSchema();
 
-    static const LatexSchema* latexCast(const GenSchema* ptr)
+    static const LatexSchema* latexCast(const GenSchema* obj)
     {
-        return static_cast<const LatexSchema*>(ptr);
+        return static_cast<const LatexSchema*>(obj);
     }
 
-    static const LatexSchema& latexCast(const GenSchema& ref)
+    static const LatexSchema& latexCast(const GenSchema& obj)
     {
-        return static_cast<const LatexSchema&>(ref);
+        return static_cast<const LatexSchema&>(obj);
     }
 
     std::string latexRelDirPath() const;

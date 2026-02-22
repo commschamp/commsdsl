@@ -27,9 +27,9 @@ public:
 
     WiresharkProgramOptions();
 
-    static const WiresharkProgramOptions& wiresharkCast(const GenProgramOptions& options)
+    static const WiresharkProgramOptions& wiresharkCast(const GenProgramOptions& obj)
     {
-        return static_cast<const WiresharkProgramOptions&>(options);
+        return static_cast<const WiresharkProgramOptions&>(obj);
     }
 };
 

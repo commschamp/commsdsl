@@ -36,7 +36,7 @@ std::string WiresharkSchema::wiresharkDissectCode() const
 {
     util::GenStringsList elems;
     for (auto& nsPtr : genNamespaces()) {
-        auto str = WiresharkNamespace::wiresharkCast(*nsPtr).wiresharkDissectCode();
+        auto str = WiresharkNamespace::wiresharkCast(nsPtr.get())->wiresharkDissectCode();
         if (str.empty()) {
             continue;
         }

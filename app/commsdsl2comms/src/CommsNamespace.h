@@ -41,9 +41,9 @@ public:
     CommsNamespace(CommsGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~CommsNamespace();
 
-    static const CommsNamespace* commsCast(const commsdsl::gen::GenNamespace* ptr)
+    static const CommsNamespace* commsCast(const commsdsl::gen::GenNamespace* obj)
     {
-        return static_cast<const CommsNamespace*>(ptr);
+        return static_cast<const CommsNamespace*>(obj);
     }
 
     std::string commsDefaultOptions() const;

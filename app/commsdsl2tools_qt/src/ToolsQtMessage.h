@@ -40,14 +40,14 @@ public:
     GenStringsList toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const;
     std::string toolsClassScope(const commsdsl::gen::GenInterface& iFace) const;
 
-    static ToolsQtMessage& toolsCast(commsdsl::gen::GenMessage& msg)
+    static ToolsQtMessage& toolsCast(commsdsl::gen::GenMessage& obj)
     {
-        return static_cast<ToolsQtMessage&>(msg);
+        return static_cast<ToolsQtMessage&>(obj);
     }
 
-    static const ToolsQtMessage& toolsCast(const commsdsl::gen::GenMessage& msg)
+    static const ToolsQtMessage& toolsCast(const commsdsl::gen::GenMessage& obj)
     {
-        return static_cast<const ToolsQtMessage&>(msg);
+        return static_cast<const ToolsQtMessage&>(obj);
     }
 
 protected:

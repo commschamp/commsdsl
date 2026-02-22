@@ -44,14 +44,14 @@ public:
 
     static const std::string& cFileGeneratedComment();
 
-    static CGenerator& cCast(GenGenerator& generator)
+    static CGenerator& cCast(GenGenerator& obj)
     {
-        return static_cast<CGenerator&>(generator);
+        return static_cast<CGenerator&>(obj);
     }
 
-    static const CGenerator& cCast(const GenGenerator& generator)
+    static const CGenerator& cCast(const GenGenerator& obj)
     {
-        return static_cast<const CGenerator&>(generator);
+        return static_cast<const CGenerator&>(obj);
     }
 
     std::string cRelHeaderFor(const GenElem& elem) const;

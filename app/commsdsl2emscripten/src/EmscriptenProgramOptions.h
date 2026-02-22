@@ -31,9 +31,9 @@ public:
 
     EmscriptenProgramOptions();
 
-    static const EmscriptenProgramOptions& emscriptenCast(const GenProgramOptions& options)
+    static const EmscriptenProgramOptions& emscriptenCast(const GenProgramOptions& obj)
     {
-        return static_cast<const EmscriptenProgramOptions&>(options);
+        return static_cast<const EmscriptenProgramOptions&>(obj);
     }
 
     bool emscriptenIsMainNamespaceInNamesForced() const;

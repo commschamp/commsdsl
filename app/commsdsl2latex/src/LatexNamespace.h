@@ -43,14 +43,14 @@ public:
     LatexNamespace(LatexGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~LatexNamespace();
 
-    static const LatexNamespace* latexCast(const GenNamespace* ptr)
+    static const LatexNamespace* latexCast(const GenNamespace* obj)
     {
-        return static_cast<const LatexNamespace*>(ptr);
+        return static_cast<const LatexNamespace*>(obj);
     }
 
-    static const LatexNamespace& latexCast(const GenNamespace& ref)
+    static const LatexNamespace& latexCast(const GenNamespace& obj)
     {
-        return static_cast<const LatexNamespace&>(ref);
+        return static_cast<const LatexNamespace&>(obj);
     }
 
     std::string latexRelDirPath() const;

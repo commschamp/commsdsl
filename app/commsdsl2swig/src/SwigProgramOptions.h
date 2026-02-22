@@ -31,9 +31,9 @@ public:
 
     SwigProgramOptions();
 
-    static const SwigProgramOptions& swigCast(const GenProgramOptions& options)
+    static const SwigProgramOptions& swigCast(const GenProgramOptions& obj)
     {
-        return static_cast<const SwigProgramOptions&>(options);
+        return static_cast<const SwigProgramOptions&>(obj);
     }
 
     bool swigIsMainNamespaceInNamesForced() const;

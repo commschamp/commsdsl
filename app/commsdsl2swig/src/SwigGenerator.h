@@ -46,14 +46,14 @@ public:
 
     static const std::string& swigFileGeneratedComment();
 
-    static SwigGenerator& swigCast(commsdsl::gen::GenGenerator& generator)
+    static SwigGenerator& swigCast(commsdsl::gen::GenGenerator& obj)
     {
-        return static_cast<SwigGenerator&>(generator);
+        return static_cast<SwigGenerator&>(obj);
     }
 
-    static const SwigGenerator& swigCast(const commsdsl::gen::GenGenerator& generator)
+    static const SwigGenerator& swigCast(const commsdsl::gen::GenGenerator& obj)
     {
-        return static_cast<const SwigGenerator&>(generator);
+        return static_cast<const SwigGenerator&>(obj);
     }
 
     std::string swigInputCodeRelPathFor(const commsdsl::gen::GenElem& elem) const;

@@ -25,6 +25,7 @@
 #include "WiresharkFloatField.h"
 #include "WiresharkFrame.h"
 #include "WiresharkIdLayer.h"
+#include "WiresharkInterface.h"
 #include "WiresharkIntField.h"
 #include "WiresharkListField.h"
 #include "WiresharkMessage.h"
@@ -63,6 +64,11 @@ WiresharkGenerator::GenSchemaPtr WiresharkGenerator::genCreateSchemaImpl(ParseSc
 WiresharkGenerator::GenNamespacePtr WiresharkGenerator::genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent)
 {
     return std::make_unique<WiresharkNamespace>(*this, parseObj, parent);
+}
+
+WiresharkGenerator::GenInterfacePtr WiresharkGenerator::genCreateInterfaceImpl(ParseInterface parseObj, GenElem* parent)
+{
+    return std::make_unique<WiresharkInterface>(*this, parseObj, parent);
 }
 
 WiresharkGenerator::GenFramePtr WiresharkGenerator::genCreateFrameImpl(ParseFrame parseObj, GenElem* parent)

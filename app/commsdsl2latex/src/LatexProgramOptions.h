@@ -31,9 +31,9 @@ public:
 
     LatexProgramOptions();
 
-    static const LatexProgramOptions& latexCast(const GenProgramOptions& options)
+    static const LatexProgramOptions& latexCast(const GenProgramOptions& obj)
     {
-        return static_cast<const LatexProgramOptions&>(options);
+        return static_cast<const LatexProgramOptions&>(obj);
     }
 };
 

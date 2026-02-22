@@ -37,9 +37,9 @@ public:
     explicit CSchema(CGenerator& generator, ParseSchema parseObj, GenElem* parent);
     virtual ~CSchema();
 
-    static const CSchema* cCast(const commsdsl::gen::GenSchema* schema)
+    static const CSchema* cCast(const commsdsl::gen::GenSchema* obj)
     {
-        return static_cast<const CSchema*>(schema);
+        return static_cast<const CSchema*>(obj);
     }
 
     void cAddSourceFiles(GenStringsList& sources) const;

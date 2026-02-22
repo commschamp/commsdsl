@@ -35,14 +35,14 @@ public:
     WiresharkMessage(WiresharkGenerator& generator, ParseMessage parseObj, GenElem* parent);
     virtual ~WiresharkMessage();
 
-    static WiresharkMessage& wiresharkCast(GenMessage& generator)
+    static WiresharkMessage& wiresharkCast(GenMessage& obj)
     {
-        return static_cast<WiresharkMessage&>(generator);
+        return static_cast<WiresharkMessage&>(obj);
     }
 
-    static const WiresharkMessage& wiresharkCast(const GenMessage& generator)
+    static const WiresharkMessage& wiresharkCast(const GenMessage& obj)
     {
-        return static_cast<const WiresharkMessage&>(generator);
+        return static_cast<const WiresharkMessage&>(obj);
     }
 
     std::string wiresharkDissectName() const;

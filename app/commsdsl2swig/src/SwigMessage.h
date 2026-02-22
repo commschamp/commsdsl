@@ -43,9 +43,9 @@ public:
     void swigAddCode(GenStringsList& list) const;
     void swigAddDef(GenStringsList& list) const;
 
-    static const SwigMessage* swigCast(const commsdsl::gen::GenMessage* i)
+    static const SwigMessage* swigCast(const commsdsl::gen::GenMessage* obj)
     {
-        return static_cast<const SwigMessage*>(i);
+        return static_cast<const SwigMessage*>(obj);
     }
 
 protected:

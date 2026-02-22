@@ -39,14 +39,14 @@ public:
     LatexMessage(LatexGenerator& generator, ParseMessage parseObj, GenElem* parent);
     virtual ~LatexMessage();
 
-    static const LatexMessage* latexCast(const GenMessage* ptr)
+    static const LatexMessage* latexCast(const GenMessage* obj)
     {
-        return static_cast<const LatexMessage*>(ptr);
+        return static_cast<const LatexMessage*>(obj);
     }
 
-    static const LatexMessage& latexCast(const GenMessage& ref)
+    static const LatexMessage& latexCast(const GenMessage& obj)
     {
-        return static_cast<const LatexMessage&>(ref);
+        return static_cast<const LatexMessage&>(obj);
     }
 
     std::string latexRelFilePath() const;

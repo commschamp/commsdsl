@@ -38,9 +38,9 @@ public:
     explicit EmscriptenMessage(EmscriptenGenerator& generator, ParseMessage parseObj, GenElem* parent);
     virtual ~EmscriptenMessage();
 
-    static const EmscriptenMessage* emscriptenCast(const commsdsl::gen::GenMessage* i)
+    static const EmscriptenMessage* emscriptenCast(const commsdsl::gen::GenMessage* obj)
     {
-        return static_cast<const EmscriptenMessage*>(i);
+        return static_cast<const EmscriptenMessage*>(obj);
     }
 
     std::string emscriptenRelHeader() const;

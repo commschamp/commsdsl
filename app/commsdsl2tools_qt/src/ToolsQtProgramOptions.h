@@ -41,9 +41,9 @@ public:
 
     ToolsQtProgramOptions();
 
-    static const ToolsQtProgramOptions& toolsCast(const GenProgramOptions& options)
+    static const ToolsQtProgramOptions& toolsCast(const GenProgramOptions& obj)
     {
-        return static_cast<const ToolsQtProgramOptions&>(options);
+        return static_cast<const ToolsQtProgramOptions&>(obj);
     }
 
     ToolsPluginInfosList toolsGetPlugins() const;

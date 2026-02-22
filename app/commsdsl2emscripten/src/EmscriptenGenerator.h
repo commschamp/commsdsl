@@ -46,14 +46,14 @@ public:
 
     static const std::string& emscriptenFileGeneratedComment();
 
-    static EmscriptenGenerator& emscriptenCast(commsdsl::gen::GenGenerator& generator)
+    static EmscriptenGenerator& emscriptenCast(commsdsl::gen::GenGenerator& obj)
     {
-        return static_cast<EmscriptenGenerator&>(generator);
+        return static_cast<EmscriptenGenerator&>(obj);
     }
 
-    static const EmscriptenGenerator& emscriptenCast(const commsdsl::gen::GenGenerator& generator)
+    static const EmscriptenGenerator& emscriptenCast(const commsdsl::gen::GenGenerator& obj)
     {
-        return static_cast<const EmscriptenGenerator&>(generator);
+        return static_cast<const EmscriptenGenerator&>(obj);
     }
 
     std::string emscriptenClassName(const commsdsl::gen::GenElem& elem) const;

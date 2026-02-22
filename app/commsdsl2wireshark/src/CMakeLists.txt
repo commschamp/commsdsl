@@ -11,6 +11,7 @@ set (src
     WiresharkFrame.cpp
     WiresharkGenerator.cpp
     WiresharkIdLayer.cpp
+    WiresharkInterface.cpp
     WiresharkIntField.cpp
     WiresharkLayer.cpp
     WiresharkListField.cpp

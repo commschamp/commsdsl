@@ -43,9 +43,9 @@ public:
     GenStringsList toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const;
     std::string toolsClassScope(const commsdsl::gen::GenInterface& iFace) const;
 
-    static const ToolsQtFrame* toolsCast(const commsdsl::gen::GenFrame* val)
+    static const ToolsQtFrame* toolsCast(const commsdsl::gen::GenFrame* obj)
     {
-        return static_cast<const ToolsQtFrame*>(val);
+        return static_cast<const ToolsQtFrame*>(obj);
     }
 
 protected:

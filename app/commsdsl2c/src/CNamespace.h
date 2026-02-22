@@ -41,9 +41,9 @@ public:
     explicit CNamespace(CGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~CNamespace();
 
-    static const CNamespace* cCast(const commsdsl::gen::GenNamespace* schema)
+    static const CNamespace* cCast(const commsdsl::gen::GenNamespace* obj)
     {
-        return static_cast<const CNamespace*>(schema);
+        return static_cast<const CNamespace*>(obj);
     }
 
     const CInterface* cInterface() const;

@@ -31,9 +31,9 @@ public:
 
     CProgramOptions();
 
-    static const CProgramOptions& cCast(const GenProgramOptions& options)
+    static const CProgramOptions& cCast(const GenProgramOptions& obj)
     {
-        return static_cast<const CProgramOptions&>(options);
+        return static_cast<const CProgramOptions&>(obj);
     }
 
     const std::string& cGetNamesPrefix() const;

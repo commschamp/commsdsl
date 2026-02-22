@@ -42,9 +42,9 @@ public:
     explicit CInterface(CGenerator& generator, ParseInterface parseObj, GenElem* parent);
     virtual ~CInterface();
 
-    static const CInterface* cCast(const commsdsl::gen::GenInterface* schema)
+    static const CInterface* cCast(const commsdsl::gen::GenInterface* obj)
     {
-        return static_cast<const CInterface*>(schema);
+        return static_cast<const CInterface*>(obj);
     }
 
     std::string cRelHeader() const;

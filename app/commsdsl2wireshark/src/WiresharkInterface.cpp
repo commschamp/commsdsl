@@ -13,12 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "WiresharkMessage.h"
+#include "WiresharkInterface.h"
 
 #include "WiresharkGenerator.h"
+#include "WiresharkNamespace.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
+
+#include <cassert>
 
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
@@ -26,33 +29,33 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2wireshark
 {
 
-WiresharkMessage::WiresharkMessage(WiresharkGenerator& generator, ParseMessage parseObj, GenElem* parent) :
+WiresharkInterface::WiresharkInterface(WiresharkGenerator& generator, ParseInterface parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent)
 {
 }
 
-WiresharkMessage::~WiresharkMessage() = default;
+WiresharkInterface::~WiresharkInterface() = default;
 
-std::string WiresharkMessage::wiresharkDissectName() const
+bool WiresharkInterface::wiresharkDissectionAllowed() const
 {
-    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
-    return wiresharkGenerator.wiresharkDissectNameFor(*this);
+    auto* parentNs = WiresharkNamespace::wiresharkCast(genParentNamespace());
+    assert(parentNs);
+    return this == parentNs->wiresharkInterface();
 }
 
-std::string WiresharkMessage::wiresharkDissectCode() const
+std::string WiresharkInterface::wiresharkDissectCode() const
 {
-    if (!genIsReferenced()) {
+    if ((!genIsReferenced()) || m_wiresharkFields.empty() || (!wiresharkDissectionAllowed())) {
         return strings::genEmptyString();
     }
 
     static const std::string Templ =
         "#^#FIELDS#$#\n"
-        "#^#CODE#$#\n"
         ;
 
     util::GenStringsList fields;
     for (auto* fPtr : m_wiresharkFields) {
-        auto str = fPtr->wiresharkDissectCode();
+        auto str = fPtr->wiresharkFieldRegistration();
         if (str.empty()) {
             continue;
         }
@@ -60,7 +63,6 @@ std::string WiresharkMessage::wiresharkDissectCode() const
         fields.push_back(std::move(str));
     }
 
-    // TODO: code
     util::GenReplacementMap repl = {
         {"FIELDS", util::genStrListToString(fields, "\n", "")},
     };
@@ -68,7 +70,7 @@ std::string WiresharkMessage::wiresharkDissectCode() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-bool WiresharkMessage::genPrepareImpl()
+bool WiresharkInterface::genPrepareImpl()
 {
     if (!GenBase::genPrepareImpl()) {
         return false;

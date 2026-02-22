@@ -18,6 +18,7 @@
 #include "WiresharkField.h"
 #include "WiresharkFrame.h"
 #include "WiresharkGenerator.h"
+#include "WiresharkInterface.h"
 #include "WiresharkMessage.h"
 
 #include "commsdsl/gen/util.h"
@@ -34,19 +35,30 @@ WiresharkNamespace::WiresharkNamespace(WiresharkGenerator& generator, ParseNames
 
 WiresharkNamespace::~WiresharkNamespace() = default;
 
+const WiresharkInterface* WiresharkNamespace::wiresharkInterface() const
+{
+    auto iFace = genFindSuitableInterface();
+    if (iFace == nullptr) {
+        return nullptr;
+    }
+
+    return WiresharkInterface::wiresharkCast(iFace);
+}
+
 std::string WiresharkNamespace::wiresharkDissectCode() const
 {
     // TODO:
     static const std::string Templ =
         "#^#NAMESPACES#$#\n"
         "#^#FIELDS#$#\n"
+        "#^#INTERFACES#$#\n"
         "#^#MESSAGES#$#\n"
         "#^#FRAMES#$#\n"
         ;
 
     util::GenStringsList namespaces;
     for (auto& nsPtr : genNamespaces()) {
-        auto str = WiresharkNamespace::wiresharkCast(*nsPtr).wiresharkDissectCode();
+        auto str = WiresharkNamespace::wiresharkCast(nsPtr.get())->wiresharkDissectCode();
         if (str.empty()) {
             continue;
         }
@@ -62,6 +74,16 @@ std::string WiresharkNamespace::wiresharkDissectCode() const
         }
 
         fields.push_back(std::move(str));
+    }
+
+    util::GenStringsList interfaces;
+    for (auto& iPtr : genInterfaces()) {
+        auto str = WiresharkInterface::wiresharkCast(iPtr.get())->wiresharkDissectCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        interfaces.push_back(std::move(str));
     }
 
     util::GenStringsList messages;
@@ -87,6 +109,7 @@ std::string WiresharkNamespace::wiresharkDissectCode() const
     util::GenReplacementMap repl = {
         {"NAMESPACES", util::genStrListToString(namespaces, "\n", "")},
         {"FIELDS", util::genStrListToString(fields, "\n", "")},
+        {"INTERFACES", util::genStrListToString(interfaces, "\n", "")},
         {"MESSAGES", util::genStrListToString(messages, "\n", "")},
         {"FRAMES", util::genStrListToString(frames, "\n", "")},
     };

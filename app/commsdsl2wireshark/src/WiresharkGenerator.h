@@ -44,14 +44,14 @@ public:
 
     WiresharkGenerator();
 
-    static WiresharkGenerator& wiresharkCast(commsdsl::gen::GenGenerator& generator)
+    static WiresharkGenerator& wiresharkCast(commsdsl::gen::GenGenerator& obj)
     {
-        return static_cast<WiresharkGenerator&>(generator);
+        return static_cast<WiresharkGenerator&>(obj);
     }
 
-    static const WiresharkGenerator& wiresharkCast(const commsdsl::gen::GenGenerator& generator)
+    static const WiresharkGenerator& wiresharkCast(const commsdsl::gen::GenGenerator& obj)
     {
-        return static_cast<const WiresharkGenerator&>(generator);
+        return static_cast<const WiresharkGenerator&>(obj);
     }
 
     static const std::string& wiresharkFileGeneratedComment();
@@ -71,6 +71,7 @@ public:
 protected:
     virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
     virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
+    virtual GenInterfacePtr genCreateInterfaceImpl(ParseInterface parseObj, GenElem* parent) override;
     virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent) override;
     virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent) override;
 

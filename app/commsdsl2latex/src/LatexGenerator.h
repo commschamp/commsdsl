@@ -46,14 +46,14 @@ public:
     static std::string latexIntegralToStr(std::intmax_t value, bool isUnsigned, std::size_t hexWidth = 0);
     static std::string latexIntegralToStr(std::uintmax_t value, std::size_t hexWidth = 0);
 
-    static LatexGenerator& latexCast(GenGenerator& generator)
+    static LatexGenerator& latexCast(GenGenerator& obj)
     {
-        return static_cast<LatexGenerator&>(generator);
+        return static_cast<LatexGenerator&>(obj);
     }
 
-    static const LatexGenerator& latexCast(const GenGenerator& generator)
+    static const LatexGenerator& latexCast(const GenGenerator& obj)
     {
-        return static_cast<const LatexGenerator&>(generator);
+        return static_cast<const LatexGenerator&>(obj);
     }
 
     std::string latexRelPathFor(const GenElem& elem) const;

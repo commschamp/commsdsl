@@ -36,14 +36,14 @@ public:
     WiresharkFrame(WiresharkGenerator& generator, ParseFrame parseObj, GenElem* parent);
     virtual ~WiresharkFrame();
 
-    static WiresharkFrame& wiresharkCast(GenFrame& generator)
+    static WiresharkFrame& wiresharkCast(GenFrame& obj)
     {
-        return static_cast<WiresharkFrame&>(generator);
+        return static_cast<WiresharkFrame&>(obj);
     }
 
-    static const WiresharkFrame& wiresharkCast(const GenFrame& generator)
+    static const WiresharkFrame& wiresharkCast(const GenFrame& obj)
     {
-        return static_cast<const WiresharkFrame&>(generator);
+        return static_cast<const WiresharkFrame&>(obj);
     }
 
     std::string wiresharkDissectName() const;

@@ -53,7 +53,7 @@ public:
     std::string wiresharkDissectName(const WiresharkField* refField = nullptr) const;
     std::string wiresharkDissectCode(const WiresharkField* refField = nullptr) const;
     std::string wiresharkFieldObjName(const WiresharkField* refField) const;
-    std::string wiresharkFieldRegistration(const WiresharkField* refField) const;
+    std::string wiresharkFieldRegistration(const WiresharkField* refField = nullptr) const;
 
     const std::string& wiresharkCustomNameCode(const WiresharkField* refField = nullptr) const;
     bool wiresharkHasCustomNameCode(const WiresharkField* refField = nullptr) const;

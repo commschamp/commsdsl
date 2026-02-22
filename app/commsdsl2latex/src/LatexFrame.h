@@ -39,14 +39,14 @@ public:
     LatexFrame(LatexGenerator& generator, ParseFrame parseObj, GenElem* parent);
     virtual ~LatexFrame();
 
-    static const LatexFrame* latexCast(const GenFrame* ptr)
+    static const LatexFrame* latexCast(const GenFrame* obj)
     {
-        return static_cast<const LatexFrame*>(ptr);
+        return static_cast<const LatexFrame*>(obj);
     }
 
-    static const LatexFrame& latexCast(const GenFrame& ref)
+    static const LatexFrame& latexCast(const GenFrame& obj)
     {
-        return static_cast<const LatexFrame&>(ref);
+        return static_cast<const LatexFrame&>(obj);
     }
 
     std::string latexRelFilePath() const;

@@ -41,9 +41,9 @@ public:
     explicit EmscriptenNamespace(EmscriptenGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~EmscriptenNamespace();
 
-    static const EmscriptenNamespace* emscriptenCast(const commsdsl::gen::GenNamespace* schema)
+    static const EmscriptenNamespace* emscriptenCast(const commsdsl::gen::GenNamespace* obj)
     {
-        return static_cast<const EmscriptenNamespace*>(schema);
+        return static_cast<const EmscriptenNamespace*>(obj);
     }
 
     void emscriptenAddSourceFiles(GenStringsList& sources) const;

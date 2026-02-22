@@ -38,9 +38,9 @@ public:
     explicit EmscriptenFrame(EmscriptenGenerator& generator, commsdsl::parse::ParseFrame parseObj, commsdsl::gen::GenElem* parent);
     virtual ~EmscriptenFrame();
 
-    static const EmscriptenFrame* emscriptenCast(const commsdsl::gen::GenFrame* i)
+    static const EmscriptenFrame* emscriptenCast(const commsdsl::gen::GenFrame* obj)
     {
-        return static_cast<const EmscriptenFrame*>(i);
+        return static_cast<const EmscriptenFrame*>(obj);
     }
 
     void emscriptenAddSourceFiles(GenStringsList& sources) const;

@@ -37,14 +37,14 @@ public:
     std::string toolsHeaderFilePath() const;
     GenStringsList toolsSourceFiles() const;
 
-    static const ToolsQtInterface* toolsCast(const commsdsl::gen::GenInterface* val)
+    static const ToolsQtInterface* toolsCast(const commsdsl::gen::GenInterface* obj)
     {
-        return static_cast<const ToolsQtInterface*>(val);
+        return static_cast<const ToolsQtInterface*>(obj);
     }
 
-    static const ToolsQtInterface& toolsCast(const commsdsl::gen::GenInterface& val)
+    static const ToolsQtInterface& toolsCast(const commsdsl::gen::GenInterface& obj)
     {
-        return static_cast<const ToolsQtInterface&>(val);
+        return static_cast<const ToolsQtInterface&>(obj);
     }
 
 protected:

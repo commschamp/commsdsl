@@ -37,9 +37,9 @@ public:
     explicit EmscriptenSchema(EmscriptenGenerator& generator, ParseSchema parseObj, GenElem* parent);
     virtual ~EmscriptenSchema();
 
-    static const EmscriptenSchema* emscriptenCast(const commsdsl::gen::GenSchema* schema)
+    static const EmscriptenSchema* emscriptenCast(const commsdsl::gen::GenSchema* obj)
     {
-        return static_cast<const EmscriptenSchema*>(schema);
+        return static_cast<const EmscriptenSchema*>(obj);
     }
 
     void emscriptenAddSourceFiles(GenStringsList& sources) const;

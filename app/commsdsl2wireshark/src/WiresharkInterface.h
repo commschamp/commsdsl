@@ -15,34 +15,44 @@
 
 #pragma once
 
-#include "commsdsl/gen/GenSchema.h"
+#include "WiresharkField.h"
+
+#include "commsdsl/gen/GenInterface.h"
 
 namespace commsdsl2wireshark
 {
 
 class WiresharkGenerator;
-class WiresharkSchema final : public commsdsl::gen::GenSchema
+class WiresharkInterface final : public commsdsl::gen::GenInterface
 {
-    using GenBase = commsdsl::gen::GenSchema;
+    using GenBase = commsdsl::gen::GenInterface;
 
 public:
     using GenElem = commsdsl::gen::GenElem;
-    using GenSchema = commsdsl::gen::GenSchema;
+    using GenInterface = commsdsl::gen::GenInterface;
+    using WiresharkFieldsList = WiresharkField::WiresharkFieldsList;
 
-    WiresharkSchema(WiresharkGenerator& generator, ParseSchema parseObj, GenElem* parent);
-    virtual ~WiresharkSchema();
+    WiresharkInterface(WiresharkGenerator& generator, ParseInterface parseObj, GenElem* parent);
+    virtual ~WiresharkInterface();
 
-    static WiresharkSchema& wiresharkCast(GenSchema& obj)
+    static WiresharkInterface* wiresharkCast(GenInterface* obj)
     {
-        return static_cast<WiresharkSchema&>(obj);
+        return static_cast<WiresharkInterface*>(obj);
     }
 
-    static const WiresharkSchema& wiresharkCast(const GenSchema& obj)
+    static const WiresharkInterface* wiresharkCast(const GenInterface* obj)
     {
-        return static_cast<const WiresharkSchema&>(obj);
+        return static_cast<const WiresharkInterface*>(obj);
     }
 
+    bool wiresharkDissectionAllowed() const;
     std::string wiresharkDissectCode() const;
+
+protected:
+    virtual bool genPrepareImpl() override;
+
+private:
+    WiresharkFieldsList m_wiresharkFields;
 };
 
 } // namespace commsdsl2wireshark

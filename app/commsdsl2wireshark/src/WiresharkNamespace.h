@@ -21,6 +21,7 @@ namespace commsdsl2wireshark
 {
 
 class WiresharkGenerator;
+class WiresharkInterface;
 class WiresharkNamespace final : public commsdsl::gen::GenNamespace
 {
     using GenBase = commsdsl::gen::GenNamespace;
@@ -32,16 +33,17 @@ public:
     WiresharkNamespace(WiresharkGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~WiresharkNamespace();
 
-    static WiresharkNamespace& wiresharkCast(GenNamespace& generator)
+    static WiresharkNamespace* wiresharkCast(GenNamespace* obj)
     {
-        return static_cast<WiresharkNamespace&>(generator);
+        return static_cast<WiresharkNamespace*>(obj);
     }
 
-    static const WiresharkNamespace& wiresharkCast(const GenNamespace& generator)
+    static const WiresharkNamespace* wiresharkCast(const GenNamespace* obj)
     {
-        return static_cast<const WiresharkNamespace&>(generator);
+        return static_cast<const WiresharkNamespace*>(obj);
     }
 
+    const WiresharkInterface* wiresharkInterface() const;
     std::string wiresharkDissectCode() const;
 };
 

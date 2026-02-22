@@ -44,9 +44,9 @@ public:
     void swigAddCode(GenStringsList& list) const;
     void swigAddDef(GenStringsList& list) const;
 
-    static const SwigSchema* swigCast(const commsdsl::gen::GenSchema* schema)
+    static const SwigSchema* swigCast(const commsdsl::gen::GenSchema* obj)
     {
-        return static_cast<const SwigSchema*>(schema);
+        return static_cast<const SwigSchema*>(obj);
     }
 };
 

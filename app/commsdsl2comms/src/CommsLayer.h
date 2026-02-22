@@ -39,14 +39,14 @@ public:
     explicit CommsLayer(GenLayer& layer);
     virtual ~CommsLayer();
 
-    static CommsLayer* commsCast(GenLayer* layer)
+    static CommsLayer* commsCast(GenLayer* obj)
     {
-        return dynamic_cast<CommsLayer*>(layer);
+        return dynamic_cast<CommsLayer*>(obj);
     }
 
-    static const CommsLayer* commsCast(const GenLayer* layer)
+    static const CommsLayer* commsCast(const GenLayer* obj)
     {
-        return dynamic_cast<const CommsLayer*>(layer);
+        return dynamic_cast<const CommsLayer*>(obj);
     }
 
     bool commsPrepare();

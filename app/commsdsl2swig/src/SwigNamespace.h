@@ -47,9 +47,9 @@ public:
 
     void swigAddDef(GenStringsList& list) const;
 
-    static const SwigNamespace* swigCast(const commsdsl::gen::GenNamespace* ns)
+    static const SwigNamespace* swigCast(const commsdsl::gen::GenNamespace* obj)
     {
-        return static_cast<const SwigNamespace*>(ns);
+        return static_cast<const SwigNamespace*>(obj);
     }
 
     std::string swigMsgIdClassName() const;

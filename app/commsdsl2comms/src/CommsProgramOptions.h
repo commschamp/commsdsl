@@ -31,9 +31,9 @@ public:
 
     CommsProgramOptions();
 
-    static const CommsProgramOptions& commsCast(const GenProgramOptions& options)
+    static const CommsProgramOptions& commsCast(const GenProgramOptions& obj)
     {
-        return static_cast<const CommsProgramOptions&>(options);
+        return static_cast<const CommsProgramOptions&>(obj);
     }
 
     const std::string& commsGetCustomizationLevel() const;
