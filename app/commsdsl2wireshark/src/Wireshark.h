@@ -39,6 +39,7 @@ private:
     std::string wiresharkDissectFuncInternal() const;
     std::string wiresharkFieldsRegistrationInternal() const;
     std::string wiresharkCodeInternal() const;
+    std::string wiresharkDissectFuncBodyInternal() const;
 
     WiresharkGenerator& m_wiresharkGenerator;
 };

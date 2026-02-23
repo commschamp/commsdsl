@@ -16,6 +16,7 @@
 #include "WiresharkValueLayer.h"
 
 #include "WiresharkGenerator.h"
+#include "WiresharkInterface.h"
 
 namespace commsdsl2wireshark
 {
@@ -24,6 +25,11 @@ WiresharkValueLayer::WiresharkValueLayer(WiresharkGenerator& generator, ParseLay
     GenBase(generator, parseObj, parent),
     WiresharkBase(static_cast<GenBase&>(*this))
 {
+}
+
+bool WiresharkValueLayer::wiresharkIsInterfaceSupportedImpl(const WiresharkInterface& iFace) const
+{
+    return genIsInterfaceSupported(&iFace);
 }
 
 } // namespace commsdsl2wireshark

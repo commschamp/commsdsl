@@ -15,6 +15,7 @@
 
 #include "Wireshark.h"
 
+#include "WiresharkFrame.h"
 #include "WiresharkGenerator.h"
 #include "WiresharkSchema.h"
 
@@ -123,13 +124,6 @@ std::string Wireshark::wiresharkDissectFuncInternal() const
     const std::string Templ =
         "-- Main Dissector Entry Point\n"
         "function #^#NAME#$#.dissector(tvb, pinfo, tree)\n"
-        "    #^#REPLACE#$#\n"
-        "    if tvb:len() == 0 then\n"
-        "        return\n"
-        "    end\n"
-        "\n"
-        "    pinfo.cols.protocol = #^#NAME#$#.name\n"
-        "\n"
         "    #^#BODY#$#\n"
         "end\n"
         ;
@@ -140,11 +134,11 @@ std::string Wireshark::wiresharkDissectFuncInternal() const
 
     util::GenReplacementMap repl = {
         {"NAME", wiresharkProtocolObjName(m_wiresharkGenerator)},
-        {"REPLACE", std::move(replaceCode)},
+        {"BODY", std::move(replaceCode)},
     };
 
     if (!bodyReplaced) {
-        // TODO: Add frame function
+        repl["BODY"] = wiresharkDissectFuncBodyInternal();
     }
 
     return util::genProcessTemplate(Templ, repl);
@@ -184,6 +178,57 @@ std::string Wireshark::wiresharkCodeInternal() const
     }
 
     return util::genStrListToString(elems, "\n", "");
+}
+
+std::string Wireshark::wiresharkDissectFuncBodyInternal() const
+{
+    util::GenStringsList elems;
+    auto frames = m_wiresharkGenerator.genProtocolSchema().genGetAllFrames();
+    for (auto* f : frames) {
+        assert(f != nullptr);
+        auto& wiresharkFrame = WiresharkFrame::wiresharkCast(*f);
+        static const std::string FrameTempl =
+            "result, next_offset = #^#NAME#$#(tvb, tree)\n"
+            "if result then\n"
+            "    break\n"
+            "end\n"
+        ;
+
+        util::GenReplacementMap frameRepl = {
+            {"NAME", wiresharkFrame.wiresharkDissectName()}
+        };
+
+        elems.push_back(util::genProcessTemplate(FrameTempl, frameRepl));
+    }
+
+    const std::string Templ =
+        "if tvb:len() == 0 then\n"
+        "    return\n"
+        "end\n"
+        "\n"
+        "pinfo.cols.protocol = #^#NAME#$#.name\n"
+        "\n"
+        "local result = false\n"
+        "local next_offset = 0\n"
+        "repeat\n"
+        "    #^#FRAMES#$#\n"
+        "until true\n"
+        "\n"
+        "if not result then\n"
+        "   return\n"
+        "end\n"
+        "\n"
+        "if next_offset < tvb:len() then\n"
+        "    pinfo.desegment_offset = next_offset\n"
+        "    pinfo.desegment_len = DESEGMENT_ONE_MORE_SEGMENT\n"
+        "end\n"
+    ;
+
+    util:: GenReplacementMap repl = {
+        {"FRAMES", util::genStrListToString(elems, "\n", "")}
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2wireshark

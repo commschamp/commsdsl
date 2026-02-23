@@ -22,6 +22,7 @@
 namespace commsdsl2wireshark
 {
 
+class WiresharkInterface;
 class WiresharkLayer
 {
 public:
@@ -46,8 +47,11 @@ public:
     std::string wiresharkDissectName() const;
     std::string wiresharkDissectCode() const;
 
+    bool wiresharkIsInterfaceSupported(const WiresharkInterface& iFace) const;
+
 protected:
     virtual std::string wiresharkDissectBodyImpl() const;
+    virtual bool wiresharkIsInterfaceSupportedImpl(const WiresharkInterface& iFace) const;
 
 private:
     std::string wiresharkFieldDissectCodeInternal() const;

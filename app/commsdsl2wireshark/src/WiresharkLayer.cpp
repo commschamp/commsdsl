@@ -101,6 +101,11 @@ std::string WiresharkLayer::wiresharkDissectCode() const
     return util::genProcessTemplate(Templ, repl);
 }
 
+bool WiresharkLayer::wiresharkIsInterfaceSupported(const WiresharkInterface& iFace) const
+{
+    return wiresharkIsInterfaceSupportedImpl(iFace);
+}
+
 std::string WiresharkLayer::wiresharkDissectBodyImpl() const
 {
     auto* field = WiresharkField::wiresharkCast(m_genLayer.genMemberField());
@@ -121,6 +126,11 @@ std::string WiresharkLayer::wiresharkDissectBodyImpl() const
     };
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+bool WiresharkLayer::wiresharkIsInterfaceSupportedImpl([[maybe_unused]] const WiresharkInterface& iFace) const
+{
+    return true;
 }
 
 std::string WiresharkLayer::wiresharkFieldDissectCodeInternal() const

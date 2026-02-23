@@ -23,6 +23,7 @@ namespace commsdsl2wireshark
 {
 
 class WiresharkGenerator;
+class WiresharkInterface;
 class WiresharkFrame final : public commsdsl::gen::GenFrame
 {
     using GenBase = commsdsl::gen::GenFrame;
@@ -55,6 +56,7 @@ protected:
 private:
     std::string wiresharkDissectBodyInternal() const;
     std::string wiresharkLayersDissectCodeInternal() const;
+    const WiresharkInterface* wiresharkInterfaceInternal() const;
 
     WiresharkLayersAccessList m_wiresharkLayers;
     bool m_validFrame = false;

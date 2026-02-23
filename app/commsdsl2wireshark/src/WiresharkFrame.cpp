@@ -16,9 +16,14 @@
 #include "WiresharkFrame.h"
 
 #include "WiresharkGenerator.h"
+#include "WiresharkInterface.h"
+#include "WiresharkNamespace.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
+
+#include <algorithm>
+#include <cassert>
 
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
@@ -94,8 +99,21 @@ bool WiresharkFrame::genPrepareImpl()
         m_wiresharkLayers.push_back(WiresharkLayer::wiresharkCast(l));
     }
 
-    // TODO: validate frame
-    m_validFrame = true;
+    auto* iFace = wiresharkInterfaceInternal();
+    do {
+        if (iFace == nullptr) {
+            genGenerator().genLogger().genDebug("No valid interface for frame " + genName());
+            break;
+        }
+
+        m_validFrame =
+            std::all_of(
+                m_wiresharkLayers.begin(), m_wiresharkLayers.end(),
+                [iFace](auto* l)
+                {
+                    return l->wiresharkIsInterfaceSupported(*iFace);
+                });
+    } while (false);
     return true;
 }
 
@@ -118,6 +136,15 @@ std::string WiresharkFrame::wiresharkLayersDissectCodeInternal() const
     }
 
     return util::genStrListToString(layers, "\n", "\n");
+}
+
+const WiresharkInterface* WiresharkFrame::wiresharkInterfaceInternal() const
+{
+    auto* parent = genGetParent();
+    assert(parent != nullptr);
+    assert(parent->genElemType() == commsdsl::gen::GenElem::GenType_Namespace);
+    auto* parentNs = WiresharkNamespace::wiresharkCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
+    return parentNs->wiresharkInterface();
 }
 
 } // namespace commsdsl2wireshark

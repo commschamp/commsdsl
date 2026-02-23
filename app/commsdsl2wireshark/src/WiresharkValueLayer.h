@@ -33,6 +33,9 @@ public:
     using GenElem = commsdsl::gen::GenElem;
 
     WiresharkValueLayer(WiresharkGenerator& generator, ParseLayer parseObj, GenElem* parent);
+
+protected:
+    virtual bool wiresharkIsInterfaceSupportedImpl(const WiresharkInterface& iFace) const override;
 };
 
 } // namespace commsdsl2wireshark
