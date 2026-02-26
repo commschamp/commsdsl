@@ -31,16 +31,19 @@ class WiresharkIntField final : public commsdsl::gen::GenIntField, public Wiresh
     using WiresharkBase = WiresharkField;
 
 public:
+    using ParseEndian = commsdsl::parse::ParseEndian;
     using ParseField = commsdsl::parse::ParseField;
     using GenElem = commsdsl::gen::GenElem;
 
     WiresharkIntField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
 
     static const std::string& wiresharkIntegralType(ParseIntField::ParseType type, std::size_t len);
+    static std::string wiresharkTvbRangeAccessIntegralValue(ParseIntField::ParseType type, ParseEndian endian, std::size_t len);
 
 protected:
     virtual bool genPrepareImpl() override;
     virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
+    virtual std::string wiresharkTvbRangeAccessImpl() const override;
 
 private:
     std::string wiresharkSpecialsInternal(const WiresharkField* refField) const;

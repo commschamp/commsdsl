@@ -57,6 +57,8 @@ private:
     std::string wiresharkDissectBodyInternal() const;
     std::string wiresharkLayersDissectCodeInternal() const;
     const WiresharkInterface* wiresharkInterfaceInternal() const;
+    std::string wiresharkLayerFuncsListInternal() const;
+    std::string wiresharkLayerFuncsListNameInternal() const;
 
     WiresharkLayersAccessList m_wiresharkLayers;
     bool m_validFrame = false;

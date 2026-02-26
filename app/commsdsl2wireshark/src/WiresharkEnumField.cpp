@@ -72,6 +72,12 @@ std::string WiresharkEnumField::wiresharkFieldRegistrationImpl(const WiresharkFi
     return util::genProcessTemplate(Templ, repl);
 }
 
+std::string WiresharkEnumField::wiresharkTvbRangeAccessImpl() const
+{
+    auto obj = genEnumFieldParseObj();
+    return WiresharkIntField::wiresharkTvbRangeAccessIntegralValue(obj.parseType(), obj.parseEndian(), obj.parseMaxLength());
+}
+
 std::string WiresharkEnumField::wiresharkValsInternal(const WiresharkField* refField) const
 {
     auto& values = genSortedRevValues();

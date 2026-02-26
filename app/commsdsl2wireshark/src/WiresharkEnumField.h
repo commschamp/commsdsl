@@ -37,6 +37,7 @@ public:
 protected:
     virtual bool genPrepareImpl() override;
     virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
+    virtual std::string wiresharkTvbRangeAccessImpl() const override;
 
 private:
     std::string wiresharkValsInternal(const WiresharkField* refField) const;

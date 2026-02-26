@@ -64,12 +64,14 @@ std::string WiresharkLayer::wiresharkDissectCode() const
 {
     static const std::string Templ =
         "#^#FIELD#$#\n"
+        "#^#EXTRA#$#\n"
         "#^#PREPEND#$#\n"
-        "local function #^#NAME#$##^#SUFFIX#$#(tvb, tree, offset, offsetLimit)\n"
+        "local function #^#NAME#$##^#SUFFIX#$#(tvb, tree, offset, offsetLimit, funcs, next_idx, msg)\n"
         "    #^#REPLACE#$#\n"
         "    local result = true\n"
+        "    local next_offset = offset\n"
         "    #^#BODY#$#\n"
-        "    return offset, result\n"
+        "    return next_offset, result\n"
         "end\n"
         "#^#EXTEND#$#\n"
     ;
@@ -88,6 +90,7 @@ std::string WiresharkLayer::wiresharkDissectCode() const
         {"REPLACE", wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &replaced)},
         {"PREPEND", wiresharkGenerator.genReadCodeInjectCode(prependFileName, "Prepend here")},
         {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
+        {"EXTRA", wiresharkExtraDissectCodeImpl()},
     };
 
     if (!replaced) {
@@ -108,17 +111,32 @@ bool WiresharkLayer::wiresharkIsInterfaceSupported(const WiresharkInterface& iFa
 
 std::string WiresharkLayer::wiresharkDissectBodyImpl() const
 {
-    auto* field = WiresharkField::wiresharkCast(m_genLayer.genMemberField());
-    if (field == nullptr) {
-        field = WiresharkField::wiresharkCast(m_genLayer.genExternalField());
-    }
+    return strings::genEmptyString();
+}
+
+bool WiresharkLayer::wiresharkIsInterfaceSupportedImpl([[maybe_unused]] const WiresharkInterface& iFace) const
+{
+    return true;
+}
+
+std::string WiresharkLayer::wiresharkExtraDissectCodeImpl() const
+{
+    return strings::genEmptyString();
+}
+
+std::string WiresharkLayer::wiresharkDissectFieldCode() const
+{
+    auto* field = wiresharkField();
 
     if (field == nullptr) {
         return strings::genEmptyString();
     }
 
     static const std::string Templ =
-        "offset, result = #^#NAME#$#(tvb, tree, offset, offsetLimit)"
+        "result, next_offset = #^#NAME#$#(tvb, tree, offset, offsetLimit)\n"
+        "if not result then\n"
+        "    return result, next_offset\n"
+        "end\n"
     ;
 
     util::GenReplacementMap repl = {
@@ -128,9 +146,34 @@ std::string WiresharkLayer::wiresharkDissectBodyImpl() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-bool WiresharkLayer::wiresharkIsInterfaceSupportedImpl([[maybe_unused]] const WiresharkInterface& iFace) const
+std::string WiresharkLayer::wiresharkNextFuncCode() const
 {
-    return true;
+    static const std::string Templ =
+        "local next_func = func[next_idx]\n"
+        "if next_func == #^#NIL#$# then\n"
+        "    return false, offset\n"
+        "end\n"
+        "result, next_offset = next_func(tvb, tree, offset, offsetLimit, funcs, next_idx + 1, msg)\n"
+        "if not result then\n"
+        "    return result, next_offset\n"
+        "end\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NIL", strings::genNilStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+const WiresharkField* WiresharkLayer::wiresharkField() const
+{
+    auto* field = m_genLayer.genMemberField();
+    if (field == nullptr) {
+        field = m_genLayer.genExternalField();
+    }
+
+    return WiresharkField::wiresharkCast(field);
 }
 
 std::string WiresharkLayer::wiresharkFieldDissectCodeInternal() const

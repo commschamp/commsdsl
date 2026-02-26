@@ -124,6 +124,7 @@ std::string Wireshark::wiresharkDissectFuncInternal() const
     const std::string Templ =
         "-- Main Dissector Entry Point\n"
         "function #^#NAME#$#.dissector(tvb, pinfo, tree)\n"
+        "    #^#REPLACE#$#\n"
         "    #^#BODY#$#\n"
         "end\n"
         ;
@@ -134,7 +135,7 @@ std::string Wireshark::wiresharkDissectFuncInternal() const
 
     util::GenReplacementMap repl = {
         {"NAME", wiresharkProtocolObjName(m_wiresharkGenerator)},
-        {"BODY", std::move(replaceCode)},
+        {"REPLACE", std::move(replaceCode)},
     };
 
     if (!bodyReplaced) {
@@ -225,6 +226,7 @@ std::string Wireshark::wiresharkDissectFuncBodyInternal() const
     ;
 
     util:: GenReplacementMap repl = {
+        {"NAME", wiresharkProtocolObjName(m_wiresharkGenerator)},
         {"FRAMES", util::genStrListToString(elems, "\n", "")}
     };
 

@@ -98,6 +98,24 @@ const std::string& WiresharkIntField::wiresharkIntegralType(ParseIntField::Parse
     return iter->second;
 }
 
+std::string WiresharkIntField::wiresharkTvbRangeAccessIntegralValue(ParseIntField::ParseType type, ParseEndian endian, std::size_t len)
+{
+    std::string prefix;
+    if (endian == ParseEndian::ParseEndian_Little) {
+        prefix = "le_";
+    }
+
+    if (GenIntField::genIsUnsignedType(type)) {
+        prefix += 'u';
+    }
+
+    if (len <= 4) {
+        return prefix + "int()";
+    }
+
+    return prefix + "int64()";
+}
+
 bool WiresharkIntField::genPrepareImpl()
 {
     if ((!GenBase::genPrepareImpl()) ||
@@ -140,6 +158,12 @@ std::string WiresharkIntField::wiresharkFieldRegistrationImpl(const WiresharkFie
 
     assert(!repl["TYPE"].empty());
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkIntField::wiresharkTvbRangeAccessImpl() const
+{
+    auto obj = genIntFieldParseObj();
+    return wiresharkTvbRangeAccessIntegralValue(obj.parseType(), obj.parseEndian(), obj.parseMaxLength());
 }
 
 std::string WiresharkIntField::wiresharkSpecialsInternal(const WiresharkField* refField) const

@@ -168,6 +168,11 @@ bool WiresharkField::wiresharkHasCustomNameCode(const WiresharkField* refField) 
     return m_customCode.m_hasName;
 }
 
+std::string WiresharkField::wiresharkTvbRangeAccess() const
+{
+    return wiresharkTvbRangeAccessImpl();
+}
+
 std::string WiresharkField::wiresharkDissectNameImpl(const WiresharkField* refField) const
 {
     const auto* genField = &m_genField;
@@ -274,6 +279,12 @@ std::string WiresharkField::wiresharkFieldRegistrationImpl(const WiresharkField*
 std::string WiresharkField::wiresharkMembersDissectCodeImpl() const
 {
     return std::string();
+}
+
+std::string WiresharkField::wiresharkTvbRangeAccessImpl() const
+{
+    [[maybe_unused]] static constexpr bool Should_not_be_called = false;
+    assert(Should_not_be_called);
 }
 
 std::string WiresharkField::wiresharkFieldRefName(const WiresharkField* refField) const

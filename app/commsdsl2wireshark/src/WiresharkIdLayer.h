@@ -19,6 +19,8 @@
 
 #include "commsdsl/gen/GenIdLayer.h"
 
+#include <string>
+
 namespace commsdsl2wireshark
 {
 
@@ -33,6 +35,13 @@ public:
     using GenElem = commsdsl::gen::GenElem;
 
     WiresharkIdLayer(WiresharkGenerator& generator, ParseLayer parseObj, GenElem* parent);
+
+protected:
+    virtual std::string wiresharkDissectBodyImpl() const override;
+    virtual std::string wiresharkExtraDissectCodeImpl() const override;
+
+private:
+    std::string wiresharkMsgMapNameInternal() const;
 };
 
 } // namespace commsdsl2wireshark

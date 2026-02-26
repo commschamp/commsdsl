@@ -15,6 +15,7 @@
 
 #include "WiresharkFrame.h"
 
+#include "Wireshark.h"
 #include "WiresharkGenerator.h"
 #include "WiresharkInterface.h"
 #include "WiresharkNamespace.h"
@@ -48,6 +49,7 @@ std::string WiresharkFrame::wiresharkDissectCode() const
 {
     static const std::string Templ =
         "#^#LAYERS#$#\n"
+        "#^#FUNC_LIST#$#\n"
         "#^#PREPEND#$#\n"
         "local function #^#NAME#$##^#SUFFIX#$#(tvb, tree)\n"
         "    #^#REPLACE#$#\n"
@@ -70,6 +72,7 @@ std::string WiresharkFrame::wiresharkDissectCode() const
         {"REPLACE", wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &replaced)},
         {"PREPEND", wiresharkGenerator.genReadCodeInjectCode(prependFileName, "Prepend here")},
         {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
+        {"FUNC_LIST", wiresharkLayerFuncsListInternal()},
     };
 
     if (!replaced) {
@@ -119,8 +122,30 @@ bool WiresharkFrame::genPrepareImpl()
 
 std::string WiresharkFrame::wiresharkDissectBodyInternal() const
 {
-    // TODO:
-    return std::string();
+    static const std::string Templ =
+        "local result = true\n"
+        "local offset = 0\n"
+        "local len = tvb:len()\n"
+        "while result and (offset < len) do\n"
+        "    local frame_subtree = tree:add(#^#PROTO_NAME#$#, tvb(offset, -1), \"#^#FRAME_NAME#$#\")\n"
+        "    local layer_func = #^#LIST_NAME#$#[1]\n"
+        "    local next_offset = 0\n"
+        "    result, next_offset = layer_func(tvb, frame_subtree, offset, len, #^#LIST_NAME#$#, 2, #^#NIL#$#)\n"
+        "    frame_subtree:set_len(next_offset - offset)\n"
+        "    offset = next_offset\n"
+        "end\n"
+        "return result, offset\n"
+        ;
+
+    auto parseObj = genParseObj();
+    util::GenReplacementMap repl = {
+        {"PROTO_NAME", Wireshark::wiresharkProtocolObjName(WiresharkGenerator::wiresharkCast(genGenerator()))},
+        {"FRAME_NAME", util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName())},
+        {"LIST_NAME", wiresharkLayerFuncsListNameInternal()},
+        {"NIL", strings::genNilStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string WiresharkFrame::wiresharkLayersDissectCodeInternal() const
@@ -145,6 +170,33 @@ const WiresharkInterface* WiresharkFrame::wiresharkInterfaceInternal() const
     assert(parent->genElemType() == commsdsl::gen::GenElem::GenType_Namespace);
     auto* parentNs = WiresharkNamespace::wiresharkCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
     return parentNs->wiresharkInterface();
+}
+
+std::string WiresharkFrame::wiresharkLayerFuncsListInternal() const
+{
+    static const std::string Templ =
+        "local #^#NAME#$# = {\n"
+        "    #^#LAYERS#$#\n"
+        "}\n"
+        ;
+
+    util::GenStringsList layers;
+    for (auto* l : m_wiresharkLayers) {
+        layers.push_back(l->wiresharkDissectName());
+    }
+
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkLayerFuncsListNameInternal()},
+        {"LAYERS", util::genStrListToString(layers, ",\n", "")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkFrame::wiresharkLayerFuncsListNameInternal() const
+{
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    return wiresharkGenerator.wiresharkFuncNameFor(*this, "_layers");
 }
 
 } // namespace commsdsl2wireshark

@@ -58,12 +58,15 @@ public:
     const std::string& wiresharkCustomNameCode(const WiresharkField* refField = nullptr) const;
     bool wiresharkHasCustomNameCode(const WiresharkField* refField = nullptr) const;
 
+    std::string wiresharkTvbRangeAccess() const;
+
 protected:
     virtual std::string wiresharkDissectNameImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkDissectCodeImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkFieldObjNameImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkMembersDissectCodeImpl() const;
+    virtual std::string wiresharkTvbRangeAccessImpl() const;
 
     std::string wiresharkFieldRefName(const WiresharkField* refField) const;
     bool wiresharkIsBitfieldMember() const;
