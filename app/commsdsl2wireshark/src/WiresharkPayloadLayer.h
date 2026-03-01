@@ -33,6 +33,14 @@ public:
     using GenElem = commsdsl::gen::GenElem;
 
     WiresharkPayloadLayer(WiresharkGenerator& generator, ParseLayer parseObj, GenElem* parent);
+
+protected:
+    virtual std::string wiresharkDissectBodyImpl() const override;
+    virtual std::string wiresharkExtraDissectCodeImpl() const override;
+
+private:
+    std::string wiresharkDissectFieldNameInternal() const;
+    std::string wiresharkDissectFieldRefNameInternal() const;
 };
 
 } // namespace commsdsl2wireshark

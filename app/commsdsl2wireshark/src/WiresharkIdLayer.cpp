@@ -44,7 +44,7 @@ std::string WiresharkIdLayer::wiresharkDissectBodyImpl() const
     static const std::string Templ =
         "#^#FIELD#$#\n"
         "local id = tvb(offset, next_offset - offset):#^#VALUE#$#\n"
-        "-- TODO\n"
+        "local msg = #^#MAP#$#[id]\n"
         "offset = next_offset\n"
         "#^#NEXT#$#\n"
         ;
@@ -56,6 +56,7 @@ std::string WiresharkIdLayer::wiresharkDissectBodyImpl() const
         {"FIELD", wiresharkDissectFieldCode()},
         {"VALUE", field->wiresharkTvbRangeAccess()},
         {"NEXT", wiresharkNextFuncCode()},
+        {"MAP", wiresharkMsgMapNameInternal()},
     };
 
     return util::genProcessTemplate(Templ, repl);

@@ -52,6 +52,8 @@ protected:
     virtual bool genPrepareImpl() override;
 
 private:
+    std::string wiresharkDissectBodyInternal() const;
+
     WiresharkFieldsList m_wiresharkFields;
 };
 

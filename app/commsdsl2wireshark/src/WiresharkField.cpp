@@ -285,6 +285,7 @@ std::string WiresharkField::wiresharkTvbRangeAccessImpl() const
 {
     [[maybe_unused]] static constexpr bool Should_not_be_called = false;
     assert(Should_not_be_called);
+    return strings::genEmptyString();
 }
 
 std::string WiresharkField::wiresharkFieldRefName(const WiresharkField* refField) const

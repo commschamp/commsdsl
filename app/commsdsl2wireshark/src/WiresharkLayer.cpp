@@ -71,7 +71,7 @@ std::string WiresharkLayer::wiresharkDissectCode() const
         "    local result = true\n"
         "    local next_offset = offset\n"
         "    #^#BODY#$#\n"
-        "    return next_offset, result\n"
+        "    return result, next_offset\n"
         "end\n"
         "#^#EXTEND#$#\n"
     ;

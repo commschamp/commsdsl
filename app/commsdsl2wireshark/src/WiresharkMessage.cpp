@@ -47,7 +47,12 @@ std::string WiresharkMessage::wiresharkDissectCode() const
 
     static const std::string Templ =
         "#^#FIELDS#$#\n"
-        "#^#CODE#$#\n"
+        "#^#PREPEND#$#\n"
+        "local function #^#NAME#$##^#SUFFIX#$#(tvb, tree, offset, offset_limit)\n"
+        "    #^#REPLACE#$#\n"
+        "    #^#BODY#$#\n"
+        "end\n"
+        "#^#EXTEND#$#"
         ;
 
     util::GenStringsList fields;
@@ -60,10 +65,29 @@ std::string WiresharkMessage::wiresharkDissectCode() const
         fields.push_back(std::move(str));
     }
 
-    // TODO: code
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    auto relPath = wiresharkGenerator.wiresharkInputDissectRelPathFor(*this);
+    auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
+    auto prependFileName = relPath + strings::genPrependFileSuffixStr();
+    auto extendFileName = relPath + strings::genExtendFileSuffixStr();
+
+    bool replaced = false;
+    bool extended = false;
     util::GenReplacementMap repl = {
         {"FIELDS", util::genStrListToString(fields, "\n", "")},
+        {"NAME", wiresharkDissectName()},
+        {"REPLACE", wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &replaced)},
+        {"PREPEND", wiresharkGenerator.genReadCodeInjectCode(prependFileName, "Prepend here")},
+        {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
     };
+
+    if (!replaced) {
+        repl["BODY"] = wiresharkDissectBodyInternal();
+    }
+
+    if (extended) {
+        repl["SUFFIX"] = strings::genOrigSuffixStr();
+    }
 
     return util::genProcessTemplate(Templ, repl);
 }
@@ -76,6 +100,12 @@ bool WiresharkMessage::genPrepareImpl()
 
     m_wiresharkFields = WiresharkField::wiresharkTransformFieldsList(genFields());
     return true;
+}
+
+std::string WiresharkMessage::wiresharkDissectBodyInternal() const
+{
+    // TODO:
+    return "-- TODO\n";
 }
 
 } // namespace commsdsl2wireshark
