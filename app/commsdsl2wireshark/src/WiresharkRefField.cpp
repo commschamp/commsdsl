@@ -18,12 +18,14 @@
 #include "WiresharkGenerator.h"
 
 #include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
 
 #include <cassert>
 #include <functional>
 #include <tuple>
 
 namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2wireshark
 {
@@ -62,11 +64,6 @@ bool WiresharkRefField::genPrepareImpl()
     assert(m_wiresharkField != nullptr);
 
     m_alias = wiresharkIsAliasInternal();
-
-    // if (!m_alias) {
-    //     genGenerator().genLogger().genDebug(m_wiresharkField->wiresharkGenField().genParseObj().parseInnerRef() + " field is not really referenced by " + genParseObj().parseInnerRef());
-    //     m_wiresharkField->wiresharkGenField().genSetReferenced(false);
-    // }
     return true;
 }
 
@@ -83,10 +80,13 @@ std::string WiresharkRefField::wiresharkDissectNameImpl(const WiresharkField* re
 std::string WiresharkRefField::wiresharkDissectCodeImpl(const WiresharkField* refField) const
 {
     if (m_alias) {
+        return strings::genEmptyString();
+    }
+
+    if (!wiresharkMustCopyDissectInternal()) {
         return WiresharkBase::wiresharkDissectCodeImpl(refField);
     }
 
-    genGenerator().genLogger().genDebug("!!! Dissect code for " + genParseObj().parseInnerRef());
     if (refField == nullptr) {
         refField = this;
     }
@@ -124,10 +124,27 @@ std::string WiresharkRefField::wiresharkFieldRegistrationImpl(const WiresharkFie
     return m_wiresharkField->wiresharkFieldRegistration(refField);
 }
 
+std::string WiresharkRefField::wiresharkDissectBodyImpl() const
+{
+    assert(!m_alias);
+    assert(m_wiresharkField != nullptr);
+    assert(!wiresharkMustCopyDissectInternal());
+
+    static const std::string Templ =
+        "result, next_offset = #^#FIELD#$#(#^#SIG#$#)"
+        ;
+
+    util::GenReplacementMap repl {
+        {"SIG", wiresharkDissectSignature()},
+        {"FIELD", m_wiresharkField->wiresharkDissectName()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
 bool WiresharkRefField::wiresharkIsAliasInternal() const
 {
-    if (wiresharkIsBitfieldMember() ||
-        wiresharkHasOverrideCode()) {
+    if (wiresharkMustCopyDissectInternal()) {
         return false;
     }
 
@@ -135,6 +152,13 @@ bool WiresharkRefField::wiresharkIsAliasInternal() const
     auto& thisObj = wiresharkGenField().genParseObj();
     auto& refObj = m_wiresharkField->wiresharkGenField().genParseObj();
     return wiresharkParseObjAsTupleInternal(thisObj) == wiresharkParseObjAsTupleInternal(refObj);
+}
+
+bool WiresharkRefField::wiresharkMustCopyDissectInternal() const
+{
+    return
+        wiresharkIsBitfieldMember() ||
+        wiresharkHasOverrideCode();
 }
 
 } // namespace commsdsl2wireshark

@@ -53,6 +53,8 @@ protected:
 
 private:
     std::string wiresharkDissectBodyInternal() const;
+    std::string wiresharkMessageNameVarNameStr() const;
+    std::string wiresharkNameDefInternal() const;
 
     WiresharkFieldsList m_wiresharkFields;
 };

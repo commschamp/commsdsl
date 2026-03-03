@@ -15,6 +15,7 @@
 
 #include "WiresharkLayer.h"
 
+#include "Wireshark.h"
 #include "WiresharkField.h"
 #include "WiresharkGenerator.h"
 
@@ -66,9 +67,9 @@ std::string WiresharkLayer::wiresharkDissectCode() const
         "#^#FIELD#$#\n"
         "#^#EXTRA#$#\n"
         "#^#PREPEND#$#\n"
-        "local function #^#NAME#$##^#SUFFIX#$#(tvb, tree, offset, offsetLimit, funcs, next_idx, msg)\n"
+        "local function #^#NAME#$##^#SUFFIX#$#(tvb, tree, offset, offset-limit, funcs, next_idx, msg)\n"
         "    #^#REPLACE#$#\n"
-        "    local result = true\n"
+        "    local result = #^#SUCCESS#$#\n"
         "    local next_offset = offset\n"
         "    #^#BODY#$#\n"
         "    return result, next_offset\n"
@@ -91,6 +92,7 @@ std::string WiresharkLayer::wiresharkDissectCode() const
         {"PREPEND", wiresharkGenerator.genReadCodeInjectCode(prependFileName, "Prepend here")},
         {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
         {"EXTRA", wiresharkExtraDissectCodeImpl()},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
     };
 
     if (!replaced) {
@@ -133,14 +135,16 @@ std::string WiresharkLayer::wiresharkDissectFieldCode() const
     }
 
     static const std::string Templ =
-        "result, next_offset = #^#NAME#$#(tvb, tree, offset, offsetLimit)\n"
-        "if not result then\n"
+        "result, next_offset = #^#NAME#$#(tvb, tree, offset, offset_limit)\n"
+        "if result ~= #^#SUCCESS#$# then\n"
         "    return result, next_offset\n"
         "end\n"
     ;
 
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genLayer.genGenerator());
     util::GenReplacementMap repl = {
         {"NAME", field->wiresharkDissectName()},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -151,16 +155,15 @@ std::string WiresharkLayer::wiresharkNextFuncCode() const
     static const std::string Templ =
         "local next_func = func[next_idx]\n"
         "if next_func == #^#NIL#$# then\n"
-        "    return false, offset\n"
+        "    return #^#ERROR#$#, offset\n"
         "end\n"
-        "result, next_offset = next_func(tvb, tree, offset, offsetLimit, funcs, next_idx + 1, msg)\n"
-        "if not result then\n"
-        "    return result, next_offset\n"
-        "end\n"
+        "result, next_offset = next_func(tvb, tree, offset, offset_limit, funcs, next_idx + 1, msg)\n"
         ;
 
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genLayer.genGenerator());
     util::GenReplacementMap repl = {
         {"NIL", strings::genNilStr()},
+        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::CodegenError)},
     };
 
     return util::genProcessTemplate(Templ, repl);

@@ -67,6 +67,7 @@ protected:
     virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkMembersDissectCodeImpl() const;
     virtual std::string wiresharkTvbRangeAccessImpl() const;
+    virtual std::string wiresharkDissectBodyImpl() const;
 
     std::string wiresharkFieldRefName(const WiresharkField* refField) const;
     bool wiresharkIsBitfieldMember() const;
@@ -78,6 +79,7 @@ protected:
     std::string wiresharkFieldDisplayNameStr(const WiresharkField* refField) const;
     std::string wiresharkFieldNameVarNameStr(const WiresharkField* refField) const;
     bool wiresharkHasOverrideCode() const;
+    static const std::string& wiresharkDissectSignature();
 
 private:
     using WiresharkCustomCodeFunc = std::string (WiresharkField::*)(bool& hasCode) const;
@@ -102,7 +104,7 @@ private:
         bool& hasCode);
 
     std::string wiresharkNameDefInternal(const WiresharkField* refField) const;
-    std::string wiresharkDissectBodyInternal() const;
+    std::string wiresharkDissectBodyInternal(const WiresharkField* refField) const;
     std::string wiresharkCustomReadCodeInternal(bool& hasRealCode) const;
     std::string wiresharkCustomValidCodeInternal(bool& hasRealCode) const;
     std::string wiresharkCustomNameCodeInternal(bool& hasRealCode) const;

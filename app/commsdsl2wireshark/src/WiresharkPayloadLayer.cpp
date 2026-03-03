@@ -38,29 +38,32 @@ WiresharkPayloadLayer::WiresharkPayloadLayer(WiresharkGenerator& generator, Pars
 std::string WiresharkPayloadLayer::wiresharkDissectBodyImpl() const
 {
     static const std::string Templ =
-        "local data_subtree = tree:add(#^#FIELD#$#, tvb(offset, offset_limit - offset))\n"
         "if not msg then\n"
-        "    return true, offset_limit\n"
+        "    tree:add_expert_info(PI_MALFORMED, PI_WARN, \"Invalid message id\")\n"
+        "    return #^#SUCCESS#$#, offset_limit\n"
         "end\n"
         "\n"
-        "local result = false\n"
+        "local result = #^#SUCCESS#$#\n"
         "local next_offset = offset_limit\n"
         "-- msg is a list of dissect functions\n"
         "for _, f in ipairs(msg) do\n"
+        "    local data_subtree = tree:add(#^#FIELD#$#, tvb(offset, offset_limit - offset))\n"
         "    result, next_offset = f(tvb, data_subtree, offset, offset_limit)\n"
-        "    if result then\n"
+        "    if result == #^#SUCCESS#$# then\n"
         "        return result, next_offset\n"
         "    end\n"
         "\n"
         "    -- Do not show partially dissected malformed data\n"
-        "    data_subtree.hidden = true\n"
+        "    data_subtree.set_hidden(true)\n"
         "end\n"
-        "subtree:add_expert_info(PI_MALFORMED, PI_WARN, \"Invalid message data\")\n"
-        "result, next_offset = true, offset_limit\n"
+        "tree:add_expert_info(PI_MALFORMED, PI_WARN, \"Invalid message data\")\n"
+        "result, next_offset = #^#SUCCESS#$#, offset_limit\n"
         ;
 
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     util::GenReplacementMap repl = {
-        {"FIELD", wiresharkDissectFieldNameInternal()}
+        {"FIELD", wiresharkDissectFieldNameInternal()},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
     };
 
     return util::genProcessTemplate(Templ, repl);

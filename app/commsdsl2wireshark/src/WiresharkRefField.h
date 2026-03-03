@@ -41,9 +41,11 @@ protected:
     virtual std::string wiresharkDissectCodeImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkFieldObjNameImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
+    virtual std::string wiresharkDissectBodyImpl() const override;
 
 private:
     bool wiresharkIsAliasInternal() const;
+    bool wiresharkMustCopyDissectInternal() const;
 
     WiresharkField* m_wiresharkField = nullptr;
     bool m_alias = false;

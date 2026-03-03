@@ -208,7 +208,7 @@ std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refFi
         "#^#NAME_VAR#$#\n"
         "#^#REG#$#\n"
         "#^#PREPEND#$#\n"
-        "local function #^#NAME#$##^#SUFFIX#$#(tvb, tree, offset, offsetLimit)\n"
+        "local function #^#NAME#$##^#SUFFIX#$#(#^#SIG#$#)\n"
         "    #^#REPLACE#$#\n"
         "    #^#BODY#$#\n"
         "end\n"
@@ -230,6 +230,7 @@ std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refFi
         {"PREPEND", wiresharkGenerator.genReadCodeInjectCode(prependFileName, "Prepend here")},
         {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
         {"NAME_VAR", wiresharkNameDefInternal(refField)},
+        {"SIG", wiresharkDissectSignature()},
     };
 
     if (refField == nullptr) {
@@ -237,7 +238,7 @@ std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refFi
     }
 
     if (!replaced) {
-        repl["BODY"] = wiresharkDissectBodyInternal();
+        repl["BODY"] = wiresharkDissectBodyInternal(refField);
     }
 
     if (extended) {
@@ -285,6 +286,11 @@ std::string WiresharkField::wiresharkTvbRangeAccessImpl() const
 {
     [[maybe_unused]] static constexpr bool Should_not_be_called = false;
     assert(Should_not_be_called);
+    return strings::genEmptyString();
+}
+
+std::string WiresharkField::wiresharkDissectBodyImpl() const
+{
     return strings::genEmptyString();
 }
 
@@ -419,6 +425,12 @@ bool WiresharkField::wiresharkHasOverrideCode() const
         m_customCode.m_hasName;
 }
 
+const std::string& WiresharkField::wiresharkDissectSignature()
+{
+    static const std::string Str = "tvb, tree, offset, offset_limit, field";
+    return Str;
+}
+
 bool WiresharkField::wiresharkCopyCodeFromInternal()
 {
     auto obj = m_genField.genParseObj();
@@ -504,10 +516,24 @@ std::string WiresharkField::wiresharkNameDefInternal(const WiresharkField* refFi
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkField::wiresharkDissectBodyInternal() const
+std::string WiresharkField::wiresharkDissectBodyInternal(const WiresharkField* refField) const
 {
-    // TODO:
-    return std::string();
+    static const std::string Templ =
+        "field = field or #^#FIELD#$#\n"
+        "local result = #^#ERROR#$#\n"
+        "local next_offset = offset\n"
+        "#^#REST#$#\n"
+        "return result, next_offset\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    util::GenReplacementMap repl = {
+        {"FIELD", wiresharkFieldObjName(refField)},
+        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::InvalidMsgData)},
+        {"REST", wiresharkDissectBodyImpl()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string WiresharkField::wiresharkCustomReadCodeInternal(bool& hasRealCode) const

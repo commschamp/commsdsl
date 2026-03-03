@@ -24,6 +24,7 @@
 
 #include <cassert>
 #include <fstream>
+#include <type_traits>
 
 namespace util = commsdsl::gen::util;
 namespace strings = commsdsl::gen::strings;
@@ -31,7 +32,7 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2wireshark
 {
 
-bool Wireshark::wiresharkWrite(WiresharkGenerator& generator)
+bool Wireshark::wiresharkWrite(const WiresharkGenerator& generator)
 {
     Wireshark obj(generator);
     return obj.wiresharkWriteInternal();
@@ -57,6 +58,12 @@ std::string Wireshark::wiresharkFieldsListName(const WiresharkGenerator& generat
     return wiresharkProtocolObjName(generator) + "_fields_list";
 }
 
+std::string Wireshark::wiresharkStatusCodeStr(const WiresharkGenerator& generator, StatusCode code)
+{
+    Wireshark obj(generator);
+    return obj.wiresharkStatusCodeNameInternal() + "." + wiresharkStatusCodeStrInternal(code);
+}
+
 bool Wireshark::wiresharkWriteInternal() const
 {
     auto fileName = wiresharkFileName(m_wiresharkGenerator);
@@ -73,6 +80,7 @@ bool Wireshark::wiresharkWriteInternal() const
         const std::string Templ =
             "#^#GEN_COMMENT#$#\n"
             "#^#PROTOCOL#$#\n"
+            "#^#STATUS_CODE#$#\n"
             "#^#FIELDS_REG#$#\n"
             "#^#CODE#$#\n"
             "#^#DISSECT_FUNC#$#\n"
@@ -89,6 +97,7 @@ bool Wireshark::wiresharkWriteInternal() const
             {"NAME", wiresharkProtocolObjName(m_wiresharkGenerator)},
             {"FIELDS_LIST", wiresharkFieldsListName(m_wiresharkGenerator)},
             {"CODE", wiresharkCodeInternal()},
+            {"STATUS_CODE", wiresharkStatusCodeDefInternal()},
         };
 
         auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
@@ -209,13 +218,14 @@ std::string Wireshark::wiresharkDissectFuncBodyInternal() const
         "\n"
         "pinfo.cols.protocol = #^#NAME#$#.name\n"
         "\n"
-        "local result = false\n"
+        "local result = #^#SUCCESS#$#\n"
         "local next_offset = 0\n"
         "repeat\n"
         "    #^#FRAMES#$#\n"
         "until true\n"
         "\n"
-        "if not result then\n"
+        "if (result ~= #^#NOT_ENOUGH_DATA#$#) and (result ~= #^#SUCCESS#$#) then\n"
+        "   -- Consume everything\n"
         "   return\n"
         "end\n"
         "\n"
@@ -227,10 +237,57 @@ std::string Wireshark::wiresharkDissectFuncBodyInternal() const
 
     util:: GenReplacementMap repl = {
         {"NAME", wiresharkProtocolObjName(m_wiresharkGenerator)},
-        {"FRAMES", util::genStrListToString(elems, "\n", "")}
+        {"FRAMES", util::genStrListToString(elems, "\n", "")},
+        {"SUCCESS", wiresharkStatusCodeStr(m_wiresharkGenerator, StatusCode::Success)},
+        {"NOT_ENOUGH_DATA", wiresharkStatusCodeStr(m_wiresharkGenerator, StatusCode::NotEnoughData)},
     };
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string Wireshark::wiresharkStatusCodeNameInternal() const
+{
+    return wiresharkProtocolObjName(m_wiresharkGenerator) + "_StatusCode";
+}
+
+std::string Wireshark::wiresharkStatusCodeDefInternal() const
+{
+    util::GenStringsList vals;
+
+    for (auto idx = 0U; idx < static_cast<unsigned>(StatusCode::ValuesLimit); ++idx) {
+        vals.push_back(wiresharkStatusCodeStrInternal(static_cast<StatusCode>(idx)) + " = " + std::to_string(idx));
+    }
+
+    const std::string Templ =
+        "local #^#NAME#$# = {\n"
+        "    #^#VALS#$#\n"
+        "}\n"
+    ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkStatusCodeNameInternal()},
+        {"VALS", util::genStrListToString(vals, ",\n", "")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+const std::string& Wireshark::wiresharkStatusCodeStrInternal(StatusCode code)
+{
+    static const std::string Map[] = {
+        /* Success */ "SUCCESS",
+        /* NotEnoughData */ "NOT_ENOUGH_DATA",
+        /* MalformedData */ "MALFORMED_PACKET",
+        /* InvalidMsgId */ "INVALID_MSG_ID",
+        /* InvalidMsgData */ "INVALID_MSG_DATA",
+        /* CodegenError */ "CODEGEN_ERROR",
+    };
+    static const std::size_t MapSize = std::extent_v<decltype(Map)>;
+    static_assert(MapSize == static_cast<unsigned>(StatusCode::ValuesLimit));
+
+    auto idx = static_cast<unsigned>(code);
+    assert(idx < MapSize);
+    return Map[idx];
 }
 
 } // namespace commsdsl2wireshark

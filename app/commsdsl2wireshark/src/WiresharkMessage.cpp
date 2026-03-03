@@ -15,11 +15,14 @@
 
 #include "WiresharkMessage.h"
 
+#include "Wireshark.h"
 #include "WiresharkGenerator.h"
 
+#include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
+namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
 
@@ -47,6 +50,7 @@ std::string WiresharkMessage::wiresharkDissectCode() const
 
     static const std::string Templ =
         "#^#FIELDS#$#\n"
+        "#^#NAME_VAR#$#\n"
         "#^#PREPEND#$#\n"
         "local function #^#NAME#$##^#SUFFIX#$#(tvb, tree, offset, offset_limit)\n"
         "    #^#REPLACE#$#\n"
@@ -79,6 +83,7 @@ std::string WiresharkMessage::wiresharkDissectCode() const
         {"REPLACE", wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &replaced)},
         {"PREPEND", wiresharkGenerator.genReadCodeInjectCode(prependFileName, "Prepend here")},
         {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
+        {"NAME_VAR", wiresharkNameDefInternal()},
     };
 
     if (!replaced) {
@@ -104,8 +109,71 @@ bool WiresharkMessage::genPrepareImpl()
 
 std::string WiresharkMessage::wiresharkDissectBodyInternal() const
 {
-    // TODO:
-    return "-- TODO\n";
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    util::GenStringsList fields;
+    for (auto* f : m_wiresharkFields) {
+        static const std::string FieldTempl =
+            "result, next_offset = #^#DISSECT#$#(tvb, tree, next_offset, offset_limit)\n"
+            "if result ~= #^#SUCCESS#$# then\n"
+            "    return result, offset\n"
+            "end\n"
+        ;
+
+        util::GenReplacementMap fieldRepl = {
+            {"DISSECT", f->wiresharkDissectName()},
+            {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+        };
+
+        fields.push_back(util::genProcessTemplate(FieldTempl, fieldRepl));
+    }
+
+    static const std::string Templ =
+        "local result = #^#SUCCESS#$#\n"
+        "local next_offset = offset\n"
+        "#^#FIELDS#$#\n"
+        "tree:append_text(#^#NAME#$#)\n"
+        "return result, next_offset\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkMessageNameVarNameStr()},
+        {"FIELDS", util::genStrListToString(fields, "\n", "")},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkMessage::wiresharkMessageNameVarNameStr() const
+{
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    return wiresharkGenerator.wiresharkFuncNameFor(*this, strings::genNameSuffixStr());
+}
+
+std::string WiresharkMessage::wiresharkNameDefInternal() const
+{
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    auto relPath = wiresharkGenerator.wiresharkInputRelPathFor(*this, strings::genNameSuffixStr());
+    auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
+
+    static const std::string Templ =
+        "#^#COMMENT#$#"
+        "local #^#VAR_NAME#$# = \"#^#NAME#$#\"\n"
+    ;
+
+    bool hasName = false;
+    auto parseObj = genParseObj();
+    util::GenReplacementMap repl = {
+        {"COMMENT", wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace name value", &hasName)},
+        {"VAR_NAME", wiresharkMessageNameVarNameStr()},
+        {"NAME", util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName())},
+    };
+
+    if (hasName) {
+        repl["NAME"] = std::move(repl["COMMENT"]);
+    }
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2wireshark

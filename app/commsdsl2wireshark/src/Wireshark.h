@@ -24,14 +24,25 @@ class WiresharkGenerator;
 class Wireshark
 {
 public:
-    static bool wiresharkWrite(WiresharkGenerator& generator);
+    enum class StatusCode {
+        Success,
+        NotEnoughData,
+        MalformedPacket,
+        InvalidMsgId,
+        InvalidMsgData,
+        CodegenError,
+        ValuesLimit // Must be last
+    };
+
+    static bool wiresharkWrite(const WiresharkGenerator& generator);
     static std::string wiresharkFileName(const WiresharkGenerator& generator);
     static const std::string& wiresharkProtocolObjName(const WiresharkGenerator& generator);
     static std::string wiresharkCreateFieldFuncName(const WiresharkGenerator& generator);
     static std::string wiresharkFieldsListName(const WiresharkGenerator& generator);
+    static std::string wiresharkStatusCodeStr(const WiresharkGenerator& generator, StatusCode code);
 
 private:
-    explicit Wireshark(WiresharkGenerator& generator) : m_wiresharkGenerator(generator) {}
+    explicit Wireshark(const WiresharkGenerator& generator) : m_wiresharkGenerator(generator) {}
 
 private:
     bool wiresharkWriteInternal() const;
@@ -40,8 +51,11 @@ private:
     std::string wiresharkFieldsRegistrationInternal() const;
     std::string wiresharkCodeInternal() const;
     std::string wiresharkDissectFuncBodyInternal() const;
+    std::string wiresharkStatusCodeNameInternal() const;
+    std::string wiresharkStatusCodeDefInternal() const;
+    static const std::string& wiresharkStatusCodeStrInternal(StatusCode code);
 
-    WiresharkGenerator& m_wiresharkGenerator;
+    const WiresharkGenerator& m_wiresharkGenerator;
 };
 
 } // namespace commsdsl2wireshark

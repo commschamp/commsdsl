@@ -123,26 +123,39 @@ bool WiresharkFrame::genPrepareImpl()
 std::string WiresharkFrame::wiresharkDissectBodyInternal() const
 {
     static const std::string Templ =
-        "local result = true\n"
+        "local result = #^#SUCCESS#$#\n"
         "local offset = 0\n"
         "local len = tvb:len()\n"
-        "while result and (offset < len) do\n"
+        "while (result == #^#SUCCESS#$#) and (offset < len) do\n"
         "    local frame_subtree = tree:add(#^#PROTO_NAME#$#, tvb(offset, -1), \"#^#FRAME_NAME#$#\")\n"
         "    local layer_func = #^#LIST_NAME#$#[1]\n"
-        "    local next_offset = 0\n"
+        "    local next_offset = offset\n"
         "    result, next_offset = layer_func(tvb, frame_subtree, offset, len, #^#LIST_NAME#$#, 2, #^#NIL#$#)\n"
+        "    if result == #^#NOT_ENOUGH_DATA#$# then\n"
+        "        frame_subtree:set_hidden(true)\n"
+        "        return result, offset\n"
+        "    end\n"
+        "\n"
+        "    if result ~= #^#SUCCESS#$# then\n"
+        "        frame_subtree:set_hidden(true)\n"
+        "        return result, next_offset\n"
+        "    end\n"
+        "\n"
         "    frame_subtree:set_len(next_offset - offset)\n"
         "    offset = next_offset\n"
         "end\n"
         "return result, offset\n"
         ;
 
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     auto parseObj = genParseObj();
     util::GenReplacementMap repl = {
-        {"PROTO_NAME", Wireshark::wiresharkProtocolObjName(WiresharkGenerator::wiresharkCast(genGenerator()))},
+        {"PROTO_NAME", Wireshark::wiresharkProtocolObjName(wiresharkGenerator)},
         {"FRAME_NAME", util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName())},
         {"LIST_NAME", wiresharkLayerFuncsListNameInternal()},
         {"NIL", strings::genNilStr()},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+        {"NOT_ENOUGH_DATA", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::NotEnoughData)},
     };
 
     return util::genProcessTemplate(Templ, repl);
