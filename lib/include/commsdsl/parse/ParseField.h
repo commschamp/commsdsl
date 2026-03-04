@@ -74,6 +74,7 @@ public:
     ParseSemanticType parseSemanticType() const;
     std::size_t parseMinLength() const;
     std::size_t parseMaxLength() const;
+    static std::size_t parseMaxPossibleLength();
     std::size_t parseBitLength() const;
     unsigned parseSinceVersion() const;
     unsigned parseDeprecatedSince() const;

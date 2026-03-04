@@ -289,9 +289,46 @@ std::string WiresharkField::wiresharkTvbRangeAccessImpl() const
     return strings::genEmptyString();
 }
 
+std::string WiresharkField::wiresharkDissectLengthCheckImpl() const
+{
+    static const std::string Templ =
+        "#^#MIN#$#\n"
+        "#^#MAX#$#\n"
+        ;
+
+    static const std::string LenTempl =
+        "if offset_limit < (offset + #^#LEN#$#) then\n"
+        "    return #^#ERROR#$#, offset\n"
+        "end\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    util::GenReplacementMap repl = {
+        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::NotEnoughData)},
+    };
+
+    auto parseObj = m_genField.genParseObj();
+    if (0 < parseObj.parseMinLength()) {
+        auto minRepl = repl;
+        minRepl["LEN"] = std::to_string(parseObj.parseMinLength());
+        repl["MIN"] = util::genProcessTemplate(LenTempl, minRepl);
+    }
+
+    if ((parseObj.parseMaxLength() != commsdsl::parse::ParseField::parseMaxPossibleLength()) &&
+        (parseObj.parseMaxLength() != parseObj.parseMinLength())) {
+        auto maxRepl = repl;
+        maxRepl["LEN"] = std::to_string(parseObj.parseMaxLength());
+        repl["MAX"] = util::genProcessTemplate(LenTempl, maxRepl);
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
 std::string WiresharkField::wiresharkDissectBodyImpl() const
 {
-    return strings::genEmptyString();
+    // TODO
+    return "-- TODO: not implemented";
+    //return strings::genEmptyString();
 }
 
 std::string WiresharkField::wiresharkFieldRefName(const WiresharkField* refField) const
@@ -520,9 +557,11 @@ std::string WiresharkField::wiresharkDissectBodyInternal(const WiresharkField* r
 {
     static const std::string Templ =
         "field = field or #^#FIELD#$#\n"
+        "#^#LENGTH#$#\n"
         "local result = #^#ERROR#$#\n"
         "local next_offset = offset\n"
         "#^#REST#$#\n"
+        "#^#VALID#$#\n"
         "return result, next_offset\n"
         ;
 
@@ -531,6 +570,8 @@ std::string WiresharkField::wiresharkDissectBodyInternal(const WiresharkField* r
         {"FIELD", wiresharkFieldObjName(refField)},
         {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::InvalidMsgData)},
         {"REST", wiresharkDissectBodyImpl()},
+        {"LENGTH", wiresharkDissectLengthCheckImpl()},
+        {"VALID", wiresharkDissectValidCheckInternal()},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -561,6 +602,17 @@ std::string WiresharkField::wiresharkCustomNameCodeInternal(bool& hasRealCode) c
     auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
     //m_genField.genGenerator().genLogger().genDebug("Looking for \"" + replaceFileName + "\" to replace name functionality");
     return wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace name value", &hasRealCode);
+}
+
+std::string WiresharkField::wiresharkDissectValidCheckInternal() const
+{
+    auto parseObj = m_genField.genParseObj();
+    if (!parseObj.parseIsFailOnInvalid()) {
+        return strings::genEmptyString();
+    }
+
+    // TODO:
+    return "-- TODO: implement validity check";
 }
 
 } // namespace commsdsl2wireshark

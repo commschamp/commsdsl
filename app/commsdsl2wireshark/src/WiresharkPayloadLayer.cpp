@@ -54,7 +54,7 @@ std::string WiresharkPayloadLayer::wiresharkDissectBodyImpl() const
         "    end\n"
         "\n"
         "    -- Do not show partially dissected malformed data\n"
-        "    data_subtree.set_hidden(true)\n"
+        "    data_subtree:set_hidden(true)\n"
         "end\n"
         "tree:add_expert_info(PI_MALFORMED, PI_WARN, \"Invalid message data\")\n"
         "result, next_offset = #^#SUCCESS#$#, offset_limit\n"
@@ -72,7 +72,7 @@ std::string WiresharkPayloadLayer::wiresharkDissectBodyImpl() const
 std::string WiresharkPayloadLayer::wiresharkExtraDissectCodeImpl() const
 {
     static const std::string Templ =
-        "local #^#NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bytes(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.SPACE, #^#DESC#$#))\n"
+        "local #^#NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bytes(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", base.SPACE, #^#DESC#$#))\n"
         ;
 
     auto parseObj = genParseObj();

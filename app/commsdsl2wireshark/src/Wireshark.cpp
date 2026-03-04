@@ -199,13 +199,14 @@ std::string Wireshark::wiresharkDissectFuncBodyInternal() const
         auto& wiresharkFrame = WiresharkFrame::wiresharkCast(*f);
         static const std::string FrameTempl =
             "result, next_offset = #^#NAME#$#(tvb, tree)\n"
-            "if result then\n"
+            "if result ~= #^#SUCCESS#$# then\n"
             "    break\n"
             "end\n"
         ;
 
         util::GenReplacementMap frameRepl = {
-            {"NAME", wiresharkFrame.wiresharkDissectName()}
+            {"NAME", wiresharkFrame.wiresharkDissectName()},
+            {"SUCCESS", wiresharkStatusCodeStr(m_wiresharkGenerator, StatusCode::Success)},
         };
 
         elems.push_back(util::genProcessTemplate(FrameTempl, frameRepl));

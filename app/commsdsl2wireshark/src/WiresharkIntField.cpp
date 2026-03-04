@@ -166,6 +166,47 @@ std::string WiresharkIntField::wiresharkTvbRangeAccessImpl() const
     return wiresharkTvbRangeAccessIntegralValue(obj.parseType(), obj.parseEndian(), obj.parseMaxLength());
 }
 
+std::string WiresharkIntField::wiresharkDissectLengthCheckImpl() const
+{
+    auto parseObj = genIntFieldParseObj();
+
+    if (parseObj.parseAvailableLengthLimit()) {
+        static const std::string Templ =
+            "if offset == offset_limit then"
+            "    return #^#ERROR#$#, offset\n"
+            "end"
+            ;
+
+        auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+        util::GenReplacementMap repl = {
+            {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::NotEnoughData)},
+        };
+
+        return util::genProcessTemplate(Templ, repl);
+    }
+
+    return WiresharkBase::wiresharkDissectLengthCheckImpl();
+}
+
+std::string WiresharkIntField::wiresharkDissectBodyImpl() const
+{
+    static const std::string Templ =
+        "local len = math.min(#^#LEN#$#, offset_limit - offset)\n"
+        "tree:add(field, tvb(offset, len)#^#COMMA#$##^#VAL#$#)\n"
+        "result = #^#SUCCESS#$#\n"
+        "next_offset = offset + len\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    auto parseObj = genParseObj();
+    util::GenReplacementMap repl = {
+        {"LEN", std::to_string(parseObj.parseMaxLength())},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
 std::string WiresharkIntField::wiresharkSpecialsInternal(const WiresharkField* refField) const
 {
     auto& specials = genSpecialsSortedByValue();

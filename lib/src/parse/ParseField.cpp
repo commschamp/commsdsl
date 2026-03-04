@@ -16,6 +16,7 @@
 #include "commsdsl/parse/ParseField.h"
 
 #include "ParseFieldImpl.h"
+#include "parse_common.h"
 
 #include <cassert>
 
@@ -79,6 +80,11 @@ std::size_t ParseField::parseMaxLength() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->parseMaxLength();
+}
+
+std::size_t ParseField::parseMaxPossibleLength()
+{
+    return common::parseMaxPossibleLength();
 }
 
 std::size_t ParseField::parseBitLength() const
