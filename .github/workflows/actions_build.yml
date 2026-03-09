@@ -54,7 +54,8 @@ jobs:
       run: |
         sudo apt install libqt${{matrix.qt_ver}}gui${{matrix.qt_ver}} qtbase5-dev qt6-base-dev libxml2-dev doxygen gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} \
         python3 libpython3-dev swig default-jdk default-jre emscripten nodejs \
-        texlive-base texlive-latex-base texlive-latex-recommended texlive-plain-generic tex4ht
+        texlive-base texlive-latex-base texlive-latex-recommended texlive-plain-generic tex4ht \
+        tshark
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
@@ -175,7 +176,7 @@ jobs:
     - name: Install Packages
       run: |
         sudo apt install libqt${{matrix.qt_ver}}gui${{matrix.qt_ver}} qtbase5-dev qt6-base-dev libxml2-dev clang-${{matrix.cc_ver}} \
-        python3 libpython3-dev swig default-jdk default-jre emscripten nodejs
+        python3 libpython3-dev swig default-jdk default-jre emscripten nodejs tshark
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
@@ -261,7 +262,7 @@ jobs:
     - name: Install Packages
       run: |
         sudo apt install libqt${{matrix.qt_ver}}gui${{matrix.qt_ver}} qtbase5-dev qt6-base-dev libxml2-dev clang-${{matrix.cc_ver}} \
-        python3 libpython3-dev swig default-jdk default-jre emscripten nodejs
+        python3 libpython3-dev swig default-jdk default-jre emscripten nodejs tshark
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
@@ -424,7 +425,7 @@ jobs:
           -DCOMMSDSL_BUILD_UNIT_TESTS=ON ^
           -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}} ^
           -DCOMMSDSL_BUILD_COMMSDSL2SWIG_TESTS=OFF -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN_TESTS=OFF ^
-          -DCOMMSDSL_BUILD_COMMSDSL2LATEX_TESTS=OFF
+          -DCOMMSDSL_BUILD_COMMSDSL2LATEX_TESTS=OFF -DCOMMSDSL_BUILD_COMMSDSL2WIRESHARK_TESTS=OFF
 
       env:
         TOOLS_CXX_STANDARD: "${{ matrix.cpp >= 17 && matrix.cpp || '17' }}"
@@ -500,7 +501,7 @@ jobs:
           -DCOMMSDSL_BUILD_UNIT_TESTS=ON ^
           -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}} ^
           -DCOMMSDSL_BUILD_COMMSDSL2SWIG_TESTS=OFF -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN_TESTS=OFF ^
-          -DCOMMSDSL_BUILD_COMMSDSL2LATEX_TESTS=OFF
+          -DCOMMSDSL_BUILD_COMMSDSL2LATEX_TESTS=OFF -DCOMMSDSL_BUILD_COMMSDSL2WIRESHARK_TESTS=OFF
 
       env:
         TOOLS_CXX_STANDARD: "${{ matrix.cpp >= 17 && matrix.cpp || '17' }}"

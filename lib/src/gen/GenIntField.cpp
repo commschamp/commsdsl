@@ -92,6 +92,17 @@ bool GenIntField::genIsUnsignedType(ParseIntField::ParseType value)
     return iter != std::end(Map);
 }
 
+bool GenIntField::genIsVarLengthType(ParseIntField::ParseType value)
+{
+    static const ParseIntField::ParseType Map[] = {
+        ParseIntField::ParseType::Intvar,
+        ParseIntField::ParseType::Uintvar,
+    };
+
+    auto iter = std::find(std::begin(Map), std::end(Map), value);
+    return iter != std::end(Map);
+}
+
 bool GenIntField::genIsUnsignedType() const
 {
     return genIsUnsignedType(genIntFieldParseObj().parseType());

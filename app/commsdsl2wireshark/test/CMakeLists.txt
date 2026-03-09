@@ -11,6 +11,12 @@ add_custom_target(${APP_NAME}.all_tests
 
 include(ExternalProject)
 
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+find_program(TSHARK_EXECUTABLE tshark)
+if (NOT TSHARK_EXECUTABLE)
+    message (WARNING "Failed to find tshark, cannot really test wireshark plugins")
+endif ()
+
 foreach (name ${tests})
     set (test_dir "${tests_path}/${name}")
     file (GLOB schema_files ${test_dir}/Schema*.xml)
@@ -33,6 +39,7 @@ foreach (name ${tests})
     add_custom_target(${output_tgt} ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
         COMMAND $<TARGET_FILE:${APP_NAME}> -s -d --warn-as-err --code-inject-comments ${code_input_param} ${extra_params} -o ${output_dir}.tmp ${schema_files}
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/common_test.lua ${output_dir}.tmp/
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="."
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
@@ -44,43 +51,38 @@ foreach (name ${tests})
 
     add_dependencies(${APP_NAME}.all_tests ${output_tgt})
 
-    # set (build_tgt ${APP_NAME}.${name}_build_tgt)
-    # set (build_dir ${output_dir}_build)
-    # set (install_dir ${output_dir}_install)
+    if (NOT TSHARK_EXECUTABLE)
+        continue ()
+    endif ()
 
-    # execute_process (
-    #     COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
+    if ("${CMAKE_VERSION}" VERSION_GREATER_EQUAL 3.15)
+        set_target_properties(${output_tgt} PROPERTIES ADDITIONAL_CLEAN_FILES "${output_dir}.tmp;${output_dir}")
+    endif ()
 
-    # execute_process (
-    #     COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}")
+    if (NOT TARGET Python::Interpreter)
+        continue ()
+    endif ()
 
-    # execute_process (
-    #     COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/dummy.txt")
+    set (pcap_gen_script "${this_test_dir}/${name}.py")
+    if (NOT EXISTS "${pcap_gen_script}")
+        continue()
+    endif ()
 
-    # ExternalProject_Add(
-    #     ${build_tgt}
-    #     BUILD_ALWAYS TRUE
-    #     DEPENDS ${output_tgt}
-    #     SOURCE_DIR ${output_dir}
-    #     BINARY_DIR ${build_dir}
-    #     INSTALL_DIR ${install_dir}
-    #     CMAKE_GENERATOR ${CMAKE_GENERATOR}
-    #     CMAKE_GENERATOR_PLATFORM ${CMAKE_GENERATOR_PLATFORM}
-    #     CMAKE_GENERATOR_TOOLSET ${CMAKE_GENERATOR_TOOLSET}
-    #     LIST_SEPARATOR |
-    #     CMAKE_ARGS
-    #         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-    #         -DCMAKE_INSTALL_PREFIX=${install_dir}
-    #         -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
-    #         -DOPT_WARN_AS_ERR=ON
-    #     BUILD_COMMAND
-    #         ${CMAKE_COMMAND} --build ${build_dir} --config ${CMAKE_BUILD_TYPE} --target all_artifacts
-    #     INSTALL_COMMAND
-    #         ${CMAKE_COMMAND} -E echo "No install for documentation build"
-    # )
+    set (pcap_tgt ${APP_NAME}.${name}_pcap_tgt)
+    set (pcap_output_dir "${CMAKE_CURRENT_BINARY_DIR}/${name}_pcap")
+    set (pcap_output ${pcap_output_dir}/${name}.pcap)
+    add_custom_target(${pcap_tgt} ALL
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${pcap_output_dir}
+        COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:$ENV{PYTHONPATH}"
+            ${Python3_EXECUTABLE} -B ${pcap_gen_script} ${pcap_output}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        DEPENDS ${output_tgt} ${pcap_gen_script})
 
-    # add_dependencies(${APP_NAME}.all_tests ${build_tgt})
+    add_dependencies(${APP_NAME}.all_tests ${pcap_tgt})
 
-    # execute_process (
-    #     COMMAND ${CMAKE_COMMAND} -E rm -f "${output_dir}/dummy.txt")
+    add_test(
+        NAME ${APP_NAME}.${name}
+        COMMAND ${TSHARK_EXECUTABLE} -r ${pcap_output} -X lua_script:common_test.lua -V
+        WORKING_DIRECTORY ${output_dir}
+    )
 endforeach ()

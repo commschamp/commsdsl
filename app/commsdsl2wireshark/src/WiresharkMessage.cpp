@@ -130,8 +130,8 @@ std::string WiresharkMessage::wiresharkDissectBodyInternal() const
     static const std::string Templ =
         "local result = #^#SUCCESS#$#\n"
         "local next_offset = offset\n"
+        "tree = tree:add(#^#PROTO#$#, #^#NAME#$#)\n"
         "#^#FIELDS#$#\n"
-        "tree:append_text(#^#NAME#$#)\n"
         "return result, next_offset\n"
         ;
 
@@ -139,6 +139,7 @@ std::string WiresharkMessage::wiresharkDissectBodyInternal() const
         {"NAME", wiresharkMessageNameVarNameStr()},
         {"FIELDS", util::genStrListToString(fields, "\n", "")},
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+        {"PROTO", Wireshark::wiresharkProtocolObjName(wiresharkGenerator)},
     };
 
     return util::genProcessTemplate(Templ, repl);

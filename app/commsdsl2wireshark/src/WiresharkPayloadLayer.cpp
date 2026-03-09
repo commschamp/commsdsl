@@ -49,6 +49,7 @@ std::string WiresharkPayloadLayer::wiresharkDissectBodyImpl() const
         "for _, f in ipairs(msg) do\n"
         "    local data_subtree = tree:add(#^#FIELD#$#, tvb(offset, offset_limit - offset))\n"
         "    result, next_offset = f(tvb, data_subtree, offset, offset_limit)\n"
+        "    data_subtree:set_len(next_offset - offset)\n"
         "    if result == #^#SUCCESS#$# then\n"
         "        return result, next_offset\n"
         "    end\n"

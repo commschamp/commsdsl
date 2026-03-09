@@ -291,12 +291,12 @@ std::string WiresharkField::wiresharkTvbRangeAccessImpl() const
 
 std::string WiresharkField::wiresharkDissectLengthCheckImpl() const
 {
-    static const std::string Templ =
-        "#^#MIN#$#\n"
-        "#^#MAX#$#\n"
-        ;
+    auto parseObj = m_genField.genParseObj();
+    if (parseObj.parseMinLength() == 0) {
+        return strings::genEmptyString();
+    }
 
-    static const std::string LenTempl =
+    static const std::string Templ =
         "if offset_limit < (offset + #^#LEN#$#) then\n"
         "    return #^#ERROR#$#, offset\n"
         "end\n"
@@ -305,21 +305,8 @@ std::string WiresharkField::wiresharkDissectLengthCheckImpl() const
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
     util::GenReplacementMap repl = {
         {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::NotEnoughData)},
+        {"LEN", std::to_string(parseObj.parseMinLength())},
     };
-
-    auto parseObj = m_genField.genParseObj();
-    if (0 < parseObj.parseMinLength()) {
-        auto minRepl = repl;
-        minRepl["LEN"] = std::to_string(parseObj.parseMinLength());
-        repl["MIN"] = util::genProcessTemplate(LenTempl, minRepl);
-    }
-
-    if ((parseObj.parseMaxLength() != commsdsl::parse::ParseField::parseMaxPossibleLength()) &&
-        (parseObj.parseMaxLength() != parseObj.parseMinLength())) {
-        auto maxRepl = repl;
-        maxRepl["LEN"] = std::to_string(parseObj.parseMaxLength());
-        repl["MAX"] = util::genProcessTemplate(LenTempl, maxRepl);
-    }
 
     return util::genProcessTemplate(Templ, repl);
 }

@@ -49,6 +49,10 @@ protected:
 
 private:
     std::string wiresharkSpecialsInternal(const WiresharkField* refField) const;
+    std::string wiresharkVarLengthCodeInternal() const;
+    std::string wiresharkVarLengthCodeLargeNumInternal() const;
+    std::string wiresharkVarLengthCodeLittleEndianInternal() const;
+    std::string wiresharkVarLengthCodeBigEndianInternal() const;
 };
 
 } // namespace commsdsl2wireshark

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.10)
+cmake_minimum_required (VERSION 3.15)
 project ("commsdsl")
 
 option (COMMSDSL_WARN_AS_ERR "Treat warning as error" ON)

@@ -46,6 +46,7 @@ public:
     virtual ~GenIntField();
 
     static bool genIsUnsignedType(ParseIntField::ParseType value);
+    static bool genIsVarLengthType(ParseIntField::ParseType value);
     bool genIsUnsignedType() const;
 
     const GenSpecialsList& genSpecialsSortedByValue() const;

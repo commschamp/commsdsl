@@ -129,7 +129,7 @@ std::string WiresharkIntField::wiresharkFieldRegistrationImpl(const WiresharkFie
 {
     static const std::string Templ =
         "#^#SPECIALS#$#\n"
-        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.DEC_HEX, #^#SPECIALS_NAME#$#, #^#MASK#$#, #^#DESC#$#))\n"
+        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, #^#BASE#$#\n, #^#SPECIALS_NAME#$#, #^#MASK#$#, #^#DESC#$#))\n"
     ;
 
     auto obj = genIntFieldParseObj();
@@ -143,6 +143,7 @@ std::string WiresharkIntField::wiresharkFieldRegistrationImpl(const WiresharkFie
         {"SPECIALS_NAME", strings::genNilStr()},
         {"MASK", wiresharkForcedIntegralFieldMask(refField)},
         {"DESC", wiresharkFieldDescriptionStr(refField)},
+        {"BASE", "base.DEC_HEX"},
     };
 
     if (!repl["SPECIALS"].empty()) {
@@ -154,6 +155,11 @@ std::string WiresharkIntField::wiresharkFieldRegistrationImpl(const WiresharkFie
     }
     else if (!genIsUnsignedType() && (repl["TYPE"].front() == 'u')) {
         repl["TYPE"] = repl["TYPE"].substr(1U);
+    }
+
+    if (obj.parseMinLength() == 3U) {
+        // Cannot display hex value
+        repl["BASE"] = "base.DEC";
     }
 
     assert(!repl["TYPE"].empty());
@@ -192,17 +198,30 @@ std::string WiresharkIntField::wiresharkDissectBodyImpl() const
 {
     static const std::string Templ =
         "local len = math.min(#^#LEN#$#, offset_limit - offset)\n"
-        "tree:add(field, tvb(offset, len)#^#COMMA#$##^#VAL#$#)\n"
+        "#^#VAL_DECL#$#\n"
+        "#^#VAR_LEN#$#\n"
+        "#^#SCALING#$#\n"
+        "tree:add#^#SUFFIX#$#(field, tvb(offset, len)#^#VAL#$#)\n"
         "result = #^#SUCCESS#$#\n"
         "next_offset = offset + len\n"
         ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
-    auto parseObj = genParseObj();
+    auto parseObj = genIntFieldParseObj();
     util::GenReplacementMap repl = {
         {"LEN", std::to_string(parseObj.parseMaxLength())},
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+        {"VAR_LEN", wiresharkVarLengthCodeInternal()}
     };
+
+    if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
+        repl["SUFFIX"] = "_le";
+    }
+
+    if ((!repl["VAR_LEN"].empty()) || (!repl["SCALING"].empty())) {
+        repl["VAL_DECL"] = "local val = 0";
+        repl["VAL"] = ", val";
+    }
 
     return util::genProcessTemplate(Templ, repl);
 }
@@ -249,6 +268,64 @@ std::string WiresharkIntField::wiresharkSpecialsInternal(const WiresharkField* r
         {"NAME", wiresharkFieldObjName(refField)},
         {"SUFFIX",  strings::genValsSuffixStr()},
         {"ELEMS", util::genStrListToString(elems, ",\n", "")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkIntField::wiresharkVarLengthCodeInternal() const
+{
+    auto parseObj = genIntFieldParseObj();
+    auto type = parseObj.parseType();
+    if (!genIsVarLengthType(type)) {
+        return strings::genEmptyString();
+    }
+
+    if (sizeof(std::uint32_t) < parseObj.parseMaxLength()) {
+        return wiresharkVarLengthCodeLargeNumInternal();
+    }
+
+    if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
+        return wiresharkVarLengthCodeLittleEndianInternal();
+    }
+
+    return wiresharkVarLengthCodeBigEndianInternal();
+}
+
+std::string WiresharkIntField::wiresharkVarLengthCodeLargeNumInternal() const
+{
+    // TODO: Implement
+    assert(false);
+    return strings::genEmptyString();
+}
+
+std::string WiresharkIntField::wiresharkVarLengthCodeLittleEndianInternal() const
+{
+    // TODO: Implement
+    assert(false);
+    return strings::genEmptyString();
+}
+
+std::string WiresharkIntField::wiresharkVarLengthCodeBigEndianInternal() const
+{
+    static const std::string Templ =
+        "local has_more = true\n"
+        "while has_more and (next_offset < (offset + len)) do\n"
+        "    local b = tvb(next_offset, 1):uint()\n"
+        "    local data = bit32.band(b, 0x7F)\n"
+        "    has_more = (bit32.band(b, 0x80) ~= 0)\n"
+        "    val = bit32.bor(bit32.lshift(val, 7), data)\n"
+        "    next_offset = next_offset + 1\n"
+        "end\n"
+        "\n"
+        "if has_more then\n"
+        "    return #^#ERROR#$#, offset\n"
+        "end\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::MalformedPacket)},
     };
 
     return util::genProcessTemplate(Templ, repl);
