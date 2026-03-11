@@ -128,6 +128,8 @@ const std::string& genReadSuffixStr();
 const std::string& genValidSuffixStr();
 const std::string& genNameSuffixStr();
 const std::string& genNilStr();
+const std::string& genLittleEndianSuffixStr();
+const std::string& genLittleEndianPrefixStr();
 
 char genSiblingRefPrefix();
 char genStringRefPrefix();

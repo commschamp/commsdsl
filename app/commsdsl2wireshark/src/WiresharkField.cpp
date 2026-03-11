@@ -24,6 +24,7 @@
 #include "commsdsl/gen/util.h"
 #include "commsdsl/parse/ParseField.h"
 
+#include <algorithm>
 #include <cassert>
 #include <utility>
 
@@ -190,8 +191,14 @@ std::string WiresharkField::wiresharkDissectNameImpl(const WiresharkField* refFi
 
 std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refField) const
 {
-    if ((refField != nullptr) && comms::genIsGlobalField(m_genField) && (!m_genField.genIsReferenced())) {
+    if (comms::genIsGlobalField(m_genField) && (!m_genField.genIsReferenced())) {
         m_genField.genGenerator().genLogger().genDebug("Field " + m_genField.genParseObj().parseInnerRef() + " is not really referenced, skipping dissect code generation");
+        return strings::genEmptyString();
+    }
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    auto parseObj = m_genField.genParseObj();
+    if (!wiresharkGenerator.genDoesElementExist(parseObj.parseSinceVersion(), parseObj.parseDeprecatedSince(), parseObj.parseIsDeprecatedRemoved())) {
         return strings::genEmptyString();
     }
 
@@ -215,7 +222,6 @@ std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refFi
         "#^#EXTEND#$#\n"
         ;
 
-    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
     auto relPath = wiresharkGenerator.wiresharkInputDissectRelPathFor(*genField);
     auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
     auto prependFileName = relPath + strings::genPrependFileSuffixStr();
@@ -455,6 +461,14 @@ const std::string& WiresharkField::wiresharkDissectSignature()
     return Str;
 }
 
+std::string WiresharkField::wiresharkHexString(std::uintmax_t val, unsigned hexWidth)
+{
+    auto str = util::genNumToString(val, hexWidth);
+    auto pos = str.find_first_of("UL");
+    str.resize(std::min(str.size(), pos));
+    return str;
+}
+
 bool WiresharkField::wiresharkCopyCodeFromInternal()
 {
     auto obj = m_genField.genParseObj();
@@ -549,7 +563,7 @@ std::string WiresharkField::wiresharkDissectBodyInternal(const WiresharkField* r
         "local next_offset = offset\n"
         "#^#REST#$#\n"
         "#^#VALID#$#\n"
-        "return result, next_offset\n"
+        "return result, next_offset"
         ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());

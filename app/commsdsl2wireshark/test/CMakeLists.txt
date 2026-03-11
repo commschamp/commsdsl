@@ -82,7 +82,7 @@ foreach (name ${tests})
 
     add_test(
         NAME ${APP_NAME}.${name}
-        COMMAND ${TSHARK_EXECUTABLE} -r ${pcap_output} -X lua_script:common_test.lua -V
+        COMMAND ${TSHARK_EXECUTABLE} -r ${pcap_output} -X lua_script:common_test.lua -O ${name}
         WORKING_DIRECTORY ${output_dir}
     )
 endforeach ()

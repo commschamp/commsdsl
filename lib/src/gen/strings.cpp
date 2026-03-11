@@ -631,6 +631,18 @@ const std::string& genNilStr()
     return Str;
 }
 
+const std::string& genLittleEndianSuffixStr()
+{
+    static const std::string Str("_le");
+    return Str;
+}
+
+const std::string& genLittleEndianPrefixStr()
+{
+    static const std::string Str("le_");
+    return Str;
+}
+
 char genSiblingRefPrefix()
 {
     return '$';

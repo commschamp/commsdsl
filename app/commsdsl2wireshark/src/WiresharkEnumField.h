@@ -38,9 +38,15 @@ protected:
     virtual bool genPrepareImpl() override;
     virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkTvbRangeAccessImpl() const override;
+    virtual std::string wiresharkDissectBodyImpl() const override;
 
 private:
     std::string wiresharkValsInternal(const WiresharkField* refField) const;
+    std::string wiresharkValDeclCodeInternal() const;
+    std::string wiresharkVarLengthCodeInternal(bool& hasVal) const;
+    std::string wiresharkVarLengthCodeLargeNumInternal() const;
+    std::string wiresharkVarLengthCodeLittleEndianInternal() const;
+    std::string wiresharkVarLengthCodeBigEndianInternal() const;
 };
 
 } // namespace commsdsl2wireshark

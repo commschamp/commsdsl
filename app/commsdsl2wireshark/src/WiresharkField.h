@@ -81,6 +81,7 @@ protected:
     std::string wiresharkFieldNameVarNameStr(const WiresharkField* refField) const;
     bool wiresharkHasOverrideCode() const;
     static const std::string& wiresharkDissectSignature();
+    static std::string wiresharkHexString(std::uintmax_t val, unsigned hexWidth);
 
 private:
     using WiresharkCustomCodeFunc = std::string (WiresharkField::*)(bool& hasCode) const;
