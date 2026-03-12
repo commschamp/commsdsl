@@ -1,3 +1,4 @@
+// Some private function
 bool someFuncPrivate() const
 {
     return true;

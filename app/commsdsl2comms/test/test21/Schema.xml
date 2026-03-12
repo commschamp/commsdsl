@@ -8,7 +8,8 @@
         <int name="I1" type="uint32" />
         <ref name="R1" field="I1" />
 
-        <int name="I2" type="uint16" defaultValue="5" />
+        <int name="I2" type="uint16" defaultValue="5" copyCodeFrom="I1" />
+
         <enum name="E1" type="uint8">
             <validValue name="V0" val="0" />
             <validValue name="V1" val="1" />
