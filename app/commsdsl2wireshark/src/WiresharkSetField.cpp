@@ -67,8 +67,60 @@ std::string WiresharkSetField::wiresharkFieldRegistrationImpl(const WiresharkFie
     return util::genProcessTemplate(Templ, repl);
 }
 
+std::string WiresharkSetField::wiresharkDissectLengthCheckImpl() const
+{
+    auto parseObj = genSetFieldParseObj();
+
+    if (parseObj.parseAvailableLengthLimit()) {
+        return wiresharkEmptyBufferCheckCode();
+    }
+
+    return WiresharkBase::wiresharkDissectLengthCheckImpl();
+}
+
+std::string WiresharkSetField::wiresharkDissectBodyImpl() const
+{
+    static const std::string Templ =
+        "local len = math.min(#^#LEN#$#, offset_limit - offset)\n"
+        "#^#VAL_DECL#$#\n"
+        "#^#VAR_LEN#$#\n"
+        "local range = tvb(offset, len)\n"
+        "local bits_tree = tree:add#^#SUFFIX#$#(field, range#^#VAL#$#)\n"
+        "#^#BITS#$#\n"
+        "result = #^#SUCCESS#$#\n"
+        "next_offset = offset + len\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    auto parseObj = genEnumFieldParseObj();
+    bool hasVal = false;
+    util::GenReplacementMap repl = {
+        {"LEN", std::to_string(parseObj.parseMaxLength())},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+        {"VAR_LEN", wiresharkVarLengthCodeInternal(hasVal)},
+    };
+
+    if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
+        repl["SUFFIX"] = strings::genLittleEndianSuffixStr();
+    }
+
+    if (hasVal) {
+        repl["VAL_DECL"] = wiresharkValDeclCodeInternal();
+        repl["VAL"] = ", val";
+    }
+
+    // TODO: bits
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
 std::string WiresharkSetField::wiresharkBitsInternal(const WiresharkField* refField) const
 {
+    if ((refField != nullptr) && (!refField->wiresharkIsBitfieldMember())) {
+        // No need for bits info for non-bitfield member <ref> field.
+        return strings::genEmptyString();
+    }
+
     GenStringsList elems;
 
     auto parseObj = genSetFieldParseObj();

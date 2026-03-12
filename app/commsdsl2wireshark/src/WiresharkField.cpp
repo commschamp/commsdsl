@@ -174,6 +174,11 @@ std::string WiresharkField::wiresharkTvbRangeAccess() const
     return wiresharkTvbRangeAccessImpl();
 }
 
+bool WiresharkField::wiresharkIsBitfieldMember() const
+{
+    return wiresharkParentBitfieldInternal(*this) != nullptr;
+}
+
 std::string WiresharkField::wiresharkDissectNameImpl(const WiresharkField* refField) const
 {
     const auto* genField = &m_genField;
@@ -336,11 +341,6 @@ std::string WiresharkField::wiresharkFieldRefName(const WiresharkField* refField
     return Wireshark::wiresharkProtocolObjName(wiresharkGenerator) + '.' + util::genStrReplace(scope, "::", ".");
 }
 
-bool WiresharkField::wiresharkIsBitfieldMember() const
-{
-    return wiresharkParentBitfieldInternal(*this) != nullptr;
-}
-
 std::string WiresharkField::wiresharkForcedIntegralFieldMask(const WiresharkField* refField) const
 {
     if (refField == nullptr) {
@@ -467,6 +467,22 @@ std::string WiresharkField::wiresharkHexString(std::uintmax_t val, unsigned hexW
     auto pos = str.find_first_of("UL");
     str.resize(std::min(str.size(), pos));
     return str;
+}
+
+std::string WiresharkField::wiresharkEmptyBufferCheckCode() const
+{
+    static const std::string Templ =
+        "if offset == offset_limit then"
+        "    return #^#ERROR#$#, offset\n"
+        "end"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    util::GenReplacementMap repl = {
+        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::NotEnoughData)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool WiresharkField::wiresharkCopyCodeFromInternal()

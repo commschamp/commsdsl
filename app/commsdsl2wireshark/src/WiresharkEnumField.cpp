@@ -78,6 +78,17 @@ std::string WiresharkEnumField::wiresharkTvbRangeAccessImpl() const
     return WiresharkIntField::wiresharkTvbRangeAccessIntegralValue(obj.parseType(), obj.parseEndian(), obj.parseMaxLength());
 }
 
+std::string WiresharkEnumField::wiresharkDissectLengthCheckImpl() const
+{
+    auto parseObj = genEnumFieldParseObj();
+
+    if (parseObj.parseAvailableLengthLimit()) {
+        return wiresharkEmptyBufferCheckCode();
+    }
+
+    return WiresharkBase::wiresharkDissectLengthCheckImpl();
+}
+
 std::string WiresharkEnumField::wiresharkDissectBodyImpl() const
 {
     static const std::string Templ =

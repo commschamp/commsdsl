@@ -177,18 +177,7 @@ std::string WiresharkIntField::wiresharkDissectLengthCheckImpl() const
     auto parseObj = genIntFieldParseObj();
 
     if (parseObj.parseAvailableLengthLimit()) {
-        static const std::string Templ =
-            "if offset == offset_limit then"
-            "    return #^#ERROR#$#, offset\n"
-            "end"
-            ;
-
-        auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
-        util::GenReplacementMap repl = {
-            {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::NotEnoughData)},
-        };
-
-        return util::genProcessTemplate(Templ, repl);
+        return wiresharkEmptyBufferCheckCode();
     }
 
     return WiresharkBase::wiresharkDissectLengthCheckImpl();

@@ -59,6 +59,7 @@ public:
     bool wiresharkHasCustomNameCode(const WiresharkField* refField = nullptr) const;
 
     std::string wiresharkTvbRangeAccess() const;
+    bool wiresharkIsBitfieldMember() const;
 
 protected:
     virtual std::string wiresharkDissectNameImpl(const WiresharkField* refField) const;
@@ -71,7 +72,6 @@ protected:
     virtual std::string wiresharkDissectBodyImpl() const;
 
     std::string wiresharkFieldRefName(const WiresharkField* refField) const;
-    bool wiresharkIsBitfieldMember() const;
     std::string wiresharkForcedIntegralFieldMask(const WiresharkField* refField) const;
     std::string wiresharkForcedIntegralFieldType(const WiresharkField* refField) const;
     unsigned wiresharkForcedMaskShift(const WiresharkField* refField) const;
@@ -82,6 +82,7 @@ protected:
     bool wiresharkHasOverrideCode() const;
     static const std::string& wiresharkDissectSignature();
     static std::string wiresharkHexString(std::uintmax_t val, unsigned hexWidth);
+    std::string wiresharkEmptyBufferCheckCode() const;
 
 private:
     using WiresharkCustomCodeFunc = std::string (WiresharkField::*)(bool& hasCode) const;
