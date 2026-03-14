@@ -1,0 +1,6 @@
+
+/// @brief Some private function
+bool somePrivateFunc_I1()
+{
+    return true;
+}

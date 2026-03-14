@@ -24,6 +24,8 @@
         <int name="timestamp" type="uint32" />
     </interface>
 
+    <interface name="Interface3" reuse="Interface1" reuseCode="true" />
+
     <frame name="TestFrame1" >
         <sync name="Sync" field="Sync" />
         <size name="Size" field="Size" />

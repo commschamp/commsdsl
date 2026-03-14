@@ -120,4 +120,7 @@ void TestSuite::test4()
 {
     Msg1 msg;
     msg.pubFunc(); // Testing public function presence
+
+    Msg2 msg2;
+    msg2.pubFunc(); // Testing presense of copied public function presence
 }

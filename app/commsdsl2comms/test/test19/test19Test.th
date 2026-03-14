@@ -3,6 +3,7 @@
 #include "comms/iterator.h"
 #include "test19/Interface1.h"
 #include "test19/Interface2.h"
+#include "test19/Interface3.h"
 #include "test19/message/Msg1.h"
 #include "test19/frame/TestFrame1.h"
 #include "test19/frame/TestFrame2.h"
@@ -12,6 +13,7 @@ class TestSuite : public CxxTest::TestSuite
 public:
     void test1();
     void test2();
+    void test3();
 
     using Interface1 =
         test19::Interface1<
@@ -35,11 +37,23 @@ public:
             comms::option::app::RefreshInterface
         >;
 
+    using Interface3 =
+        test19::Interface3<
+            comms::option::app::IdInfoInterface,
+            comms::option::app::ReadIterator<const std::uint8_t*>,
+            comms::option::app::WriteIterator<std::uint8_t*>,
+            comms::option::app::LengthInfoInterface,
+            comms::option::app::ValidCheckInterface,
+            comms::option::app::NameInterface,
+            comms::option::app::RefreshInterface
+        >;
+
     using Frame1 = test19::frame::TestFrame1<Interface1>;
     using Frame2 = test19::frame::TestFrame2<Interface2>;
 
     TEST19_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(, _1, Interface1)
     TEST19_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(, _2, Interface2)
+    TEST19_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(, _3, Interface3)
 };
 
 void TestSuite::test1()
@@ -69,4 +83,13 @@ void TestSuite::test2()
     TS_ASSERT(msgPtr);
     TS_ASSERT_EQUALS(msgPtr->getId(), test19::MsgId_M1);
     TS_ASSERT_EQUALS(msgPtr->transportField_timestamp().value(), 0x01020304);
+}
+
+void TestSuite::test3()
+{
+    Msg1_1 msg1;
+    TS_ASSERT(msg1.somePublicFunc());
+    Msg1_3 msg2;
+    TS_ASSERT(msg2.somePublicFunc());
+    TS_ASSERT(msg2.someOtherPublicFunc());
 }
