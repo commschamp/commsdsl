@@ -63,7 +63,6 @@ private:
 
     struct CommsCustomCode
     {
-        std::string m_construct;
         std::string m_constructBody;
         std::string m_read;
         std::string m_write;
@@ -75,10 +74,8 @@ private:
         std::string m_public;
         std::string m_protected;
         std::string m_private;
-        std::string m_extend;
         std::string m_append;
 
-        bool m_hasConstruct = false;
         bool m_hasConstructBody = false;
         bool m_hasRead = false;
         bool m_hasWrite = false;
@@ -90,8 +87,16 @@ private:
         bool m_hasPublic = false;
         bool m_hasProtected = false;
         bool m_hasPrivate = false;
-        bool m_hasExtend = false;
         bool m_hasAppend = false;
+    };
+
+    struct CommsExtraCustomCode
+    {
+        std::string m_construct;
+        std::string m_extend;
+
+        bool m_hasConstruct = false;
+        bool m_hasExtend = false;
     };
 
     using CommsCustomCodeFunc = std::string (CommsMessage::*)(bool& hasCode) const;
@@ -153,6 +158,7 @@ private:
     commsdsl::gen::util::GenStringsList m_bundledRefreshCodes;
     std::string m_internalConstruct;
     CommsCustomCode m_customCode;
+    CommsExtraCustomCode m_extraCustomCode;
 };
 
 } // namespace commsdsl2comms

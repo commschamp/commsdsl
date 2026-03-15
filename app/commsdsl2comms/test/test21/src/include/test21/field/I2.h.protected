@@ -1,3 +1,4 @@
+// Some protected function
 bool someFuncProtected() const
 {
     return someFuncPrivate();

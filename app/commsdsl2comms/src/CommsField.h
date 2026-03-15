@@ -96,6 +96,17 @@ public:
 
     bool commsIsFieldCustomizable() const;
 
+    static void commsAppendCustomCode(
+        const std::string& code,
+        bool hasCode,
+        std::string& to,
+        bool& toHasCode);
+    static void commsAssignCustomCode(
+        const std::string& code,
+        bool hasCode,
+        std::string& to,
+        bool& toHasCode);
+
 protected:
     virtual CommsIncludesList commsCommonIncludesImpl() const;
     virtual std::string commsCommonCodeBaseClassImpl() const;
@@ -197,6 +208,7 @@ private:
         CommsCustomCodeFunc codeFunc,
         std::string& code,
         bool& hasCode);
+
     std::string commsCustomValueCodeInternal(bool& hasRealCode) const;
     std::string commsCustomReadCodeInternal(bool& hasRealCode) const;
     std::string commsCustomWriteCodeInternal(bool& hasRealCode) const;
