@@ -322,9 +322,10 @@ std::string WiresharkField::wiresharkDissectLengthCheckImpl() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkField::wiresharkDissectBodyImpl() const
+std::string WiresharkField::wiresharkDissectBodyImpl(const WiresharkField* refField) const
 {
     // TODO
+    static_cast<void>(refField);
     return "-- TODO: not implemented";
     //return strings::genEmptyString();
 }
@@ -586,7 +587,7 @@ std::string WiresharkField::wiresharkDissectBodyInternal(const WiresharkField* r
     util::GenReplacementMap repl = {
         {"FIELD", wiresharkFieldObjName(refField)},
         {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::InvalidMsgData)},
-        {"REST", wiresharkDissectBodyImpl()},
+        {"REST", wiresharkDissectBodyImpl(refField)},
         {"LENGTH", wiresharkDissectLengthCheckImpl()},
         {"VALID", wiresharkDissectValidCheckInternal()},
     };

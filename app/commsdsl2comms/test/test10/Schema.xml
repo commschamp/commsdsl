@@ -5,9 +5,15 @@
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
             <validValue name="M3" val="3" />
+            <validValue name="M4" val="4" />
         </enum>
 
         <int name="I1" type="uint8" />
+        <set name="S1" length="1">
+            <bit name="B0" idx="0" />
+            <bit name="B1" idx="1" />
+        </set>
+
         <bitfield name="B1">
             <int name="m1" reuse="I1" bitLength="3" validRange="[0,5]" />
             <int name="m2" type="uint8" bitLength="5" />
@@ -51,6 +57,13 @@
 
     <message name="Msg3" id="MsgId.M3">
         <ref name="f1" field="B2" failOnInvalid="true" />
+    </message>
+
+    <message name="Msg4" id="MsgId.M4">
+        <bitfield name="F1">
+            <ref field="I1" name="M1" bitLength="4" />
+            <ref field="S1" name="M2" bitLength="4" />
+        </bitfield>
     </message>
 
     <frame name="Frame">

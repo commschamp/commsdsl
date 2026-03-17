@@ -70,7 +70,6 @@ private:
         bool m_hasAppend = false;
     };
 
-
     struct CommsExtraCustomCode
     {
         std::string m_construct;

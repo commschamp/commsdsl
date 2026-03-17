@@ -492,7 +492,6 @@ bool CommsField::commsIsFieldCustomizable() const
     return commsIsLimitedCustomizableImpl();
 }
 
-
 void CommsField::commsAppendCustomCode(
     const std::string& code,
     bool hasCode,

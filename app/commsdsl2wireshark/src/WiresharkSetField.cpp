@@ -78,39 +78,42 @@ std::string WiresharkSetField::wiresharkDissectLengthCheckImpl() const
     return WiresharkBase::wiresharkDissectLengthCheckImpl();
 }
 
-std::string WiresharkSetField::wiresharkDissectBodyImpl() const
+std::string WiresharkSetField::wiresharkDissectBodyImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
         "local len = math.min(#^#LEN#$#, offset_limit - offset)\n"
-        "#^#VAL_DECL#$#\n"
-        "#^#VAR_LEN#$#\n"
         "local range = tvb(offset, len)\n"
-        "local bits_tree = tree:add#^#SUFFIX#$#(field, range#^#VAL#$#)\n"
+        "local bits_tree = tree:add#^#SUFFIX#$#(field, range)\n"
         "#^#BITS#$#\n"
         "result = #^#SUCCESS#$#\n"
         "next_offset = offset + len\n"
         ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
-    auto parseObj = genEnumFieldParseObj();
-    bool hasVal = false;
+    auto parseObj = genSetFieldParseObj();
     util::GenReplacementMap repl = {
         {"LEN", std::to_string(parseObj.parseMaxLength())},
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
-        {"VAR_LEN", wiresharkVarLengthCodeInternal(hasVal)},
     };
 
     if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
         repl["SUFFIX"] = strings::genLittleEndianSuffixStr();
     }
 
-    if (hasVal) {
-        repl["VAL_DECL"] = wiresharkValDeclCodeInternal();
-        repl["VAL"] = ", val";
+    util::GenStringsList elems;
+    auto& revBits = parseObj.parseRevBits();
+
+    for (auto& b : revBits) {
+        static const std::string BitTempl =
+            "bits_tree:add#^#SUFFIX#$#(#^#FIELD#$#, range)"
+            ;
+
+        util::GenReplacementMap bitRepl = repl;
+        bitRepl["FIELD"] = wiresharkBitObjName(refField, b.second);
+        elems.push_back(util::genProcessTemplate(BitTempl, bitRepl));
     }
 
-    // TODO: bits
-
+    repl["BITS"] = util::genStrListToString(elems, "\n", "");
     return util::genProcessTemplate(Templ, repl);
 }
 

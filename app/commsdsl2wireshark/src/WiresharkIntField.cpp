@@ -183,7 +183,7 @@ std::string WiresharkIntField::wiresharkDissectLengthCheckImpl() const
     return WiresharkBase::wiresharkDissectLengthCheckImpl();
 }
 
-std::string WiresharkIntField::wiresharkDissectBodyImpl() const
+std::string WiresharkIntField::wiresharkDissectBodyImpl([[maybe_unused]] const WiresharkField* refField) const
 {
     static const std::string Templ =
         "local len = math.min(#^#LEN#$#, offset_limit - offset)\n"

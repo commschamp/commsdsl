@@ -39,7 +39,7 @@ protected:
     virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkTvbRangeAccessImpl() const override;
     virtual std::string wiresharkDissectLengthCheckImpl() const override;
-    virtual std::string wiresharkDissectBodyImpl() const override;
+    virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const override;
 
 private:
     std::string wiresharkValsInternal(const WiresharkField* refField) const;

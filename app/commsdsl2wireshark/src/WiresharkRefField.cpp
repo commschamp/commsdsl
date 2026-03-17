@@ -124,7 +124,7 @@ std::string WiresharkRefField::wiresharkFieldRegistrationImpl(const WiresharkFie
     return m_wiresharkField->wiresharkFieldRegistration(refField);
 }
 
-std::string WiresharkRefField::wiresharkDissectBodyImpl() const
+std::string WiresharkRefField::wiresharkDissectBodyImpl([[maybe_unused]] const WiresharkField* refField) const
 {
     assert(!m_alias);
     assert(m_wiresharkField != nullptr);

@@ -50,90 +50,103 @@ bool WiresharkFloatField::genPrepareImpl()
 std::string WiresharkFloatField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
-        "#^#SPECIALS#$#\n"
-        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, #^#SPECIALS_NAME#$#, #^#DESC#$#))\n"
+        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, #^#UNIT_NAME#$#, #^#DESC#$#))\n"
     ;
 
     util::GenReplacementMap repl = {
-        {"SPECIALS", wiresharkSpecialsInternal(refField)},
         {"OBJ_NAME", wiresharkFieldObjName(refField)},
         {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
         {"TYPE", wiresharkFloatTypeInternal()},
         {"REF_NAME", wiresharkFieldRefName(refField)},
         {"DISP_NAME", wiresharkFieldNameVarNameStr(refField)},
-        {"SPECIALS_NAME", strings::genNilStr()},
+        {"UNIT_NAME", wiresharkUnitNameInternal()},
         {"DESC", wiresharkFieldDescriptionStr(refField)},
     };
-
-    if (!repl["SPECIALS"].empty()) {
-        repl["SPECIALS_NAME"] = repl["OBJ_NAME"] + strings::genValsSuffixStr();
-    }
 
     assert(!repl["TYPE"].empty());
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkFloatField::wiresharkSpecialsInternal(const WiresharkField* refField) const
+std::string WiresharkFloatField::wiresharkDissectBodyImpl([[maybe_unused]] const WiresharkField* refField) const
 {
-    auto& specials = genSpecialsSortedByValue();
-    if (specials.empty()) {
-        return strings::genEmptyString();
-    }
-
-    util::GenStringsList elems;
-    for (auto& s : specials) {
-        if (std::isnan(s.second.m_value)) {
-            // Known limitation: the NaN comparing to NaN will return false, so it cannot really be found in map
-            continue;
-        }
-
-        if (!genGenerator().genDoesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
-            continue;
-        }
-
-        static const std::string Templ =
-            "[#^#VAL#$#] = \"#^#NAME#$#\"";
-
-        util::GenReplacementMap repl = {
-            {"NAME", util::genDisplayName(s.second.m_displayName, s.first)},
-            {"VAL", wiresharkSpecialValStrInternal(s.second.m_value)},
-        };
-
-        elems.push_back(util::genProcessTemplate(Templ, repl));
-    }
-
-    if (elems.empty()) {
-        return strings::genEmptyString();
-    }
-
     static const std::string Templ =
-        "local #^#NAME#$##^#SUFFIX#$# = {\n"
-        "    #^#ELEMS#$#\n"
-        "}\n"
-    ;
+        "tree:add#^#SUFFIX#$#(field, tvb(offset, #^#LEN#$#))\n"
+        "result = #^#SUCCESS#$#\n"
+        "next_offset = offset + #^#LEN#$#\n"
+        ;
 
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    auto parseObj = genFloatFieldParseObj();
     util::GenReplacementMap repl = {
-        {"NAME", wiresharkFieldObjName(refField)},
-        {"SUFFIX",  strings::genValsSuffixStr()},
-        {"ELEMS", util::genStrListToString(elems, ",\n", "")},
+        {"LEN", std::to_string(parseObj.parseMaxLength())},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
     };
+
+    if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
+        repl["SUFFIX"] = strings::genLittleEndianSuffixStr();
+    }
 
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkFloatField::wiresharkSpecialValStrInternal(double val) const
+std::string WiresharkFloatField::wiresharkUnitNameInternal() const
 {
-    assert(!std::isnan(val)); // Should be filtered out earlier
+    static const std::string Map[] = {
+        /* Unknown */ strings::genEmptyString(),
+        /* Nanoseconds */ "ns",
+        /* Microseconds */ "us",
+        /* Milliseconds */ "ms",
+        /* Seconds */ "s",
+        /* Minutes */ "min",
+        /* Hours */ "h",
+        /* Days */ "days",
+        /* Weeks */ "weeks",
+        /* Nanometers */ "nm",
+        /* Micrometers */ "um",
+        /* Millimeters */ "mm",
+        /* Centimeters */ "cm",
+        /* Meters */ "m",
+        /* Kilometers */ "km",
+        /* NanometersPerSecond */ "nm/s",
+        /* MicrometersPerSecond */ "um/s",
+        /* MillimetersPerSecond */ "mm/s",
+        /* CentimetersPerSecond */ "cm/s",
+        /* MetersPerSecond */ "m/s",
+        /* KilometersPerSecond */ "km/s",
+        /* KilometersPerHour */ "km/h",
+        /* Hertz */ "hz",
+        /* KiloHertz */ "khz",
+        /* MegaHertz */ "mhz",
+        /* GigaHertz */ "ghz",
+        /* Degrees */ "deg",
+        /* Radians */ "rad",
+        /* Nanoamps */ "namp",
+        /* Microamps */ "uamp",
+        /* Milliamps */ "mamp",
+        /* Amps */ "amp",
+        /* Kiloamps */ "kamp",
+        /* Nanovolts */ "nv",
+        /* Microvolts */ "uv",
+        /* Millivolts */ "mv",
+        /* Volts */ "v",
+        /* Kilovolts */ "kv",
+        /* Bytes */ "b",
+        /* Kilobytes */ "kb",
+        /* Megabytes */ "mb",
+        /* Gigabytes */ "gb",
+        /* Terabytes */ "tb",
+    };
+    static const std::size_t MapSize = std::extent_v<decltype(Map)>;
+    static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::ParseUnits::NumOfValues));
 
-    if (!std::isinf(val)) {
-        return std::to_string(val);
+    auto parseObj = genFloatFieldParseObj();
+    auto idx = static_cast<unsigned>(parseObj.parseUnits());
+    assert (idx < MapSize);
+    if ((MapSize <= idx) || (Map[idx].empty())) {
+        return strings::genNilStr();
     }
 
-    if (val < 0) {
-        return "1/0";
-    }
-
-    return "-1/0";
+    return '\"' + Map[idx] + '\"';
 }
 
 const std::string& WiresharkFloatField::wiresharkFloatTypeInternal() const

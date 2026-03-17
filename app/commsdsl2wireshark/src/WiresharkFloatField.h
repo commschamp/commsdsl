@@ -41,10 +41,10 @@ protected:
     virtual bool genPrepareImpl() override;
 
     virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
+    virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const override;
 
 private:
-    std::string wiresharkSpecialsInternal(const WiresharkField* refField) const;
-    std::string wiresharkSpecialValStrInternal(double val) const;
+    std::string wiresharkUnitNameInternal() const;
     const std::string& wiresharkFloatTypeInternal() const;
 };
 

@@ -69,7 +69,7 @@ protected:
     virtual std::string wiresharkMembersDissectCodeImpl() const;
     virtual std::string wiresharkTvbRangeAccessImpl() const;
     virtual std::string wiresharkDissectLengthCheckImpl() const;
-    virtual std::string wiresharkDissectBodyImpl() const;
+    virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const;
 
     std::string wiresharkFieldRefName(const WiresharkField* refField) const;
     std::string wiresharkForcedIntegralFieldMask(const WiresharkField* refField) const;
