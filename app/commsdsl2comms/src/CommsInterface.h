@@ -1,6 +1,7 @@
 //
 // Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
 //
+// SPDX-License-Identifier: Apache-2.0
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,7 +70,6 @@ private:
         bool m_hasPrivate = false;
         bool m_hasAppend = false;
     };
-
 
     struct CommsExtraCustomCode
     {
