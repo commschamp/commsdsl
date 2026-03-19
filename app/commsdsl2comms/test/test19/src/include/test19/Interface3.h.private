@@ -1,0 +1,5 @@
+/// @brief Some private function
+bool someOtherPrivateFunc()
+{
+    return true;
+}

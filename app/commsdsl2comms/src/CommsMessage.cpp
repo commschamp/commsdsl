@@ -1,6 +1,7 @@
 //
 // Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
+// SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -253,14 +254,23 @@ bool CommsMessage::genPrepareImpl()
 
     auto& generator = genGenerator();
     auto inputCodePrefix = comms::genInputCodeRelPathFor(*this, generator);
-    m_customCode.m_construct = generator.genReadCodeInjectCode(inputCodePrefix + strings::genConstructFileSuffixStr(), "Replace default constructor", &m_customCode.m_hasConstruct);
-    m_customCode.m_constructBody = generator.genReadCodeInjectCode(inputCodePrefix + strings::genConstructBodyFileSuffixStr(), "Replace default constructor body only", &m_customCode.m_hasConstructBody);
-    m_customCode.m_inc = generator.genReadCodeInjectCode(inputCodePrefix + strings::genIncFileSuffixStr(), "Add includes", &m_customCode.m_hasInc);
-    m_customCode.m_public = generator.genReadCodeInjectCode(inputCodePrefix + strings::genPublicFileSuffixStr(), "Add extra public code", &m_customCode.m_hasPublic);
-    m_customCode.m_protected = generator.genReadCodeInjectCode(inputCodePrefix + strings::genProtectedFileSuffixStr(), "Add extra protected code", &m_customCode.m_hasProtected);
-    m_customCode.m_private = generator.genReadCodeInjectCode(inputCodePrefix + strings::genPrivateFileSuffixStr(), "Add extra private code", &m_customCode.m_hasPrivate);
-    m_customCode.m_extend = generator.genReadCodeInjectCode(inputCodePrefix + strings::genExtendFileSuffixStr(), "Extend class", &m_customCode.m_hasExtend);
-    m_customCode.m_append = generator.genReadCodeInjectCode(inputCodePrefix + strings::genAppendFileSuffixStr(), "Append here", &m_customCode.m_hasAppend);
+    CommsCustomCode customCodeTmp;
+    customCodeTmp.m_constructBody = generator.genReadCodeInjectCode(inputCodePrefix + strings::genConstructBodyFileSuffixStr(), "Replace default constructor body only", &customCodeTmp.m_hasConstructBody);
+    customCodeTmp.m_inc = generator.genReadCodeInjectCode(inputCodePrefix + strings::genIncFileSuffixStr(), "Add includes", &customCodeTmp.m_hasInc);
+    customCodeTmp.m_public = generator.genReadCodeInjectCode(inputCodePrefix + strings::genPublicFileSuffixStr(), "Add extra public code", &customCodeTmp.m_hasPublic);
+    customCodeTmp.m_protected = generator.genReadCodeInjectCode(inputCodePrefix + strings::genProtectedFileSuffixStr(), "Add extra protected code", &customCodeTmp.m_hasProtected);
+    customCodeTmp.m_private = generator.genReadCodeInjectCode(inputCodePrefix + strings::genPrivateFileSuffixStr(), "Add extra private code", &customCodeTmp.m_hasPrivate);
+    customCodeTmp.m_append = generator.genReadCodeInjectCode(inputCodePrefix + strings::genAppendFileSuffixStr(), "Append here", &customCodeTmp.m_hasAppend);
+
+    CommsField::commsAssignCustomCode(customCodeTmp.m_constructBody, customCodeTmp.m_hasConstructBody, m_customCode.m_constructBody, m_customCode.m_hasConstructBody);
+    CommsField::commsAppendCustomCode(customCodeTmp.m_inc, customCodeTmp.m_hasInc, m_customCode.m_inc, m_customCode.m_hasInc);
+    CommsField::commsAppendCustomCode(customCodeTmp.m_public, customCodeTmp.m_hasPublic, m_customCode.m_public, m_customCode.m_hasPublic);
+    CommsField::commsAppendCustomCode(customCodeTmp.m_protected, customCodeTmp.m_hasProtected, m_customCode.m_protected, m_customCode.m_hasProtected);
+    CommsField::commsAppendCustomCode(customCodeTmp.m_private, customCodeTmp.m_hasPrivate, m_customCode.m_private, m_customCode.m_hasPrivate);
+    CommsField::commsAppendCustomCode(customCodeTmp.m_append, customCodeTmp.m_hasAppend, m_customCode.m_append, m_customCode.m_hasAppend);
+
+    m_extraCustomCode.m_construct = generator.genReadCodeInjectCode(inputCodePrefix + strings::genConstructFileSuffixStr(), "Replace default constructor", &m_extraCustomCode.m_hasConstruct);
+    m_extraCustomCode.m_extend = generator.genReadCodeInjectCode(inputCodePrefix + strings::genExtendFileSuffixStr(), "Extend class", &m_extraCustomCode.m_hasExtend);
 
     m_commsFields = CommsField::commsTransformFieldsList(genFields());
     m_bundledReadPrepareCodes.reserve(m_commsFields.size());
@@ -297,30 +307,12 @@ bool CommsMessage::commsCopyCodeFromInternal()
         return false;
     }
 
+    genGenerator().genLogger().genDebug(
+        "Copying code: " + origMsg->genName() + " -> " + genName());
+
     auto* commsMsg = dynamic_cast<CommsMessage*>(origMsg);
     assert(commsMsg != nullptr);
-    auto& otherCode = commsMsg->m_customCode;
-    auto copyCode =
-        [](const std::string& from, bool flag, std::string& to)
-        {
-            if (flag) {
-                to = from;
-            }
-        };
-
-    copyCode(otherCode.m_constructBody, otherCode.m_hasConstructBody, m_customCode.m_constructBody);
-    copyCode(otherCode.m_read, otherCode.m_hasRead, m_customCode.m_read);
-    copyCode(otherCode.m_write, otherCode.m_hasWrite, m_customCode.m_write);
-    copyCode(otherCode.m_refresh, otherCode.m_hasRefresh, m_customCode.m_refresh);
-    copyCode(otherCode.m_length, otherCode.m_hasLength, m_customCode.m_length);
-    copyCode(otherCode.m_valid, otherCode.m_hasValid, m_customCode.m_valid);
-    copyCode(otherCode.m_name, otherCode.m_hasName, m_customCode.m_name);
-    copyCode(otherCode.m_inc, otherCode.m_hasInc, m_customCode.m_inc);
-    copyCode(otherCode.m_public, otherCode.m_hasPublic, m_customCode.m_public);
-    copyCode(otherCode.m_protected, otherCode.m_hasProtected, m_customCode.m_protected);
-    copyCode(otherCode.m_private, otherCode.m_hasPrivate, m_customCode.m_private);
-    copyCode(otherCode.m_append, otherCode.m_hasAppend, m_customCode.m_append);
-    // .construct, .extend code is not copied on purpose
+    m_customCode = commsMsg->m_customCode;
     return true;
 }
 
@@ -729,11 +721,11 @@ bool CommsMessage::commsWriteDefInternal() const
         {"PUBLIC", commsDefPublicInternal()},
         {"PROTECTED", commsDefProtectedInternal()},
         {"PRIVATE", commsDefPrivateInternal()},
-        {"EXTEND", m_customCode.m_extend},
+        {"EXTEND", m_extraCustomCode.m_extend},
         {"APPEND", m_customCode.m_append}
     };
 
-    if (m_customCode.m_hasExtend) {
+    if (m_extraCustomCode.m_hasExtend) {
         repl["SUFFIX"] = strings::genOrigSuffixStr();
     }
 
@@ -835,8 +827,8 @@ std::string CommsMessage::commsDefIncludesInternal() const
 
 std::string CommsMessage::commsDefConstructInternal() const
 {
-    if (m_customCode.m_hasConstruct) {
-        return m_customCode.m_construct;
+    if (m_extraCustomCode.m_hasConstruct) {
+        return m_extraCustomCode.m_construct;
     }
 
     static const std::string Templ =
@@ -850,10 +842,10 @@ std::string CommsMessage::commsDefConstructInternal() const
         util::GenReplacementMap repl = {
             {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
             {"CODE", m_customCode.m_constructBody},
-            {"CUSTOM", m_customCode.m_construct},
+            {"CUSTOM", m_extraCustomCode.m_construct},
         };
 
-        if (m_customCode.m_hasExtend) {
+        if (m_extraCustomCode.m_hasExtend) {
             repl["SUFFIX"] = strings::genOrigSuffixStr();
         }
 
@@ -861,16 +853,16 @@ std::string CommsMessage::commsDefConstructInternal() const
     }
 
     if (m_internalConstruct.empty()) {
-        return m_customCode.m_construct + m_customCode.m_constructBody;
+        return m_extraCustomCode.m_construct + m_customCode.m_constructBody;
     }
 
     util::GenReplacementMap repl = {
         {"CLASS_NAME", comms::genClassName(genParseObj().parseName())},
         {"CODE", m_internalConstruct},
-        {"CUSTOM", m_customCode.m_construct + m_customCode.m_constructBody},
+        {"CUSTOM", m_extraCustomCode.m_construct + m_customCode.m_constructBody},
     };
 
-    if (m_customCode.m_hasExtend) {
+    if (m_extraCustomCode.m_hasExtend) {
         repl["SUFFIX"] = strings::genOrigSuffixStr();
     }
 
@@ -944,7 +936,7 @@ std::string CommsMessage::commsDefBaseClassInternal() const
         repl["COMMA"] = ",";
     }
 
-    if (m_customCode.m_hasExtend) {
+    if (m_extraCustomCode.m_hasExtend) {
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
@@ -1088,7 +1080,7 @@ std::string CommsMessage::commsDefPrivateInternal() const
     }
 
     bool hasPrivateConstruct =
-        (!m_internalConstruct.empty()) && (m_customCode.m_hasConstruct || m_customCode.m_hasConstructBody);
+        (!m_internalConstruct.empty()) && (m_extraCustomCode.m_hasConstruct || m_customCode.m_hasConstructBody);
 
     if (reads.empty() && refreshes.empty() && m_customCode.m_private.empty() && (!hasPrivateConstruct)) {
         return strings::genEmptyString();
@@ -1491,7 +1483,7 @@ std::string CommsMessage::commsDefPrivateConstructInternal() const
         return strings::genEmptyString();
     }
 
-    if (m_customCode.m_hasConstruct || m_customCode.m_hasConstructBody) {
+    if (m_extraCustomCode.m_hasConstruct || m_customCode.m_hasConstructBody) {
         // The construct code is already in the constructor
         return strings::genEmptyString();
     }

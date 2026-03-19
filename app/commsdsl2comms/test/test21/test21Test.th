@@ -66,6 +66,7 @@ void TestSuite::test1()
     Msg1 msg;
     TS_ASSERT(msg.field_f1().someFunc());
     TS_ASSERT(msg.field_f2().someFunc());
+    TS_ASSERT(msg.field_f2().somePublicFunc_I1());
     TS_ASSERT(msg.field_f3().someFunc());
     TS_ASSERT(msg.field_f4().someFunc());
     TS_ASSERT(msg.field_f5().someFunc());
@@ -119,4 +120,7 @@ void TestSuite::test4()
 {
     Msg1 msg;
     msg.pubFunc(); // Testing public function presence
+
+    Msg2 msg2;
+    msg2.pubFunc(); // Testing presense of copied public function presence
 }

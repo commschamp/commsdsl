@@ -1,6 +1,7 @@
 //
 // Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
+// SPDX-License-Identifier: Apache-2.0
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +27,7 @@
 #define COMMSDSL_MINOR_VERSION 0U
 
 /// @brief Patch level of the library
-#define COMMSDSL_PATCH_VERSION 0U
+#define COMMSDSL_PATCH_VERSION 1U
 
 /// @brief Macro to create numeric version as single unsigned number
 #define COMMSDSL_MAKE_VERSION(major_, minor_, patch_) \

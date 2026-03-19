@@ -1,6 +1,7 @@
 //
 // Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
+// SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -92,13 +93,13 @@ bool CommsField::commsPrepare()
     auto& obj = m_genField.genParseObj();
 
     bool overrides =
-        commsPrepareOverrideInternal(obj.parseValueOverride(), "value", &CommsField::commsCustomValueCodeInternal, m_customCode.m_value, &m_customCode.m_hasValue) &&
-        commsPrepareOverrideInternal(obj.parseReadOverride(), "read", &CommsField::commsCustomReadCodeInternal, m_customCode.m_read, &m_customCode.m_hasRead) &&
-        commsPrepareOverrideInternal(obj.parseWriteOverride(), "write", &CommsField::commsCustomWriteCodeInternal, m_customCode.m_write, &m_customCode.m_hasWrite) &&
-        commsPrepareOverrideInternal(obj.parseRefreshOverride(), "refresh", &CommsField::commsCustomRefreshCodeInternal, m_customCode.m_refresh, &m_customCode.m_hasRefresh) &&
-        commsPrepareOverrideInternal(obj.parseLengthOverride(), "length", &CommsField::commsCustomLengthCodeInternal, m_customCode.m_length, &m_customCode.m_hasLength) &&
-        commsPrepareOverrideInternal(obj.parseValidOverride(), "valid", &CommsField::commsCustomValidCodeInternal, m_customCode.m_valid, &m_customCode.m_hasValid) &&
-        commsPrepareOverrideInternal(obj.parseNameOverride(), "name", &CommsField::commsCustomNameCodeInternal, m_customCode.m_name, &m_customCode.m_hasName)
+        commsPrepareOverrideInternal(obj.parseValueOverride(), "value", &CommsField::commsCustomValueCodeInternal, m_customCode.m_value, m_customCode.m_hasValue) &&
+        commsPrepareOverrideInternal(obj.parseReadOverride(), "read", &CommsField::commsCustomReadCodeInternal, m_customCode.m_read, m_customCode.m_hasRead) &&
+        commsPrepareOverrideInternal(obj.parseWriteOverride(), "write", &CommsField::commsCustomWriteCodeInternal, m_customCode.m_write, m_customCode.m_hasWrite) &&
+        commsPrepareOverrideInternal(obj.parseRefreshOverride(), "refresh", &CommsField::commsCustomRefreshCodeInternal, m_customCode.m_refresh, m_customCode.m_hasRefresh) &&
+        commsPrepareOverrideInternal(obj.parseLengthOverride(), "length", &CommsField::commsCustomLengthCodeInternal, m_customCode.m_length, m_customCode.m_hasLength) &&
+        commsPrepareOverrideInternal(obj.parseValidOverride(), "valid", &CommsField::commsCustomValidCodeInternal, m_customCode.m_valid, m_customCode.m_hasValid) &&
+        commsPrepareOverrideInternal(obj.parseNameOverride(), "name", &CommsField::commsCustomNameCodeInternal, m_customCode.m_name, m_customCode.m_hasName)
         ;
 
     if (!overrides) {
@@ -107,12 +108,20 @@ bool CommsField::commsPrepare()
 
     auto& generator = m_genField.genGenerator();
     auto inputCodePrefix = comms::genInputCodeRelPathFor(m_genField, generator);
-    m_customCode.m_constructBody = generator.genReadCodeInjectCode(inputCodePrefix + strings::genConstructBodyFileSuffixStr(), "Replace default constructor body only", &m_customCode.m_hasConstructBody);
-    m_customCode.m_inc = generator.genReadCodeInjectCode(inputCodePrefix + strings::genIncFileSuffixStr(), "Add includes", &m_customCode.m_hasInc);
-    m_customCode.m_public = generator.genReadCodeInjectCode(inputCodePrefix + strings::genPublicFileSuffixStr(), "Add extra public code", &m_customCode.m_hasPublic);
-    m_customCode.m_protected = generator.genReadCodeInjectCode(inputCodePrefix + strings::genProtectedFileSuffixStr(), "Add extra protected code", &m_customCode.m_hasProtected);
-    m_customCode.m_private = generator.genReadCodeInjectCode(inputCodePrefix + strings::genPrivateFileSuffixStr(), "Add extra private code", &m_customCode.m_hasPrivate);
-    m_customCode.m_append = generator.genReadCodeInjectCode(inputCodePrefix + strings::genAppendFileSuffixStr(), "Append here", &m_customCode.m_hasAppend);
+    CommsCustomCode customCodeTmp;
+    customCodeTmp.m_constructBody = generator.genReadCodeInjectCode(inputCodePrefix + strings::genConstructBodyFileSuffixStr(), "Replace default constructor body only", &customCodeTmp.m_hasConstructBody);
+    customCodeTmp.m_inc = generator.genReadCodeInjectCode(inputCodePrefix + strings::genIncFileSuffixStr(), "Add includes", &customCodeTmp.m_hasInc);
+    customCodeTmp.m_public = generator.genReadCodeInjectCode(inputCodePrefix + strings::genPublicFileSuffixStr(), "Add extra public code", &customCodeTmp.m_hasPublic);
+    customCodeTmp.m_protected = generator.genReadCodeInjectCode(inputCodePrefix + strings::genProtectedFileSuffixStr(), "Add extra protected code", &customCodeTmp.m_hasProtected);
+    customCodeTmp.m_private = generator.genReadCodeInjectCode(inputCodePrefix + strings::genPrivateFileSuffixStr(), "Add extra private code", &customCodeTmp.m_hasPrivate);
+    customCodeTmp.m_append = generator.genReadCodeInjectCode(inputCodePrefix + strings::genAppendFileSuffixStr(), "Append here", &customCodeTmp.m_hasAppend);
+
+    commsAssignCustomCode(customCodeTmp.m_constructBody, customCodeTmp.m_hasConstructBody, m_customCode.m_constructBody, m_customCode.m_hasConstructBody);
+    commsAppendCustomCode(customCodeTmp.m_inc, customCodeTmp.m_hasInc, m_customCode.m_inc, m_customCode.m_hasInc);
+    commsAppendCustomCode(customCodeTmp.m_public, customCodeTmp.m_hasPublic, m_customCode.m_public, m_customCode.m_hasPublic);
+    commsAppendCustomCode(customCodeTmp.m_protected, customCodeTmp.m_hasProtected, m_customCode.m_protected, m_customCode.m_hasProtected);
+    commsAppendCustomCode(customCodeTmp.m_private, customCodeTmp.m_hasPrivate, m_customCode.m_private, m_customCode.m_hasPrivate);
+    commsAppendCustomCode(customCodeTmp.m_append, customCodeTmp.m_hasAppend, m_customCode.m_append, m_customCode.m_hasAppend);
 
     m_extraCustomCode.m_construct = generator.genReadCodeInjectCode(inputCodePrefix + strings::genConstructFileSuffixStr(), "Replace default constructor", &m_extraCustomCode.m_hasConstruct);
     m_extraCustomCode.m_extend = generator.genReadCodeInjectCode(inputCodePrefix + strings::genExtendFileSuffixStr(), "Extend class", &m_extraCustomCode.m_hasExtend);
@@ -484,6 +493,40 @@ bool CommsField::commsIsFieldCustomizable() const
     return commsIsLimitedCustomizableImpl();
 }
 
+void CommsField::commsAppendCustomCode(
+    const std::string& code,
+    bool hasCode,
+    std::string& to,
+    bool& toHasCode)
+{
+    if (!toHasCode) {
+        to = code;
+        toHasCode = hasCode;
+        return;
+    }
+
+    if (!hasCode) {
+        return;
+    }
+
+    to += "\n" + code;
+}
+
+void CommsField::commsAssignCustomCode(
+    const std::string& code,
+    bool hasCode,
+    std::string& to,
+    bool& toHasCode)
+{
+    if ((!hasCode) && (toHasCode)) {
+        return;
+    }
+
+    to = code;
+    toHasCode = hasCode;
+    return;
+}
+
 CommsField::CommsIncludesList CommsField::commsCommonIncludesImpl() const
 {
     return CommsIncludesList();
@@ -841,6 +884,9 @@ bool CommsField::commsCopyCodeFromInternal()
     auto* commsField = dynamic_cast<CommsField*>(origField);
     assert(commsField != nullptr);
 
+    gen.genLogger().genDebug(
+        "Copying code: " + commsField->commsGenField().genName() + " -> " + commsGenField().genName());
+
     m_customCode = commsField->m_customCode;
     return true;
 }
@@ -850,7 +896,7 @@ bool CommsField::commsPrepareOverrideInternal(
     const std::string& name,
     CommsCustomCodeFunc codeFunc,
     std::string& code,
-    bool* hasCode)
+    bool& hasCode)
 {
     if (commsIsOverrideCodeRequired(type) && (!comms::genIsGlobalField(m_genField))) {
         m_genField.genGenerator().genLogger().genError(
@@ -859,32 +905,19 @@ bool CommsField::commsPrepareOverrideInternal(
         return false;
     }
 
-    auto updateHasCodeFlag =
-        [hasCode](bool val)
-        {
-            if (hasCode != nullptr) {
-                *hasCode = val;
-            }
-        };
-
     do {
         if (!commsIsOverrideCodeAllowed(type)) {
             code.clear();
-            updateHasCodeFlag(false);
+            hasCode = false;
             break;
         }
 
         bool hasCodeTmp = false;
         auto customCode = (this->*codeFunc)(hasCodeTmp);
-        if ((hasCodeTmp) || (code.empty())) {
-            code = std::move(customCode);
-            updateHasCodeFlag(hasCodeTmp);
-            break;
-        }
-
+        commsAssignCustomCode(customCode, hasCodeTmp, code, hasCode);
     } while (false);
 
-    if (code.empty() && commsIsOverrideCodeRequired(type)) {
+    if ((!hasCode) && commsIsOverrideCodeRequired(type)) {
         m_genField.genGenerator().genLogger().genError(
             "Overriding \"" + name + "\" operation is not provided in injected code for field \"" +
             m_genField.genParseObj().parseExternalRef() + "\".");

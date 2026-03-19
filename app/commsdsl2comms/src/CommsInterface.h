@@ -1,6 +1,7 @@
 //
 // Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
 //
+// SPDX-License-Identifier: Apache-2.0
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,20 +58,26 @@ protected:
 private:
     struct CommsCustomCode
     {
-        std::string m_construct;
         std::string m_inc;
         std::string m_public;
         std::string m_protected;
         std::string m_private;
-        std::string m_extend;
         std::string m_append;
 
         bool m_hasInc = false;
         bool m_hasPublic = false;
         bool m_hasProtected = false;
         bool m_hasPrivate = false;
-        bool m_hasExtend = false;
         bool m_hasAppend = false;
+    };
+
+    struct CommsExtraCustomCode
+    {
+        std::string m_construct;
+        std::string m_extend;
+
+        bool m_hasConstruct = false;
+        bool m_hasExtend = false;
     };
 
     bool commsCopyCodeFromInternal();
@@ -92,6 +99,7 @@ private:
     std::string m_name;
     CommsFieldsList m_commsFields;
     CommsCustomCode m_customCode;
+    CommsExtraCustomCode m_extraCustomCode;
 };
 
 } // namespace commsdsl2comms

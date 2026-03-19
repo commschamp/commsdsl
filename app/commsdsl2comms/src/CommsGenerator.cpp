@@ -1,6 +1,7 @@
 //
 // Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
+// SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -66,7 +67,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-const std::string CommsMinCommsVersion("5.5.0");
+const std::string CommsMinCommsVersion("5.5.1");
 
 const std::string& CommsGenerator::commsFileGeneratedComment()
 {

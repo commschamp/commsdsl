@@ -1,6 +1,7 @@
 //
 // Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
+// SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -95,6 +96,17 @@ public:
     const CommsField* commsFindSibling(const std::string& name) const;
 
     bool commsIsFieldCustomizable() const;
+
+    static void commsAppendCustomCode(
+        const std::string& code,
+        bool hasCode,
+        std::string& to,
+        bool& toHasCode);
+    static void commsAssignCustomCode(
+        const std::string& code,
+        bool hasCode,
+        std::string& to,
+        bool& toHasCode);
 
 protected:
     virtual CommsIncludesList commsCommonIncludesImpl() const;
@@ -196,7 +208,8 @@ private:
         const std::string& name,
         CommsCustomCodeFunc codeFunc,
         std::string& code,
-        bool* hasCode);
+        bool& hasCode);
+
     std::string commsCustomValueCodeInternal(bool& hasRealCode) const;
     std::string commsCustomReadCodeInternal(bool& hasRealCode) const;
     std::string commsCustomWriteCodeInternal(bool& hasRealCode) const;

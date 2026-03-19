@@ -1,0 +1,6 @@
+
+/// @brief Some public function
+bool somePublicFunc_I1()
+{
+    return someProtectedFunc_I1();
+}
