@@ -47,4 +47,19 @@ std::string WiresharkSchema::wiresharkDissectCode() const
     return util::genStrListToString(elems, "\n", "");
 }
 
+std::string WiresharkSchema::wiresharkExtractorsRegCode() const
+{
+    util::GenStringsList elems;
+    for (auto& nsPtr : genNamespaces()) {
+        auto str = WiresharkNamespace::wiresharkCast(nsPtr.get())->wiresharkExtractorsRegCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        elems.push_back(std::move(str));
+    }
+
+    return util::genStrListToString(elems, "\n", "");
+}
+
 } // namespace commsdsl2wireshark

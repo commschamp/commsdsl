@@ -38,7 +38,9 @@ public:
     static std::string wiresharkFileName(const WiresharkGenerator& generator);
     static const std::string& wiresharkProtocolObjName(const WiresharkGenerator& generator);
     static std::string wiresharkCreateFieldFuncName(const WiresharkGenerator& generator);
+    static std::string wiresharkCreateExtractorFuncName(const WiresharkGenerator& generator);
     static std::string wiresharkFieldsListName(const WiresharkGenerator& generator);
+    static std::string wiresharkExtractorsMapName(const WiresharkGenerator& generator);
     static std::string wiresharkStatusCodeStr(const WiresharkGenerator& generator, StatusCode code);
 
 private:
@@ -53,6 +55,8 @@ private:
     std::string wiresharkDissectFuncBodyInternal() const;
     std::string wiresharkStatusCodeNameInternal() const;
     std::string wiresharkStatusCodeDefInternal() const;
+    std::string wiresharkExtractorsDeclInternal() const;
+    std::string wiresharkExtractorsRegCodeInternal() const;
     static const std::string& wiresharkStatusCodeStrInternal(StatusCode code);
 
     const WiresharkGenerator& m_wiresharkGenerator;

@@ -106,6 +106,16 @@ std::string WiresharkLayer::wiresharkDissectCode() const
     return util::genProcessTemplate(Templ, repl);
 }
 
+std::string WiresharkLayer::wiresharkExtractorsRegCode() const
+{
+    auto* field = WiresharkField::wiresharkCast(m_genLayer.genMemberField());
+    if (field == nullptr) {
+        return strings::genEmptyString();
+    }
+
+    return field->wiresharkExtractorsRegCode();
+}
+
 bool WiresharkLayer::wiresharkIsInterfaceSupported(const WiresharkInterface& iFace) const
 {
     return wiresharkIsInterfaceSupportedImpl(iFace);

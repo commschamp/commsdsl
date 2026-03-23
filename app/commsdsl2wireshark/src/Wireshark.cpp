@@ -53,9 +53,19 @@ std::string Wireshark::wiresharkCreateFieldFuncName(const WiresharkGenerator& ge
     return wiresharkProtocolObjName(generator) + "_createField";
 }
 
+std::string Wireshark::wiresharkCreateExtractorFuncName(const WiresharkGenerator& generator)
+{
+    return wiresharkProtocolObjName(generator) + "_createExtractor";
+}
+
 std::string Wireshark::wiresharkFieldsListName(const WiresharkGenerator& generator)
 {
     return wiresharkProtocolObjName(generator) + "_fields_list";
+}
+
+std::string Wireshark::wiresharkExtractorsMapName(const WiresharkGenerator& generator)
+{
+    return wiresharkProtocolObjName(generator) + "_extractors_map";
 }
 
 std::string Wireshark::wiresharkStatusCodeStr(const WiresharkGenerator& generator, StatusCode code)
@@ -82,9 +92,11 @@ bool Wireshark::wiresharkWriteInternal() const
             "#^#PROTOCOL#$#\n"
             "#^#STATUS_CODE#$#\n"
             "#^#FIELDS_REG#$#\n"
+            "#^#EXTRACTORS_DECL#$#\n"
             "#^#CODE#$#\n"
             "#^#DISSECT_FUNC#$#\n"
             "#^#NAME#$#.fields = #^#FIELDS_LIST#$#\n"
+            "#^#EXTRACTORS_REG#$#\n"
             "\n"
             "return #^#NAME#$#\n"
             ;
@@ -98,6 +110,8 @@ bool Wireshark::wiresharkWriteInternal() const
             {"FIELDS_LIST", wiresharkFieldsListName(m_wiresharkGenerator)},
             {"CODE", wiresharkCodeInternal()},
             {"STATUS_CODE", wiresharkStatusCodeDefInternal()},
+            {"EXTRACTORS_DECL", wiresharkExtractorsDeclInternal()},
+            {"EXTRACTORS_REG", wiresharkExtractorsRegCodeInternal()},
         };
 
         auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
@@ -271,6 +285,41 @@ std::string Wireshark::wiresharkStatusCodeDefInternal() const
     };
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string Wireshark::wiresharkExtractorsDeclInternal() const
+{
+    const std::string Templ =
+        "-- Extractors Management\n"
+        "local #^#MAP#$# = {}\n"
+        "\n"
+        "-- Invoke this function every time the extractor needs to be created\n"
+        "local function #^#NAME#$#(name, field)\n"
+        "    #^#MAP#$#[field] = Field.new(name)\n"
+        "end\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"MAP", wiresharkExtractorsMapName(m_wiresharkGenerator)},
+        {"NAME", wiresharkCreateExtractorFuncName(m_wiresharkGenerator)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string Wireshark::wiresharkExtractorsRegCodeInternal() const
+{
+    util::GenStringsList elems;
+    for (auto& sPtr : m_wiresharkGenerator.genSchemas()) {
+        auto str = WiresharkSchema::wiresharkCast(*sPtr).wiresharkExtractorsRegCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        elems.push_back(std::move(str));
+    }
+
+    return util::genStrListToString(elems, "", "");
 }
 
 const std::string& Wireshark::wiresharkStatusCodeStrInternal(StatusCode code)

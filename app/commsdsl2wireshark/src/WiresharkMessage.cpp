@@ -97,6 +97,25 @@ std::string WiresharkMessage::wiresharkDissectCode() const
     return util::genProcessTemplate(Templ, repl);
 }
 
+std::string WiresharkMessage::wiresharkExtractorsRegCode() const
+{
+    if (!genIsReferenced()) {
+        return strings::genEmptyString();
+    }
+
+    util::GenStringsList fields;
+    for (auto* fPtr : m_wiresharkFields) {
+        auto str = fPtr->wiresharkExtractorsRegCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        fields.push_back(std::move(str));
+    }
+
+    return util::genStrListToString(fields, "", "");
+}
+
 bool WiresharkMessage::genPrepareImpl()
 {
     if (!GenBase::genPrepareImpl()) {

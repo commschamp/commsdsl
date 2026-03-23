@@ -93,9 +93,10 @@ std::string WiresharkEnumField::wiresharkDissectBodyImpl([[maybe_unused]] const 
 {
     static const std::string Templ =
         "local len = math.min(#^#LEN#$#, offset_limit - offset)\n"
+        "local #^#RANGE#$# = tvb(offset, len)\n"
         "#^#VAL_DECL#$#\n"
         "#^#VAR_LEN#$#\n"
-        "tree:add#^#SUFFIX#$#(field, tvb(offset, len)#^#VAL#$#)\n"
+        "local #^#SUBTREE#$# = tree:add#^#SUFFIX#$#(field, #^#RANGE#$##^#VAL#$#)\n"
         "result = #^#SUCCESS#$#\n"
         "next_offset = offset + len\n"
         ;
@@ -107,6 +108,8 @@ std::string WiresharkEnumField::wiresharkDissectBodyImpl([[maybe_unused]] const 
         {"LEN", std::to_string(parseObj.parseMaxLength())},
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
         {"VAR_LEN", wiresharkVarLengthCodeInternal(hasVal)},
+        {"SUBTREE", wiresharkFieldSubtreeStr()},
+        {"RANGE", wiresharkRangeStr()},
     };
 
     if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
@@ -119,6 +122,33 @@ std::string WiresharkEnumField::wiresharkDissectBodyImpl([[maybe_unused]] const 
     }
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkEnumField::wiresharkValidFuncBodyImpl(const WiresharkField* refField) const
+{
+    static const std::string Templ =
+        "local extractor = #^#MAP#$#[#^#FIELD#$#]\n"
+        "local info = {extractor()}\n"
+        "local last = info[#info]\n"
+        "local name = #^#NAME#$##^#SUFFIX#$#[last.value]\n"
+        "return name ~= #^#NIL#$#\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkFieldObjName(refField)},
+        {"SUFFIX", strings::genValsSuffixStr()},
+        {"NIL", strings::genNilStr()},
+        {"MAP", Wireshark::wiresharkExtractorsMapName(wiresharkGenerator)},
+        {"FIELD", wiresharkFieldStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+bool WiresharkEnumField::wiresharkHasTrivialValidImpl() const
+{
+    return false;
 }
 
 std::string WiresharkEnumField::wiresharkValsInternal(const WiresharkField* refField) const
@@ -194,12 +224,13 @@ std::string WiresharkEnumField::wiresharkValDeclCodeInternal() const
     }
 
     static const std::string Templ =
-        "local val = tvb(next_offset, #^#LEN#$#):#^#ACC#$#\n"
+        "local val = #^#RANGE#$#:#^#ACC#$#\n"
         ;
 
     util::GenReplacementMap repl = {
         {"LEN", std::to_string(parseObj.parseMinLength())},
         {"ACC", WiresharkIntField::wiresharkTvbRangeAccessIntegralValue(parseObj.parseType(), parseObj.parseEndian(), parseObj.parseMinLength())},
+        {"RANGE", wiresharkRangeStr()},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -258,11 +289,13 @@ std::string WiresharkEnumField::wiresharkVarLengthCodeBigEndianInternal() const
         "    return #^#ERROR#$#, offset\n"
         "end\n"
         "len = next_offset - offset\n"
+        "#^#RANGE#$# = tvb(offset, len)\n"
         ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     util::GenReplacementMap repl = {
         {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::MalformedPacket)},
+        {"RANGE", wiresharkRangeStr()},
     };
 
     return util::genProcessTemplate(Templ, repl);

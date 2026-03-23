@@ -169,4 +169,29 @@ std::string WiresharkBitfieldField::wiresharkMembersDissectCodeImpl() const
     return util::genStrListToString(elems, "\n", "\n");
 }
 
+std::string WiresharkBitfieldField::wiresharkDissectBodyImpl(const WiresharkField* refField) const
+{
+    // TODO
+    static_cast<void>(refField);
+    return "-- TODO: bitfield dissect body not implemented\n";
+}
+
+std::string WiresharkBitfieldField::wiresharkValidFuncBodyImpl(const WiresharkField* refField) const
+{
+    // TODO
+    static_cast<void>(refField);
+    return "-- TODO: bitfield valid body not implemented\n";
+}
+
+bool WiresharkBitfieldField::wiresharkHasTrivialValidImpl() const
+{
+    return
+        std::all_of(
+            m_wiresharkFields.begin(), m_wiresharkFields.end(),
+            [](auto* f)
+            {
+                return f->wiresharkHasTrivialValid();
+            });
+}
+
 } // namespace commsdsl2wireshark

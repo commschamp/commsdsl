@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iomanip>
+#include <limits>
 #include <sstream>
 
 namespace strings = commsdsl::gen::strings;
@@ -83,7 +84,7 @@ std::string WiresharkSetField::wiresharkDissectBodyImpl(const WiresharkField* re
     static const std::string Templ =
         "local len = math.min(#^#LEN#$#, offset_limit - offset)\n"
         "local range = tvb(offset, len)\n"
-        "local bits_tree = tree:add#^#SUFFIX#$#(field, range)\n"
+        "local #^#SUBTREE#$# = tree:add#^#SUFFIX#$#(field, range)\n"
         "#^#BITS#$#\n"
         "result = #^#SUCCESS#$#\n"
         "next_offset = offset + len\n"
@@ -94,6 +95,7 @@ std::string WiresharkSetField::wiresharkDissectBodyImpl(const WiresharkField* re
     util::GenReplacementMap repl = {
         {"LEN", std::to_string(parseObj.parseMaxLength())},
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+        {"SUBTREE", wiresharkFieldSubtreeStr()},
     };
 
     if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
@@ -105,7 +107,7 @@ std::string WiresharkSetField::wiresharkDissectBodyImpl(const WiresharkField* re
 
     for (auto& b : revBits) {
         static const std::string BitTempl =
-            "bits_tree:add#^#SUFFIX#$#(#^#FIELD#$#, range)"
+            "#^#SUBTREE#$#:add#^#SUFFIX#$#(#^#FIELD#$#, range)"
             ;
 
         util::GenReplacementMap bitRepl = repl;
@@ -115,6 +117,84 @@ std::string WiresharkSetField::wiresharkDissectBodyImpl(const WiresharkField* re
 
     repl["BITS"] = util::genStrListToString(elems, "\n", "");
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkSetField::wiresharkValidFuncBodyImpl([[maybe_unused]] const WiresharkField* refField) const
+{
+    auto parseObj = genSetFieldParseObj();
+    auto bitsCount = parseObj.parseMaxLength() * 8U;
+
+    std::uintmax_t reservedMask = std::numeric_limits<std::uintmax_t>::max();
+    std::uintmax_t reservedValue = 0;
+
+    if (bitsCount < std::numeric_limits<decltype(reservedMask)>::digits) {
+        reservedMask = (1ULL << bitsCount) - 1U;
+    }
+
+    if (parseObj.parseReservedBitValue()) {
+        reservedValue = std::numeric_limits<std::uintmax_t>::max() & reservedMask;
+    }
+
+    auto& bits = parseObj.parseBits();
+    for (auto& info : bits) {
+        auto bitMask = (1ULL << info.second.m_idx);
+        auto clearMask = (~bitMask);
+
+        if (!info.second.m_reserved) {
+            reservedMask = static_cast<decltype(reservedMask)>(reservedMask & clearMask);
+            reservedValue = static_cast<decltype(reservedValue)>(reservedValue & clearMask);
+            continue;
+        }
+
+        reservedMask = static_cast<decltype(reservedMask)>(reservedMask | bitMask);
+        if (info.second.m_reservedValue) {
+            reservedValue = static_cast<decltype(reservedValue)>(reservedValue | bitMask);
+            continue;
+        }
+
+        reservedValue = static_cast<decltype(reservedValue)>(reservedValue & clearMask);
+    }
+
+    if (reservedMask == 0U) {
+        return "return true";
+    }
+
+    static const std::string Templ =
+        "local extractor = #^#MAP#$#[#^#FIELD#$#]\n"
+        "local info = {extractor()}\n"
+        "local last = info[#info]\n"
+        "return bit32.band(last.value, #^#MASK#$#) == #^#VAL#$#\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"SUFFIX", strings::genValsSuffixStr()},
+        {"MAP", Wireshark::wiresharkExtractorsMapName(wiresharkGenerator)},
+        {"FIELD", wiresharkFieldStr()},
+        {"MASK", wiresharkHexString(reservedMask, 2U)},
+        {"VAL", wiresharkHexString(reservedValue, 2U)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+bool WiresharkSetField::wiresharkHasTrivialValidImpl() const
+{
+    auto parseObj = genSetFieldParseObj();
+    auto& bits = parseObj.parseBits();
+    if (bits.size() < (parseObj.parseMaxLength() * 8U)) {
+        return false;
+    }
+
+    bool hasReservedBits =
+        std::any_of(
+            bits.begin(), bits.end(),
+            [](auto& info)
+            {
+                return info.second.m_reserved;
+            });
+
+    return (!hasReservedBits);
 }
 
 std::string WiresharkSetField::wiresharkBitsInternal(const WiresharkField* refField) const

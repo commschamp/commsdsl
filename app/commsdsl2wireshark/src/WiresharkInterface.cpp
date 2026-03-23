@@ -70,6 +70,25 @@ std::string WiresharkInterface::wiresharkDissectCode() const
     return util::genProcessTemplate(Templ, repl);
 }
 
+std::string WiresharkInterface::wiresharkExtractorsRegCode() const
+{
+    if ((!genIsReferenced()) || m_wiresharkFields.empty() || (!wiresharkDissectionAllowed())) {
+        return strings::genEmptyString();
+    }
+
+    util::GenStringsList fields;
+    for (auto* fPtr : m_wiresharkFields) {
+        auto str = fPtr->wiresharkExtractorsRegCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        fields.push_back(std::move(str));
+    }
+
+    return util::genStrListToString(fields, "", "");
+}
+
 bool WiresharkInterface::genPrepareImpl()
 {
     if (!GenBase::genPrepareImpl()) {

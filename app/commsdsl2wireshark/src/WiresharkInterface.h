@@ -47,6 +47,7 @@ public:
 
     bool wiresharkDissectionAllowed() const;
     std::string wiresharkDissectCode() const;
+    std::string wiresharkExtractorsRegCode() const;
 
 protected:
     virtual bool genPrepareImpl() override;

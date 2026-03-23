@@ -70,7 +70,7 @@ std::string WiresharkFloatField::wiresharkFieldRegistrationImpl(const WiresharkF
 std::string WiresharkFloatField::wiresharkDissectBodyImpl([[maybe_unused]] const WiresharkField* refField) const
 {
     static const std::string Templ =
-        "tree:add#^#SUFFIX#$#(field, tvb(offset, #^#LEN#$#))\n"
+        "local #^#SUBTREE#$# = tree:add#^#SUFFIX#$#(field, tvb(offset, #^#LEN#$#))\n"
         "result = #^#SUCCESS#$#\n"
         "next_offset = offset + #^#LEN#$#\n"
         ;
@@ -80,6 +80,7 @@ std::string WiresharkFloatField::wiresharkDissectBodyImpl([[maybe_unused]] const
     util::GenReplacementMap repl = {
         {"LEN", std::to_string(parseObj.parseMaxLength())},
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+        {"SUBTREE", wiresharkFieldSubtreeStr()},
     };
 
     if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
@@ -87,6 +88,98 @@ std::string WiresharkFloatField::wiresharkDissectBodyImpl([[maybe_unused]] const
     }
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkFloatField::wiresharkValidFuncBodyImpl([[maybe_unused]] const WiresharkField* refField) const
+{
+    static const std::string Templ =
+        "local extractor = #^#MAP#$#[#^#FIELD#$#]\n"
+        "local info = {extractor()}\n"
+        "local last = info[#info]\n"
+        "local epsilon = #^#EPSILON#$#\n"
+        "#^#ELEMS#$#\n"
+        "return false\n"
+        ;
+
+    util::GenStringsList elems;
+    auto parseObj = genFloatFieldParseObj();
+    auto& ranges = parseObj.parseValidRanges();
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+
+    auto numToStr =
+        [](double value) -> std::string
+        {
+            if (!std::isinf(value)) {
+                return std::to_string(value);
+            }
+
+            if (0 < value) {
+                return "math.huge";
+            }
+
+            return "-math.huge";
+        };
+
+    for (auto& r : ranges) {
+        if (!wiresharkGenerator.genDoesElementExist(r.m_sinceVersion, r.m_deprecatedSince, true)) {
+            continue;
+        }
+
+        if (std::isnan(r.m_min)) {
+            static const std::string CompTempl =
+                "if last.value ~= last.value then\n"
+                "    return true\n"
+                "end\n"
+                ;
+
+            elems.push_back(CompTempl);
+            continue;
+        }
+
+        if (r.m_min == r.m_max) {
+            static const std::string CompTempl =
+                "if (last.value == #^#VAL#$#) or (math.abs(last.value - (#^#VAL#$#)) < epsilon) then\n"
+                "    return true\n"
+                "end\n"
+                ;
+
+            util::GenReplacementMap compRepl = {
+                {"VAL", numToStr(r.m_min)},
+            };
+
+            elems.push_back(util::genProcessTemplate(CompTempl, compRepl));
+            continue;
+        }
+
+        static const std::string CompTempl =
+            "if ((#^#MIN#$# <= last.value) or (math.abs(#^#MIN#$# - last.value) < epsilon)) and\n"
+            "    ((last.value <= #^#MAX#$#) or (math.abs(#^#MAX#$# - last.value) < epsilon)) then\n"
+            "    return true\n"
+            "end\n"
+            ;
+
+        util::GenReplacementMap compRepl = {
+            {"MIN", numToStr(r.m_min)},
+            {"MAX", numToStr(r.m_max)},
+        };
+
+        elems.push_back(util::genProcessTemplate(CompTempl, compRepl));
+    }
+
+    util::GenReplacementMap repl = {
+        {"ELEMS", util::genStrListToString(elems, "\n", "")},
+        {"MAP", Wireshark::wiresharkExtractorsMapName(wiresharkGenerator)},
+        {"FIELD", wiresharkFieldStr()},
+        {"EPSILON", (parseObj.parseType() == commsdsl::parse::ParseFloatField::ParseType::Float) ? "1e-6" : "1e-12"}
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+bool WiresharkFloatField::wiresharkHasTrivialValidImpl() const
+{
+    auto parseObj = genFloatFieldParseObj();
+    return parseObj.parseValidRanges().empty();
 }
 
 std::string WiresharkFloatField::wiresharkUnitNameInternal() const

@@ -47,7 +47,6 @@ const WiresharkInterface* WiresharkNamespace::wiresharkInterface() const
 
 std::string WiresharkNamespace::wiresharkDissectCode() const
 {
-    // TODO:
     static const std::string Templ =
         "#^#NAMESPACES#$#\n"
         "#^#FIELDS#$#\n"
@@ -112,6 +111,77 @@ std::string WiresharkNamespace::wiresharkDissectCode() const
         {"INTERFACES", util::genStrListToString(interfaces, "\n", "")},
         {"MESSAGES", util::genStrListToString(messages, "\n", "")},
         {"FRAMES", util::genStrListToString(frames, "\n", "")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkNamespace::wiresharkExtractorsRegCode() const
+{
+    static const std::string Templ =
+        "#^#NAMESPACES#$#\n"
+        "#^#FIELDS#$#\n"
+        "#^#INTERFACES#$#\n"
+        "#^#MESSAGES#$#\n"
+        "#^#FRAMES#$#\n"
+        ;
+
+    util::GenStringsList namespaces;
+    for (auto& nsPtr : genNamespaces()) {
+        auto str = WiresharkNamespace::wiresharkCast(nsPtr.get())->wiresharkExtractorsRegCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        namespaces.push_back(std::move(str));
+    }
+
+    util::GenStringsList fields;
+    for (auto& fPtr : genFields()) {
+        auto str = WiresharkField::wiresharkCast(fPtr.get())->wiresharkExtractorsRegCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        fields.push_back(std::move(str));
+    }
+
+    util::GenStringsList interfaces;
+    for (auto& iPtr : genInterfaces()) {
+        auto str = WiresharkInterface::wiresharkCast(iPtr.get())->wiresharkExtractorsRegCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        interfaces.push_back(std::move(str));
+    }
+
+    util::GenStringsList messages;
+    for (auto& mPtr : genMessages()) {
+        auto str = WiresharkMessage::wiresharkCast(*mPtr).wiresharkExtractorsRegCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        messages.push_back(std::move(str));
+    }
+
+    util::GenStringsList frames;
+    for (auto& fPtr : genFrames()) {
+        auto str = WiresharkFrame::wiresharkCast(*fPtr).wiresharkExtractorsRegCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        frames.push_back(std::move(str));
+    }
+
+    util::GenReplacementMap repl = {
+        {"NAMESPACES", util::genStrListToString(namespaces, "", "")},
+        {"FIELDS", util::genStrListToString(fields, "", "")},
+        {"INTERFACES", util::genStrListToString(interfaces, "", "")},
+        {"MESSAGES", util::genStrListToString(messages, "", "")},
+        {"FRAMES", util::genStrListToString(frames, "", "")},
     };
 
     return util::genProcessTemplate(Templ, repl);

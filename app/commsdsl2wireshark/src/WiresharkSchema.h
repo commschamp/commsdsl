@@ -43,6 +43,7 @@ public:
     }
 
     std::string wiresharkDissectCode() const;
+    std::string wiresharkExtractorsRegCode() const;
 };
 
 } // namespace commsdsl2wireshark

@@ -95,6 +95,15 @@ std::string WiresharkRefField::wiresharkDissectCodeImpl(const WiresharkField* re
     return m_wiresharkField->wiresharkDissectCode(refField);
 }
 
+std::string WiresharkRefField::wiresharkExtractorsRegCodeImpl() const
+{
+    if (m_alias) {
+        return strings::genEmptyString();
+    }
+
+    return WiresharkBase::wiresharkExtractorsRegCodeImpl();
+}
+
 std::string WiresharkRefField::wiresharkFieldObjNameImpl(const WiresharkField* refField) const
 {
     if (m_alias) {

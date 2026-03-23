@@ -47,6 +47,7 @@ public:
 
     std::string wiresharkDissectName() const;
     std::string wiresharkDissectCode() const;
+    std::string wiresharkExtractorsRegCode() const;
 
     bool wiresharkIsInterfaceSupported(const WiresharkInterface& iFace) const;
 

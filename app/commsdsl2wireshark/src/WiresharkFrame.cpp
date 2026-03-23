@@ -86,6 +86,21 @@ std::string WiresharkFrame::wiresharkDissectCode() const
     return util::genProcessTemplate(Templ, repl);
 }
 
+std::string WiresharkFrame::wiresharkExtractorsRegCode() const
+{
+    util::GenStringsList layers;
+    for (auto* l : m_wiresharkLayers) {
+        auto str = l->wiresharkExtractorsRegCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        layers.push_back(std::move(str));
+    }
+
+    return util::genStrListToString(layers, "", "");
+}
+
 bool WiresharkFrame::genPrepareImpl()
 {
     if (!GenBase::genPrepareImpl()) {

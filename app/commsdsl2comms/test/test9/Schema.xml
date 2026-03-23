@@ -17,6 +17,7 @@
             <special name="s4" val="1.4" />
             <validValue>null</validValue>
             <validValue value="-inf" />
+            <validValue value="inf" />
             <validRange value="[s3, s4]" />
         </float>
 
