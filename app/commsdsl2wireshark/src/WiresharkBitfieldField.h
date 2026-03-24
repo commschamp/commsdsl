@@ -48,6 +48,7 @@ protected:
     virtual bool wiresharkHasTrivialValidImpl() const override;
 
 private:
+    std::string wiresharkExtraValidCondsCodeInternal() const;
     WiresharkFieldsList m_wiresharkFields;
 };
 

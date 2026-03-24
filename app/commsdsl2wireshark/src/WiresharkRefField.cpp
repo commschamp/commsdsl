@@ -77,6 +77,16 @@ std::string WiresharkRefField::wiresharkDissectNameImpl(const WiresharkField* re
     return m_wiresharkField->wiresharkDissectName(refField);
 }
 
+std::string WiresharkRefField::wiresharkValidFuncNameImpl() const
+{
+    if (!m_alias) {
+        return WiresharkBase::wiresharkValidFuncNameImpl();
+    }
+
+    assert(m_wiresharkField != nullptr);
+    return m_wiresharkField->wiresharkValidFuncName();
+}
+
 std::string WiresharkRefField::wiresharkDissectCodeImpl(const WiresharkField* refField) const
 {
     if (m_alias) {
@@ -149,6 +159,27 @@ std::string WiresharkRefField::wiresharkDissectBodyImpl([[maybe_unused]] const W
     };
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkRefField::wiresharkValidFuncBodyImpl(const WiresharkField* refField) const
+{
+    static const std::string Templ =
+        "return #^#FUNC#$#(#^#FIELD#$#)\n"
+        ;
+
+    assert(!m_alias);
+    util::GenReplacementMap repl = {
+        {"FUNC", m_wiresharkField->wiresharkValidFuncName()},
+        {"FIELD", wiresharkFieldObjName(refField)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+bool WiresharkRefField::wiresharkHasTrivialValidImpl() const
+{
+    assert(m_wiresharkField != nullptr);
+    return m_wiresharkField->wiresharkHasTrivialValid();
 }
 
 bool WiresharkRefField::wiresharkIsAliasInternal() const

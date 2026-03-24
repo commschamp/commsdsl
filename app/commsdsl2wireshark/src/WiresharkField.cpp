@@ -156,6 +156,11 @@ std::string WiresharkField::wiresharkFieldRegistration(const WiresharkField* ref
     return wiresharkFieldRegistrationImpl(refField);
 }
 
+std::string WiresharkField::wiresharkValidFuncName() const
+{
+    return wiresharkValidFuncNameImpl();
+}
+
 const std::string& WiresharkField::wiresharkCustomNameCode(const WiresharkField* refField) const
 {
     if (refField != nullptr) {
@@ -202,6 +207,12 @@ std::string WiresharkField::wiresharkDissectNameImpl(const WiresharkField* refFi
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genField->genGenerator());
     return wiresharkGenerator.wiresharkDissectNameFor(*genField);
+}
+
+std::string WiresharkField::wiresharkValidFuncNameImpl() const
+{
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    return wiresharkGenerator.wiresharkFuncNameFor(m_genField, strings::genValidSuffixStr());
 }
 
 std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refField) const
@@ -554,6 +565,36 @@ const std::string& WiresharkField::wiresharkFieldStr()
     return Str;
 }
 
+const std::string& WiresharkField::wiresharkNextOffsetStr()
+{
+    static const std::string Str("next_offset");
+    return Str;
+}
+
+const std::string& WiresharkField::wiresharkOffsetStr()
+{
+    static const std::string Str("offset");
+    return Str;
+}
+
+const std::string& WiresharkField::wiresharkOffsetLimitStr()
+{
+    static const std::string Str("offset_limit");
+    return Str;
+}
+
+const std::string& WiresharkField::wiresharkResultStr()
+{
+    static const std::string Str("result");
+    return Str;
+}
+
+const std::string& WiresharkField::wiresharkTvbStr()
+{
+    static const std::string Str("tvb");
+    return Str;
+}
+
 bool WiresharkField::wiresharkCopyCodeFromInternal()
 {
     auto obj = m_genField.genParseObj();
@@ -704,7 +745,7 @@ std::string WiresharkField::wiresharkDissectValidCheckInternal() const
         ;
 
     util::GenReplacementMap repl = {
-        {"VALID_FUNC", wiresharkValidFuncNameInternal()},
+        {"VALID_FUNC", wiresharkValidFuncName()},
         {"SUBTREE", wiresharkFieldSubtreeStr()},
         {"FIELD", wiresharkFieldStr()}
     };
@@ -749,7 +790,7 @@ std::string WiresharkField::wiresharkValidFuncCodeInternal(const WiresharkField*
     bool replaced = false;
     bool extended = false;
     util::GenReplacementMap repl = {
-        {"NAME", wiresharkValidFuncNameInternal()},
+        {"NAME", wiresharkValidFuncName()},
         {"REPLACE", wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &replaced)},
         {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
         {"FIELD", wiresharkFieldStr()},
@@ -764,12 +805,6 @@ std::string WiresharkField::wiresharkValidFuncCodeInternal(const WiresharkField*
     }
 
     return util::genProcessTemplate(Templ, repl);
-}
-
-std::string WiresharkField::wiresharkValidFuncNameInternal() const
-{
-    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
-    return wiresharkGenerator.wiresharkFuncNameFor(m_genField, strings::genValidSuffixStr());
 }
 
 bool WiresharkField::wiresharkHasTrivialValidInternal() const
