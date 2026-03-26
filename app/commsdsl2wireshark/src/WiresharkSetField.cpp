@@ -68,7 +68,7 @@ std::string WiresharkSetField::wiresharkFieldRegistrationImpl(const WiresharkFie
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkSetField::wiresharkDissectLengthCheckImpl() const
+std::string WiresharkSetField::wiresharkDissectLengthCheckImpl(const WiresharkField* refField) const
 {
     auto parseObj = genSetFieldParseObj();
 
@@ -76,26 +76,34 @@ std::string WiresharkSetField::wiresharkDissectLengthCheckImpl() const
         return wiresharkEmptyBufferCheckCode();
     }
 
-    return WiresharkBase::wiresharkDissectLengthCheckImpl();
+    return WiresharkBase::wiresharkDissectLengthCheckImpl(refField);
 }
 
 std::string WiresharkSetField::wiresharkDissectBodyImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
-        "local len = math.min(#^#LEN#$#, offset_limit - offset)\n"
-        "local range = tvb(offset, len)\n"
-        "local #^#SUBTREE#$# = tree:add#^#SUFFIX#$#(field, range)\n"
+        "local len = math.min(#^#LEN#$#, #^#LIMIT#$# - #^#OFFSET#$#)\n"
+        "local #^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, len)\n"
+        "local #^#SUBTREE#$# = #^#TREE#$#:add#^#SUFFIX#$#(#^#FIELD#$#, #^#RANGE#$#)\n"
         "#^#BITS#$#\n"
-        "result = #^#SUCCESS#$#\n"
-        "next_offset = offset + len\n"
+        "#^#RESULT#$# = #^#SUCCESS#$#\n"
+        "#^#NEXT_OFFSET#$# = #^#OFFSET#$# + len\n"
         ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     auto parseObj = genSetFieldParseObj();
     util::GenReplacementMap repl = {
-        {"LEN", std::to_string(parseObj.parseMaxLength())},
+        {"LEN", std::to_string(wiresharkMinFieldLength(refField))},
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
         {"SUBTREE", wiresharkFieldSubtreeStr()},
+        {"TVB", wiresharkTvbStr()},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+        {"OFFSET", wiresharkOffsetStr()},
+        {"RESULT", wiresharkResultStr()},
+        {"TREE", wiresharkTreeStr()},
+        {"LIMIT", wiresharkOffsetLimitStr()},
+        {"FIELD", wiresharkFieldStr()},
+        {"RANGE", wiresharkRangeStr()},
     };
 
     if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
@@ -163,7 +171,7 @@ std::string WiresharkSetField::wiresharkValidFuncBodyImpl([[maybe_unused]] const
         "local extractor = #^#MAP#$#[#^#FIELD#$#]\n"
         "local info = {extractor()}\n"
         "local last = info[#info]\n"
-        "return bit32.band(last.value, #^#MASK#$#) == #^#VAL#$#\n"
+        "return bit32.band(last.value, #^#MASK#$#) == #^#VAL#$#, true\n"
         ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());

@@ -67,20 +67,27 @@ std::string WiresharkFloatField::wiresharkFieldRegistrationImpl(const WiresharkF
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkFloatField::wiresharkDissectBodyImpl([[maybe_unused]] const WiresharkField* refField) const
+std::string WiresharkFloatField::wiresharkDissectBodyImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
-        "local #^#SUBTREE#$# = tree:add#^#SUFFIX#$#(field, tvb(offset, #^#LEN#$#))\n"
-        "result = #^#SUCCESS#$#\n"
-        "next_offset = offset + #^#LEN#$#\n"
+        "local #^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, #^#LEN#$#)"
+        "local #^#SUBTREE#$# = #^#TREE#$#:add#^#SUFFIX#$#(#^#FIELD#$#, #^#RANGE#$#)\n"
+        "#^#RESULT#$# = #^#SUCCESS#$#\n"
+        "#^#NEXT_OFFSET#$# = #^#OFFSET#$# + #^#LEN#$#\n"
         ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     auto parseObj = genFloatFieldParseObj();
     util::GenReplacementMap repl = {
-        {"LEN", std::to_string(parseObj.parseMaxLength())},
+        {"LEN", std::to_string(wiresharkMinFieldLength(refField))},
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
         {"SUBTREE", wiresharkFieldSubtreeStr()},
+        {"TREE", wiresharkTreeStr()},
+        {"TVB", wiresharkTvbStr()},
+        {"OFFSET", wiresharkOffsetStr()},
+        {"RESULT", wiresharkResultStr()},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+        {"FIELD", wiresharkFieldStr()},
     };
 
     if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {

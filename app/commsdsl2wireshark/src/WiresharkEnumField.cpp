@@ -78,7 +78,7 @@ std::string WiresharkEnumField::wiresharkTvbRangeAccessImpl() const
     return WiresharkIntField::wiresharkTvbRangeAccessIntegralValue(obj.parseType(), obj.parseEndian(), obj.parseMaxLength());
 }
 
-std::string WiresharkEnumField::wiresharkDissectLengthCheckImpl() const
+std::string WiresharkEnumField::wiresharkDissectLengthCheckImpl(const WiresharkField* refField) const
 {
     auto parseObj = genEnumFieldParseObj();
 
@@ -86,30 +86,37 @@ std::string WiresharkEnumField::wiresharkDissectLengthCheckImpl() const
         return wiresharkEmptyBufferCheckCode();
     }
 
-    return WiresharkBase::wiresharkDissectLengthCheckImpl();
+    return WiresharkBase::wiresharkDissectLengthCheckImpl(refField);
 }
 
-std::string WiresharkEnumField::wiresharkDissectBodyImpl([[maybe_unused]] const WiresharkField* refField) const
+std::string WiresharkEnumField::wiresharkDissectBodyImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
-        "local len = math.min(#^#LEN#$#, offset_limit - offset)\n"
-        "local #^#RANGE#$# = tvb(offset, len)\n"
+        "local len = math.min(#^#LEN#$#, #^#LIMIT#$# - #^#OFFSET#$#)\n"
+        "local #^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, len)\n"
         "#^#VAL_DECL#$#\n"
         "#^#VAR_LEN#$#\n"
-        "local #^#SUBTREE#$# = tree:add#^#SUFFIX#$#(field, #^#RANGE#$##^#VAL#$#)\n"
-        "result = #^#SUCCESS#$#\n"
-        "next_offset = offset + len\n"
+        "local #^#SUBTREE#$# = #^#TREE#$#:add#^#SUFFIX#$#(#^#FIELD#$#, #^#RANGE#$##^#VAL#$#)\n"
+        "#^#RESULT#$# = #^#SUCCESS#$#\n"
+        "#^#NEXT_OFFSET#$# = #^#OFFSET#$# + len\n"
         ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     auto parseObj = genEnumFieldParseObj();
     bool hasVal = false;
     util::GenReplacementMap repl = {
-        {"LEN", std::to_string(parseObj.parseMaxLength())},
+        {"LEN", std::to_string(wiresharkMinFieldLength(refField))},
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
         {"VAR_LEN", wiresharkVarLengthCodeInternal(hasVal)},
         {"SUBTREE", wiresharkFieldSubtreeStr()},
         {"RANGE", wiresharkRangeStr()},
+        {"LIMIT", wiresharkOffsetLimitStr()},
+        {"OFFSET", wiresharkOffsetStr()},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+        {"RESULT", wiresharkResultStr()},
+        {"FIELD", wiresharkFieldStr()},
+        {"TREE", wiresharkTreeStr()},
+        {"TVB", wiresharkTvbStr()},
     };
 
     if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
@@ -131,7 +138,7 @@ std::string WiresharkEnumField::wiresharkValidFuncBodyImpl(const WiresharkField*
         "local info = {extractor()}\n"
         "local last = info[#info]\n"
         "local name = #^#NAME#$##^#SUFFIX#$#[last.value]\n"
-        "return name ~= #^#NIL#$#\n"
+        "return name ~= #^#NIL#$#, true\n"
         ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
@@ -228,7 +235,6 @@ std::string WiresharkEnumField::wiresharkValDeclCodeInternal() const
         ;
 
     util::GenReplacementMap repl = {
-        {"LEN", std::to_string(parseObj.parseMinLength())},
         {"ACC", WiresharkIntField::wiresharkTvbRangeAccessIntegralValue(parseObj.parseType(), parseObj.parseEndian(), parseObj.parseMinLength())},
         {"RANGE", wiresharkRangeStr()},
     };
@@ -277,25 +283,28 @@ std::string WiresharkEnumField::wiresharkVarLengthCodeBigEndianInternal() const
 
     static const std::string Templ =
         "local has_more = true\n"
-        "while has_more and (next_offset < (offset + len)) do\n"
-        "    local b = tvb(next_offset, 1):uint()\n"
+        "while has_more and (#^#NEXT_OFFSET#$# < (#^#OFFSET#$# + len)) do\n"
+        "    local b = #^#TVB#$#(#^#NEXT_OFFSET#$#, 1):uint()\n"
         "    local data = bit32.band(b, 0x7F)\n"
         "    has_more = (bit32.band(b, 0x80) ~= 0)\n"
         "    val = bit32.bor(bit32.lshift(val, 7), data)\n"
-        "    next_offset = next_offset + 1\n"
+        "    #^#NEXT_OFFSET#$# = #^#NEXT_OFFSET#$# + 1\n"
         "end\n"
         "\n"
         "if has_more then\n"
-        "    return #^#ERROR#$#, offset\n"
+        "    return #^#ERROR#$#, #^#OFFSET#$#\n"
         "end\n"
-        "len = next_offset - offset\n"
-        "#^#RANGE#$# = tvb(offset, len)\n"
+        "len = #^#NEXT_OFFSET#$# - #^#OFFSET#$#\n"
+        "#^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, len)\n"
         ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     util::GenReplacementMap repl = {
         {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::MalformedPacket)},
         {"RANGE", wiresharkRangeStr()},
+        {"TVB", wiresharkTvbStr()},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+        {"OFFSET", wiresharkOffsetStr()},
     };
 
     return util::genProcessTemplate(Templ, repl);

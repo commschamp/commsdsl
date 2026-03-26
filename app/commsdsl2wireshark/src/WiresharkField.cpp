@@ -38,27 +38,6 @@ namespace commsdsl2wireshark
 namespace
 {
 
-const WiresharkBitfieldField* wiresharkParentBitfieldInternal(const WiresharkField& field)
-{
-    auto* parent = field.wiresharkGenField().genGetParent();
-    assert(parent != nullptr);
-    if (parent->genElemType() != commsdsl::gen::GenElem::GenType_Field) {
-        return nullptr;
-    }
-
-    auto* asField = static_cast<const commsdsl::gen::GenField*>(parent);
-    if (asField->genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Bitfield) {
-        return nullptr;
-    }
-
-    return static_cast<const WiresharkBitfieldField*>(asField);
-}
-
-// bool wiresharkHasOrigCodeInternal(commsdsl::parse::ParseOverrideType value)
-// {
-//     return (value != commsdsl::parse::ParseOverrideType_Replace);
-// }
-
 bool wiresharkIsOverrideCodeAllowedInternal(commsdsl::parse::ParseOverrideType value)
 {
     return (value != commsdsl::parse::ParseOverrideType_None);
@@ -143,6 +122,10 @@ std::string WiresharkField::wiresharkDissectCode(const WiresharkField* refField)
 
 std::string WiresharkField::wiresharkExtractorsRegCode() const
 {
+    if (!m_genField.genIsReferenced()) {
+        return strings::genEmptyString();
+    }
+
     return wiresharkExtractorsRegCodeImpl();
 }
 
@@ -186,12 +169,45 @@ std::string WiresharkField::wiresharkTvbRangeAccess() const
 
 bool WiresharkField::wiresharkIsBitfieldMember() const
 {
-    return wiresharkParentBitfieldInternal(*this) != nullptr;
+    return wiresharkParentBitfield() != nullptr;
+}
+
+const WiresharkBitfieldField* WiresharkField::wiresharkParentBitfield() const
+{
+    auto* parent = m_genField.genGetParent();
+    assert(parent != nullptr);
+    if (parent->genElemType() != commsdsl::gen::GenElem::GenType_Field) {
+        return nullptr;
+    }
+
+    auto* asField = static_cast<const commsdsl::gen::GenField*>(parent);
+    if (asField->genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Bitfield) {
+        return nullptr;
+    }
+
+    return static_cast<const WiresharkBitfieldField*>(asField);
 }
 
 bool WiresharkField::wiresharkHasTrivialValid() const
 {
     return wiresharkHasTrivialValidInternal();
+}
+
+std::size_t WiresharkField::wiresharkMinFieldLength(const WiresharkField* refField) const
+{
+    const auto* genField = &m_genField;
+    if (refField != nullptr) {
+        genField = &(refField->wiresharkGenField());
+    }
+
+    auto parseObj = genField->genParseObj();
+    auto len = parseObj.parseMinLength();
+    auto* bitfieldParent = wiresharkParentBitfield();
+    if (bitfieldParent == nullptr) {
+        return len;
+    }
+
+    return std::max(len, bitfieldParent->wiresharkMinFieldLength());
 }
 
 std::string WiresharkField::wiresharkDissectNameImpl(const WiresharkField* refField) const
@@ -283,10 +299,6 @@ std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refFi
 
 std::string WiresharkField::wiresharkExtractorsRegCodeImpl() const
 {
-    if (!m_genField.genIsReferenced()) {
-        return strings::genEmptyString();
-    }
-
     static const std::string Templ =
         "#^#REG_FUNC#$#(\"#^#REF_NAME#$#\", #^#FIELD#$#)\n"
         ;
@@ -342,7 +354,7 @@ std::string WiresharkField::wiresharkTvbRangeAccessImpl() const
     return strings::genEmptyString();
 }
 
-std::string WiresharkField::wiresharkDissectLengthCheckImpl() const
+std::string WiresharkField::wiresharkDissectLengthCheckImpl(const WiresharkField* refField) const
 {
     auto parseObj = m_genField.genParseObj();
     if (parseObj.parseMinLength() == 0) {
@@ -358,7 +370,7 @@ std::string WiresharkField::wiresharkDissectLengthCheckImpl() const
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
     util::GenReplacementMap repl = {
         {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::NotEnoughData)},
-        {"LEN", std::to_string(parseObj.parseMinLength())},
+        {"LEN", std::to_string(wiresharkMinFieldLength(refField))},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -403,7 +415,7 @@ std::string WiresharkField::wiresharkForcedIntegralFieldMask(const WiresharkFiel
         refField = this;
     }
 
-    auto* parentBitfield = wiresharkParentBitfieldInternal(*refField);
+    auto* parentBitfield = wiresharkParentBitfield();
     if (parentBitfield == nullptr) {
         return strings::genNilStr();
     }
@@ -417,7 +429,7 @@ std::string WiresharkField::wiresharkForcedIntegralFieldType(const WiresharkFiel
         refField = this;
     }
 
-    auto* parentBitfield = wiresharkParentBitfieldInternal(*refField);
+    auto* parentBitfield = wiresharkParentBitfield();
     if (parentBitfield == nullptr) {
         return strings::genEmptyString();
     }
@@ -431,7 +443,7 @@ unsigned WiresharkField::wiresharkForcedMaskShift(const WiresharkField* refField
         refField = this;
     }
 
-    auto* parentBitfield = wiresharkParentBitfieldInternal(*refField);
+    auto* parentBitfield = wiresharkParentBitfield();
     if (parentBitfield == nullptr) {
         return 0U;
     }
@@ -445,7 +457,7 @@ unsigned WiresharkField::wiresharkForcedBitLength(const WiresharkField* refField
         refField = this;
     }
 
-    auto* parentBitfield = wiresharkParentBitfieldInternal(*refField);
+    auto* parentBitfield = wiresharkParentBitfield();
     if (parentBitfield == nullptr) {
         return 0U;
     }
@@ -595,6 +607,12 @@ const std::string& WiresharkField::wiresharkTvbStr()
     return Str;
 }
 
+const std::string& WiresharkField::wiresharkTreeStr()
+{
+    static const std::string Str("tree");
+    return Str;
+}
+
 bool WiresharkField::wiresharkCopyCodeFromInternal()
 {
     auto obj = m_genField.genParseObj();
@@ -697,7 +715,7 @@ std::string WiresharkField::wiresharkDissectBodyInternal(const WiresharkField* r
         {"FIELD", wiresharkFieldObjName(refField)},
         {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::InvalidMsgData)},
         {"REST", wiresharkDissectBodyImpl(refField)},
-        {"LENGTH", wiresharkDissectLengthCheckImpl()},
+        {"LENGTH", wiresharkDissectLengthCheckImpl(refField)},
         {"VALID", wiresharkDissectValidCheckInternal()},
         {"FIELD_STR", wiresharkFieldStr()},
     };
@@ -739,7 +757,8 @@ std::string WiresharkField::wiresharkDissectValidCheckInternal() const
     }
 
     static const std::string Templ =
-        "if not #^#VALID_FUNC#$#(#^#FIELD#$#) then\n"
+        "local valid, print_warn = #^#VALID_FUNC#$#(#^#FIELD#$#)\n"
+        "if not valid then\n"
         "    #^#CODE#$#\n"
         "end\n"
         ;
@@ -760,7 +779,9 @@ std::string WiresharkField::wiresharkDissectValidCheckInternal() const
     }
     else {
         static const std::string FailTempl =
-            "#^#SUBTREE#$#:add_expert_info(PI_PROTOCOL, PI_WARN, \"Invalid field value\")"
+            "if print_warn then\n"
+            "    #^#SUBTREE#$#:add_expert_info(PI_PROTOCOL, PI_WARN, \"Invalid field value\")\n"
+            "end"
             ;
         repl["CODE"] = util::genProcessTemplate(FailTempl, repl);
     }

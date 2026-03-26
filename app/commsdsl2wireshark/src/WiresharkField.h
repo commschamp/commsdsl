@@ -24,6 +24,7 @@
 namespace commsdsl2wireshark
 {
 
+class WiresharkBitfieldField;
 class WiresharkField
 {
 public:
@@ -62,8 +63,10 @@ public:
 
     std::string wiresharkTvbRangeAccess() const;
     bool wiresharkIsBitfieldMember() const;
+    const WiresharkBitfieldField* wiresharkParentBitfield() const;
 
     bool wiresharkHasTrivialValid() const;
+    std::size_t wiresharkMinFieldLength(const WiresharkField* refField = nullptr) const;
 
 protected:
     virtual std::string wiresharkDissectNameImpl(const WiresharkField* refField) const;
@@ -74,7 +77,7 @@ protected:
     virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkMembersDissectCodeImpl() const;
     virtual std::string wiresharkTvbRangeAccessImpl() const;
-    virtual std::string wiresharkDissectLengthCheckImpl() const;
+    virtual std::string wiresharkDissectLengthCheckImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkValidFuncBodyImpl(const WiresharkField* refField) const;
     virtual bool wiresharkHasTrivialValidImpl() const;
@@ -101,6 +104,7 @@ protected:
     static const std::string& wiresharkOffsetLimitStr();
     static const std::string& wiresharkResultStr();
     static const std::string& wiresharkTvbStr();
+    static const std::string& wiresharkTreeStr();
 
 private:
     using WiresharkCustomCodeFunc = std::string (WiresharkField::*)(bool& hasCode) const;

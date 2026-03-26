@@ -33,7 +33,7 @@
         </bitfield>
 
         <bitfield name="Date">
-            <int name="Year" type="int16" serOffset="-2000" defaultValue="2000" bitLength="7" signExt="false" />
+            <int name="Year" type="int16" serOffset="-2000" defaultValue="2000" bitLength="7" signExt="false" validRange="[2000, 2021]" />
             <int name="Month" type="uint8" bitLength="4" validRange="[1, 12]" />
             <int name="Day" type="uint8" bitLength="5" validRange="[1, 32]" />
         </bitfield>

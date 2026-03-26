@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test31"
-        id="1"
-        endian="big"
-        version="5"
-        dslVersion="2">
+<schema name="test31" endian="big" version="5" dslVersion="2">
     <fields>
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
         </enum>
 
         <enum name="E1" type="uint8">
@@ -21,6 +18,11 @@
             <bit name="B2" idx="2" />
         </set>
 
+        <int name="I1" type="uint8">
+            <special name="Val1" val="1" />
+            <special name="Val2" val="2" />
+        </int>
+
         <ref name="R1" field="E1" />
     </fields>
 
@@ -28,6 +30,14 @@
         <bitfield name="F1">
             <ref name="M1" field="R1" bitLength="4" />
             <ref name="M2" field="S1" bitLength="4" />
+        </bitfield>
+    </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <bitfield name="F1">
+            <ref name="M1" field="E1" bitLength="5" />
+            <ref name="M2" field="S1" bitLength="5" />
+            <ref name="M3" field="I1" bitLength="6" />
         </bitfield>
     </message>
 
