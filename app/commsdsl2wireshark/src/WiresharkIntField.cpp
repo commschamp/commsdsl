@@ -129,7 +129,7 @@ std::string WiresharkIntField::wiresharkFieldRegistrationImpl(const WiresharkFie
 {
     static const std::string Templ =
         "#^#SPECIALS#$#\n"
-        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, #^#BASE#$#\n, #^#SPECIALS_NAME#$#, #^#MASK#$#, #^#DESC#$#))\n"
+        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, #^#BASE#$#, #^#SPECIALS_NAME#$#, #^#MASK#$#, #^#DESC#$#))\n"
     ;
 
     auto obj = genIntFieldParseObj();

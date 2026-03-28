@@ -27,12 +27,20 @@ def pcap3(f):
     header = commsdsl_create_ethernet_ip_tcp_headers(len(msg3), seq)
     commsdsl_write_packet(f, header + msg3, time.time())
 
+def pcap4(f):
+    seq = 4000
+    payload = struct.pack('>B', 0x3f)
+    msg4 = do_frame(4, payload)
+    header = commsdsl_create_ethernet_ip_tcp_headers(len(msg4), seq)
+    commsdsl_write_packet(f, header + msg4, time.time())
+
 def main():
     with open(sys.argv[1], 'wb') as f:
         commsdsl_write_pcap_header(f)
         pcap1(f)
         pcap2(f)
         pcap3(f)
+        pcap4(f)
 
 if __name__ == '__main__':
     main()

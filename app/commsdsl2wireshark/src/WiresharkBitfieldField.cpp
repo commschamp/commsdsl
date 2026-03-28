@@ -249,7 +249,7 @@ std::string WiresharkBitfieldField::wiresharkValidFuncBodyImpl(const WiresharkFi
             ;
 
         util::GenReplacementMap memRepl = {
-            {"FUNC", f->wiresharkValidFuncName()},
+            {"FUNC", f->wiresharkValidFuncName(refField)},
             {"FIELD", f->wiresharkFieldObjName(refField)},
         };
 

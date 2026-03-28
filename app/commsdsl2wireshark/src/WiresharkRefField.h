@@ -38,7 +38,7 @@ protected:
     virtual bool genPrepareImpl() override;
 
     virtual std::string wiresharkDissectNameImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkValidFuncNameImpl() const override;
+    virtual std::string wiresharkValidFuncNameImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkDissectCodeImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkExtractorsRegCodeImpl() const override;
     virtual std::string wiresharkFieldObjNameImpl(const WiresharkField* refField) const override;
