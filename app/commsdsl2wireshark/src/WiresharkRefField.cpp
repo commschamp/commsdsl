@@ -105,19 +105,14 @@ std::string WiresharkRefField::wiresharkDissectCodeImpl(const WiresharkField* re
     return m_wiresharkField->wiresharkDissectCode(refField);
 }
 
-std::string WiresharkRefField::wiresharkExtractorsRegCodeImpl() const
+std::string WiresharkRefField::wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const
 {
     if (m_alias) {
         return strings::genEmptyString();
     }
 
-    return WiresharkBase::wiresharkExtractorsRegCodeImpl();
-}
-
-std::string WiresharkRefField::wiresharkFieldObjNameImpl(const WiresharkField* refField) const
-{
-    if (m_alias) {
-        return WiresharkBase::wiresharkFieldObjNameImpl(refField);
+    if (!wiresharkMustCopyDissectInternal()) {
+        return WiresharkBase::wiresharkExtractorsRegCodeImpl(refField);
     }
 
     if (refField == nullptr) {
@@ -125,6 +120,24 @@ std::string WiresharkRefField::wiresharkFieldObjNameImpl(const WiresharkField* r
     }
 
     assert(m_wiresharkField != nullptr);
+    return m_wiresharkField->wiresharkExtractorsRegCode(refField);
+}
+
+std::string WiresharkRefField::wiresharkFieldObjNameImpl(const WiresharkField* refField) const
+{
+    assert(m_wiresharkField != nullptr);
+    if (m_alias) {
+        return m_wiresharkField->wiresharkFieldObjName(nullptr);
+    }
+
+    if (!wiresharkMustCopyDissectInternal()) {
+        return WiresharkBase::wiresharkFieldObjNameImpl(refField);
+    }
+
+    if (refField == nullptr) {
+        refField = this;
+    }
+
     return m_wiresharkField->wiresharkFieldObjName(refField);
 }
 

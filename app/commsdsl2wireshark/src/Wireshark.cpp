@@ -74,6 +74,11 @@ std::string Wireshark::wiresharkStatusCodeStr(const WiresharkGenerator& generato
     return obj.wiresharkStatusCodeNameInternal() + "." + wiresharkStatusCodeStrInternal(code);
 }
 
+std::string Wireshark::wiresharkFieldValueFuncName(const WiresharkGenerator& generator)
+{
+    return wiresharkProtocolObjName(generator) + "_field_value";
+}
+
 bool Wireshark::wiresharkWriteInternal() const
 {
     auto fileName = wiresharkFileName(m_wiresharkGenerator);
@@ -93,6 +98,7 @@ bool Wireshark::wiresharkWriteInternal() const
             "#^#STATUS_CODE#$#\n"
             "#^#FIELDS_REG#$#\n"
             "#^#EXTRACTORS_DECL#$#\n"
+            "#^#FIELD_VALUE_FUNC#$#\n"
             "#^#CODE#$#\n"
             "#^#DISSECT_FUNC#$#\n"
             "#^#NAME#$#.fields = #^#FIELDS_LIST#$#\n"
@@ -112,6 +118,7 @@ bool Wireshark::wiresharkWriteInternal() const
             {"STATUS_CODE", wiresharkStatusCodeDefInternal()},
             {"EXTRACTORS_DECL", wiresharkExtractorsDeclInternal()},
             {"EXTRACTORS_REG", wiresharkExtractorsRegCodeInternal()},
+            {"FIELD_VALUE_FUNC", wiresharkFieldValueFuncInternal()},
         };
 
         auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
@@ -320,6 +327,25 @@ std::string Wireshark::wiresharkExtractorsRegCodeInternal() const
     }
 
     return util::genStrListToString(elems, "", "");
+}
+
+std::string Wireshark::wiresharkFieldValueFuncInternal() const
+{
+    const std::string Templ =
+        "local function #^#NAME#$#(field)\n"
+        "    local extractor = #^#MAP#$#[field]\n"
+        "    local info = {extractor()}\n"
+        "    local last = info[#info]\n"
+        "    return last.value\n"
+        "end\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkFieldValueFuncName(m_wiresharkGenerator)},
+        {"MAP", wiresharkExtractorsMapName(m_wiresharkGenerator)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 const std::string& Wireshark::wiresharkStatusCodeStrInternal(StatusCode code)

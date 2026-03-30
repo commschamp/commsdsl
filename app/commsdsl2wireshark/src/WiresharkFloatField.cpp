@@ -100,9 +100,7 @@ std::string WiresharkFloatField::wiresharkDissectBodyImpl(const WiresharkField* 
 std::string WiresharkFloatField::wiresharkValidFuncBodyImpl([[maybe_unused]] const WiresharkField* refField) const
 {
     static const std::string Templ =
-        "local extractor = #^#MAP#$#[#^#FIELD#$#]\n"
-        "local info = {extractor()}\n"
-        "local last = info[#info]\n"
+        "local value = #^#FUNC#$#(#^#FIELD#$#)\n"
         "local epsilon = #^#EPSILON#$#\n"
         "#^#ELEMS#$#\n"
         "return false\n"
@@ -134,7 +132,7 @@ std::string WiresharkFloatField::wiresharkValidFuncBodyImpl([[maybe_unused]] con
 
         if (std::isnan(r.m_min)) {
             static const std::string CompTempl =
-                "if last.value ~= last.value then\n"
+                "if value ~= value then\n"
                 "    return true\n"
                 "end\n"
                 ;
@@ -145,7 +143,7 @@ std::string WiresharkFloatField::wiresharkValidFuncBodyImpl([[maybe_unused]] con
 
         if (r.m_min == r.m_max) {
             static const std::string CompTempl =
-                "if (last.value == #^#VAL#$#) or (math.abs(last.value - (#^#VAL#$#)) < epsilon) then\n"
+                "if (value == #^#VAL#$#) or (math.abs(value - (#^#VAL#$#)) < epsilon) then\n"
                 "    return true\n"
                 "end\n"
                 ;
@@ -159,8 +157,8 @@ std::string WiresharkFloatField::wiresharkValidFuncBodyImpl([[maybe_unused]] con
         }
 
         static const std::string CompTempl =
-            "if ((#^#MIN#$# <= last.value) or (math.abs(#^#MIN#$# - last.value) < epsilon)) and\n"
-            "    ((last.value <= #^#MAX#$#) or (math.abs(#^#MAX#$# - last.value) < epsilon)) then\n"
+            "if ((#^#MIN#$# <= value) or (math.abs(#^#MIN#$# - value) < epsilon)) and\n"
+            "    ((value <= #^#MAX#$#) or (math.abs(#^#MAX#$# - value) < epsilon)) then\n"
             "    return true\n"
             "end\n"
             ;
@@ -175,7 +173,7 @@ std::string WiresharkFloatField::wiresharkValidFuncBodyImpl([[maybe_unused]] con
 
     util::GenReplacementMap repl = {
         {"ELEMS", util::genStrListToString(elems, "\n", "")},
-        {"MAP", Wireshark::wiresharkExtractorsMapName(wiresharkGenerator)},
+        {"FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
         {"FIELD", wiresharkFieldStr()},
         {"EPSILON", (parseObj.parseType() == commsdsl::parse::ParseFloatField::ParseType::Float) ? "1e-6" : "1e-12"}
     };

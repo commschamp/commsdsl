@@ -118,8 +118,8 @@ public:
 
     const GenField* genFindField(const std::string& externalRef) const;
     GenField* genFindField(const std::string& externalRef);
-    const GenMessage* genGindMessage(const std::string& externalRef) const;
-    GenMessage* genGindMessage(const std::string& externalRef);
+    const GenMessage* genFindMessage(const std::string& externalRef) const;
+    GenMessage* genFindMessage(const std::string& externalRef);
     const GenFrame* genFindFrame(const std::string& externalRef) const;
     const GenInterface* genFindInterface(const std::string& externalRef) const;
     static const GenSchema& genSchemaOf(const GenElem& elem);

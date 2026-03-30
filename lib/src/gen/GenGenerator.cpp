@@ -321,7 +321,7 @@ public:
         return const_cast<GenSchema*>(parsedRef.first)->genFindField(parsedRef.second);
     }
 
-    const GenMessage* genGindMessage(const std::string& externalRef) const
+    const GenMessage* genFindMessage(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
         auto parsedRef = genParseExternalRef(externalRef);
@@ -329,10 +329,10 @@ public:
             return nullptr;
         }
 
-        return parsedRef.first->genGindMessage(parsedRef.second);
+        return parsedRef.first->genFindMessage(parsedRef.second);
     }
 
-    GenMessage* genGindMessage(const std::string& externalRef)
+    GenMessage* genFindMessage(const std::string& externalRef)
     {
         assert(!externalRef.empty());
         auto parsedRef = genParseExternalRef(externalRef);
@@ -340,7 +340,7 @@ public:
             return nullptr;
         }
 
-        return const_cast<GenSchema*>(parsedRef.first)->genGindMessage(parsedRef.second);
+        return const_cast<GenSchema*>(parsedRef.first)->genFindMessage(parsedRef.second);
     }
 
     const GenFrame* genFindFrame(const std::string& externalRef) const
@@ -618,7 +618,7 @@ private:
         auto lines = util::genStrSplitByAnyChar(contents, "\n\r");
 
         for (auto& l : lines) {
-            auto* m = genGindMessage(l);
+            auto* m = genFindMessage(l);
             if (m == nullptr) {
                 m_logger->genError("Failed to fined message \"" + l + "\" listed in \"" + m_messagesListFile + "\".");
                 return false;
@@ -889,14 +889,14 @@ GenField* GenGenerator::genFindField(const std::string& externalRef)
     return field;
 }
 
-const GenMessage* GenGenerator::genGindMessage(const std::string& externalRef) const
+const GenMessage* GenGenerator::genFindMessage(const std::string& externalRef) const
 {
-    return m_impl->genGindMessage(externalRef);
+    return m_impl->genFindMessage(externalRef);
 }
 
-GenMessage* GenGenerator::genGindMessage(const std::string& externalRef)
+GenMessage* GenGenerator::genFindMessage(const std::string& externalRef)
 {
-    auto* msg = m_impl->genGindMessage(externalRef);
+    auto* msg = m_impl->genFindMessage(externalRef);
     do {
         if (msg->genIsPrepared()) {
             break;

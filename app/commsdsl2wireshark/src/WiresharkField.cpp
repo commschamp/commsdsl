@@ -26,6 +26,8 @@
 
 #include <algorithm>
 #include <cassert>
+#include <map>
+#include <type_traits>
 #include <utility>
 
 namespace comms = commsdsl::gen::comms;
@@ -120,13 +122,13 @@ std::string WiresharkField::wiresharkDissectCode(const WiresharkField* refField)
     return wiresharkDissectCodeImpl(refField);
 }
 
-std::string WiresharkField::wiresharkExtractorsRegCode() const
+std::string WiresharkField::wiresharkExtractorsRegCode(const WiresharkField* refField) const
 {
     if (!m_genField.genIsReferenced()) {
         return strings::genEmptyString();
     }
 
-    return wiresharkExtractorsRegCodeImpl();
+    return wiresharkExtractorsRegCodeImpl(refField);
 }
 
 std::string WiresharkField::wiresharkFieldObjName(const WiresharkField* refField) const
@@ -213,6 +215,213 @@ std::size_t WiresharkField::wiresharkMinFieldLength(const WiresharkField* refFie
     }
 
     return std::max(len, bitfieldParent->wiresharkMinFieldLength());
+}
+
+std::string WiresharkField::wiresharkDslCondToString(
+    const WiresharkGenerator& generator,
+    const WiresharkFieldsList& siblings,
+    const ParseOptCond& cond)
+{
+    if (cond.parseKind() == ParseOptCond::ParseKind::List) {
+        using ParseType = commsdsl::parse::ParseOptCondList::ParseType;
+        static const std::string TypeConnectMap[] = {
+            /* And */ " and\n",
+            /* Or */ " or\n",
+        };
+        static const std::size_t TypeConnectMapSize = std::extent_v<decltype(TypeConnectMap)>;
+        static_assert(TypeConnectMapSize == static_cast<unsigned>(ParseType::NumOfValues));
+
+        commsdsl::parse::ParseOptCondList listCond(cond);
+        auto typeIdx = static_cast<unsigned>(listCond.parseType());
+        assert(typeIdx < TypeConnectMapSize);
+        if (TypeConnectMapSize <= typeIdx) {
+            return strings::genEmptyString();
+        }
+
+        GenStringsList elems;
+        auto conditions = listCond.parseConditions();
+        for (auto& c : conditions) {
+            elems.push_back(wiresharkDslCondToString(generator, siblings, c));
+        }
+
+        static const std::string Templ =
+            "(#^#COND#$#)"
+            ;
+
+        util::GenReplacementMap repl = {
+            {"COND", util::genStrListToString(elems, TypeConnectMap[typeIdx], "")},
+        };
+
+        return util::genProcessTemplate(Templ, repl);
+    }
+
+    assert(cond.parseKind() == ParseOptCond::ParseKind::Expr);
+    static const std::map<std::string, std::string> OpMap = {
+        {"<", " < "},
+        {"<=", " <= "},
+        {">", " > "},
+        {">=", " >= "},
+        {"=", " == "},
+        {"!=", " ~= "},
+        {"!", "not "},
+        {strings::genEmptyString(), strings::genEmptyString()},
+    };
+
+    commsdsl::parse::ParseOptCondExpr exprCond(cond);
+    auto opIter = OpMap.find(exprCond.parseOp());
+    if (opIter == OpMap.end()) {
+        generator.genLogger().genError("Unexpected condition operation: " + exprCond.parseOp());
+        return strings::genEmptyString();
+    }
+
+    auto findSiblingFieldFunc =
+        [&siblings](const std::string& name) -> const WiresharkField*
+        {
+            auto iter =
+                std::find_if(
+                    siblings.begin(), siblings.end(),
+                    [&name](auto& f)
+                    {
+                        return f->wiresharkGenField().genParseObj().parseName() == name;
+                    });
+
+            if (iter == siblings.end()) {
+                return nullptr;
+            }
+
+            return *iter;
+        };
+
+    auto leftInfo = exprCond.parseLeftInfo();
+    auto& op = opIter->second;
+    auto rightInfo = exprCond.parseRightInfo();
+
+    using ParseOperandType = commsdsl::parse::ParseOptCondExpr::ParseOperandType;
+    using ParseAccMode = commsdsl::parse::ParseOptCondExpr::ParseAccMode;
+    if (leftInfo.m_type != ParseOperandType::Invalid) {
+        assert(!op.empty());
+        assert(rightInfo.m_type != ParseOperandType::Invalid);
+
+        auto leftSepPos = leftInfo.m_access.find(".");
+        std::string leftFieldName(leftInfo.m_access, 0, leftSepPos);
+
+        const WiresharkField* leftField = nullptr;
+        if (leftInfo.m_type == ParseOperandType::InterfaceRef) {
+            // TODO: implement
+            assert(false);
+            //leftField = wiresharkFindInterfaceFieldInternal(generator, leftInfo.m_access);
+        }
+        else if (leftInfo.m_type == ParseOperandType::SiblingRef) {
+            leftField = findSiblingFieldFunc(leftFieldName);
+        }
+
+        if (leftField == nullptr) {
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
+            assert(Should_not_happen);
+            return strings::genEmptyString();
+        }
+
+        std::string remLeft;
+        if (leftSepPos < leftInfo.m_access.size()) {
+            remLeft = leftInfo.m_access.substr(leftSepPos + 1);
+        }
+
+        assert(leftInfo.m_mode != ParseAccMode::Exists);
+        assert(rightInfo.m_mode != ParseAccMode::Size);
+        assert(rightInfo.m_mode != ParseAccMode::Exists);
+
+        if (leftInfo.m_mode == ParseAccMode::Size) {
+            // TODO: implement
+            assert(false);
+            //return commsDslCondToStringFieldSizeCompInternal(leftField, remLeft, op, rightInfo.m_access);
+        }
+
+        if (rightInfo.m_type == ParseOperandType::Value) {
+            return wiresharkDslCondToStringFieldValueCompInternal(leftField, remLeft, op, rightInfo.m_access);
+        }
+
+        auto rigthSepPos = rightInfo.m_access.find(".");
+        std::string rightFieldName(rightInfo.m_access, 0, rigthSepPos);
+
+        const WiresharkField* rightField = nullptr;
+        if (rightInfo.m_type == ParseOperandType::InterfaceRef) {
+            // TODO: implement
+            assert(false);
+            //rightField = wiresharkFindInterfaceFieldInternal(generator, rightInfo.m_access);
+        }
+        else if (rightInfo.m_type == ParseOperandType::SiblingRef) {
+            rightField = findSiblingFieldFunc(rightFieldName);
+        }
+
+        if (rightField == nullptr) {
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
+            assert(Should_not_happen);
+            return strings::genEmptyString();
+        }
+
+        std::string remRight;
+        if (rigthSepPos < rightInfo.m_access.size()) {
+            remRight = rightInfo.m_access.substr(rigthSepPos + 1);
+        }
+
+        return wiresharkDslCondToStringFieldFieldCompInternal(leftField, remLeft, op, rightField, remRight);
+    }
+
+    // Reference to bit in "set".
+    if ((rightInfo.m_type != ParseOperandType::InterfaceRef) &&
+        (rightInfo.m_type != ParseOperandType::SiblingRef)) {
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
+        assert(Should_not_happen);
+        return strings::genEmptyString();
+    }
+
+    // TODO: implement
+    assert(false);
+    return strings::genEmptyString();
+
+    // auto rightSepPos = rightInfo.m_access.find(".");
+    // std::string rightFieldName(rightInfo.m_access, 0, rightSepPos);
+
+    // const WiresharkField* rightField = nullptr;
+    // if (rightInfo.m_type == ParseOperandType::InterfaceRef) {
+    //     rightField = wiresharkFindInterfaceFieldInternal(generator, rightInfo.m_access);
+    // }
+    // else if (rightInfo.m_type == ParseOperandType::SiblingRef) {
+    //     rightField = findSiblingFieldFunc(rightFieldName);
+    // }
+
+    // if (rightField == nullptr) {
+    //     [[maybe_unused]] static constexpr bool Should_not_happen = false;
+    //     assert(Should_not_happen);
+    //     return strings::genEmptyString();
+    // }
+
+    // assert(rightInfo.m_mode != ParseAccMode::Size);
+
+    // std::string remRight;
+    // if (rightSepPos < rightInfo.m_access.size()) {
+    //     remRight = rightInfo.m_access.substr(rightSepPos + 1);
+    // }
+
+    // if (rightInfo.m_mode == ParseAccMode::Exists) {
+    //     return commsDslCondToStringFieldExistsCompInternal(rightField, remRight, op);
+    // }
+
+    // auto rightAccName = comms::genAccessName(rightField->commsGenField().genParseObj().parseName());
+    // auto checks = rightField->commsCompOptChecks(remRight, commsGetFieldAccessPrefixInternal(*rightField) + rightAccName + "()");
+    // checks.push_back(op + commsGetFieldAccessPrefixInternal(*rightField) + rightAccName + "()" + rightField->commsValueAccessStr(remRight));
+
+    // return util::genStrListToString(checks, " &&\n", "");
+}
+
+std::string WiresharkField::wiresharkValueAccessStr(const std::string& accStr, const WiresharkField* refField) const
+{
+    return wiresharkValueAccessStrImpl(accStr, refField);
+}
+
+std::string WiresharkField::wiresharkCompPrepValueStr(const std::string& value) const
+{
+    return wiresharkCompPrepValueStrImpl(value);
 }
 
 std::string WiresharkField::wiresharkDissectNameImpl(const WiresharkField* refField) const
@@ -307,7 +516,7 @@ std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refFi
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkField::wiresharkExtractorsRegCodeImpl() const
+std::string WiresharkField::wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
         "#^#REG_FUNC#$#(\"#^#REF_NAME#$#\", #^#FIELD#$#)\n"
@@ -316,8 +525,8 @@ std::string WiresharkField::wiresharkExtractorsRegCodeImpl() const
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
     util::GenReplacementMap repl = {
         {"REG_FUNC", Wireshark::wiresharkCreateExtractorFuncName(wiresharkGenerator)},
-        {"REF_NAME", wiresharkFieldRefName(nullptr)},
-        {"FIELD", wiresharkFieldObjName(nullptr)},
+        {"REF_NAME", wiresharkFieldRefName(refField)},
+        {"FIELD", wiresharkFieldObjName(refField)},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -400,6 +609,29 @@ std::string WiresharkField::wiresharkValidFuncBodyImpl([[maybe_unused]] const Wi
     return
         "-- TODO: BUG: not overriden\n"
         "return true";
+}
+
+std::string WiresharkField::wiresharkValueAccessStrImpl(
+    [[maybe_unused]] const std::string& accStr,
+    const WiresharkField* refField) const
+{
+    assert(accStr.empty());
+    static const std::string Templ =
+        "#^#FUNC#$#(#^#FIELD#$#)"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    util::GenReplacementMap repl = {
+        {"FIELD", wiresharkFieldObjName(refField)},
+        {"FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkField::wiresharkCompPrepValueStrImpl(const std::string& value) const
+{
+    return value;
 }
 
 bool WiresharkField::wiresharkHasTrivialValidImpl() const
@@ -856,6 +1088,63 @@ bool WiresharkField::wiresharkHasTrivialValidInternal() const
     }
 
     return wiresharkHasTrivialValidImpl();
+}
+
+std::string WiresharkField::wiresharkDslCondToStringFieldValueCompInternal(
+    const WiresharkField* field,
+    const std::string& accStr,
+    const std::string& op,
+    const std::string& value)
+{
+    auto valueStr = field->wiresharkCompPrepValueStr(value);
+    return '(' + field->wiresharkValueAccessStr(accStr) + op + valueStr + ')';
+}
+
+std::string WiresharkField::wiresharkDslCondToStringFieldFieldCompInternal(
+    const WiresharkField* leftField,
+    const std::string& leftAccStr,
+    const std::string& op,
+    const WiresharkField* rightField,
+    const std::string& rightAccStr)
+{
+    // TODO:
+    static_cast<void>(leftField);
+    static_cast<void>(leftAccStr);
+    static_cast<void>(op);
+    static_cast<void>(rightField);
+    static_cast<void>(rightAccStr);
+    assert(false);
+    return strings::genEmptyString();
+    // auto leftAccName = comms::genAccessName(leftField->commsGenField().genParseObj().parseName());
+    // auto leftPrefix = commsGetFieldAccessPrefixInternal(*leftField) + leftAccName + "()";
+    // auto rightAccName = comms::genAccessName(rightField->commsGenField().genParseObj().parseName());
+    // auto rightPrefix = commsGetFieldAccessPrefixInternal(*rightField) + rightAccName + "()";
+
+    // auto optConds = leftField->commsCompOptChecks(leftAccStr, leftPrefix);
+    // rightField->commsCompOptChecks(rightAccStr, optConds, rightPrefix);
+    // auto valueStr = rightPrefix + rightField->commsValueAccessStr(rightAccStr);
+    // auto typeCast = leftField->commsCompValueCastType(leftAccStr);
+    // if (!typeCast.empty()) {
+    //     auto accName = comms::genAccessName(leftField->commsGenField().genParseObj().parseName());
+    //     valueStr = "static_cast<typename Field_" + accName + "::" + typeCast + ">(" + valueStr + ")";
+    // }
+
+    // auto expr = leftPrefix + leftField->commsValueAccessStr(leftAccStr) + ' ' + op + ' ' + valueStr;
+
+    // if (optConds.empty()) {
+    //     return expr;
+    // }
+
+    // static const std::string Templ =
+    //     "#^#COND#$# &&\n"
+    //     "(#^#EXPR#$#)";
+
+    // util::GenReplacementMap repl = {
+    //     {"COND", util::genStrListToString(optConds, " &&\n", "")},
+    //     {"EXPR", std::move(expr)},
+    // };
+
+    // return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2wireshark

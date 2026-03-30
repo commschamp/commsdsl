@@ -42,6 +42,7 @@ public:
     static std::string wiresharkFieldsListName(const WiresharkGenerator& generator);
     static std::string wiresharkExtractorsMapName(const WiresharkGenerator& generator);
     static std::string wiresharkStatusCodeStr(const WiresharkGenerator& generator, StatusCode code);
+    static std::string wiresharkFieldValueFuncName(const WiresharkGenerator& generator);
 
 private:
     explicit Wireshark(const WiresharkGenerator& generator) : m_wiresharkGenerator(generator) {}
@@ -57,6 +58,7 @@ private:
     std::string wiresharkStatusCodeDefInternal() const;
     std::string wiresharkExtractorsDeclInternal() const;
     std::string wiresharkExtractorsRegCodeInternal() const;
+    std::string wiresharkFieldValueFuncInternal() const;
     static const std::string& wiresharkStatusCodeStrInternal(StatusCode code);
 
     const WiresharkGenerator& m_wiresharkGenerator;

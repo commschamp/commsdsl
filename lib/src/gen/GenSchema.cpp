@@ -147,7 +147,7 @@ public:
         return const_cast<GenField*>(static_cast<const GenSchemaImpl*>(this)->genFindField(externalRef));
     }
 
-    const GenMessage* genGindMessage(const std::string& externalRef) const
+    const GenMessage* genFindMessage(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
         auto pos = externalRef.find_first_of('.');
@@ -176,7 +176,7 @@ public:
             fromPos = pos + 1U;
         }
         std::string remStr(externalRef, fromPos);
-        auto result = (*nsIter)->genGindMessage(remStr);
+        auto result = (*nsIter)->genFindMessage(remStr);
         if (result == nullptr) {
             m_generator.genLogger().genError("Internal error: unknown external reference: " + externalRef);
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
@@ -185,9 +185,9 @@ public:
         return result;
     }
 
-    GenMessage* genGindMessage(const std::string& externalRef)
+    GenMessage* genFindMessage(const std::string& externalRef)
     {
-        return const_cast<GenMessage*>(static_cast<const GenSchemaImpl*>(this)->genGindMessage(externalRef));
+        return const_cast<GenMessage*>(static_cast<const GenSchemaImpl*>(this)->genFindMessage(externalRef));
     }
 
     const GenFrame* genFindFrame(const std::string& externalRef) const
@@ -582,14 +582,14 @@ GenField* GenSchema::genFindField(const std::string& externalRef)
     return field;
 }
 
-const GenMessage* GenSchema::genGindMessage(const std::string& externalRef) const
+const GenMessage* GenSchema::genFindMessage(const std::string& externalRef) const
 {
-    return m_impl->genGindMessage(externalRef);
+    return m_impl->genFindMessage(externalRef);
 }
 
-GenMessage* GenSchema::genGindMessage(const std::string& externalRef)
+GenMessage* GenSchema::genFindMessage(const std::string& externalRef)
 {
-    auto* msg = m_impl->genGindMessage(externalRef);
+    auto* msg = m_impl->genFindMessage(externalRef);
     do {
         if (msg->genIsPrepared()) {
             break;

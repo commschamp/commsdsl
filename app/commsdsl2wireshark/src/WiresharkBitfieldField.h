@@ -44,7 +44,7 @@ protected:
     virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkMembersDissectCodeImpl() const override;
     virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkExtractorsRegCodeImpl() const override;
+    virtual std::string wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkValidFuncBodyImpl(const WiresharkField* refField) const override;
     virtual bool wiresharkHasTrivialValidImpl() const override;
 

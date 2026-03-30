@@ -134,10 +134,8 @@ std::string WiresharkEnumField::wiresharkDissectBodyImpl(const WiresharkField* r
 std::string WiresharkEnumField::wiresharkValidFuncBodyImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
-        "local extractor = #^#MAP#$#[#^#FIELD#$#]\n"
-        "local info = {extractor()}\n"
-        "local last = info[#info]\n"
-        "local name = #^#NAME#$##^#SUFFIX#$#[last.value]\n"
+        "local value = #^#FUNC#$#(#^#FIELD#$#)\n"
+        "local name = #^#NAME#$##^#SUFFIX#$#[value]\n"
         "return name ~= #^#NIL#$#, true\n"
         ;
 
@@ -146,7 +144,7 @@ std::string WiresharkEnumField::wiresharkValidFuncBodyImpl(const WiresharkField*
         {"NAME", wiresharkFieldObjName(refField)},
         {"SUFFIX", strings::genValsSuffixStr()},
         {"NIL", strings::genNilStr()},
-        {"MAP", Wireshark::wiresharkExtractorsMapName(wiresharkGenerator)},
+        {"FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
         {"FIELD", wiresharkFieldStr()},
     };
 

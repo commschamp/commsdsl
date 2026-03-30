@@ -36,6 +36,7 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
+    virtual std::string wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkDissectLengthCheckImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const override;
@@ -43,7 +44,7 @@ protected:
     virtual bool wiresharkHasTrivialValidImpl() const override;
 
 private:
-    std::string wiresharkBitsInternal(const WiresharkField* refField) const;
+    std::string wiresharkRegistrationBitsInternal(const WiresharkField* refField) const;
     std::string wiresharkBitMaskInternal(unsigned idx) const;
     std::string wiresharkBitParentWidthInternal(const WiresharkField* refField) const;
     std::string wiresharkBitObjName(const WiresharkField* refField, const std::string& bitName) const;

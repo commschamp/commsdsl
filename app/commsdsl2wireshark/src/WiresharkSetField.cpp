@@ -40,6 +40,43 @@ WiresharkSetField::WiresharkSetField(WiresharkGenerator& generator, ParseField p
 {
 }
 
+std::string WiresharkSetField::wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const
+{
+    if ((refField != nullptr) && (!refField->wiresharkIsBitfieldMember())) {
+        // No need for bits info for non-bitfield member <ref> field.
+        return WiresharkBase::wiresharkExtractorsRegCodeImpl(refField);
+    }
+
+    GenStringsList elems;
+
+    auto parseObj = genSetFieldParseObj();
+    auto& bits = parseObj.parseBits();
+
+    auto refName = wiresharkFieldRefName(refField);
+    auto parentWidth = wiresharkBitParentWidthInternal(refField);
+
+    for (const auto& bitInfo : bits) {
+        if (!genGenerator().genDoesElementExist(bitInfo.second.m_sinceVersion, bitInfo.second.m_deprecatedSince, true)) {
+            continue;
+        }
+
+        static const std::string Templ =
+            "#^#REG_FUNC#$#(\"#^#REF_NAME#$#\", #^#FIELD#$#)\n"
+            ;
+
+        auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+        util::GenReplacementMap repl = {
+            {"REG_FUNC", Wireshark::wiresharkCreateExtractorFuncName(wiresharkGenerator)},
+            {"REF_NAME", refName + '.' + bitInfo.first},
+            {"FIELD", wiresharkBitObjName(refField, bitInfo.first)},
+        };
+
+        elems.push_back(util::genProcessTemplate(Templ, repl));
+    }
+
+    return WiresharkBase::wiresharkExtractorsRegCodeImpl(refField) + util::genStrListToString(elems, "", "");
+}
+
 std::string WiresharkSetField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
@@ -49,7 +86,7 @@ std::string WiresharkSetField::wiresharkFieldRegistrationImpl(const WiresharkFie
 
     auto parseObj = genSetFieldParseObj();
     util::GenReplacementMap repl = {
-        {"BITS", wiresharkBitsInternal(refField)},
+        {"BITS", wiresharkRegistrationBitsInternal(refField)},
         {"OBJ_NAME", wiresharkFieldObjName(refField)},
         {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
         {"TYPE", wiresharkForcedIntegralFieldType(refField)},
@@ -168,16 +205,14 @@ std::string WiresharkSetField::wiresharkValidFuncBodyImpl([[maybe_unused]] const
     }
 
     static const std::string Templ =
-        "local extractor = #^#MAP#$#[#^#FIELD#$#]\n"
-        "local info = {extractor()}\n"
-        "local last = info[#info]\n"
-        "return bit32.band(last.value, #^#MASK#$#) == #^#VAL#$#, true\n"
+        "local value = #^#FUNC#$#(#^#FIELD#$#)\n"
+        "return bit32.band(value, #^#MASK#$#) == #^#VAL#$#, true\n"
         ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     util::GenReplacementMap repl = {
         {"SUFFIX", strings::genValsSuffixStr()},
-        {"MAP", Wireshark::wiresharkExtractorsMapName(wiresharkGenerator)},
+        {"FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
         {"FIELD", wiresharkFieldStr()},
         {"MASK", wiresharkHexString(reservedMask, 2U)},
         {"VAL", wiresharkHexString(reservedValue, 2U)},
@@ -205,7 +240,7 @@ bool WiresharkSetField::wiresharkHasTrivialValidImpl() const
     return (!hasReservedBits);
 }
 
-std::string WiresharkSetField::wiresharkBitsInternal(const WiresharkField* refField) const
+std::string WiresharkSetField::wiresharkRegistrationBitsInternal(const WiresharkField* refField) const
 {
     if ((refField != nullptr) && (!refField->wiresharkIsBitfieldMember())) {
         // No need for bits info for non-bitfield member <ref> field.

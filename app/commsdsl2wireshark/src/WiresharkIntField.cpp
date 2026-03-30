@@ -240,9 +240,7 @@ std::string WiresharkIntField::wiresharkValidFuncBodyImpl([[maybe_unused]] const
     }
 
     static const std::string Templ =
-        "local extractor = #^#MAP#$#[#^#FIELD#$#]\n"
-        "local info = {extractor()}\n"
-        "local last = info[#info]\n"
+        "local value = #^#FUNC#$#(#^#FIELD#$#)\n"
         "#^#ELEMS#$#\n"
         "return false, true\n"
         ;
@@ -275,7 +273,7 @@ std::string WiresharkIntField::wiresharkValidFuncBodyImpl([[maybe_unused]] const
 
         if (r.m_min == r.m_max) {
             static const std::string CompTempl =
-                "if last.value == #^#VAL#$# then\n"
+                "if value == #^#VAL#$# then\n"
                 "    return true\n"
                 "end\n"
                 ;
@@ -289,7 +287,7 @@ std::string WiresharkIntField::wiresharkValidFuncBodyImpl([[maybe_unused]] const
         }
 
         static const std::string CompTempl =
-            "if (#^#MIN#$# <= last.value) and (last.value <= #^#MAX#$#) then\n"
+            "if (#^#MIN#$# <= value) and (value <= #^#MAX#$#) then\n"
             "    return true\n"
             "end\n"
             ;
@@ -304,7 +302,7 @@ std::string WiresharkIntField::wiresharkValidFuncBodyImpl([[maybe_unused]] const
 
     util::GenReplacementMap repl = {
         {"ELEMS", util::genStrListToString(elems, "\n", "")},
-        {"MAP", Wireshark::wiresharkExtractorsMapName(wiresharkGenerator)},
+        {"FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
         {"FIELD", wiresharkFieldStr()},
     };
 

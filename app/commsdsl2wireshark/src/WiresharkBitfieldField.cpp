@@ -218,11 +218,11 @@ std::string WiresharkBitfieldField::wiresharkDissectBodyImpl([[maybe_unused]] co
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkBitfieldField::wiresharkExtractorsRegCodeImpl() const
+std::string WiresharkBitfieldField::wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const
 {
     util::GenStringsList members;
     for (auto* f : m_wiresharkFields) {
-        auto str = f->wiresharkExtractorsRegCode();
+        auto str = f->wiresharkExtractorsRegCode(refField);
         if (str.empty()) {
             continue;
         }
@@ -230,7 +230,7 @@ std::string WiresharkBitfieldField::wiresharkExtractorsRegCodeImpl() const
         members.push_back(std::move(str));
     }
 
-    return util::genStrListToString(members, "\n", "");
+    return WiresharkBase::wiresharkExtractorsRegCodeImpl(refField) + '\n' + util::genStrListToString(members, "\n", "");
 }
 
 std::string WiresharkBitfieldField::wiresharkValidFuncBodyImpl(const WiresharkField* refField) const
@@ -242,8 +242,8 @@ std::string WiresharkBitfieldField::wiresharkValidFuncBodyImpl(const WiresharkFi
         }
 
         static const std::string MemTempl =
-            "result, print_warn = #^#FUNC#$#(#^#FIELD#$#)\n"
-            "if not #^#FUNC#$#(#^#FIELD#$#) then\n"
+            "result, _ = #^#FUNC#$#(#^#FIELD#$#)\n"
+            "if not result then\n"
             "    return false, false\n"
             "end\n"
             ;
@@ -257,8 +257,7 @@ std::string WiresharkBitfieldField::wiresharkValidFuncBodyImpl(const WiresharkFi
     }
 
     static const std::string Templ =
-        "local valid = false\n"
-        "local print_warn = false\n"
+        "local result = false\n"
         "#^#MEMBERS#$#\n"
         "#^#CONDS#$#\n"
         "return true\n"
@@ -297,8 +296,21 @@ std::string WiresharkBitfieldField::wiresharkExtraValidCondsCodeInternal() const
         return strings::genEmptyString();
     }
 
-    // TODO:
-    return "--TODO: implement check of extra conditions\n";
+    static const std::string Templ =
+        "result =\n"
+        "    #^#COND#$#\n"
+        "\n"
+        "if not result then\n"
+        "    return false, true\n"
+        "end\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"COND", wiresharkDslCondToString(wiresharkGenerator, m_wiresharkFields, validCond)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2wireshark

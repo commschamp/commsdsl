@@ -715,7 +715,7 @@ const GenField* GenNamespace::genFindField(const std::string& externalRef) const
     return (*nsIter)->genFindField(remStr);
 }
 
-const GenMessage* GenNamespace::genGindMessage(const std::string& externalRef) const
+const GenMessage* GenNamespace::genFindMessage(const std::string& externalRef) const
 {
     assert(!externalRef.empty());
     auto pos = externalRef.find_first_of('.');
@@ -759,7 +759,7 @@ const GenMessage* GenNamespace::genGindMessage(const std::string& externalRef) c
         fromPos = pos + 1U;
     }
     std::string remStr(externalRef, fromPos);
-    return (*nsIter)->genGindMessage(remStr);
+    return (*nsIter)->genFindMessage(remStr);
 }
 
 const GenFrame* GenNamespace::genFindFrame(const std::string& externalRef) const

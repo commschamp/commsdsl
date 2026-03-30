@@ -299,7 +299,7 @@ bool CommsMessage::commsCopyCodeFromInternal()
         return true;
     }
 
-    auto* origMsg = genGenerator().genGindMessage(copyFrom);
+    auto* origMsg = genGenerator().genFindMessage(copyFrom);
     if (origMsg == nullptr) {
         genGenerator().genLogger().genError(
             "Failed to find referenced field \"" + copyFrom + "\" for copying overriding code.");

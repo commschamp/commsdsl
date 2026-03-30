@@ -336,7 +336,7 @@ bool CommsGenerator::commsPrepareExtraMessageBundlesInternal()
         messages.reserve(lines.size());
 
         for (auto& l : lines) {
-            auto* m = genGindMessage(l);
+            auto* m = genFindMessage(l);
             if (m == nullptr) {
                 genLogger().genError("Failed to fined message \"" + l + "\" for bundle " + name);
                 return false;
