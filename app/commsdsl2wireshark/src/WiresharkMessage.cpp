@@ -22,6 +22,8 @@
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
+#include <algorithm>
+
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
@@ -116,6 +118,26 @@ std::string WiresharkMessage::wiresharkExtractorsRegCode() const
     return util::genStrListToString(fields, "", "");
 }
 
+bool WiresharkMessage::wiresharkNeedsOptionalModeDefinition() const
+{
+    if (!genIsReferenced()) {
+        return false;
+    }
+
+    return
+        std::any_of(
+            m_wiresharkFields.begin(), m_wiresharkFields.end(),
+            [](auto* fPtr)
+            {
+                return fPtr->wiresharkNeedsOptionalModeDefinition();
+            });
+}
+
+const WiresharkMessage::WiresharkFieldsList& WiresharkMessage::wiresharkMemberFields() const
+{
+    return m_wiresharkFields;
+}
+
 bool WiresharkMessage::genPrepareImpl()
 {
     if (!GenBase::genPrepareImpl()) {
@@ -140,7 +162,7 @@ std::string WiresharkMessage::wiresharkDissectBodyInternal() const
 
         util::GenReplacementMap fieldRepl = {
             {"DISSECT", f->wiresharkDissectName()},
-            {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+            {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
         };
 
         fields.push_back(util::genProcessTemplate(FieldTempl, fieldRepl));
@@ -157,7 +179,7 @@ std::string WiresharkMessage::wiresharkDissectBodyInternal() const
     util::GenReplacementMap repl = {
         {"NAME", wiresharkMessageNameVarNameStr()},
         {"FIELDS", util::genStrListToString(fields, "\n", "")},
-        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
         {"PROTO", Wireshark::wiresharkProtocolObjName(wiresharkGenerator)},
     };
 

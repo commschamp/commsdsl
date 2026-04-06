@@ -36,8 +36,23 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
+    virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkMembersDissectCodeImpl() const override;
+    virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const override;
+    virtual std::string wiresharkValidFuncBodyImpl(const WiresharkField* refField) const override;
+    virtual std::string wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
+    virtual std::string wiresharkSizeAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
+    virtual std::string wiresharkExistsCheckStrImpl(const std::string& accStr) const override;
+    virtual bool wiresharkHasTrivialValidImpl() const override;
 
+private:
+    std::string wiresharkDefaultModeInternal() const;
+    std::string wiresharkReadFailCodeInternal() const;
+    std::string wiresharkMissInvalidCodeInternal() const;
+    std::string wiresharkCondCodeInternal() const;
+    std::string wiresharkTentativeCheckCodeInternal() const;
+
+    const WiresharkField* m_wiresharkField = nullptr;
 };
 
 } // namespace commsdsl2wireshark

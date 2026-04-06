@@ -21,6 +21,7 @@
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
+#include <algorithm>
 #include <cassert>
 
 namespace strings = commsdsl::gen::strings;
@@ -55,7 +56,7 @@ std::string WiresharkInterface::wiresharkDissectCode() const
 
     util::GenStringsList fields;
     for (auto* fPtr : m_wiresharkFields) {
-        auto str = fPtr->wiresharkFieldRegistration();
+        auto str = fPtr->wiresharkDissectCode();
         if (str.empty()) {
             continue;
         }
@@ -87,6 +88,58 @@ std::string WiresharkInterface::wiresharkExtractorsRegCode() const
     }
 
     return util::genStrListToString(fields, "", "");
+}
+
+bool WiresharkInterface::wiresharkNeedsOptionalModeDefinition() const
+{
+    if ((!genIsReferenced()) || (!wiresharkDissectionAllowed())) {
+        return false;
+    }
+
+    return
+        std::any_of(
+            m_wiresharkFields.begin(), m_wiresharkFields.end(),
+            [](auto* fPtr)
+            {
+                return fPtr->wiresharkNeedsOptionalModeDefinition();
+            });
+}
+
+const WiresharkInterface::WiresharkFieldsList& WiresharkInterface::wiresharkMemberFields() const
+{
+    return m_wiresharkFields;
+}
+
+std::string WiresharkInterface::wiresharkDefaultAssignments() const
+{
+    util::GenStringsList elems;
+    for (auto* f : m_wiresharkFields) {
+        auto str = f->wiresharkDefaultAssignments();
+        if (str.empty()) {
+            continue;
+        }
+
+        elems.push_back(std::move(str));
+    }
+
+    return util::genStrListToString(elems, "", "");
+}
+
+const WiresharkField* WiresharkInterface::wiresharkFindField(const std::string& name) const
+{
+    auto iter =
+        std::find_if(
+            m_wiresharkFields.begin(), m_wiresharkFields.end(),
+            [&name](auto* f)
+            {
+                return f->wiresharkGenField().genParseObj().parseName() == name;
+            });
+
+    if (iter == m_wiresharkFields.end()) {
+        return nullptr;
+    }
+
+    return *iter;
 }
 
 bool WiresharkInterface::genPrepareImpl()

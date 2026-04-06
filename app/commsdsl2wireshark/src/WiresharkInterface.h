@@ -48,6 +48,10 @@ public:
     bool wiresharkDissectionAllowed() const;
     std::string wiresharkDissectCode() const;
     std::string wiresharkExtractorsRegCode() const;
+    bool wiresharkNeedsOptionalModeDefinition() const;
+    const WiresharkFieldsList& wiresharkMemberFields() const;
+    std::string wiresharkDefaultAssignments() const;
+    const WiresharkField* wiresharkFindField(const std::string& name) const;
 
 protected:
     virtual bool genPrepareImpl() override;

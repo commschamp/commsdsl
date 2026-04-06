@@ -24,6 +24,7 @@
 #include <cctype>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
 #include <iterator>
 #include <limits>
 #include <sstream>
@@ -544,6 +545,7 @@ std::string genProcessTemplate(const std::string& templ, const GenReplacementMap
             auto nextNewLinePos = templ.find_first_of('\n', suffixPos + Suffix.size());
             if (nextNewLinePos == std::string::npos) {
                 [[maybe_unused]] static constexpr bool Incorrect_template = false;
+                std::cerr << "[BUG]: Incorrect template:\n" << templ << std::endl;
                 assert(Incorrect_template);
                 break;
             }

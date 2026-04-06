@@ -50,6 +50,7 @@ public:
     std::string wiresharkExtractorsRegCode() const;
 
     bool wiresharkIsInterfaceSupported(const WiresharkInterface& iFace) const;
+    bool wiresharkNeedsOptionalModeDefinition() const;
 
 protected:
     virtual std::string wiresharkDissectBodyImpl() const;

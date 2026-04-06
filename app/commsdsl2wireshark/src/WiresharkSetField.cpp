@@ -68,7 +68,7 @@ std::string WiresharkSetField::wiresharkExtractorsRegCodeImpl(const WiresharkFie
         util::GenReplacementMap repl = {
             {"REG_FUNC", Wireshark::wiresharkCreateExtractorFuncName(wiresharkGenerator)},
             {"REF_NAME", refName + '.' + bitInfo.first},
-            {"FIELD", wiresharkBitObjName(refField, bitInfo.first)},
+            {"FIELD", wiresharkBitObjNameInternal(refField, bitInfo.first)},
         };
 
         elems.push_back(util::genProcessTemplate(Templ, repl));
@@ -131,7 +131,7 @@ std::string WiresharkSetField::wiresharkDissectBodyImpl(const WiresharkField* re
     auto parseObj = genSetFieldParseObj();
     util::GenReplacementMap repl = {
         {"LEN", std::to_string(wiresharkMinFieldLength(refField))},
-        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
         {"SUBTREE", wiresharkFieldSubtreeStr()},
         {"TVB", wiresharkTvbStr()},
         {"NEXT_OFFSET", wiresharkNextOffsetStr()},
@@ -156,7 +156,7 @@ std::string WiresharkSetField::wiresharkDissectBodyImpl(const WiresharkField* re
             ;
 
         util::GenReplacementMap bitRepl = repl;
-        bitRepl["FIELD"] = wiresharkBitObjName(refField, b.second);
+        bitRepl["FIELD"] = wiresharkBitObjNameInternal(refField, b.second);
         elems.push_back(util::genProcessTemplate(BitTempl, bitRepl));
     }
 
@@ -221,6 +221,71 @@ std::string WiresharkSetField::wiresharkValidFuncBodyImpl([[maybe_unused]] const
     return util::genProcessTemplate(Templ, repl);
 }
 
+std::string WiresharkSetField::wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const
+{
+    if (accStr.empty()) {
+        return WiresharkBase::wiresharkValueAccessStrImpl(accStr, refField);
+    }
+
+    auto& bits = genSetFieldParseObj().parseBits();
+    auto iter = bits.find(accStr);
+    if (iter == bits.end()) {
+        genGenerator().genLogger().genError("Failed to find bit reference " + accStr + " for field " + genParseObj().parseInnerRef());
+        assert(false);
+        return WiresharkBase::wiresharkValueAccessStrImpl(std::string(), refField);
+    }
+
+    static const std::string Templ =
+        "#^#VALUE_FUNC#$#(#^#NAME#$#)"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"VALUE_FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
+        {"NAME", wiresharkBitObjNameInternal(refField, accStr)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkSetField::wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const
+{
+    auto parseObj = genSetFieldParseObj();
+    static const std::string Templ =
+        "#^#TREE#$#:add(#^#FIELD#$#, #^#TVB#$#(#^#OFFSET#$#, 0), #^#VAL#$#):set_hidden(true)\n"
+        ;
+
+    std::uintmax_t val = 0U;
+    std::uintmax_t mask = std::numeric_limits<std::uintmax_t>::max();
+    auto bitLength = parseObj.parseBitLength();
+    if (bitLength == 0U) {
+        bitLength = parseObj.parseMaxLength() * std::numeric_limits<std::uint8_t>::digits;
+    }
+
+    if (bitLength < std::numeric_limits<decltype(mask)>::digits) {
+        mask = (1ULL << bitLength) - 1U;
+    }
+
+    if (parseObj.parseDefaultBitValue()) {
+        val = (~val) & mask;
+    }
+
+    util::GenReplacementMap repl = {
+        {"TREE", wiresharkTreeStr()},
+        {"FIELD", wiresharkFieldObjName(refField)},
+        {"TVB", wiresharkTvbStr()},
+        {"OFFSET", wiresharkOffsetStr()},
+        {"VAL", wiresharkHexString(val, 2U)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkSetField::wiresharkCompPrepValueStrImpl(const std::string& value) const
+{
+    return wiresharkProcessIntegralValue(value);
+}
+
 bool WiresharkSetField::wiresharkHasTrivialValidImpl() const
 {
     auto parseObj = genSetFieldParseObj();
@@ -275,7 +340,7 @@ std::string WiresharkSetField::wiresharkRegistrationBitsInternal(const Wireshark
 
         auto forcedShift = wiresharkForcedMaskShift(refField);
         util::GenReplacementMap repl = {
-            {"BIT_OBJ_NAME", wiresharkBitObjName(refField, bitInfo.first)},
+            {"BIT_OBJ_NAME", wiresharkBitObjNameInternal(refField, bitInfo.first)},
             {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
             {"REF_NAME", refName + '.' + bitInfo.first},
             {"DISP_NAME", util::genDisplayName(bitInfo.second.m_displayName, bitInfo.first)},
@@ -310,7 +375,7 @@ std::string WiresharkSetField::wiresharkBitParentWidthInternal(const WiresharkFi
     return std::to_string(std::max(genParseObj().parseMaxLength() * 8U, static_cast<std::size_t>(wiresharkForcedBitLength(refField))));
 }
 
-std::string WiresharkSetField::wiresharkBitObjName(const WiresharkField* refField, const std::string& bitName) const
+std::string WiresharkSetField::wiresharkBitObjNameInternal(const WiresharkField* refField, const std::string& bitName) const
 {
     return wiresharkFieldObjName(refField) + '_' + bitName;
 }

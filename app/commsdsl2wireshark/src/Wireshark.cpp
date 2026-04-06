@@ -22,6 +22,7 @@
 #include "commsdsl/gen/util.h"
 #include "commsdsl/gen/strings.h"
 
+#include <algorithm>
 #include <cassert>
 #include <fstream>
 #include <type_traits>
@@ -68,10 +69,22 @@ std::string Wireshark::wiresharkExtractorsMapName(const WiresharkGenerator& gene
     return wiresharkProtocolObjName(generator) + "_extractors_map";
 }
 
-std::string Wireshark::wiresharkStatusCodeStr(const WiresharkGenerator& generator, StatusCode code)
+std::string Wireshark::wiresharkStatusCodeStr(const WiresharkGenerator& generator, WiresharkStatusCode code)
 {
     Wireshark obj(generator);
     return obj.wiresharkStatusCodeNameInternal() + "." + wiresharkStatusCodeStrInternal(code);
+}
+
+std::string Wireshark::wiresharkOptModeStr(const WiresharkGenerator& generator, WiresharkOptMode code)
+{
+    Wireshark obj(generator);
+    return obj.wiresharkOptModeNameInternal() + "." + wiresharkOptModeStrInternal(code);
+}
+
+std::string Wireshark::wiresharkOptModeValsName(const WiresharkGenerator& generator)
+{
+    Wireshark obj(generator);
+    return obj.wiresharkOptModeNameInternal() + strings::genValsSuffixStr();
 }
 
 std::string Wireshark::wiresharkFieldValueFuncName(const WiresharkGenerator& generator)
@@ -96,6 +109,7 @@ bool Wireshark::wiresharkWriteInternal() const
             "#^#GEN_COMMENT#$#\n"
             "#^#PROTOCOL#$#\n"
             "#^#STATUS_CODE#$#\n"
+            "#^#OPT_MODE#$#\n"
             "#^#FIELDS_REG#$#\n"
             "#^#EXTRACTORS_DECL#$#\n"
             "#^#FIELD_VALUE_FUNC#$#\n"
@@ -116,6 +130,7 @@ bool Wireshark::wiresharkWriteInternal() const
             {"FIELDS_LIST", wiresharkFieldsListName(m_wiresharkGenerator)},
             {"CODE", wiresharkCodeInternal()},
             {"STATUS_CODE", wiresharkStatusCodeDefInternal()},
+            {"OPT_MODE", wiresharkOptionalModeDefInternal()},
             {"EXTRACTORS_DECL", wiresharkExtractorsDeclInternal()},
             {"EXTRACTORS_REG", wiresharkExtractorsRegCodeInternal()},
             {"FIELD_VALUE_FUNC", wiresharkFieldValueFuncInternal()},
@@ -227,7 +242,7 @@ std::string Wireshark::wiresharkDissectFuncBodyInternal() const
 
         util::GenReplacementMap frameRepl = {
             {"NAME", wiresharkFrame.wiresharkDissectName()},
-            {"SUCCESS", wiresharkStatusCodeStr(m_wiresharkGenerator, StatusCode::Success)},
+            {"SUCCESS", wiresharkStatusCodeStr(m_wiresharkGenerator, WiresharkStatusCode::Success)},
         };
 
         elems.push_back(util::genProcessTemplate(FrameTempl, frameRepl));
@@ -260,8 +275,8 @@ std::string Wireshark::wiresharkDissectFuncBodyInternal() const
     util:: GenReplacementMap repl = {
         {"NAME", wiresharkProtocolObjName(m_wiresharkGenerator)},
         {"FRAMES", util::genStrListToString(elems, "\n", "")},
-        {"SUCCESS", wiresharkStatusCodeStr(m_wiresharkGenerator, StatusCode::Success)},
-        {"NOT_ENOUGH_DATA", wiresharkStatusCodeStr(m_wiresharkGenerator, StatusCode::NotEnoughData)},
+        {"SUCCESS", wiresharkStatusCodeStr(m_wiresharkGenerator, WiresharkStatusCode::Success)},
+        {"NOT_ENOUGH_DATA", wiresharkStatusCodeStr(m_wiresharkGenerator, WiresharkStatusCode::NotEnoughData)},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -276,8 +291,8 @@ std::string Wireshark::wiresharkStatusCodeDefInternal() const
 {
     util::GenStringsList vals;
 
-    for (auto idx = 0U; idx < static_cast<unsigned>(StatusCode::ValuesLimit); ++idx) {
-        vals.push_back(wiresharkStatusCodeStrInternal(static_cast<StatusCode>(idx)) + " = " + std::to_string(idx));
+    for (auto idx = 0U; idx < static_cast<unsigned>(WiresharkStatusCode::ValuesLimit); ++idx) {
+        vals.push_back(wiresharkStatusCodeStrInternal(static_cast<WiresharkStatusCode>(idx)) + " = " + std::to_string(idx));
     }
 
     const std::string Templ =
@@ -289,6 +304,56 @@ std::string Wireshark::wiresharkStatusCodeDefInternal() const
     util::GenReplacementMap repl = {
         {"NAME", wiresharkStatusCodeNameInternal()},
         {"VALS", util::genStrListToString(vals, ",\n", "")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string Wireshark::wiresharkOptModeNameInternal() const
+{
+    return wiresharkProtocolObjName(m_wiresharkGenerator) + "_OptMode";
+}
+
+std::string Wireshark::wiresharkOptionalModeDefInternal() const
+{
+    auto& schemas = m_wiresharkGenerator.genSchemas();
+    bool requiresOptMode =
+        std::any_of(
+            schemas.begin(), schemas.end(),
+            [](auto& sPtr)
+            {
+                assert(sPtr);
+                return WiresharkSchema::wiresharkCast(*sPtr).wiresharkNeedsOptionalModeDefinition();
+            });
+
+    if (!requiresOptMode) {
+        return strings::genEmptyString();
+    }
+
+    util::GenStringsList vals;
+    util::GenStringsList valNames;
+
+    for (auto idx = 0U; idx < static_cast<unsigned>(WiresharkOptMode::ValuesLimit); ++idx) {
+        auto& optModeStr = wiresharkOptModeStrInternal(static_cast<WiresharkOptMode>(idx));
+        vals.push_back(optModeStr + " = " + std::to_string(idx));
+        valNames.push_back("[" + std::to_string(idx) + "] = \"" + optModeStr + "\"");
+    }
+
+    const std::string Templ =
+        "local #^#NAME#$# = {\n"
+        "    #^#VALS#$#\n"
+        "}\n"
+        "\n"
+        "local #^#VALS_NAME#$# = {\n"
+        "    #^#VAL_NAMES#$#\n"
+        "}\n"
+    ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkOptModeNameInternal()},
+        {"VALS", util::genStrListToString(vals, ",\n", "")},
+        {"VALS_NAME", wiresharkOptModeValsName(m_wiresharkGenerator)},
+        {"VAL_NAMES", util::genStrListToString(valNames, ",\n", "")},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -348,7 +413,7 @@ std::string Wireshark::wiresharkFieldValueFuncInternal() const
     return util::genProcessTemplate(Templ, repl);
 }
 
-const std::string& Wireshark::wiresharkStatusCodeStrInternal(StatusCode code)
+const std::string& Wireshark::wiresharkStatusCodeStrInternal(WiresharkStatusCode code)
 {
     static const std::string Map[] = {
         /* Success */ "SUCCESS",
@@ -359,7 +424,22 @@ const std::string& Wireshark::wiresharkStatusCodeStrInternal(StatusCode code)
         /* CodegenError */ "CODEGEN_ERROR",
     };
     static const std::size_t MapSize = std::extent_v<decltype(Map)>;
-    static_assert(MapSize == static_cast<unsigned>(StatusCode::ValuesLimit));
+    static_assert(MapSize == static_cast<unsigned>(WiresharkStatusCode::ValuesLimit));
+
+    auto idx = static_cast<unsigned>(code);
+    assert(idx < MapSize);
+    return Map[idx];
+}
+
+const std::string& Wireshark::wiresharkOptModeStrInternal(WiresharkOptMode code)
+{
+    static const std::string Map[] = {
+        /* Tentative */ "TENTATIVE",
+        /* Exists */ "EXISTS",
+        /* Missing */ "MISSING",
+    };
+    static const std::size_t MapSize = std::extent_v<decltype(Map)>;
+    static_assert(MapSize == static_cast<unsigned>(WiresharkOptMode::ValuesLimit));
 
     auto idx = static_cast<unsigned>(code);
     assert(idx < MapSize);

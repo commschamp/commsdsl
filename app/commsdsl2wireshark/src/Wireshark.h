@@ -24,13 +24,20 @@ class WiresharkGenerator;
 class Wireshark
 {
 public:
-    enum class StatusCode {
+    enum class WiresharkStatusCode {
         Success,
         NotEnoughData,
         MalformedPacket,
         InvalidMsgId,
         InvalidMsgData,
         CodegenError,
+        ValuesLimit // Must be last
+    };
+
+    enum class WiresharkOptMode {
+        Tentative,
+        Exists,
+        Missing,
         ValuesLimit // Must be last
     };
 
@@ -41,7 +48,9 @@ public:
     static std::string wiresharkCreateExtractorFuncName(const WiresharkGenerator& generator);
     static std::string wiresharkFieldsListName(const WiresharkGenerator& generator);
     static std::string wiresharkExtractorsMapName(const WiresharkGenerator& generator);
-    static std::string wiresharkStatusCodeStr(const WiresharkGenerator& generator, StatusCode code);
+    static std::string wiresharkStatusCodeStr(const WiresharkGenerator& generator, WiresharkStatusCode code);
+    static std::string wiresharkOptModeStr(const WiresharkGenerator& generator, WiresharkOptMode code);
+    static std::string wiresharkOptModeValsName(const WiresharkGenerator& generator);
     static std::string wiresharkFieldValueFuncName(const WiresharkGenerator& generator);
 
 private:
@@ -56,10 +65,13 @@ private:
     std::string wiresharkDissectFuncBodyInternal() const;
     std::string wiresharkStatusCodeNameInternal() const;
     std::string wiresharkStatusCodeDefInternal() const;
+    std::string wiresharkOptModeNameInternal() const;
+    std::string wiresharkOptionalModeDefInternal() const;
     std::string wiresharkExtractorsDeclInternal() const;
     std::string wiresharkExtractorsRegCodeInternal() const;
     std::string wiresharkFieldValueFuncInternal() const;
-    static const std::string& wiresharkStatusCodeStrInternal(StatusCode code);
+    static const std::string& wiresharkStatusCodeStrInternal(WiresharkStatusCode code);
+    static const std::string& wiresharkOptModeStrInternal(WiresharkOptMode code);
 
     const WiresharkGenerator& m_wiresharkGenerator;
 };

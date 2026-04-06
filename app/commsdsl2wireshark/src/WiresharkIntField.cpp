@@ -202,7 +202,7 @@ std::string WiresharkIntField::wiresharkDissectBodyImpl(const WiresharkField* re
     bool hasVal = !wiresharkHasTrivialValidImpl();
     util::GenReplacementMap repl = {
         {"LEN", std::to_string(wiresharkMinFieldLength(refField))},
-        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
         {"VAR_LEN", wiresharkVarLengthCodeInternal(hasVal)},
         {"SER_OFFSET", wiresharkSerOffsetCodeInternal(hasVal)},
         {"SCALING", wiresharkScalingCodeInternal(hasVal)},
@@ -304,6 +304,51 @@ std::string WiresharkIntField::wiresharkValidFuncBodyImpl([[maybe_unused]] const
         {"ELEMS", util::genStrListToString(elems, "\n", "")},
         {"FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
         {"FIELD", wiresharkFieldStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkIntField::wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const
+{
+    if (accStr.empty()) {
+        return WiresharkBase::wiresharkValueAccessStrImpl(accStr, refField);
+    }
+
+    auto& specials = genIntFieldParseObj().parseSpecialValues();
+    auto iter = specials.find(accStr);
+    if (iter == specials.end()) {
+        genGenerator().genLogger().genError("Failed to find reference " + accStr + " for field " + genParseObj().parseInnerRef());
+        assert(false);
+        return WiresharkBase::wiresharkValueAccessStrImpl(std::string(), refField);
+    }
+
+    return std::to_string(iter->second.m_value);
+}
+
+std::string WiresharkIntField::wiresharkCompPrepValueStrImpl(const std::string& value) const
+{
+    return wiresharkProcessIntegralValue(value);
+}
+
+std::string WiresharkIntField::wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const
+{
+    auto parseObj = genIntFieldParseObj();
+    static const std::string Templ =
+        "#^#TREE#$#:add(#^#FIELD#$#, #^#TVB#$#(#^#OFFSET#$#, 0), #^#VAL#$#):set_hidden(true)\n"
+        ;
+
+    auto val = std::to_string(parseObj.parseDefaultValue());
+    if (genIsUnsignedType()) {
+        val = std::to_string(static_cast<std::uintmax_t>(parseObj.parseDefaultValue()));
+    }
+
+    util::GenReplacementMap repl = {
+        {"TREE", wiresharkTreeStr()},
+        {"FIELD", wiresharkFieldObjName(refField)},
+        {"TVB", wiresharkTvbStr()},
+        {"OFFSET", wiresharkOffsetStr()},
+        {"VAL", std::move(val)}
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -448,7 +493,7 @@ std::string WiresharkIntField::wiresharkVarLengthCodeBigEndianInternal() const
     // TODO: sign extend
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     util::GenReplacementMap repl = {
-        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::MalformedPacket)},
+        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::MalformedPacket)},
         {"VAL", wiresharkValStr()},
         {"NEXT_OFFSET", wiresharkNextOffsetStr()},
         {"OFFSET", wiresharkOffsetStr()},

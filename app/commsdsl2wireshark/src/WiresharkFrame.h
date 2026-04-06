@@ -50,6 +50,7 @@ public:
     std::string wiresharkDissectName() const;
     std::string wiresharkDissectCode() const;
     std::string wiresharkExtractorsRegCode() const;
+    bool wiresharkNeedsOptionalModeDefinition() const;
 
 protected:
     virtual bool genPrepareImpl() override;

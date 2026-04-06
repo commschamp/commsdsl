@@ -101,6 +101,17 @@ std::string WiresharkFrame::wiresharkExtractorsRegCode() const
     return util::genStrListToString(layers, "", "");
 }
 
+bool WiresharkFrame::wiresharkNeedsOptionalModeDefinition() const
+{
+    return
+        std::any_of(
+            m_wiresharkLayers.begin(), m_wiresharkLayers.end(),
+            [](auto* l)
+            {
+                return l->wiresharkNeedsOptionalModeDefinition();
+            });
+}
+
 bool WiresharkFrame::genPrepareImpl()
 {
     if (!GenBase::genPrepareImpl()) {
@@ -138,6 +149,7 @@ bool WiresharkFrame::genPrepareImpl()
 std::string WiresharkFrame::wiresharkDissectBodyInternal() const
 {
     static const std::string Templ =
+        "#^#INTERFACE#$#\n"
         "local result = #^#SUCCESS#$#\n"
         "local offset = 0\n"
         "local len = tvb:len()\n"
@@ -163,14 +175,20 @@ std::string WiresharkFrame::wiresharkDissectBodyInternal() const
         ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    auto* ns = WiresharkNamespace::wiresharkCast(genParentNamespace());
+    assert(ns != nullptr);
+    auto* iFace = ns->wiresharkInterface();
+    assert(ns != nullptr);
+
     auto parseObj = genParseObj();
     util::GenReplacementMap repl = {
         {"PROTO_NAME", Wireshark::wiresharkProtocolObjName(wiresharkGenerator)},
         {"FRAME_NAME", util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName())},
         {"LIST_NAME", wiresharkLayerFuncsListNameInternal()},
         {"NIL", strings::genNilStr()},
-        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
-        {"NOT_ENOUGH_DATA", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::NotEnoughData)},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
+        {"NOT_ENOUGH_DATA", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::NotEnoughData)},
+        {"INTERFACE", iFace->wiresharkDefaultAssignments()},
     };
 
     return util::genProcessTemplate(Templ, repl);

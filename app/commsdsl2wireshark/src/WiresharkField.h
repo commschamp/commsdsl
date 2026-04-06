@@ -21,12 +21,14 @@
 
 #include <string>
 #include <vector>
+#include <utility>
 
 namespace commsdsl2wireshark
 {
 
 class WiresharkBitfieldField;
 class WiresharkGenerator;
+class WiresharkInterface;
 class WiresharkField
 {
 public:
@@ -57,7 +59,7 @@ public:
     std::string wiresharkDissectName(const WiresharkField* refField = nullptr) const;
     std::string wiresharkDissectCode(const WiresharkField* refField = nullptr) const;
     std::string wiresharkExtractorsRegCode(const WiresharkField* refField = nullptr) const;
-    std::string wiresharkFieldObjName(const WiresharkField* refField) const;
+    std::string wiresharkFieldObjName(const WiresharkField* refField = nullptr) const;
     std::string wiresharkFieldRegistration(const WiresharkField* refField = nullptr) const;
     std::string wiresharkValidFuncName(const WiresharkField* refField = nullptr) const;
     std::string wiresharkValidFuncCode(const WiresharkField* refField = nullptr) const;
@@ -72,10 +74,24 @@ public:
     bool wiresharkHasTrivialValid() const;
     std::size_t wiresharkMinFieldLength(const WiresharkField* refField = nullptr) const;
 
-    static std::string wiresharkDslCondToString(const WiresharkGenerator& generator, const WiresharkFieldsList& fields, const ParseOptCond& cond);
+    static std::string wiresharkDslCondToString(
+        const WiresharkGenerator& generator,
+        const WiresharkFieldsList& fields,
+        const WiresharkInterface& interface,
+        const ParseOptCond& cond);
 
     std::string wiresharkValueAccessStr(const std::string& accStr, const WiresharkField* refField = nullptr) const;
+    std::string wiresharkSizeAccessStr(const std::string& accStr, const WiresharkField* refField = nullptr) const;
     std::string wiresharkCompPrepValueStr(const std::string& value) const;
+    std::string wiresharkExistsCheckStr(const std::string& accStr) const;
+
+    bool wiresharkNeedsOptionalModeDefinition() const;
+    const WiresharkFieldsList& wiresharkSiblings() const;
+    const WiresharkFieldsList& wiresharkMemberFields() const;
+    std::string wiresharkDefaultAssignments(const WiresharkField* refField = nullptr) const;
+
+    static std::pair<std::string, std::string> wiresharkSplitAccStr(const std::string& accStr);
+    static std::pair<const WiresharkField*, std::string> wiresharkSplitMemberAccStr(const std::string& accStr, const WiresharkFieldsList& fields);
 
 protected:
     virtual std::string wiresharkDissectNameImpl(const WiresharkField* refField) const;
@@ -90,8 +106,12 @@ protected:
     virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkValidFuncBodyImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const;
+    virtual std::string wiresharkSizeAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const;
     virtual std::string wiresharkCompPrepValueStrImpl(const std::string& value) const;
+    virtual std::string wiresharkExistsCheckStrImpl(const std::string& accStr) const;
+    virtual std::string wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const;
     virtual bool wiresharkHasTrivialValidImpl() const;
+    virtual const WiresharkFieldsList& wiresharkMemberFieldsImpl() const;
 
     std::string wiresharkFieldRefName(const WiresharkField* refField) const;
     std::string wiresharkForcedIntegralFieldMask(const WiresharkField* refField) const;
@@ -105,6 +125,9 @@ protected:
     static std::string wiresharkDissectSignature();
     static std::string wiresharkHexString(std::uintmax_t val, unsigned hexWidth);
     std::string wiresharkEmptyBufferCheckCode() const;
+    std::string wiresharkProcessIntegralValue(const std::string& val) const;
+    std::string wiresharkProcessFloatValue(const std::string& val) const;
+    const WiresharkInterface& wiresharkInterface() const;
 
     static const std::string& wiresharkRangeStr();
     static const std::string& wiresharkFieldSubtreeStr();
@@ -147,6 +170,7 @@ private:
     std::string wiresharkDissectValidCheckInternal(const WiresharkField* refField) const;
     std::string wiresharkValidFuncCodeInternal(const WiresharkField* refField) const;
     bool wiresharkHasTrivialValidInternal() const;
+    std::string wiresharkProcessNumericValueInternal(const std::string& val) const;
 
     static std::string wiresharkDslCondToStringFieldValueCompInternal(
         const WiresharkField* leftField,
@@ -161,8 +185,20 @@ private:
         const WiresharkField* rightField,
         const std::string& rightAccStr);
 
+    static std::string wiresharkDslCondToStringFieldSizeCompInternal(
+        const WiresharkField* field,
+        const std::string& accStr,
+        const std::string& op,
+        const std::string& value);
+
+    static std::string wiresharkDslCondToStringFieldExistsCompInternal(
+        const WiresharkField* field,
+        const std::string& accStr,
+        const std::string& op);
+
     GenField& m_genField;
     WiresharkCustomCode m_customCode;
+    mutable commsdsl::gen::util::GenStringsList m_dissected;
 };
 
 } // namespace commsdsl2wireshark

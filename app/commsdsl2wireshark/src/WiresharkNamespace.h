@@ -46,6 +46,7 @@ public:
     const WiresharkInterface* wiresharkInterface() const;
     std::string wiresharkDissectCode() const;
     std::string wiresharkExtractorsRegCode() const;
+    bool wiresharkNeedsOptionalModeDefinition() const;
 };
 
 } // namespace commsdsl2wireshark

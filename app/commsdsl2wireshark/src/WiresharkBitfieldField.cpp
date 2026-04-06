@@ -178,7 +178,7 @@ std::string WiresharkBitfieldField::wiresharkDissectBodyImpl([[maybe_unused]] co
         static const std::string MemTempl =
             "#^#RESULT#$#, _ = #^#DISSECT#$#(#^#TVB#$#, #^#SUBTREE#$#, #^#OFFSET#$#, #^#OFFSET#$# + #^#LEN#$#)\n"
             "if #^#RESULT#$# ~= #^#SUCCESS#$# then\n"
-            "    return #^#RESULT#$#, #^#OFFSET#$#\n"
+            "    break\n"
             "end\n"
             ;
 
@@ -189,17 +189,19 @@ std::string WiresharkBitfieldField::wiresharkDissectBodyImpl([[maybe_unused]] co
             {"SUBTREE", wiresharkFieldSubtreeStr()},
             {"OFFSET", wiresharkOffsetStr()},
             {"LEN", std::to_string(parseObj.parseMaxLength())},
-            {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+            {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
         };
 
         members.push_back(util::genProcessTemplate(MemTempl, memRepl));
     }
 
     static const std::string Templ =
-        "local #^#RANGE#$# = tvb(#^#OFFSET#$#, #^#LEN#$#)\n"
-        "local #^#SUBTREE#$# = tree:add#^#SUFFIX#$#(field, #^#RANGE#$#)\n"
-        "#^#MEMBERS#$#\n"
-        "#^#NEXT_OFFSET#$# = #^#OFFSET#$# + #^#LEN#$#\n"
+        "repeat\n"
+        "    local #^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, #^#LEN#$#)\n"
+        "    local #^#SUBTREE#$# = #^#TREE#$#:add#^#SUFFIX#$#(#^#FIELD#$#, #^#RANGE#$#)\n"
+        "    #^#MEMBERS#$#\n"
+        "    #^#NEXT_OFFSET#$# = #^#OFFSET#$# + #^#LEN#$#\n"
+        "until true\n"
         ;
 
     util::GenReplacementMap repl = {
@@ -209,6 +211,9 @@ std::string WiresharkBitfieldField::wiresharkDissectBodyImpl([[maybe_unused]] co
         {"OFFSET", wiresharkOffsetStr()},
         {"NEXT_OFFSET", wiresharkNextOffsetStr()},
         {"MEMBERS", util::genStrListToString(members, "\n", "")},
+        {"FIELD", wiresharkFieldStr()},
+        {"TVB", wiresharkTvbStr()},
+        {"TREE", wiresharkTreeStr()},
     };
 
     if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
@@ -271,6 +276,74 @@ std::string WiresharkBitfieldField::wiresharkValidFuncBodyImpl(const WiresharkFi
     return util::genProcessTemplate(Templ, repl);
 }
 
+std::string WiresharkBitfieldField::wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const
+{
+    if (accStr.empty()) {
+        // TODO: support value override to allow proper comparison to bitfield value
+        return WiresharkBase::wiresharkValueAccessStrImpl(accStr, refField);
+    }
+
+    assert(refField == nullptr);
+    auto memInfo = wiresharkSplitMemberAccStr(accStr, m_wiresharkFields);
+    if (memInfo.first == nullptr) {
+        genGenerator().genLogger().genError("BUG: Unexpected access string \"" + accStr + "\" for " + genParseObj().parseInnerRef());
+        return strings::genUnexpectedValueStr();
+    }
+
+    return memInfo.first->wiresharkValueAccessStr(memInfo.second);
+}
+
+std::string WiresharkBitfieldField::wiresharkSizeAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const
+{
+    if (accStr.empty()) {
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
+        assert(Should_not_happen);
+        return WiresharkBase::wiresharkSizeAccessStrImpl(accStr, refField);
+    }
+
+    assert(refField == nullptr);
+    auto memInfo = wiresharkSplitMemberAccStr(accStr, m_wiresharkFields);
+    if (memInfo.first == nullptr) {
+        genGenerator().genLogger().genError("BUG: Unexpected access string \"" + accStr + "\" for " + genParseObj().parseInnerRef());
+        return strings::genUnexpectedValueStr();
+    }
+
+    return memInfo.first->wiresharkSizeAccessStr(memInfo.second);
+}
+
+std::string WiresharkBitfieldField::wiresharkExistsCheckStrImpl(const std::string& accStr) const
+{
+    if (accStr.empty()) {
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
+        assert(Should_not_happen);
+        return WiresharkBase::wiresharkExistsCheckStrImpl(accStr);
+    }
+
+    auto memInfo = wiresharkSplitMemberAccStr(accStr, m_wiresharkFields);
+    if (memInfo.first == nullptr) {
+        genGenerator().genLogger().genError("BUG: Unexpected access string \"" + accStr + "\" for " + genParseObj().parseInnerRef());
+        return strings::genUnexpectedValueStr();
+    }
+
+    return memInfo.first->wiresharkExistsCheckStr(memInfo.second);
+}
+
+std::string WiresharkBitfieldField::wiresharkDefaultAssignmentsImpl([[maybe_unused]] const WiresharkField* refField) const
+{
+    assert(refField == nullptr);
+    util::GenStringsList elems;
+    for (auto* f : m_wiresharkFields) {
+        auto str = f->wiresharkDefaultAssignments();
+        if (str.empty()) {
+            continue;
+        }
+
+        elems.push_back(std::move(str));
+    }
+
+    return util::genStrListToString(elems, "", "");
+}
+
 bool WiresharkBitfieldField::wiresharkHasTrivialValidImpl() const
 {
     auto parseObj = genBitfieldFieldParseObj();
@@ -286,6 +359,11 @@ bool WiresharkBitfieldField::wiresharkHasTrivialValidImpl() const
             {
                 return f->wiresharkHasTrivialValid();
             });
+}
+
+const WiresharkBitfieldField::WiresharkFieldsList& WiresharkBitfieldField::wiresharkMemberFieldsImpl() const
+{
+    return m_wiresharkFields;
 }
 
 std::string WiresharkBitfieldField::wiresharkExtraValidCondsCodeInternal() const
@@ -307,7 +385,7 @@ std::string WiresharkBitfieldField::wiresharkExtraValidCondsCodeInternal() const
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     util::GenReplacementMap repl = {
-        {"COND", wiresharkDslCondToString(wiresharkGenerator, m_wiresharkFields, validCond)},
+        {"COND", wiresharkDslCondToString(wiresharkGenerator, m_wiresharkFields, wiresharkInterface(), validCond)},
     };
 
     return util::genProcessTemplate(Templ, repl);

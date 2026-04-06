@@ -875,6 +875,12 @@ GenField* GenGenerator::genFindField(const std::string& externalRef)
 {
     auto* field = m_impl->genFindField(externalRef);
     do {
+        if (field == nullptr) {
+            genLogger().genError("BUG: Failed to find field: " + externalRef);
+            assert(false);
+            break;
+        }
+
         if (field->genIsPrepared()) {
             break;
         }

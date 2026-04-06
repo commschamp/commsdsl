@@ -89,12 +89,17 @@ std::string WiresharkRefField::wiresharkValidFuncNameImpl(const WiresharkField* 
 
 std::string WiresharkRefField::wiresharkDissectCodeImpl(const WiresharkField* refField) const
 {
+    auto refCode = m_wiresharkField->wiresharkDissectCode();
     if (m_alias) {
-        return strings::genEmptyString();
+        return refCode;
     }
 
     if (!wiresharkMustCopyDissectInternal()) {
-        return WiresharkBase::wiresharkDissectCodeImpl(refField);
+        if (!refCode.empty()) {
+            refCode += '\n';
+        }
+
+        return refCode + WiresharkBase::wiresharkDissectCodeImpl(refField);
     }
 
     if (refField == nullptr) {
@@ -196,6 +201,48 @@ std::string WiresharkRefField::wiresharkValidFuncBodyImpl(const WiresharkField* 
     };
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkRefField::wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const
+{
+    if ((refField == nullptr) && (!m_alias)) {
+        refField = this;
+    }
+
+    assert(m_wiresharkField != nullptr);
+    return m_wiresharkField->wiresharkValueAccessStr(accStr, refField);
+}
+
+std::string WiresharkRefField::wiresharkSizeAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const
+{
+    if ((refField == nullptr) && (!m_alias)) {
+        refField = this;
+    }
+
+    assert(m_wiresharkField != nullptr);
+    return m_wiresharkField->wiresharkSizeAccessStr(accStr, refField);
+}
+
+std::string WiresharkRefField::wiresharkCompPrepValueStrImpl(const std::string& value) const
+{
+    assert(m_wiresharkField != nullptr);
+    return m_wiresharkField->wiresharkCompPrepValueStr(value);
+}
+
+std::string WiresharkRefField::wiresharkExistsCheckStrImpl(const std::string& accStr) const
+{
+    assert(m_wiresharkField != nullptr);
+    return m_wiresharkField->wiresharkExistsCheckStr(accStr);
+}
+
+std::string WiresharkRefField::wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const
+{
+    if ((refField == nullptr) && (!m_alias)) {
+        refField = this;
+    }
+
+    assert(m_wiresharkField != nullptr);
+    return m_wiresharkField->wiresharkDefaultAssignments(refField);
 }
 
 bool WiresharkRefField::wiresharkHasTrivialValidImpl() const

@@ -1,2 +1,4 @@
--- TODO
-return true
+return
+    (test11_field_value(field) == test11_OptMode.MISSING) or
+    (test11_field_value(test11_field_O5Members_B2Members_M1) ~= 0) or
+    (test11_field_value(test11_field_O5Members_B2Members_M2) == 0)

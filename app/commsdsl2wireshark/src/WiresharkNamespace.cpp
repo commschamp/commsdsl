@@ -23,6 +23,9 @@
 
 #include "commsdsl/gen/util.h"
 
+#include <algorithm>
+#include <cassert>
+
 namespace util = commsdsl::gen::util;
 
 namespace commsdsl2wireshark
@@ -185,6 +188,81 @@ std::string WiresharkNamespace::wiresharkExtractorsRegCode() const
     };
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+bool WiresharkNamespace::wiresharkNeedsOptionalModeDefinition() const
+{
+    auto& namespaces = genNamespaces();
+    bool inNamespaces =
+        std::any_of(
+            namespaces.begin(), namespaces.end(),
+            [](auto& nPtr)
+            {
+                assert(nPtr);
+                return WiresharkNamespace::wiresharkCast(nPtr.get())->wiresharkNeedsOptionalModeDefinition();
+            });
+
+    if (inNamespaces) {
+        return true;
+    }
+
+    auto& fields = genFields();
+    bool inFields =
+        std::any_of(
+            fields.begin(), fields.end(),
+            [](auto& fPtr)
+            {
+                assert(fPtr);
+                return WiresharkField::wiresharkCast(fPtr.get())->wiresharkNeedsOptionalModeDefinition();
+            });
+
+    if (inFields) {
+        return true;
+    }
+
+    auto& interfaces = genInterfaces();
+    bool inInterfaces =
+        std::any_of(
+            interfaces.begin(), interfaces.end(),
+            [](auto& iPtr)
+            {
+                assert(iPtr);
+                return WiresharkInterface::wiresharkCast(iPtr.get())->wiresharkNeedsOptionalModeDefinition();
+            });
+
+    if (inInterfaces) {
+        return true;
+    }
+
+    auto& messages = genMessages();
+    bool inMessages =
+        std::any_of(
+            messages.begin(), messages.end(),
+            [](auto& mPtr)
+            {
+                assert(mPtr);
+                return WiresharkMessage::wiresharkCast(*mPtr).wiresharkNeedsOptionalModeDefinition();
+            });
+
+    if (inMessages) {
+        return true;
+    }
+
+    auto& frames = genFrames();
+    bool inFrames =
+        std::any_of(
+            frames.begin(), frames.end(),
+            [](auto& fPtr)
+            {
+                assert(fPtr);
+                return WiresharkFrame::wiresharkCast(*fPtr).wiresharkNeedsOptionalModeDefinition();
+            });
+
+    if (inFrames) {
+        return true;
+    }
+
+    return false;
 }
 
 } // namespace commsdsl2wireshark

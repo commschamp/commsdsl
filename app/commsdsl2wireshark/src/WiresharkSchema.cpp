@@ -20,6 +20,9 @@
 
 #include "commsdsl/gen/util.h"
 
+#include <algorithm>
+#include <cassert>
+
 namespace util = commsdsl::gen::util;
 
 namespace commsdsl2wireshark
@@ -60,6 +63,19 @@ std::string WiresharkSchema::wiresharkExtractorsRegCode() const
     }
 
     return util::genStrListToString(elems, "\n", "");
+}
+
+bool WiresharkSchema::wiresharkNeedsOptionalModeDefinition() const
+{
+    auto& namespaces = genNamespaces();
+    return
+        std::any_of(
+            namespaces.begin(), namespaces.end(),
+            [](auto& nPtr)
+            {
+                assert(nPtr);
+                return WiresharkNamespace::wiresharkCast(nPtr.get())->wiresharkNeedsOptionalModeDefinition();
+            });
 }
 
 } // namespace commsdsl2wireshark

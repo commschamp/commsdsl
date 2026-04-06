@@ -92,7 +92,7 @@ std::string WiresharkLayer::wiresharkDissectCode() const
         {"PREPEND", wiresharkGenerator.genReadCodeInjectCode(prependFileName, "Prepend here")},
         {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
         {"EXTRA", wiresharkExtraDissectCodeImpl()},
-        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
     };
 
     if (!replaced) {
@@ -119,6 +119,20 @@ std::string WiresharkLayer::wiresharkExtractorsRegCode() const
 bool WiresharkLayer::wiresharkIsInterfaceSupported(const WiresharkInterface& iFace) const
 {
     return wiresharkIsInterfaceSupportedImpl(iFace);
+}
+
+bool WiresharkLayer::wiresharkNeedsOptionalModeDefinition() const
+{
+    auto* field = m_genLayer.genMemberField();
+    if (field == nullptr) {
+        field = m_genLayer.genExternalField();
+    }
+
+    if (field == nullptr) {
+        return false;
+    }
+
+    return WiresharkField::wiresharkCast(field)->wiresharkNeedsOptionalModeDefinition();
 }
 
 std::string WiresharkLayer::wiresharkDissectBodyImpl() const
@@ -154,7 +168,7 @@ std::string WiresharkLayer::wiresharkDissectFieldCode() const
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genLayer.genGenerator());
     util::GenReplacementMap repl = {
         {"NAME", field->wiresharkDissectName()},
-        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -173,7 +187,7 @@ std::string WiresharkLayer::wiresharkNextFuncCode() const
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genLayer.genGenerator());
     util::GenReplacementMap repl = {
         {"NIL", strings::genNilStr()},
-        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::CodegenError)},
+        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::CodegenError)},
     };
 
     return util::genProcessTemplate(Templ, repl);

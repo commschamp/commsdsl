@@ -64,7 +64,7 @@ std::string WiresharkPayloadLayer::wiresharkDissectBodyImpl() const
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     util::GenReplacementMap repl = {
         {"FIELD", wiresharkDissectFieldNameInternal()},
-        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
     };
 
     return util::genProcessTemplate(Templ, repl);

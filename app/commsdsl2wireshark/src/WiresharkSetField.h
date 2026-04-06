@@ -41,13 +41,16 @@ protected:
     virtual std::string wiresharkDissectLengthCheckImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkValidFuncBodyImpl(const WiresharkField* refField) const override;
+    virtual std::string wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
+    virtual std::string wiresharkCompPrepValueStrImpl(const std::string& value) const override;
+    virtual std::string wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const override;
     virtual bool wiresharkHasTrivialValidImpl() const override;
 
 private:
     std::string wiresharkRegistrationBitsInternal(const WiresharkField* refField) const;
     std::string wiresharkBitMaskInternal(unsigned idx) const;
     std::string wiresharkBitParentWidthInternal(const WiresharkField* refField) const;
-    std::string wiresharkBitObjName(const WiresharkField* refField, const std::string& bitName) const;
+    std::string wiresharkBitObjNameInternal(const WiresharkField* refField, const std::string& bitName) const;
 };
 
 } // namespace commsdsl2wireshark

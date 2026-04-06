@@ -80,7 +80,7 @@ std::string WiresharkFloatField::wiresharkDissectBodyImpl(const WiresharkField* 
     auto parseObj = genFloatFieldParseObj();
     util::GenReplacementMap repl = {
         {"LEN", std::to_string(wiresharkMinFieldLength(refField))},
-        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::StatusCode::Success)},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
         {"SUBTREE", wiresharkFieldSubtreeStr()},
         {"TREE", wiresharkTreeStr()},
         {"TVB", wiresharkTvbStr()},
@@ -176,6 +176,71 @@ std::string WiresharkFloatField::wiresharkValidFuncBodyImpl([[maybe_unused]] con
         {"FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
         {"FIELD", wiresharkFieldStr()},
         {"EPSILON", (parseObj.parseType() == commsdsl::parse::ParseFloatField::ParseType::Float) ? "1e-6" : "1e-12"}
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkFloatField::wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const
+{
+    assert(refField == nullptr);
+    if (accStr.empty()) {
+        return "tostring(" + WiresharkBase::wiresharkValueAccessStrImpl(accStr, refField) + ")";
+    }
+
+    auto& specials = genFloatFieldParseObj().parseSpecialValues();
+    auto iter = specials.find(accStr);
+    if (iter == specials.end()) {
+        genGenerator().genLogger().genError("Failed to find reference " + accStr + " for field " + genParseObj().parseInnerRef());
+        assert(false);
+        return "tostring(" + WiresharkBase::wiresharkValueAccessStrImpl(std::string(), refField) + ")";
+    }
+
+    if (std::isnan(iter->second.m_value)) {
+        return "\"nan\"";
+    }
+
+    if (!std::isinf(iter->second.m_value)) {
+        return "tostring(" + std::to_string(iter->second.m_value) + ")";
+    }
+
+    if (iter->second.m_value < 0) {
+        return "tostring(-math.huge)";
+    }
+
+    return "tostring(math.huge)";
+}
+
+std::string WiresharkFloatField::wiresharkCompPrepValueStrImpl(const std::string& value) const
+{
+    if (value == "nan") {
+        return value;
+    }
+
+    if (value == "inf") {
+        return "tostring(math.huge)";
+    }
+
+    if (value == "-inf") {
+        return "tostring(-math.huge)";
+    }
+
+    return wiresharkProcessFloatValue(value);
+}
+
+std::string WiresharkFloatField::wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const
+{
+    auto parseObj = genFloatFieldParseObj();
+    static const std::string Templ =
+        "#^#TREE#$#:add(#^#FIELD#$#, #^#TVB#$#(#^#OFFSET#$#, 0), #^#VAL#$#)\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"TREE", wiresharkTreeStr()},
+        {"FIELD", wiresharkFieldObjName(refField)},
+        {"TVB", wiresharkTvbStr()},
+        {"OFFSET", wiresharkOffsetStr()},
+        {"VAL", std::to_string(parseObj.parseDefaultValue())}
     };
 
     return util::genProcessTemplate(Templ, repl);
