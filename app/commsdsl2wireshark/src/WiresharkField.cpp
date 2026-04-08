@@ -282,7 +282,9 @@ std::string WiresharkField::wiresharkDslCondToString(
     commsdsl::parse::ParseOptCondExpr exprCond(cond);
     auto opIter = OpMap.find(exprCond.parseOp());
     if (opIter == OpMap.end()) {
-        generator.genLogger().genError("Unexpected condition operation: " + exprCond.parseOp());
+        generator.genLogger().genError("BUG: Unexpected condition operation: " + exprCond.parseOp());
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
+        assert(Should_not_happen);
         return strings::genEmptyString();
     }
 
@@ -341,11 +343,11 @@ std::string WiresharkField::wiresharkDslCondToString(
         assert(rightInfo.m_mode != ParseAccMode::Exists);
 
         if (leftInfo.m_mode == ParseAccMode::Size) {
-            return wiresharkDslCondToStringFieldSizeCompInternal(leftField, remLeft, op, rightInfo.m_access);
+            return wiresharkDslCondToStringFieldSizeCompInternal(leftField, remLeft, op, rightInfo.m_access, interface);
         }
 
         if (rightInfo.m_type == ParseOperandType::Value) {
-            return wiresharkDslCondToStringFieldValueCompInternal(leftField, remLeft, op, rightInfo.m_access);
+            return wiresharkDslCondToStringFieldValueCompInternal(leftField, remLeft, op, rightInfo.m_access, interface);
         }
 
         auto rigthSepPos = rightInfo.m_access.find(".");
@@ -370,7 +372,7 @@ std::string WiresharkField::wiresharkDslCondToString(
             remRight = rightInfo.m_access.substr(rigthSepPos + 1);
         }
 
-        return wiresharkDslCondToStringFieldFieldCompInternal(leftField, remLeft, op, rightField, remRight);
+        return wiresharkDslCondToStringFieldFieldCompInternal(leftField, remLeft, op, rightField, remRight, interface);
     }
 
     // Reference to bit in "set".
@@ -406,10 +408,25 @@ std::string WiresharkField::wiresharkDslCondToString(
     }
 
     if (rightInfo.m_mode == ParseAccMode::Exists) {
-        return wiresharkDslCondToStringFieldExistsCompInternal(rightField, remRight, op);
+        return wiresharkDslCondToStringFieldExistsCompInternal(rightField, remRight, op, interface);
     }
 
-    return '(' + op + rightField->wiresharkValueAccessStr(remRight) + ')';
+    auto comp = '(' + op + rightField->wiresharkValueAccessStr(remRight) + ')';
+    auto versionCheck = rightField->wiresharkVersionCheckStr(interface);
+    if (versionCheck.empty()) {
+        return comp;
+    }
+
+    util::GenStringsList list{std::move(versionCheck), std::move(comp)};
+    static const std::string Templ =
+        "(#^#COND#$#)"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"COND", util::genStrListToString(list, " and\n", "")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string WiresharkField::wiresharkValueAccessStr(const std::string& accStr, const WiresharkField* refField) const
@@ -436,6 +453,69 @@ std::string WiresharkField::wiresharkExistsCheckStr(const std::string& accStr) c
     }
 
     return implResult;
+}
+
+std::string WiresharkField::wiresharkVersionCheckStr(const WiresharkInterface& interface) const
+{
+    auto parseObj = m_genField.genParseObj();
+    bool fieldPresent =
+        m_genField.genGenerator().genDoesElementExist(parseObj.parseSinceVersion(), parseObj.parseDeprecatedSince(), parseObj.parseIsDeprecatedRemoved());
+
+    if (!fieldPresent) {
+        return "false";
+    }
+
+    bool fieldOptional =
+        m_genField.genGenerator().genIsElementOptional(parseObj.parseSinceVersion(), parseObj.parseDeprecatedSince(), parseObj.parseIsDeprecatedRemoved());
+
+    if (!fieldOptional) {
+        return strings::genEmptyString();
+    }
+
+    auto* versionField = interface.wiresharkVersionField();
+    if (versionField == nullptr) {
+        return strings::genEmptyString();
+    }
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    auto interfaceVer = Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator) + '(' + versionField->wiresharkFieldObjName() + ")";
+
+    util::GenStringsList checks;
+
+    static const std::string CompTempl =
+        "(#^#VAL1#$# <= #^#VAL2#$#)"
+        ;
+
+    util::GenReplacementMap sinceRepl = {
+        {"VAL1", std::to_string(parseObj.parseSinceVersion())},
+        {"VAL2", interfaceVer},
+    };
+
+    checks.push_back(util::genProcessTemplate(CompTempl, sinceRepl));
+
+    if (parseObj.parseIsDeprecatedRemoved() &&
+        (parseObj.parseDeprecatedSince() != commsdsl::parse::ParseProtocol::parseNotYetDeprecated())) {
+        util::GenReplacementMap untilRepl = {
+            {"VAL1", interfaceVer},
+            {"VAL2", std::to_string(parseObj.parseDeprecatedSince() + 1)},
+        };
+
+        checks.push_back(util::genProcessTemplate(CompTempl, untilRepl));
+    }
+
+    if (checks.size() == 1U) {
+        return checks.front();
+    }
+
+    static const std::string Templ =
+        "(#^#COND#$#)"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"COND", util::genStrListToString(checks, " and\n", "")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool WiresharkField::wiresharkNeedsOptionalModeDefinition() const
@@ -1129,6 +1209,7 @@ std::string WiresharkField::wiresharkDissectBodyInternal(const WiresharkField* r
 {
     static const std::string Templ =
         "#^#FIELD_STR#$# = #^#FIELD_STR#$# or #^#FIELD#$#\n"
+        "#^#VERSION#$#\n"
         "#^#LENGTH#$#\n"
         "local result = #^#ERROR#$#\n"
         "local next_offset = offset\n"
@@ -1145,6 +1226,7 @@ std::string WiresharkField::wiresharkDissectBodyInternal(const WiresharkField* r
         {"LENGTH", wiresharkDissectLengthCheckImpl(refField)},
         {"VALID", wiresharkDissectValidCheckInternal(refField)},
         {"FIELD_STR", wiresharkFieldStr()},
+        {"VERSION", wiresharkDisscetVersionCheckInternal(refField)},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -1290,15 +1372,65 @@ std::string WiresharkField::wiresharkProcessNumericValueInternal(const std::stri
     return val;
 }
 
+std::string WiresharkField::wiresharkDisscetVersionCheckInternal(const WiresharkField* refField) const
+{
+    auto* field = this;
+    if (refField != nullptr) {
+        field = refField;
+    }
+
+    auto* ns = field->wiresharkGenField().genParentNamespace();
+    assert(ns != nullptr);
+    auto* interface = WiresharkNamespace::wiresharkCast(ns)->wiresharkInterface();
+    assert(interface != nullptr);
+
+    auto verCheckStr = field->wiresharkVersionCheckStr(*interface);
+    if (verCheckStr.empty()) {
+        return strings::genEmptyString();
+    }
+
+    static const std::string Templ =
+        "local field_exists =\n"
+        "    #^#COND#$#\n"
+        "if not field_exists then\n"
+        "    return #^#SUCCESS#$#, #^#OFFSET#$#\n"
+        "end\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    util::GenReplacementMap repl = {
+        {"COND", std::move(verCheckStr)},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
+        {"OFFSET", wiresharkOffsetStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
 std::string WiresharkField::wiresharkDslCondToStringFieldValueCompInternal(
     const WiresharkField* field,
     const std::string& accStr,
     const std::string& op,
-    const std::string& value)
+    const std::string& value,
+    const WiresharkInterface& interface)
 {
-    // TODO: Add check if version based field preset
     auto valueStr = field->wiresharkCompPrepValueStr(value);
-    return '(' + field->wiresharkValueAccessStr(accStr) + op + valueStr + ')';
+    auto compStr = '(' + field->wiresharkValueAccessStr(accStr) + op + valueStr + ')';
+    auto versionCheckStr = field->wiresharkVersionCheckStr(interface);
+    if (versionCheckStr.empty()) {
+        return compStr;
+    }
+
+    util::GenStringsList list{std::move(versionCheckStr), std::move(compStr)};
+    static const std::string Templ =
+        "(#^#COND#$#)"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"COND", util::genStrListToString(list, " and\n", "")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string WiresharkField::wiresharkDslCondToStringFieldFieldCompInternal(
@@ -1306,37 +1438,97 @@ std::string WiresharkField::wiresharkDslCondToStringFieldFieldCompInternal(
     const std::string& leftAccStr,
     const std::string& op,
     const WiresharkField* rightField,
-    const std::string& rightAccStr)
+    const std::string& rightAccStr,
+    const WiresharkInterface& interface)
 {
-    // TODO: Add check if version based field preset
-
     auto leftValueStr = leftField->wiresharkValueAccessStr(leftAccStr);
     auto rightValueStr = rightField->wiresharkValueAccessStr(rightAccStr);
-    return '(' + leftValueStr + op + rightValueStr + ')';
+    auto compStr = '(' + leftValueStr + op + rightValueStr + ')';
+    auto leftVersionCheckStr = leftField->wiresharkVersionCheckStr(interface);
+    auto rightVersionCheckStr = rightField->wiresharkVersionCheckStr(interface);
+
+    util::GenStringsList checks;
+    if (!leftVersionCheckStr.empty()) {
+        checks.push_back(std::move(leftVersionCheckStr));
+    }
+
+    if (!rightVersionCheckStr.empty()) {
+        checks.push_back(std::move(rightVersionCheckStr));
+    }
+
+    if (checks.empty()) {
+        return compStr;
+    }
+
+    // Remove duplicates
+    checks.erase(
+        std::unique(checks.begin(), checks.end()),
+        checks.end());
+
+    checks.push_back(std::move(compStr));
+    static const std::string Templ =
+        "(#^#COND#$#)"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"COND", util::genStrListToString(checks, " and\n", "")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string WiresharkField::wiresharkDslCondToStringFieldSizeCompInternal(
     const WiresharkField* field,
     const std::string& accStr,
     const std::string& op,
-    const std::string& value)
+    const std::string& value,
+    const WiresharkInterface& interface)
 {
-    // TODO: Add check if version based field preset
     auto valueStr = field->wiresharkCompPrepValueStr(value);
-    return '(' + field->wiresharkSizeAccessStr(accStr) + op + valueStr + ')';
+    auto compStr = '(' + field->wiresharkSizeAccessStr(accStr) + op + valueStr + ')';
+    auto versionCheckStr = field->wiresharkVersionCheckStr(interface);
+    if (versionCheckStr.empty()) {
+        return compStr;
+    }
+
+    util::GenStringsList list{std::move(versionCheckStr), std::move(compStr)};
+    static const std::string Templ =
+        "(#^#COND#$#)"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"COND", util::genStrListToString(list, " and\n", "")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string WiresharkField::wiresharkDslCondToStringFieldExistsCompInternal(
     const WiresharkField* field,
     const std::string& accStr,
-    const std::string& op)
+    const std::string& op,
+    const WiresharkInterface& interface)
 {
     auto compStr = field->wiresharkExistsCheckStr(accStr);
-    if (op.empty()) {
+    if (!op.empty()) {
+        compStr = '(' + op + compStr + ')';
+    }
+
+    auto versionCheckStr = field->wiresharkVersionCheckStr(interface);
+    if (versionCheckStr.empty()) {
         return compStr;
     }
 
-    return '(' + op + compStr + ')';
+    util::GenStringsList list{std::move(versionCheckStr), std::move(compStr)};
+    static const std::string Templ =
+        "(#^#COND#$#)"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"COND", util::genStrListToString(list, " and\n", "")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2wireshark

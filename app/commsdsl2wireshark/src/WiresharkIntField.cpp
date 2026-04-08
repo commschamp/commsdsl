@@ -338,9 +338,15 @@ std::string WiresharkIntField::wiresharkDefaultAssignmentsImpl(const WiresharkFi
         "#^#TREE#$#:add(#^#FIELD#$#, #^#TVB#$#(#^#OFFSET#$#, 0), #^#VAL#$#):set_hidden(true)\n"
         ;
 
-    auto val = std::to_string(parseObj.parseDefaultValue());
-    if (genIsUnsignedType()) {
-        val = std::to_string(static_cast<std::uintmax_t>(parseObj.parseDefaultValue()));
+    auto val = parseObj.parseDefaultValue();
+    if ((val == 0) &&
+        (parseObj.parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Version)) {
+        val = genGenerator().genSchemaOf(*this).genSchemaVersion();
+    }
+
+    auto valStr = std::to_string(val);
+    if ((val < 0) && genIsUnsignedType()) {
+        valStr = std::to_string(static_cast<std::uintmax_t>(val));
     }
 
     util::GenReplacementMap repl = {
@@ -348,7 +354,7 @@ std::string WiresharkIntField::wiresharkDefaultAssignmentsImpl(const WiresharkFi
         {"FIELD", wiresharkFieldObjName(refField)},
         {"TVB", wiresharkTvbStr()},
         {"OFFSET", wiresharkOffsetStr()},
-        {"VAL", std::move(val)}
+        {"VAL", std::move(valStr)}
     };
 
     return util::genProcessTemplate(Templ, repl);

@@ -51,9 +51,9 @@ const WiresharkInterface* WiresharkNamespace::wiresharkInterface() const
 std::string WiresharkNamespace::wiresharkDissectCode() const
 {
     static const std::string Templ =
+        "#^#INTERFACES#$#\n"
         "#^#NAMESPACES#$#\n"
         "#^#FIELDS#$#\n"
-        "#^#INTERFACES#$#\n"
         "#^#MESSAGES#$#\n"
         "#^#FRAMES#$#\n"
         ;

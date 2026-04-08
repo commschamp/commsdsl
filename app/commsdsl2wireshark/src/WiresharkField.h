@@ -84,6 +84,7 @@ public:
     std::string wiresharkSizeAccessStr(const std::string& accStr, const WiresharkField* refField = nullptr) const;
     std::string wiresharkCompPrepValueStr(const std::string& value) const;
     std::string wiresharkExistsCheckStr(const std::string& accStr) const;
+    std::string wiresharkVersionCheckStr(const WiresharkInterface& interface) const;
 
     bool wiresharkNeedsOptionalModeDefinition() const;
     const WiresharkFieldsList& wiresharkSiblings() const;
@@ -171,30 +172,35 @@ private:
     std::string wiresharkValidFuncCodeInternal(const WiresharkField* refField) const;
     bool wiresharkHasTrivialValidInternal() const;
     std::string wiresharkProcessNumericValueInternal(const std::string& val) const;
+    std::string wiresharkDisscetVersionCheckInternal(const WiresharkField* refField) const;
 
     static std::string wiresharkDslCondToStringFieldValueCompInternal(
         const WiresharkField* leftField,
         const std::string& accStr,
         const std::string& op,
-        const std::string& value);
+        const std::string& value,
+        const WiresharkInterface& interface);
 
     static std::string wiresharkDslCondToStringFieldFieldCompInternal(
         const WiresharkField* leftField,
         const std::string& leftAccStr,
         const std::string& op,
         const WiresharkField* rightField,
-        const std::string& rightAccStr);
+        const std::string& rightAccStr,
+        const WiresharkInterface& interface);
 
     static std::string wiresharkDslCondToStringFieldSizeCompInternal(
         const WiresharkField* field,
         const std::string& accStr,
         const std::string& op,
-        const std::string& value);
+        const std::string& value,
+        const WiresharkInterface& interface);
 
     static std::string wiresharkDslCondToStringFieldExistsCompInternal(
         const WiresharkField* field,
         const std::string& accStr,
-        const std::string& op);
+        const std::string& op,
+        const WiresharkInterface& interface);
 
     GenField& m_genField;
     WiresharkCustomCode m_customCode;

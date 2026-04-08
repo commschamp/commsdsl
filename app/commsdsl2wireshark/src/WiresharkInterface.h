@@ -52,6 +52,7 @@ public:
     const WiresharkFieldsList& wiresharkMemberFields() const;
     std::string wiresharkDefaultAssignments() const;
     const WiresharkField* wiresharkFindField(const std::string& name) const;
+    const WiresharkField* wiresharkVersionField() const;
 
 protected:
     virtual bool genPrepareImpl() override;

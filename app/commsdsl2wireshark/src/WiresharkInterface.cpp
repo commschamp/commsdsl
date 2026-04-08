@@ -142,6 +142,23 @@ const WiresharkField* WiresharkInterface::wiresharkFindField(const std::string& 
     return *iter;
 }
 
+const WiresharkField* WiresharkInterface::wiresharkVersionField() const
+{
+    auto iter =
+        std::find_if(
+            m_wiresharkFields.begin(), m_wiresharkFields.end(),
+            [](auto* f)
+            {
+                return f->wiresharkGenField().genParseObj().parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Version;
+            });
+
+    if (iter == m_wiresharkFields.end()) {
+        return nullptr;
+    }
+
+    return *iter;
+}
+
 bool WiresharkInterface::genPrepareImpl()
 {
     if (!GenBase::genPrepareImpl()) {
