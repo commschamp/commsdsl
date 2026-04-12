@@ -703,6 +703,44 @@ std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refFi
     return util::genProcessTemplate(Templ, repl);
 }
 
+std::string WiresharkField::wiresharkValidCheckCodeImpl(const WiresharkField* refField) const
+{
+    static const std::string Templ =
+        "local valid, print_warn = #^#VALID_FUNC#$#(#^#FIELD#$#)\n"
+        "if not valid then\n"
+        "    #^#CODE#$#\n"
+        "end\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    util::GenReplacementMap repl = {
+        {"VALID_FUNC", wiresharkValidFuncName(refField)},
+        {"SUBTREE", wiresharkFieldSubtreeStr()},
+        {"FIELD", wiresharkFieldStr()},
+        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::InvalidMsgData)},
+        {"OFFSET", wiresharkOffsetStr()},
+    };
+
+    if (m_genField.genParseObj().parseIsFailOnInvalid()) {
+        static const std::string FailTempl =
+            "#^#SUBTREE#$#:set_hidden(true)\n"
+            "return #^#ERROR#$#, #^#OFFSET#$#\n"
+            ;
+
+        repl["CODE"] = util::genProcessTemplate(FailTempl, repl);
+    }
+    else {
+        static const std::string FailTempl =
+            "if print_warn then\n"
+            "    #^#SUBTREE#$#:add_expert_info(PI_PROTOCOL, PI_WARN, \"Invalid field value\")\n"
+            "end"
+            ;
+        repl["CODE"] = util::genProcessTemplate(FailTempl, repl);
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
 std::string WiresharkField::wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
@@ -1265,37 +1303,7 @@ std::string WiresharkField::wiresharkDissectValidCheckInternal(const WiresharkFi
         return strings::genEmptyString();
     }
 
-    static const std::string Templ =
-        "local valid, print_warn = #^#VALID_FUNC#$#(#^#FIELD#$#)\n"
-        "if not valid then\n"
-        "    #^#CODE#$#\n"
-        "end\n"
-        ;
-
-    util::GenReplacementMap repl = {
-        {"VALID_FUNC", wiresharkValidFuncName(refField)},
-        {"SUBTREE", wiresharkFieldSubtreeStr()},
-        {"FIELD", wiresharkFieldStr()}
-    };
-
-    if (m_genField.genParseObj().parseIsFailOnInvalid()) {
-        static const std::string FailTempl =
-            "#^#SUBTREE#$#:set_hidden(true)\n"
-            "return result, offset"
-            ;
-
-        repl["CODE"] = util::genProcessTemplate(FailTempl, repl);
-    }
-    else {
-        static const std::string FailTempl =
-            "if print_warn then\n"
-            "    #^#SUBTREE#$#:add_expert_info(PI_PROTOCOL, PI_WARN, \"Invalid field value\")\n"
-            "end"
-            ;
-        repl["CODE"] = util::genProcessTemplate(FailTempl, repl);
-    }
-
-    return util::genProcessTemplate(Templ, repl);
+    return wiresharkValidCheckCodeImpl(refField);
 }
 
 std::string WiresharkField::wiresharkValidFuncCodeInternal(const WiresharkField* refField) const

@@ -98,6 +98,7 @@ protected:
     virtual std::string wiresharkDissectNameImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkValidFuncNameImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkDissectCodeImpl(const WiresharkField* refField) const;
+    virtual std::string wiresharkValidCheckCodeImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkFieldObjNameImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const;

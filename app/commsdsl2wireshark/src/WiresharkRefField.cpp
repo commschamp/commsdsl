@@ -110,6 +110,14 @@ std::string WiresharkRefField::wiresharkDissectCodeImpl(const WiresharkField* re
     return m_wiresharkField->wiresharkDissectCode(refField);
 }
 
+std::string WiresharkRefField::wiresharkValidCheckCodeImpl([[maybe_unused]] const WiresharkField* refField) const
+{
+    assert(!m_alias);
+    assert(!wiresharkMustCopyDissectInternal());
+    assert((!genRefFieldParseObj().parseIsFailOnInvalid()) || (m_wiresharkField->wiresharkGenField().genParseObj().parseIsFailOnInvalid()));
+    return strings::genEmptyString();
+}
+
 std::string WiresharkRefField::wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const
 {
     if (m_alias) {

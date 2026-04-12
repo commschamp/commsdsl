@@ -99,6 +99,23 @@ std::string WiresharkBundleField::wiresharkDissectBodyImpl([[maybe_unused]] cons
         };
 
         members.push_back(util::genProcessTemplate(MemTempl, memRepl));
+
+        auto memParseObj = f->wiresharkGenField().genParseObj();
+        if (memParseObj.parseSemanticType() != commsdsl::parse::ParseField::ParseSemanticType::Length) {
+            continue;
+        }
+
+        static const std::string LimitTempl =
+            "#^#LIMIT#$# = #^#VALUE_FUNC#$#(#^#FIELD#$#)\n"
+            ;
+
+        util::GenReplacementMap limitRepl = {
+            {"LIMIT", wiresharkOffsetLimitStr()},
+            {"VALUE_FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
+            {"FIELD", f->wiresharkFieldObjName()},
+        };
+
+        members.push_back(util::genProcessTemplate(LimitTempl, limitRepl));
     }
 
     static const std::string Templ =

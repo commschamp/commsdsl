@@ -52,6 +52,16 @@ bool WiresharkOptionalField::genPrepareImpl()
     return true;
 }
 
+std::string WiresharkOptionalField::wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const
+{
+    auto* memField = WiresharkField::wiresharkCast(genMemberField());
+    if (memField == nullptr) {
+        return WiresharkBase::wiresharkExtractorsRegCodeImpl(refField);
+    }
+
+    return WiresharkBase::wiresharkExtractorsRegCodeImpl(refField) + memField->wiresharkExtractorsRegCode();
+}
+
 std::string WiresharkOptionalField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
@@ -74,22 +84,8 @@ std::string WiresharkOptionalField::wiresharkFieldRegistrationImpl(const Wiresha
 
 std::string WiresharkOptionalField::wiresharkMembersDissectCodeImpl() const
 {
-    std::string extDissect;
-    auto* extField = genExternalField();
-    if (extField != nullptr) {
-        extDissect = WiresharkField::wiresharkCast(extField)->wiresharkDissectCode();
-    }
-
-    auto* memField = genMemberField();
-    if (memField == nullptr) {
-        return extDissect;
-    }
-
-    if (!extDissect.empty()) {
-        extDissect.push_back('\n');
-    }
-
-    return extDissect + WiresharkField::wiresharkCast(memField)->wiresharkDissectCode();
+    assert(m_wiresharkField != nullptr);
+    return m_wiresharkField->wiresharkDissectCode();
 }
 
 std::string WiresharkOptionalField::wiresharkDissectBodyImpl([[maybe_unused]] const WiresharkField* refField) const
