@@ -139,7 +139,7 @@ std::string WiresharkStringField::wiresharkValidFuncBodyImpl([[maybe_unused]] co
     if ((m_prefixField != nullptr) && (!m_prefixField->wiresharkHasTrivialValid())) {
         static const std::string PrefixTempl =
             "if not #^#VALID_FUNC#$#(#^#PREFIX#$#) then\n"
-            "    return false\n"
+            "    return false, true\n"
             "end\n"
             ;
 
@@ -190,7 +190,7 @@ std::string WiresharkStringField::wiresharkValidFuncBodyImpl([[maybe_unused]] co
     };
     repl["VALUE"] = util::genProcessTemplate(ValueTempl, valueRepl);
 
-    comps.push_back("return false");
+    comps.push_back("return false, true");
     repl["CHECKS"] = util::genStrListToString(comps, "\n", "");
     return util::genProcessTemplate(Templ, repl);
 }

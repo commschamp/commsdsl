@@ -15,16 +15,39 @@
 
 #include "WiresharkDataField.h"
 
+#include "Wireshark.h"
 #include "WiresharkGenerator.h"
 
 #include "commsdsl/gen/util.h"
 #include "commsdsl/gen/strings.h"
+
+#include <algorithm>
+#include <cassert>
+#include <iomanip>
+#include <sstream>
 
 namespace util = commsdsl::gen::util;
 namespace strings = commsdsl::gen::strings;
 
 namespace commsdsl2wireshark
 {
+
+namespace
+{
+
+std::string wiresharkToHexStringInternal(const WiresharkDataField::ParseDataField::ParseValueType& value)
+{
+    std::stringstream stream;
+    stream << std::hex;
+
+    for (auto b : value) {
+        stream << std::setw(2) << std::setfill('0') << static_cast<unsigned>(b);
+    }
+
+    return stream.str();
+}
+
+} // namespace
 
 WiresharkDataField::WiresharkDataField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent) :
     GenBase(generator, parseObj, parent),
@@ -38,17 +61,245 @@ bool WiresharkDataField::genPrepareImpl()
         (!WiresharkBase::wiresharkPrepare())) {
         return false;
     }
+
+    m_prefixField = WiresharkField::wiresharkCast(genMemberPrefixField());
+    if (m_prefixField == nullptr) {
+        m_prefixField = WiresharkField::wiresharkCast(genExternalPrefixField());
+    }
+
     return true;
+}
+
+std::string WiresharkDataField::wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const
+{
+    auto* memPrefix = WiresharkField::wiresharkCast(genMemberPrefixField());
+    if (memPrefix == nullptr) {
+        return WiresharkBase::wiresharkExtractorsRegCodeImpl(refField);
+    }
+
+    return WiresharkBase::wiresharkExtractorsRegCodeImpl(refField) + memPrefix->wiresharkExtractorsRegCode();
 }
 
 std::string WiresharkDataField::wiresharkMembersDissectCodeImpl() const
 {
-    auto* prefixField = genMemberPrefixField();
-    if (prefixField == nullptr) {
+    if (m_prefixField == nullptr) {
         return strings::genEmptyString();
     }
 
-    return WiresharkField::wiresharkCast(prefixField)->wiresharkDissectCode();
+    return m_prefixField->wiresharkDissectCode();
+}
+
+std::string WiresharkDataField::wiresharkDissectBodyImpl([[maybe_unused]] const WiresharkField* refField) const
+{
+    assert(refField == nullptr);
+    static const std::string Templ =
+        "#^#LENGTH#$#\n"
+        "if #^#LIMIT#$# < (#^#NEXT_OFFSET#$# + len) then\n"
+        "    return #^#NOT_ENOUGH_DATA#$#, #^#OFFSET#$#\n"
+        "end\n"
+        "\n"
+        "local #^#RANGE#$# = #^#TVB#$#(#^#NEXT_OFFSET#$#, len)\n"
+        "local #^#SUBTREE#$# = #^#TREE#$#:add(#^#FIELD#$#, #^#RANGE#$#)\n"
+        "#^#NEXT_OFFSET#$# = #^#NEXT_OFFSET#$# + len\n"
+        "#^#RESULT#$# = #^#SUCCESS#$#\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"LENGTH", wiresharkDissectLengthCodeInternal()},
+        {"LIMIT", wiresharkOffsetLimitStr()},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+        {"NOT_ENOUGH_DATA", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::NotEnoughData)},
+        {"OFFSET", wiresharkOffsetStr()},
+        {"RANGE", wiresharkRangeStr()},
+        {"SUBTREE", wiresharkFieldSubtreeStr()},
+        {"TVB", wiresharkTvbStr()},
+        {"TREE", wiresharkTreeStr()},
+        {"FIELD", wiresharkFieldStr()},
+        {"RESULT", wiresharkResultStr()},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkDataField::wiresharkValidFuncBodyImpl([[maybe_unused]] const WiresharkField* refField) const
+{
+    assert(refField == nullptr);
+    static const std::string Templ =
+        "#^#PREFIX#$#\n"
+        "#^#VALUE#$#\n"
+        "#^#CHECKS#$#\n"
+        ;
+
+    util::GenReplacementMap repl;
+
+    if ((m_prefixField != nullptr) && (!m_prefixField->wiresharkHasTrivialValid())) {
+        static const std::string PrefixTempl =
+            "if not #^#VALID_FUNC#$#(#^#PREFIX#$#) then\n"
+            "    return false, true\n"
+            "end\n"
+            ;
+
+        util::GenReplacementMap prefixRepl = {
+            {"VALID_FUNC", m_prefixField->wiresharkValidFuncName()},
+            {"PREFIX", m_prefixField->wiresharkFieldObjName()},
+        };
+
+        repl["PREFIX"] = util::genProcessTemplate(PrefixTempl, prefixRepl);
+    }
+
+    auto parseObj = genDataFieldParseObj();
+    auto& validValues = parseObj.parseValidValues();
+
+    util::GenStringsList comps;
+
+    for (auto& v : validValues) {
+        if (!genGenerator().genDoesElementExist(v.m_sinceVersion, v.m_deprecatedSince, true)) {
+            continue;
+        }
+
+        static const std::string CompTempl =
+            "if value == \"#^#VAL#$#\" then\n"
+            "    return true\n"
+            "end\n"
+            ;
+
+        util::GenReplacementMap compRepl = {
+            {"VAL", wiresharkToHexStringInternal(v.m_value)},
+        };
+
+        comps.push_back(util::genProcessTemplate(CompTempl, compRepl));
+    }
+
+    if (comps.empty()) {
+        repl["VALUE"] = "return true";
+        return util::genProcessTemplate(Templ, repl);
+    }
+
+    static const std::string ValueTempl =
+        "local value = #^#VALUE_FUNC#$#(#^#FIELD#$#):tohex()"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    util::GenReplacementMap valueRepl = {
+        {"VALUE_FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
+        {"FIELD", wiresharkFieldStr()},
+    };
+    repl["VALUE"] = util::genProcessTemplate(ValueTempl, valueRepl);
+
+    comps.push_back("return false, true");
+    repl["CHECKS"] = util::genStrListToString(comps, "\n", "");
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkDataField::wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const
+{
+    assert(accStr.empty());
+    return WiresharkBase::wiresharkValueAccessStrImpl(accStr, refField) + ":tohex()";
+}
+
+std::string WiresharkDataField::wiresharkSizeAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const
+{
+    // TODO: test
+    assert(accStr.empty());
+    return WiresharkBase::wiresharkValueAccessStrImpl(accStr, refField) + ":len()";
+}
+
+std::string WiresharkDataField::wiresharkCompPrepValueStrImpl(const std::string& value) const
+{
+    // TODO: test (remove spaces)
+    return '\"' + value + '\"';
+}
+
+bool WiresharkDataField::wiresharkHasTrivialValidImpl() const
+{
+    if ((m_prefixField != nullptr) && (!m_prefixField->wiresharkHasTrivialValid())) {
+        return false;
+    }
+
+    auto parseObj = genDataFieldParseObj();
+    auto& validValues = parseObj.parseValidValues();
+    return (validValues.empty());
+}
+
+std::string WiresharkDataField::wiresharkDissectLengthCodeInternal() const
+{
+    auto parseObj = genDataFieldParseObj();
+    auto fixedLen = parseObj.parseFixedLength();
+    if (fixedLen != 0U) {
+        return "local len = " + std::to_string(fixedLen);
+    }
+
+    if (m_prefixField != nullptr) {
+        static const std::string Templ =
+            "local prefix_tree = #^#TREE#$#:add(#^#PROTO#$#, #^#TVB#$#(#^#NEXT_OFFSET#$#, 0))\n"
+            "prefix_tree:set_hidden(true)\n"
+            "#^#RESULT#$#, #^#NEXT_OFFSET#$# = #^#READ_FUNC#$#(#^#TVB#$#, prefix_tree, #^#NEXT_OFFSET#$#, #^#LIMIT#$#, #^#FIELD#$#)\n"
+            "if #^#RESULT#$# ~= #^#SUCCESS#$# then\n"
+            "    return #^#RESULT#$#\n"
+            "end\n"
+            "\n"
+            "local len = #^#VALUE_FUNC#$#(#^#FIELD#$#)"
+            ;
+
+        auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+        util::GenReplacementMap repl = {
+            {"RESULT", wiresharkResultStr()},
+            {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+            {"READ_FUNC", m_prefixField->wiresharkDissectName()},
+            {"TVB", wiresharkTvbStr()},
+            {"TREE", wiresharkTreeStr()},
+            {"LIMIT", wiresharkOffsetLimitStr()},
+            {"FIELD", m_prefixField->wiresharkFieldObjName()},
+            {"VALUE_FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
+            {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
+            {"PROTO", Wireshark::wiresharkProtocolObjName(wiresharkGenerator)},
+        };
+
+        return util::genProcessTemplate(Templ, repl);
+    }
+
+    auto& detachedPrefix = parseObj.parseDetachedPrefixFieldName();
+    if (!detachedPrefix.empty()) {
+        // TODO: test
+        auto& siblings = wiresharkSiblings();
+        auto sep = detachedPrefix.find_first_of('.');
+        auto siblingName = detachedPrefix.substr(0, sep);
+
+        auto iter =
+            std::find_if(
+                siblings.begin(), siblings.end(),
+                [&siblingName](auto& f)
+                {
+                    return f->wiresharkGenField().genParseObj().parseName() == siblingName;
+                });
+
+        if (iter == siblings.end()) {
+            genGenerator().genLogger().genError("BUG: Failed to find sibling \"" + detachedPrefix + "\" of " + parseObj.parseInnerRef());
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
+            assert(Should_not_happen);
+            return strings::genEmptyString();
+        }
+
+        std::string remStr;
+        if (sep < detachedPrefix.size()) {
+            remStr = detachedPrefix.substr(sep + 1);
+        }
+
+        return "local len = " + (*iter)->wiresharkValueAccessStr(remStr);
+    }
+
+    static const std::string Templ =
+        "local len = #^#LIMIT#$# - #^#NEXT_OFFSET#$#\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"LIMIT", wiresharkOffsetLimitStr()},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2wireshark
