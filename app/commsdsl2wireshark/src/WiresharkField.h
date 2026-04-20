@@ -62,7 +62,9 @@ public:
     std::string wiresharkFieldObjName(const WiresharkField* refField = nullptr) const;
     std::string wiresharkFieldRegistration(const WiresharkField* refField = nullptr) const;
     std::string wiresharkValidFuncName(const WiresharkField* refField = nullptr) const;
-    std::string wiresharkValidFuncCode(const WiresharkField* refField = nullptr) const;
+    std::string wiresharkValidFuncBody(const WiresharkField* refField = nullptr) const;
+    std::string wiresharkValueFuncName(const WiresharkField* refField = nullptr) const;
+    std::string wiresharkValueFuncBody(const WiresharkField* refField = nullptr) const;
 
     const std::string& wiresharkCustomNameCode(const WiresharkField* refField = nullptr) const;
     bool wiresharkHasCustomNameCode(const WiresharkField* refField = nullptr) const;
@@ -97,6 +99,7 @@ public:
 protected:
     virtual std::string wiresharkDissectNameImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkValidFuncNameImpl(const WiresharkField* refField) const;
+    virtual std::string wiresharkValueFuncNameImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkDissectCodeImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkValidCheckCodeImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const;
@@ -107,6 +110,7 @@ protected:
     virtual std::string wiresharkDissectLengthCheckImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkValidFuncBodyImpl(const WiresharkField* refField) const;
+    virtual std::string wiresharkValueFuncBodyImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const;
     virtual std::string wiresharkSizeAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const;
     virtual std::string wiresharkCompPrepValueStrImpl(const std::string& value) const;
@@ -150,10 +154,12 @@ private:
         std::string m_read;
         std::string m_valid;
         std::string m_name;
+        std::string m_value;
 
         bool m_hasRead = false;
         bool m_hasValid = false;
         bool m_hasName = false;
+        bool m_hasValue = false;
     };
 
     bool wiresharkCopyCodeFromInternal();
@@ -169,8 +175,10 @@ private:
     std::string wiresharkCustomReadCodeInternal(bool& hasRealCode) const;
     std::string wiresharkCustomValidCodeInternal(bool& hasRealCode) const;
     std::string wiresharkCustomNameCodeInternal(bool& hasRealCode) const;
+    std::string wiresharkCustomValueCodeInternal(bool& hasRealCode) const;
     std::string wiresharkDissectValidCheckInternal(const WiresharkField* refField) const;
     std::string wiresharkValidFuncCodeInternal(const WiresharkField* refField) const;
+    std::string wiresharkValueFuncCodeInternal(const WiresharkField* refField) const;
     bool wiresharkHasTrivialValidInternal() const;
     std::string wiresharkProcessNumericValueInternal(const std::string& val) const;
     std::string wiresharkDisscetVersionCheckInternal(const WiresharkField* refField) const;

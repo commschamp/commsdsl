@@ -209,10 +209,9 @@ std::string WiresharkSetField::wiresharkValidFuncBodyImpl([[maybe_unused]] const
         "return bit32.band(value, #^#MASK#$#) == #^#VAL#$#, true\n"
         ;
 
-    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     util::GenReplacementMap repl = {
         {"SUFFIX", strings::genValsSuffixStr()},
-        {"FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
+        {"FUNC", wiresharkValueFuncName()},
         {"FIELD", wiresharkFieldStr()},
         {"MASK", wiresharkHexString(reservedMask, 2U)},
         {"VAL", wiresharkHexString(reservedValue, 2U)},

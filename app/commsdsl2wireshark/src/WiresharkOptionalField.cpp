@@ -149,7 +149,7 @@ std::string WiresharkOptionalField::wiresharkValidFuncBodyImpl([[maybe_unused]] 
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     util::GenReplacementMap repl = {
-        {"VALUE_FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
+        {"VALUE_FUNC", wiresharkValueFuncName()},
         {"FIELD_STR", wiresharkFieldStr()},
         {"EXISTS", Wireshark::wiresharkOptModeStr(wiresharkGenerator, Wireshark::WiresharkOptMode::Exists)},
         {"VALID_FUNC", wiresharkValidFuncName()},
@@ -194,7 +194,7 @@ std::string WiresharkOptionalField::wiresharkExistsCheckStrImpl(const std::strin
 
         auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
         util::GenReplacementMap repl = {
-            {"VALUE_FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
+            {"VALUE_FUNC", wiresharkValueFuncName()},
             {"EXISTS", Wireshark::wiresharkOptModeStr(wiresharkGenerator, Wireshark::WiresharkOptMode::Exists)},
             {"FIELD", wiresharkFieldObjName()},
         };

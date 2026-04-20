@@ -36,7 +36,36 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
+    virtual std::string wiresharkDissectCodeImpl(const WiresharkField* refField) const override;
+    virtual std::string wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkMembersDissectCodeImpl() const override;
+    virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const override;
+    virtual std::string wiresharkValidFuncBodyImpl(const WiresharkField* refField) const override;
+    virtual std::string wiresharkSizeAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
+    virtual bool wiresharkHasTrivialValidImpl() const override;
+
+private:
+    enum WiresharkFieldIdx : unsigned
+    {
+        WiresharkFieldIdx_ExternalElement,
+        WiresharkFieldIdx_MemberElement,
+        WiresharkFieldIdx_ExternalCountPrefix,
+        WiresharkFieldIdx_MemberCountPrefix,
+        WiresharkFieldIdx_ExternalLengthPrefix,
+        WiresharkFieldIdx_MemberLenthPrefix,
+        WiresharkFieldIdx_ExternalElemLengthPrefix,
+        WiresharkFieldIdx_MemberElemLenthPrefix,
+        WiresharkFieldIdx_ExternalTermSuffix,
+        WiresharkFieldIdx_MemberTermSuffix,
+        WiresharkFieldIdx_ValuesLimit // Must be last
+    };
+
+    std::string wiresharkDissectElemCodeInternal() const;
+    std::string wiresharkFixedCountDissectInternal() const;
+    std::string wiresharkCountPrefixDissectInternal() const;
+    std::string wiresharkElemLimitCodeInternal() const;
+
+    std::vector<WiresharkField*> m_wiresharkFields;
 };
 
 } // namespace commsdsl2wireshark

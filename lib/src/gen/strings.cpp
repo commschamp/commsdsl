@@ -620,6 +620,12 @@ const std::string& genValidSuffixStr()
     return Str;
 }
 
+const std::string& genValueSuffixStr()
+{
+    static const std::string Str("_value");
+    return Str;
+}
+
 const std::string& genNameSuffixStr()
 {
     static const std::string Str("_name");

@@ -70,7 +70,7 @@ std::string WiresharkFloatField::wiresharkFieldRegistrationImpl(const WiresharkF
 std::string WiresharkFloatField::wiresharkDissectBodyImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
-        "local #^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, #^#LEN#$#)"
+        "local #^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, #^#LEN#$#)\n"
         "local #^#SUBTREE#$# = #^#TREE#$#:add#^#SUFFIX#$#(#^#FIELD#$#, #^#RANGE#$#)\n"
         "#^#RESULT#$# = #^#SUCCESS#$#\n"
         "#^#NEXT_OFFSET#$# = #^#OFFSET#$# + #^#LEN#$#\n"
@@ -88,6 +88,7 @@ std::string WiresharkFloatField::wiresharkDissectBodyImpl(const WiresharkField* 
         {"RESULT", wiresharkResultStr()},
         {"NEXT_OFFSET", wiresharkNextOffsetStr()},
         {"FIELD", wiresharkFieldStr()},
+        {"RANGE", wiresharkRangeStr()}
     };
 
     if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
@@ -173,7 +174,7 @@ std::string WiresharkFloatField::wiresharkValidFuncBodyImpl([[maybe_unused]] con
 
     util::GenReplacementMap repl = {
         {"ELEMS", util::genStrListToString(elems, "\n", "")},
-        {"FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
+        {"FUNC", wiresharkValueFuncName()},
         {"FIELD", wiresharkFieldStr()},
         {"EPSILON", (parseObj.parseType() == commsdsl::parse::ParseFloatField::ParseType::Float) ? "1e-6" : "1e-12"}
     };

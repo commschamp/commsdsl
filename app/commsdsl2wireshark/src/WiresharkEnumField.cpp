@@ -139,12 +139,11 @@ std::string WiresharkEnumField::wiresharkValidFuncBodyImpl(const WiresharkField*
         "return name ~= #^#NIL#$#, true\n"
         ;
 
-    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     util::GenReplacementMap repl = {
         {"NAME", wiresharkFieldObjName(refField)},
         {"SUFFIX", strings::genValsSuffixStr()},
         {"NIL", strings::genNilStr()},
-        {"FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
+        {"FUNC", wiresharkValueFuncName()},
         {"FIELD", wiresharkFieldStr()},
     };
 

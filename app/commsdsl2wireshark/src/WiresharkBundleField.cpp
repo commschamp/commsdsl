@@ -74,16 +74,18 @@ std::string WiresharkBundleField::wiresharkMembersDissectCodeImpl() const
 
 std::string WiresharkBundleField::wiresharkDissectBodyImpl([[maybe_unused]] const WiresharkField* refField) const
 {
+    // TODO: re-evaluate. Return failure on member read failure.
     auto parseObj = genBundleFieldParseObj();
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     util::GenStringsList members;
+    bool hasLimit = false;
     for (auto* f : m_wiresharkFields) {
         static const std::string MemTempl =
             "#^#RESULT#$#, #^#NEXT_OFFSET#$# = #^#DISSECT#$#(#^#TVB#$#, #^#SUBTREE#$#, #^#NEXT_OFFSET#$#, #^#LIMIT#$#)\n"
+            "#^#LIMIT_CHECK#$#"
             "if #^#RESULT#$# ~= #^#SUCCESS#$# then\n"
             "    #^#SUBTREE#$#:set_hidden(true)\n"
-            "    #^#NEXT_OFFSET#$# = #^#OFFSET#$#\n"
-            "    break\n"
+            "    return #^#RESULT#$#, #^#OFFSET#$#\n"
             "end\n"
             ;
 
@@ -98,6 +100,23 @@ std::string WiresharkBundleField::wiresharkDissectBodyImpl([[maybe_unused]] cons
             {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
         };
 
+        if (hasLimit) {
+            static const std::string CheckTempl =
+                "if #^#RESULT#$# == #^#NOT_ENOUGH_DATA#$# then\n"
+                "    return #^#ERROR#$#, #^#OFFSET#$#\n"
+                "end\n"
+                ;
+
+            util::GenReplacementMap checkRepl = {
+                {"RESULT", wiresharkResultStr()},
+                {"NOT_ENOUGH_DATA", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::NotEnoughData)},
+                {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::MalformedPacket)},
+                {"OFFSET", wiresharkOffsetStr()},
+            };
+
+            memRepl["LIMIT_CHECK"] = util::genProcessTemplate(CheckTempl, checkRepl);
+        }
+
         members.push_back(util::genProcessTemplate(MemTempl, memRepl));
 
         auto memParseObj = f->wiresharkGenField().genParseObj();
@@ -105,26 +124,32 @@ std::string WiresharkBundleField::wiresharkDissectBodyImpl([[maybe_unused]] cons
             continue;
         }
 
+        hasLimit = true;
+
         static const std::string LimitTempl =
-            "#^#LIMIT#$# = #^#VALUE_FUNC#$#(#^#FIELD#$#)\n"
+            "local next_limit = #^#VALUE_FUNC#$#(#^#FIELD#$#)\n"
+            "if #^#LIMIT#$# < next_limit then\n"
+            "    return #^#NOT_ENOUGH_DATA#$#, #^#OFFSET#$#\n"
+            "end\n"
+            "#^#LIMIT#$# = next_limit\n"
             ;
 
         util::GenReplacementMap limitRepl = {
             {"LIMIT", wiresharkOffsetLimitStr()},
-            {"VALUE_FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
+            {"VALUE_FUNC", f->wiresharkValueFuncName()},
             {"FIELD", f->wiresharkFieldObjName()},
+            {"NOT_ENOUGH_DATA", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::NotEnoughData)},
+            {"OFFSET", wiresharkOffsetStr()},
         };
 
         members.push_back(util::genProcessTemplate(LimitTempl, limitRepl));
     }
 
     static const std::string Templ =
-        "repeat\n"
-        "    local #^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, -1)\n"
-        "    local #^#SUBTREE#$# = #^#TREE#$#:add(#^#FIELD#$#, #^#RANGE#$#)\n"
-        "    #^#MEMBERS#$#\n"
-        "    #^#SUBTREE#$#:set_len(#^#NEXT_OFFSET#$# - #^#OFFSET#$#)\n"
-        "until true\n"
+        "local #^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, -1)\n"
+        "local #^#SUBTREE#$# = #^#TREE#$#:add(#^#FIELD#$#, #^#RANGE#$#)\n"
+        "#^#MEMBERS#$#\n"
+        "#^#SUBTREE#$#:set_len(#^#NEXT_OFFSET#$# - #^#OFFSET#$#)\n"
         ;
 
     util::GenReplacementMap repl = {

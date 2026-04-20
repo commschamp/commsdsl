@@ -50,7 +50,7 @@ bool CommsListField::genPrepareImpl()
                     return nullptr;
                 }
 
-                auto commsField = dynamic_cast<CommsField*>(field);
+                auto* commsField = CommsField::commsCast(field);
                 assert(commsField != nullptr);
                 return commsField;
             };

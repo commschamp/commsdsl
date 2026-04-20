@@ -183,9 +183,8 @@ std::string WiresharkStringField::wiresharkValidFuncBodyImpl([[maybe_unused]] co
         "local value = #^#VALUE_FUNC#$#(#^#FIELD#$#)"
         ;
 
-    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     util::GenReplacementMap valueRepl = {
-        {"VALUE_FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
+        {"VALUE_FUNC", wiresharkValueFuncName()},
         {"FIELD", wiresharkFieldStr()},
     };
     repl["VALUE"] = util::genProcessTemplate(ValueTempl, valueRepl);
@@ -240,7 +239,7 @@ std::string WiresharkStringField::wiresharkDissectLengthCodeInternal() const
             {"TREE", wiresharkTreeStr()},
             {"LIMIT", wiresharkOffsetLimitStr()},
             {"FIELD", m_prefixField->wiresharkFieldObjName()},
-            {"VALUE_FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
+            {"VALUE_FUNC", m_prefixField->wiresharkValueFuncName()},
             {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
             {"PROTO", Wireshark::wiresharkProtocolObjName(wiresharkGenerator)},
         };

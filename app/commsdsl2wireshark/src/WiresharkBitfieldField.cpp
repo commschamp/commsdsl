@@ -178,7 +178,7 @@ std::string WiresharkBitfieldField::wiresharkDissectBodyImpl([[maybe_unused]] co
         static const std::string MemTempl =
             "#^#RESULT#$#, _ = #^#DISSECT#$#(#^#TVB#$#, #^#SUBTREE#$#, #^#OFFSET#$#, #^#OFFSET#$# + #^#LEN#$#)\n"
             "if #^#RESULT#$# ~= #^#SUCCESS#$# then\n"
-            "    break\n"
+            "    return #^#RESULT#$#, #^#OFFSET#$#\n"
             "end\n"
             ;
 
@@ -196,12 +196,10 @@ std::string WiresharkBitfieldField::wiresharkDissectBodyImpl([[maybe_unused]] co
     }
 
     static const std::string Templ =
-        "repeat\n"
-        "    local #^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, #^#LEN#$#)\n"
-        "    local #^#SUBTREE#$# = #^#TREE#$#:add#^#SUFFIX#$#(#^#FIELD#$#, #^#RANGE#$#)\n"
-        "    #^#MEMBERS#$#\n"
-        "    #^#NEXT_OFFSET#$# = #^#OFFSET#$# + #^#LEN#$#\n"
-        "until true\n"
+        "local #^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, #^#LEN#$#)\n"
+        "local #^#SUBTREE#$# = #^#TREE#$#:add#^#SUFFIX#$#(#^#FIELD#$#, #^#RANGE#$#)\n"
+        "#^#MEMBERS#$#\n"
+        "#^#NEXT_OFFSET#$# = #^#OFFSET#$# + #^#LEN#$#\n"
         ;
 
     util::GenReplacementMap repl = {

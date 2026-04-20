@@ -302,7 +302,7 @@ std::string WiresharkIntField::wiresharkValidFuncBodyImpl([[maybe_unused]] const
 
     util::GenReplacementMap repl = {
         {"ELEMS", util::genStrListToString(elems, "\n", "")},
-        {"FUNC", Wireshark::wiresharkFieldValueFuncName(wiresharkGenerator)},
+        {"FUNC", wiresharkValueFuncName()},
         {"FIELD", wiresharkFieldStr()},
     };
 
@@ -481,7 +481,7 @@ std::string WiresharkIntField::wiresharkVarLengthCodeBigEndianInternal() const
 {
     static const std::string Templ =
         "local has_more = true\n"
-        "while has_more and (#^#NEXT_OFFSET#$# < (#^#OFFSET#$# + len)) do\n"
+        "while has_more and (#^#NEXT_OFFSET#$# < (#^#OFFSET#$# + #^#LEN#$#)) and (#^#NEXT_OFFSET#$# < #^#LIMIT#$#) do\n"
         "    local b = #^#TVB#$#(#^#NEXT_OFFSET#$#, 1):uint()\n"
         "    local data = bit32.band(b, 0x7F)\n"
         "    has_more = (bit32.band(b, 0x80) ~= 0)\n"
@@ -505,6 +505,8 @@ std::string WiresharkIntField::wiresharkVarLengthCodeBigEndianInternal() const
         {"OFFSET", wiresharkOffsetStr()},
         {"TVB", wiresharkTvbStr()},
         {"RANGE", wiresharkRangeStr()},
+        {"LEN", std::to_string(genParseObj().parseMaxLength())},
+        {"LIMIT", wiresharkOffsetLimitStr()},
     };
 
     return util::genProcessTemplate(Templ, repl);

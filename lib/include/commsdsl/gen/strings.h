@@ -127,6 +127,7 @@ const std::string& genValueTypeStr();
 const std::string& genValsSuffixStr();
 const std::string& genReadSuffixStr();
 const std::string& genValidSuffixStr();
+const std::string& genValueSuffixStr();
 const std::string& genNameSuffixStr();
 const std::string& genNilStr();
 const std::string& genLittleEndianSuffixStr();
