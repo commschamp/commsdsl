@@ -12,5 +12,14 @@ for file in Dir.open(script_path, ".lua") do
     end
 end
 
-local this_test = require(this_proto)
+local success, result = pcall(require, this_proto)
+if not success then
+    -- If 'success' is false, 'result' contains the error message
+    io.stderr:write("FATAL ERROR loading '" .. tostring(this_proto) .. "':\n" .. tostring(result) .. "\n")
+    os.exit(1)
+end
+
+-- If we get here, require succeeded!
+-- 'result' now contains whatever the required file returned prot object
+local this_test = result
 DissectorTable.get("tcp.port"):add(12345, this_test)

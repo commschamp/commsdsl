@@ -50,7 +50,7 @@ bool WiresharkFloatField::genPrepareImpl()
 std::string WiresharkFloatField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
-        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, #^#UNIT_NAME#$#, #^#DESC#$#))\n"
+        "#^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, #^#UNIT_NAME#$#, #^#DESC#$#))\n"
     ;
 
     util::GenReplacementMap repl = {

@@ -54,7 +54,7 @@ std::string WiresharkMessage::wiresharkDissectCode() const
         "#^#FIELDS#$#\n"
         "#^#NAME_VAR#$#\n"
         "#^#PREPEND#$#\n"
-        "local function #^#NAME#$##^#SUFFIX#$#(tvb, tree, offset, offset_limit)\n"
+        "function #^#NAME#$##^#SUFFIX#$#(tvb, tree, offset, offset_limit)\n"
         "    #^#REPLACE#$#\n"
         "    #^#BODY#$#\n"
         "end\n"
@@ -200,7 +200,7 @@ std::string WiresharkMessage::wiresharkNameDefInternal() const
 
     static const std::string Templ =
         "#^#COMMENT#$#"
-        "local #^#VAR_NAME#$# = \"#^#NAME#$#\"\n"
+        "#^#VAR_NAME#$# = \"#^#NAME#$#\"\n"
     ;
 
     bool hasName = false;

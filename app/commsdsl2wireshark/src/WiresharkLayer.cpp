@@ -67,7 +67,7 @@ std::string WiresharkLayer::wiresharkDissectCode() const
         "#^#FIELD#$#\n"
         "#^#EXTRA#$#\n"
         "#^#PREPEND#$#\n"
-        "local function #^#NAME#$##^#SUFFIX#$#(tvb, tree, offset, offset_limit, funcs, next_idx, msg)\n"
+        "function #^#NAME#$##^#SUFFIX#$#(tvb, tree, offset, offset_limit, funcs, next_idx, msg)\n"
         "    #^#REPLACE#$#\n"
         "    local result = #^#SUCCESS#$#\n"
         "    local next_offset = offset\n"

@@ -685,7 +685,7 @@ std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refFi
         "#^#VALUE_FUNC#$#\n"
         "#^#VALID_FUNC#$#\n"
         "#^#PREPEND#$#\n"
-        "local function #^#NAME#$##^#SUFFIX#$#(#^#SIG#$#)\n"
+        "function #^#NAME#$##^#SUFFIX#$#(#^#SIG#$#)\n"
         "    #^#REPLACE#$#\n"
         "    #^#BODY#$#\n"
         "end\n"
@@ -788,13 +788,13 @@ std::string WiresharkField::wiresharkFieldObjNameImpl(const WiresharkField* refF
     }
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genField->genGenerator());
     auto scope = comms::genScopeFor(*genField, wiresharkGenerator, false);
-    return Wireshark::wiresharkProtocolObjName(wiresharkGenerator) + '_' + util::genStrReplace(scope, "::", "_");
+    return Wireshark::wiresharkLocalNamespaceName(wiresharkGenerator) + '.' + util::genStrReplace(scope, "::", "_");
 }
 
 std::string WiresharkField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
-        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bytes(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.SPACE, #^#DESC#$#))\n"
+        "#^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bytes(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.SPACE, #^#DESC#$#))\n"
     ;
 
     util::GenReplacementMap repl = {
@@ -1266,7 +1266,7 @@ std::string WiresharkField::wiresharkNameDefInternal(const WiresharkField* refFi
 {
     static const std::string Templ =
         "#^#COMMENT#$#"
-        "local #^#VAR_NAME#$# = \"#^#NAME#$#\"\n"
+        "#^#VAR_NAME#$# = \"#^#NAME#$#\"\n"
     ;
 
     util::GenReplacementMap repl = {
@@ -1361,7 +1361,7 @@ std::string WiresharkField::wiresharkValidFuncCodeInternal(const WiresharkField*
     }
 
     static const std::string Templ =
-        "local function #^#NAME#$##^#SUFFIX#$#(#^#FIELD#$#)\n"
+        "function #^#NAME#$##^#SUFFIX#$#(#^#FIELD#$#)\n"
         "    #^#REPLACE#$#\n"
         "    #^#BODY#$#\n"
         "end\n"
@@ -1396,7 +1396,7 @@ std::string WiresharkField::wiresharkValidFuncCodeInternal(const WiresharkField*
 std::string WiresharkField::wiresharkValueFuncCodeInternal(const WiresharkField* refField) const
 {
     static const std::string Templ =
-        "local function #^#NAME#$##^#SUFFIX#$#(#^#FIELD#$#)\n"
+        "function #^#NAME#$##^#SUFFIX#$#(#^#FIELD#$#)\n"
         "    #^#REPLACE#$#\n"
         "    #^#BODY#$#\n"
         "end\n"

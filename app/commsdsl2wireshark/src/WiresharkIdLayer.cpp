@@ -93,7 +93,7 @@ std::string WiresharkIdLayer::wiresharkExtraDissectCodeImpl() const
     }
 
     static const std::string Templ =
-        "local #^#NAME#$# = {\n"
+        "#^#NAME#$# = {\n"
         "    #^#ELEMS#$#\n"
         "}\n"
     ;

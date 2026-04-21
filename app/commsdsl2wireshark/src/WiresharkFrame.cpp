@@ -51,7 +51,7 @@ std::string WiresharkFrame::wiresharkDissectCode() const
         "#^#LAYERS#$#\n"
         "#^#FUNC_LIST#$#\n"
         "#^#PREPEND#$#\n"
-        "local function #^#NAME#$##^#SUFFIX#$#(tvb, tree)\n"
+        "function #^#NAME#$##^#SUFFIX#$#(tvb, tree)\n"
         "    #^#REPLACE#$#\n"
         "    #^#BODY#$#\n"
         "end\n"
@@ -221,7 +221,7 @@ const WiresharkInterface* WiresharkFrame::wiresharkInterfaceInternal() const
 std::string WiresharkFrame::wiresharkLayerFuncsListInternal() const
 {
     static const std::string Templ =
-        "local #^#NAME#$# = {\n"
+        "#^#NAME#$# = {\n"
         "    #^#LAYERS#$#\n"
         "}\n"
         ;

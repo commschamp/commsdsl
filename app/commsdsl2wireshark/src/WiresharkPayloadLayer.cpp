@@ -73,7 +73,7 @@ std::string WiresharkPayloadLayer::wiresharkDissectBodyImpl() const
 std::string WiresharkPayloadLayer::wiresharkExtraDissectCodeImpl() const
 {
     static const std::string Templ =
-        "local #^#NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bytes(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", base.SPACE, #^#DESC#$#))\n"
+        "#^#NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bytes(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", base.SPACE, #^#DESC#$#))\n"
         ;
 
     auto parseObj = genParseObj();

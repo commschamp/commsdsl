@@ -90,13 +90,13 @@ std::string WiresharkListField::wiresharkDissectCodeImpl(const WiresharkField* r
     assert(refField == nullptr);
 
     static const std::string Templ =
-        "local #^#NAME#$#_size_rec = {}\n"
+        "#^#NAME#$#_size_rec = {}\n"
         "\n"
-        "local function #^#NAME#$#_size_rec_set(field, value)\n"
+        "function #^#NAME#$#_size_rec_set(field, value)\n"
         "    #^#NAME#$#_size_rec[field] = value\n"
         "end\n"
         "\n"
-        "local function #^#NAME#$#_size_rec_get(field)\n"
+        "function #^#NAME#$#_size_rec_get(field)\n"
         "    local value = #^#NAME#$#_size_rec[field]\n"
         "    if value == #^#NIL#$# then\n"
         "        return 0\n"

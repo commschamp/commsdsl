@@ -64,7 +64,7 @@ std::string WiresharkStringField::wiresharkExtractorsRegCodeImpl(const Wireshark
 std::string WiresharkStringField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
-        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.string#^#Z#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.UNICODE, #^#DESC#$#))\n"
+        "#^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.string#^#Z#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.UNICODE, #^#DESC#$#))\n"
     ;
 
     util::GenReplacementMap repl = {

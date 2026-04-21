@@ -52,6 +52,7 @@ public:
     static std::string wiresharkOptModeStr(const WiresharkGenerator& generator, WiresharkOptMode code);
     static std::string wiresharkOptModeValsName(const WiresharkGenerator& generator);
     static std::string wiresharkFieldValueFuncName(const WiresharkGenerator& generator);
+    static std::string wiresharkLocalNamespaceName(const WiresharkGenerator& generator);
 
 private:
     explicit Wireshark(const WiresharkGenerator& generator) : m_wiresharkGenerator(generator) {}
@@ -59,6 +60,7 @@ private:
 private:
     bool wiresharkWriteInternal() const;
     std::string wiresharkProtocolDefInternal() const;
+    std::string wiresharkLocalInternal() const;
     std::string wiresharkDissectFuncInternal() const;
     std::string wiresharkFieldsRegistrationInternal() const;
     std::string wiresharkCodeInternal() const;

@@ -51,22 +51,22 @@ const std::string& Wireshark::wiresharkProtocolObjName(const WiresharkGenerator&
 
 std::string Wireshark::wiresharkCreateFieldFuncName(const WiresharkGenerator& generator)
 {
-    return wiresharkProtocolObjName(generator) + "_createField";
+    return wiresharkLocalNamespaceName(generator) + ".createField";
 }
 
 std::string Wireshark::wiresharkCreateExtractorFuncName(const WiresharkGenerator& generator)
 {
-    return wiresharkProtocolObjName(generator) + "_createExtractor";
+    return wiresharkLocalNamespaceName(generator) + ".createExtractor";
 }
 
 std::string Wireshark::wiresharkFieldsListName(const WiresharkGenerator& generator)
 {
-    return wiresharkProtocolObjName(generator) + "_fields_list";
+    return wiresharkLocalNamespaceName(generator) + ".fields_list";
 }
 
 std::string Wireshark::wiresharkExtractorsMapName(const WiresharkGenerator& generator)
 {
-    return wiresharkProtocolObjName(generator) + "_extractors_map";
+    return wiresharkLocalNamespaceName(generator) + ".extractors_map";
 }
 
 std::string Wireshark::wiresharkStatusCodeStr(const WiresharkGenerator& generator, WiresharkStatusCode code)
@@ -89,7 +89,12 @@ std::string Wireshark::wiresharkOptModeValsName(const WiresharkGenerator& genera
 
 std::string Wireshark::wiresharkFieldValueFuncName(const WiresharkGenerator& generator)
 {
-    return wiresharkProtocolObjName(generator) + "_field_value";
+    return wiresharkLocalNamespaceName(generator) + ".field_value";
+}
+
+std::string Wireshark::wiresharkLocalNamespaceName(const WiresharkGenerator& generator)
+{
+    return wiresharkProtocolObjName(generator) + "_local";
 }
 
 bool Wireshark::wiresharkWriteInternal() const
@@ -108,6 +113,7 @@ bool Wireshark::wiresharkWriteInternal() const
         const std::string Templ =
             "#^#GEN_COMMENT#$#\n"
             "#^#PROTOCOL#$#\n"
+            "#^#LOCAL#$#\n"
             "#^#STATUS_CODE#$#\n"
             "#^#OPT_MODE#$#\n"
             "#^#FIELDS_REG#$#\n"
@@ -124,6 +130,7 @@ bool Wireshark::wiresharkWriteInternal() const
         util::GenReplacementMap repl = {
             {"GEN_COMMENT", m_wiresharkGenerator.wiresharkFileGeneratedComment()},
             {"PROTOCOL", wiresharkProtocolDefInternal()},
+            {"LOCAL", wiresharkLocalInternal()},
             {"FIELDS_REG", wiresharkFieldsRegistrationInternal()},
             {"DISSECT_FUNC", wiresharkDissectFuncInternal()},
             {"NAME", wiresharkProtocolObjName(m_wiresharkGenerator)},
@@ -164,6 +171,19 @@ std::string Wireshark::wiresharkProtocolDefInternal() const
     return util::genProcessTemplate(Templ, repl);
 }
 
+std::string Wireshark::wiresharkLocalInternal() const
+{
+    const std::string Templ =
+        "local #^#NAME#$# = {}\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkLocalNamespaceName(m_wiresharkGenerator)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
 std::string Wireshark::wiresharkDissectFuncInternal() const
 {
     const std::string Templ =
@@ -194,10 +214,10 @@ std::string Wireshark::wiresharkFieldsRegistrationInternal() const
 {
     const std::string Templ =
         "-- Field Management\n"
-        "local #^#LIST#$# = {}\n"
+        "#^#LIST#$# = {}\n"
         "\n"
         "-- Invoke this function every time the field is created\n"
-        "local function #^#NAME#$#(obj)\n"
+        "function #^#NAME#$#(obj)\n"
         "    table.insert(#^#LIST#$#, obj)\n"
         "    return obj\n"
         "end\n"
@@ -284,7 +304,7 @@ std::string Wireshark::wiresharkDissectFuncBodyInternal() const
 
 std::string Wireshark::wiresharkStatusCodeNameInternal() const
 {
-    return wiresharkProtocolObjName(m_wiresharkGenerator) + "_StatusCode";
+    return wiresharkLocalNamespaceName(m_wiresharkGenerator) + ".StatusCode";
 }
 
 std::string Wireshark::wiresharkStatusCodeDefInternal() const
@@ -296,7 +316,7 @@ std::string Wireshark::wiresharkStatusCodeDefInternal() const
     }
 
     const std::string Templ =
-        "local #^#NAME#$# = {\n"
+        "#^#NAME#$# = {\n"
         "    #^#VALS#$#\n"
         "}\n"
     ;
@@ -311,7 +331,7 @@ std::string Wireshark::wiresharkStatusCodeDefInternal() const
 
 std::string Wireshark::wiresharkOptModeNameInternal() const
 {
-    return wiresharkProtocolObjName(m_wiresharkGenerator) + "_OptMode";
+    return wiresharkLocalNamespaceName(m_wiresharkGenerator) + ".OptMode";
 }
 
 std::string Wireshark::wiresharkOptionalModeDefInternal() const
@@ -340,11 +360,11 @@ std::string Wireshark::wiresharkOptionalModeDefInternal() const
     }
 
     const std::string Templ =
-        "local #^#NAME#$# = {\n"
+        "#^#NAME#$# = {\n"
         "    #^#VALS#$#\n"
         "}\n"
         "\n"
-        "local #^#VALS_NAME#$# = {\n"
+        "#^#VALS_NAME#$# = {\n"
         "    #^#VAL_NAMES#$#\n"
         "}\n"
     ;
@@ -363,10 +383,10 @@ std::string Wireshark::wiresharkExtractorsDeclInternal() const
 {
     const std::string Templ =
         "-- Extractors Management\n"
-        "local #^#MAP#$# = {}\n"
+        "#^#MAP#$# = {}\n"
         "\n"
         "-- Invoke this function every time the extractor needs to be created\n"
-        "local function #^#NAME#$#(name, field)\n"
+        "function #^#NAME#$#(name, field)\n"
         "    #^#MAP#$#[field] = Field.new(name)\n"
         "end\n"
         ;
@@ -397,7 +417,7 @@ std::string Wireshark::wiresharkExtractorsRegCodeInternal() const
 std::string Wireshark::wiresharkFieldValueFuncInternal() const
 {
     const std::string Templ =
-        "local function #^#NAME#$#(field)\n"
+        "function #^#NAME#$#(field)\n"
         "    local extractor = #^#MAP#$#[field]\n"
         "    local info = {extractor()}\n"
         "    local last = info[#info]\n"

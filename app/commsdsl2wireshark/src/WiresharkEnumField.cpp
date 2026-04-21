@@ -40,7 +40,7 @@ std::string WiresharkEnumField::wiresharkFieldRegistrationImpl(const WiresharkFi
 {
     static const std::string Templ =
         "#^#VALS#$#\n"
-        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, #^#BASE#$#, #^#VALS_NAME#$#, #^#MASK#$#, #^#DESC#$#))\n"
+        "#^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, #^#BASE#$#, #^#VALS_NAME#$#, #^#MASK#$#, #^#DESC#$#))\n"
     ;
 
     auto obj = genEnumFieldParseObj();
@@ -240,7 +240,7 @@ std::string WiresharkEnumField::wiresharkValsInternal(const WiresharkField* refF
     }
 
     static const std::string Templ =
-        "local #^#NAME#$##^#SUFFIX#$# = {\n"
+        "#^#NAME#$##^#SUFFIX#$# = {\n"
         "    #^#ELEMS#$#\n"
         "}\n"
     ;

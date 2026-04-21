@@ -65,7 +65,7 @@ std::string WiresharkOptionalField::wiresharkExtractorsRegCodeImpl(const Wiresha
 std::string WiresharkOptionalField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
     static const std::string Templ =
-        "local #^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.uint8(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.DEC, #^#VALS#$#, #^#NIL#$#, #^#DESC#$#))\n"
+        "#^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.uint8(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.DEC, #^#VALS#$#, #^#NIL#$#, #^#DESC#$#))\n"
     ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
