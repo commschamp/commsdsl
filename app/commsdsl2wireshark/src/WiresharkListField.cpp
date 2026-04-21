@@ -178,7 +178,7 @@ std::string WiresharkListField::wiresharkDissectBodyImpl([[maybe_unused]] const 
 
     static const std::string Templ =
         "local count = 0\n"
-        "local #^#SUBTREE#$# = #^#TREE#$#:add(#^#FIELD#$#, #^#TVB#$#(#^#NEXT_OFFSET#$#, 0))\n"
+        "local #^#SUBTREE#$# = #^#TREE#$#:add(#^#FIELD#$#, #^#TVB#$#(#^#NEXT_OFFSET#$#, -1))\n"
         "#^#READ#$#\n"
         "#^#NAME#$#_size_rec_set(#^#FIELD#$#, count)\n"
         "#^#SUBTREE#$#:set_len(#^#NEXT_OFFSET#$# - #^#OFFSET#$#)\n"
@@ -201,8 +201,21 @@ std::string WiresharkListField::wiresharkDissectBodyImpl([[maybe_unused]] const 
             break;
         }
 
-        if (parseObj.parseHasCountPrefixField()) {
+        if ((parseObj.parseHasCountPrefixField()) ||
+            (!parseObj.parseDetachedCountPrefixFieldName().empty())) {
             repl["READ"] = wiresharkCountPrefixDissectInternal();
+            break;
+        }
+
+        if ((parseObj.parseHasLengthPrefixField()) ||
+            (!parseObj.parseDetachedLengthPrefixFieldName().empty())) {
+            repl["READ"] = wiresharkLengthPrefixDissectInternal();
+            break;
+        }
+
+        if ((parseObj.parseHasTermSuffixField()) ||
+            (!parseObj.parseDetachedTermSuffixFieldName().empty())) {
+            repl["READ"] = wiresharkTermSuffixDissectInternal();
             break;
         }
 
@@ -339,9 +352,24 @@ std::string WiresharkListField::wiresharkFixedCountDissectInternal() const
 
 std::string WiresharkListField::wiresharkCountPrefixDissectInternal() const
 {
-    auto* prefixField = m_wiresharkFields[WiresharkFieldIdx_ExternalCountPrefix];
+    const auto* prefixField = m_wiresharkFields[WiresharkFieldIdx_ExternalCountPrefix];
     if (prefixField == nullptr) {
         prefixField = m_wiresharkFields[WiresharkFieldIdx_MemberCountPrefix];
+    }
+
+    if (prefixField == nullptr) {
+        // TODO: test
+        auto parseObj = genListFieldParseObj();
+        auto& detachedName = parseObj.parseDetachedCountPrefixFieldName();
+        assert(!detachedName.empty());
+        auto sibInfo = wiresharkSplitMemberAccStr(detachedName, wiresharkSiblings());
+        prefixField = sibInfo.first;
+        if (!sibInfo.second.empty()) {
+            assert(sibInfo.first != nullptr);
+            auto memInfo = sibInfo.first->wiresharkGenField().genProcessInnerRef(sibInfo.second);
+            prefixField = WiresharkField::wiresharkCast(memInfo.m_field);
+            assert(memInfo.m_refType == GenField::FieldRefType_Field);
+        }
     }
 
     assert(prefixField != nullptr);
@@ -369,8 +397,120 @@ std::string WiresharkListField::wiresharkCountPrefixDissectInternal() const
         {"FIELD", prefixField->wiresharkFieldObjName()},
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
         {"OFFSET", wiresharkOffsetStr()},
-        {"VALUE_FUNC", wiresharkValueFuncName()},
+        {"VALUE_FUNC", prefixField->wiresharkValueFuncName()},
         {"READ_ELEM", wiresharkDissectElemCodeInternal()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkListField::wiresharkLengthPrefixDissectInternal() const
+{
+    const auto* prefixField = m_wiresharkFields[WiresharkFieldIdx_ExternalLengthPrefix];
+    if (prefixField == nullptr) {
+        prefixField = m_wiresharkFields[WiresharkFieldIdx_MemberLenthPrefix];
+    }
+
+    if (prefixField == nullptr) {
+        // TODO: test
+        auto parseObj = genListFieldParseObj();
+        auto& detachedName = parseObj.parseDetachedLengthPrefixFieldName();
+        assert(!detachedName.empty());
+        auto sibInfo = wiresharkSplitMemberAccStr(detachedName, wiresharkSiblings());
+        prefixField = sibInfo.first;
+        if (!sibInfo.second.empty()) {
+            assert(sibInfo.first != nullptr);
+            auto memInfo = sibInfo.first->wiresharkGenField().genProcessInnerRef(sibInfo.second);
+            prefixField = WiresharkField::wiresharkCast(memInfo.m_field);
+            assert(memInfo.m_refType == GenField::FieldRefType_Field);
+        }
+    }
+
+    assert(prefixField != nullptr);
+
+    static const std::string Templ =
+        "#^#RESULT#$#, #^#NEXT_OFFSET#$# = #^#DISSECT#$#(#^#TVB#$#, #^#SUBTREE#$#, #^#NEXT_OFFSET#$#, #^#LIMIT#$#, #^#FIELD#$#)\n"
+        "if #^#RESULT#$# ~= #^#SUCCESS#$# then\n"
+        "    return #^#RESULT#$#, #^#OFFSET#$#\n"
+        "end\n"
+        "\n"
+        "local next_limit = #^#NEXT_OFFSET#$# + #^#VALUE_FUNC#$#(#^#FIELD#$#)\n"
+        "if #^#LIMIT#$# < next_limit then\n"
+        "    return #^#NOT_ENOUGH_DATA#$#, #^#OFFSET#$#\n"
+        "end\n"
+        "\n"
+        "#^#LIMIT#$# = next_limit\n"
+        "while (#^#NEXT_OFFSET#$# < #^#LIMIT#$#) do\n"
+        "    #^#READ_ELEM#$#\n"
+        "end\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"RESULT", wiresharkResultStr()},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+        {"DISSECT", prefixField->wiresharkDissectName()},
+        {"TVB", wiresharkTvbStr()},
+        {"SUBTREE", wiresharkFieldSubtreeStr()},
+        {"LIMIT", wiresharkOffsetLimitStr()},
+        {"FIELD", prefixField->wiresharkFieldObjName()},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
+        {"NOT_ENOUGH_DATA", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::NotEnoughData)},
+        {"OFFSET", wiresharkOffsetStr()},
+        {"VALUE_FUNC", prefixField->wiresharkValueFuncName()},
+        {"READ_ELEM", wiresharkDissectElemCodeInternal()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkListField::wiresharkTermSuffixDissectInternal() const
+{
+    const auto* suffixField = m_wiresharkFields[WiresharkFieldIdx_ExternalTermSuffix];
+    if (suffixField == nullptr) {
+        suffixField = m_wiresharkFields[WiresharkFieldIdx_MemberTermSuffix];
+    }
+
+    if (suffixField == nullptr) {
+        auto parseObj = genListFieldParseObj();
+        auto& detachedName = parseObj.parseDetachedTermSuffixFieldName();
+        assert(!detachedName.empty());
+        auto sibInfo = wiresharkSplitMemberAccStr(detachedName, wiresharkSiblings());
+        suffixField = sibInfo.first;
+        if (!sibInfo.second.empty()) {
+            assert(sibInfo.first != nullptr);
+            auto memInfo = sibInfo.first->wiresharkGenField().genProcessInnerRef(sibInfo.second);
+            suffixField = WiresharkField::wiresharkCast(memInfo.m_field);
+            assert(memInfo.m_refType == GenField::FieldRefType_Field);
+        }
+    }
+
+    assert(suffixField != nullptr);
+
+    static const std::string Templ =
+        "while (#^#NEXT_OFFSET#$# < #^#LIMIT#$#) do\n"
+        "    local term_suffix_subtree = #^#SUBTREE#$#:add(#^#PROTO#$#, #^#TVB#$#(#^#NEXT_OFFSET#$#, 0))\n"
+        "    term_suffix_subtree:set_hidden(true)\n"
+        "    #^#RESULT#$#, #^#NEXT_OFFSET#$# = #^#DISSECT#$#(#^#TVB#$#, term_suffix_subtree, #^#NEXT_OFFSET#$#, #^#LIMIT#$#, #^#FIELD#$#)\n"
+        "    if #^#RESULT#$# == #^#SUCCESS#$# then\n"
+        "        break\n"
+        "    end\n"
+        "    #^#READ_ELEM#$#\n"
+        "end\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"RESULT", wiresharkResultStr()},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+        {"DISSECT", suffixField->wiresharkDissectName()},
+        {"TVB", wiresharkTvbStr()},
+        {"SUBTREE", wiresharkFieldSubtreeStr()},
+        {"LIMIT", wiresharkOffsetLimitStr()},
+        {"FIELD", suffixField->wiresharkFieldObjName()},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
+        {"READ_ELEM", wiresharkDissectElemCodeInternal()},
+        {"PROTO", Wireshark::wiresharkProtocolObjName(wiresharkGenerator)},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -390,14 +530,16 @@ std::string WiresharkListField::wiresharkElemLimitCodeInternal() const
 
     assert(lenField != nullptr);
 
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+
     static const std::string ReadTempl =
-        "#^#RESULT#$#, #^#NEXT_OFFSET#$# = #^#DISSECT#$#(#^#TVB#$#, #^#SUBTREE#$#, #^#NEXT_OFFSET#$#, #^#LIMIT#$#, #^#FIELD#$#)"
+        "#^#RESULT#$#, #^#NEXT_OFFSET#$# = #^#DISSECT#$#(#^#TVB#$#, #^#SUBTREE#$#, #^#NEXT_OFFSET#$#, #^#LIMIT#$#, #^#FIELD#$#)\n"
+        "#^#LEN_CHECK#$#\n"
         "if #^#RESULT#$# ~= #^#SUCCESS#$# then\n"
         "    return #^#RESULT#$#, #^#OFFSET#$#\n"
         "end\n"
         ;
 
-    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     util::GenReplacementMap readRepl = {
         {"RESULT", wiresharkResultStr()},
         {"NEXT_OFFSET", wiresharkNextOffsetStr()},
@@ -410,38 +552,60 @@ std::string WiresharkListField::wiresharkElemLimitCodeInternal() const
         {"OFFSET", wiresharkOffsetStr()},
     };
 
+    if (genListFieldParseObj().parseHasLengthPrefixField()) {
+        static const std::string LenCheckTempl =
+            "if #^#RESULT#$# == #^#NOT_ENOUGH_DATA#$# then\n"
+            "    return #^#MALFORMED#$#, #^#OFFSET#$#\n"
+            "end\n"
+            ;
+
+        util::GenReplacementMap lenCheckRepl = {
+            {"RESULT", wiresharkResultStr()},
+            {"NOT_ENOUGH_DATA", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::NotEnoughData)},
+            {"MALFORMED", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::MalformedPacket)},
+            {"OFFSET", wiresharkOffsetStr()},
+        };
+
+        readRepl["LEN_CHECK"] = util::genProcessTemplate(LenCheckTempl, lenCheckRepl);
+    }
+
     static const std::string ValueTempl =
-        "local elem_limit = #^#VALUE_FUNC#$#(#^#FIELD#$#)"
+        "local elem_limit = #^#NEXT_OFFSET#$# + #^#VALUE_FUNC#$#(#^#FIELD#$#)\n"
+        "if (#^#LIMIT#$# < elem_limit) then\n"
+        "    return #^#RESULT_VAL#$#, #^#OFFSET#$#\n"
+        "end\n"
         ;
 
     util::GenReplacementMap valueRepl = {
         {"VALUE_FUNC", lenField->wiresharkValueFuncName()},
         {"FIELD", lenField->wiresharkFieldObjName()},
+        {"RESULT_VAL", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::NotEnoughData)},
+        {"OFFSET", wiresharkOffsetStr()},
+        {"LIMIT", wiresharkOffsetLimitStr()},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
     };
+
+    if (genListFieldParseObj().parseHasLengthPrefixField()) {
+        valueRepl["RESULT_VAL"] = Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::MalformedPacket);
+    }
 
     if (!parseObj.parseElemFixedLength()) {
         return util::genProcessTemplate(ReadTempl, readRepl) + '\n' + util::genProcessTemplate(ValueTempl, valueRepl);
     }
 
-    if ((parseObj.parseFixedCount()) ||
-        (parseObj.parseHasCountPrefixField())) {
-        static const std::string FixedCountTempl =
-            "if cnt == 1 then\n"
-            "   #^#READ#$#\n"
-            "end\n"
-            "#^#VALUE#$#\n"
-            ;
+    static const std::string CountTempl =
+        "if count == 0 then\n"
+        "   #^#READ#$#\n"
+        "end\n"
+        "#^#VALUE#$#\n"
+        ;
 
-        util::GenReplacementMap fixedCountRepl = {
-            {"READ", util::genProcessTemplate(ReadTempl, readRepl)},
-            {"VALUE", util::genProcessTemplate(ValueTempl, valueRepl)},
-        };
+    util::GenReplacementMap countRepl = {
+        {"READ", util::genProcessTemplate(ReadTempl, readRepl)},
+        {"VALUE", util::genProcessTemplate(ValueTempl, valueRepl)},
+    };
 
-        return util::genProcessTemplate(FixedCountTempl, fixedCountRepl);
-    }
-
-    // TODO:
-    return "-- TODO: not implemented";
+    return util::genProcessTemplate(CountTempl, countRepl);
 }
 
 } // namespace commsdsl2wireshark
