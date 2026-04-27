@@ -255,62 +255,8 @@ bool WiresharkFloatField::wiresharkHasTrivialValidImpl() const
 
 std::string WiresharkFloatField::wiresharkUnitNameInternal() const
 {
-    static const std::string Map[] = {
-        /* Unknown */ strings::genEmptyString(),
-        /* Nanoseconds */ "ns",
-        /* Microseconds */ "us",
-        /* Milliseconds */ "ms",
-        /* Seconds */ "s",
-        /* Minutes */ "min",
-        /* Hours */ "h",
-        /* Days */ "days",
-        /* Weeks */ "weeks",
-        /* Nanometers */ "nm",
-        /* Micrometers */ "um",
-        /* Millimeters */ "mm",
-        /* Centimeters */ "cm",
-        /* Meters */ "m",
-        /* Kilometers */ "km",
-        /* NanometersPerSecond */ "nm/s",
-        /* MicrometersPerSecond */ "um/s",
-        /* MillimetersPerSecond */ "mm/s",
-        /* CentimetersPerSecond */ "cm/s",
-        /* MetersPerSecond */ "m/s",
-        /* KilometersPerSecond */ "km/s",
-        /* KilometersPerHour */ "km/h",
-        /* Hertz */ "hz",
-        /* KiloHertz */ "khz",
-        /* MegaHertz */ "mhz",
-        /* GigaHertz */ "ghz",
-        /* Degrees */ "deg",
-        /* Radians */ "rad",
-        /* Nanoamps */ "namp",
-        /* Microamps */ "uamp",
-        /* Milliamps */ "mamp",
-        /* Amps */ "amp",
-        /* Kiloamps */ "kamp",
-        /* Nanovolts */ "nv",
-        /* Microvolts */ "uv",
-        /* Millivolts */ "mv",
-        /* Volts */ "v",
-        /* Kilovolts */ "kv",
-        /* Bytes */ "b",
-        /* Kilobytes */ "kb",
-        /* Megabytes */ "mb",
-        /* Gigabytes */ "gb",
-        /* Terabytes */ "tb",
-    };
-    static const std::size_t MapSize = std::extent_v<decltype(Map)>;
-    static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::ParseUnits::NumOfValues));
-
     auto parseObj = genFloatFieldParseObj();
-    auto idx = static_cast<unsigned>(parseObj.parseUnits());
-    assert (idx < MapSize);
-    if ((MapSize <= idx) || (Map[idx].empty())) {
-        return strings::genNilStr();
-    }
-
-    return '\"' + Map[idx] + '\"';
+    return wiresharkUnitNameString(parseObj.parseUnits());
 }
 
 const std::string& WiresharkFloatField::wiresharkFloatTypeInternal() const

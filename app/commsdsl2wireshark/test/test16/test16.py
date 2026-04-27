@@ -8,7 +8,7 @@ def do_frame(id, payload):
 
 def pcap1(f):
     seq = 1
-    payload = struct.pack('>5IB2IBBIBIBBII', *([0x11111111] * 5), 2, *([0x22222222] * 2), 10, *([4, 0x33333333] * 2), 9, 4, *([0x44444444] * 2),)
+    payload = struct.pack('>5IB2IBBIBIBBII', *([0x11111111] * 5), 2, *([0x22222222] * 2), 10, *([4, 0x33333333] * 2), 9, 4, *([0x44444444] * 2))
     msg1 = do_frame(1, payload)
     header = commsdsl_create_ethernet_ip_tcp_headers(len(msg1), seq)
     commsdsl_write_packet(f, header + msg1, time.time())

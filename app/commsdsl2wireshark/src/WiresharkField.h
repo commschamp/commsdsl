@@ -18,6 +18,7 @@
 #include "commsdsl/gen/GenField.h"
 #include "commsdsl/gen/util.h"
 #include "commsdsl/parse/ParseOptCond.h"
+#include "commsdsl/parse/ParseUnits.h"
 
 #include <string>
 #include <vector>
@@ -130,6 +131,7 @@ protected:
     bool wiresharkHasOverrideCode() const;
     static std::string wiresharkDissectSignature();
     static std::string wiresharkHexString(std::uintmax_t val, unsigned hexWidth);
+    static std::string wiresharkUnitNameString(commsdsl::parse::ParseUnits units);
     std::string wiresharkEmptyBufferCheckCode() const;
     std::string wiresharkProcessIntegralValue(const std::string& val) const;
     std::string wiresharkProcessFloatValue(const std::string& val) const;

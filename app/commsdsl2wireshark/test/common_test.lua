@@ -6,7 +6,7 @@ package.path = script_path .. "?.lua;" .. package.path
 -- Get protocol name
 local this_proto = nil
 for file in Dir.open(script_path, ".lua") do
-    if file:match("^test.*%.lua$") then
+    if file:match("^t.*%.lua$") then
         this_proto = file:gsub("%.lua$", "")
         break
     end

@@ -1078,6 +1078,65 @@ std::string WiresharkField::wiresharkHexString(std::uintmax_t value, unsigned he
     return str;
 }
 
+std::string WiresharkField::wiresharkUnitNameString(commsdsl::parse::ParseUnits units)
+{
+    static const std::string Map[] = {
+        /* Unknown */ strings::genEmptyString(),
+        /* Nanoseconds */ "ns",
+        /* Microseconds */ "us",
+        /* Milliseconds */ "ms",
+        /* Seconds */ "s",
+        /* Minutes */ "min",
+        /* Hours */ "h",
+        /* Days */ "days",
+        /* Weeks */ "weeks",
+        /* Nanometers */ "nm",
+        /* Micrometers */ "um",
+        /* Millimeters */ "mm",
+        /* Centimeters */ "cm",
+        /* Meters */ "m",
+        /* Kilometers */ "km",
+        /* NanometersPerSecond */ "nm/s",
+        /* MicrometersPerSecond */ "um/s",
+        /* MillimetersPerSecond */ "mm/s",
+        /* CentimetersPerSecond */ "cm/s",
+        /* MetersPerSecond */ "m/s",
+        /* KilometersPerSecond */ "km/s",
+        /* KilometersPerHour */ "km/h",
+        /* Hertz */ "hz",
+        /* KiloHertz */ "khz",
+        /* MegaHertz */ "mhz",
+        /* GigaHertz */ "ghz",
+        /* Degrees */ "deg",
+        /* Radians */ "rad",
+        /* Nanoamps */ "namp",
+        /* Microamps */ "uamp",
+        /* Milliamps */ "mamp",
+        /* Amps */ "amp",
+        /* Kiloamps */ "kamp",
+        /* Nanovolts */ "nv",
+        /* Microvolts */ "uv",
+        /* Millivolts */ "mv",
+        /* Volts */ "v",
+        /* Kilovolts */ "kv",
+        /* Bytes */ "b",
+        /* Kilobytes */ "kb",
+        /* Megabytes */ "mb",
+        /* Gigabytes */ "gb",
+        /* Terabytes */ "tb",
+    };
+    static const std::size_t MapSize = std::extent_v<decltype(Map)>;
+    static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::ParseUnits::NumOfValues));
+
+    auto idx = static_cast<unsigned>(units);
+    assert (idx < MapSize);
+    if ((MapSize <= idx) || (Map[idx].empty())) {
+        return strings::genNilStr();
+    }
+
+    return "{\" " + Map[idx] + "\"}";
+}
+
 std::string WiresharkField::wiresharkEmptyBufferCheckCode() const
 {
     static const std::string Templ =

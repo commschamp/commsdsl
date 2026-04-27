@@ -127,12 +127,17 @@ bool WiresharkIntField::genPrepareImpl()
 
 std::string WiresharkIntField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
+    auto parseObj = genIntFieldParseObj();
+    auto scaling = parseObj.parseScaling();
+    if (scaling.first != scaling.second) {
+        return wiresharkFieldAsFloatRegistrationInternal(refField);
+    }
+
     static const std::string Templ =
         "#^#SPECIALS#$#\n"
         "#^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, #^#BASE#$#, #^#SPECIALS_NAME#$#, #^#MASK#$#, #^#DESC#$#))\n"
     ;
 
-    auto obj = genIntFieldParseObj();
     util::GenReplacementMap repl = {
         {"SPECIALS", wiresharkSpecialsInternal(refField)},
         {"OBJ_NAME", wiresharkFieldObjName(refField)},
@@ -151,7 +156,7 @@ std::string WiresharkIntField::wiresharkFieldRegistrationImpl(const WiresharkFie
     }
 
     if (repl["TYPE"].empty()) {
-        repl["TYPE"] = wiresharkIntegralType(obj.parseType(), obj.parseMaxLength());
+        repl["TYPE"] = wiresharkIntegralType(parseObj.parseType(), parseObj.parseMaxLength());
     }
     else if (!genIsUnsignedType() && (repl["TYPE"].front() == 'u')) {
         repl["TYPE"] = repl["TYPE"].substr(1U);
@@ -192,6 +197,7 @@ std::string WiresharkIntField::wiresharkDissectBodyImpl(const WiresharkField* re
         "#^#VAR_LEN#$#\n"
         "#^#SER_OFFSET#$#\n"
         "#^#SCALING#$#\n"
+        "#^#DISP_OFFSET#$#\n"
         "local #^#SUBTREE#$# = #^#TREE#$#:add#^#SUFFIX#$#(#^#FIELD#$#, #^#RANGE#$##^#VAL#$#)\n"
         "#^#RESULT#$# = #^#SUCCESS#$#\n"
         "#^#NEXT_OFFSET#$# = #^#OFFSET#$# + len\n"
@@ -206,6 +212,7 @@ std::string WiresharkIntField::wiresharkDissectBodyImpl(const WiresharkField* re
         {"VAR_LEN", wiresharkVarLengthCodeInternal(hasVal)},
         {"SER_OFFSET", wiresharkSerOffsetCodeInternal(hasVal)},
         {"SCALING", wiresharkScalingCodeInternal(hasVal)},
+        {"DISP_OFFSET", wiresharkDisplayOffsetCodeInternal(hasVal)},
         {"RANGE", wiresharkRangeStr()},
         {"SUBTREE", wiresharkFieldSubtreeStr()},
         {"TVB", wiresharkTvbStr()},
@@ -413,6 +420,25 @@ std::string WiresharkIntField::wiresharkSpecialsInternal(const WiresharkField* r
     return util::genProcessTemplate(Templ, repl);
 }
 
+std::string WiresharkIntField::wiresharkFieldAsFloatRegistrationInternal(const WiresharkField* refField) const
+{
+    static const std::string Templ =
+        "#^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.float(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, #^#UNIT_NAME#$#, #^#DESC#$#))\n"
+    ;
+
+    auto parseObj = genIntFieldParseObj();
+    util::GenReplacementMap repl = {
+        {"OBJ_NAME", wiresharkFieldObjName(refField)},
+        {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
+        {"REF_NAME", wiresharkFieldRefName(refField)},
+        {"DISP_NAME", wiresharkFieldNameVarNameStr(refField)},
+        {"UNIT_NAME", wiresharkUnitNameString(parseObj.parseUnits())},
+        {"DESC", wiresharkFieldDescriptionStr(refField)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
 std::string WiresharkIntField::wiresharkValDeclCodeInternal() const
 {
     auto parseObj = genIntFieldParseObj();
@@ -547,9 +573,37 @@ std::string WiresharkIntField::wiresharkScalingCodeInternal(bool& hasVal) const
         return strings::genEmptyString();
     }
 
-    // TODO:
-    static_cast<void>(hasVal);
-    return "-- TODO: scaling is not yet implemented";
+    hasVal = true;
+    static const std::string Templ =
+        "#^#VAL#$# = (#^#VAL#$# * #^#NUM#$#) / #^#DENUM#$#\n";
+
+    util::GenReplacementMap repl = {
+        {"VAL", wiresharkValStr()},
+        {"NUM", std::to_string(scaling.first)},
+        {"DENUM", std::to_string(scaling.second)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkIntField::wiresharkDisplayOffsetCodeInternal(bool& hasVal) const
+{
+    auto parseObj = genIntFieldParseObj();
+    auto dispOffset = parseObj.parseDisplayOffset();
+    if (dispOffset == 0) {
+        return strings::genEmptyString();
+    }
+
+    hasVal = true;
+    static const std::string Templ =
+        "#^#VAL#$# = #^#VAL#$# + (#^#DISP_OFFSET#$#)";
+
+    util::GenReplacementMap repl = {
+        {"VAL", wiresharkValStr()},
+        {"DISP_OFFSET", std::to_string(dispOffset)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2wireshark

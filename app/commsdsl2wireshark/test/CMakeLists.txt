@@ -80,9 +80,14 @@ foreach (name ${tests})
 
     add_dependencies(${APP_NAME}.all_tests ${pcap_tgt})
 
+    set (prot_name ${name})
+    if (EXISTS "${this_test_dir}/commsdsl2wireshark.prot_name")
+        file (READ "${this_test_dir}/commsdsl2wireshark.prot_name" prot_name)
+    endif ()
+
     add_test(
         NAME ${APP_NAME}.${name}
-        COMMAND ${TSHARK_EXECUTABLE} -r ${pcap_output} -X lua_script:common_test.lua -O ${name}
+        COMMAND ${TSHARK_EXECUTABLE} -r ${pcap_output} -X lua_script:common_test.lua -O ${prot_name}
         WORKING_DIRECTORY ${output_dir}
     )
 endforeach ()

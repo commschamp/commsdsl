@@ -9,7 +9,7 @@
             <validValue name="M2" val="2" />
         </enum>
 
-        <float name="F1" type="float" defaultValue="null" displayDecimals="2">
+        <float name="F1" type="float" defaultValue="null" displayDecimals="2" units="mm">
             <special name="null" val="NaN" />
             <special name="s1" val="-inf" displayName="Special 1"/>
             <special name="s2" val="inf" />
