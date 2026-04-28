@@ -298,10 +298,10 @@ std::string WiresharkEnumField::wiresharkVarLengthCodeInternal(bool& hasVal) con
     }
 
     if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
-        return wiresharkVarLengthCodeLittleEndianInternal();
+        return wiresharkIntegralFieldVarLengthLittleEndianCode();
     }
 
-    return wiresharkVarLengthCodeBigEndianInternal();
+    return wiresharkIntegralFieldVarLengthBigEndianCode();
 }
 
 std::string WiresharkEnumField::wiresharkVarLengthCodeLargeNumInternal() const
@@ -309,46 +309,6 @@ std::string WiresharkEnumField::wiresharkVarLengthCodeLargeNumInternal() const
     // TODO: Implement and test
     assert(false);
     return strings::genEmptyString();
-}
-
-std::string WiresharkEnumField::wiresharkVarLengthCodeLittleEndianInternal() const
-{
-    // TODO: Implement
-    return "-- TODO: Not implemented";
-}
-
-std::string WiresharkEnumField::wiresharkVarLengthCodeBigEndianInternal() const
-{
-    // TODO: test
-    assert (false);
-
-    static const std::string Templ =
-        "local has_more = true\n"
-        "while has_more and (#^#NEXT_OFFSET#$# < (#^#OFFSET#$# + len)) do\n"
-        "    local b = #^#TVB#$#(#^#NEXT_OFFSET#$#, 1):uint()\n"
-        "    local data = bit32.band(b, 0x7F)\n"
-        "    has_more = (bit32.band(b, 0x80) ~= 0)\n"
-        "    val = bit32.bor(bit32.lshift(val, 7), data)\n"
-        "    #^#NEXT_OFFSET#$# = #^#NEXT_OFFSET#$# + 1\n"
-        "end\n"
-        "\n"
-        "if has_more then\n"
-        "    return #^#ERROR#$#, #^#OFFSET#$#\n"
-        "end\n"
-        "len = #^#NEXT_OFFSET#$# - #^#OFFSET#$#\n"
-        "#^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, len)\n"
-        ;
-
-    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
-    util::GenReplacementMap repl = {
-        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::MalformedPacket)},
-        {"RANGE", wiresharkRangeStr()},
-        {"TVB", wiresharkTvbStr()},
-        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
-        {"OFFSET", wiresharkOffsetStr()},
-    };
-
-    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2wireshark

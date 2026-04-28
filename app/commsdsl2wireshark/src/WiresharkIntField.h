@@ -58,8 +58,6 @@ private:
     std::string wiresharkValDeclCodeInternal() const;
     std::string wiresharkVarLengthCodeInternal(bool& hasVal) const;
     std::string wiresharkVarLengthCodeLargeNumInternal() const;
-    std::string wiresharkVarLengthCodeLittleEndianInternal() const;
-    std::string wiresharkVarLengthCodeBigEndianInternal() const;
     std::string wiresharkSerOffsetCodeInternal(bool& hasVal) const;
     std::string wiresharkScalingCodeInternal(bool& hasVal) const;
     std::string wiresharkDisplayOffsetCodeInternal(bool& hasVal) const;

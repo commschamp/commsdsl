@@ -483,10 +483,10 @@ std::string WiresharkIntField::wiresharkVarLengthCodeInternal(bool& hasVal) cons
     }
 
     if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
-        return wiresharkVarLengthCodeLittleEndianInternal();
+        return wiresharkIntegralFieldVarLengthLittleEndianCode();
     }
 
-    return wiresharkVarLengthCodeBigEndianInternal();
+    return wiresharkIntegralFieldVarLengthBigEndianCode();
 }
 
 std::string WiresharkIntField::wiresharkVarLengthCodeLargeNumInternal() const
@@ -494,48 +494,6 @@ std::string WiresharkIntField::wiresharkVarLengthCodeLargeNumInternal() const
     // TODO: Implement
     assert(false);
     return strings::genEmptyString();
-}
-
-std::string WiresharkIntField::wiresharkVarLengthCodeLittleEndianInternal() const
-{
-    // TODO: Implement
-    assert(false);
-    return strings::genEmptyString();
-}
-
-std::string WiresharkIntField::wiresharkVarLengthCodeBigEndianInternal() const
-{
-    static const std::string Templ =
-        "local has_more = true\n"
-        "while has_more and (#^#NEXT_OFFSET#$# < (#^#OFFSET#$# + #^#LEN#$#)) and (#^#NEXT_OFFSET#$# < #^#LIMIT#$#) do\n"
-        "    local b = #^#TVB#$#(#^#NEXT_OFFSET#$#, 1):uint()\n"
-        "    local data = bit32.band(b, 0x7F)\n"
-        "    has_more = (bit32.band(b, 0x80) ~= 0)\n"
-        "    #^#VAL#$# = bit32.bor(bit32.lshift(#^#VAL#$#, 7), data)\n"
-        "    #^#NEXT_OFFSET#$# = #^#NEXT_OFFSET#$# + 1\n"
-        "end\n"
-        "\n"
-        "if has_more then\n"
-        "    return #^#ERROR#$#, #^#OFFSET#$#\n"
-        "end\n"
-        "len = #^#NEXT_OFFSET#$# - #^#OFFSET#$#\n"
-        "#^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, len)\n"
-        ;
-
-    // TODO: sign extend
-    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
-    util::GenReplacementMap repl = {
-        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::MalformedPacket)},
-        {"VAL", wiresharkValStr()},
-        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
-        {"OFFSET", wiresharkOffsetStr()},
-        {"TVB", wiresharkTvbStr()},
-        {"RANGE", wiresharkRangeStr()},
-        {"LEN", std::to_string(genParseObj().parseMaxLength())},
-        {"LIMIT", wiresharkOffsetLimitStr()},
-    };
-
-    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string WiresharkIntField::wiresharkSerOffsetCodeInternal(bool& hasVal) const

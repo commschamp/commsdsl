@@ -534,7 +534,18 @@ bool WiresharkField::wiresharkNeedsOptionalModeDefinition() const
         return false;
     }
 
-    return m_genField.genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Optional;
+    if (m_genField.genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Optional) {
+        return true;
+    }
+
+    auto& members = wiresharkMemberFields();
+    return
+        std::any_of(
+            members.begin(), members.end(),
+            [](auto* m)
+            {
+                return m->wiresharkNeedsOptionalModeDefinition();
+            });
 }
 
 const WiresharkField::WiresharkFieldsList& WiresharkField::wiresharkSiblings() const
@@ -916,6 +927,41 @@ std::string WiresharkField::wiresharkDefaultAssignmentsImpl([[maybe_unused]] con
     return strings::genEmptyString();
 }
 
+std::string WiresharkField::wiresharkValidFuncCodeImpl(const WiresharkField* refField) const
+{
+    static const std::string Templ =
+        "function #^#NAME#$##^#SUFFIX#$#(#^#FIELD#$#)\n"
+        "    #^#REPLACE#$#\n"
+        "    #^#BODY#$#\n"
+        "end\n"
+        "#^#EXTEND#$#\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    auto relPath = wiresharkGenerator.wiresharkInputRelPathFor(m_genField, strings::genValidSuffixStr());
+    auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
+    auto extendFileName = relPath + strings::genExtendFileSuffixStr();
+
+    bool replaced = false;
+    bool extended = false;
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkValidFuncName(refField)},
+        {"REPLACE", wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &replaced)},
+        {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
+        {"FIELD", wiresharkFieldStr()},
+    };
+
+    if (!replaced) {
+        repl["BODY"] = wiresharkValidFuncBodyImpl(refField);
+    }
+
+    if (extended) {
+        repl["SUFFIX"] = strings::genOrigSuffixStr();
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
 bool WiresharkField::wiresharkHasTrivialValidImpl() const
 {
     return true;
@@ -965,6 +1011,78 @@ std::string WiresharkField::wiresharkForcedIntegralFieldType(const WiresharkFiel
     }
 
     return parentBitfield->wiresharkIntegralType();
+}
+
+std::string WiresharkField::wiresharkIntegralFieldVarLengthBigEndianCode() const
+{
+    static const std::string Templ =
+        "local has_more = true\n"
+        "while has_more and (#^#NEXT_OFFSET#$# < (#^#OFFSET#$# + #^#LEN#$#)) and (#^#NEXT_OFFSET#$# < #^#LIMIT#$#) do\n"
+        "    local b = #^#TVB#$#(#^#NEXT_OFFSET#$#, 1):uint()\n"
+        "    local data = bit32.band(b, 0x7F)\n"
+        "    has_more = (bit32.band(b, 0x80) ~= 0)\n"
+        "    #^#VAL#$# = bit32.bor(bit32.lshift(#^#VAL#$#, 7), data)\n"
+        "    #^#NEXT_OFFSET#$# = #^#NEXT_OFFSET#$# + 1\n"
+        "end\n"
+        "\n"
+        "if has_more then\n"
+        "    return #^#ERROR#$#, #^#OFFSET#$#\n"
+        "end\n"
+        "len = #^#NEXT_OFFSET#$# - #^#OFFSET#$#\n"
+        "#^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, len)\n"
+        ;
+
+    // TODO: sign extend
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    util::GenReplacementMap repl = {
+        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::MalformedPacket)},
+        {"VAL", wiresharkValStr()},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+        {"OFFSET", wiresharkOffsetStr()},
+        {"TVB", wiresharkTvbStr()},
+        {"RANGE", wiresharkRangeStr()},
+        {"LEN", std::to_string(m_genField.genParseObj().parseMaxLength())},
+        {"LIMIT", wiresharkOffsetLimitStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkField::wiresharkIntegralFieldVarLengthLittleEndianCode() const
+{
+    static const std::string Templ =
+        "local has_more = true\n"
+        "local byte_idx = 0\n"
+        "while has_more and (#^#NEXT_OFFSET#$# < (#^#OFFSET#$# + #^#LEN#$#)) and (#^#NEXT_OFFSET#$# < #^#LIMIT#$#) do\n"
+        "    local b = #^#TVB#$#(#^#NEXT_OFFSET#$#, 1):uint()\n"
+        "    local data = bit32.band(b, 0x7F)\n"
+        "    has_more = (bit32.band(b, 0x80) ~= 0)\n"
+        "    #^#VAL#$# = bit32.bor(bit32.lshift(data, 7 * byte_idx), #^#VAL#$#)\n"
+        "    #^#NEXT_OFFSET#$# = #^#NEXT_OFFSET#$# + 1\n"
+        "    byte_idx = byte_idx + 1\n"
+        "end\n"
+        "\n"
+        "if has_more then\n"
+        "    return #^#ERROR#$#, #^#OFFSET#$#\n"
+        "end\n"
+        "len = #^#NEXT_OFFSET#$# - #^#OFFSET#$#\n"
+        "#^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, len)\n"
+        ;
+
+    // TODO: sign extend
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    util::GenReplacementMap repl = {
+        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::MalformedPacket)},
+        {"VAL", wiresharkValStr()},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+        {"OFFSET", wiresharkOffsetStr()},
+        {"TVB", wiresharkTvbStr()},
+        {"RANGE", wiresharkRangeStr()},
+        {"LEN", std::to_string(m_genField.genParseObj().parseMaxLength())},
+        {"LIMIT", wiresharkOffsetLimitStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 unsigned WiresharkField::wiresharkForcedMaskShift(const WiresharkField* refField) const
@@ -1419,37 +1537,7 @@ std::string WiresharkField::wiresharkValidFuncCodeInternal(const WiresharkField*
         return strings::genEmptyString();
     }
 
-    static const std::string Templ =
-        "function #^#NAME#$##^#SUFFIX#$#(#^#FIELD#$#)\n"
-        "    #^#REPLACE#$#\n"
-        "    #^#BODY#$#\n"
-        "end\n"
-        "#^#EXTEND#$#\n"
-        ;
-
-    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
-    auto relPath = wiresharkGenerator.wiresharkInputRelPathFor(m_genField, strings::genValidSuffixStr());
-    auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
-    auto extendFileName = relPath + strings::genExtendFileSuffixStr();
-
-    bool replaced = false;
-    bool extended = false;
-    util::GenReplacementMap repl = {
-        {"NAME", wiresharkValidFuncName(refField)},
-        {"REPLACE", wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &replaced)},
-        {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
-        {"FIELD", wiresharkFieldStr()},
-    };
-
-    if (!replaced) {
-        repl["BODY"] = wiresharkValidFuncBodyImpl(refField);
-    }
-
-    if (extended) {
-        repl["SUFFIX"] = strings::genOrigSuffixStr();
-    }
-
-    return util::genProcessTemplate(Templ, repl);
+    return wiresharkValidFuncCodeImpl(refField);
 }
 
 std::string WiresharkField::wiresharkValueFuncCodeInternal(const WiresharkField* refField) const

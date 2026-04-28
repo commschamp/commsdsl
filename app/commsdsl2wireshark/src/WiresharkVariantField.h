@@ -36,7 +36,18 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
+    virtual std::string wiresharkDissectCodeImpl(const WiresharkField* refField) const override;
+    virtual std::string wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkMembersDissectCodeImpl() const override;
+    virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const override;
+    virtual std::string wiresharkValidFuncBodyImpl(const WiresharkField* refField) const override;
+    virtual std::string wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
+    virtual std::string wiresharkSizeAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
+    virtual std::string wiresharkExistsCheckStrImpl(const std::string& accStr) const override;
+    virtual std::string wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const override;
+    virtual std::string wiresharkValidFuncCodeImpl(const WiresharkField* refField) const override;
+    virtual bool wiresharkHasTrivialValidImpl() const override;
+    virtual const WiresharkFieldsList& wiresharkMemberFieldsImpl() const override;
 
 private:
     WiresharkFieldsList m_wiresharkFields;

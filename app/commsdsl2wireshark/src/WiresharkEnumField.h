@@ -51,8 +51,6 @@ private:
     std::string wiresharkValDeclCodeInternal() const;
     std::string wiresharkVarLengthCodeInternal(bool& hasVal) const;
     std::string wiresharkVarLengthCodeLargeNumInternal() const;
-    std::string wiresharkVarLengthCodeLittleEndianInternal() const;
-    std::string wiresharkVarLengthCodeBigEndianInternal() const;
 };
 
 } // namespace commsdsl2wireshark

@@ -154,21 +154,6 @@ std::string WiresharkBitfieldField::wiresharkFieldRegistrationImpl(const Wiresha
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkBitfieldField::wiresharkMembersDissectCodeImpl() const
-{
-    util::GenStringsList elems;
-    for (auto* f : m_wiresharkFields) {
-        auto str = f->wiresharkDissectCode();
-        if (str.empty()) {
-            continue;
-        }
-
-        elems.push_back(std::move(str));
-    }
-
-    return util::genStrListToString(elems, "\n", "\n");
-}
-
 std::string WiresharkBitfieldField::wiresharkDissectBodyImpl([[maybe_unused]] const WiresharkField* refField) const
 {
     auto parseObj = genBitfieldFieldParseObj();
@@ -234,6 +219,21 @@ std::string WiresharkBitfieldField::wiresharkExtractorsRegCodeImpl(const Wiresha
     }
 
     return WiresharkBase::wiresharkExtractorsRegCodeImpl(refField) + '\n' + util::genStrListToString(members, "\n", "");
+}
+
+std::string WiresharkBitfieldField::wiresharkMembersDissectCodeImpl() const
+{
+    util::GenStringsList elems;
+    for (auto* f : m_wiresharkFields) {
+        auto str = f->wiresharkDissectCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        elems.push_back(std::move(str));
+    }
+
+    return util::genStrListToString(elems, "\n", "\n");
 }
 
 std::string WiresharkBitfieldField::wiresharkValidFuncBodyImpl(const WiresharkField* refField) const

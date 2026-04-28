@@ -57,24 +57,8 @@ bool WiresharkBundleField::genPrepareImpl()
     return true;
 }
 
-std::string WiresharkBundleField::wiresharkMembersDissectCodeImpl() const
-{
-    util::GenStringsList elems;
-    for (auto* f : m_wiresharkFields) {
-        auto str = f->wiresharkDissectCode();
-        if (str.empty()) {
-            continue;
-        }
-
-        elems.push_back(std::move(str));
-    }
-
-    return util::genStrListToString(elems, "\n", "\n");
-}
-
 std::string WiresharkBundleField::wiresharkDissectBodyImpl([[maybe_unused]] const WiresharkField* refField) const
 {
-    // TODO: re-evaluate. Return failure on member read failure.
     auto parseObj = genBundleFieldParseObj();
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     util::GenStringsList members;
@@ -180,6 +164,21 @@ std::string WiresharkBundleField::wiresharkExtractorsRegCodeImpl(const Wireshark
     }
 
     return WiresharkBase::wiresharkExtractorsRegCodeImpl(refField) + '\n' + util::genStrListToString(members, "\n", "");
+}
+
+std::string WiresharkBundleField::wiresharkMembersDissectCodeImpl() const
+{
+    util::GenStringsList elems;
+    for (auto* f : m_wiresharkFields) {
+        auto str = f->wiresharkDissectCode();
+        if (str.empty()) {
+            continue;
+        }
+
+        elems.push_back(std::move(str));
+    }
+
+    return util::genStrListToString(elems, "\n", "\n");
 }
 
 std::string WiresharkBundleField::wiresharkValidFuncBodyImpl(const WiresharkField* refField) const

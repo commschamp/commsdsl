@@ -152,7 +152,7 @@ std::string WiresharkOptionalField::wiresharkValidFuncBodyImpl([[maybe_unused]] 
         {"VALUE_FUNC", wiresharkValueFuncName()},
         {"FIELD_STR", wiresharkFieldStr()},
         {"EXISTS", Wireshark::wiresharkOptModeStr(wiresharkGenerator, Wireshark::WiresharkOptMode::Exists)},
-        {"VALID_FUNC", wiresharkValidFuncName()},
+        {"VALID_FUNC", m_wiresharkField->wiresharkValidFuncName()},
         {"FIELD", m_wiresharkField->wiresharkFieldObjName()},
     };
 

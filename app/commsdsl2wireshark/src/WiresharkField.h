@@ -117,12 +117,15 @@ protected:
     virtual std::string wiresharkCompPrepValueStrImpl(const std::string& value) const;
     virtual std::string wiresharkExistsCheckStrImpl(const std::string& accStr) const;
     virtual std::string wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const;
+    virtual std::string wiresharkValidFuncCodeImpl(const WiresharkField* refField) const;
     virtual bool wiresharkHasTrivialValidImpl() const;
     virtual const WiresharkFieldsList& wiresharkMemberFieldsImpl() const;
 
     std::string wiresharkFieldRefName(const WiresharkField* refField) const;
     std::string wiresharkForcedIntegralFieldMask(const WiresharkField* refField) const;
     std::string wiresharkForcedIntegralFieldType(const WiresharkField* refField) const;
+    std::string wiresharkIntegralFieldVarLengthBigEndianCode() const;
+    std::string wiresharkIntegralFieldVarLengthLittleEndianCode() const;
     unsigned wiresharkForcedMaskShift(const WiresharkField* refField) const;
     unsigned wiresharkForcedBitLength(const WiresharkField* refField) const;
     std::string wiresharkFieldDescriptionStr(const WiresharkField* refField) const;
