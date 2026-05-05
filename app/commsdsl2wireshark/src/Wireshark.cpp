@@ -255,7 +255,7 @@ std::string Wireshark::wiresharkDissectFuncBodyInternal() const
         auto& wiresharkFrame = WiresharkFrame::wiresharkCast(*f);
         static const std::string FrameTempl =
             "result, next_offset = #^#NAME#$#(tvb, tree)\n"
-            "if result ~= #^#SUCCESS#$# then\n"
+            "if result == #^#SUCCESS#$# then\n"
             "    break\n"
             "end\n"
         ;
@@ -282,8 +282,9 @@ std::string Wireshark::wiresharkDissectFuncBodyInternal() const
         "until true\n"
         "\n"
         "if (result ~= #^#NOT_ENOUGH_DATA#$#) and (result ~= #^#SUCCESS#$#) then\n"
-        "   -- Consume everything\n"
-        "   return\n"
+        "    -- Consume everything\n"
+        "    tree:add_expert_info(PI_MALFORMED, PI_WARN, \"Invalid protocol data\")\n"
+        "    return\n"
         "end\n"
         "\n"
         "if next_offset < tvb:len() then\n"

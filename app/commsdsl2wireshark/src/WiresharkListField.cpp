@@ -368,7 +368,7 @@ std::string WiresharkListField::wiresharkCountPrefixDissectInternal() const
             assert(sibInfo.first != nullptr);
             auto memInfo = sibInfo.first->wiresharkGenField().genProcessInnerRef(sibInfo.second);
             prefixField = WiresharkField::wiresharkCast(memInfo.m_field);
-            assert(memInfo.m_refType == GenField::FieldRefType_Field);
+            assert(memInfo.m_refType == commsdsl::gen::GenField::FieldRefType_Field);
         }
     }
 
@@ -422,7 +422,7 @@ std::string WiresharkListField::wiresharkLengthPrefixDissectInternal() const
             assert(sibInfo.first != nullptr);
             auto memInfo = sibInfo.first->wiresharkGenField().genProcessInnerRef(sibInfo.second);
             prefixField = WiresharkField::wiresharkCast(memInfo.m_field);
-            assert(memInfo.m_refType == GenField::FieldRefType_Field);
+            assert(memInfo.m_refType == commsdsl::gen::GenField::FieldRefType_Field);
         }
     }
 
@@ -481,7 +481,7 @@ std::string WiresharkListField::wiresharkTermSuffixDissectInternal() const
             assert(sibInfo.first != nullptr);
             auto memInfo = sibInfo.first->wiresharkGenField().genProcessInnerRef(sibInfo.second);
             suffixField = WiresharkField::wiresharkCast(memInfo.m_field);
-            assert(memInfo.m_refType == GenField::FieldRefType_Field);
+            assert(memInfo.m_refType == commsdsl::gen::GenField::FieldRefType_Field);
         }
     }
 

@@ -312,8 +312,6 @@ std::string WiresharkBitfieldField::wiresharkSizeAccessStrImpl(const std::string
 std::string WiresharkBitfieldField::wiresharkExistsCheckStrImpl(const std::string& accStr, const WiresharkField* refField) const
 {
     if (accStr.empty()) {
-        [[maybe_unused]] static constexpr bool Should_not_happen = false;
-        assert(Should_not_happen);
         return WiresharkBase::wiresharkExistsCheckStrImpl(accStr, refField);
     }
 
