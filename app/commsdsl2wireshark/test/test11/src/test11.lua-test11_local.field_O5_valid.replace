@@ -1,4 +1,4 @@
 return
-    (test11_field_value(field) == test11_OptMode.MISSING) or
-    (test11_field_value(test11_field_O5Members_B2Members_M1) ~= 0) or
-    (test11_field_value(test11_field_O5Members_B2Members_M2) == 0)
+    (test11_local.field_value(field) == test11_local.OptMode.MISSING) or
+    (test11_local.field_value(test11_local.field_O5Members_B2Members_M1) ~= 0) or
+    (test11_local.field_value(test11_local.field_O5Members_B2Members_M2) == 0)

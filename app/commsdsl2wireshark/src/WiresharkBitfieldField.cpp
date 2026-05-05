@@ -309,12 +309,12 @@ std::string WiresharkBitfieldField::wiresharkSizeAccessStrImpl(const std::string
     return memInfo.first->wiresharkSizeAccessStr(memInfo.second);
 }
 
-std::string WiresharkBitfieldField::wiresharkExistsCheckStrImpl(const std::string& accStr) const
+std::string WiresharkBitfieldField::wiresharkExistsCheckStrImpl(const std::string& accStr, const WiresharkField* refField) const
 {
     if (accStr.empty()) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
-        return WiresharkBase::wiresharkExistsCheckStrImpl(accStr);
+        return WiresharkBase::wiresharkExistsCheckStrImpl(accStr, refField);
     }
 
     auto memInfo = wiresharkSplitMemberAccStr(accStr, m_wiresharkFields);
@@ -323,7 +323,7 @@ std::string WiresharkBitfieldField::wiresharkExistsCheckStrImpl(const std::strin
         return strings::genUnexpectedValueStr();
     }
 
-    return memInfo.first->wiresharkExistsCheckStr(memInfo.second);
+    return memInfo.first->wiresharkExistsCheckStr(memInfo.second, false);
 }
 
 std::string WiresharkBitfieldField::wiresharkDefaultAssignmentsImpl([[maybe_unused]] const WiresharkField* refField) const

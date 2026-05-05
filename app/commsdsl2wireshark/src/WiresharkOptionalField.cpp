@@ -185,8 +185,13 @@ std::string WiresharkOptionalField::wiresharkSizeAccessStrImpl(const std::string
     return m_wiresharkField->wiresharkValueAccessStr(splitAccStr.second);
 }
 
-std::string WiresharkOptionalField::wiresharkExistsCheckStrImpl(const std::string& accStr) const
+std::string WiresharkOptionalField::wiresharkExistsCheckStrImpl(const std::string& accStr, const WiresharkField* refField) const
 {
+    const WiresharkField* f = this;
+    if (refField != nullptr) {
+        f = refField;
+    }
+
     if (accStr.empty()) {
         static const std::string Templ =
             "(#^#VALUE_FUNC#$#(#^#FIELD#$#) == #^#EXISTS#$#)"
@@ -194,9 +199,9 @@ std::string WiresharkOptionalField::wiresharkExistsCheckStrImpl(const std::strin
 
         auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
         util::GenReplacementMap repl = {
-            {"VALUE_FUNC", wiresharkValueFuncName()},
+            {"VALUE_FUNC", f->wiresharkValueFuncName()},
             {"EXISTS", Wireshark::wiresharkOptModeStr(wiresharkGenerator, Wireshark::WiresharkOptMode::Exists)},
-            {"FIELD", wiresharkFieldObjName()},
+            {"FIELD", f->wiresharkFieldObjName()},
         };
 
         return util::genProcessTemplate(Templ, repl);
@@ -209,15 +214,12 @@ std::string WiresharkOptionalField::wiresharkExistsCheckStrImpl(const std::strin
 
 bool WiresharkOptionalField::wiresharkHasTrivialValidImpl() const
 {
-    auto parseObj = genOptionalFieldParseObj();
-    if ((parseObj.parseMissingOnReadFail()) ||
-        (parseObj.parseMissingOnInvalid())) {
-        // Always valid even if the member field is invalid
-        return true;
+    assert(m_wiresharkField != nullptr);
+    if (!m_wiresharkField->wiresharkHasTrivialValid()) {
+        return false;
     }
 
-    assert(m_wiresharkField != nullptr);
-    return m_wiresharkField->wiresharkHasTrivialValid();
+    return WiresharkBase::wiresharkHasTrivialValidImpl();
 }
 
 std::string WiresharkOptionalField::wiresharkDefaultModeInternal() const
@@ -284,12 +286,13 @@ std::string WiresharkOptionalField::wiresharkReadFailCodeInternal() const
 std::string WiresharkOptionalField::wiresharkMissInvalidCodeInternal() const
 {
     auto parseObj = genOptionalFieldParseObj();
-    if (!parseObj.parseMissingOnInvalid()) {
+    if ((!parseObj.parseMissingOnInvalid()) ||
+        (wiresharkHasTrivialValid())) {
         return strings::genEmptyString();
     }
 
     static const std::string Templ =
-        "local field_valid = #^#VALID_FUNC#$#(#^#ACT_FIELD#$#)\n"
+        "local field_valid = #^#VALID_FUNC#$#(#^#FIELD#$#)\n"
         "if not field_valid then\n"
         "    #^#SUBTREE#$#:set_hidden(true)\n"
         "    #^#TREE#$#:add(#^#FIELD#$#, #^#RANGE#$#, #^#MISSING#$#)\n"
@@ -306,8 +309,7 @@ std::string WiresharkOptionalField::wiresharkMissInvalidCodeInternal() const
         {"FIELD", wiresharkFieldStr()},
         {"RANGE", wiresharkRangeStr()},
         {"OFFSET", wiresharkOffsetStr()},
-        {"VALID_FUNC", m_wiresharkField->wiresharkValidFuncName()},
-        {"ACT_FIELD", m_wiresharkField->wiresharkFieldObjName()},
+        {"VALID_FUNC", wiresharkValidFuncName()},
         {"NEXT_OFFSET", wiresharkNextOffsetStr()},
         {"RESULT", wiresharkResultStr()},
         {"TREE", wiresharkTreeStr()},

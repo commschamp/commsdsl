@@ -86,7 +86,7 @@ public:
     std::string wiresharkValueAccessStr(const std::string& accStr, const WiresharkField* refField = nullptr) const;
     std::string wiresharkSizeAccessStr(const std::string& accStr, const WiresharkField* refField = nullptr) const;
     std::string wiresharkCompPrepValueStr(const std::string& value) const;
-    std::string wiresharkExistsCheckStr(const std::string& accStr) const;
+    std::string wiresharkExistsCheckStr(const std::string& accStr, bool forceResult = true, const WiresharkField* refField = nullptr) const;
     std::string wiresharkVersionCheckStr(const WiresharkInterface& interface) const;
 
     bool wiresharkNeedsOptionalModeDefinition() const;
@@ -115,7 +115,7 @@ protected:
     virtual std::string wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const;
     virtual std::string wiresharkSizeAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const;
     virtual std::string wiresharkCompPrepValueStrImpl(const std::string& value) const;
-    virtual std::string wiresharkExistsCheckStrImpl(const std::string& accStr) const;
+    virtual std::string wiresharkExistsCheckStrImpl(const std::string& accStr, const WiresharkField* refField) const;
     virtual std::string wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkValidFuncCodeImpl(const WiresharkField* refField) const;
     virtual bool wiresharkHasTrivialValidImpl() const;
@@ -186,7 +186,7 @@ private:
     std::string wiresharkValueFuncCodeInternal(const WiresharkField* refField) const;
     bool wiresharkHasTrivialValidInternal() const;
     std::string wiresharkProcessNumericValueInternal(const std::string& val) const;
-    std::string wiresharkDisscetVersionCheckInternal(const WiresharkField* refField) const;
+    std::string wiresharkDissectVersionCheckInternal(const WiresharkField* refField) const;
 
     static std::string wiresharkDslCondToStringFieldValueCompInternal(
         const WiresharkField* leftField,

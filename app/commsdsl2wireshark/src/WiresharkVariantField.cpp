@@ -236,13 +236,13 @@ std::string WiresharkVariantField::wiresharkSizeAccessStrImpl(const std::string&
     return memInfo.first->wiresharkSizeAccessStr(memInfo.second);
 }
 
-std::string WiresharkVariantField::wiresharkExistsCheckStrImpl(const std::string& accStr) const
+std::string WiresharkVariantField::wiresharkExistsCheckStrImpl(const std::string& accStr, const WiresharkField* refField) const
 {
     if (accStr.empty()) {
         // TODO: variant has actual member set.
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
-        return WiresharkBase::wiresharkExistsCheckStrImpl(accStr);
+        return WiresharkBase::wiresharkExistsCheckStrImpl(accStr, refField);
     }
 
     auto memInfo = wiresharkSplitMemberAccStr(accStr, m_wiresharkFields);
@@ -251,7 +251,7 @@ std::string WiresharkVariantField::wiresharkExistsCheckStrImpl(const std::string
         return strings::genUnexpectedValueStr();
     }
 
-    return memInfo.first->wiresharkExistsCheckStr(memInfo.second);
+    return memInfo.first->wiresharkExistsCheckStr(memInfo.second, false);
 }
 
 std::string WiresharkVariantField::wiresharkDefaultAssignmentsImpl([[maybe_unused]] const WiresharkField* refField) const

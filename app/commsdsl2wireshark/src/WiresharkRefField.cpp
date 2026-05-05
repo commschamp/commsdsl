@@ -234,12 +234,14 @@ std::string WiresharkRefField::wiresharkValueFuncBodyImpl(const WiresharkField* 
     }
 
     static const std::string Templ =
-        "return #^#FUNC#$#(#^#FIELD#$#)\n"
+        "#^#FIELD_STR#$# = #^#FIELD_STR#$# or #^#FIELD#$#\n"
+        "return #^#FUNC#$#(#^#FIELD_STR#$#)\n"
         ;
 
     util::GenReplacementMap repl = {
         {"FUNC", m_wiresharkField->wiresharkValueFuncName()},
         {"FIELD", wiresharkFieldObjName(refField)},
+        {"FIELD_STR", wiresharkFieldStr()},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -271,10 +273,14 @@ std::string WiresharkRefField::wiresharkCompPrepValueStrImpl(const std::string& 
     return m_wiresharkField->wiresharkCompPrepValueStr(value);
 }
 
-std::string WiresharkRefField::wiresharkExistsCheckStrImpl(const std::string& accStr) const
+std::string WiresharkRefField::wiresharkExistsCheckStrImpl(const std::string& accStr, const WiresharkField* refField) const
 {
+    if (refField == nullptr) {
+        refField = this;
+    }
+
     assert(m_wiresharkField != nullptr);
-    return m_wiresharkField->wiresharkExistsCheckStr(accStr);
+    return m_wiresharkField->wiresharkExistsCheckStr(accStr, false, refField);
 }
 
 std::string WiresharkRefField::wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const

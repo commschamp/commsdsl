@@ -1,5 +1,5 @@
 local result =
-    (test11_field_value(test11_field_B1Members_M1) ~= 0) or
-    (test11_field_value(test11_field_B1Members_M2) == 0)
+    (test11_local.field_value(test11_local.field_B1Members_M1) ~= 0) or
+    (test11_local.field_value(test11_local.field_B1Members_M2) == 0)
 
 return result, true
