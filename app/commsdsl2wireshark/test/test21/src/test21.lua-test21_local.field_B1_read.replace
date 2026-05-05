@@ -1,1 +1,23 @@
--- TODO
+    -- REPLACED
+    field = field or test21_local.field_B1
+    if offset_limit < (offset + 1) then
+        return test21_local.StatusCode.NOT_ENOUGH_DATA, offset
+    end
+
+    local result = test21_local.StatusCode.INVALID_MSG_DATA
+    local next_offset = offset
+    local range = tvb(offset, 1)
+    local field_subtree = tree:add(field, range)
+    result, _ = test21_local.field_B1Members_Mem0_read(tvb, field_subtree, offset, offset + 1)
+    if result ~= test21_local.StatusCode.SUCCESS then
+        return result, offset
+    end
+
+    result, _ = test21_local.field_B1Members_Mem1_read(tvb, field_subtree, offset, offset + 1)
+    if result ~= test21_local.StatusCode.SUCCESS then
+        return result, offset
+    end
+
+    next_offset = offset + 1
+
+    return result, next_offset
