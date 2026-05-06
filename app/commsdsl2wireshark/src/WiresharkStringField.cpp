@@ -75,7 +75,8 @@ std::string WiresharkStringField::wiresharkFieldRegistrationImpl(const Wireshark
         {"DESC", wiresharkFieldDescriptionStr(refField)},
     };
 
-    if (genStringFieldParseObj().parseHasZeroTermSuffix()) {
+    auto parseObj = genStringFieldParseObj();
+    if (parseObj.parseHasZeroTermSuffix() || parseObj.parseFixedLength()) {
         repl["Z"] = "z";
     }
 
@@ -196,7 +197,52 @@ std::string WiresharkStringField::wiresharkValidFuncBodyImpl([[maybe_unused]] co
 
 std::string WiresharkStringField::wiresharkCompPrepValueStrImpl(const std::string& value) const
 {
-    return '\"' + value + '\"';
+    std::string valueTmp = value;
+    do {
+        if (value.empty()) {
+            break;
+        }
+
+        static const char Prefix = strings::genStringRefPrefix();
+        if (value[0] == Prefix) {
+            auto* refField = genGenerator().genFindField(std::string(value, 1));
+            if (refField == nullptr) {
+                genGenerator().genLogger().genWarning("Failed to find referenced field: " + value);
+                break;
+            }
+
+            if (refField->genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::String) {
+                genGenerator().genLogger().genWarning("Not referencing <string> field: " + value);
+                break;
+            }
+
+            auto* refStringField = static_cast<const WiresharkStringField*>(refField);
+            valueTmp = refStringField->genStringFieldParseObj().parseDefaultValue();
+            break;
+        }
+
+        auto prefixPos = value.find_first_of(Prefix);
+        if (prefixPos == std::string::npos) {
+            break;
+        }
+
+        assert(0U < prefixPos);
+        bool allBackSlashes =
+            std::all_of(
+                value.begin(), value.begin() + static_cast<std::ptrdiff_t>(prefixPos),
+                [](char ch)
+                {
+                    return ch == '\\';
+                });
+
+        if (!allBackSlashes) {
+            break;
+        }
+
+        valueTmp.assign(value, 1, std::string::npos);
+    } while (false);
+
+    return '\"' + valueTmp + '\"';
 }
 
 bool WiresharkStringField::wiresharkHasTrivialValidImpl() const
