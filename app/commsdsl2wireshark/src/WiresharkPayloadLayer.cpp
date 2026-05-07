@@ -16,6 +16,7 @@
 #include "WiresharkPayloadLayer.h"
 
 #include "Wireshark.h"
+#include "WiresharkField.h"
 #include "WiresharkGenerator.h"
 
 #include "commsdsl/gen/comms.h"
@@ -39,32 +40,42 @@ std::string WiresharkPayloadLayer::wiresharkDissectBodyImpl() const
 {
     static const std::string Templ =
         "if not msg then\n"
-        "    tree:add_expert_info(PI_MALFORMED, PI_WARN, \"Invalid message id\")\n"
-        "    return #^#SUCCESS#$#, offset_limit\n"
+        "    #^#TREE#$#:add_expert_info(PI_MALFORMED, PI_WARN, \"Invalid message id\")\n"
+        "    return #^#SUCCESS#$#, #^#LIMIT#$#\n"
         "end\n"
         "\n"
-        "local result = #^#SUCCESS#$#\n"
-        "local next_offset = offset_limit\n"
+        "local #^#RESULT#$# = #^#SUCCESS#$#\n"
+        "local #^#NEXT_OFFSET#$# = #^#LIMIT#$#\n"
         "-- msg is a list of dissect functions\n"
         "for _, f in ipairs(msg) do\n"
-        "    local data_subtree = tree:add(#^#FIELD#$#, tvb(offset, offset_limit - offset))\n"
-        "    result, next_offset = f(tvb, data_subtree, offset, offset_limit)\n"
-        "    data_subtree:set_len(next_offset - offset)\n"
-        "    if result == #^#SUCCESS#$# then\n"
-        "        return result, next_offset\n"
+        "    local data_subtree = #^#TREE#$#:add(#^#FIELD#$#, tvb(#^#OFFSET#$#, #^#LIMIT#$# - #^#OFFSET#$#))\n"
+        "    #^#RESULT#$#, #^#NEXT_OFFSET#$# = f(tvb, data_subtree, #^#OFFSET#$#, #^#LIMIT#$#)\n"
+        "    local data_len = #^#NEXT_OFFSET#$# - #^#OFFSET#$#\n"
+        "    data_subtree:set_len(data_len)\n"
+        "    if #^#RESULT#$# == #^#SUCCESS#$# then\n"
+        "        if data_len == 0 then\n"
+        "            data_subtree:set_hidden(true)\n"
+        "            data_subtree = #^#TREE#$#:add(#^#FIELD#$#, tvb(#^#OFFSET#$#, 0))\n"
+        "        end\n"
+        "        return #^#RESULT#$#, #^#NEXT_OFFSET#$#\n"
         "    end\n"
         "\n"
         "    -- Do not show partially dissected malformed data\n"
         "    data_subtree:set_hidden(true)\n"
         "end\n"
-        "tree:add_expert_info(PI_MALFORMED, PI_WARN, \"Invalid message data\")\n"
-        "result, next_offset = #^#SUCCESS#$#, offset_limit\n"
+        "#^#TREE#$#:add_expert_info(PI_MALFORMED, PI_WARN, \"Invalid message data\")\n"
+        "#^#RESULT#$#, #^#NEXT_OFFSET#$# = #^#SUCCESS#$#, #^#LIMIT#$#\n"
         ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     util::GenReplacementMap repl = {
         {"FIELD", wiresharkDissectFieldNameInternal()},
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
+        {"TREE", WiresharkField::wiresharkTreeStr()},
+        {"LIMIT", WiresharkField::wiresharkOffsetLimitStr()},
+        {"RESULT", WiresharkField::wiresharkResultStr()},
+        {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
     };
 
     return util::genProcessTemplate(Templ, repl);

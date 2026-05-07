@@ -15,8 +15,20 @@
 
 #include "WiresharkValueLayer.h"
 
+#include "Wireshark.h"
+#include "WiresharkField.h"
+#include "WiresharkFrame.h"
 #include "WiresharkGenerator.h"
 #include "WiresharkInterface.h"
+#include "WiresharkNamespace.h"
+
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+#include <cassert>
+
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2wireshark
 {
@@ -27,9 +39,68 @@ WiresharkValueLayer::WiresharkValueLayer(WiresharkGenerator& generator, ParseLay
 {
 }
 
+std::string WiresharkValueLayer::wiresharkDissectBodyImpl() const
+{
+    static const std::string Templ =
+        "#^#FIELD#$#\n"
+        "#^#INTERFACE_READ#$#\n"
+        "offset = next_offset\n"
+        "#^#NEXT#$#\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"FIELD", wiresharkDissectFieldCode()},
+        {"INTERFACE_READ", wiresharkInterfaceReadCodeInternal()},
+        {"NEXT", wiresharkNextFuncCode()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
 bool WiresharkValueLayer::wiresharkIsInterfaceSupportedImpl(const WiresharkInterface& iFace) const
 {
     return genIsInterfaceSupported(&iFace);
+}
+
+std::string WiresharkValueLayer::wiresharkInterfaceReadCodeInternal() const
+{
+    auto parseObj = genValueLayerParseObj();
+    if (parseObj.parsePseudo()) {
+        return strings::genEmptyString();
+    }
+
+    static const std::string Templ =
+        "local interface_tree = #^#TREE#$#:add(#^#PROTO#$#, #^#TVB#$#(#^#OFFSET#$#, #^#LIMIT#$# - #^#OFFSET#$#))\n"
+        "interface_tree:set_hidden(true)\n"
+        "#^#RESULT#$#, _ = #^#DISSECT#$#(#^#TVB#$#, interface_tree, #^#OFFSET#$#, #^#NEXT_OFFSET#$#)\n"
+        "if #^#RESULT#$# ~= #^#SUCCESS#$# then\n"
+        "    return #^#RESULT#$#, #^#NEXT_OFFSET#$#\n"
+        "end\n"
+        ;
+
+    auto* parentFrame = genParentFrame();
+    assert(parentFrame != nullptr);
+    auto* parentNs = parentFrame->genParentNamespace();
+    assert(parentNs != nullptr);
+    auto* iFace = WiresharkNamespace::wiresharkCast(parentNs)->wiresharkInterface();
+    assert(iFace != nullptr);
+    auto* iFaceField = iFace->wiresharkFindField(genValueLayerParseObj().parseFieldName());
+    assert(iFaceField != nullptr);
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"PROTO", Wireshark::wiresharkProtocolObjName(wiresharkGenerator)},
+        {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+        {"LIMIT", WiresharkField::wiresharkOffsetLimitStr()},
+        {"TREE", WiresharkField::wiresharkTreeStr()},
+        {"TVB", WiresharkField::wiresharkTvbStr()},
+        {"RESULT", WiresharkField::wiresharkResultStr()},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
+        {"DISSECT", iFaceField->wiresharkDissectName()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2wireshark

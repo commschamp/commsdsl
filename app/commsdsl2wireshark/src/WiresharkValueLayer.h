@@ -35,7 +35,10 @@ public:
     WiresharkValueLayer(WiresharkGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
+    virtual std::string wiresharkDissectBodyImpl() const override;
     virtual bool wiresharkIsInterfaceSupportedImpl(const WiresharkInterface& iFace) const override;
+
+    std::string wiresharkInterfaceReadCodeInternal() const;
 };
 
 } // namespace commsdsl2wireshark

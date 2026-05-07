@@ -642,6 +642,66 @@ std::pair<const WiresharkField*, std::string> WiresharkField::wiresharkSplitMemb
     return std::make_pair(*iter, std::move(splitInfo.second));
 }
 
+const std::string& WiresharkField::wiresharkRangeStr()
+{
+    static const std::string Str("range");
+    return Str;
+}
+
+const std::string& WiresharkField::wiresharkFieldSubtreeStr()
+{
+    static const std::string Str("field_subtree");
+    return Str;
+}
+
+const std::string& WiresharkField::wiresharkValStr()
+{
+    static const std::string Str("val");
+    return Str;
+}
+
+const std::string& WiresharkField::wiresharkFieldStr()
+{
+    static const std::string Str("field");
+    return Str;
+}
+
+const std::string& WiresharkField::wiresharkNextOffsetStr()
+{
+    static const std::string Str("next_offset");
+    return Str;
+}
+
+const std::string& WiresharkField::wiresharkOffsetStr()
+{
+    static const std::string Str("offset");
+    return Str;
+}
+
+const std::string& WiresharkField::wiresharkOffsetLimitStr()
+{
+    static const std::string Str("offset_limit");
+    return Str;
+}
+
+const std::string& WiresharkField::wiresharkResultStr()
+{
+    static const std::string Str("result");
+    return Str;
+}
+
+const std::string& WiresharkField::wiresharkTvbStr()
+{
+    static const std::string Str("tvb");
+    return Str;
+}
+
+const std::string& WiresharkField::wiresharkTreeStr()
+{
+    static const std::string Str("tree");
+    return Str;
+}
+
 std::string WiresharkField::wiresharkDissectNameImpl(const WiresharkField* refField) const
 {
     const auto* genField = &m_genField;
@@ -1322,66 +1382,6 @@ const WiresharkInterface& WiresharkField::wiresharkInterface() const
     auto* interface = WiresharkNamespace::wiresharkCast(ns)->wiresharkInterface();
     assert(interface != nullptr);
     return *interface;
-}
-
-const std::string& WiresharkField::wiresharkRangeStr()
-{
-    static const std::string Str("range");
-    return Str;
-}
-
-const std::string& WiresharkField::wiresharkFieldSubtreeStr()
-{
-    static const std::string Str("field_subtree");
-    return Str;
-}
-
-const std::string& WiresharkField::wiresharkValStr()
-{
-    static const std::string Str("val");
-    return Str;
-}
-
-const std::string& WiresharkField::wiresharkFieldStr()
-{
-    static const std::string Str("field");
-    return Str;
-}
-
-const std::string& WiresharkField::wiresharkNextOffsetStr()
-{
-    static const std::string Str("next_offset");
-    return Str;
-}
-
-const std::string& WiresharkField::wiresharkOffsetStr()
-{
-    static const std::string Str("offset");
-    return Str;
-}
-
-const std::string& WiresharkField::wiresharkOffsetLimitStr()
-{
-    static const std::string Str("offset_limit");
-    return Str;
-}
-
-const std::string& WiresharkField::wiresharkResultStr()
-{
-    static const std::string Str("result");
-    return Str;
-}
-
-const std::string& WiresharkField::wiresharkTvbStr()
-{
-    static const std::string Str("tvb");
-    return Str;
-}
-
-const std::string& WiresharkField::wiresharkTreeStr()
-{
-    static const std::string Str("tree");
-    return Str;
 }
 
 bool WiresharkField::wiresharkCopyCodeFromInternal()

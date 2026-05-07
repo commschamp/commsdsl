@@ -137,7 +137,7 @@ bool WiresharkLayer::wiresharkNeedsOptionalModeDefinition() const
 
 std::string WiresharkLayer::wiresharkDissectBodyImpl() const
 {
-    return strings::genEmptyString();
+    return "-- TODO: implement";
 }
 
 bool WiresharkLayer::wiresharkIsInterfaceSupportedImpl([[maybe_unused]] const WiresharkInterface& iFace) const
@@ -159,9 +159,9 @@ std::string WiresharkLayer::wiresharkDissectFieldCode() const
     }
 
     static const std::string Templ =
-        "result, next_offset = #^#NAME#$#(tvb, tree, offset, offset_limit)\n"
-        "if result ~= #^#SUCCESS#$# then\n"
-        "    return result, next_offset\n"
+        "#^#RESULT#$#, #^#NEXT_OFFSET#$# = #^#NAME#$#(#^#TVB#$#, #^#TREE#$#, #^#OFFSET#$#, #^#LIMIT#$#)\n"
+        "if #^#RESULT#$# ~= #^#SUCCESS#$# then\n"
+        "    return #^#RESULT#$#, #^#NEXT_OFFSET#$#\n"
         "end\n"
     ;
 
@@ -169,6 +169,12 @@ std::string WiresharkLayer::wiresharkDissectFieldCode() const
     util::GenReplacementMap repl = {
         {"NAME", field->wiresharkDissectName()},
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
+        {"RESULT", WiresharkField::wiresharkResultStr()},
+        {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
+        {"TVB", WiresharkField::wiresharkTvbStr()},
+        {"TREE", WiresharkField::wiresharkTreeStr()},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+        {"LIMIT", WiresharkField::wiresharkOffsetLimitStr()},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -181,13 +187,19 @@ std::string WiresharkLayer::wiresharkNextFuncCode() const
         "if next_func == #^#NIL#$# then\n"
         "    return #^#ERROR#$#, offset\n"
         "end\n"
-        "result, next_offset = next_func(tvb, tree, offset, offset_limit, funcs, next_idx + 1, msg)\n"
+        "#^#RESULT#$#, #^#NEXT_OFFSET#$# = next_func(#^#TVB#$#, #^#TREE#$#, #^#OFFSET#$#, #^#LIMIT#$#, funcs, next_idx + 1, msg)\n"
         ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genLayer.genGenerator());
     util::GenReplacementMap repl = {
         {"NIL", strings::genNilStr()},
         {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::CodegenError)},
+        {"RESULT", WiresharkField::wiresharkResultStr()},
+        {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
+        {"TVB", WiresharkField::wiresharkTvbStr()},
+        {"TREE", WiresharkField::wiresharkTreeStr()},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+        {"LIMIT", WiresharkField::wiresharkOffsetLimitStr()},
     };
 
     return util::genProcessTemplate(Templ, repl);

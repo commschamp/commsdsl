@@ -136,7 +136,7 @@ std::string WiresharkVariantField::wiresharkDissectBodyImpl([[maybe_unused]] con
 {
     assert(refField == nullptr);
     static const std::string Templ =
-        "local #^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, -1)\n"
+        "local #^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, #^#LIMIT#$# - #^#OFFSET#$#)\n"
         "local #^#SUBTREE#$# = #^#TREE#$#:add(#^#FIELD#$#, #^#RANGE#$#)\n"
         "#^#NAME#$#_member_rec_set(#^#FIELD#$#, 0)\n"
         "for idx, func in ipairs(#^#NAME#$#_member_dissect) do\n"
@@ -151,7 +151,12 @@ std::string WiresharkVariantField::wiresharkDissectBodyImpl([[maybe_unused]] con
         "    #^#SUBTREE#$#:set_hidden(true)\n"
         "    return #^#ERROR#$#, #^#OFFSET#$#\n"
         "end\n"
+        "local member_len = #^#NEXT_OFFSET#$# - #^#OFFSET#$#\n"
         "#^#SUBTREE#$#:set_len(#^#NEXT_OFFSET#$# - #^#OFFSET#$#)\n"
+        "if member_len == 0 then\n"
+        "    #^#SUBTREE#$#:set_hidden(true)\n"
+        "    #^#SUBTREE#$# = #^#TREE#$#:add(#^#FIELD#$#, #^#TVB#$#(#^#OFFSET#$#, 0))\n"
+        "end\n"
         ;
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());

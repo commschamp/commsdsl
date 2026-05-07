@@ -178,7 +178,7 @@ std::string WiresharkListField::wiresharkDissectBodyImpl([[maybe_unused]] const 
 
     static const std::string Templ =
         "local count = 0\n"
-        "local #^#SUBTREE#$# = #^#TREE#$#:add(#^#FIELD#$#, #^#TVB#$#(#^#NEXT_OFFSET#$#, -1))\n"
+        "local #^#SUBTREE#$# = #^#TREE#$#:add(#^#FIELD#$#, #^#TVB#$#(#^#NEXT_OFFSET#$#, #^#LIMIT#$# - #^#OFFSET#$#))\n"
         "#^#READ#$#\n"
         "#^#NAME#$#_size_rec_set(#^#FIELD#$#, count)\n"
         "#^#SUBTREE#$#:set_len(#^#NEXT_OFFSET#$# - #^#OFFSET#$#)\n"
@@ -190,6 +190,7 @@ std::string WiresharkListField::wiresharkDissectBodyImpl([[maybe_unused]] const 
         {"TVB", wiresharkTvbStr()},
         {"NEXT_OFFSET", wiresharkNextOffsetStr()},
         {"OFFSET", wiresharkOffsetStr()},
+        {"LIMIT", wiresharkOffsetLimitStr()},
         {"NAME", wiresharkFieldObjName()},
         {"TREE", wiresharkTreeStr()},
     };

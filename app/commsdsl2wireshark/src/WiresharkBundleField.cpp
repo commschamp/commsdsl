@@ -130,10 +130,15 @@ std::string WiresharkBundleField::wiresharkDissectBodyImpl([[maybe_unused]] cons
     }
 
     static const std::string Templ =
-        "local #^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, -1)\n"
+        "local #^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, #^#LIMIT#$# - #^#OFFSET#$#)\n"
         "local #^#SUBTREE#$# = #^#TREE#$#:add(#^#FIELD#$#, #^#RANGE#$#)\n"
         "#^#MEMBERS#$#\n"
-        "#^#SUBTREE#$#:set_len(#^#NEXT_OFFSET#$# - #^#OFFSET#$#)\n"
+        "local members_len = #^#NEXT_OFFSET#$# - #^#OFFSET#$#\n"
+        "#^#SUBTREE#$#:set_len(members_len)\n"
+        "if members_len == 0 then"
+        "    #^#SUBTREE#$#:set_hidden(true)\n"
+        "    #^#SUBTREE#$# = #^#TREE#$#:add(#^#FIELD#$#, #^#TVB#$#(#^#OFFSET#$#, 0))\n"
+        "end\n"
         ;
 
     util::GenReplacementMap repl = {
@@ -141,6 +146,7 @@ std::string WiresharkBundleField::wiresharkDissectBodyImpl([[maybe_unused]] cons
         {"LEN", std::to_string(parseObj.parseMaxLength())},
         {"SUBTREE", wiresharkFieldSubtreeStr()},
         {"OFFSET", wiresharkOffsetStr()},
+        {"LIMIT", wiresharkOffsetLimitStr()},
         {"NEXT_OFFSET", wiresharkNextOffsetStr()},
         {"MEMBERS", util::genStrListToString(members, "\n", "")},
         {"FIELD", wiresharkFieldStr()},

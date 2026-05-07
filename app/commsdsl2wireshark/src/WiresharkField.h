@@ -97,6 +97,17 @@ public:
     static std::pair<std::string, std::string> wiresharkSplitAccStr(const std::string& accStr);
     static std::pair<const WiresharkField*, std::string> wiresharkSplitMemberAccStr(const std::string& accStr, const WiresharkFieldsList& fields);
 
+    static const std::string& wiresharkRangeStr();
+    static const std::string& wiresharkFieldSubtreeStr();
+    static const std::string& wiresharkValStr();
+    static const std::string& wiresharkFieldStr();
+    static const std::string& wiresharkNextOffsetStr();
+    static const std::string& wiresharkOffsetStr();
+    static const std::string& wiresharkOffsetLimitStr();
+    static const std::string& wiresharkResultStr();
+    static const std::string& wiresharkTvbStr();
+    static const std::string& wiresharkTreeStr();
+
 protected:
     virtual std::string wiresharkDissectNameImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkValidFuncNameImpl(const WiresharkField* refField) const;
@@ -139,17 +150,6 @@ protected:
     std::string wiresharkProcessIntegralValue(const std::string& val) const;
     std::string wiresharkProcessFloatValue(const std::string& val) const;
     const WiresharkInterface& wiresharkInterface() const;
-
-    static const std::string& wiresharkRangeStr();
-    static const std::string& wiresharkFieldSubtreeStr();
-    static const std::string& wiresharkValStr();
-    static const std::string& wiresharkFieldStr();
-    static const std::string& wiresharkNextOffsetStr();
-    static const std::string& wiresharkOffsetStr();
-    static const std::string& wiresharkOffsetLimitStr();
-    static const std::string& wiresharkResultStr();
-    static const std::string& wiresharkTvbStr();
-    static const std::string& wiresharkTreeStr();
 
 private:
     using WiresharkCustomCodeFunc = std::string (WiresharkField::*)(bool& hasCode) const;
