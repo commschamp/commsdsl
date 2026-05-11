@@ -1,1 +1,6 @@
--- TODO
+local short_val = test32_local.field_ComplexLengthMembers_Short_value()
+if short_val ~= 0xff then
+    return short_val
+end
+
+return test32_local.field_ComplexLengthMembers_Long_value()

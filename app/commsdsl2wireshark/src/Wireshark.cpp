@@ -253,6 +253,10 @@ std::string Wireshark::wiresharkDissectFuncBodyInternal() const
     for (auto* f : frames) {
         assert(f != nullptr);
         auto& wiresharkFrame = WiresharkFrame::wiresharkCast(*f);
+        if (!wiresharkFrame.wiresharkValidFrame()) {
+            continue;
+        }
+
         static const std::string FrameTempl =
             "result, next_offset = #^#NAME#$#(tvb, tree)\n"
             "if result == #^#SUCCESS#$# then\n"

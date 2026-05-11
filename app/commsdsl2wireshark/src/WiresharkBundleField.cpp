@@ -111,7 +111,7 @@ std::string WiresharkBundleField::wiresharkDissectBodyImpl([[maybe_unused]] cons
         hasLimit = true;
 
         static const std::string LimitTempl =
-            "local next_limit = #^#VALUE_FUNC#$#(#^#FIELD#$#)\n"
+            "local next_limit = #^#NEXT_OFFSET#$# + #^#VALUE_FUNC#$#(#^#FIELD#$#)\n"
             "if #^#LIMIT#$# < next_limit then\n"
             "    return #^#NOT_ENOUGH_DATA#$#, #^#OFFSET#$#\n"
             "end\n"
@@ -124,9 +124,14 @@ std::string WiresharkBundleField::wiresharkDissectBodyImpl([[maybe_unused]] cons
             {"FIELD", f->wiresharkFieldObjName()},
             {"NOT_ENOUGH_DATA", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::NotEnoughData)},
             {"OFFSET", wiresharkOffsetStr()},
+            {"NEXT_OFFSET", wiresharkNextOffsetStr()},
         };
 
         members.push_back(util::genProcessTemplate(LimitTempl, limitRepl));
+    }
+
+    if (hasLimit) {
+        members.push_back(wiresharkNextOffsetStr() + " = next_limit");
     }
 
     static const std::string Templ =
@@ -135,7 +140,7 @@ std::string WiresharkBundleField::wiresharkDissectBodyImpl([[maybe_unused]] cons
         "#^#MEMBERS#$#\n"
         "local members_len = #^#NEXT_OFFSET#$# - #^#OFFSET#$#\n"
         "#^#SUBTREE#$#:set_len(members_len)\n"
-        "if members_len == 0 then"
+        "if members_len == 0 then\n"
         "    #^#SUBTREE#$#:set_hidden(true)\n"
         "    #^#SUBTREE#$# = #^#TREE#$#:add(#^#FIELD#$#, #^#TVB#$#(#^#OFFSET#$#, 0))\n"
         "end\n"

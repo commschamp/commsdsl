@@ -41,12 +41,22 @@ WiresharkFrame::~WiresharkFrame() = default;
 
 std::string WiresharkFrame::wiresharkDissectName() const
 {
+    if (!m_validFrame) {
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
+        assert(Should_not_happen);
+        return strings::genEmptyString();
+    }
+
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     return wiresharkGenerator.wiresharkDissectNameFor(*this);
 }
 
 std::string WiresharkFrame::wiresharkDissectCode() const
 {
+    if (!m_validFrame) {
+        return strings::genEmptyString();
+    }
+
     static const std::string Templ =
         "#^#LAYERS#$#\n"
         "#^#FUNC_LIST#$#\n"
@@ -110,6 +120,11 @@ bool WiresharkFrame::wiresharkNeedsOptionalModeDefinition() const
             {
                 return l->wiresharkNeedsOptionalModeDefinition();
             });
+}
+
+bool WiresharkFrame::wiresharkValidFrame() const
+{
+    return m_validFrame;
 }
 
 bool WiresharkFrame::genPrepareImpl()

@@ -76,6 +76,7 @@ public:
 
     bool wiresharkHasTrivialValid() const;
     std::size_t wiresharkMinFieldLength(const WiresharkField* refField = nullptr) const;
+    std::size_t wiresharkMaxFieldLength(const WiresharkField* refField = nullptr) const;
 
     static std::string wiresharkDslCondToString(
         const WiresharkGenerator& generator,

@@ -343,7 +343,7 @@ std::string WiresharkSetField::wiresharkRegistrationBitsInternal(const Wireshark
             {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
             {"REF_NAME", refName + '.' + bitInfo.first},
             {"DISP_NAME", util::genDisplayName(bitInfo.second.m_displayName, bitInfo.first)},
-            {"MASK", wiresharkBitMaskInternal(bitInfo.second.m_idx + forcedShift)},
+            {"MASK", wiresharkBitMaskInternal(refField, bitInfo.second.m_idx + forcedShift)},
             {"DESC", strings::genNilStr()},
             {"NIL", strings::genNilStr()},
             {"PARENT_WIDTH", parentWidth},
@@ -359,19 +359,19 @@ std::string WiresharkSetField::wiresharkRegistrationBitsInternal(const Wireshark
     return util::genStrListToString(elems, "", "");
 }
 
-std::string WiresharkSetField::wiresharkBitMaskInternal(unsigned idx) const
+std::string WiresharkSetField::wiresharkBitMaskInternal(const WiresharkField* refField, unsigned idx) const
 {
     auto mask = 1U << idx;
     auto parseObj = genSetFieldParseObj();
     std::stringstream stream;
     stream << std::hex << "0x" << std::uppercase <<
-        std::setfill('0') << std::setw(static_cast<int>(parseObj.parseMaxLength() * 2U)) << mask;
+        std::setfill('0') << std::setw(static_cast<int>(wiresharkMaxFieldLength(refField) * 2U)) << mask;
     return stream.str();
 }
 
 std::string WiresharkSetField::wiresharkBitParentWidthInternal(const WiresharkField* refField) const
 {
-    return std::to_string(std::max(genParseObj().parseMaxLength() * 8U, static_cast<std::size_t>(wiresharkForcedBitLength(refField))));
+    return std::to_string(std::max(wiresharkMaxFieldLength(refField) * 8U, static_cast<std::size_t>(wiresharkForcedBitLength(refField))));
 }
 
 std::string WiresharkSetField::wiresharkBitObjNameInternal(const WiresharkField* refField, const std::string& bitName) const

@@ -98,14 +98,14 @@ const std::string& WiresharkIntField::wiresharkIntegralType(ParseIntField::Parse
     return iter->second;
 }
 
-std::string WiresharkIntField::wiresharkTvbRangeAccessIntegralValue(ParseIntField::ParseType type, ParseEndian endian, std::size_t len)
+std::string WiresharkIntField::wiresharkTvbRangeAccessIntegralValue(ParseIntField::ParseType type, ParseEndian endian, std::size_t len, bool forceUnsigned)
 {
     std::string prefix;
     if (endian == ParseEndian::ParseEndian_Little) {
         prefix = strings::genLittleEndianPrefixStr();
     }
 
-    if (GenIntField::genIsUnsignedType(type)) {
+    if (forceUnsigned || GenIntField::genIsUnsignedType(type)) {
         prefix += 'u';
     }
 
@@ -256,8 +256,20 @@ std::string WiresharkIntField::wiresharkValidFuncBodyImpl([[maybe_unused]] const
     auto& ranges = parseObj.parseValidRanges();
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     auto numToStr =
-        [this](std::intmax_t value)
+        [this, parseObj](std::intmax_t value)
         {
+            auto scaling = parseObj.parseScaling();
+            if (scaling.first != scaling.second) {
+                if (genIsUnsignedType()) {
+                    return
+                        std::to_string(
+                            (static_cast<double>(static_cast<std::uintmax_t>(value)) * static_cast<double>(scaling.first)) /
+                                static_cast<double>(scaling.second));
+                }
+
+                return std::to_string((static_cast<double>(value) * static_cast<double>(scaling.first)) / static_cast<double>(scaling.second));
+            }
+
             if (genIsUnsignedType()) {
                 return std::to_string(static_cast<std::uintmax_t>(value));
             }
@@ -460,7 +472,7 @@ std::string WiresharkIntField::wiresharkValDeclCodeInternal() const
         ;
 
     util::GenReplacementMap repl = {
-        {"ACC", wiresharkTvbRangeAccessIntegralValue(parseObj.parseType(), parseObj.parseEndian(), parseObj.parseMinLength())},
+        {"ACC", wiresharkTvbRangeAccessIntegralValue(parseObj.parseType(), parseObj.parseEndian(), parseObj.parseMinLength(), !parseObj.parseSignExt())},
         {"VAL", wiresharkValStr()},
         {"RANGE", wiresharkRangeStr()},
     };
@@ -505,19 +517,14 @@ std::string WiresharkIntField::wiresharkSerOffsetCodeInternal(bool& hasVal) cons
     }
 
     hasVal = true;
-    auto minLen = parseObj.parseMinLength();
-    bool nonStandardLen = (minLen & (minLen - 1)) != 0;
-    if (nonStandardLen && parseObj.parseSignExt() && (minLen != parseObj.parseMaxLength())) {
-        // TODO: implement sign extension
-        assert(false);
-    }
-
     static const std::string Templ =
+        "#^#TONUMBER#$#\n"
         "#^#VAL#$# = #^#VAL#$# - (#^#OFFSET#$#)";
 
     util::GenReplacementMap repl = {
         {"OFFSET", std::to_string(serOffset)},
         {"VAL", wiresharkValStr()},
+        {"TONUMBER", wiresharkValToNumberCodeInternal()},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -533,12 +540,14 @@ std::string WiresharkIntField::wiresharkScalingCodeInternal(bool& hasVal) const
 
     hasVal = true;
     static const std::string Templ =
+        "#^#TONUMBER#$#\n"
         "#^#VAL#$# = (#^#VAL#$# * #^#NUM#$#) / #^#DENUM#$#\n";
 
     util::GenReplacementMap repl = {
         {"VAL", wiresharkValStr()},
         {"NUM", std::to_string(scaling.first)},
         {"DENUM", std::to_string(scaling.second)},
+        {"TONUMBER", wiresharkValToNumberCodeInternal()},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -559,6 +568,20 @@ std::string WiresharkIntField::wiresharkDisplayOffsetCodeInternal(bool& hasVal) 
     util::GenReplacementMap repl = {
         {"VAL", wiresharkValStr()},
         {"DISP_OFFSET", std::to_string(dispOffset)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkIntField::wiresharkValToNumberCodeInternal() const
+{
+    static const std::string Templ =
+        "if type(#^#VAL#$#) ~= \"number\" then\n"
+        "    #^#VAL#$# = #^#VAL#$#:tonumber()\n"
+        "end";
+
+    util::GenReplacementMap repl = {
+        {"VAL", wiresharkValStr()},
     };
 
     return util::genProcessTemplate(Templ, repl);

@@ -224,19 +224,34 @@ bool WiresharkField::wiresharkHasTrivialValid() const
 
 std::size_t WiresharkField::wiresharkMinFieldLength(const WiresharkField* refField) const
 {
-    const auto* genField = &m_genField;
-    if (refField != nullptr) {
-        genField = &(refField->wiresharkGenField());
+    if (refField == nullptr) {
+        refField = this;
     }
 
-    auto parseObj = genField->genParseObj();
+    auto parseObj = refField->wiresharkGenField().genParseObj();
     auto len = parseObj.parseMinLength();
-    auto* bitfieldParent = wiresharkParentBitfield();
+    auto* bitfieldParent = refField->wiresharkParentBitfield();
     if (bitfieldParent == nullptr) {
         return len;
     }
 
     return std::max(len, bitfieldParent->wiresharkMinFieldLength());
+}
+
+std::size_t WiresharkField::wiresharkMaxFieldLength(const WiresharkField* refField) const
+{
+    if (refField == nullptr) {
+        refField = this;
+    }
+
+    auto parseObj = refField->wiresharkGenField().genParseObj();
+    auto len = parseObj.parseMaxLength();
+    auto* bitfieldParent = refField->wiresharkParentBitfield();
+    if (bitfieldParent == nullptr) {
+        return len;
+    }
+
+    return std::max(len, bitfieldParent->wiresharkMaxFieldLength());
 }
 
 std::string WiresharkField::wiresharkDslCondToString(
@@ -1075,7 +1090,7 @@ std::string WiresharkField::wiresharkForcedIntegralFieldType(const WiresharkFiel
         refField = this;
     }
 
-    auto* parentBitfield = wiresharkParentBitfield();
+    auto* parentBitfield = refField->wiresharkParentBitfield();
     if (parentBitfield == nullptr) {
         return strings::genEmptyString();
     }
@@ -1175,7 +1190,7 @@ unsigned WiresharkField::wiresharkForcedBitLength(const WiresharkField* refField
         refField = this;
     }
 
-    auto* parentBitfield = wiresharkParentBitfield();
+    auto* parentBitfield = refField->wiresharkParentBitfield();
     if (parentBitfield == nullptr) {
         return 0U;
     }

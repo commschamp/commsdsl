@@ -38,7 +38,7 @@ public:
     WiresharkIntField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
 
     static const std::string& wiresharkIntegralType(ParseIntField::ParseType type, std::size_t len);
-    static std::string wiresharkTvbRangeAccessIntegralValue(ParseIntField::ParseType type, ParseEndian endian, std::size_t len);
+    static std::string wiresharkTvbRangeAccessIntegralValue(ParseIntField::ParseType type, ParseEndian endian, std::size_t len, bool forceUnsigned = false);
 
 protected:
     virtual bool genPrepareImpl() override;
@@ -61,6 +61,7 @@ private:
     std::string wiresharkSerOffsetCodeInternal(bool& hasVal) const;
     std::string wiresharkScalingCodeInternal(bool& hasVal) const;
     std::string wiresharkDisplayOffsetCodeInternal(bool& hasVal) const;
+    std::string wiresharkValToNumberCodeInternal() const;
 };
 
 } // namespace commsdsl2wireshark
