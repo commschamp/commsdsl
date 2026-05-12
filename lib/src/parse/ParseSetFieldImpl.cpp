@@ -130,6 +130,15 @@ bool ParseSetFieldImpl::parseImpl()
 
 std::size_t ParseSetFieldImpl::parseMinLengthImpl() const
 {
+    if (m_state.m_availableLengthLimit) {
+        return 1U;
+    }
+
+    return m_state.m_length;
+}
+
+std::size_t ParseSetFieldImpl::parseMaxLengthImpl() const
+{
     return m_state.m_length;
 }
 

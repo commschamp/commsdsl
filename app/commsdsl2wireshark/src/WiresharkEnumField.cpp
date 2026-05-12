@@ -119,6 +119,10 @@ std::string WiresharkEnumField::wiresharkDissectBodyImpl(const WiresharkField* r
         {"TVB", wiresharkTvbStr()},
     };
 
+    if (parseObj.parseAvailableLengthLimit()) {
+        repl["LEN"] = std::to_string(wiresharkMaxFieldLength(refField));
+    }
+
     if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
         repl["SUFFIX"] = strings::genLittleEndianSuffixStr();
     }

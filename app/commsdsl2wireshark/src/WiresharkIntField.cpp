@@ -224,6 +224,10 @@ std::string WiresharkIntField::wiresharkDissectBodyImpl(const WiresharkField* re
         {"TREE", wiresharkTreeStr()},
     };
 
+    if (parseObj.parseAvailableLengthLimit()) {
+        repl["LEN"] = std::to_string(wiresharkMaxFieldLength(refField));
+    }
+
     if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
         repl["SUFFIX"] = strings::genLittleEndianSuffixStr();
     }

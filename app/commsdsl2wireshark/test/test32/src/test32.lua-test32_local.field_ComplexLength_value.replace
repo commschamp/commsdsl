@@ -3,4 +3,4 @@ if short_val ~= 0xff then
     return short_val
 end
 
-return test32_local.field_ComplexLengthMembers_Long_value()
+return test32_local.field_ComplexLengthMembers_LongMembers_ActLong_value()

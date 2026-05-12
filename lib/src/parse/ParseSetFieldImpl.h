@@ -97,6 +97,7 @@ protected:
     virtual bool parseReuseImpl(const ParseFieldImpl& other) override;
     virtual bool parseImpl() override;
     virtual std::size_t parseMinLengthImpl() const override;
+    virtual std::size_t parseMaxLengthImpl() const override;
     virtual std::size_t parseBitLengthImpl() const override;
     virtual bool parseIsComparableToValueImpl(const std::string& val) const override;
     virtual bool parseIsComparableToFieldImpl(const ParseFieldImpl& field) const override;

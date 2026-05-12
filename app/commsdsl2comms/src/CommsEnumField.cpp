@@ -1220,6 +1220,10 @@ void CommsEnumField::commsAddLengthOptInternal(GenStringsList& opts) const
         return;
     }
 
+    if (obj.parseMinLength() != obj.parseMaxLength()) {
+        return;
+    }
+
     static const unsigned LengthMap[] = {
         /* Int8 */ 1,
         /* Uint8 */ 1,

@@ -1343,7 +1343,7 @@ std::string WiresharkField::wiresharkUnitNameString(commsdsl::parse::ParseUnits 
 std::string WiresharkField::wiresharkEmptyBufferCheckCode() const
 {
     static const std::string Templ =
-        "if offset == offset_limit then"
+        "if offset == offset_limit then\n"
         "    return #^#ERROR#$#, offset\n"
         "end"
         ;

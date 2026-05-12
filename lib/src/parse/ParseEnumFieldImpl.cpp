@@ -133,7 +133,9 @@ bool ParseEnumFieldImpl::parseImpl()
 
 std::size_t ParseEnumFieldImpl::parseMinLengthImpl() const
 {
-    if ((m_state.m_type == ParseType::Intvar) || (m_state.m_type == ParseType::Uintvar)) {
+    if ((m_state.m_type == ParseType::Intvar) ||
+        (m_state.m_type == ParseType::Uintvar) ||
+        (m_state.m_availableLengthLimit)) {
         return 1U;
     }
 
