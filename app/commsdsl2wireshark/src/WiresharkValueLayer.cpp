@@ -41,10 +41,15 @@ WiresharkValueLayer::WiresharkValueLayer(WiresharkGenerator& generator, ParseLay
 
 std::string WiresharkValueLayer::wiresharkDissectBodyImpl() const
 {
+    auto parseObj = genValueLayerParseObj();
+    if (parseObj.parsePseudo()) {
+        return wiresharkNextFuncCode();
+    }
+
     static const std::string Templ =
         "#^#FIELD#$#\n"
         "#^#INTERFACE_READ#$#\n"
-        "offset = next_offset\n"
+        "#^#OFFSET#$# = #^#NEXT_OFFSET#$#\n"
         "#^#NEXT#$#\n"
         ;
 
@@ -52,6 +57,8 @@ std::string WiresharkValueLayer::wiresharkDissectBodyImpl() const
         {"FIELD", wiresharkDissectFieldCode()},
         {"INTERFACE_READ", wiresharkInterfaceReadCodeInternal()},
         {"NEXT", wiresharkNextFuncCode()},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+        {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -64,11 +71,6 @@ bool WiresharkValueLayer::wiresharkIsInterfaceSupportedImpl(const WiresharkInter
 
 std::string WiresharkValueLayer::wiresharkInterfaceReadCodeInternal() const
 {
-    auto parseObj = genValueLayerParseObj();
-    if (parseObj.parsePseudo()) {
-        return strings::genEmptyString();
-    }
-
     static const std::string Templ =
         "local interface_tree = #^#TREE#$#:add(#^#PROTO#$#, #^#TVB#$#(#^#OFFSET#$#, #^#LIMIT#$# - #^#OFFSET#$#))\n"
         "interface_tree:set_hidden(true)\n"

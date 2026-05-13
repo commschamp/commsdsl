@@ -97,6 +97,26 @@ std::string Wireshark::wiresharkLocalNamespaceName(const WiresharkGenerator& gen
     return wiresharkProtocolObjName(generator) + "_local";
 }
 
+std::string Wireshark::wiresharkProtVersionGetFuncName(const WiresharkGenerator& generator)
+{
+    return wiresharkLocalNamespaceName(generator) + ".prot_version_get";
+}
+
+std::string Wireshark::wiresharkProtVersionSetFuncName(const WiresharkGenerator& generator)
+{
+    return wiresharkLocalNamespaceName(generator) + ".prot_version_set";
+}
+
+std::string Wireshark::wiresharkPinfoName(const WiresharkGenerator& generator)
+{
+    return wiresharkLocalNamespaceName(generator) + ".last_pinfo";
+}
+
+std::string Wireshark::wiresharkPacketIdFuncName(const WiresharkGenerator& generator)
+{
+    return wiresharkLocalNamespaceName(generator) + ".packet_id";
+}
+
 bool Wireshark::wiresharkWriteInternal() const
 {
     auto fileName = wiresharkFileName(m_wiresharkGenerator);
@@ -114,6 +134,8 @@ bool Wireshark::wiresharkWriteInternal() const
             "#^#GEN_COMMENT#$#\n"
             "#^#PROTOCOL#$#\n"
             "#^#LOCAL#$#\n"
+            "#^#PINFO#$#\n"
+            "#^#PROT_VERSION#$#\n"
             "#^#STATUS_CODE#$#\n"
             "#^#OPT_MODE#$#\n"
             "#^#FIELDS_REG#$#\n"
@@ -141,6 +163,8 @@ bool Wireshark::wiresharkWriteInternal() const
             {"EXTRACTORS_DECL", wiresharkExtractorsDeclInternal()},
             {"EXTRACTORS_REG", wiresharkExtractorsRegCodeInternal()},
             {"FIELD_VALUE_FUNC", wiresharkFieldValueFuncInternal()},
+            {"PROT_VERSION", wiresharkProtocolVersionDefInternal()},
+            {"PINFO", wiresharkPinfoDefInternal()},
         };
 
         auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
@@ -278,6 +302,7 @@ std::string Wireshark::wiresharkDissectFuncBodyInternal() const
         "end\n"
         "\n"
         "pinfo.cols.protocol = #^#NAME#$#.name\n"
+        "#^#PINFO#$# = pinfo\n"
         "\n"
         "local result = #^#SUCCESS#$#\n"
         "local next_offset = 0\n"
@@ -302,6 +327,7 @@ std::string Wireshark::wiresharkDissectFuncBodyInternal() const
         {"FRAMES", util::genStrListToString(elems, "\n", "")},
         {"SUCCESS", wiresharkStatusCodeStr(m_wiresharkGenerator, WiresharkStatusCode::Success)},
         {"NOT_ENOUGH_DATA", wiresharkStatusCodeStr(m_wiresharkGenerator, WiresharkStatusCode::NotEnoughData)},
+        {"PINFO", wiresharkPinfoName(m_wiresharkGenerator)},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -433,6 +459,59 @@ std::string Wireshark::wiresharkFieldValueFuncInternal() const
     util::GenReplacementMap repl = {
         {"NAME", wiresharkFieldValueFuncName(m_wiresharkGenerator)},
         {"MAP", wiresharkExtractorsMapName(m_wiresharkGenerator)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string Wireshark::wiresharkProtocolVersionDefInternal() const
+{
+    const std::string Templ =
+        "#^#LOCAL#$#.spec_version = #^#SPEC#$#\n"
+        "#^#LOCAL#$#.prot_version = {}\n"
+        "\n"
+        "function #^#GET_NAME#$#()\n"
+        "    local pkt_id = #^#PKT_ID#$#()\n"
+        "    local last_ver = #^#LOCAL#$#.prot_version[pkt_id]\n"
+        "    if last_ver ~= #^#NIL#$# then\n"
+        "        return last_ver\n"
+        "    end\n"
+        "\n"
+        "    return #^#LOCAL#$#.spec_version\n"
+        "end\n"
+        "\n"
+        "function #^#SET_NAME#$#(value)\n"
+        "    local pkt_id = #^#PKT_ID#$#()\n"
+        "    #^#LOCAL#$#.prot_version[pkt_id] = value\n"
+        "end\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"LOCAL", wiresharkLocalNamespaceName(m_wiresharkGenerator)},
+        {"SPEC", std::to_string(m_wiresharkGenerator.genProtocolSchema().genSchemaVersion())},
+        {"GET_NAME", wiresharkProtVersionGetFuncName(m_wiresharkGenerator)},
+        {"SET_NAME", wiresharkProtVersionSetFuncName(m_wiresharkGenerator)},
+        {"PKT_ID", wiresharkPacketIdFuncName(m_wiresharkGenerator)},
+        {"NIL", strings::genNilStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string Wireshark::wiresharkPinfoDefInternal() const
+{
+    const std::string Templ =
+        "#^#NAME#$# = #^#NIL#$#\n"
+        "\n"
+        "function #^#PKT_ID#$#()\n"
+        "    return tostring(#^#NAME#$#.src) .. \":\" .. tostring(#^#NAME#$#.src_port) .. \" -> \" .. tostring(#^#NAME#$#.dst) .. \":\" .. tostring(#^#NAME#$#.dst_port)\n"
+        "end\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkPinfoName(m_wiresharkGenerator)},
+        {"NIL", strings::genNilStr()},
+        {"PKT_ID", wiresharkPacketIdFuncName(m_wiresharkGenerator)},
     };
 
     return util::genProcessTemplate(Templ, repl);

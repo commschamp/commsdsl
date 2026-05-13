@@ -33,6 +33,9 @@ public:
     using GenElem = commsdsl::gen::GenElem;
 
     WiresharkSizeLayer(WiresharkGenerator& generator, ParseLayer parseObj, GenElem* parent);
+
+protected:
+    virtual std::string wiresharkDissectBodyImpl() const override;
 };
 
 } // namespace commsdsl2wireshark

@@ -53,6 +53,10 @@ public:
     static std::string wiresharkOptModeValsName(const WiresharkGenerator& generator);
     static std::string wiresharkFieldValueFuncName(const WiresharkGenerator& generator);
     static std::string wiresharkLocalNamespaceName(const WiresharkGenerator& generator);
+    static std::string wiresharkProtVersionGetFuncName(const WiresharkGenerator& generator);
+    static std::string wiresharkProtVersionSetFuncName(const WiresharkGenerator& generator);
+    static std::string wiresharkPinfoName(const WiresharkGenerator& generator);
+    static std::string wiresharkPacketIdFuncName(const WiresharkGenerator& generator);
 
 private:
     explicit Wireshark(const WiresharkGenerator& generator) : m_wiresharkGenerator(generator) {}
@@ -72,6 +76,8 @@ private:
     std::string wiresharkExtractorsDeclInternal() const;
     std::string wiresharkExtractorsRegCodeInternal() const;
     std::string wiresharkFieldValueFuncInternal() const;
+    std::string wiresharkProtocolVersionDefInternal() const;
+    std::string wiresharkPinfoDefInternal() const;
     static const std::string& wiresharkStatusCodeStrInternal(WiresharkStatusCode code);
     static const std::string& wiresharkOptModeStrInternal(WiresharkOptMode code);
 

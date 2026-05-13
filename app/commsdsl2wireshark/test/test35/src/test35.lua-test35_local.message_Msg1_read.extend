@@ -1,0 +1,9 @@
+
+function test35_local.message_Msg1_read(tvb, tree, offset, offset_limit)
+    local result, next_offset = test35_local.message_Msg1_readOrig(tvb, tree, offset, offset_limit)
+    if result == test35_local.StatusCode.SUCCESS then
+        test35_local.prot_version_set(test35_local.field_Version_value())
+    end
+
+    return result, next_offset
+end

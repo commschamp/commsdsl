@@ -15,7 +15,15 @@
 
 #include "WiresharkSizeLayer.h"
 
+#include "Wireshark.h"
+#include "WiresharkField.h"
 #include "WiresharkGenerator.h"
+
+#include "commsdsl/gen/util.h"
+
+#include <cassert>
+
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2wireshark
 {
@@ -24,6 +32,42 @@ WiresharkSizeLayer::WiresharkSizeLayer(WiresharkGenerator& generator, ParseLayer
     GenBase(generator, parseObj, parent),
     WiresharkBase(static_cast<GenBase&>(*this))
 {
+}
+
+std::string WiresharkSizeLayer::wiresharkDissectBodyImpl() const
+{
+    static const std::string Templ =
+        "#^#FIELD#$#\n"
+        "local next_limit = #^#NEXT_OFFSET#$# + #^#VALUE_FUNC#$#()\n"
+        "if #^#LIMIT#$# < next_limit then\n"
+        "    return #^#NOT_ENOUGH_DATA#$#, #^#OFFSET#$#\n"
+        "end\n"
+        "\n"
+        "#^#OFFSET#$# = #^#NEXT_OFFSET#$#\n"
+        "#^#LIMIT#$# = next_limit\n"
+        "#^#NEXT#$#\n"
+        "if #^#RESULT#$# == #^#NOT_ENOUGH_DATA#$# then\n"
+        "    return #^#MALFORMED#$#, #^#LIMIT#$#\n"
+        "end\n"
+        ;
+
+    auto* field = wiresharkField();
+    assert(field != nullptr);
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"FIELD", wiresharkDissectFieldCode()},
+        {"NEXT", wiresharkNextFuncCode()},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+        {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
+        {"VALUE_FUNC", field->wiresharkValueFuncName()},
+        {"NOT_ENOUGH_DATA", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::NotEnoughData)},
+        {"MALFORMED", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::MalformedPacket)},
+        {"RESULT", WiresharkField::wiresharkResultStr()},
+        {"LIMIT", WiresharkField::wiresharkOffsetLimitStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2wireshark

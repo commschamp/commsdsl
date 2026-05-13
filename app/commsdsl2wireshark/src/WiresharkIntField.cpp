@@ -361,16 +361,22 @@ std::string WiresharkIntField::wiresharkDefaultAssignmentsImpl(const WiresharkFi
         "#^#TREE#$#:add(#^#FIELD#$#, #^#TVB#$#(#^#OFFSET#$#, 0), #^#VAL#$#):set_hidden(true)\n"
         ;
 
-    auto val = parseObj.parseDefaultValue();
-    if ((val == 0) &&
-        (parseObj.parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Version)) {
-        val = genGenerator().genSchemaOf(*this).genSchemaVersion();
-    }
+    std::string valStr;
+    do {
+        auto val = parseObj.parseDefaultValue();
+        if ((val == 0) &&
+            (parseObj.parseSemanticType() == commsdsl::parse::ParseField::ParseSemanticType::Version)) {
 
-    auto valStr = std::to_string(val);
-    if ((val < 0) && genIsUnsignedType()) {
-        valStr = std::to_string(static_cast<std::uintmax_t>(val));
-    }
+            auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+            valStr = Wireshark::wiresharkProtVersionGetFuncName(wiresharkGenerator) + "()";
+            break;
+        }
+
+        valStr = std::to_string(val);
+        if ((val < 0) && genIsUnsignedType()) {
+            valStr = std::to_string(static_cast<std::uintmax_t>(val));
+        }
+    } while (false);
 
     util::GenReplacementMap repl = {
         {"TREE", wiresharkTreeStr()},
