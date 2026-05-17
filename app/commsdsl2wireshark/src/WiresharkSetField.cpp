@@ -238,6 +238,10 @@ std::string WiresharkSetField::wiresharkValueAccessStrImpl(const std::string& ac
         return WiresharkBase::wiresharkValueAccessStrImpl(std::string(), refField);
     }
 
+    if ((refField != nullptr) && (!refField->wiresharkIsBitfieldMember())) {
+        refField = nullptr;
+    }
+
     static const std::string Templ =
         "#^#VALUE_FUNC#$#(#^#NAME#$#)"
         ;

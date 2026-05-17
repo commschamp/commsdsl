@@ -51,7 +51,7 @@ protected:
     virtual bool genPrepareImpl() override;
     virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const override final;
 
-    ParseSyncLayer genSyncLayerDslObj() const;
+    ParseSyncLayer genSyncLayerParseObj() const;
 
 private:
     std::unique_ptr<GenSyncLayerImpl> m_impl;

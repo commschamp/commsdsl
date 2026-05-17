@@ -18,6 +18,7 @@
             <int name="F2" type="uint8" />
         </optional>
     </message>
+
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />

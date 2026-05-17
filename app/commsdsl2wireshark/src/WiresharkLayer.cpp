@@ -160,6 +160,9 @@ std::string WiresharkLayer::wiresharkDissectFieldCode() const
 
     static const std::string Templ =
         "#^#RESULT#$#, #^#NEXT_OFFSET#$# = #^#NAME#$#(#^#TVB#$#, #^#TREE#$#, #^#OFFSET#$#, #^#LIMIT#$#)\n"
+        "if #^#RESULT#$# == #^#INVALID_MSG_DATA#$# then\n"
+        "    return #^#MALFORMED#$#, #^#NEXT_OFFSET#$#\n"
+        "end\n"
         "if #^#RESULT#$# ~= #^#SUCCESS#$# then\n"
         "    return #^#RESULT#$#, #^#NEXT_OFFSET#$#\n"
         "end\n"
@@ -169,6 +172,8 @@ std::string WiresharkLayer::wiresharkDissectFieldCode() const
     util::GenReplacementMap repl = {
         {"NAME", field->wiresharkDissectName()},
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
+        {"INVALID_MSG_DATA", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::InvalidMsgData)},
+        {"MALFORMED", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::MalformedPacket)},
         {"RESULT", WiresharkField::wiresharkResultStr()},
         {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
         {"TVB", WiresharkField::wiresharkTvbStr()},

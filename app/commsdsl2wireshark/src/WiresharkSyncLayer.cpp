@@ -15,7 +15,16 @@
 
 #include "WiresharkSyncLayer.h"
 
+#include "WiresharkField.h"
 #include "WiresharkGenerator.h"
+
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+#include <cassert>
+
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2wireshark
 {
@@ -24,6 +33,46 @@ WiresharkSyncLayer::WiresharkSyncLayer(WiresharkGenerator& generator, ParseLayer
     GenBase(generator, parseObj, parent),
     WiresharkBase(static_cast<GenBase&>(*this))
 {
+}
+
+std::string WiresharkSyncLayer::wiresharkDissectBodyImpl() const
+{
+    auto parseObj = genSyncLayerParseObj();
+    if (parseObj.parseIsAfterPayload()) {
+        return wiresharkSuffixDissectCodeInternal();
+    }
+
+    static const std::string Templ =
+        "#^#FIELD#$#\n"
+        "#^#OFFSET#$# = #^#NEXT_OFFSET#$#\n"
+        "#^#NEXT#$#\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"FIELD", wiresharkDissectFieldCodeInternal()},
+        {"NEXT", wiresharkNextFuncCode()},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+        {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkSyncLayer::wiresharkSuffixDissectCodeInternal() const
+{
+    // TODO
+    return "-- TODO: implement sync suffix";
+}
+
+std::string WiresharkSyncLayer::wiresharkDissectFieldCodeInternal() const
+{
+    auto parseObj = genSyncLayerParseObj();
+    if (!parseObj.parseSeekField()) {
+        return WiresharkLayer::wiresharkDissectFieldCode();
+    }
+
+    // TODO
+    return "-- TODO: implement seeked sync suffix";
 }
 
 } // namespace commsdsl2wireshark

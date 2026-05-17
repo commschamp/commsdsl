@@ -68,7 +68,7 @@ CommsSyncLayer::CommsIncludesList CommsSyncLayer::commsDefIncludesImpl() const
         "comms/frame/SyncPrefixLayer.h"
     };
 
-    auto parseObj = genSyncLayerDslObj();
+    auto parseObj = genSyncLayerParseObj();
 
     if (parseObj.parseIsAfterPayload()) {
         result.push_back("comms/frame/SyncSuffixLayer.h");
@@ -104,7 +104,7 @@ std::string CommsSyncLayer::commsDefBaseTypeImpl(const std::string& prevName) co
         "    #^#OPTS#$#\n"
         ">";
 
-    auto parseObj = genSyncLayerDslObj();
+    auto parseObj = genSyncLayerParseObj();
     std::string type = "Prefix";
     if (parseObj.parseIsAfterPayload()) {
         type = "Suffix";
