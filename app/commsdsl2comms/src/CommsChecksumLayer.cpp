@@ -47,7 +47,7 @@ bool CommsChecksumLayer::genPrepareImpl()
 CommsChecksumLayer::CommsIncludesList CommsChecksumLayer::commsDefIncludesImpl() const
 {
     CommsIncludesList result;
-    auto obj = genChecksumDslObj();
+    auto obj = genChecksumParseObj();
     if (!obj.parseFromLayer().empty()) {
         assert(obj.parseUntilLayer().empty());
         result.push_back("comms/frame/ChecksumLayer.h");
@@ -108,7 +108,7 @@ std::string CommsChecksumLayer::commsDefBaseTypeImpl(const std::string& prevName
         repl["COMMA"] = std::string(",");
     }
 
-    if (!genChecksumDslObj().parseUntilLayer().empty()) {
+    if (!genChecksumParseObj().parseUntilLayer().empty()) {
         repl["PREFIX_VAR"] = "Prefix";
     }
 
@@ -130,7 +130,7 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
     static_assert(ClassMapSize == static_cast<std::size_t>(commsdsl::parse::ParseChecksumLayer::ParseAlg::NumOfValues),
             "Invalid map");
 
-    auto obj = genChecksumDslObj();
+    auto obj = genChecksumParseObj();
     auto alg = obj.parseAlg();
     auto idx = static_cast<std::size_t>(alg);
 
@@ -171,7 +171,7 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
 std::string CommsChecksumLayer::commsDefExtraOptInternal() const
 {
     std::string result;
-    if (genChecksumDslObj().parseVerifyBeforeRead()) {
+    if (genChecksumParseObj().parseVerifyBeforeRead()) {
         result = "comms::option::def::FrameLayerVerifyBeforeRead";
     }
     return result;

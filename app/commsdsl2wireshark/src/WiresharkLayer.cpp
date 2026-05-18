@@ -135,6 +135,11 @@ bool WiresharkLayer::wiresharkNeedsOptionalModeDefinition() const
     return WiresharkField::wiresharkCast(field)->wiresharkNeedsOptionalModeDefinition();
 }
 
+bool WiresharkLayer::wiresharkNeedsCrcCalc() const
+{
+    return wiresharkNeedsCrcCalcImpl();
+}
+
 std::string WiresharkLayer::wiresharkDissectBodyImpl() const
 {
     return "-- TODO: implement";
@@ -148,6 +153,11 @@ bool WiresharkLayer::wiresharkIsInterfaceSupportedImpl([[maybe_unused]] const Wi
 std::string WiresharkLayer::wiresharkExtraDissectCodeImpl() const
 {
     return strings::genEmptyString();
+}
+
+bool WiresharkLayer::wiresharkNeedsCrcCalcImpl() const
+{
+    return false;
 }
 
 std::string WiresharkLayer::wiresharkDissectFieldCode() const

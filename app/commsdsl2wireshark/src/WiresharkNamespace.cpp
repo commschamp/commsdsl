@@ -265,4 +265,37 @@ bool WiresharkNamespace::wiresharkNeedsOptionalModeDefinition() const
     return false;
 }
 
+bool WiresharkNamespace::wiresharkNeedsCrcCalc() const
+{
+    auto& namespaces = genNamespaces();
+    bool inNamespaces =
+        std::any_of(
+            namespaces.begin(), namespaces.end(),
+            [](auto& nPtr)
+            {
+                assert(nPtr);
+                return WiresharkNamespace::wiresharkCast(nPtr.get())->wiresharkNeedsCrcCalc();
+            });
+
+    if (inNamespaces) {
+        return true;
+    }
+
+    auto& frames = genFrames();
+    bool inFrames =
+        std::any_of(
+            frames.begin(), frames.end(),
+            [](auto& fPtr)
+            {
+                assert(fPtr);
+                return WiresharkFrame::wiresharkCast(*fPtr).wiresharkNeedsCrcCalc();
+            });
+
+    if (inFrames) {
+        return true;
+    }
+
+    return false;
+}
+
 } // namespace commsdsl2wireshark

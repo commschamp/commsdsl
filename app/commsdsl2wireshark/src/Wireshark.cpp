@@ -117,6 +117,11 @@ std::string Wireshark::wiresharkPacketIdFuncName(const WiresharkGenerator& gener
     return wiresharkLocalNamespaceName(generator) + ".packet_id";
 }
 
+std::string Wireshark::wiresharkCreateCrcFuncName(const WiresharkGenerator& generator)
+{
+    return wiresharkLocalNamespaceName(generator) + ".create_crc_calc";
+}
+
 bool Wireshark::wiresharkWriteInternal() const
 {
     auto fileName = wiresharkFileName(m_wiresharkGenerator);
@@ -138,6 +143,7 @@ bool Wireshark::wiresharkWriteInternal() const
             "#^#PROT_VERSION#$#\n"
             "#^#STATUS_CODE#$#\n"
             "#^#OPT_MODE#$#\n"
+            "#^#CRC#$#\n"
             "#^#FIELDS_REG#$#\n"
             "#^#EXTRACTORS_DECL#$#\n"
             "#^#FIELD_VALUE_FUNC#$#\n"
@@ -165,6 +171,7 @@ bool Wireshark::wiresharkWriteInternal() const
             {"FIELD_VALUE_FUNC", wiresharkFieldValueFuncInternal()},
             {"PROT_VERSION", wiresharkProtocolVersionDefInternal()},
             {"PINFO", wiresharkPinfoDefInternal()},
+            {"CRC", wiresharkCrcCodeDefInternal()},
         };
 
         auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
@@ -517,6 +524,110 @@ std::string Wireshark::wiresharkPinfoDefInternal() const
     return util::genProcessTemplate(Templ, repl);
 }
 
+std::string Wireshark::wiresharkCrcCodeDefInternal() const
+{
+    auto& schemas = m_wiresharkGenerator.genSchemas();
+    bool hasCrc =
+        std::any_of(
+            schemas.begin(), schemas.end(),
+            [](auto& sPtr)
+            {
+                return WiresharkSchema::wiresharkCast(*sPtr).wiresharkNeedsCrcCalc();
+            });
+
+    if (!hasCrc) {
+        return strings::genEmptyString();
+    }
+
+    const std::string Templ =
+        "function #^#NAME#$#(width, poly, init, ref_in, ref_out, xor_out)\n"
+        "    local function reflect(val, w)\n"
+        "        local res = 0\n"
+        "        for i = 0, w - 1 do\n"
+        "            if bit32.band(bit32.rshift(val, i), 1) == 1 then\n"
+        "                res = bit32.bor(res, bit32.lshift(1, w - 1 - i))\n"
+        "            end\n"
+        "        end\n"
+        "        return res\n"
+        "    end\n"
+        "\n"
+        "    local tbl = {}\n"
+        "    local mask = (width == 32) and 0xFFFFFFFF or (bit32.lshift(1, width) - 1)\n"
+        "    local msb_mask = bit32.lshift(1, width - 1)\n"
+        "\n"
+        "    -- Precompute the 256-value lookup table for this specific CRC profile\n"
+        "    for i = 0, 255 do\n"
+        "        local crc\n"
+        "        if ref_in then\n"
+        "            crc = i\n"
+        "            local ref_poly = reflect(poly, width)\n"
+        "            for j = 1, 8 do\n"
+        "                if bit32.band(crc, 1) == 1 then\n"
+        "                    crc = bit32.bxor(bit32.rshift(crc, 1), ref_poly)\n"
+        "                else\n"
+        "                    crc = bit32.rshift(crc, 1)\n"
+        "                end\n"
+        "            end\n"
+        "        else\n"
+        "            crc = bit32.lshift(i, width - 8)\n"
+        "            for j = 1, 8 do\n"
+        "                if bit32.band(crc, msb_mask) ~= 0 then\n"
+        "                    crc = bit32.bxor(bit32.lshift(crc, 1), poly)\n"
+        "                else\n"
+        "                    crc = bit32.lshift(crc, 1)\n"
+        "                end\n"
+        "            end\n"
+        "        end\n"
+        "        tbl[i] = bit32.band(crc, mask)\n"
+        "    end\n"
+        "\n"
+        "    -- Return the actual high-speed checksum function\n"
+        "    -- Accepts tvb, offset, and offset_limit (exclusive end index)\n"
+        "    return function(tvb, offset, offset_limit)\n"
+        "        local crc = init\n"
+        "        local length = offset_limit - offset\n"
+        "        if length <= 0 then\n"
+        "            return init\n"
+        "        end\n"
+        "\n"
+        "        -- Extracting raw bytes once is massively faster than calling tvb:range(i, 1) in a loop\n"
+        "        local data = tvb:range(offset, length):raw()\n"
+        "\n"
+        "        for i = 1, #data do\n"
+        "            local byte = data:byte(i)\n"
+        "            if ref_in then\n"
+        "                local idx = bit32.band(bit32.bxor(crc, byte), 0xFF)\n"
+        "                crc = bit32.bxor(bit32.rshift(crc, 8), tbl[idx])\n"
+        "            else\n"
+        "                local idx = bit32.band(bit32.bxor(bit32.rshift(crc, width - 8), byte), 0xFF)\n"
+        "                crc = bit32.bxor(bit32.lshift(crc, 8), tbl[idx])\n"
+        "            end\n"
+        "            crc = bit32.band(crc, mask)\n"
+        "        end\n"
+        "\n"
+        "        -- If output reflection differs from input reflection, we must reflect it\n"
+        "        if ref_out ~= ref_in then\n"
+        "            crc = reflect(crc, width)\n"
+        "        end\n"
+        "\n"
+        "        crc = bit32.bxor(crc, xor_out)\n"
+        "\n"
+        "        -- Force unsigned 32-bit (for environments where bitwise ops return signed 32-bit)\n"
+        "        if crc < 0 then\n"
+        "            crc = crc + 4294967296\n"
+        "        end\n"
+        "\n"
+        "        return bit32.band(crc, mask)\n"
+        "    end\n"
+        "end\n";
+
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkCreateCrcFuncName(m_wiresharkGenerator)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
 const std::string& Wireshark::wiresharkStatusCodeStrInternal(WiresharkStatusCode code)
 {
     static const std::string Map[] = {
@@ -525,7 +636,9 @@ const std::string& Wireshark::wiresharkStatusCodeStrInternal(WiresharkStatusCode
         /* MalformedData */ "MALFORMED_PACKET",
         /* InvalidMsgId */ "INVALID_MSG_ID",
         /* InvalidMsgData */ "INVALID_MSG_DATA",
+        /* ChecksumError */ "CHECKSUM_ERROR",
         /* CodegenError */ "CODEGEN_ERROR",
+        /* InvalidFrame */ "INVALID_FRAME",
     };
     static const std::size_t MapSize = std::extent_v<decltype(Map)>;
     static_assert(MapSize == static_cast<unsigned>(WiresharkStatusCode::ValuesLimit));

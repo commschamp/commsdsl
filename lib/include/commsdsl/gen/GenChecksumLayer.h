@@ -44,7 +44,7 @@ public:
 protected:
     virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const override final;
 
-    ParseChecksumLayer genChecksumDslObj() const;
+    ParseChecksumLayer genChecksumParseObj() const;
 };
 
 } // namespace gen

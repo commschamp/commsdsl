@@ -16,7 +16,9 @@
 #include "WiresharkIntField.h"
 
 #include "Wireshark.h"
+#include "WiresharkCustomLayer.h"
 #include "WiresharkGenerator.h"
+#include "WiresharkLayer.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -571,6 +573,10 @@ std::string WiresharkIntField::wiresharkDisplayOffsetCodeInternal(bool& hasVal) 
         return strings::genEmptyString();
     }
 
+    if (wiresharkIsLengthFieldInternal()) {
+        return strings::genEmptyString();
+    }
+
     hasVal = true;
     static const std::string Templ =
         "#^#VAL#$# = #^#VAL#$# + (#^#DISP_OFFSET#$#)";
@@ -595,6 +601,35 @@ std::string WiresharkIntField::wiresharkValToNumberCodeInternal() const
     };
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+bool WiresharkIntField::wiresharkIsLengthFieldInternal() const
+{
+    auto parseObj = genIntFieldParseObj();
+    if (parseObj.parseSemanticType() == ParseField::ParseSemanticType::Length) {
+        return true;
+    }
+
+    const auto* parentObj = genGetParent();
+    if (parentObj->genElemType() != GenElem::GenType_Layer) {
+        return false;
+    }
+
+    const auto* genLayer = static_cast<const commsdsl::gen::GenLayer*>(parentObj);
+    auto parseLayer = genLayer->genParseObj();
+    auto kind = parseLayer.parseKind();
+
+    using ParseLayerKind = commsdsl::parse::ParseLayer::ParseKind;
+    if (kind == ParseLayerKind::Size) {
+        return true;
+    }
+
+    if (kind != ParseLayerKind::Custom) {
+        return false;
+    }
+
+    commsdsl::parse::ParseCustomLayer customLayer(parseLayer);
+    return customLayer.parseSemanticLayerType() == ParseLayerKind::Size;
 }
 
 } // namespace commsdsl2wireshark

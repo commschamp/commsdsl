@@ -62,6 +62,7 @@ private:
     std::string wiresharkScalingCodeInternal(bool& hasVal) const;
     std::string wiresharkDisplayOffsetCodeInternal(bool& hasVal) const;
     std::string wiresharkValToNumberCodeInternal() const;
+    bool wiresharkIsLengthFieldInternal() const;
 };
 
 } // namespace commsdsl2wireshark

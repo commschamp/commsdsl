@@ -53,7 +53,7 @@ bool GenChecksumLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool&
         return false;
     }
 
-    auto obj = genChecksumDslObj();
+    auto obj = genChecksumParseObj();
     auto& untilStr = obj.parseUntilLayer();
     if (!untilStr.empty()) {
         assert(obj.parseFromLayer().empty());
@@ -120,7 +120,7 @@ bool GenChecksumLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool&
     return genAdjustSuffixLayersOrder(layers, success);
 }
 
-GenChecksumLayer::ParseChecksumLayer GenChecksumLayer::genChecksumDslObj() const
+GenChecksumLayer::ParseChecksumLayer GenChecksumLayer::genChecksumParseObj() const
 {
     return ParseChecksumLayer(genParseObj());
 }

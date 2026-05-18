@@ -51,11 +51,13 @@ public:
 
     bool wiresharkIsInterfaceSupported(const WiresharkInterface& iFace) const;
     bool wiresharkNeedsOptionalModeDefinition() const;
+    bool wiresharkNeedsCrcCalc() const;
 
 protected:
     virtual std::string wiresharkDissectBodyImpl() const;
     virtual bool wiresharkIsInterfaceSupportedImpl(const WiresharkInterface& iFace) const;
     virtual std::string wiresharkExtraDissectCodeImpl() const;
+    virtual bool wiresharkNeedsCrcCalcImpl() const;
 
     std::string wiresharkDissectFieldCode() const;
     std::string wiresharkNextFuncCode() const;

@@ -78,4 +78,17 @@ bool WiresharkSchema::wiresharkNeedsOptionalModeDefinition() const
             });
 }
 
+bool WiresharkSchema::wiresharkNeedsCrcCalc() const
+{
+    auto& namespaces = genNamespaces();
+    return
+        std::any_of(
+            namespaces.begin(), namespaces.end(),
+            [](auto& nPtr)
+            {
+                assert(nPtr);
+                return WiresharkNamespace::wiresharkCast(nPtr.get())->wiresharkNeedsCrcCalc();
+            });
+}
+
 } // namespace commsdsl2wireshark

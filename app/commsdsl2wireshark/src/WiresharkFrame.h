@@ -51,6 +51,7 @@ public:
     std::string wiresharkDissectCode() const;
     std::string wiresharkExtractorsRegCode() const;
     bool wiresharkNeedsOptionalModeDefinition() const;
+    bool wiresharkNeedsCrcCalc() const;
     bool wiresharkValidFrame() const;
 
 protected:
@@ -62,6 +63,8 @@ private:
     const WiresharkInterface* wiresharkInterfaceInternal() const;
     std::string wiresharkLayerFuncsListInternal() const;
     std::string wiresharkLayerFuncsListNameInternal() const;
+    std::string wiresharkRetvalMapDefInternal() const;
+    std::string wiresharkRetvalMapNameInternal() const;
 
     WiresharkLayersAccessList m_wiresharkLayers;
     bool m_validFrame = false;

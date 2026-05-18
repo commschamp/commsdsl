@@ -33,6 +33,23 @@ public:
     using GenElem = commsdsl::gen::GenElem;
 
     WiresharkChecksumLayer(WiresharkGenerator& generator, ParseLayer parseObj, GenElem* parent);
+
+protected:
+    virtual std::string wiresharkDissectBodyImpl() const override;
+    virtual std::string wiresharkExtraDissectCodeImpl() const override;
+    virtual bool wiresharkNeedsCrcCalcImpl() const override;
+
+private:
+    std::string wiresharkCustomChecksumExtraCodeInternal() const;
+    std::string wiresharkSumChecksumExtraCodeInternal() const;
+    std::string wiresharkCrcCcittChecksumExtraCodeInternal() const;
+    std::string wiresharkCrc16ChecksumExtraCodeInternal() const;
+    std::string wiresharkCrc32ChecksumExtraCodeInternal() const;
+    std::string wiresharkXorChecksumExtraCodeInternal() const;
+    std::string wiresharkChecksumFuncNameInternal() const;
+    std::string wiresharkPrefixDissectBodyInternal() const;
+    std::string wiresharkSuffixDissectBodyInternal() const;
+    std::string wiresharkSuffixVerifyFirstDissectBodyInternal() const;
 };
 
 } // namespace commsdsl2wireshark
