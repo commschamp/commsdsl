@@ -185,6 +185,19 @@ std::string WiresharkOptionalField::wiresharkSizeAccessStrImpl(const std::string
     return m_wiresharkField->wiresharkValueAccessStr(splitAccStr.second);
 }
 
+std::string WiresharkOptionalField::wiresharkCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+{
+    if (accStr.empty()) {
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
+        assert(Should_not_happen);
+        return WiresharkBase::wiresharkCompPrepValueStrImpl(accStr, value);
+    }
+
+    auto splitAccStr = wiresharkSplitAccStr(accStr);
+    assert(splitAccStr.first == m_wiresharkField->wiresharkGenField().genName());
+    return m_wiresharkField->wiresharkCompPrepValueStr(splitAccStr.second, value);
+}
+
 std::string WiresharkOptionalField::wiresharkExistsCheckStrImpl(const std::string& accStr, const WiresharkField* refField) const
 {
     const WiresharkField* f = this;

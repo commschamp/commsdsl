@@ -86,7 +86,7 @@ public:
 
     std::string wiresharkValueAccessStr(const std::string& accStr, const WiresharkField* refField = nullptr) const;
     std::string wiresharkSizeAccessStr(const std::string& accStr, const WiresharkField* refField = nullptr) const;
-    std::string wiresharkCompPrepValueStr(const std::string& value) const;
+    std::string wiresharkCompPrepValueStr(const std::string& accStr, const std::string& value) const;
     std::string wiresharkExistsCheckStr(const std::string& accStr, bool forceResult = true, const WiresharkField* refField = nullptr) const;
     std::string wiresharkVersionCheckStr(const WiresharkInterface& interface) const;
 
@@ -126,7 +126,7 @@ protected:
     virtual std::string wiresharkValueFuncBodyImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const;
     virtual std::string wiresharkSizeAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const;
-    virtual std::string wiresharkCompPrepValueStrImpl(const std::string& value) const;
+    virtual std::string wiresharkCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const;
     virtual std::string wiresharkExistsCheckStrImpl(const std::string& accStr, const WiresharkField* refField) const;
     virtual std::string wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const;
     virtual std::string wiresharkValidFuncCodeImpl(const WiresharkField* refField) const;

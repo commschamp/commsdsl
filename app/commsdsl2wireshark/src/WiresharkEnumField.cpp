@@ -170,8 +170,9 @@ std::string WiresharkEnumField::wiresharkValueAccessStrImpl(const std::string& a
     return std::to_string(iter->second.m_value);
 }
 
-std::string WiresharkEnumField::wiresharkCompPrepValueStrImpl(const std::string& value) const
+std::string WiresharkEnumField::wiresharkCompPrepValueStrImpl([[maybe_unused]] const std::string& accStr, const std::string& value) const
 {
+    assert(accStr.empty());
     return wiresharkProcessIntegralValue(value);
 }
 

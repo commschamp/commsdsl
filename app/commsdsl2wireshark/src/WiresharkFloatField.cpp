@@ -212,8 +212,10 @@ std::string WiresharkFloatField::wiresharkValueAccessStrImpl(const std::string& 
     return "tostring(math.huge)";
 }
 
-std::string WiresharkFloatField::wiresharkCompPrepValueStrImpl(const std::string& value) const
+std::string WiresharkFloatField::wiresharkCompPrepValueStrImpl([[maybe_unused]] const std::string& accStr, const std::string& value) const
 {
+    assert(accStr.empty());
+
     if (value == "nan") {
         return value;
     }

@@ -17,12 +17,14 @@
 
 #include "Wireshark.h"
 #include "WiresharkGenerator.h"
+#include "WiresharkNamespace.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
 #include <algorithm>
+#include <cassert>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
@@ -53,6 +55,7 @@ std::string WiresharkMessage::wiresharkDissectCode() const
     static const std::string Templ =
         "#^#FIELDS#$#\n"
         "#^#NAME_VAR#$#\n"
+        "#^#VALID_FUNC#$#\n"
         "#^#PREPEND#$#\n"
         "function #^#NAME#$##^#SUFFIX#$#(tvb, tree, offset, offset_limit)\n"
         "    #^#REPLACE#$#\n"
@@ -86,6 +89,7 @@ std::string WiresharkMessage::wiresharkDissectCode() const
         {"PREPEND", wiresharkGenerator.genReadCodeInjectCode(prependFileName, "Prepend here")},
         {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
         {"NAME_VAR", wiresharkNameDefInternal()},
+        {"VALID_FUNC", wiresharkValidFuncCodeInternal()},
     };
 
     if (!replaced) {
@@ -172,7 +176,9 @@ std::string WiresharkMessage::wiresharkDissectBodyInternal() const
         "local result = #^#SUCCESS#$#\n"
         "local next_offset = offset\n"
         "tree = tree:add(#^#PROTO#$#, #^#NAME#$#)\n"
+        "#^#READ_COND#$#\n"
         "#^#FIELDS#$#\n"
+        "#^#VALID#$#\n"
         "return result, next_offset\n"
         ;
 
@@ -181,6 +187,8 @@ std::string WiresharkMessage::wiresharkDissectBodyInternal() const
         {"FIELDS", util::genStrListToString(fields, "\n", "")},
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
         {"PROTO", Wireshark::wiresharkProtocolObjName(wiresharkGenerator)},
+        {"VALID", wiresharkDissectValidCheckCodeInternal()},
+        {"READ_COND", wiresharkDissectReadCondCheckCodeInternal()},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -216,6 +224,204 @@ std::string WiresharkMessage::wiresharkNameDefInternal() const
     }
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkMessage::wiresharkValidFuncNameInternal() const
+{
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    return wiresharkGenerator.wiresharkFuncNameFor(*this, strings::genValidSuffixStr());
+}
+
+std::string WiresharkMessage::wiresharkValidFuncCodeInternal() const
+{
+    if (wiresharkHasTrivialValidInternal()) {
+        return strings::genEmptyString();
+    }
+
+    static const std::string Templ =
+        "function #^#NAME#$##^#SUFFIX#$#()\n"
+        "    #^#REPLACE#$#\n"
+        "    #^#BODY#$#\n"
+        "end\n"
+        "#^#EXTEND#$#\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    auto relPath = wiresharkGenerator.wiresharkInputRelPathFor(*this, strings::genValidSuffixStr());
+    auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
+    auto extendFileName = relPath + strings::genExtendFileSuffixStr();
+
+    bool replaced = false;
+    bool extended = false;
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkValidFuncNameInternal()},
+        {"REPLACE", wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &replaced)},
+        {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
+    };
+
+    if (!replaced) {
+        repl["BODY"] = wiresharkValidFuncBodyInternal();
+    }
+
+    if (extended) {
+        repl["SUFFIX"] = strings::genOrigSuffixStr();
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkMessage::wiresharkValidFuncBodyInternal() const
+{
+    util::GenStringsList fields;
+    for (auto* f : m_wiresharkFields) {
+        if (f->wiresharkHasTrivialValid()) {
+            continue;
+        }
+
+        static const std::string FieldTempl =
+            "result, _ = #^#FUNC#$#(#^#FIELD#$#)\n"
+            "if not result then\n"
+            "    return false, false\n"
+            "end\n"
+            ;
+
+        util::GenReplacementMap fieldRepl = {
+            {"FUNC", f->wiresharkValidFuncName()},
+            {"FIELD", f->wiresharkFieldObjName()},
+        };
+
+        fields.push_back(util::genProcessTemplate(FieldTempl, fieldRepl));
+    }
+
+    static const std::string Templ =
+        "local #^#RESULT#$# = true\n"
+        "#^#FIELDS#$#\n"
+        "#^#COND#$#\n"
+        "return true\n"
+        ;
+
+    auto parseObj = genParseObj();
+    auto cond = parseObj.parseValidCond();
+
+    util::GenReplacementMap repl = {
+        {"FIELDS", util::genStrListToString(fields, "\n", "")},
+        {"RESULT", WiresharkField::wiresharkResultStr()},
+    };
+
+    if (cond.parseValid()) {
+        static const std::string CondTempl =
+            "#^#RESULT#$# =\n"
+            "    #^#VALID#$#\n"
+            "\n"
+            "if not #^#RESULT#$# then\n"
+            "    return false, true\n"
+            "end\n"
+            ;
+
+        auto* ns = genParentNamespace();
+        assert(ns != nullptr);
+        auto* iFace = WiresharkNamespace::wiresharkCast(ns)->wiresharkInterface();
+        assert(iFace != nullptr);
+
+        auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+        util::GenReplacementMap condRepl = {
+            {"VALID", WiresharkField::wiresharkDslCondToString(wiresharkGenerator, m_wiresharkFields, *iFace, cond)},
+            {"RESULT", WiresharkField::wiresharkResultStr()},
+        };
+
+        repl["COND"] = util::genProcessTemplate(CondTempl, condRepl);
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkMessage::wiresharkDissectValidCheckCodeInternal() const
+{
+    if (wiresharkHasTrivialValidInternal()) {
+        return strings::genEmptyString();
+    }
+
+    static const std::string Templ =
+        "local valid, print_warn = #^#VALID_FUNC#$#()\n"
+        "if not valid then\n"
+        "    #^#CODE#$#\n"
+        "end\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"VALID_FUNC", wiresharkValidFuncNameInternal()},
+        {"TREE", WiresharkField::wiresharkTreeStr()},
+        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::InvalidMsgData)},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+    };
+
+    if (genParseObj().parseIsFailOnInvalid()) {
+        static const std::string FailTempl =
+            //"#^#TREE#$#:set_hidden(true)\n"
+            "return #^#ERROR#$#, #^#OFFSET#$#\n"
+            ;
+
+        repl["CODE"] = util::genProcessTemplate(FailTempl, repl);
+    }
+    else {
+        static const std::string FailTempl =
+            "if print_warn then\n"
+            "    #^#TREE#$#:add_expert_info(PI_PROTOCOL, PI_WARN, \"Invalid message contents\")\n"
+            "end"
+            ;
+        repl["CODE"] = util::genProcessTemplate(FailTempl, repl);
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkMessage::wiresharkDissectReadCondCheckCodeInternal() const
+{
+    auto parseObj = genParseObj();
+    auto readCond = parseObj.parseReadCond();
+    if (!readCond.parseValid()) {
+        return strings::genEmptyString();
+    }
+
+    static const std::string Templ =
+        "local read_valid = \n"
+        "    #^#CONDS#$#\n"
+        "\n"
+        "if not read_valid then\n"
+        "    return #^#ERROR#$#, #^#OFFSET#$#\n"
+        "end\n"
+        ;
+
+    auto* ns = genParentNamespace();
+    assert(ns != nullptr);
+    auto* iFace = WiresharkNamespace::wiresharkCast(ns)->wiresharkInterface();
+    assert(iFace != nullptr);
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"CONDS", WiresharkField::wiresharkDslCondToString(wiresharkGenerator, m_wiresharkFields, *iFace, readCond)},
+        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::InvalidMsgData)},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+bool WiresharkMessage::wiresharkHasTrivialValidInternal() const
+{
+    auto parseObj = genParseObj();
+    if (parseObj.parseValidCond().parseValid()) {
+        return false;
+    }
+
+    return
+        std::all_of(
+            m_wiresharkFields.begin(), m_wiresharkFields.end(),
+            [](auto* f)
+            {
+                return f->wiresharkHasTrivialValid();
+            });
 }
 
 } // namespace commsdsl2wireshark

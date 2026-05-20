@@ -58,6 +58,12 @@ private:
     std::string wiresharkDissectBodyInternal() const;
     std::string wiresharkMessageNameVarNameStr() const;
     std::string wiresharkNameDefInternal() const;
+    std::string wiresharkValidFuncNameInternal() const;
+    std::string wiresharkValidFuncCodeInternal() const;
+    std::string wiresharkValidFuncBodyInternal() const;
+    std::string wiresharkDissectValidCheckCodeInternal() const;
+    std::string wiresharkDissectReadCondCheckCodeInternal() const;
+    bool wiresharkHasTrivialValidInternal() const;
 
     WiresharkFieldsList m_wiresharkFields;
 };

@@ -288,8 +288,9 @@ std::string WiresharkSetField::wiresharkDefaultAssignmentsImpl(const WiresharkFi
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkSetField::wiresharkCompPrepValueStrImpl(const std::string& value) const
+std::string WiresharkSetField::wiresharkCompPrepValueStrImpl([[maybe_unused]] const std::string& accStr, const std::string& value) const
 {
+    assert(accStr.empty());
     return wiresharkProcessIntegralValue(value);
 }
 

@@ -476,9 +476,9 @@ std::string WiresharkField::wiresharkSizeAccessStr(const std::string& accStr, co
     return wiresharkSizeAccessStrImpl(accStr, refField);
 }
 
-std::string WiresharkField::wiresharkCompPrepValueStr(const std::string& value) const
+std::string WiresharkField::wiresharkCompPrepValueStr(const std::string& accStr, const std::string& value) const
 {
-    return wiresharkCompPrepValueStrImpl(value);
+    return wiresharkCompPrepValueStrImpl(accStr, value);
 }
 
 std::string WiresharkField::wiresharkExistsCheckStr(const std::string& accStr, bool forceResult, const WiresharkField* refField) const
@@ -996,8 +996,9 @@ std::string WiresharkField::wiresharkSizeAccessStrImpl(
     return '#' + wiresharkValueAccessStrImpl(accStr, refField);
 }
 
-std::string WiresharkField::wiresharkCompPrepValueStrImpl(const std::string& value) const
+std::string WiresharkField::wiresharkCompPrepValueStrImpl([[maybe_unused]] const std::string& accStr, const std::string& value) const
 {
+    assert(accStr.empty());
     return value;
 }
 
@@ -1677,7 +1678,7 @@ std::string WiresharkField::wiresharkDslCondToStringFieldValueCompInternal(
     const std::string& value,
     const WiresharkInterface& interface)
 {
-    auto valueStr = field->wiresharkCompPrepValueStr(value);
+    auto valueStr = field->wiresharkCompPrepValueStr(accStr, value);
     auto compStr = '(' + field->wiresharkValueAccessStr(accStr) + op + valueStr + ')';
     auto versionCheckStr = field->wiresharkVersionCheckStr(interface);
     auto existsCheckStr = field->wiresharkExistsCheckStr(strings::genEmptyString(), false);

@@ -205,9 +205,9 @@ std::string WiresharkDataField::wiresharkSizeAccessStrImpl(const std::string& ac
     return WiresharkBase::wiresharkValueAccessStrImpl(accStr, refField) + ":len()";
 }
 
-std::string WiresharkDataField::wiresharkCompPrepValueStrImpl(const std::string& value) const
+std::string WiresharkDataField::wiresharkCompPrepValueStrImpl([[maybe_unused]] const std::string& accStr, const std::string& value) const
 {
-    // TODO: test (remove spaces)
+    assert(accStr.empty());
     return '\"' + value + '\"';
 }
 

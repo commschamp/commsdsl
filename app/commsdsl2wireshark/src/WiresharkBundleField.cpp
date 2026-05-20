@@ -265,6 +265,21 @@ std::string WiresharkBundleField::wiresharkSizeAccessStrImpl(const std::string& 
     return memInfo.first->wiresharkSizeAccessStr(memInfo.second);
 }
 
+std::string WiresharkBundleField::wiresharkCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+{
+    if (accStr.empty()) {
+        return WiresharkBase::wiresharkCompPrepValueStrImpl(accStr, value);
+    }
+
+    auto memInfo = wiresharkSplitMemberAccStr(accStr, m_wiresharkFields);
+    if (memInfo.first == nullptr) {
+        genGenerator().genLogger().genError("BUG: Unexpected access string \"" + accStr + "\" for " + genParseObj().parseInnerRef());
+        return WiresharkBase::wiresharkCompPrepValueStrImpl(accStr, value);
+    }
+
+    return memInfo.first->wiresharkCompPrepValueStr(memInfo.second, value);
+}
+
 std::string WiresharkBundleField::wiresharkExistsCheckStrImpl(const std::string& accStr, const WiresharkField* refField) const
 {
     if (accStr.empty()) {

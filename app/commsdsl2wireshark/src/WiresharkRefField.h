@@ -50,7 +50,7 @@ protected:
     virtual std::string wiresharkValueFuncBodyImpl(const WiresharkField* refField) const override;
     virtual std::string wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
     virtual std::string wiresharkSizeAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
-    virtual std::string wiresharkCompPrepValueStrImpl(const std::string& value) const override;
+    virtual std::string wiresharkCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
     virtual std::string wiresharkExistsCheckStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
     virtual std::string wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const override;
     virtual bool wiresharkHasTrivialValidImpl() const override;

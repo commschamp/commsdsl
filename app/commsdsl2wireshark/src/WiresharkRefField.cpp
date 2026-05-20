@@ -267,10 +267,10 @@ std::string WiresharkRefField::wiresharkSizeAccessStrImpl(const std::string& acc
     return m_wiresharkField->wiresharkSizeAccessStr(accStr, refField);
 }
 
-std::string WiresharkRefField::wiresharkCompPrepValueStrImpl(const std::string& value) const
+std::string WiresharkRefField::wiresharkCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
 {
     assert(m_wiresharkField != nullptr);
-    return m_wiresharkField->wiresharkCompPrepValueStr(value);
+    return m_wiresharkField->wiresharkCompPrepValueStr(accStr, value);
 }
 
 std::string WiresharkRefField::wiresharkExistsCheckStrImpl(const std::string& accStr, const WiresharkField* refField) const

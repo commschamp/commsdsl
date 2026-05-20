@@ -195,8 +195,9 @@ std::string WiresharkStringField::wiresharkValidFuncBodyImpl([[maybe_unused]] co
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkStringField::wiresharkCompPrepValueStrImpl(const std::string& value) const
+std::string WiresharkStringField::wiresharkCompPrepValueStrImpl([[maybe_unused]] const std::string& accStr, const std::string& value) const
 {
+    assert(accStr.empty());
     std::string valueTmp = value;
     do {
         if (value.empty()) {
