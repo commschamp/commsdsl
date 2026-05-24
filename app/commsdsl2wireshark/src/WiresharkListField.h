@@ -65,6 +65,7 @@ private:
     std::string wiresharkCountPrefixDissectInternal() const;
     std::string wiresharkLengthPrefixDissectInternal() const;
     std::string wiresharkTermSuffixDissectInternal() const;
+    std::string wiresharkUnboundDissectInternal() const;
     std::string wiresharkElemLimitCodeInternal() const;
 
     std::vector<WiresharkField*> m_wiresharkFields;

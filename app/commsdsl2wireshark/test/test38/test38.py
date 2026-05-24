@@ -1,5 +1,3 @@
-from functools import reduce
-import operator
 import sys
 
 from commsdsl_pcap_gen import *

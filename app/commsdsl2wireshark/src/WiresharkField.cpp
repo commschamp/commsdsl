@@ -229,6 +229,11 @@ std::size_t WiresharkField::wiresharkMinFieldLength(const WiresharkField* refFie
     }
 
     auto parseObj = refField->wiresharkGenField().genParseObj();
+
+    if (parseObj.parseIsPseudo()) {
+        return 0U;
+    }
+
     auto len = parseObj.parseMinLength();
     auto* bitfieldParent = refField->wiresharkParentBitfield();
     if (bitfieldParent == nullptr) {

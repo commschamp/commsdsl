@@ -207,7 +207,7 @@ std::string WiresharkIntField::wiresharkDissectBodyImpl(const WiresharkField* re
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     auto parseObj = genIntFieldParseObj();
-    bool hasVal = !wiresharkHasTrivialValidImpl();
+    bool hasVal = (!wiresharkHasTrivialValidImpl()) || parseObj.parseIsPseudo();
     util::GenReplacementMap repl = {
         {"LEN", std::to_string(wiresharkMinFieldLength(refField))},
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
@@ -467,6 +467,20 @@ std::string WiresharkIntField::wiresharkFieldAsFloatRegistrationInternal(const W
 std::string WiresharkIntField::wiresharkValDeclCodeInternal() const
 {
     auto parseObj = genIntFieldParseObj();
+
+    if (parseObj.parseIsPseudo()) {
+        static const std::string Templ =
+            "local #^#VAL#$# = #^#VALUE#$#\n"
+            ;
+
+        util::GenReplacementMap repl = {
+            {"VAL", wiresharkValStr()},
+            {"VALUE", std::to_string(parseObj.parseDefaultValue())},
+        };
+
+        return util::genProcessTemplate(Templ, repl);
+    }
+
     auto type = parseObj.parseType();
     if (genIsVarLengthType(type)) {
         static const std::string Templ =

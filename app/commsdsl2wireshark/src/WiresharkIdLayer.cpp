@@ -43,9 +43,9 @@ std::string WiresharkIdLayer::wiresharkDissectBodyImpl() const
 {
     static const std::string Templ =
         "#^#FIELD#$#\n"
-        "local id = tvb(offset, next_offset - offset):#^#VALUE#$#\n"
+        "local id = #^#VALUE_FUNC#$#()\n"
         "local msg = #^#MAP#$#[id]\n"
-        "offset = next_offset\n"
+        "#^#OFFSET#$# = #^#NEXT_OFFSET#$#\n"
         "#^#NEXT#$#\n"
         ;
 
@@ -54,9 +54,11 @@ std::string WiresharkIdLayer::wiresharkDissectBodyImpl() const
 
     util::GenReplacementMap repl = {
         {"FIELD", wiresharkDissectFieldCode()},
-        {"VALUE", field->wiresharkTvbRangeAccess()},
         {"NEXT", wiresharkNextFuncCode()},
         {"MAP", wiresharkMsgMapNameInternal()},
+        {"VALUE_FUNC", field->wiresharkValueFuncName()},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+        {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
     };
 
     return util::genProcessTemplate(Templ, repl);

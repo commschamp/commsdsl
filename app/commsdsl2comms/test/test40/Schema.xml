@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test40"
-        id="1"
-        endian="big">
+<schema name="test40" endian="big">
     <message name="Msg1" id="1">
         <int name="Time_ns" type="uint8" units="ns" />
         <int name="Time_us" type="uint8" units="us" />

@@ -225,7 +225,7 @@ std::string WiresharkListField::wiresharkDissectBodyImpl([[maybe_unused]] const 
             break;
         }
 
-        repl["READ"] = "-- TODO: implement";
+        repl["READ"] = wiresharkUnboundDissectInternal();
     } while (false);
 
     return util::genProcessTemplate(Templ, repl);
@@ -549,6 +549,23 @@ std::string WiresharkListField::wiresharkTermSuffixDissectInternal() const
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
         {"READ_ELEM", wiresharkDissectElemCodeInternal()},
         {"PROTO", Wireshark::wiresharkProtocolObjName(wiresharkGenerator)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkListField::wiresharkUnboundDissectInternal() const
+{
+    static const std::string Templ =
+        "while (#^#NEXT_OFFSET#$# < #^#LIMIT#$#) do\n"
+        "    #^#READ_ELEM#$#\n"
+        "end\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"LIMIT", wiresharkOffsetLimitStr()},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+        {"READ_ELEM", wiresharkDissectElemCodeInternal()},
     };
 
     return util::genProcessTemplate(Templ, repl);
