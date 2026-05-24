@@ -19,6 +19,8 @@
 
 #include "commsdsl/gen/GenCustomLayer.h"
 
+#include <string>
+
 namespace commsdsl2wireshark
 {
 
@@ -33,6 +35,10 @@ public:
     using GenElem = commsdsl::gen::GenElem;
 
     WiresharkCustomLayer(WiresharkGenerator& generator, ParseLayer parseObj, GenElem* parent);
+
+protected:
+    virtual bool genPrepareImpl() override;
+    virtual bool wiresharkNeedsCrcCalcImpl() const override;
 };
 
 } // namespace commsdsl2wireshark

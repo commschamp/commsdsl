@@ -206,13 +206,13 @@ public:
 
     OptsProcessResult genProcessOptions(const GenProgramOptions& options);
 
-    std::string genReadCodeInjectCode(
+    [[nodiscard]] std::string genReadCodeInjectCode(
         const std::string& relPath,
         const std::string& comment,
         bool* realCodeInjected = nullptr,
         const std::string& forcedCommentPrefix = std::string()) const;
 
-    std::string genReadScriptCodeInjectCode(
+    [[nodiscard]] std::string genReadScriptCodeInjectCode(
         const std::string& relPath,
         const std::string& comment,
         bool* realCodeInjected = nullptr) const;

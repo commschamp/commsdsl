@@ -67,12 +67,9 @@ std::string WiresharkLayer::wiresharkDissectCode() const
         "#^#FIELD#$#\n"
         "#^#EXTRA#$#\n"
         "#^#PREPEND#$#\n"
-        "function #^#NAME#$##^#SUFFIX#$#(tvb, tree, offset, offset_limit, funcs, next_idx, msg)\n"
+        "function #^#NAME#$##^#SUFFIX#$#(#^#TVB#$#, #^#TREE#$#, #^#OFFSET#$#, #^#LIMIT#$#, funcs, next_idx, msg)\n"
         "    #^#REPLACE#$#\n"
-        "    local result = #^#SUCCESS#$#\n"
-        "    local next_offset = offset\n"
         "    #^#BODY#$#\n"
-        "    return result, next_offset\n"
         "end\n"
         "#^#EXTEND#$#\n"
     ;
@@ -92,11 +89,14 @@ std::string WiresharkLayer::wiresharkDissectCode() const
         {"PREPEND", wiresharkGenerator.genReadCodeInjectCode(prependFileName, "Prepend here")},
         {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
         {"EXTRA", wiresharkExtraDissectCodeImpl()},
-        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
+        {"TVB", WiresharkField::wiresharkTvbStr()},
+        {"TREE", WiresharkField::wiresharkTreeStr()},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+        {"LIMIT", WiresharkField::wiresharkOffsetLimitStr()},
     };
 
     if (!replaced) {
-        repl["BODY"] = wiresharkDissectBodyImpl();
+        repl["BODY"] = wiresharkDissectBodyInternal();
     }
 
     if (extended) {
@@ -238,6 +238,27 @@ std::string WiresharkLayer::wiresharkFieldDissectCodeInternal() const
     }
 
     return field->wiresharkDissectCode();
+}
+
+std::string WiresharkLayer::wiresharkDissectBodyInternal() const
+{
+    static const std::string Templ =
+        "local #^#RESULT#$# = #^#SUCCESS#$#\n"
+        "local #^#NEXT_OFFSET#$# = #^#OFFSET#$#\n"
+        "#^#BODY#$#\n"
+        "return #^#RESULT#$#, #^#NEXT_OFFSET#$#"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genLayer.genGenerator());
+    util::GenReplacementMap repl = {
+        {"RESULT", WiresharkField::wiresharkResultStr()},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
+        {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+        {"BODY", wiresharkDissectBodyImpl()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2wireshark

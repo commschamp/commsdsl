@@ -66,6 +66,7 @@ protected:
 
 private:
     std::string wiresharkFieldDissectCodeInternal() const;
+    std::string wiresharkDissectBodyInternal() const;
 
     GenLayer& m_genLayer;
 };

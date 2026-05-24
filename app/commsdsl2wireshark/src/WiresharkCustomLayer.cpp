@@ -17,6 +17,10 @@
 
 #include "WiresharkGenerator.h"
 
+#include "commsdsl/gen/strings.h"
+
+namespace strings = commsdsl::gen::strings;
+
 namespace commsdsl2wireshark
 {
 
@@ -24,6 +28,31 @@ WiresharkCustomLayer::WiresharkCustomLayer(WiresharkGenerator& generator, ParseL
     GenBase(generator, parseObj, parent),
     WiresharkBase(static_cast<GenBase&>(*this))
 {
+}
+
+bool WiresharkCustomLayer::genPrepareImpl()
+{
+    if (!GenBase::genPrepareImpl()) {
+        return false;
+    }
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    auto relPath = wiresharkGenerator.wiresharkInputDissectRelPathFor(*this);
+    auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
+    bool replaced = false;
+    auto dissectCode = wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace dissect code with", &replaced);
+    if (!replaced) {
+        wiresharkGenerator.genLogger().genError("Inject custom layer dissect code via \"" + replaceFileName + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool WiresharkCustomLayer::wiresharkNeedsCrcCalcImpl() const
+{
+    auto parseObj = genCustomLayerParseObj();
+    return parseObj.parseSemanticLayerType() == ParseLayer::ParseKind::Checksum;
 }
 
 } // namespace commsdsl2wireshark

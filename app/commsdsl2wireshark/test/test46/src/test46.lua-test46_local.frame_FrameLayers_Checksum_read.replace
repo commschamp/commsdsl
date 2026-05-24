@@ -1,0 +1,47 @@
+local result = test46_local.StatusCode.SUCCESS
+local next_offset = offset
+local from_offset = offset
+local next_func = funcs[next_idx]
+if next_func == nil then
+    return test46_local.StatusCode.CODEGEN_ERROR, offset
+end
+result, next_offset = next_func(tvb, tree, offset, offset_limit, funcs, next_idx + 1, msg)
+
+if result ~= test46_local.StatusCode.SUCCESS then
+    return result
+end
+
+local until_offset = next_offset
+offset = next_offset
+local checksumType = test46_local.field_ChecksumType_value()
+if checksumType == 0 then
+    result, next_offset = test46_local.frame_FrameLayers_ChecksumMembers_ChecksumField_read_sum8(tvb, tree, offset, offset_limit)
+elseif checksumType == 1 then
+    result, next_offset = test46_local.frame_FrameLayers_ChecksumMembers_ChecksumField_read_crc16(tvb, tree, offset, offset_limit)
+else
+    result, next_offset = test46_local.frame_FrameLayers_ChecksumMembers_ChecksumField_read(tvb, tree, offset, offset_limit)
+end
+
+if result == test46_local.StatusCode.INVALID_MSG_DATA then
+    return test46_local.StatusCode.MALFORMED_PACKET, next_offset
+end
+
+if result ~= test46_local.StatusCode.SUCCESS then
+    return result, next_offset
+end
+
+local checksum = 0
+if checksumType == 0 then
+    checksum = test46_local.frame_FrameLayers_Checksum_checksum_calc_func_sum8(tvb, from_offset, until_offset)
+elseif checksumType == 1 then
+    checksum = test46_local.frame_FrameLayers_Checksum_checksum_calc_func_crc16(tvb, from_offset, until_offset)
+else
+    checksum = test46_local.frame_FrameLayers_Checksum_checksum_calc_func_crc32(tvb, from_offset, until_offset)
+end
+
+if test46_local.frame_FrameLayers_ChecksumMembers_ChecksumField_value() ~= checksum then
+    tree:add_expert_info(PI_CHECKSUM, PI_WARN, "Checksum Error")
+    return test46_local.StatusCode.CHECKSUM_ERROR, next_offset
+end
+
+return result, next_offset

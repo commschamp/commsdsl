@@ -134,6 +134,10 @@ bool WiresharkChecksumLayer::wiresharkNeedsCrcCalcImpl() const
 
 std::string WiresharkChecksumLayer::wiresharkCustomChecksumExtraCodeInternal() const
 {
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    auto relPath = wiresharkGenerator.wiresharkInputRelPathFor(*this, WiresharkChecksumCalcSuffix);
+    auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
+    genGenerator().genLogger().genWarning("The custom checksum calucation code needs to be injected via \"" + replaceFileName + '\"');
     return strings::genNilStr() + " -- !!! TODO: Provide custom algorithm via code injection here !!!";
 }
 
