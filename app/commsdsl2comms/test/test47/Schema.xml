@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test47"
-        endian="big"
-        version="5">
-
+<schema name="test47" endian="big" version="5">
     <description>
         Testing platforms and extra bundles.
     </description>

@@ -77,7 +77,12 @@ std::string WiresharkIdLayer::wiresharkExtraDissectCodeImpl() const
     DissectMap map;
     for (auto* m : messages) {
         auto& wiresharkMsg = WiresharkMessage::wiresharkCast(*m);
-        map[m->genParseObj().parseId()].push_back(wiresharkMsg.wiresharkDissectName());
+        auto dissectName = wiresharkMsg.wiresharkDissectName();
+        if (dissectName.empty()) {
+            continue;
+        }
+
+        map[m->genParseObj().parseId()].push_back(std::move(dissectName));
     }
 
     util::GenStringsList elems;

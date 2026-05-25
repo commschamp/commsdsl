@@ -232,14 +232,12 @@ std::string WiresharkDataField::wiresharkDissectLengthCodeInternal() const
 
     if (m_prefixField != nullptr) {
         static const std::string Templ =
-            "local prefix_tree = #^#TREE#$#:add(#^#PROTO#$#, #^#TVB#$#(#^#NEXT_OFFSET#$#, 0))\n"
-            "prefix_tree:set_hidden(true)\n"
-            "#^#RESULT#$#, #^#NEXT_OFFSET#$# = #^#READ_FUNC#$#(#^#TVB#$#, prefix_tree, #^#NEXT_OFFSET#$#, #^#LIMIT#$#, #^#FIELD#$#)\n"
+            "#^#RESULT#$#, #^#NEXT_OFFSET#$# = #^#READ_FUNC#$#(#^#TVB#$#, #^#TREE#$#, #^#NEXT_OFFSET#$#, #^#LIMIT#$#)\n"
             "if #^#RESULT#$# ~= #^#SUCCESS#$# then\n"
             "    return #^#RESULT#$#\n"
             "end\n"
             "\n"
-            "local len = #^#VALUE_FUNC#$#(#^#FIELD#$#)"
+            "local len = #^#VALUE_FUNC#$#()"
             ;
 
         auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
@@ -250,8 +248,7 @@ std::string WiresharkDataField::wiresharkDissectLengthCodeInternal() const
             {"TVB", wiresharkTvbStr()},
             {"TREE", wiresharkTreeStr()},
             {"LIMIT", wiresharkOffsetLimitStr()},
-            {"FIELD", m_prefixField->wiresharkFieldObjName()},
-            {"VALUE_FUNC", wiresharkValueFuncName()},
+            {"VALUE_FUNC", m_prefixField->wiresharkValueFuncName()},
             {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
             {"PROTO", Wireshark::wiresharkProtocolObjName(wiresharkGenerator)},
         };

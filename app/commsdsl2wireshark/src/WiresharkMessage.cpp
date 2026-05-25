@@ -42,6 +42,10 @@ WiresharkMessage::~WiresharkMessage() = default;
 
 std::string WiresharkMessage::wiresharkDissectName() const
 {
+    if (!genIsReferenced()) {
+        return strings::genEmptyString();
+    }
+
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     return wiresharkGenerator.wiresharkDissectNameFor(*this);
 }
