@@ -51,12 +51,12 @@ const std::string& Wireshark::wiresharkProtocolObjName(const WiresharkGenerator&
 
 std::string Wireshark::wiresharkCreateFieldFuncName(const WiresharkGenerator& generator)
 {
-    return wiresharkLocalNamespaceName(generator) + ".createField";
+    return wiresharkLocalNamespaceName(generator) + ".create_field";
 }
 
 std::string Wireshark::wiresharkCreateExtractorFuncName(const WiresharkGenerator& generator)
 {
-    return wiresharkLocalNamespaceName(generator) + ".createExtractor";
+    return wiresharkLocalNamespaceName(generator) + ".create_extractor";
 }
 
 std::string Wireshark::wiresharkFieldsListName(const WiresharkGenerator& generator)

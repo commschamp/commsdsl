@@ -167,7 +167,7 @@ std::string WiresharkRefField::wiresharkFieldObjNameImpl(const WiresharkField* r
 std::string WiresharkRefField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
 {
     assert(m_wiresharkField != nullptr);
-    if (m_alias) {
+    if (m_alias && (refField == nullptr)) {
         genGenerator().genLogger().genDebug(genName() + " field is full alias to " + m_wiresharkField->wiresharkGenField().genParseObj().parseExternalRef() + ", not generating registration");
         return strings::genEmptyString();
     }

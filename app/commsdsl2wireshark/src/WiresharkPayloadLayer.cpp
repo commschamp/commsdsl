@@ -101,7 +101,7 @@ std::string WiresharkPayloadLayer::wiresharkExtraDissectCodeImpl() const
     };
 
     if (!parseObj.parseDescription().empty()) {
-        repl["DESC"] = parseObj.parseDescription();
+        repl["DESC"] = '\"' + parseObj.parseDescription() + '\"';
     }
 
     return util::genProcessTemplate(Templ, repl);

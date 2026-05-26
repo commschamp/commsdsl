@@ -198,7 +198,8 @@ std::string WiresharkGenerator::wiresharkScopeToName(const std::string& scope) c
 
 std::string WiresharkGenerator::wiresharkFuncNameFor(const GenElem& elem, const std::string& suffix) const
 {
-    auto scope = comms::genScopeFor(elem, *this, false);
+    bool addMainNs = &genSchemaOf(elem) != &genProtocolSchema();
+    auto scope = comms::genScopeFor(elem, *this, addMainNs);
     auto protName = Wireshark::wiresharkLocalNamespaceName(*this);
     return protName + '.' + wiresharkScopeToName(scope) + suffix;
 }

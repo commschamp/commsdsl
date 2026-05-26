@@ -887,8 +887,7 @@ std::string WiresharkField::wiresharkFieldObjNameImpl(const WiresharkField* refF
         genField = &(refField->wiresharkGenField());
     }
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genField->genGenerator());
-    auto scope = comms::genScopeFor(*genField, wiresharkGenerator, false);
-    return Wireshark::wiresharkLocalNamespaceName(wiresharkGenerator) + '.' + util::genStrReplace(scope, "::", "_");
+    return wiresharkGenerator.wiresharkFuncNameFor(*genField, strings::genEmptyString());
 }
 
 std::string WiresharkField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
@@ -1070,7 +1069,8 @@ std::string WiresharkField::wiresharkFieldRefName(const WiresharkField* refField
     }
 
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genField->genGenerator());
-    auto scope = comms::genScopeFor(*genField, wiresharkGenerator, false);
+    bool addMainNs = &wiresharkGenerator.genSchemaOf(*genField) != &wiresharkGenerator.genProtocolSchema();
+    auto scope = comms::genScopeFor(*genField, wiresharkGenerator, addMainNs);
     return Wireshark::wiresharkProtocolObjName(wiresharkGenerator) + '.' + util::genStrReplace(scope, "::", ".");
 }
 

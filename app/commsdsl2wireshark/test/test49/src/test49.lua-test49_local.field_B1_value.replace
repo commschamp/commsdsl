@@ -1,1 +1,6 @@
--- TODO
+local short_val = test49_local.field_B1Members_Short_value()
+if (short_val ~= 0xff) then
+    return short_val
+end
+
+return test49_local.field_B1Members_LongMembers_ActLong_value()
