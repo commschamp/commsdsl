@@ -79,7 +79,7 @@ void TestSuite::test3()
 
     Handler handler;
     Sub2Frame frame;
-    Sub2Frame::MsgPtr m_msgPtr(new Sub2Msg2);
+    Sub2Frame::MsgPtr m_msgPtr(new Sub2Msg1);
     auto iter = &Buf[0];
     auto es = comms::processSingleWithDispatch(iter, BufSize, frame, *m_msgPtr, handler);
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);

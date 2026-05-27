@@ -62,7 +62,7 @@ std::string WiresharkFrame::wiresharkDissectCode() const
         "#^#FUNC_LIST#$#\n"
         "#^#PREPEND#$#\n"
         "#^#RETVAL_MAP#$#\n"
-        "function #^#NAME#$##^#SUFFIX#$#(#^#TVB#$#, #^#TREE#$#)\n"
+        "function #^#NAME#$##^#SUFFIX#$#(#^#TVB#$#, #^#TREE#$#, #^#OFFSET#$#)\n"
         "    #^#REPLACE#$#\n"
         "    #^#BODY#$#\n"
         "end\n"
@@ -87,6 +87,7 @@ std::string WiresharkFrame::wiresharkDissectCode() const
         {"TVB", WiresharkField::wiresharkTvbStr()},
         {"TREE", WiresharkField::wiresharkTreeStr()},
         {"RETVAL_MAP", wiresharkRetvalMapDefInternal()},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()}
     };
 
     if (!replaced) {
@@ -189,7 +190,6 @@ std::string WiresharkFrame::wiresharkDissectBodyInternal() const
     static const std::string Templ =
         "#^#INTERFACE#$#\n"
         "local #^#RESULT#$# = #^#SUCCESS#$#\n"
-        "local #^#OFFSET#$# = 0\n"
         "local len = #^#TVB#$#:len()\n"
         "while (#^#RESULT#$# == #^#SUCCESS#$#) and (#^#OFFSET#$# < len) do\n"
         "    local frame_subtree = #^#TREE#$#:add(#^#PROTO_NAME#$#, #^#TVB#$#(#^#OFFSET#$#, -1), \"#^#FRAME_NAME#$#\")\n"

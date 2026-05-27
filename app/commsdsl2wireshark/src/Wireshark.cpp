@@ -15,6 +15,7 @@
 
 #include "Wireshark.h"
 
+#include "WiresharkField.h"
 #include "WiresharkFrame.h"
 #include "WiresharkGenerator.h"
 #include "WiresharkSchema.h"
@@ -219,7 +220,7 @@ std::string Wireshark::wiresharkDissectFuncInternal() const
 {
     const std::string Templ =
         "-- Main Dissector Entry Point\n"
-        "function #^#NAME#$#.dissector(tvb, pinfo, tree)\n"
+        "function #^#NAME#$#.dissector(#^#TVB#$#, pinfo, #^#TREE#$#)\n"
         "    #^#REPLACE#$#\n"
         "    #^#BODY#$#\n"
         "end\n"
@@ -232,6 +233,8 @@ std::string Wireshark::wiresharkDissectFuncInternal() const
     util::GenReplacementMap repl = {
         {"NAME", wiresharkProtocolObjName(m_wiresharkGenerator)},
         {"REPLACE", std::move(replaceCode)},
+        {"TVB", WiresharkField::wiresharkTvbStr()},
+        {"TREE", WiresharkField::wiresharkTreeStr()},
     };
 
     if (!bodyReplaced) {
@@ -289,8 +292,8 @@ std::string Wireshark::wiresharkDissectFuncBodyInternal() const
         }
 
         static const std::string FrameTempl =
-            "result, next_offset = #^#NAME#$#(tvb, tree)\n"
-            "if result == #^#SUCCESS#$# then\n"
+            "#^#RESULT#$#, #^#NEXT_OFFSET#$# = #^#NAME#$#(#^#TVB#$#, #^#TREE#$#, #^#NEXT_OFFSET#$#)\n"
+            "if #^#RESULT#$# == #^#SUCCESS#$# then\n"
             "    break\n"
             "end\n"
         ;
@@ -298,33 +301,37 @@ std::string Wireshark::wiresharkDissectFuncBodyInternal() const
         util::GenReplacementMap frameRepl = {
             {"NAME", wiresharkFrame.wiresharkDissectName()},
             {"SUCCESS", wiresharkStatusCodeStr(m_wiresharkGenerator, WiresharkStatusCode::Success)},
+            {"RESULT", WiresharkField::wiresharkResultStr()},
+            {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
+            {"TVB", WiresharkField::wiresharkTvbStr()},
+            {"TREE", WiresharkField::wiresharkTreeStr()},
         };
 
         elems.push_back(util::genProcessTemplate(FrameTempl, frameRepl));
     }
 
     const std::string Templ =
-        "if tvb:len() == 0 then\n"
+        "if #^#TVB#$#:len() == 0 then\n"
         "    return\n"
         "end\n"
         "\n"
         "pinfo.cols.protocol = #^#NAME#$#.name\n"
         "#^#PINFO#$# = pinfo\n"
         "\n"
-        "local result = #^#SUCCESS#$#\n"
-        "local next_offset = 0\n"
+        "local #^#RESULT#$# = #^#SUCCESS#$#\n"
+        "local #^#NEXT_OFFSET#$# = 0\n"
         "repeat\n"
         "    #^#FRAMES#$#\n"
         "until true\n"
         "\n"
-        "if (result ~= #^#NOT_ENOUGH_DATA#$#) and (result ~= #^#SUCCESS#$#) then\n"
+        "if (#^#RESULT#$# ~= #^#NOT_ENOUGH_DATA#$#) and (#^#RESULT#$# ~= #^#SUCCESS#$#) then\n"
         "    -- Consume everything\n"
-        "    tree:add_expert_info(PI_MALFORMED, PI_WARN, \"Invalid protocol data\")\n"
+        "    #^#TREE#$#:add_expert_info(PI_MALFORMED, PI_WARN, \"Invalid protocol data\")\n"
         "    return\n"
         "end\n"
         "\n"
-        "if next_offset < tvb:len() then\n"
-        "    pinfo.desegment_offset = next_offset\n"
+        "if #^#NEXT_OFFSET#$# < #^#TVB#$#:len() then\n"
+        "    pinfo.desegment_offset = #^#NEXT_OFFSET#$#\n"
         "    pinfo.desegment_len = DESEGMENT_ONE_MORE_SEGMENT\n"
         "end\n"
     ;
@@ -335,6 +342,10 @@ std::string Wireshark::wiresharkDissectFuncBodyInternal() const
         {"SUCCESS", wiresharkStatusCodeStr(m_wiresharkGenerator, WiresharkStatusCode::Success)},
         {"NOT_ENOUGH_DATA", wiresharkStatusCodeStr(m_wiresharkGenerator, WiresharkStatusCode::NotEnoughData)},
         {"PINFO", wiresharkPinfoName(m_wiresharkGenerator)},
+        {"TVB", WiresharkField::wiresharkTvbStr()},
+        {"RESULT", WiresharkField::wiresharkResultStr()},
+        {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
+        {"TREE", WiresharkField::wiresharkTreeStr()},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -582,16 +593,16 @@ std::string Wireshark::wiresharkCrcCodeDefInternal() const
         "    end\n"
         "\n"
         "    -- Return the actual high-speed checksum function\n"
-        "    -- Accepts tvb, offset, and offset_limit (exclusive end index)\n"
-        "    return function(tvb, offset, offset_limit)\n"
+        "    -- Accepts #^#TVB#$#, offset, and offset_limit (exclusive end index)\n"
+        "    return function(#^#TVB#$#, offset, offset_limit)\n"
         "        local crc = init\n"
         "        local length = offset_limit - offset\n"
         "        if length <= 0 then\n"
         "            return init\n"
         "        end\n"
         "\n"
-        "        -- Extracting raw bytes once is massively faster than calling tvb:range(i, 1) in a loop\n"
-        "        local data = tvb:range(offset, length):raw()\n"
+        "        -- Extracting raw bytes once is massively faster than calling #^#TVB#$#:range(i, 1) in a loop\n"
+        "        local data = #^#TVB#$#:range(offset, length):raw()\n"
         "\n"
         "        for i = 1, #data do\n"
         "            local byte = data:byte(i)\n"
@@ -623,6 +634,7 @@ std::string Wireshark::wiresharkCrcCodeDefInternal() const
 
     util::GenReplacementMap repl = {
         {"NAME", wiresharkCreateCrcFuncName(m_wiresharkGenerator)},
+        {"TVB", WiresharkField::wiresharkTvbStr()},
     };
 
     return util::genProcessTemplate(Templ, repl);

@@ -14,7 +14,7 @@
             <int name="F1" type="uint16" />
         </message>
 
-        <frame name="Frame">
+        <frame name="Frame" displayName="Frame1">
             <size name="Size">
                 <int name="Length" type="uint16" />
             </size>
@@ -35,10 +35,10 @@
         </message>
 
         <message name="Msg2" id="0" order="1">
-            <int name="F1" type="uint32" />
+            <int name="F1" type="uint16" />
         </message>
 
-        <frame name="Frame">
+        <frame name="Frame" displayName="Frame2">
             <id name="Id">
                 <int name="IdField" type="uint8" pseudo="true" />
             </id>

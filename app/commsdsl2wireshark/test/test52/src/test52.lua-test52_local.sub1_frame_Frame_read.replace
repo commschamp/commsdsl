@@ -1,0 +1,42 @@
+local result = test52_local.StatusCode.SUCCESS
+local len = tvb:len()
+while (result == test52_local.StatusCode.SUCCESS) and (offset < len) do
+    if test52_local.sub1_frame_Frame_read_occured_get() then
+        return test52_local.StatusCode.INVALID_FRAME, offset
+    end
+
+    local frame_subtree = tree:add(test52, tvb(offset, -1), "Frame1")
+    local layer_func = test52_local.sub1_frame_Frame_layers[1]
+    local next_offset = offset
+    result, next_offset = layer_func(tvb, frame_subtree, offset, len, test52_local.sub1_frame_Frame_layers, 2, nil)
+    if result == test52_local.StatusCode.NOT_ENOUGH_DATA then
+        frame_subtree:set_hidden(true)
+        return result, offset
+    end
+
+    if result == test52_local.StatusCode.CODEGEN_ERROR then
+        frame_subtree:set_hidden(true)
+        tree:add_expert_info(PI_DISSECTOR_BUG, PI_ERROR, "!!!CODE GENERATOR BUG!!!")
+        return result, len
+    end
+
+    result = test52_local.sub1_frame_Frame_retval_map[result] or result
+    if result == test52_local.StatusCode.INVALID_FRAME then
+        frame_subtree:set_hidden(true)
+        return result, offset
+    end
+
+    if result == test52_local.StatusCode.SUCCESS then
+        test52_local.sub1_frame_Frame_read_occured_set()
+        goto continue
+    end
+
+    -- test52_local.StatusCode.MALFORMED_PACKET or other unexpected error
+    frame_subtree:set_hidden(true)
+    next_offset = offset + 1
+
+    ::continue::
+    frame_subtree:set_len(next_offset - offset)
+    offset = next_offset
+end
+return result, offset
