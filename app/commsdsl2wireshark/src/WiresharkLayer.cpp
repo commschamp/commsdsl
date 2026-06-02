@@ -108,12 +108,21 @@ std::string WiresharkLayer::wiresharkDissectCode() const
 
 std::string WiresharkLayer::wiresharkExtractorsRegCode() const
 {
+    static const std::string Templ =
+        "#^#FIELD#$#\n"
+        "#^#EXTRA#$#\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"EXTRA", wiresharkExtractorsRegCodeImpl()},
+    };
+
     auto* field = WiresharkField::wiresharkCast(m_genLayer.genMemberField());
-    if (field == nullptr) {
-        return strings::genEmptyString();
+    if (field != nullptr) {
+        repl["FIELD"] = field->wiresharkExtractorsRegCode();
     }
 
-    return field->wiresharkExtractorsRegCode();
+    return util::genProcessTemplate(Templ, repl);
 }
 
 bool WiresharkLayer::wiresharkIsInterfaceSupported(const WiresharkInterface& iFace) const
@@ -151,6 +160,11 @@ bool WiresharkLayer::wiresharkIsInterfaceSupportedImpl([[maybe_unused]] const Wi
 }
 
 std::string WiresharkLayer::wiresharkExtraDissectCodeImpl() const
+{
+    return strings::genEmptyString();
+}
+
+std::string WiresharkLayer::wiresharkExtractorsRegCodeImpl() const
 {
     return strings::genEmptyString();
 }

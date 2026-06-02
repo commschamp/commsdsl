@@ -52,6 +52,7 @@ public:
             if (!escField.parseExternalRef().empty()) {
                 m_externalEscField = m_generator.genFindField(escField.parseExternalRef());
                 assert(m_externalEscField != nullptr);
+                m_externalEscField->genSetReferenced();
                 break;
             }
 
@@ -59,6 +60,8 @@ public:
             if (!m_memberEscField->genPrepare()) {
                 return false;
             }
+
+            m_memberEscField->genSetReferenced();
         } while (false);
 
         return true;

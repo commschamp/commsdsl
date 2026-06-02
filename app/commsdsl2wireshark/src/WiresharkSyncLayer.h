@@ -36,10 +36,16 @@ public:
 
 protected:
     virtual std::string wiresharkDissectBodyImpl() const override;
+    virtual std::string wiresharkExtraDissectCodeImpl() const override;
+    virtual std::string wiresharkExtractorsRegCodeImpl() const override;
 
 private:
+    std::string wiresharkPrefixDissectCodeInternal() const;
     std::string wiresharkSuffixDissectCodeInternal() const;
-    std::string wiresharkDissectFieldCodeInternal() const;
+    std::string wiresharkSeekPrefixFieldCodeInternal() const;
+    std::string wiresharkSeekSuffixFieldCodeInternal() const;
+    std::string wiresharkSyncValueCheckCodeInternal() const;
+    std::string wiresharkAdjustSuffixOffsetInternal() const;
 };
 
 } // namespace commsdsl2wireshark

@@ -94,6 +94,7 @@ public:
     const WiresharkFieldsList& wiresharkSiblings() const;
     const WiresharkFieldsList& wiresharkMemberFields() const;
     std::string wiresharkDefaultAssignments(const WiresharkField* refField = nullptr) const;
+    std::string wiresharkDefaultValueStr() const;
 
     static std::pair<std::string, std::string> wiresharkSplitAccStr(const std::string& accStr);
     static std::pair<const WiresharkField*, std::string> wiresharkSplitMemberAccStr(const std::string& accStr, const WiresharkFieldsList& fields);
@@ -132,6 +133,7 @@ protected:
     virtual std::string wiresharkValidFuncCodeImpl(const WiresharkField* refField) const;
     virtual bool wiresharkHasTrivialValidImpl() const;
     virtual const WiresharkFieldsList& wiresharkMemberFieldsImpl() const;
+    virtual std::string wiresharkDefaultValueStrImpl() const;
 
     std::string wiresharkFieldRefName(const WiresharkField* refField) const;
     std::string wiresharkForcedIntegralFieldMask(const WiresharkField* refField) const;

@@ -629,6 +629,11 @@ std::string WiresharkField::wiresharkDefaultAssignments(const WiresharkField* re
     return wiresharkDefaultAssignmentsImpl(refField);
 }
 
+std::string WiresharkField::wiresharkDefaultValueStr() const
+{
+    return wiresharkDefaultValueStrImpl();
+}
+
 std::pair<std::string, std::string> WiresharkField::wiresharkSplitAccStr(const std::string& accStr)
 {
     auto sepPos = accStr.find(".");
@@ -1059,6 +1064,13 @@ const WiresharkField::WiresharkFieldsList& WiresharkField::wiresharkMemberFields
 {
     static const WiresharkFieldsList List;
     return List;
+}
+
+std::string WiresharkField::wiresharkDefaultValueStrImpl() const
+{
+    [[maybe_unused]] static constexpr bool Should_not_be_called = false;
+    assert(Should_not_be_called);
+    return strings::genUnexpectedValueStr();
 }
 
 std::string WiresharkField::wiresharkFieldRefName(const WiresharkField* refField) const

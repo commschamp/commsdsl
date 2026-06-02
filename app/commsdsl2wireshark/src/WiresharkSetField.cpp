@@ -313,6 +313,12 @@ bool WiresharkSetField::wiresharkHasTrivialValidImpl() const
     return (!hasReservedBits);
 }
 
+std::string WiresharkSetField::wiresharkDefaultValueStrImpl() const
+{
+    auto parseObj = genSetFieldParseObj();
+    return std::to_string(parseObj.parseDefaultBitValue());
+}
+
 std::string WiresharkSetField::wiresharkRegistrationBitsInternal(const WiresharkField* refField) const
 {
     if ((refField != nullptr) && (!refField->wiresharkIsBitfieldMember())) {

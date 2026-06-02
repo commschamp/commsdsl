@@ -204,6 +204,16 @@ bool WiresharkEnumField::wiresharkHasTrivialValidImpl() const
     return false;
 }
 
+std::string WiresharkEnumField::wiresharkDefaultValueStrImpl() const
+{
+    auto parseObj = genEnumFieldParseObj();
+    if (genIsUnsignedType()) {
+        return std::to_string(static_cast<std::uintmax_t>(parseObj.parseDefaultValue()));
+    }
+
+    return std::to_string(parseObj.parseDefaultValue());
+}
+
 std::string WiresharkEnumField::wiresharkValsInternal(const WiresharkField* refField) const
 {
     auto& values = genSortedRevValues();

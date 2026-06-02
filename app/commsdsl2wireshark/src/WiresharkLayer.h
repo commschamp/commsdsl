@@ -57,6 +57,7 @@ protected:
     virtual std::string wiresharkDissectBodyImpl() const;
     virtual bool wiresharkIsInterfaceSupportedImpl(const WiresharkInterface& iFace) const;
     virtual std::string wiresharkExtraDissectCodeImpl() const;
+    virtual std::string wiresharkExtractorsRegCodeImpl() const;
     virtual bool wiresharkNeedsCrcCalcImpl() const;
 
     std::string wiresharkDissectFieldCode() const;

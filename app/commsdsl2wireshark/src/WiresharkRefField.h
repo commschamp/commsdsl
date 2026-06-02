@@ -54,6 +54,7 @@ protected:
     virtual std::string wiresharkExistsCheckStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
     virtual std::string wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const override;
     virtual bool wiresharkHasTrivialValidImpl() const override;
+    virtual std::string wiresharkDefaultValueStrImpl() const override;
 
 private:
     bool wiresharkIsAliasInternal() const;

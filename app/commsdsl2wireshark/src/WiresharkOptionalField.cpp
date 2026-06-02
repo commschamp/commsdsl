@@ -235,6 +235,11 @@ bool WiresharkOptionalField::wiresharkHasTrivialValidImpl() const
     return WiresharkBase::wiresharkHasTrivialValidImpl();
 }
 
+std::string WiresharkOptionalField::wiresharkDefaultValueStrImpl() const
+{
+    return wiresharkDefaultModeInternal();
+}
+
 std::string WiresharkOptionalField::wiresharkDefaultModeInternal() const
 {
     static_assert(static_cast<int>(ParseOptionalField::ParseMode::Tentative) == static_cast<int>(Wireshark::WiresharkOptMode::Tentative));

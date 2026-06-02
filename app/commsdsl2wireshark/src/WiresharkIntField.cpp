@@ -398,6 +398,16 @@ bool WiresharkIntField::wiresharkHasTrivialValidImpl() const
     return parseObj.parseValidRanges().empty();
 }
 
+std::string WiresharkIntField::wiresharkDefaultValueStrImpl() const
+{
+    auto parseObj = genIntFieldParseObj();
+    if (genIsUnsignedType()) {
+        return std::to_string(static_cast<std::uintmax_t>(parseObj.parseDefaultValue()));
+    }
+
+    return std::to_string(parseObj.parseDefaultValue());
+}
+
 std::string WiresharkIntField::wiresharkSpecialsInternal(const WiresharkField* refField) const
 {
     auto& specials = genSpecialsSortedByValue();

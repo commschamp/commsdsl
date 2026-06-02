@@ -222,6 +222,12 @@ bool WiresharkDataField::wiresharkHasTrivialValidImpl() const
     return (validValues.empty());
 }
 
+std::string WiresharkDataField::wiresharkDefaultValueStrImpl() const
+{
+    auto parseObj = genDataFieldParseObj();
+    return '\"' + wiresharkToHexStringInternal(parseObj.parseDefaultValue()) + '\"';
+}
+
 std::string WiresharkDataField::wiresharkDissectLengthCodeInternal() const
 {
     auto parseObj = genDataFieldParseObj();

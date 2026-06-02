@@ -46,6 +46,7 @@ protected:
     virtual std::string wiresharkCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
     virtual std::string wiresharkExistsCheckStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
     virtual bool wiresharkHasTrivialValidImpl() const override;
+    virtual std::string wiresharkDefaultValueStrImpl() const override;
 
 private:
     std::string wiresharkDefaultModeInternal() const;

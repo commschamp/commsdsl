@@ -299,6 +299,12 @@ bool WiresharkRefField::wiresharkHasTrivialValidImpl() const
     return m_wiresharkField->wiresharkHasTrivialValid();
 }
 
+std::string WiresharkRefField::wiresharkDefaultValueStrImpl() const
+{
+    assert(m_wiresharkField != nullptr);
+    return m_wiresharkField->wiresharkDefaultValueStr();
+}
+
 bool WiresharkRefField::wiresharkIsAliasInternal() const
 {
     if (wiresharkMustCopyDissectInternal()) {
