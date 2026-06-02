@@ -1,0 +1,23 @@
+import sys
+
+from commsdsl_pcap_gen import *
+
+def do_frame(sync1, id, payload, sync2, checksum):
+    prefix = struct.pack('>HB', sync1, id)
+    suffix = struct.pack('>HB', sync2, checksum)
+    return prefix + payload + suffix
+
+def pcap1(f):
+    seq = 1000
+    msg2_payload = struct.pack('>3s', b"bla")
+    msg2 = do_frame(0x3d3d, 1, msg2_payload, 0x4040, 0xaf)
+    header = commsdsl_create_ethernet_ip_tcp_headers(len(msg2), seq)
+    commsdsl_write_packet(f, header + msg2, time.time())
+
+def main():
+    with open(sys.argv[1], 'wb') as f:
+        commsdsl_write_pcap_header(f)
+        pcap1(f)
+
+if __name__ == '__main__':
+    main()

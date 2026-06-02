@@ -283,8 +283,8 @@ std::string WiresharkChecksumLayer::wiresharkSuffixDissectBodyInternal() const
         "#^#FIELD#$#\n"
         "local checksum = #^#CALC#$#(#^#TVB#$#, from_offset, until_offset)\n"
         "if #^#VALUE_FUNC#$#() ~= checksum then\n"
-        "   #^#TREE#$#:add_expert_info(PI_CHECKSUM, PI_WARN, \"Checksum Error\")\n"
-        "   return #^#ERROR#$#, #^#NEXT_OFFSET#$#\n"
+        "    #^#TREE#$#:add_expert_info(PI_CHECKSUM, PI_WARN, \"Checksum Error\")\n"
+        "    return #^#ERROR#$#, #^#NEXT_OFFSET#$#\n"
         "end\n"
     ;
 

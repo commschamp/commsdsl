@@ -119,11 +119,6 @@ std::string WiresharkSyncLayer::wiresharkExtractorsRegCodeImpl() const
 
 std::string WiresharkSyncLayer::wiresharkPrefixDissectCodeInternal() const
 {
-    auto parseObj = genSyncLayerParseObj();
-    if (!parseObj.parseSeekField()) {
-        return WiresharkLayer::wiresharkDissectFieldCode();
-    }
-
     static const std::string Templ =
         "#^#FIELD#$#\n"
         "#^#CHECK#$#\n"
@@ -132,12 +127,17 @@ std::string WiresharkSyncLayer::wiresharkPrefixDissectCodeInternal() const
         ;
 
     util::GenReplacementMap repl = {
-        {"FIELD", wiresharkSeekPrefixFieldCodeInternal()},
+        {"FIELD", WiresharkLayer::wiresharkDissectFieldCode()},
         {"NEXT", wiresharkNextFuncCode()},
         {"OFFSET", WiresharkField::wiresharkOffsetStr()},
         {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
         {"CHECK", wiresharkSyncValueCheckCodeInternal()},
     };
+
+    auto parseObj = genSyncLayerParseObj();
+    if (parseObj.parseSeekField()) {
+        repl["FIELD"] = wiresharkSeekPrefixFieldCodeInternal();
+    }
 
     return util::genProcessTemplate(Templ, repl);
 }
