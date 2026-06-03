@@ -299,7 +299,6 @@ std::string WiresharkStringField::wiresharkDissectLengthCodeInternal() const
 
     auto& detachedPrefix = parseObj.parseDetachedPrefixFieldName();
     if (!detachedPrefix.empty()) {
-        // TODO: test
         auto& siblings = wiresharkSiblings();
         auto sep = detachedPrefix.find_first_of('.');
         auto siblingName = detachedPrefix.substr(0, sep);

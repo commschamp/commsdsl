@@ -277,7 +277,6 @@ std::string WiresharkBitfieldField::wiresharkValidFuncBodyImpl(const WiresharkFi
 std::string WiresharkBitfieldField::wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const
 {
     if (accStr.empty()) {
-        // TODO: support value override to allow proper comparison to bitfield value
         return WiresharkBase::wiresharkValueAccessStrImpl(accStr, refField);
     }
 

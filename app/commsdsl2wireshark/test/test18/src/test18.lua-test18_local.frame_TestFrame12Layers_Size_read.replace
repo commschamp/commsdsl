@@ -1,1 +1,29 @@
--- TODO: implement custom read
+-- Injected code
+local result = test18_local.StatusCode.SUCCESS
+local next_offset = offset
+result, next_offset = test18_local.field_Size_read(tvb, tree, offset, offset_limit)
+if result == test18_local.StatusCode.INVALID_MSG_DATA then
+    return test18_local.StatusCode.MALFORMED_PACKET, next_offset
+end
+if result ~= test18_local.StatusCode.SUCCESS then
+    return result, next_offset
+end
+
+local next_limit = next_offset + test18_local.field_Size_value()
+if offset_limit < next_limit then
+    return test18_local.StatusCode.NOT_ENOUGH_DATA, offset
+end
+
+offset = next_offset
+offset_limit = next_limit
+local next_func = funcs[next_idx]
+if next_func == nil then
+    return test18_local.StatusCode.CODEGEN_ERROR, offset
+end
+result, next_offset = next_func(tvb, tree, offset, offset_limit, funcs, next_idx + 1, msg)
+
+if result == test18_local.StatusCode.NOT_ENOUGH_DATA then
+    return test18_local.StatusCode.MALFORMED_PACKET, offset_limit
+end
+
+return result, next_offset

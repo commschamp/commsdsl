@@ -151,7 +151,9 @@ bool WiresharkLayer::wiresharkNeedsCrcCalc() const
 
 std::string WiresharkLayer::wiresharkDissectBodyImpl() const
 {
-    return "-- TODO: implement";
+    [[maybe_unused]] static constexpr bool Should_be_overridden = false;
+    assert(Should_be_overridden);
+    return strings::genEmptyString();
 }
 
 bool WiresharkLayer::wiresharkIsInterfaceSupportedImpl([[maybe_unused]] const WiresharkInterface& iFace) const

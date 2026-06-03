@@ -144,6 +144,7 @@ std::string WiresharkSyncLayer::wiresharkPrefixDissectCodeInternal() const
 
 std::string WiresharkSyncLayer::wiresharkSuffixDissectCodeInternal() const
 {
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     auto parseObj = genSyncLayerParseObj();
     if (parseObj.parseSeekField()) {
         static const std::string Templ =
@@ -164,7 +165,6 @@ std::string WiresharkSyncLayer::wiresharkSuffixDissectCodeInternal() const
             "#^#CHECK#$#\n"
             ;
 
-        auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
         util::GenReplacementMap repl = {
             {"FIELD", wiresharkSeekSuffixFieldCodeInternal()},
             {"NEXT", wiresharkNextFuncCode()},
@@ -188,18 +188,23 @@ std::string WiresharkSyncLayer::wiresharkSuffixDissectCodeInternal() const
     auto minLen = field->wiresharkMinFieldLength();
     auto maxLen = field->wiresharkMaxFieldLength();
     if (parseObj.parseVerifyBeforeRead() && (minLen == maxLen)) {
-        // TODO: test
-        assert(false);
-
         static const std::string Templ =
+            "local orig_tree = #^#TREE#$#\n"
             "local orig_offset = #^#OFFSET#$#\n"
             "local sync_field_offset = #^#LIMIT#$# - #^#LEN#$#\n"
             "#^#OFFSET#$# = sync_field_offset\n"
+            "#^#TREE#$# = #^#TREE#$#:add(#^#PROTO_NAME#$#, #^#TVB#$#(#^#OFFSET#$#, -1))\n"
+            "#^#TREE#$#:set_hidden(true)\n"
             "#^#FIELD#$#\n"
             "#^#CHECK#$#\n"
-            "#^#OFFSET#$# = orig_offset"
+            "#^#TREE#$# = orig_tree\n"
+            "#^#OFFSET#$# = orig_offset\n"
             "#^#LIMIT#$# = sync_field_offset\n"
             "#^#NEXT#$#\n"
+            "#^#OFFSET#$# = sync_field_offset\n"
+            "#^#LIMIT#$# = sync_field_offset + #^#LEN#$#\n"
+            "#^#FIELD#$#\n"
+            "#^#CHECK#$#\n"
             ;
 
         util::GenReplacementMap repl = {
@@ -209,6 +214,10 @@ std::string WiresharkSyncLayer::wiresharkSuffixDissectCodeInternal() const
             {"FIELD", WiresharkLayer::wiresharkDissectFieldCode()},
             {"CHECK", wiresharkSyncValueCheckCodeInternal()},
             {"NEXT", wiresharkNextFuncCode()},
+            {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
+            {"TREE", WiresharkField::wiresharkTreeStr()},
+            {"PROTO_NAME", Wireshark::wiresharkProtocolObjName(wiresharkGenerator)},
+            {"TVB", WiresharkField::wiresharkTvbStr()},
         };
 
         return util::genProcessTemplate(Templ, repl);

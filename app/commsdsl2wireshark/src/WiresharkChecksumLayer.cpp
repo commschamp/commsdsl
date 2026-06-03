@@ -78,7 +78,7 @@ std::string WiresharkChecksumLayer::wiresharkExtraDissectCodeImpl() const
     util::GenReplacementMap repl = {
         {"NAME", wiresharkChecksumFuncNameInternal()},
         {"REPLACE", wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace checksum calculation algorithm", &replaced)},
-        {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend checksum calculation algorithm", &replaced)},
+        {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend checksum calculation algorithm", &extended)},
     };
 
     if (!replaced) {
@@ -257,8 +257,35 @@ std::string WiresharkChecksumLayer::wiresharkChecksumFuncNameInternal() const
 
 std::string WiresharkChecksumLayer::wiresharkPrefixDissectBodyInternal() const
 {
-    // TODO:
-    return "-- TODO: implement checksum prefix";
+    static const std::string Templ =
+        "#^#FIELD#$#\n"
+        "local checksum = #^#CALC#$#(#^#TVB#$#, #^#NEXT_OFFSET#$#, #^#LIMIT#$#)\n"
+        "if #^#VALUE_FUNC#$#() ~= checksum then\n"
+        "    #^#TREE#$#:add_expert_info(PI_CHECKSUM, PI_WARN, \"Checksum Error\")\n"
+        "    return #^#ERROR#$#, #^#NEXT_OFFSET#$#\n"
+        "end\n"
+        "\n"
+        "#^#OFFSET#$# = #^#NEXT_OFFSET#$#\n"
+        "#^#NEXT#$#\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    auto* field = wiresharkField();
+    assert(field != nullptr);
+    util::GenReplacementMap repl = {
+        {"FIELD", wiresharkDissectFieldCode()},
+        {"CALC", wiresharkChecksumFuncNameInternal()},
+        {"TVB", WiresharkField::wiresharkTvbStr()},
+        {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
+        {"LIMIT", WiresharkField::wiresharkOffsetLimitStr()},
+        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::ChecksumError)},
+        {"NEXT", wiresharkNextFuncCode()},
+        {"VALUE_FUNC", field->wiresharkValueFuncName()},
+        {"TREE", WiresharkField::wiresharkTreeStr()},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string WiresharkChecksumLayer::wiresharkSuffixDissectBodyInternal() const
@@ -312,8 +339,46 @@ std::string WiresharkChecksumLayer::wiresharkSuffixDissectBodyInternal() const
 
 std::string WiresharkChecksumLayer::wiresharkSuffixVerifyFirstDissectBodyInternal() const
 {
-    // TODO:
-    return "-- TODO: implement checksum suffix with verification first";
+    static const std::string Templ =
+        "local orig_tree = #^#TREE#$#\n"
+        "local orig_offset = #^#OFFSET#$#\n"
+        "local checksum_field_offset = #^#LIMIT#$# - #^#LEN#$#\n"
+        "#^#OFFSET#$# = checksum_field_offset\n"
+        "#^#TREE#$# = #^#TREE#$#:add(#^#PROTO_NAME#$#, #^#TVB#$#(#^#OFFSET#$#, -1))\n"
+        "#^#TREE#$#:set_hidden(true)\n"
+        "#^#FIELD#$#\n"
+        "#^#TREE#$# = orig_tree\n"
+        "#^#OFFSET#$# = orig_offset\n"
+        "#^#LIMIT#$# = checksum_field_offset\n"
+        "local checksum = #^#CALC#$#(#^#TVB#$#, orig_offset, checksum_field_offset)\n"
+        "if #^#VALUE_FUNC#$#() ~= checksum then\n"
+        "    #^#TREE#$#:add_expert_info(PI_CHECKSUM, PI_WARN, \"Checksum Error\")\n"
+        "    return #^#ERROR#$#, #^#OFFSET#$#\n"
+        "end\n"
+        "#^#NEXT#$#\n"
+        "#^#OFFSET#$# = checksum_field_offset\n"
+        "#^#LIMIT#$# = checksum_field_offset + #^#LEN#$#\n"
+        "#^#FIELD#$#\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    auto* field = wiresharkField();
+    assert(field != nullptr);
+    util::GenReplacementMap repl = {
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+        {"TREE", WiresharkField::wiresharkTreeStr()},
+        {"PROTO_NAME", Wireshark::wiresharkProtocolObjName(wiresharkGenerator)},
+        {"TVB", WiresharkField::wiresharkTvbStr()},
+        {"FIELD", wiresharkDissectFieldCode()},
+        {"LIMIT", WiresharkField::wiresharkOffsetLimitStr()},
+        {"CALC", wiresharkChecksumFuncNameInternal()},
+        {"VALUE_FUNC", field->wiresharkValueFuncName()},
+        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::ChecksumError)},
+        {"NEXT", wiresharkNextFuncCode()},
+        {"LEN", std::to_string(field->wiresharkMinFieldLength())},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2wireshark

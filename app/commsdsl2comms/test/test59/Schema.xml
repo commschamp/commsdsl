@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test59" endian="big">
+    <description>
+        Testing vefify of the checksum before reading rest of the frame
+    </description>
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="0" />
+            <validValue name="M2" val="1" />
+        </enum>
+    </fields>
+
+    <message name="Msg1" id="MsgId.M1">
+        <data name="F1" />
+    </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <string name="F1" />
+    </message>
+
+    <frame name="Frame">
+        <sync name="Prefix">
+            <int name="PrefixField" type="uint16" defaultValue="0xabcd" />
+        </sync>
+        <size name="Size">
+            <int name="SizeField" type="uint16" />
+        </size>
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+        <checksum name="DataChecksum" from="Id" alg="sum" verifyBeforeRead="true">
+            <int name="Checksum" type="uint8" />
+        </checksum>
+    </frame>
+</schema>

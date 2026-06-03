@@ -233,7 +233,6 @@ std::string WiresharkBundleField::wiresharkValidFuncBodyImpl(const WiresharkFiel
 std::string WiresharkBundleField::wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const
 {
     if (accStr.empty()) {
-        // TODO: support value override to allow proper comparison to bundle value
         return WiresharkBase::wiresharkValueAccessStrImpl(accStr, refField);
     }
 

@@ -1,0 +1,13 @@
+function(tvb, offset, offset_limit)
+    local sum = 0
+    local length = offset_limit - offset
+    if length <= 0 then
+        return 0
+    end
+
+    local data = tvb:range(offset, length):raw()
+    for i = 1, #data do
+        sum = sum + data:byte(i)
+    end
+    return bit32.band(sum, 0xff)
+end

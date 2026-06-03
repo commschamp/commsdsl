@@ -200,7 +200,6 @@ std::string WiresharkDataField::wiresharkValueAccessStrImpl(const std::string& a
 
 std::string WiresharkDataField::wiresharkSizeAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const
 {
-    // TODO: test
     assert(accStr.empty());
     return WiresharkBase::wiresharkValueAccessStrImpl(accStr, refField) + ":len()";
 }
@@ -264,7 +263,6 @@ std::string WiresharkDataField::wiresharkDissectLengthCodeInternal() const
 
     auto& detachedPrefix = parseObj.parseDetachedPrefixFieldName();
     if (!detachedPrefix.empty()) {
-        // TODO: test
         auto& siblings = wiresharkSiblings();
         auto sep = detachedPrefix.find_first_of('.');
         auto siblingName = detachedPrefix.substr(0, sep);

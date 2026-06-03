@@ -946,20 +946,18 @@ std::string WiresharkField::wiresharkDissectLengthCheckImpl(const WiresharkField
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkField::wiresharkDissectBodyImpl(const WiresharkField* refField) const
+std::string WiresharkField::wiresharkDissectBodyImpl([[maybe_unused]] const WiresharkField* refField) const
 {
-    // TODO
-    static_cast<void>(refField);
-    return "-- TODO: not implemented";
-    //return strings::genEmptyString();
+    [[maybe_unused]] static constexpr bool Should_be_overriden = false;
+    assert(Should_be_overriden);
+    return strings::genEmptyString();
 }
 
 std::string WiresharkField::wiresharkValidFuncBodyImpl([[maybe_unused]] const WiresharkField* refField) const
 {
-    // TODO: assert for not overriden
-    return
-        "-- TODO: BUG: not overriden\n"
-        "return true";
+    [[maybe_unused]] static constexpr bool Should_be_overriden = false;
+    assert(Should_be_overriden);
+    return "return true";
 }
 
 std::string WiresharkField::wiresharkValueFuncBodyImpl(const WiresharkField* refField) const
