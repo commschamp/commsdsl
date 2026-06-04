@@ -244,7 +244,6 @@ std::string WiresharkVariantField::wiresharkSizeAccessStrImpl(const std::string&
 std::string WiresharkVariantField::wiresharkExistsCheckStrImpl(const std::string& accStr, const WiresharkField* refField) const
 {
     if (accStr.empty()) {
-        // TODO: variant has actual member set.
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return WiresharkBase::wiresharkExistsCheckStrImpl(accStr, refField);

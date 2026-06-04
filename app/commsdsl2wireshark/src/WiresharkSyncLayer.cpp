@@ -223,9 +223,28 @@ std::string WiresharkSyncLayer::wiresharkSuffixDissectCodeInternal() const
         return util::genProcessTemplate(Templ, repl);
     }
 
-    // TODO: implement and test
-    assert(false);
-    return "-- TODO: implement sync suffix";
+    static const std::string Templ =
+        "#^#NEXT#$#\n"
+        "if #^#RESULT#$# ~= #^#SUCCESS#$# then\n"
+        "    return #^#RESULT#$#, #^#OFFSET#$#\n"
+        "end"
+        "\n"
+        "#^#OFFSET#$# = #^#NEXT_OFFSET#$#\n"
+        "#^#FIELD#$#\n"
+        "#^#CHECK#$#\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"FIELD", WiresharkLayer::wiresharkDissectFieldCode()},
+        {"NEXT", wiresharkNextFuncCode()},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+        {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
+        {"CHECK", wiresharkSyncValueCheckCodeInternal()},
+        {"RESULT", WiresharkField::wiresharkResultStr()},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
 }
 
 std::string WiresharkSyncLayer::wiresharkSeekPrefixFieldCodeInternal() const

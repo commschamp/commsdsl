@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test59" endian="big">
+<schema name="test60" endian="big">
     <description>
-        Testing verify of the checksum before reading rest of the frame
+        Testing simple sync suffix
     </description>
     <fields>
         <enum name="MsgId" type="uint8" semanticType="messageId" >
@@ -11,24 +11,24 @@
     </fields>
 
     <message name="Msg1" id="MsgId.M1">
-        <data name="F1" />
+        <int type="uint16" name="F1" />
     </message>
 
     <message name="Msg2" id="MsgId.M2">
-        <string name="F1" />
+        <int type="uint32" name="F1" />
     </message>
 
     <frame name="Frame">
         <sync name="Prefix">
-            <int name="PrefixField" type="uint16" defaultValue="0xabcd" />
+            <int name="PrefixField" type="uint8" defaultValue="0x02" />
         </sync>
         <size name="Size">
             <int name="SizeField" type="uint16" />
         </size>
         <id name="Id" field="MsgId" />
         <payload name="Data" />
-        <checksum name="DataChecksum" from="Id" alg="sum" verifyBeforeRead="true">
-            <int name="Checksum" type="uint8" />
-        </checksum>
+        <sync name="Suffix">
+            <int name="SuffixField" type="uint8" defaultValue="0x03"/>
+        </sync>
     </frame>
 </schema>
