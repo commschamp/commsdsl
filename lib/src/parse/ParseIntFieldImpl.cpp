@@ -177,8 +177,8 @@ std::size_t ParseIntFieldImpl::parseMaxTypeLength(ParseType t)
         /* ParseType::Uint32 */ sizeof(std::uint32_t),
         /* ParseType::Int64 */ sizeof(std::int64_t),
         /* ParseType::Uint64 */ sizeof(std::uint64_t),
-        /* ParseType::Intvar */ (((sizeof(std::intmax_t) * 8) - 1) / 7) + 1,
-        /* ParseType::Uintvar */(((sizeof(std::uintmax_t) * 8) - 1) / 7) + 1
+        /* ParseType::Intvar */ sizeof(std::uint64_t), // (((sizeof(std::intmax_t) * 8) - 1) / 7) + 1,
+        /* ParseType::Uintvar */ sizeof(std::uint64_t), // (((sizeof(std::uintmax_t) * 8) - 1) / 7) + 1
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;

@@ -230,7 +230,12 @@ std::string WiresharkIntField::wiresharkDissectBodyImpl(const WiresharkField* re
         repl["LEN"] = std::to_string(wiresharkMaxFieldLength(refField));
     }
 
-    if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
+    bool bigVarLenField =
+        genIsVarLengthType(parseObj.parseType()) &&
+        (4 < parseObj.parseMaxLength());
+
+    if ((parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) &&
+        (!bigVarLenField))  {
         repl["SUFFIX"] = strings::genLittleEndianSuffixStr();
     }
 
@@ -532,17 +537,20 @@ std::string WiresharkIntField::wiresharkVarLengthCodeInternal(bool& hasVal) cons
     }
 
     if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
-        return wiresharkIntegralFieldVarLengthLittleEndianCode();
+        return wiresharkIntegralFieldVarLengthLittleEndianCode(!genIsUnsignedType());
     }
 
-    return wiresharkIntegralFieldVarLengthBigEndianCode();
+    return wiresharkIntegralFieldVarLengthBigEndianCode(!genIsUnsignedType());
 }
 
 std::string WiresharkIntField::wiresharkVarLengthCodeLargeNumInternal() const
 {
-    // TODO: Implement
-    assert(false);
-    return strings::genEmptyString();
+    auto parseObj = genIntFieldParseObj();
+    if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
+        return wiresharkIntegralFieldVarLengthLargeNumLittleEndianCode(!genIsUnsignedType());
+    }
+
+    return wiresharkIntegralFieldVarLengthLargeNumBigEndianCode(!genIsUnsignedType());
 }
 
 std::string WiresharkIntField::wiresharkSerOffsetCodeInternal(bool& hasVal) const

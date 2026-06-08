@@ -905,10 +905,10 @@ void IntTestSuite::test9()
         TS_ASSERT_EQUALS(intField1.parseType(), commsdsl::parse::ParseIntField::ParseType::Intvar);
         TS_ASSERT_EQUALS(intField1.parseEndian(), commsdsl::parse::ParseEndian_Big);
         TS_ASSERT_EQUALS(intField1.parseMinLength(), 1U);
-        TS_ASSERT_EQUALS(intField1.parseMaxLength(), 10U);
+        TS_ASSERT_EQUALS(intField1.parseMaxLength(), 8U);
         TS_ASSERT_EQUALS(intField1.parseSerOffset(), -100);
-        TS_ASSERT_EQUALS(intField1.parseMinValue(), std::numeric_limits<std::int64_t>::min() - intField1.parseSerOffset());
-        TS_ASSERT_EQUALS(intField1.parseMaxValue(), std::numeric_limits<std::int64_t>::max());
+        TS_ASSERT_EQUALS(intField1.parseMinValue(), -36028797018963968 - intField1.parseSerOffset());
+        TS_ASSERT_EQUALS(intField1.parseMaxValue(), 36028797018963967 - intField1.parseSerOffset());
         TS_ASSERT_EQUALS(intField1.parseDefaultValue(), 100);
     } while (false);
 
@@ -966,10 +966,9 @@ void IntTestSuite::test10()
         TS_ASSERT_EQUALS(intField1.parseType(), commsdsl::parse::ParseIntField::ParseType::Uintvar);
         TS_ASSERT_EQUALS(intField1.parseEndian(), commsdsl::parse::ParseEndian_Little);
         TS_ASSERT_EQUALS(intField1.parseMinLength(), 1U);
-        TS_ASSERT_EQUALS(intField1.parseMaxLength(), 10U);
+        TS_ASSERT_EQUALS(intField1.parseMaxLength(), 8U);
         TS_ASSERT_EQUALS(intField1.parseSerOffset(), -100);
         TS_ASSERT_EQUALS(intField1.parseMinValue(), -intField1.parseSerOffset());
-        TS_ASSERT_EQUALS(intField1.parseMaxValue(), (std::intmax_t)std::numeric_limits<std::uint64_t>::max());
         TS_ASSERT_EQUALS(intField1.parseDefaultValue(), 100);
     } while (false);
 

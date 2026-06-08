@@ -56,6 +56,70 @@ bool wiresharkIsOverrideCodeRequiredInternal(commsdsl::parse::ParseOverrideType 
         (value == commsdsl::parse::ParseOverrideType_Extend);
 }
 
+std::string wiresharkIntegralFieldSignExtendCodeInternal()
+{
+    static const std::string Templ =
+        "local sign_mask = bit32.lshift(1, (len * 8) - (len + 1))\n"
+        "if bit32.btest(#^#VAL#$#, sign_mask) then\n"
+        "    local value_mask = sign_mask - 1\n"
+        "    local full_mask = 0xffffffff\n"
+        "    if (len < 4) then\n"
+        "        full_mask = bit32.lshift(1, len * 8) - 1\n"
+        "    end\n"
+        "    local ext_mask = bit32.bxor(full_mask, value_mask)\n"
+        "    #^#VAL#$# = bit32.bor(#^#VAL#$#, ext_mask)\n"
+        "    local sub_val = bit32.lshift(1 , len * 8)\n"
+        "    #^#VAL#$# = #^#VAL#$# - sub_val\n"
+        "end\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"VAL", WiresharkField::wiresharkValStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string wiresharkIntegralFieldBigNumSignExtendCodeInternal()
+{
+    static const std::string Templ =
+        "if len <= 4 then\n"
+        "    local sign_mask = bit32.lshift(1, (len * 8) - (len + 1))\n"
+        "    if bit32.btest(val_low, sign_mask) then\n"
+        "        local value_mask = sign_mask - 1\n"
+        "        local full_mask = 0xffffffff\n"
+        "        if (len < 4) then\n"
+        "            full_mask = bit32.lshift(1, len * 8) - 1\n"
+        "        end\n"
+        "        local ext_mask = bit32.bxor(full_mask, value_mask)\n"
+        "        val_low = bit32.bor(val_low, ext_mask)\n"
+        "        local sub_val = bit32.lshift(1 , len * 8)\n"
+        "        val_low = val_low - sub_val\n"
+        "        val_high = 0xffffffff\n"
+        "    end\n"
+        "else\n"
+        "    local sign_mask = bit32.lshift(1, ((len * 8) - (len + 1)) - 32)\n"
+        "    if bit32.btest(val_high, sign_mask) then\n"
+        "        local value_mask = sign_mask - 1\n"
+        "        local full_mask = 0xffffffff\n"
+        "        if (len < 8) then\n"
+        "            full_mask = bit32.lshift(1, (len - 4) * 8) - 1\n"
+        "        end\n"
+        "        local ext_mask = bit32.bxor(full_mask, value_mask)\n"
+        "        val_high = bit32.bor(val_high, ext_mask)\n"
+        "        local sub_val = bit32.lshift(1 , (len - 4) * 8)\n"
+        "        val_high = val_high - sub_val\n"
+        "    end\n"
+        "end\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"VAL", WiresharkField::wiresharkValStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
 } // namespace
 
 WiresharkField::WiresharkField(GenField& field) :
@@ -1112,7 +1176,7 @@ std::string WiresharkField::wiresharkForcedIntegralFieldType(const WiresharkFiel
     return parentBitfield->wiresharkIntegralType();
 }
 
-std::string WiresharkField::wiresharkIntegralFieldVarLengthBigEndianCode() const
+std::string WiresharkField::wiresharkIntegralFieldVarLengthBigEndianCode(bool isSigned) const
 {
     static const std::string Templ =
         "local has_more = true\n"
@@ -1129,9 +1193,9 @@ std::string WiresharkField::wiresharkIntegralFieldVarLengthBigEndianCode() const
         "end\n"
         "len = #^#NEXT_OFFSET#$# - #^#OFFSET#$#\n"
         "#^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, len)\n"
+        "#^#SIGN#$#\n"
         ;
 
-    // TODO: sign extend
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
     util::GenReplacementMap repl = {
         {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::MalformedPacket)},
@@ -1144,10 +1208,14 @@ std::string WiresharkField::wiresharkIntegralFieldVarLengthBigEndianCode() const
         {"LIMIT", wiresharkOffsetLimitStr()},
     };
 
+    if (isSigned) {
+        repl["SIGN"] = wiresharkIntegralFieldSignExtendCodeInternal();
+    }
+
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string WiresharkField::wiresharkIntegralFieldVarLengthLittleEndianCode() const
+std::string WiresharkField::wiresharkIntegralFieldVarLengthLittleEndianCode(bool isSigned) const
 {
     static const std::string Templ =
         "local has_more = true\n"
@@ -1166,9 +1234,9 @@ std::string WiresharkField::wiresharkIntegralFieldVarLengthLittleEndianCode() co
         "end\n"
         "len = #^#NEXT_OFFSET#$# - #^#OFFSET#$#\n"
         "#^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, len)\n"
+        "#^#SIGN#$#\n"
         ;
 
-    // TODO: sign extend
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
     util::GenReplacementMap repl = {
         {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::MalformedPacket)},
@@ -1180,6 +1248,117 @@ std::string WiresharkField::wiresharkIntegralFieldVarLengthLittleEndianCode() co
         {"LEN", std::to_string(m_genField.genParseObj().parseMaxLength())},
         {"LIMIT", wiresharkOffsetLimitStr()},
     };
+
+    if (isSigned) {
+        repl["SIGN"] = wiresharkIntegralFieldSignExtendCodeInternal();
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkField::wiresharkIntegralFieldVarLengthLargeNumBigEndianCode(bool isSigned) const
+{
+    static const std::string Templ =
+        "local has_more = true\n"
+        "local byte_idx = 0\n"
+        "local val_low = 0\n"
+        "local val_high = 0\n"
+        "local move_shift = 32 - 7\n"
+        "local move_mask = bit32.lshift(1, 8) - 1\n"
+        "while has_more and (#^#NEXT_OFFSET#$# < (#^#OFFSET#$# + #^#LEN#$#)) and (#^#NEXT_OFFSET#$# < #^#LIMIT#$#) do\n"
+        "    local b = #^#TVB#$#(#^#NEXT_OFFSET#$#, 1):uint()\n"
+        "    local data = bit32.band(b, 0x7F)\n"
+        "    has_more = (bit32.band(b, 0x80) ~= 0)\n"
+        "    local move_bits = bit32.band(bit32.rshift(val_low, move_shift), move_mask)\n"
+        "    val_high = bit32.bor(bit32.lshift(val_high, 7), move_bits)\n"
+        "    val_low = bit32.bor(bit32.lshift(val_low, 7), data)\n"
+        "    #^#NEXT_OFFSET#$# = #^#NEXT_OFFSET#$# + 1\n"
+        "end\n"
+        "\n"
+        "if has_more then\n"
+        "    return #^#ERROR#$#, #^#OFFSET#$#\n"
+        "end\n"
+        "len = #^#NEXT_OFFSET#$# - #^#OFFSET#$#\n"
+        "#^#SIGN#$#\n"
+        "#^#VAL#$# = #^#U#$#Int64(val_low, val_high)\n"
+        "#^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, len)\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    util::GenReplacementMap repl = {
+        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::MalformedPacket)},
+        {"VAL", wiresharkValStr()},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+        {"OFFSET", wiresharkOffsetStr()},
+        {"TVB", wiresharkTvbStr()},
+        {"RANGE", wiresharkRangeStr()},
+        {"LEN", std::to_string(m_genField.genParseObj().parseMaxLength())},
+        {"LIMIT", wiresharkOffsetLimitStr()},
+    };
+
+    if (isSigned) {
+        repl["SIGN"] = wiresharkIntegralFieldBigNumSignExtendCodeInternal();
+    }
+    else {
+        repl["U"] = "U";
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkField::wiresharkIntegralFieldVarLengthLargeNumLittleEndianCode(bool isSigned) const
+{
+    static const std::string Templ =
+        "local has_more = true\n"
+        "local byte_idx = 0\n"
+        "local val_low = 0\n"
+        "local val_high = 0\n"
+        "while has_more and (#^#NEXT_OFFSET#$# < (#^#OFFSET#$# + #^#LEN#$#)) and (#^#NEXT_OFFSET#$# < #^#LIMIT#$#) do\n"
+        "    local b = #^#TVB#$#(#^#NEXT_OFFSET#$#, 1):uint()\n"
+        "    local data = bit32.band(b, 0x7F)\n"
+        "    has_more = (bit32.band(b, 0x80) ~= 0)\n"
+        "    local shift = 7 * byte_idx\n"
+        "    if shift <= (32 - 7) then\n"
+        "        val_low = bit32.bor(bit32.lshift(data, shift), val_low)\n"
+        "    elseif (32 < shift) then\n"
+        "        val_high = bit32.bor(bit32.lshift(data, shift - 32), val_high)\n"
+        "    else\n"
+        "        local data_shift = 32 - shift\n"
+        "        local low_mask = bit32.lshift(1, data_shift) - 1\n"
+        "        val_low = bit32.bor(bit32.lshift(bit32.band(data, low_mask), shift), val_low)\n"
+        "        val_high = bit32.bor(bit32.rshift(data, data_shift), val_high)\n"
+        "    end\n"
+        "    #^#NEXT_OFFSET#$# = #^#NEXT_OFFSET#$# + 1\n"
+        "    byte_idx = byte_idx + 1\n"
+        "end\n"
+        "\n"
+        "if has_more then\n"
+        "    return #^#ERROR#$#, #^#OFFSET#$#\n"
+        "end\n"
+        "len = #^#NEXT_OFFSET#$# - #^#OFFSET#$#\n"
+        "#^#SIGN#$#\n"
+        "#^#VAL#$# = #^#U#$#Int64(val_low, val_high)\n"
+        "#^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, len)\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    util::GenReplacementMap repl = {
+        {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::MalformedPacket)},
+        {"VAL", wiresharkValStr()},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+        {"OFFSET", wiresharkOffsetStr()},
+        {"TVB", wiresharkTvbStr()},
+        {"RANGE", wiresharkRangeStr()},
+        {"LEN", std::to_string(m_genField.genParseObj().parseMaxLength())},
+        {"LIMIT", wiresharkOffsetLimitStr()},
+    };
+
+    if (isSigned) {
+        repl["SIGN"] = wiresharkIntegralFieldBigNumSignExtendCodeInternal();
+    }
+    else {
+        repl["U"] = "U";
+    }
 
     return util::genProcessTemplate(Templ, repl);
 }

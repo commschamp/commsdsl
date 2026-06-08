@@ -13,6 +13,7 @@ public:
     void test1();
     void test2();
     void test3();
+    void test4();
 
     using Interface =
         test6::Message<
@@ -87,3 +88,25 @@ void TestSuite::test3()
     TS_ASSERT_EQUALS(*(dynamic_cast<Test3_Msg2*>(readMsg.get())), msg2);
 }
 
+void TestSuite::test4()
+{
+    Msg5 msg;
+    msg.field_f1().value() = -128;
+    msg.field_f2().value() = -512;
+    TS_ASSERT_EQUALS(msg.doLength(), 4U);
+
+    std::vector<std::uint8_t> buf;
+    buf.resize(msg.doLength());
+    auto writeIter = buf.data();
+    auto es = msg.write(writeIter, buf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    static const std::uint8_t ExpBuf[] = {
+        0x80, 0x7f,
+        0xfc, 0x00,
+    };
+    static const std::size_t ExpBufSize = std::extent<decltype(ExpBuf)>::value;
+
+    TS_ASSERT_EQUALS(buf.size(), ExpBufSize);
+    TS_ASSERT(std::equal(buf.begin(), buf.end(), std::begin(ExpBuf)));
+}

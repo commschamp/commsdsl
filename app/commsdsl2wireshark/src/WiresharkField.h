@@ -138,8 +138,10 @@ protected:
     std::string wiresharkFieldRefName(const WiresharkField* refField) const;
     std::string wiresharkForcedIntegralFieldMask(const WiresharkField* refField) const;
     std::string wiresharkForcedIntegralFieldType(const WiresharkField* refField) const;
-    std::string wiresharkIntegralFieldVarLengthBigEndianCode() const;
-    std::string wiresharkIntegralFieldVarLengthLittleEndianCode() const;
+    std::string wiresharkIntegralFieldVarLengthBigEndianCode(bool isSigned) const;
+    std::string wiresharkIntegralFieldVarLengthLittleEndianCode(bool isSigned) const;
+    std::string wiresharkIntegralFieldVarLengthLargeNumBigEndianCode(bool isSigned) const;
+    std::string wiresharkIntegralFieldVarLengthLargeNumLittleEndianCode(bool isSigned) const;
     unsigned wiresharkForcedMaskShift(const WiresharkField* refField) const;
     unsigned wiresharkForcedBitLength(const WiresharkField* refField) const;
     std::string wiresharkFieldDescriptionStr(const WiresharkField* refField) const;

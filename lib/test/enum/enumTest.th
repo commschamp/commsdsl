@@ -217,18 +217,18 @@ void EnumTestSuite::test5()
     TS_ASSERT_EQUALS(enumField.parseType(), commsdsl::parse::ParseIntField::ParseType::Uintvar);
     TS_ASSERT_EQUALS(enumField.parseEndian(), commsdsl::parse::ParseEndian_Little);
     TS_ASSERT_EQUALS(enumField.parseMinLength(), 1U);
-    TS_ASSERT_EQUALS(enumField.parseMaxLength(), 10U);
-    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 0xffffffffffffffff);
+    TS_ASSERT_EQUALS(enumField.parseMaxLength(), 8U);
+    TS_ASSERT_EQUALS(enumField.parseDefaultValue(), 0xffffffffffffff);
     TS_ASSERT(!enumField.parseIsNonUniqueAllowed());
     TS_ASSERT(enumField.parseIsUnique());
     TS_ASSERT_EQUALS(values.size(), 3);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
-    TS_ASSERT_EQUALS(values.find("V1")->second.m_value, 0x0123456789abcdef);
+    TS_ASSERT_EQUALS(values.find("V1")->second.m_value, 0x0123456789abcd);
     TS_ASSERT_EQUALS(values.find("V2")->second.m_value, 0xabcd);
-    TS_ASSERT_EQUALS(values.find("Null")->second.m_value, 0xffffffffffffffff);
-    TS_ASSERT_EQUALS(revValues.find(0x0123456789abcdef)->second, "V1");
+    TS_ASSERT_EQUALS(values.find("Null")->second.m_value, 0xffffffffffffff);
+    TS_ASSERT_EQUALS(revValues.find(0x0123456789abcd)->second, "V1");
     TS_ASSERT_EQUALS(revValues.find(0xabcd)->second, "V2");
-    TS_ASSERT_EQUALS(revValues.find(0xffffffffffffffff)->second, "Null");
+    TS_ASSERT_EQUALS(revValues.find(0xffffffffffffff)->second, "Null");
 }
 
 void EnumTestSuite::test6()

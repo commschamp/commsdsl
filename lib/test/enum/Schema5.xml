@@ -4,8 +4,8 @@
         endian="Little">
     <fields>
         <enum name="Enum1" type="uintvar" defaultValue="Null" >
-            <validValue name="V1" val="0x0123456789abcdef" />
-            <validValue name="Null" val="0xffffffffffffffff" />
+            <validValue name="V1" val="0x0123456789abcd" />
+            <validValue name="Null" val="0xffffffffffffff" />
             <validValue name="V2" val="0xabcd" />
         </enum>
     </fields>

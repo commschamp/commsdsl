@@ -1,0 +1,1 @@
+Due to enums with big unsigned underlying type, not accepted by emscripten.

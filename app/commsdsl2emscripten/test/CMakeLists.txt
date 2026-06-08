@@ -38,8 +38,13 @@ endif ()
 
 foreach (name ${tests})
     set (test_dir "${tests_path}/${name}")
-    file (GLOB schema_files ${test_dir}/Schema*.xml)
     set (this_test_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}")
+
+    if (EXISTS ${this_test_dir}/disabled.txt)
+        continue ()
+    endif ()
+
+    file (GLOB schema_files ${test_dir}/Schema*.xml)
     set (code_input_dir "${this_test_dir}/src")
     set (code_input_param)
     if (EXISTS "${code_input_dir}/")

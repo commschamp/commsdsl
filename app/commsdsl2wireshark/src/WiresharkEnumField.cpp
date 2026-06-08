@@ -52,13 +52,18 @@ std::string WiresharkEnumField::wiresharkFieldRegistrationImpl(const WiresharkFi
         {"REF_NAME", wiresharkFieldRefName(refField)},
         {"DISP_NAME", wiresharkFieldNameVarNameStr(refField)},
         {"VALS_NAME", wiresharkFieldObjName(refField) + strings::genValsSuffixStr()},
-        {"BASE", "base.DEC_HEX"},
+        {"BASE", "base.DEC"},
         {"MASK", wiresharkForcedIntegralFieldMask(refField)},
         {"DESC", wiresharkFieldDescriptionStr(refField)},
     };
 
-    if (obj.parseHexAssign()) {
-        repl["BASE"] = "base.HEX_DEC";
+    if (genIsUnsignedType()) {
+        // Cannot display hex value
+        repl["BASE"] = "base.DEC_HEX";
+
+        if (obj.parseHexAssign()) {
+            repl["BASE"] = "base.HEX_DEC";
+        }
     }
 
     if (repl["TYPE"].empty()) {
@@ -313,17 +318,20 @@ std::string WiresharkEnumField::wiresharkVarLengthCodeInternal(bool& hasVal) con
     }
 
     if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
-        return wiresharkIntegralFieldVarLengthLittleEndianCode();
+        return wiresharkIntegralFieldVarLengthLittleEndianCode(!genIsUnsignedUnderlyingType());
     }
 
-    return wiresharkIntegralFieldVarLengthBigEndianCode();
+    return wiresharkIntegralFieldVarLengthBigEndianCode(!genIsUnsignedUnderlyingType());
 }
 
 std::string WiresharkEnumField::wiresharkVarLengthCodeLargeNumInternal() const
 {
-    // TODO: Implement and test
-    assert(false);
-    return strings::genEmptyString();
+    auto parseObj = genEnumFieldParseObj();
+    if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
+        return wiresharkIntegralFieldVarLengthLargeNumLittleEndianCode(!genIsUnsignedType());
+    }
+
+    return wiresharkIntegralFieldVarLengthLargeNumBigEndianCode(!genIsUnsignedType());
 }
 
 } // namespace commsdsl2wireshark
