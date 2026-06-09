@@ -142,14 +142,15 @@
             <validValue name="V1" val="-128" />
             <validValue name="V2" val="0x7fff" />
         </enum>
-        <enum name="F3" type="uintvar">
+        <!-- Big enums are not properly suported by some compilers-->
+        <!--enum name="F3" type="uintvar">
             <validValue name="V1" val="0xffff" />
             <validValue name="V2" val="0xfffffffff" />
         </enum>
         <enum name="F4" type="intvar">
             <validValue name="V1" val="-512" />
             <validValue name="V2" val="-2048" />
-        </enum>
+        </enum-->
     </message>
 
     <message name="Msg8" id="MsgId.M8">
@@ -162,14 +163,15 @@
             <validValue name="V1" val="-128" />
             <validValue name="V2" val="0x7fff" />
         </enum>
-        <enum name="F3" type="uintvar" endian="big">
+        <!-- Big enums are not properly suported by some compilers-->
+        <!--enum name="F3" type="uintvar" endian="big">
             <validValue name="V1" val="0xffff" />
             <validValue name="V2" val="0xfffffffff" />
         </enum>
         <enum name="F4" type="intvar" endian="big">
             <validValue name="V1" val="-512" />
             <validValue name="V2" val="-2048" />
-        </enum>
+        </enum-->
     </message>
 
     <frame name="Frame">

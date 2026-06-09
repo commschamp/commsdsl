@@ -58,22 +58,18 @@ def pcap6(f):
 
 def pcap7(f):
     seq = 7000
-    msg7_payload = struct.pack('<3B3B6B2B',
+    msg7_payload = struct.pack('<3B3B',
         0xff, 0xff, 0x7f,
-        0xff, 0xff, 0x01,
-        0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
-        0x80, 0x70)
+        0xff, 0xff, 0x01)
     msg7 = do_frame(7, msg7_payload)
     header = commsdsl_create_ethernet_ip_tcp_headers(len(msg7), seq)
     commsdsl_write_packet(f, header + msg7, time.time())
 
 def pcap8(f):
     seq = 8000
-    msg8_payload = struct.pack('<3B2B3B2B',
+    msg8_payload = struct.pack('<3B2B',
         0x81, 0xff, 0x7f,
-        0xff, 0x00,
-        0x83, 0xff, 0x7f,
-        0xfc, 0x00)
+        0xff, 0x00)
     msg8 = do_frame(8, msg8_payload)
     header = commsdsl_create_ethernet_ip_tcp_headers(len(msg8), seq)
     commsdsl_write_packet(f, header + msg8, time.time())
