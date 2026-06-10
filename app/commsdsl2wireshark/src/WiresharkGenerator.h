@@ -68,6 +68,8 @@ public:
     std::string wiresharkInputRelPathFor(const GenElem& elem, const std::string& suffix) const;
     std::string wiresharkInputAbsPathFor(const GenElem& elem, const std::string& suffix) const;
 
+    unsigned wiresharkDefaultPort() const;
+
 protected:
     virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
     virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
@@ -97,10 +99,13 @@ protected:
     virtual GenFieldPtr genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent) override;
 
     virtual bool genWriteImpl() override;
+    virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
     virtual const std::string& genCommentPrefixImpl() const override;
 
 private:
     bool wiresharkWriteExtraFilesInternal() const;
+
+    unsigned m_defaultPort = 0U;
 };
 
 } // namespace commsdsl2wireshark

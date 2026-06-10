@@ -32,6 +32,7 @@
 #include "WiresharkNamespace.h"
 #include "WiresharkOptionalField.h"
 #include "WiresharkPayloadLayer.h"
+#include "WiresharkProgramOptions.h"
 #include "WiresharkRefField.h"
 #include "WiresharkSchema.h"
 #include "WiresharkSetField.h"
@@ -242,6 +243,23 @@ std::string WiresharkGenerator::wiresharkInputRelPathFor(const GenElem& elem, co
 std::string WiresharkGenerator::wiresharkInputAbsPathFor(const GenElem& elem, const std::string& suffix) const
 {
     return genGetCodeDir() + '/' + wiresharkInputRelPathFor(elem, suffix);
+}
+
+unsigned WiresharkGenerator::wiresharkDefaultPort() const
+{
+    return m_defaultPort;
+}
+
+WiresharkGenerator::OptsProcessResult WiresharkGenerator::genProcessOptionsImpl(const GenProgramOptions& options)
+{
+    auto& opts = WiresharkProgramOptions::wiresharkCast(options);
+    m_defaultPort = opts.wiresharkDefaultPort();
+    if (m_defaultPort == 0) {
+        genLogger().genError("Wrong default port value");
+        return OptsProcessResult_Failure;
+    }
+
+    return OptsProcessResult_Continue;
 }
 
 const std::string& WiresharkGenerator::genCommentPrefixImpl() const

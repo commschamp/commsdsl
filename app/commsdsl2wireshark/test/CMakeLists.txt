@@ -39,7 +39,6 @@ foreach (name ${tests})
     add_custom_target(${output_tgt} ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
         COMMAND $<TARGET_FILE:${APP_NAME}> -s -d --warn-as-err --code-inject-comments ${code_input_param} ${extra_params} -o ${output_dir}.tmp ${schema_files}
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/common_test.lua ${output_dir}.tmp/
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="."
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
@@ -87,7 +86,7 @@ foreach (name ${tests})
 
     add_test(
         NAME ${APP_NAME}.${name}
-        COMMAND ${TSHARK_EXECUTABLE} -r ${pcap_output} -X lua_script:common_test.lua -O ${prot_name}
+        COMMAND ${TSHARK_EXECUTABLE} -r ${pcap_output} -X lua_script:${prot_name}_plug.lua -O ${prot_name}
         WORKING_DIRECTORY ${output_dir}
     )
 endforeach ()

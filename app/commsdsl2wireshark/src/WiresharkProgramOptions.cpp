@@ -15,14 +15,39 @@
 
 #include "WiresharkProgramOptions.h"
 
+#include "commsdsl/gen/util.h"
+
+namespace util = commsdsl::gen::util;
+
 namespace commsdsl2wireshark
 {
+
+namespace
+{
+
+const std::string WiresharkDefaultPortStr("default-port");
+const unsigned WiresharkDefaultPort = 12345;
+
+} // namespace
 
 WiresharkProgramOptions::WiresharkProgramOptions()
 {
     genAddCommonOptions();
     genAddMessagesSelectionOptions();
-    genAddInterfaceSelectionOptions();
+    genAddInterfaceSelectionOptions()
+    (WiresharkDefaultPortStr,
+        "Default network port. Defaults to " + std::to_string(WiresharkDefaultPort) + '.',
+        true)
+    ;
+}
+
+unsigned WiresharkProgramOptions::wiresharkDefaultPort() const
+{
+    if (!genIsOptUsed(WiresharkDefaultPortStr)) {
+        return WiresharkDefaultPort;
+    }
+
+    return util::genStrToUnsigned(genValue(WiresharkDefaultPortStr));
 }
 
 } // namespace commsdsl2wireshark

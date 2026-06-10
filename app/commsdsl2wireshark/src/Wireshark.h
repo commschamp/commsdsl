@@ -44,7 +44,7 @@ public:
     };
 
     static bool wiresharkWrite(const WiresharkGenerator& generator);
-    static std::string wiresharkFileName(const WiresharkGenerator& generator);
+    static std::string wiresharkFileName(const WiresharkGenerator& generator, const std::string& suffix = std::string());
     static const std::string& wiresharkProtocolObjName(const WiresharkGenerator& generator);
     static std::string wiresharkCreateFieldFuncName(const WiresharkGenerator& generator);
     static std::string wiresharkCreateExtractorFuncName(const WiresharkGenerator& generator);
@@ -66,6 +66,8 @@ private:
 
 private:
     bool wiresharkWriteInternal() const;
+    bool wiresharkWriteMainInternal() const;
+    bool wiresharkWriteTcpInternal() const;
     std::string wiresharkProtocolDefInternal() const;
     std::string wiresharkLocalInternal() const;
     std::string wiresharkDissectFuncInternal() const;

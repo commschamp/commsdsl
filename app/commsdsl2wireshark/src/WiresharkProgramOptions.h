@@ -31,6 +31,8 @@ public:
     {
         return static_cast<const WiresharkProgramOptions&>(obj);
     }
+
+    unsigned wiresharkDefaultPort() const;
 };
 
 } // namespace commsdsl2wireshark

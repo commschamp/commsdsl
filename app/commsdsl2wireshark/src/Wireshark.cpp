@@ -34,15 +34,22 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2wireshark
 {
 
+namespace
+{
+
+const std::string PlugSuffix("_plug");
+
+} // namespace
+
 bool Wireshark::wiresharkWrite(const WiresharkGenerator& generator)
 {
     Wireshark obj(generator);
     return obj.wiresharkWriteInternal();
 }
 
-std::string Wireshark::wiresharkFileName(const WiresharkGenerator& generator)
+std::string Wireshark::wiresharkFileName(const WiresharkGenerator& generator, const std::string& suffix)
 {
-    return generator.genProtocolSchema().genMainNamespace() + ".lua";
+    return generator.genProtocolSchema().genMainNamespace() + suffix + ".lua";
 }
 
 const std::string& Wireshark::wiresharkProtocolObjName(const WiresharkGenerator& generator)
@@ -125,6 +132,13 @@ std::string Wireshark::wiresharkCreateCrcFuncName(const WiresharkGenerator& gene
 
 bool Wireshark::wiresharkWriteInternal() const
 {
+    return
+        wiresharkWriteMainInternal() &&
+        wiresharkWriteTcpInternal();
+}
+
+bool Wireshark::wiresharkWriteMainInternal() const
+{
     auto fileName = wiresharkFileName(m_wiresharkGenerator);
     auto filePath = util::genPathAddElem(m_wiresharkGenerator.genGetOutputDir(), fileName);
 
@@ -173,6 +187,121 @@ bool Wireshark::wiresharkWriteInternal() const
             {"PROT_VERSION", wiresharkProtocolVersionDefInternal()},
             {"PINFO", wiresharkPinfoDefInternal()},
             {"CRC", wiresharkCrcCodeDefInternal()},
+        };
+
+        auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
+        stream << str;
+    } while (false);
+
+    stream.flush();
+    if (!stream.good()) {
+        m_wiresharkGenerator.genLogger().genError("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool Wireshark::wiresharkWriteTcpInternal() const
+{
+    auto fileName = wiresharkFileName(m_wiresharkGenerator, PlugSuffix);
+    auto filePath = util::genPathAddElem(m_wiresharkGenerator.genGetOutputDir(), fileName);
+
+    m_wiresharkGenerator.genLogger().genInfo("Generating " + filePath);
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_wiresharkGenerator.genLogger().genError("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+
+    do {
+        const std::string Templ =
+            "#^#GEN_COMMENT#$#\n"
+            "\n"
+            "-- Ensure we can load from the current directory\n"
+            "local info = debug.getinfo(1, \"S\")\n"
+            "local script_path = info.source:match(\"@?(.*/)\") or \"./\"\n"
+            "package.path = script_path .. \"?.lua;\" .. package.path\n"
+            "\n"
+            "local success, result = pcall(require, \"#^#NAME#$#\")\n"
+            "if not success then\n"
+            "    -- If 'success' is false, 'result' contains the error message\n"
+            "    io.stderr:write(\"FATAL ERROR loading '\" .. \"#^#NAME#$#\" .. \"':\\n\" .. tostring(result) .. \"\\n\")\n"
+            "    os.exit(1)\n"
+            "end\n"
+            "\n"
+            "-- If we get here, require succeeded!\n"
+            "-- 'result' now contains the protocol object\n"
+            "local #^#NAME#$#_transport_type = {\n"
+            "    TCP = 0,\n"
+            "    UDP = 1,\n"
+            "    BOTH = 2\n"
+            "}\n"
+            "\n"
+            "local #^#NAME#$#_transport_types_map = {\n"
+            "    {#^#NAME#$#_transport_type.TCP, \"TCP Only\", #^#NAME#$#_transport_type.TCP},\n"
+            "    {#^#NAME#$#_transport_type.UDP, \"UDP Only\", #^#NAME#$#_transport_type.UDP},\n"
+            "    {#^#NAME#$#_transport_type.BOTH, \"Both (TCP & UDP)\", #^#NAME#$#_transport_type.BOTH}\n"
+            "}\n"
+            "\n"
+            "local #^#NAME#$#_port = #^#PORT#$#\n"
+            "local #^#NAME#$#_transport = #^#NAME#$#_transport_type.BOTH\n"
+            "\n"
+            "result.prefs.port = Pref.uint(\"Default Port\", #^#NAME#$#_port)\n"
+            "result.prefs.transport = Pref.enum(\"Transport Protocol\", #^#NAME#$#_transport, \"The transport protocol to use\", #^#NAME#$#_transport_types_map)\n"
+            "\n"
+            "local #^#NAME#$#_tcp_port = DissectorTable.get(\"tcp.port\")\n"
+            "local #^#NAME#$#_udp_port = DissectorTable.get(\"udp.port\")\n"
+            "\n"
+            "local function #^#NAME#$#_add_port_bindings()\n"
+            "    if #^#NAME#$#_port == 0 then\n"
+            "        return\n"
+            "    end\n"
+            "\n"
+            "    if (#^#NAME#$#_transport == #^#NAME#$#_transport_type.TCP) or (#^#NAME#$#_transport == #^#NAME#$#_transport_type.BOTH) then\n"
+            "        #^#NAME#$#_tcp_port:add(#^#NAME#$#_port, result)\n"
+            "    end\n"
+            "    if (#^#NAME#$#_transport == #^#NAME#$#_transport_type.UDP) or (#^#NAME#$#_transport == #^#NAME#$#_transport_type.BOTH) then\n"
+            "        #^#NAME#$#_udp_port:add(#^#NAME#$#_port, result)\n"
+            "    end\n"
+            "end\n"
+            "\n"
+            "local function #^#NAME#$#_remove_port_bindings()\n"
+            "    if #^#NAME#$#_port == 0 then\n"
+            "        return\n"
+            "    end\n"
+            "\n"
+            "    if (#^#NAME#$#_transport == #^#NAME#$#_transport_type.TCP) or (#^#NAME#$#_transport == #^#NAME#$#_transport_type.BOTH) then\n"
+            "        #^#NAME#$#_tcp_port:remove(#^#NAME#$#_port, result)\n"
+            "    end\n"
+            "    if (#^#NAME#$#_transport == #^#NAME#$#_transport_type.UDP) or (#^#NAME#$#_transport == #^#NAME#$#_transport_type.BOTH) then\n"
+            "        #^#NAME#$#_udp_port:remove(#^#NAME#$#_port, result)\n"
+            "    end\n"
+            "end\n"
+            "\n"
+            "local function #^#NAME#$#_assign_prefs()\n"
+            "    #^#NAME#$#_port = result.prefs.port\n"
+            "    #^#NAME#$#_transport = result.prefs.transport\n"
+            "end\n"
+            "\n"
+            "function result.prefs_changed()\n"
+            "    if #^#NAME#$#_port == result.prefs.port and #^#NAME#$#_transport == result.prefs.transport then\n"
+            "        return\n"
+            "    end\n"
+            "\n"
+            "    #^#NAME#$#_remove_port_bindings()\n"
+            "    #^#NAME#$#_assign_prefs()\n"
+            "    #^#NAME#$#_add_port_bindings()\n"
+            "end\n"
+            "\n"
+            "#^#NAME#$#_assign_prefs()\n"
+            "#^#NAME#$#_add_port_bindings()\n"
+            ;
+
+        util::GenReplacementMap repl = {
+            {"GEN_COMMENT", m_wiresharkGenerator.wiresharkFileGeneratedComment()},
+            {"NAME", wiresharkProtocolObjName(m_wiresharkGenerator)},
+            {"PORT", std::to_string(m_wiresharkGenerator.wiresharkDefaultPort())},
         };
 
         auto str = commsdsl::gen::util::genProcessTemplate(Templ, repl, true);
