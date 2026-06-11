@@ -18,6 +18,8 @@
   **commsdsl2emscripten** code generator and its available command line options.
 - [Manual_commsdsl2latex.md](Manual_commsdsl2latex.md) - Manual of the
   **commsdsl2latex** code generator and its available command line options.
+- [Manual_commsdsl2wireshark.md](Manual_commsdsl2latex.md) - Manual of the
+  **commsdsl2wireshark** code generator and its available command line options.
 
 # Dealing With Generated Code
 
