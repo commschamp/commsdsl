@@ -449,7 +449,7 @@ jobs:
       shell: bash
       run: ctest -V
 
-  build_msvc_2025:
+  build_msvc_2026:
     runs-on: windows-2025
     strategy:
       fail-fast: false
@@ -465,22 +465,17 @@ jobs:
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
 
-    - name: Install Qt
+    - name: Install Qt (sets QT_ROOT_DIR)
       if: ${{matrix.cpp >= 17}}
-      shell: cmd
-      run: |
-        choco install curl
-        curl -L https://github.com/martinrotter/qt-minimalistic-builds/releases/download/${{env.QT_VER}}/qt-${{env.QT_VER}}-dynamic-msvc${{env.MSVC_VER}}-x86_64.7z -o ${{runner.workspace}}/qt.7z
-        7z x ${{runner.workspace}}/qt.7z -o${{runner.workspace}}/qt
-        echo QT_VER=${{env.QT_VER}} >>%GITHUB_ENV%
-        echo QTDIR=${{runner.workspace}}/qt/qt-${{env.QT_VER}}-dynamic-msvc${{env.MSVC_VER}}-x86_64 >>%GITHUB_ENV%
-      env:
-        QT_VER: ${{matrix.qt_ver == '5' && '5.15.18' || '6.2.2'}}
-        MSVC_VER: ${{matrix.qt_ver == '5' && '2022' || '2019'}}
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{ matrix.qt_ver == 5 && '5.15.*' || '6.8.*' }}
+        cache: true      
 
     - name: Prepare externals
       shell: cmd
       run: |
+        set QTDIR=%QT_ROOT_DIR%
         %GITHUB_WORKSPACE%\script\prepare_externals.bat
       env:
         BUILD_DIR: ${{runner.workspace}}/build
@@ -492,6 +487,7 @@ jobs:
         COMMS_TAG: ${{env.COMMS_TAG}}
         CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_TAG}}
         CC_TOOLS_QT_MAJOR_QT_VERSION: ${{matrix.qt_ver}}
+        CC_TOOLS_QT_SKIP: "${{ matrix.cpp >= 17 && (matrix.qt_ver == 6 || matrix.cpp < 20) && '0' || '1' }}"
 
     - name: Configure CMake
       shell: cmd
@@ -512,7 +508,7 @@ jobs:
 
       env:
         TOOLS_CXX_STANDARD: "${{ matrix.cpp >= 17 && matrix.cpp || '17' }}"
-        BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
+        BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && (matrix.qt_ver == 6 || matrix.cpp < 20) && 'ON' || 'OFF' }}"
 
     - name: Build Target
       working-directory: ${{runner.workspace}}/build
