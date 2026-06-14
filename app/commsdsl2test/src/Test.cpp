@@ -439,7 +439,9 @@ bool Test::testWriteInputTest() const
         "        }\n\n"
         "        input.insert(input.end(), buf.data(), buf.data() + len); // append to vector\n"
         "        auto consumed = comms::processAllWithDispatch(&input[0], input.size(), frame, handler);\n"
-        "        input.erase(input.begin(), input.begin() + consumed);\n"
+        "        using IterType = typename std::decay<decltype(input.begin())>::type;\n"
+        "        using DiffType = typename std::iterator_traits<IterType>::difference_type;\n"
+        "        input.erase(input.begin(), input.begin() + static_cast<DiffType>(consumed));\n"
         "    }\n"
         "    return 0;\n"
         "}\n\n";

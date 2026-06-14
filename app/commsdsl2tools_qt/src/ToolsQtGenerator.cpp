@@ -54,7 +54,7 @@ namespace commsdsl2tools_qt
 namespace
 {
 
-const std::string MinToolsQtVersion("6.0.7");
+const std::string MinToolsQtVersion("6.0.8");
 
 } // namespace
 
