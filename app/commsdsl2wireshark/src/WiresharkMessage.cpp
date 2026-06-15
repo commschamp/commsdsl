@@ -65,7 +65,7 @@ std::string WiresharkMessage::wiresharkDissectCode() const
         "    #^#REPLACE#$#\n"
         "    #^#BODY#$#\n"
         "end\n"
-        "#^#EXTEND#$#"
+        "#^#EXTEND#$#\n"
         ;
 
     util::GenStringsList fields;
