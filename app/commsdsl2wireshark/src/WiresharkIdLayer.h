@@ -18,6 +18,7 @@
 #include "WiresharkLayer.h"
 
 #include "commsdsl/gen/GenIdLayer.h"
+#include "commsdsl/gen/GenMessage.h"
 
 #include <string>
 
@@ -33,8 +34,11 @@ class WiresharkIdLayer final : public commsdsl::gen::GenIdLayer, public Wireshar
 public:
     using ParseLayer = commsdsl::parse::ParseLayer;
     using GenElem = commsdsl::gen::GenElem;
+    using GenMessage = commsdsl::gen::GenMessage;
+    using GenMessagesAccessList = std::vector<const GenMessage*>;
 
     WiresharkIdLayer(WiresharkGenerator& generator, ParseLayer parseObj, GenElem* parent);
+    static std::string wiresharkMessagesMapCode(const GenMessagesAccessList& messages, const std::string& mapName);
 
 protected:
     virtual std::string wiresharkDissectBodyImpl() const override;

@@ -16,8 +16,11 @@
 #include "WiresharkCustomLayer.h"
 
 #include "WiresharkGenerator.h"
+#include "WiresharkIdLayer.h"
 
 #include "commsdsl/gen/strings.h"
+
+#include <cassert>
 
 namespace strings = commsdsl::gen::strings;
 
@@ -47,6 +50,22 @@ bool WiresharkCustomLayer::genPrepareImpl()
     }
 
     return true;
+}
+
+std::string WiresharkCustomLayer::wiresharkExtraDissectCodeImpl() const
+{
+    auto parseObj = genCustomLayerParseObj();
+    if (parseObj.parseSemanticLayerType() != ParseLayer::ParseKind::Id) {
+        return strings::genEmptyString();
+    }
+
+    auto* parentFrame = genParentFrame();
+    assert(parentFrame != nullptr);
+    auto parentNs = parentFrame->genParentNamespace();
+    assert(parentNs != nullptr);
+    auto messages = parentNs->genGetAllMessagesIdSorted();
+    auto mapName = WiresharkGenerator::wiresharkCast(genGenerator()).wiresharkFuncNameFor(*this, "_msg");
+    return WiresharkIdLayer::wiresharkMessagesMapCode(messages, mapName);
 }
 
 bool WiresharkCustomLayer::wiresharkNeedsCrcCalcImpl() const

@@ -38,6 +38,7 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
+    virtual std::string wiresharkExtraDissectCodeImpl() const override;
     virtual bool wiresharkNeedsCrcCalcImpl() const override;
 };
 

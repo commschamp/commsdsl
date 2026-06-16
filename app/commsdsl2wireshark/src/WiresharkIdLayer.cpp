@@ -39,39 +39,8 @@ WiresharkIdLayer::WiresharkIdLayer(WiresharkGenerator& generator, ParseLayer par
 {
 }
 
-std::string WiresharkIdLayer::wiresharkDissectBodyImpl() const
+std::string WiresharkIdLayer::wiresharkMessagesMapCode(const GenMessagesAccessList& messages, const std::string& mapName)
 {
-    static const std::string Templ =
-        "#^#FIELD#$#\n"
-        "local id = #^#VALUE_FUNC#$#()\n"
-        "local msg = #^#MAP#$#[id]\n"
-        "#^#OFFSET#$# = #^#NEXT_OFFSET#$#\n"
-        "#^#NEXT#$#\n"
-        ;
-
-    auto* field = wiresharkField();
-    assert(field != nullptr);
-
-    util::GenReplacementMap repl = {
-        {"FIELD", wiresharkDissectFieldCode()},
-        {"NEXT", wiresharkNextFuncCode()},
-        {"MAP", wiresharkMsgMapNameInternal()},
-        {"VALUE_FUNC", field->wiresharkValueFuncName()},
-        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
-        {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
-    };
-
-    return util::genProcessTemplate(Templ, repl);
-}
-
-std::string WiresharkIdLayer::wiresharkExtraDissectCodeImpl() const
-{
-    auto* parentFrame = genParentFrame();
-    assert(parentFrame != nullptr);
-    auto parentNs = parentFrame->genParentNamespace();
-    assert(parentNs != nullptr);
-    auto messages = parentNs->genGetAllMessagesIdSorted();
-
     using DissectMap = std::map<std::uintmax_t /*id */, util::GenStringsList /*dissect_funcs*/>;
 
     DissectMap map;
@@ -106,11 +75,47 @@ std::string WiresharkIdLayer::wiresharkExtraDissectCodeImpl() const
     ;
 
     util::GenReplacementMap repl = {
-        {"NAME", wiresharkMsgMapNameInternal()},
+        {"NAME", mapName},
         {"ELEMS", util::genStrListToString(elems, ",\n", "")},
     };
 
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkIdLayer::wiresharkDissectBodyImpl() const
+{
+    static const std::string Templ =
+        "#^#FIELD#$#\n"
+        "local id = #^#VALUE_FUNC#$#()\n"
+        "local msg = #^#MAP#$#[id]\n"
+        "#^#OFFSET#$# = #^#NEXT_OFFSET#$#\n"
+        "#^#NEXT#$#\n"
+        ;
+
+    auto* field = wiresharkField();
+    assert(field != nullptr);
+
+    util::GenReplacementMap repl = {
+        {"FIELD", wiresharkDissectFieldCode()},
+        {"NEXT", wiresharkNextFuncCode()},
+        {"MAP", wiresharkMsgMapNameInternal()},
+        {"VALUE_FUNC", field->wiresharkValueFuncName()},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+        {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkIdLayer::wiresharkExtraDissectCodeImpl() const
+{
+    auto* parentFrame = genParentFrame();
+    assert(parentFrame != nullptr);
+    auto parentNs = parentFrame->genParentNamespace();
+    assert(parentNs != nullptr);
+    auto messages = parentNs->genGetAllMessagesIdSorted();
+
+    return wiresharkMessagesMapCode(messages, wiresharkMsgMapNameInternal());
 }
 
 std::string WiresharkIdLayer::wiresharkMsgMapNameInternal() const
