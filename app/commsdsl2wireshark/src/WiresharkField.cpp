@@ -1654,7 +1654,7 @@ bool WiresharkField::wiresharkPrepareOverrideInternal(
 
         wiresharkGenerator.genLogger().genError(
             "Overriding \"" + name + "\" operation is not provided in injected code for field \"" +
-            m_genField.genParseObj().parseExternalRef() + "\". Use \"" + injectName + ".<op>\" to inject code.");
+            m_genField.genParseObj().parseExternalRef() + "\". Use \"" + injectName + "\" to inject code.");
 
         return false;
     }
