@@ -1649,9 +1649,13 @@ bool WiresharkField::wiresharkPrepareOverrideInternal(
     } while (false);
 
     if ((!hasCode) && wiresharkIsOverrideCodeRequiredInternal(type)) {
-        m_genField.genGenerator().genLogger().genError(
+        auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+        auto injectName = wiresharkGenerator.wiresharkInputRelPathFor(m_genField, '_' + name);
+
+        wiresharkGenerator.genLogger().genError(
             "Overriding \"" + name + "\" operation is not provided in injected code for field \"" +
-            m_genField.genParseObj().parseExternalRef() + "\".");
+            m_genField.genParseObj().parseExternalRef() + "\". Use \"" + injectName + "\" to inject code.");
+
         return false;
     }
 
