@@ -323,11 +323,11 @@ std::string CommsVariantField::commsDefPrivateCodeImpl() const
         "template <std::size_t TIdx, typename TField, typename TFunc>\n"
         "static void memFieldDispatch(TField&& f, TFunc&& func)\n"
         "{\n"
-        "    #ifdef _MSC_VER\n"
+        "    #if COMMS_IS_MSVC_2025_OR_BELOW\n"
         "        func.operator()<TIdx>(std::forward<TField>(f)); // VS compiler\n"
-        "    #else // #ifdef _MSC_VER\n"
+        "    #else // #if COMMS_IS_MSVC_2025_OR_BELOW\n"
         "        func.template operator()<TIdx>(std::forward<TField>(f)); // All other compilers\n"
-        "    #endif // #ifdef _MSC_VER\n"
+        "    #endif // #if COMMS_IS_MSVC_2025_OR_BELOW\n"
         "}\n";
     return Templ;
 }
