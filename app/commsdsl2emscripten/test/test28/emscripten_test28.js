@@ -74,7 +74,7 @@ function test1(instance) {
 
     try {
         assert(!msg.field_variant1().ref().valid())
-        assert(msg.field_variant1().ref().currentField() == 2);
+        assert(msg.field_variant1().ref().currentField() == 3);
         msg.field_variant1().ref().initField_p2();
         assert(msg.field_variant1().ref().currentField() == 1);
         assert(msg.field_variant2().ref().currentField() == 0);
