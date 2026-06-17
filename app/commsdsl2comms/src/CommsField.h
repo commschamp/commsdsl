@@ -91,6 +91,7 @@ public:
     std::string commsBareMetalDefaultOptions() const;
 
     bool commsHasCustomValue() const;
+    bool commsHasCustomRead() const;
     bool commsHasCustomValid() const;
     bool commsHasCustomLength(bool deepCheck = true) const;
     const CommsField* commsFindSibling(const std::string& name) const;

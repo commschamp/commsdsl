@@ -401,6 +401,11 @@ bool CommsField::commsHasCustomValue() const
     return m_customCode.m_hasValue;
 }
 
+bool CommsField::commsHasCustomRead() const
+{
+    return (m_customCode.m_hasRead) || (!commsDefReadFuncBodyImpl().empty());
+}
+
 bool CommsField::commsHasCustomValid() const
 {
     return (m_customCode.m_hasValid) || (!commsDefValidFuncBodyImpl().empty());
