@@ -6,6 +6,10 @@
             <validValue name="M2" val="2" />
             <validValue name="M3" val="3" />
             <validValue name="M4" val="4" />
+            <validValue name="M5" val="5" />
+            <validValue name="M6" val="6" />
+            <validValue name="M7" val="7" />
+            <validValue name="M8" val="8" />
         </enum>
 
         <enum name="E1" type="uint16" nonUniqueAllowed="true" validCheckVersion="true" >
@@ -114,6 +118,60 @@
             <validValue name="v1" val="0" />
             <validValue name="v2" val="1" />
         </enum>
+    </message>
+
+    <message name="Msg5" id="MsgId.M5">
+        <int name="F1" type="intvar" length="3" />
+        <int name="F2" type="intvar" endian="big" length="3" />
+    </message>
+
+    <message name="Msg6" id="MsgId.M6">
+        <int name="F1" type="intvar" />
+        <int name="F2" type="intvar" endian="big" />
+        <int name="F3" type="uintvar" />
+        <int name="F4" type="uintvar" endian="big" />
+    </message>
+
+    <message name="Msg7" id="MsgId.M7">
+        <enum name="F1" type="uintvar" length="3">
+            <validValue name="V1" val="128" />
+            <validValue name="V2" val="0x7fff" />
+            <validValue name="V3" val="0x1fffff" />
+        </enum>
+        <enum name="F2" type="intvar" length="3">
+            <validValue name="V1" val="-128" />
+            <validValue name="V2" val="0x7fff" />
+        </enum>
+        <!-- Big enums are not properly suported by some compilers-->
+        <!--enum name="F3" type="uintvar">
+            <validValue name="V1" val="0xffff" />
+            <validValue name="V2" val="0xfffffffff" />
+        </enum>
+        <enum name="F4" type="intvar">
+            <validValue name="V1" val="-512" />
+            <validValue name="V2" val="-2048" />
+        </enum-->
+    </message>
+
+    <message name="Msg8" id="MsgId.M8">
+        <enum name="F1" type="uintvar" length="3" endian="big">
+            <validValue name="V1" val="128" />
+            <validValue name="V2" val="0x7fff" />
+            <validValue name="V3" val="0x1fffff" />
+        </enum>
+        <enum name="F2" type="intvar" length="3" endian="big">
+            <validValue name="V1" val="-128" />
+            <validValue name="V2" val="0x7fff" />
+        </enum>
+        <!-- Big enums are not properly suported by some compilers-->
+        <!--enum name="F3" type="uintvar" endian="big">
+            <validValue name="V1" val="0xffff" />
+            <validValue name="V2" val="0xfffffffff" />
+        </enum>
+        <enum name="F4" type="intvar" endian="big">
+            <validValue name="V1" val="-512" />
+            <validValue name="V2" val="-2048" />
+        </enum-->
     </message>
 
     <frame name="Frame">

@@ -1,0 +1,11 @@
+local result = test55_local.StatusCode.SUCCESS
+local next_offset = offset
+tree = tree:add(test55, test55_local.wrap_message_PseudoMsg_name)
+result, next_offset = test55_local.wrap_message_PseudoMsgFields_Data_read(tvb, tree, next_offset, offset_limit)
+if result ~= test55_local.StatusCode.SUCCESS then
+    return result, offset
+end
+
+local next_tvb = ByteArray.tvb(test55_local.wrap_message_PseudoMsgFields_Data_value(), "Other Frame")
+test55_local.prot_frame_Frame_read(next_tvb, tree, 0)
+return result, next_offset

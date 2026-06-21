@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -323,11 +323,11 @@ std::string CommsVariantField::commsDefPrivateCodeImpl() const
         "template <std::size_t TIdx, typename TField, typename TFunc>\n"
         "static void memFieldDispatch(TField&& f, TFunc&& func)\n"
         "{\n"
-        "    #ifdef _MSC_VER\n"
+        "    #if COMMS_IS_MSVC_2025_OR_BELOW\n"
         "        func.operator()<TIdx>(std::forward<TField>(f)); // VS compiler\n"
-        "    #else // #ifdef _MSC_VER\n"
+        "    #else // #if COMMS_IS_MSVC_2025_OR_BELOW\n"
         "        func.template operator()<TIdx>(std::forward<TField>(f)); // All other compilers\n"
-        "    #endif // #ifdef _MSC_VER\n"
+        "    #endif // #if COMMS_IS_MSVC_2025_OR_BELOW\n"
         "}\n";
     return Templ;
 }
@@ -360,22 +360,32 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
             static const std::string Templ =
                 "case #^#VAL#$#:\n"
                 "    {\n"
+                "        #^#ADJUST_ITER#$#\n"
+                "        #^#ADJUST_LEN#$#\n"
                 "        auto& field_#^#BUNDLE_NAME#$# = initField_#^#BUNDLE_NAME#$#();\n"
                 "        COMMS_ASSERT(field_#^#BUNDLE_NAME#$#.field_#^#KEY_NAME#$#().getValue() == commonKeyField.getValue());\n"
                 "        #^#VERSION_ASSIGN#$#\n"
-                "        return field_#^#BUNDLE_NAME#$#.template readFrom<1>(iter, len);\n"
+                "        return field_#^#BUNDLE_NAME#$#.#^#READ#$#(iter, len);\n"
                 "    }";
 
             util::GenReplacementMap repl = {
                 {"VAL", std::move(valStr)},
                 {"BUNDLE_NAME", bundleAccName},
                 {"KEY_NAME", keyAccName},
+                {"READ", "template readFrom<1>"},
             };
 
             if (m->commsIsVersionDependent()) {
                 auto assignStr = "field_" + bundleAccName + ".setVersion(Base::getVersion());";
                 repl["VERSION_ASSIGN"] = std::move(assignStr);
             }
+
+            if (m->commsHasCustomRead()) {
+                repl["ADJUST_ITER"] = "iter = origIter;";
+                repl["ADJUST_LEN"] = "len += consumedLen;";
+                repl["READ"] = "read";
+            }
+
             cases.push_back(util::genProcessTemplate(Templ, repl));
             continue;
         }
@@ -385,18 +395,27 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
 
         static const std::string Templ =
             "default:\n"
+            "    #^#ADJUST_ITER#$#\n"
+            "    #^#ADJUST_LEN#$#\n"
             "    initField_#^#BUNDLE_NAME#$#().field_#^#KEY_NAME#$#().setValue(commonKeyField.getValue());\n"
             "    #^#VERSION_ASSIGN#$#\n"
-            "    return accessField_#^#BUNDLE_NAME#$#().template readFrom<1>(iter, len);";
+            "    return accessField_#^#BUNDLE_NAME#$#().#^#READ#$#(iter, len);";
 
         util::GenReplacementMap repl = {
             {"BUNDLE_NAME", bundleAccName},
             {"KEY_NAME", keyAccName},
+            {"READ", "template readFrom<1>"},
         };
 
         if (m->commsIsVersionDependent()) {
             auto assignStr = "field_" + bundleAccName + ".setVersion(Base::getVersion());";
             repl["VERSION_ASSIGN"] = std::move(assignStr);
+        }
+
+        if (m->commsHasCustomRead()) {
+            repl["ADJUST_ITER"] = "iter = origIter;";
+            repl["ADJUST_LEN"] = "len += consumedLen;";
+            repl["READ"] = "read";
         }
 
         cases.push_back(util::genProcessTemplate(Templ, repl));

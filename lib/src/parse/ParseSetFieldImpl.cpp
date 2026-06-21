@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -129,6 +129,15 @@ bool ParseSetFieldImpl::parseImpl()
 }
 
 std::size_t ParseSetFieldImpl::parseMinLengthImpl() const
+{
+    if (m_state.m_availableLengthLimit) {
+        return 1U;
+    }
+
+    return m_state.m_length;
+}
+
+std::size_t ParseSetFieldImpl::parseMaxLengthImpl() const
 {
     return m_state.m_length;
 }

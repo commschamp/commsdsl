@@ -1,5 +1,5 @@
 //
-// Copyright 2025 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2025 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,14 +45,14 @@ public:
 
     static const std::string& cFileGeneratedComment();
 
-    static CGenerator& cCast(GenGenerator& generator)
+    static CGenerator& cCast(GenGenerator& obj)
     {
-        return static_cast<CGenerator&>(generator);
+        return static_cast<CGenerator&>(obj);
     }
 
-    static const CGenerator& cCast(const GenGenerator& generator)
+    static const CGenerator& cCast(const GenGenerator& obj)
     {
-        return static_cast<const CGenerator&>(generator);
+        return static_cast<const CGenerator&>(obj);
     }
 
     std::string cRelHeaderFor(const GenElem& elem) const;

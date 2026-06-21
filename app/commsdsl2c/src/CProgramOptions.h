@@ -1,5 +1,5 @@
 //
-// Copyright 2025 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2025 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,9 +32,9 @@ public:
 
     CProgramOptions();
 
-    static const CProgramOptions& cCast(const GenProgramOptions& options)
+    static const CProgramOptions& cCast(const GenProgramOptions& obj)
     {
-        return static_cast<const CProgramOptions&>(options);
+        return static_cast<const CProgramOptions&>(obj);
     }
 
     const std::string& cGetNamesPrefix() const;

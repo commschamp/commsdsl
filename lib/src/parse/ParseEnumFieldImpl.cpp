@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -133,7 +133,9 @@ bool ParseEnumFieldImpl::parseImpl()
 
 std::size_t ParseEnumFieldImpl::parseMinLengthImpl() const
 {
-    if ((m_state.m_type == ParseType::Intvar) || (m_state.m_type == ParseType::Uintvar)) {
+    if ((m_state.m_type == ParseType::Intvar) ||
+        (m_state.m_type == ParseType::Uintvar) ||
+        (m_state.m_availableLengthLimit)) {
         return 1U;
     }
 

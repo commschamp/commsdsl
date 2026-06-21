@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,9 +42,9 @@ public:
 
     ToolsQtProgramOptions();
 
-    static const ToolsQtProgramOptions& toolsCast(const GenProgramOptions& options)
+    static const ToolsQtProgramOptions& toolsCast(const GenProgramOptions& obj)
     {
-        return static_cast<const ToolsQtProgramOptions&>(options);
+        return static_cast<const ToolsQtProgramOptions&>(obj);
     }
 
     ToolsPluginInfosList toolsGetPlugins() const;

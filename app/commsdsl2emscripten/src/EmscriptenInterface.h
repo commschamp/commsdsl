@@ -1,5 +1,5 @@
 //
-// Copyright 2022 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2022 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -38,9 +38,9 @@ public:
     explicit EmscriptenInterface(EmscriptenGenerator& generator, ParseInterface parseObj, GenElem* parent);
     virtual ~EmscriptenInterface();
 
-    static const EmscriptenInterface* emscriptenCast(const commsdsl::gen::GenInterface* i)
+    static const EmscriptenInterface* emscriptenCast(const commsdsl::gen::GenInterface* obj)
     {
-        return static_cast<const EmscriptenInterface*>(i);
+        return static_cast<const EmscriptenInterface*>(obj);
     }
 
     std::string emscriptenRelHeader() const;

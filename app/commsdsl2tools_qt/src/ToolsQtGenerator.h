@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -85,14 +85,14 @@ public:
 
     const GenFramesAccessList& toolsGetSelectedFramesForInterface(const commsdsl::gen::GenInterface& interface);
 
-    static ToolsQtGenerator& toolsCast(commsdsl::gen::GenGenerator& generator)
+    static ToolsQtGenerator& toolsCast(commsdsl::gen::GenGenerator& obj)
     {
-        return static_cast<ToolsQtGenerator&>(generator);
+        return static_cast<ToolsQtGenerator&>(obj);
     }
 
-    static const ToolsQtGenerator& toolsCast(const commsdsl::gen::GenGenerator& generator)
+    static const ToolsQtGenerator& toolsCast(const commsdsl::gen::GenGenerator& obj)
     {
-        return static_cast<const ToolsQtGenerator&>(generator);
+        return static_cast<const ToolsQtGenerator&>(obj);
     }
 
     void toolsSetMainNamespaceInOptionsForced(bool value);

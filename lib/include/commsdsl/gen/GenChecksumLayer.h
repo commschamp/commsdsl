@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -44,7 +44,7 @@ public:
 protected:
     virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const override final;
 
-    ParseChecksumLayer genChecksumDslObj() const;
+    ParseChecksumLayer genChecksumParseObj() const;
 };
 
 } // namespace gen

@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -321,7 +321,7 @@ public:
         return const_cast<GenSchema*>(parsedRef.first)->genFindField(parsedRef.second);
     }
 
-    const GenMessage* genGindMessage(const std::string& externalRef) const
+    const GenMessage* genFindMessage(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
         auto parsedRef = genParseExternalRef(externalRef);
@@ -329,10 +329,10 @@ public:
             return nullptr;
         }
 
-        return parsedRef.first->genGindMessage(parsedRef.second);
+        return parsedRef.first->genFindMessage(parsedRef.second);
     }
 
-    GenMessage* genGindMessage(const std::string& externalRef)
+    GenMessage* genFindMessage(const std::string& externalRef)
     {
         assert(!externalRef.empty());
         auto parsedRef = genParseExternalRef(externalRef);
@@ -340,7 +340,7 @@ public:
             return nullptr;
         }
 
-        return const_cast<GenSchema*>(parsedRef.first)->genGindMessage(parsedRef.second);
+        return const_cast<GenSchema*>(parsedRef.first)->genFindMessage(parsedRef.second);
     }
 
     const GenFrame* genFindFrame(const std::string& externalRef) const
@@ -618,13 +618,13 @@ private:
         auto lines = util::genStrSplitByAnyChar(contents, "\n\r");
 
         for (auto& l : lines) {
-            auto* m = genGindMessage(l);
+            auto* m = genFindMessage(l);
             if (m == nullptr) {
                 m_logger->genError("Failed to fined message \"" + l + "\" listed in \"" + m_messagesListFile + "\".");
                 return false;
             }
 
-            m->genSetReferenced(true);
+            m->genSetReferenced();
         }
 
         return true;
@@ -652,7 +652,7 @@ private:
                     (std::find(messagePlatforms.begin(), messagePlatforms.end(), m_forcedPlatform) != messagePlatforms.end());
 
                 if (messageSupported) {
-                    const_cast<GenMessage*>(m)->genSetReferenced(true);
+                    const_cast<GenMessage*>(m)->genSetReferenced();
                 }
             }
         }
@@ -875,6 +875,12 @@ GenField* GenGenerator::genFindField(const std::string& externalRef)
 {
     auto* field = m_impl->genFindField(externalRef);
     do {
+        if (field == nullptr) {
+            genLogger().genError("BUG: Failed to find field: " + externalRef);
+            assert(false);
+            break;
+        }
+
         if (field->genIsPrepared()) {
             break;
         }
@@ -889,14 +895,14 @@ GenField* GenGenerator::genFindField(const std::string& externalRef)
     return field;
 }
 
-const GenMessage* GenGenerator::genGindMessage(const std::string& externalRef) const
+const GenMessage* GenGenerator::genFindMessage(const std::string& externalRef) const
 {
-    return m_impl->genGindMessage(externalRef);
+    return m_impl->genFindMessage(externalRef);
 }
 
-GenMessage* GenGenerator::genGindMessage(const std::string& externalRef)
+GenMessage* GenGenerator::genFindMessage(const std::string& externalRef)
 {
-    auto* msg = m_impl->genGindMessage(externalRef);
+    auto* msg = m_impl->genFindMessage(externalRef);
     do {
         if (msg->genIsPrepared()) {
             break;
@@ -1708,6 +1714,14 @@ bool GenGenerator::genCopyExtraSourceFiles(const std::vector<std::string>& reser
         }
     }
     return true;
+}
+
+std::string GenGenerator::genVersionStr()
+{
+    return
+        "v" + std::to_string(commsdsl::versionMajor()) +'.' +
+        std::to_string(commsdsl::versionMinor()) + '.' +
+        std::to_string(commsdsl::versionPatch());
 }
 
 } // namespace gen

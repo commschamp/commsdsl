@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,9 +32,9 @@ public:
 
     CommsProgramOptions();
 
-    static const CommsProgramOptions& commsCast(const GenProgramOptions& options)
+    static const CommsProgramOptions& commsCast(const GenProgramOptions& obj)
     {
-        return static_cast<const CommsProgramOptions&>(options);
+        return static_cast<const CommsProgramOptions&>(obj);
     }
 
     const std::string& commsGetCustomizationLevel() const;

@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -51,7 +51,7 @@ protected:
     virtual bool genPrepareImpl() override;
     virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const override final;
 
-    ParseSyncLayer genSyncLayerDslObj() const;
+    ParseSyncLayer genSyncLayerParseObj() const;
 
 private:
     std::unique_ptr<GenSyncLayerImpl> m_impl;

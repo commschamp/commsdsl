@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -36,14 +36,14 @@ public:
     LatexSchema(LatexGenerator& generator, ParseSchema parseObj, GenElem* parent);
     virtual ~LatexSchema();
 
-    static const LatexSchema* latexCast(const GenSchema* ptr)
+    static const LatexSchema* latexCast(const GenSchema* obj)
     {
-        return static_cast<const LatexSchema*>(ptr);
+        return static_cast<const LatexSchema*>(obj);
     }
 
-    static const LatexSchema& latexCast(const GenSchema& ref)
+    static const LatexSchema& latexCast(const GenSchema& obj)
     {
-        return static_cast<const LatexSchema&>(ref);
+        return static_cast<const LatexSchema&>(obj);
     }
 
     std::string latexRelDirPath() const;

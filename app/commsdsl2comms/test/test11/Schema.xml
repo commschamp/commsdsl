@@ -222,7 +222,7 @@
 
             <list name="F3">
                 <countPrefix>
-                    <int name="Length" type="uint8" />
+                    <int name="Count" type="uint8" />
                 </countPrefix>
                 <element>
                     <int name="Element" type="uint16" />

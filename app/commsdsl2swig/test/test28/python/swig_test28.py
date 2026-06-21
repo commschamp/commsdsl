@@ -43,7 +43,7 @@ class TestProtocol(unittest.TestCase):
     def test_1(self):
         m = test28.message_Msg1()
         self.assertFalse(m.field_variant1().ref().valid())
-        self.assertEqual(m.field_variant1().ref().currentField(), 2)
+        self.assertEqual(m.field_variant1().ref().currentField(), 3)
         m.field_variant1().ref().initField_p2()
         self.assertEqual(m.field_variant1().ref().currentField(), 1)
         self.assertEqual(m.field_variant2().ref().currentField(), 0)

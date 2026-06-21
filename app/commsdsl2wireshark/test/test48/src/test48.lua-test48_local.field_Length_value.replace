@@ -1,0 +1,6 @@
+local short_val = test48_local.field_LengthMembers_Short_value()
+if short_val ~= 0xff then
+    return short_val;
+end
+
+return test48_local.field_LengthMembers_LongMembers_ActLong_value()

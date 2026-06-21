@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -107,7 +107,7 @@ bool CommsFrame::genPrepareImpl()
     }
 
     bool success = true;
-    auto reorderedLayers = getCommsOrderOfLayers(success);
+    auto reorderedLayers = genCommsOrderOfLayers(success);
     if (!success) {
         return false;
     }

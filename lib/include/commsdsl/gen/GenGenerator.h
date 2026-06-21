@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -118,8 +118,8 @@ public:
 
     const GenField* genFindField(const std::string& externalRef) const;
     GenField* genFindField(const std::string& externalRef);
-    const GenMessage* genGindMessage(const std::string& externalRef) const;
-    GenMessage* genGindMessage(const std::string& externalRef);
+    const GenMessage* genFindMessage(const std::string& externalRef) const;
+    GenMessage* genFindMessage(const std::string& externalRef);
     const GenFrame* genFindFrame(const std::string& externalRef) const;
     const GenInterface* genFindInterface(const std::string& externalRef) const;
     static const GenSchema& genSchemaOf(const GenElem& elem);
@@ -206,13 +206,13 @@ public:
 
     OptsProcessResult genProcessOptions(const GenProgramOptions& options);
 
-    std::string genReadCodeInjectCode(
+    [[nodiscard]] std::string genReadCodeInjectCode(
         const std::string& relPath,
         const std::string& comment,
         bool* realCodeInjected = nullptr,
         const std::string& forcedCommentPrefix = std::string()) const;
 
-    std::string genReadScriptCodeInjectCode(
+    [[nodiscard]] std::string genReadScriptCodeInjectCode(
         const std::string& relPath,
         const std::string& comment,
         bool* realCodeInjected = nullptr) const;
@@ -258,6 +258,8 @@ protected:
     GenNamespace* genAddDefaultNamespace();
 
     bool genCopyExtraSourceFiles(const std::vector<std::string>& reservedExtensions) const;
+
+    static std::string genVersionStr();
 
 private:
     std::unique_ptr<GenGeneratorImpl> m_impl;

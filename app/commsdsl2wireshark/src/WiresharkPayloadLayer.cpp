@@ -1,0 +1,123 @@
+//
+// Copyright 2026 - 2026 (C). Alex Robenko. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include "WiresharkPayloadLayer.h"
+
+#include "Wireshark.h"
+#include "WiresharkField.h"
+#include "WiresharkGenerator.h"
+
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+namespace comms = commsdsl::gen::comms;
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
+
+namespace commsdsl2wireshark
+{
+
+WiresharkPayloadLayer::WiresharkPayloadLayer(WiresharkGenerator& generator, ParseLayer parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    WiresharkBase(static_cast<GenBase&>(*this))
+{
+}
+
+std::string WiresharkPayloadLayer::wiresharkDissectBodyImpl() const
+{
+    static const std::string Templ =
+        "if not msg then\n"
+        "    #^#TREE#$#:add_expert_info(PI_MALFORMED, PI_WARN, \"Invalid message id\")\n"
+        "    return #^#SUCCESS#$#, #^#LIMIT#$#\n"
+        "end\n"
+        "\n"
+        "local #^#RESULT#$# = #^#SUCCESS#$#\n"
+        "local #^#NEXT_OFFSET#$# = #^#LIMIT#$#\n"
+        "-- msg is a list of dissect functions\n"
+        "for i, f in ipairs(msg) do\n"
+        "    local data_subtree = #^#TREE#$#:add(#^#FIELD#$#, tvb(#^#OFFSET#$#, #^#LIMIT#$# - #^#OFFSET#$#))\n"
+        "    #^#RESULT#$#, #^#NEXT_OFFSET#$# = f(tvb, data_subtree, #^#OFFSET#$#, #^#LIMIT#$#)\n"
+        "    local data_len = #^#NEXT_OFFSET#$# - #^#OFFSET#$#\n"
+        "    data_subtree:set_len(data_len)\n"
+        "    if #^#RESULT#$# == #^#SUCCESS#$# then\n"
+        "        if data_len == 0 then\n"
+        "            data_subtree:set_hidden(true)\n"
+        "            data_subtree = #^#TREE#$#:add(#^#FIELD#$#, tvb(#^#OFFSET#$#, 0))\n"
+        "            #^#RESULT#$#, #^#NEXT_OFFSET#$# = f(tvb, data_subtree, #^#OFFSET#$#, #^#OFFSET#$#)\n"
+        "        end\n"
+        "        return #^#RESULT#$#, #^#NEXT_OFFSET#$#\n"
+        "    end\n"
+        "\n"
+        "    -- Do not show partially dissected malformed data\n"
+        "    data_subtree:set_hidden(true)\n"
+        "    if #msg <= i then\n"
+        "        data_subtree = #^#TREE#$#:add(#^#FIELD#$#, tvb(#^#OFFSET#$#, #^#NEXT_OFFSET#$# - #^#OFFSET#$#))\n"
+        "    end\n"
+        "end\n"
+        "#^#TREE#$#:add_expert_info(PI_MALFORMED, PI_WARN, \"Invalid message data\")\n"
+        "#^#RESULT#$#, #^#NEXT_OFFSET#$# = #^#SUCCESS#$#, #^#LIMIT#$#\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"FIELD", wiresharkDissectFieldNameInternal()},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
+        {"TREE", WiresharkField::wiresharkTreeStr()},
+        {"LIMIT", WiresharkField::wiresharkOffsetLimitStr()},
+        {"RESULT", WiresharkField::wiresharkResultStr()},
+        {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
+        {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkPayloadLayer::wiresharkExtraDissectCodeImpl() const
+{
+    static const std::string Templ =
+        "#^#NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bytes(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", base.SPACE, #^#DESC#$#))\n"
+        ;
+
+    auto parseObj = genParseObj();
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkDissectFieldNameInternal()},
+        {"DISP_NAME", util::genDisplayName(parseObj.parseDisplayName(), parseObj.parseName())},
+        {"REF_NAME", wiresharkDissectFieldRefNameInternal()},
+        {"DESC", strings::genNilStr()},
+        {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
+    };
+
+    if (!parseObj.parseDescription().empty()) {
+        repl["DESC"] = '\"' + parseObj.parseDescription() + '\"';
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkPayloadLayer::wiresharkDissectFieldNameInternal() const
+{
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    return wiresharkGenerator.wiresharkFuncNameFor(*this, "_field");
+}
+
+std::string WiresharkPayloadLayer::wiresharkDissectFieldRefNameInternal() const
+{
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    auto scope = comms::genScopeFor(*this, wiresharkGenerator, false);
+    return Wireshark::wiresharkProtocolObjName(wiresharkGenerator) + '.' + util::genStrReplace(scope, "::", ".") + ".field";
+}
+
+} // namespace commsdsl2wireshark

@@ -22,7 +22,7 @@ if [ -z "${COMMON_CXX_STANDARD}" ]; then
     export COMMON_CXX_STANDARD="17"
 fi
 
-${SCRIPT_DIR}/prepare_externals.sh 
+${SCRIPT_DIR}/prepare_externals.sh
 ${SCRIPT_DIR}/env_dev.sh -DCMAKE_PREFIX_PATH=${COMMON_INSTALL_DIR} "$@"
 
 procs=$(nproc)

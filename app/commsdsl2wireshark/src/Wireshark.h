@@ -1,0 +1,94 @@
+//
+// Copyright 2026 - 2026 (C). Alex Robenko. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#pragma once
+
+#include <string>
+
+namespace commsdsl2wireshark
+{
+
+class WiresharkGenerator;
+class Wireshark
+{
+public:
+    enum class WiresharkStatusCode {
+        Success,
+        NotEnoughData,
+        MalformedPacket,
+        InvalidMsgId,
+        InvalidMsgData,
+        ChecksumError,
+        CodegenError,
+        InvalidFrame,
+        ValuesLimit // Must be last
+    };
+
+    enum class WiresharkOptMode {
+        Tentative,
+        Exists,
+        Missing,
+        ValuesLimit // Must be last
+    };
+
+    static bool wiresharkWrite(const WiresharkGenerator& generator);
+    static std::string wiresharkFileName(const WiresharkGenerator& generator, const std::string& suffix = std::string());
+    static const std::string& wiresharkProtocolObjName(const WiresharkGenerator& generator);
+    static std::string wiresharkCreateFieldFuncName(const WiresharkGenerator& generator);
+    static std::string wiresharkCreateExtractorFuncName(const WiresharkGenerator& generator);
+    static std::string wiresharkFieldsListName(const WiresharkGenerator& generator);
+    static std::string wiresharkExtractorsMapName(const WiresharkGenerator& generator);
+    static std::string wiresharkStatusCodeStr(const WiresharkGenerator& generator, WiresharkStatusCode code);
+    static std::string wiresharkOptModeStr(const WiresharkGenerator& generator, WiresharkOptMode code);
+    static std::string wiresharkOptModeValsName(const WiresharkGenerator& generator);
+    static std::string wiresharkFieldValueFuncName(const WiresharkGenerator& generator);
+    static std::string wiresharkLocalNamespaceName(const WiresharkGenerator& generator);
+    static std::string wiresharkProtVersionGetFuncName(const WiresharkGenerator& generator);
+    static std::string wiresharkProtVersionSetFuncName(const WiresharkGenerator& generator);
+    static std::string wiresharkPinfoName(const WiresharkGenerator& generator);
+    static std::string wiresharkPacketIdFuncName(const WiresharkGenerator& generator);
+    static std::string wiresharkCreateCrcFuncName(const WiresharkGenerator& generator);
+
+private:
+    explicit Wireshark(const WiresharkGenerator& generator) : m_wiresharkGenerator(generator) {}
+
+private:
+    bool wiresharkWriteInternal() const;
+    bool wiresharkWriteMainInternal() const;
+    bool wiresharkWriteTcpInternal() const;
+    std::string wiresharkProtocolDefInternal() const;
+    std::string wiresharkLocalInternal() const;
+    std::string wiresharkDissectFuncInternal() const;
+    std::string wiresharkFieldsRegistrationInternal() const;
+    std::string wiresharkCodeInternal() const;
+    std::string wiresharkDissectFuncBodyInternal() const;
+    std::string wiresharkStatusCodeNameInternal() const;
+    std::string wiresharkStatusCodeDefInternal() const;
+    std::string wiresharkOptModeNameInternal() const;
+    std::string wiresharkOptionalModeDefInternal() const;
+    std::string wiresharkExtractorsDeclInternal() const;
+    std::string wiresharkExtractorsRegCodeInternal() const;
+    std::string wiresharkFieldValueFuncInternal() const;
+    std::string wiresharkProtocolVersionDefInternal() const;
+    std::string wiresharkPinfoDefInternal() const;
+    std::string wiresharkCrcCodeDefInternal() const;
+
+    static const std::string& wiresharkStatusCodeStrInternal(WiresharkStatusCode code);
+    static const std::string& wiresharkOptModeStrInternal(WiresharkOptMode code);
+
+    const WiresharkGenerator& m_wiresharkGenerator;
+};
+
+} // namespace commsdsl2wireshark

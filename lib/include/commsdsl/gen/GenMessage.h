@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -52,7 +52,7 @@ public:
     bool genPrepare();
     bool genWrite() const;
     bool genIsReferenced() const;
-    void genSetReferenced(bool value);
+    void genSetReferenced(bool value = true);
 
     ParseMessage genParseObj() const;
 

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -212,6 +212,7 @@ public:
     bool parseIsMessageMember() const;
 
     std::string parseExternalRef(bool schemaRef) const;
+    std::string parseInnerRef(bool schemaRef) const;
 
     bool parseIsComparableToValue(const std::string& val) const;
     bool parseIsComparableToField(const ParseFieldImpl& field) const;
@@ -455,9 +456,9 @@ private:
     bool parseUpdateExtraAttrs(const ParseXmlWrap::ParseNamesList& names);
     bool parseUpdateExtraChildren(const ParseXmlWrap::ParseNamesList& names);
 
-    bool parseVerifyName() const;
-
     static const ParseCreateMap& parseCreateMap();
+
+    bool parseVerifyName() const;
 
     ::xmlNodePtr m_node = nullptr;
     ParseProtocolImpl& m_protocol;

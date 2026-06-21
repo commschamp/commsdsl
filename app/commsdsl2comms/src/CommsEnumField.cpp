@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -1217,6 +1217,10 @@ void CommsEnumField::commsAddLengthOptInternal(GenStringsList& opts) const
     auto bitLength = obj.parseBitLength();
     if (bitLength != 0U) {
         opts.push_back("comms::option::def::FixedBitLength<" + util::genNumToString(bitLength) + '>');
+        return;
+    }
+
+    if (obj.parseMinLength() != obj.parseMaxLength()) {
         return;
     }
 

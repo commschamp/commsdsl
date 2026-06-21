@@ -1,5 +1,5 @@
 //
-// Copyright 2025 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2025 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -43,9 +43,9 @@ public:
     explicit CInterface(CGenerator& generator, ParseInterface parseObj, GenElem* parent);
     virtual ~CInterface();
 
-    static const CInterface* cCast(const commsdsl::gen::GenInterface* schema)
+    static const CInterface* cCast(const commsdsl::gen::GenInterface* obj)
     {
-        return static_cast<const CInterface*>(schema);
+        return static_cast<const CInterface*>(obj);
     }
 
     std::string cRelHeader() const;

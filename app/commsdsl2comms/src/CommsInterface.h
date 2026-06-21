@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -39,9 +39,9 @@ public:
     explicit CommsInterface(CommsGenerator& generator, ParseInterface parseObj, GenElem* parent);
     virtual ~CommsInterface();
 
-    static const CommsInterface* commsCast(const commsdsl::gen::GenInterface* value)
+    static const CommsInterface* commsCast(const commsdsl::gen::GenInterface* obj)
     {
-        return static_cast<const CommsInterface*>(value);
+        return static_cast<const CommsInterface*>(obj);
     }
 
     const CommsFieldsList& commsFields() const

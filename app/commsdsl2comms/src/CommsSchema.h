@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -38,14 +38,14 @@ public:
     CommsSchema(CommsGenerator& generator, ParseSchema parseObj, GenElem* parent);
     virtual ~CommsSchema();
 
-    static const CommsSchema* commsCast(const GenSchema* ptr)
+    static const CommsSchema* commsCast(const GenSchema* obj)
     {
-        return static_cast<const CommsSchema*>(ptr);
+        return static_cast<const CommsSchema*>(obj);
     }
 
-    static const CommsSchema& commsCast(const GenSchema& ref)
+    static const CommsSchema& commsCast(const GenSchema& obj)
     {
-        return static_cast<const CommsSchema&>(ref);
+        return static_cast<const CommsSchema&>(obj);
     }
 
     bool commsHasAnyMessage() const;

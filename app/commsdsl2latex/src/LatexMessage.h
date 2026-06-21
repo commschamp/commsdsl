@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -40,14 +40,14 @@ public:
     LatexMessage(LatexGenerator& generator, ParseMessage parseObj, GenElem* parent);
     virtual ~LatexMessage();
 
-    static const LatexMessage* latexCast(const GenMessage* ptr)
+    static const LatexMessage* latexCast(const GenMessage* obj)
     {
-        return static_cast<const LatexMessage*>(ptr);
+        return static_cast<const LatexMessage*>(obj);
     }
 
-    static const LatexMessage& latexCast(const GenMessage& ref)
+    static const LatexMessage& latexCast(const GenMessage& obj)
     {
-        return static_cast<const LatexMessage&>(ref);
+        return static_cast<const LatexMessage&>(obj);
     }
 
     std::string latexRelFilePath() const;

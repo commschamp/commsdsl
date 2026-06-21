@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -188,7 +188,7 @@ bool GenMessage::genPrepare()
 
 bool GenMessage::genWrite() const
 {
-    genGenerator().genLogger().genDebug("Attempt to generate code for message: " + genParseObj().parseExternalRef());
+    //genGenerator().genLogger().genDebug("Attempt to generate code for message: " + genParseObj().parseExternalRef());
     if (!m_impl->genWrite()) {
         return false;
     }
@@ -207,7 +207,7 @@ bool GenMessage::genIsReferenced() const
     return m_impl->genIsReferenced();
 }
 
-void GenMessage::genSetReferenced(bool value = true)
+void GenMessage::genSetReferenced(bool value)
 {
     m_impl->genSetReferenced(value);
 }

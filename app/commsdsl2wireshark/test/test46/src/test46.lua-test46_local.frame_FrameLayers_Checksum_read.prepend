@@ -1,0 +1,50 @@
+function test46_local.frame_FrameLayers_ChecksumMembers_ChecksumField_read_limited(tvb, tree, offset, offset_limit, field)
+    field = field or test46_local.frame_FrameLayers_ChecksumMembers_ChecksumField
+    local result = test46_local.StatusCode.INVALID_MSG_DATA
+    local next_offset = offset
+    local len = offset_limit - offset
+    local range = tvb(offset, len)
+    local field_subtree = tree:add(field, range)
+    result = test46_local.StatusCode.SUCCESS
+    next_offset = offset + len
+
+    return result, next_offset
+end
+
+function test46_local.frame_FrameLayers_ChecksumMembers_ChecksumField_read_sum8(tvb, tree, offset, offset_limit, field)
+
+    if offset_limit < (offset + 1) then
+        return test46_local.StatusCode.NOT_ENOUGH_DATA, offset
+    end
+
+    return test46_local.frame_FrameLayers_ChecksumMembers_ChecksumField_read_limited(tvb, tree, offset, offset + 1, field);
+end
+
+function test46_local.frame_FrameLayers_ChecksumMembers_ChecksumField_read_crc16(tvb, tree, offset, offset_limit, field)
+
+    if offset_limit < (offset + 2) then
+        return test46_local.StatusCode.NOT_ENOUGH_DATA, offset
+    end
+
+    return test46_local.frame_FrameLayers_ChecksumMembers_ChecksumField_read_limited(tvb, tree, offset, offset + 2, field);
+end
+
+test46_local.frame_FrameLayers_Checksum_checksum_calc_func_sum8 =
+    function (tvb, offset, offset_limit)
+        local sum = 0
+        local length = offset_limit - offset
+        if length <= 0 then
+            return 0
+        end
+
+        local data = tvb:range(offset, length):raw()
+        for i = 1, #data do
+            sum = sum + data:byte(i)
+        end
+        return bit32.band(sum, 0xff)
+    end
+
+test46_local.frame_FrameLayers_Checksum_checksum_calc_func_crc16 = test46_local.create_crc_calc(16, 0x8005, 0x0000, true, true, 0x0000)
+
+test46_local.frame_FrameLayers_Checksum_checksum_calc_func_crc32 = test46_local.create_crc_calc(32, 0x04C11DB7, 0xFFFFFFFF, true, true, 0xFFFFFFFF)
+

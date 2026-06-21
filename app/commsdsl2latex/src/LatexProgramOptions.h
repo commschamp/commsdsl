@@ -1,5 +1,5 @@
 //
-// Copyright 2025 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2025 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,9 +32,9 @@ public:
 
     LatexProgramOptions();
 
-    static const LatexProgramOptions& latexCast(const GenProgramOptions& options)
+    static const LatexProgramOptions& latexCast(const GenProgramOptions& obj)
     {
-        return static_cast<const LatexProgramOptions&>(options);
+        return static_cast<const LatexProgramOptions&>(obj);
     }
 };
 

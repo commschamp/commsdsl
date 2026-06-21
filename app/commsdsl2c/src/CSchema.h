@@ -1,5 +1,5 @@
 //
-// Copyright 2025 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2025 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -38,9 +38,9 @@ public:
     explicit CSchema(CGenerator& generator, ParseSchema parseObj, GenElem* parent);
     virtual ~CSchema();
 
-    static const CSchema* cCast(const commsdsl::gen::GenSchema* schema)
+    static const CSchema* cCast(const commsdsl::gen::GenSchema* obj)
     {
-        return static_cast<const CSchema*>(schema);
+        return static_cast<const CSchema*>(obj);
     }
 
     void cAddSourceFiles(GenStringsList& sources) const;

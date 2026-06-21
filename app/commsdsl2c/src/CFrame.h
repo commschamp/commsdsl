@@ -1,5 +1,5 @@
 //
-// Copyright 2022 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2022 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -42,9 +42,9 @@ public:
     explicit CFrame(CGenerator& generator, ParseFrame parseObj, commsdsl::gen::GenElem* parent);
     virtual ~CFrame();
 
-    static const CFrame* cCast(const GenFrame* i)
+    static const CFrame* cCast(const GenFrame* obj)
     {
-        return static_cast<const CFrame*>(i);
+        return static_cast<const CFrame*>(obj);
     }
 
     std::string cRelHeader() const;

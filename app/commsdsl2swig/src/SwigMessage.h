@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -44,9 +44,9 @@ public:
     void swigAddCode(GenStringsList& list) const;
     void swigAddDef(GenStringsList& list) const;
 
-    static const SwigMessage* swigCast(const commsdsl::gen::GenMessage* i)
+    static const SwigMessage* swigCast(const commsdsl::gen::GenMessage* obj)
     {
-        return static_cast<const SwigMessage*>(i);
+        return static_cast<const SwigMessage*>(obj);
     }
 
 protected:

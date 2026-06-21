@@ -1,5 +1,5 @@
 //
-// Copyright 2022 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2022 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,9 +37,9 @@ public:
 
     EmscriptenEnumField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent);
 
-    static const EmscriptenEnumField* emscriptenCast(const commsdsl::gen::GenField* f)
+    static const EmscriptenEnumField* emscriptenCast(const commsdsl::gen::GenField* obj)
     {
-        return static_cast<const EmscriptenEnumField*>(f);
+        return static_cast<const EmscriptenEnumField*>(obj);
     }
 
     std::string emscriptenBindValues(const EmscriptenNamespace* forcedParent = nullptr) const;

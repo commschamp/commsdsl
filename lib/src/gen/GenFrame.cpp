@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -155,7 +155,7 @@ const GenGenerator& GenFrame::genGenerator() const
     return m_impl->genGenerator();
 }
 
-GenFrame::GenLayersAccessList GenFrame::getCommsOrderOfLayers(bool& success) const
+GenFrame::GenLayersAccessList GenFrame::genCommsOrderOfLayers(bool& success) const
 {
     GenLayersAccessList result;
     for (auto& lPtr : genLayers()) {

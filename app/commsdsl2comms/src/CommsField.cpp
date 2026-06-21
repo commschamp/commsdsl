@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -399,6 +399,11 @@ std::string CommsField::commsBareMetalDefaultOptions() const
 bool CommsField::commsHasCustomValue() const
 {
     return m_customCode.m_hasValue;
+}
+
+bool CommsField::commsHasCustomRead() const
+{
+    return (m_customCode.m_hasRead) || (!commsDefReadFuncBodyImpl().empty());
 }
 
 bool CommsField::commsHasCustomValid() const

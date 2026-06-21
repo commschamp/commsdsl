@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -80,10 +80,10 @@ public:
         return m_memberPrefixField.get();
     }
 
-    void genSetReferenced()
+    void genSetReferenced(bool referenced)
     {
-        GenField::genSetFieldReferencedIfExists(m_externalPrefixField);
-        GenField::genSetFieldReferencedIfExists(m_memberPrefixField.get());
+        GenField::genSetFieldReferencedIfExists(m_externalPrefixField, referenced);
+        GenField::genSetFieldReferencedIfExists(m_memberPrefixField.get(), referenced);
     }
 
 private:
@@ -128,9 +128,9 @@ bool GenDataField::genPrepareImpl()
     return m_impl->genPrepare();
 }
 
-void GenDataField::genSetReferencedImpl()
+void GenDataField::genSetReferencedImpl(bool referenced)
 {
-    m_impl->genSetReferenced();
+    m_impl->genSetReferenced(referenced);
 }
 
 GenDataField::ParseDataField GenDataField::genDataFieldParseObj() const

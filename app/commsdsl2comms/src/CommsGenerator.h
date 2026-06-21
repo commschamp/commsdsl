@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,9 +46,9 @@ public:
         NumOfValues
     };
 
-    static const CommsGenerator& commsCast(const commsdsl::gen::GenGenerator& ref)
+    static const CommsGenerator& commsCast(const commsdsl::gen::GenGenerator& obj)
     {
-        return static_cast<const CommsGenerator&>(ref);
+        return static_cast<const CommsGenerator&>(obj);
     }
 
     static const std::string& commsFileGeneratedComment();

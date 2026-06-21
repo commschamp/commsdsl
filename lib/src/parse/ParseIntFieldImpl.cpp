@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -177,8 +177,8 @@ std::size_t ParseIntFieldImpl::parseMaxTypeLength(ParseType t)
         /* ParseType::Uint32 */ sizeof(std::uint32_t),
         /* ParseType::Int64 */ sizeof(std::int64_t),
         /* ParseType::Uint64 */ sizeof(std::uint64_t),
-        /* ParseType::Intvar */ (((sizeof(std::intmax_t) * 8) - 1) / 7) + 1,
-        /* ParseType::Uintvar */(((sizeof(std::uintmax_t) * 8) - 1) / 7) + 1
+        /* ParseType::Intvar */ sizeof(std::uint64_t), // (((sizeof(std::intmax_t) * 8) - 1) / 7) + 1,
+        /* ParseType::Uintvar */ sizeof(std::uint64_t), // (((sizeof(std::uintmax_t) * 8) - 1) / 7) + 1
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
@@ -391,7 +391,9 @@ bool ParseIntFieldImpl::parseImpl()
 
 std::size_t ParseIntFieldImpl::parseMinLengthImpl() const
 {
-    if ((m_state.m_type == ParseType::Intvar) || (m_state.m_type == ParseType::Uintvar)) {
+    if ((m_state.m_type == ParseType::Intvar) ||
+        (m_state.m_type == ParseType::Uintvar) ||
+        (m_state.m_availableLengthLimit)) {
         return 1U;
     }
 

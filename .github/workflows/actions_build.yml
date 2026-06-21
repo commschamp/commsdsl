@@ -8,8 +8,8 @@ on:
       - '**'
 
 env:
-  COMMS_TAG: v5.5.1
-  CC_TOOLS_QT_TAG: v6.0.7
+  COMMS_TAG: v5.5.2
+  CC_TOOLS_QT_TAG: v6.0.8
 
 jobs:
   build_gcc_ubuntu_24_04:
@@ -54,7 +54,8 @@ jobs:
       run: |
         sudo apt install libqt${{matrix.qt_ver}}gui${{matrix.qt_ver}} qtbase5-dev qt6-base-dev libxml2-dev doxygen gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} \
         python3 libpython3-dev swig default-jdk default-jre emscripten nodejs \
-        texlive-base texlive-latex-base texlive-latex-recommended texlive-plain-generic tex4ht
+        texlive-base texlive-latex-base texlive-latex-recommended texlive-plain-generic tex4ht \
+        tshark
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
@@ -85,6 +86,7 @@ jobs:
         -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
         -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON \
         -DCOMMSDSL_BUILD_COMMSDSL2LATEX=ON -DCOMMSDSL_BUILD_COMMSDSL2C=ON \
+        -DCOMMSDSL_BUILD_COMMSDSL2WIRESHARK=ON \
         -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}} \
         -DCOMMSDSL_BUILD_WITH_SANITIZERS=ON
       env:
@@ -142,6 +144,7 @@ jobs:
         -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
         -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON \
         -DCOMMSDSL_BUILD_COMMSDSL2LATEX=ON -DCOMMSDSL_BUILD_COMMSDSL2C=ON \
+        -DCOMMSDSL_BUILD_COMMSDSL2WIRESHARK=ON \
         -DCOMMSDSL_BUILD_WITH_SANITIZERS=OFF -DCOMMSDSL_BUILD_UNIT_TESTS=OFF
       env:
         CC: gcc-${{matrix.cc_ver}}
@@ -173,7 +176,7 @@ jobs:
     - name: Install Packages
       run: |
         sudo apt install libqt${{matrix.qt_ver}}gui${{matrix.qt_ver}} qtbase5-dev qt6-base-dev libxml2-dev clang-${{matrix.cc_ver}} \
-        python3 libpython3-dev swig default-jdk default-jre emscripten nodejs
+        python3 libpython3-dev swig default-jdk default-jre emscripten nodejs tshark
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
@@ -204,6 +207,7 @@ jobs:
           -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2LATEX=ON -DCOMMSDSL_BUILD_COMMSDSL2C=ON \
+          -DCOMMSDSL_BUILD_COMMSDSL2WIRESHARK=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}} \
           -DCOMMSDSL_BUILD_WITH_SANITIZERS=${{env.SANITIZERS}}
 
@@ -258,7 +262,7 @@ jobs:
     - name: Install Packages
       run: |
         sudo apt install libqt${{matrix.qt_ver}}gui${{matrix.qt_ver}} qtbase5-dev qt6-base-dev libxml2-dev clang-${{matrix.cc_ver}} \
-        python3 libpython3-dev swig default-jdk default-jre emscripten nodejs
+        python3 libpython3-dev swig default-jdk default-jre emscripten nodejs tshark
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
@@ -289,6 +293,7 @@ jobs:
           -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2LATEX=ON -DCOMMSDSL_BUILD_COMMSDSL2C=ON \
+          -DCOMMSDSL_BUILD_COMMSDSL2WIRESHARK=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}} \
           -DCOMMSDSL_BUILD_WITH_SANITIZERS=ON
 
@@ -348,6 +353,7 @@ jobs:
           -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2LATEX=ON -DCOMMSDSL_BUILD_COMMSDSL2C=ON \
+          -DCOMMSDSL_BUILD_COMMSDSL2WIRESHARK=ON \
           -DCOMMSDSL_BUILD_WITH_SANITIZERS=OFF -DCOMMSDSL_BUILD_UNIT_TESTS=OFF
 
       env:
@@ -377,21 +383,17 @@ jobs:
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
 
-    - name: Install Qt
+    - name: Install Qt (sets QT_ROOT_DIR)
       if: ${{matrix.cpp >= 17}}
-      shell: cmd
-      run: |
-        choco install curl
-        curl -L https://github.com/martinrotter/qt-minimalistic-builds/releases/download/${{env.QT_VER}}/qt-${{env.QT_VER}}-dynamic-msvc2019-x86_64.7z -o ${{runner.workspace}}/qt.7z
-        7z x ${{runner.workspace}}/qt.7z -o${{runner.workspace}}/qt
-        echo QT_VER=${{env.QT_VER}} >>%GITHUB_ENV%
-        echo QTDIR=${{runner.workspace}}/qt/qt-${{env.QT_VER}}-dynamic-msvc2019-x86_64 >>%GITHUB_ENV%
-      env:
-        QT_VER: ${{matrix.qt_ver == '5' && '5.15.3' || '6.2.2'}}
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{ matrix.qt_ver == 5 && '5.15.*' || '6.8.*' }}
+        cache: true
 
     - name: Prepare externals
       shell: cmd
       run: |
+        set QTDIR=%QT_ROOT_DIR%
         %GITHUB_WORKSPACE%\script\prepare_externals.bat
       env:
         BUILD_DIR: ${{runner.workspace}}/build
@@ -403,26 +405,28 @@ jobs:
         COMMS_TAG: ${{env.COMMS_TAG}}
         CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_TAG}}
         CC_TOOLS_QT_MAJOR_QT_VERSION: ${{matrix.qt_ver}}
+        CC_TOOLS_QT_SKIP: "${{ matrix.cpp >= 17 && (matrix.qt_ver == 6 || matrix.cpp < 20) && '0' || '1' }}"
 
     - name: Configure CMake
       shell: cmd
       working-directory: ${{runner.workspace}}/build
       run: |
         cmake %GITHUB_WORKSPACE% -A ${{matrix.arch}} -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install ^
-          -DCMAKE_PREFIX_PATH="${{runner.workspace}}/build/install;${{env.QTDIR}}" ^
+          -DCMAKE_PREFIX_PATH="${{runner.workspace}}/build/install;${{env.QT_ROOT_DIR}}" ^
           -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_TESTS_QT_VERSION=${{matrix.qt_ver}} ^
           -DCMAKE_CXX_STANDARD=${{env.TOOLS_CXX_STANDARD}} ^
           -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON ^
           -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON ^
           -DCOMMSDSL_BUILD_COMMSDSL2LATEX=ON -DCOMMSDSL_BUILD_COMMSDSL2C=ON ^
+          -DCOMMSDSL_BUILD_COMMSDSL2WIRESHARK=ON ^
           -DCOMMSDSL_BUILD_UNIT_TESTS=ON ^
           -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}} ^
           -DCOMMSDSL_BUILD_COMMSDSL2SWIG_TESTS=OFF -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN_TESTS=OFF ^
-          -DCOMMSDSL_BUILD_COMMSDSL2LATEX_TESTS=OFF
+          -DCOMMSDSL_BUILD_COMMSDSL2LATEX_TESTS=OFF -DCOMMSDSL_BUILD_COMMSDSL2WIRESHARK_TESTS=OFF
 
       env:
         TOOLS_CXX_STANDARD: "${{ matrix.cpp >= 17 && matrix.cpp || '17' }}"
-        BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
+        BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && (matrix.qt_ver == 6 || matrix.cpp < 20) && 'ON' || 'OFF' }}"
 
     - name: Build Target
       working-directory: ${{runner.workspace}}/build
@@ -436,7 +440,7 @@ jobs:
       shell: bash
       run: ctest -V
 
-  build_msvc_2025:
+  build_msvc_2026:
     runs-on: windows-2025
     strategy:
       fail-fast: false
@@ -452,21 +456,17 @@ jobs:
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
 
-    - name: Install Qt
+    - name: Install Qt (sets QT_ROOT_DIR)
       if: ${{matrix.cpp >= 17}}
-      shell: cmd
-      run: |
-        choco install curl
-        curl -L https://github.com/martinrotter/qt-minimalistic-builds/releases/download/${{env.QT_VER}}/qt-${{env.QT_VER}}-dynamic-msvc2019-x86_64.7z -o ${{runner.workspace}}/qt.7z
-        7z x ${{runner.workspace}}/qt.7z -o${{runner.workspace}}/qt
-        echo QT_VER=${{env.QT_VER}} >>%GITHUB_ENV%
-        echo QTDIR=${{runner.workspace}}/qt/qt-${{env.QT_VER}}-dynamic-msvc2019-x86_64 >>%GITHUB_ENV%
-      env:
-        QT_VER: ${{matrix.qt_ver == '5' && '5.15.3' || '6.2.2'}}
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{ matrix.qt_ver == 5 && '5.15.*' || '6.8.*' }}
+        cache: true
 
     - name: Prepare externals
       shell: cmd
       run: |
+        set QTDIR=%QT_ROOT_DIR%
         %GITHUB_WORKSPACE%\script\prepare_externals.bat
       env:
         BUILD_DIR: ${{runner.workspace}}/build
@@ -478,6 +478,7 @@ jobs:
         COMMS_TAG: ${{env.COMMS_TAG}}
         CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_TAG}}
         CC_TOOLS_QT_MAJOR_QT_VERSION: ${{matrix.qt_ver}}
+        CC_TOOLS_QT_SKIP: "${{ matrix.cpp >= 17 && (matrix.qt_ver == 6 || matrix.cpp < 20) && '0' || '1' }}"
 
     - name: Configure CMake
       shell: cmd
@@ -490,14 +491,15 @@ jobs:
           -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON ^
           -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON ^
           -DCOMMSDSL_BUILD_COMMSDSL2LATEX=ON -DCOMMSDSL_BUILD_COMMSDSL2C=ON ^
+          -DCOMMSDSL_BUILD_COMMSDSL2WIRESHARK=ON ^
           -DCOMMSDSL_BUILD_UNIT_TESTS=ON ^
           -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}} ^
           -DCOMMSDSL_BUILD_COMMSDSL2SWIG_TESTS=OFF -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN_TESTS=OFF ^
-          -DCOMMSDSL_BUILD_COMMSDSL2LATEX_TESTS=OFF
+          -DCOMMSDSL_BUILD_COMMSDSL2LATEX_TESTS=OFF -DCOMMSDSL_BUILD_COMMSDSL2WIRESHARK_TESTS=OFF
 
       env:
         TOOLS_CXX_STANDARD: "${{ matrix.cpp >= 17 && matrix.cpp || '17' }}"
-        BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
+        BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && (matrix.qt_ver == 6 || matrix.cpp < 20) && 'ON' || 'OFF' }}"
 
     - name: Build Target
       working-directory: ${{runner.workspace}}/build

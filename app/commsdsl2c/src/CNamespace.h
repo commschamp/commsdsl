@@ -1,5 +1,5 @@
 //
-// Copyright 2025 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2025 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -42,9 +42,9 @@ public:
     explicit CNamespace(CGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~CNamespace();
 
-    static const CNamespace* cCast(const commsdsl::gen::GenNamespace* schema)
+    static const CNamespace* cCast(const commsdsl::gen::GenNamespace* obj)
     {
-        return static_cast<const CNamespace*>(schema);
+        return static_cast<const CNamespace*>(obj);
     }
 
     const CInterface* cInterface() const;

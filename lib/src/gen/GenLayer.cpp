@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -235,7 +235,7 @@ std::string GenLayer::genTemplateScopeOfComms(const std::string& iFaceStr, const
 
     auto* frame = static_cast<const GenFrame*>(parent);
     [[maybe_unused]] bool success = true;
-    auto allLayers = frame->getCommsOrderOfLayers(success);
+    auto allLayers = frame->genCommsOrderOfLayers(success);
     assert(success);
 
     auto iter =

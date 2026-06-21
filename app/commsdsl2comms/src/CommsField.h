@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -91,6 +91,7 @@ public:
     std::string commsBareMetalDefaultOptions() const;
 
     bool commsHasCustomValue() const;
+    bool commsHasCustomRead() const;
     bool commsHasCustomValid() const;
     bool commsHasCustomLength(bool deepCheck = true) const;
     const CommsField* commsFindSibling(const std::string& name) const;

@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -42,9 +42,9 @@ public:
     CommsNamespace(CommsGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~CommsNamespace();
 
-    static const CommsNamespace* commsCast(const commsdsl::gen::GenNamespace* ptr)
+    static const CommsNamespace* commsCast(const commsdsl::gen::GenNamespace* obj)
     {
-        return static_cast<const CommsNamespace*>(ptr);
+        return static_cast<const CommsNamespace*>(obj);
     }
 
     std::string commsDefaultOptions() const;

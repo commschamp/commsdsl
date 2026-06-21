@@ -54,7 +54,7 @@
             <special name="LongPresent" val="0xff" />
         </int>
 
-        <bundle name="ComplexLength" semanticType="length" valueOverride="replace" readOverride="replace" refreshOverride="replace">
+        <bundle name="ComplexLength" semanticType="length" valueOverride="replace">
             <ref field="ShortLength" name="Short" />
             <optional name="Long" cond="$Short = ShortLength.LongPresent">
                 <int name="ActLong" type="uint16" />

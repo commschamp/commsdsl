@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -67,10 +67,10 @@ public:
         return m_members;
     }
 
-    void genSetReferenced()
+    void genSetReferenced(bool referenced)
     {
         for (auto& m : m_members) {
-            m->genSetReferenced();
+            m->genSetReferenced(referenced);
         }
     }
 
@@ -100,9 +100,9 @@ bool GenBitfieldField::genPrepareImpl()
     return m_impl->genPrepare();
 }
 
-void GenBitfieldField::genSetReferencedImpl()
+void GenBitfieldField::genSetReferencedImpl(bool referenced)
 {
-    m_impl->genSetReferenced();
+    m_impl->genSetReferenced(referenced);
 }
 
 GenBitfieldField::GenFieldRefInfo GenBitfieldField::genProcessInnerRefImpl(const std::string& refStr) const

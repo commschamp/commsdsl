@@ -42,7 +42,7 @@
         <frame name="WrapFrame">
             <sync name="Prefix" seekField="true">
                 <field>
-                    <int name="SyncField" type="uint8" defaultValue="0x02" />
+                    <int name="SyncField" type="uint8" defaultValue="0x02" displayName="Prefix Sync" />
                 </field>
                 <escField>
                     <int name="Esc" reuse="wrap.EscField" />
@@ -53,7 +53,7 @@
             </id>
             <payload name="Data" />
             <sync name="Suffix" seekField="true" from="Id" escField="wrap.EscField">
-                <int name="SyncField" type="uint8" defaultValue="0x03" />
+                <int name="SyncField" type="uint8" defaultValue="0x03" displayName="Suffix Sync" />
             </sync>
         </frame>
     </ns>

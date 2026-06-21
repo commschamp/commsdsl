@@ -1,5 +1,5 @@
 //
-// Copyright 2022 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2022 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,14 +47,14 @@ public:
 
     static const std::string& emscriptenFileGeneratedComment();
 
-    static EmscriptenGenerator& emscriptenCast(commsdsl::gen::GenGenerator& generator)
+    static EmscriptenGenerator& emscriptenCast(commsdsl::gen::GenGenerator& obj)
     {
-        return static_cast<EmscriptenGenerator&>(generator);
+        return static_cast<EmscriptenGenerator&>(obj);
     }
 
-    static const EmscriptenGenerator& emscriptenCast(const commsdsl::gen::GenGenerator& generator)
+    static const EmscriptenGenerator& emscriptenCast(const commsdsl::gen::GenGenerator& obj)
     {
-        return static_cast<const EmscriptenGenerator&>(generator);
+        return static_cast<const EmscriptenGenerator&>(obj);
     }
 
     std::string emscriptenClassName(const commsdsl::gen::GenElem& elem) const;

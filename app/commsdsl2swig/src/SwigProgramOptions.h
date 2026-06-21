@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,9 +32,9 @@ public:
 
     SwigProgramOptions();
 
-    static const SwigProgramOptions& swigCast(const GenProgramOptions& options)
+    static const SwigProgramOptions& swigCast(const GenProgramOptions& obj)
     {
-        return static_cast<const SwigProgramOptions&>(options);
+        return static_cast<const SwigProgramOptions&>(obj);
     }
 
     bool swigIsMainNamespaceInNamesForced() const;

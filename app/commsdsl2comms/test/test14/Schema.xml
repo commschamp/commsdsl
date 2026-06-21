@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test14"
-        id="1"
-        endian="big"
-        version="5">
+<schema name="test14" endian="big" version="5">
     <fields>
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
@@ -50,6 +47,7 @@
         <ref name="f1" field="S5" />
         <ref name="f2" field="S6" failOnInvalid="true" />
     </message>
+
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />

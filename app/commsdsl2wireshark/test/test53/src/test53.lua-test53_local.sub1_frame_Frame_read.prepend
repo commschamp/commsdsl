@@ -1,0 +1,16 @@
+test53_local.sub1_frame_Frame_read_occured = {}
+
+function test53_local.sub1_frame_Frame_read_occured_get()
+    local pkt_id = test53_local.packet_id()
+    local last_val = test53_local.sub1_frame_Frame_read_occured[pkt_id]
+    if last_val ~= nil then
+        return last_val
+    end
+
+    return false
+end
+
+function test53_local.sub1_frame_Frame_read_occured_set()
+    local pkt_id = test53_local.packet_id()
+    test53_local.sub1_frame_Frame_read_occured[pkt_id] = true
+end

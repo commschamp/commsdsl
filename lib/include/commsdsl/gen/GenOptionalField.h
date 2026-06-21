@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -48,7 +48,7 @@ public:
 
 protected:
     virtual bool genPrepareImpl() override;
-    virtual void genSetReferencedImpl() override;
+    virtual void genSetReferencedImpl(bool referenced) override;
 
     ParseOptionalField genOptionalFieldParseObj() const;
 

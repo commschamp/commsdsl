@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -52,6 +52,7 @@ public:
             if (!escField.parseExternalRef().empty()) {
                 m_externalEscField = m_generator.genFindField(escField.parseExternalRef());
                 assert(m_externalEscField != nullptr);
+                m_externalEscField->genSetReferenced();
                 break;
             }
 
@@ -59,6 +60,8 @@ public:
             if (!m_memberEscField->genPrepare()) {
                 return false;
             }
+
+            m_memberEscField->genSetReferenced();
         } while (false);
 
         return true;
@@ -95,7 +98,7 @@ private:
 
 GenSyncLayer::GenSyncLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent) :
     Base(generator, parseObj, parent),
-    m_impl(std::make_unique<GenSyncLayerImpl>(generator, genSyncLayerDslObj(), this))
+    m_impl(std::make_unique<GenSyncLayerImpl>(generator, genSyncLayerParseObj(), this))
 {
     assert(parseObj.parseKind() == ParseLayer::ParseKind::Sync);
 }
@@ -129,7 +132,7 @@ bool GenSyncLayer::genPrepareImpl()
 
 bool GenSyncLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const
 {
-    auto parseObj = genSyncLayerDslObj();
+    auto parseObj = genSyncLayerParseObj();
     if (!parseObj.parseIsAfterPayload()) {
         return Base::genForceCommsOrderImpl(layers, success);
     }
@@ -194,7 +197,7 @@ bool GenSyncLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool& suc
     return genAdjustSuffixLayersOrder(layers, success);
 }
 
-GenSyncLayer::ParseSyncLayer GenSyncLayer::genSyncLayerDslObj() const
+GenSyncLayer::ParseSyncLayer GenSyncLayer::genSyncLayerParseObj() const
 {
     return ParseSyncLayer(genParseObj());
 }

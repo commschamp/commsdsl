@@ -1,0 +1,337 @@
+//
+// Copyright 2026 - 2026 (C). Alex Robenko. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include "WiresharkEnumField.h"
+
+#include "Wireshark.h"
+#include "WiresharkGenerator.h"
+#include "WiresharkIntField.h"
+
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+#include <cassert>
+
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
+
+namespace commsdsl2wireshark
+{
+
+WiresharkEnumField::WiresharkEnumField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent) :
+    GenBase(generator, parseObj, parent),
+    WiresharkBase(static_cast<GenBase&>(*this))
+{
+}
+
+std::string WiresharkEnumField::wiresharkFieldRegistrationImpl(const WiresharkField* refField) const
+{
+    static const std::string Templ =
+        "#^#VALS#$#\n"
+        "#^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, #^#BASE#$#, #^#VALS_NAME#$#, #^#MASK#$#, #^#DESC#$#))\n"
+    ;
+
+    auto obj = genEnumFieldParseObj();
+    util::GenReplacementMap repl = {
+        {"VALS", wiresharkValsInternal(refField)},
+        {"OBJ_NAME", wiresharkFieldObjName(refField)},
+        {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
+        {"TYPE", wiresharkForcedIntegralFieldType(refField)},
+        {"REF_NAME", wiresharkFieldRefName(refField)},
+        {"DISP_NAME", wiresharkFieldNameVarNameStr(refField)},
+        {"VALS_NAME", wiresharkFieldObjName(refField) + strings::genValsSuffixStr()},
+        {"BASE", "base.DEC"},
+        {"MASK", wiresharkForcedIntegralFieldMask(refField)},
+        {"DESC", wiresharkFieldDescriptionStr(refField)},
+    };
+
+    if (genIsUnsignedType()) {
+        // Cannot display hex value
+        repl["BASE"] = "base.DEC_HEX";
+
+        if (obj.parseHexAssign()) {
+            repl["BASE"] = "base.HEX_DEC";
+        }
+    }
+
+    if (repl["TYPE"].empty()) {
+        repl["TYPE"] = WiresharkIntField::wiresharkIntegralType(obj.parseType(), obj.parseMaxLength());
+    }
+    else if (!genIsUnsignedType() && (repl["TYPE"].front() == 'u')) {
+        repl["TYPE"] = repl["TYPE"].substr(1U);
+    }
+
+    assert(!repl["TYPE"].empty());
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkEnumField::wiresharkTvbRangeAccessImpl() const
+{
+    auto obj = genEnumFieldParseObj();
+    return WiresharkIntField::wiresharkTvbRangeAccessIntegralValue(obj.parseType(), obj.parseEndian(), obj.parseMaxLength());
+}
+
+std::string WiresharkEnumField::wiresharkDissectLengthCheckImpl(const WiresharkField* refField) const
+{
+    auto parseObj = genEnumFieldParseObj();
+
+    if (parseObj.parseAvailableLengthLimit()) {
+        return wiresharkEmptyBufferCheckCode();
+    }
+
+    return WiresharkBase::wiresharkDissectLengthCheckImpl(refField);
+}
+
+std::string WiresharkEnumField::wiresharkDissectBodyImpl(const WiresharkField* refField) const
+{
+    static const std::string Templ =
+        "local len = math.min(#^#LEN#$#, #^#LIMIT#$# - #^#OFFSET#$#)\n"
+        "local #^#RANGE#$# = #^#TVB#$#(#^#OFFSET#$#, len)\n"
+        "#^#VAL_DECL#$#\n"
+        "#^#VAR_LEN#$#\n"
+        "local #^#SUBTREE#$# = #^#TREE#$#:add#^#SUFFIX#$#(#^#FIELD#$#, #^#RANGE#$##^#VAL#$#)\n"
+        "#^#RESULT#$# = #^#SUCCESS#$#\n"
+        "#^#NEXT_OFFSET#$# = #^#OFFSET#$# + len\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    auto parseObj = genEnumFieldParseObj();
+    bool hasVal = false;
+    util::GenReplacementMap repl = {
+        {"LEN", std::to_string(wiresharkMinFieldLength(refField))},
+        {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
+        {"VAR_LEN", wiresharkVarLengthCodeInternal(hasVal)},
+        {"SUBTREE", wiresharkFieldSubtreeStr()},
+        {"RANGE", wiresharkRangeStr()},
+        {"LIMIT", wiresharkOffsetLimitStr()},
+        {"OFFSET", wiresharkOffsetStr()},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+        {"RESULT", wiresharkResultStr()},
+        {"FIELD", wiresharkFieldStr()},
+        {"TREE", wiresharkTreeStr()},
+        {"TVB", wiresharkTvbStr()},
+    };
+
+    if (parseObj.parseAvailableLengthLimit()) {
+        repl["LEN"] = std::to_string(wiresharkMaxFieldLength(refField));
+    }
+
+    if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
+        repl["SUFFIX"] = strings::genLittleEndianSuffixStr();
+    }
+
+    if (hasVal) {
+        repl["VAL_DECL"] = wiresharkValDeclCodeInternal();
+        repl["VAL"] = ", val";
+    }
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkEnumField::wiresharkValidFuncBodyImpl(const WiresharkField* refField) const
+{
+    static const std::string Templ =
+        "local value = #^#FUNC#$#(#^#FIELD#$#)\n"
+        "local name = #^#NAME#$##^#SUFFIX#$#[value]\n"
+        "return name ~= #^#NIL#$#, true\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkFieldObjName(refField)},
+        {"SUFFIX", strings::genValsSuffixStr()},
+        {"NIL", strings::genNilStr()},
+        {"FUNC", wiresharkValueFuncName()},
+        {"FIELD", wiresharkFieldStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkEnumField::wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const
+{
+    if (accStr.empty()) {
+        return WiresharkBase::wiresharkValueAccessStrImpl(accStr, refField);
+    }
+
+    auto& values = genEnumFieldParseObj().parseValues();
+    auto iter = values.find(accStr);
+    if (iter == values.end()) {
+        assert(false);
+        return WiresharkBase::wiresharkValueAccessStrImpl(std::string(), refField);
+    }
+
+    return std::to_string(iter->second.m_value);
+}
+
+std::string WiresharkEnumField::wiresharkCompPrepValueStrImpl([[maybe_unused]] const std::string& accStr, const std::string& value) const
+{
+    assert(accStr.empty());
+    return wiresharkProcessIntegralValue(value);
+}
+
+std::string WiresharkEnumField::wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const
+{
+    auto parseObj = genEnumFieldParseObj();
+    static const std::string Templ =
+        "#^#TREE#$#:add(#^#FIELD#$#, #^#TVB#$#(#^#OFFSET#$#, 0), #^#VAL#$#):set_hidden(true)\n"
+        ;
+
+    auto val = std::to_string(parseObj.parseDefaultValue());
+    if (genIsUnsignedType()) {
+        val = std::to_string(static_cast<std::uintmax_t>(parseObj.parseDefaultValue()));
+    }
+
+    util::GenReplacementMap repl = {
+        {"TREE", wiresharkTreeStr()},
+        {"FIELD", wiresharkFieldObjName(refField)},
+        {"TVB", wiresharkTvbStr()},
+        {"OFFSET", wiresharkOffsetStr()},
+        {"VAL", std::move(val)}
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+bool WiresharkEnumField::wiresharkHasTrivialValidImpl() const
+{
+    return false;
+}
+
+std::string WiresharkEnumField::wiresharkDefaultValueStrImpl() const
+{
+    auto parseObj = genEnumFieldParseObj();
+    if (genIsUnsignedType()) {
+        return std::to_string(static_cast<std::uintmax_t>(parseObj.parseDefaultValue()));
+    }
+
+    return std::to_string(parseObj.parseDefaultValue());
+}
+
+std::string WiresharkEnumField::wiresharkValsInternal(const WiresharkField* refField) const
+{
+    auto& values = genSortedRevValues();
+    assert(!values.empty());
+
+    auto actValues = genEnumFieldParseObj().parseValues();
+    util::GenStringsList elems;
+    for (auto& v : values) {
+        assert(v.second != nullptr);
+        auto iter = actValues.find(*v.second);
+        if (iter == actValues.end()) {
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
+            assert(Should_not_happen);
+            continue;
+        }
+
+        if (!genGenerator().genDoesElementExist(iter->second.m_sinceVersion, iter->second.m_deprecatedSince, true)) {
+            continue;
+        }
+
+        static const std::string Templ =
+            "[#^#VAL#$#] = \"#^#NAME#$#\"";
+
+        util::GenReplacementMap repl = {
+            {"NAME", util::genDisplayName(iter->second.m_displayName, iter->first)},
+            {"VAL", std::to_string(v.first)},
+        };
+
+        bool unsignedType = genIsUnsignedUnderlyingType();
+        auto parseObj = genEnumFieldParseObj();
+        if (parseObj.parseHexAssign() && unsignedType) {
+            repl["VAL"] = wiresharkHexString(static_cast<std::uintmax_t>(v.first), static_cast<unsigned>(parseObj.parseMinLength() * 2U));
+        }
+        else if ((v.first < 0) && unsignedType) {
+            repl["VAL"] = std::to_string(static_cast<std::uintmax_t>(v.first));
+        }
+
+        elems.push_back(util::genProcessTemplate(Templ, repl));
+    }
+
+    static const std::string Templ =
+        "#^#NAME#$##^#SUFFIX#$# = {\n"
+        "    #^#ELEMS#$#\n"
+        "}\n"
+    ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkFieldObjName(refField)},
+        {"SUFFIX",  strings::genValsSuffixStr()},
+        {"ELEMS", util::genStrListToString(elems, ",\n", "")},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+bool WiresharkEnumField::genPrepareImpl()
+{
+    if ((!GenBase::genPrepareImpl()) ||
+        (!WiresharkBase::wiresharkPrepare())) {
+        return false;
+    }
+    return true;
+}
+
+std::string WiresharkEnumField::wiresharkValDeclCodeInternal() const
+{
+    auto parseObj = genEnumFieldParseObj();
+    auto type = parseObj.parseType();
+    if (WiresharkIntField::genIsVarLengthType(type)) {
+        return "local val = 0\n";
+    }
+
+    static const std::string Templ =
+        "local val = #^#RANGE#$#:#^#ACC#$#\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"ACC", WiresharkIntField::wiresharkTvbRangeAccessIntegralValue(parseObj.parseType(), parseObj.parseEndian(), parseObj.parseMinLength())},
+        {"RANGE", wiresharkRangeStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkEnumField::wiresharkVarLengthCodeInternal(bool& hasVal) const
+{
+    auto parseObj = genEnumFieldParseObj();
+    auto type = parseObj.parseType();
+    if (!WiresharkIntField::genIsVarLengthType(type)) {
+        return strings::genEmptyString();
+    }
+
+    hasVal = true;
+
+    if (sizeof(std::uint32_t) < parseObj.parseMaxLength()) {
+        return wiresharkVarLengthCodeLargeNumInternal();
+    }
+
+    if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
+        return wiresharkIntegralFieldVarLengthLittleEndianCode(!genIsUnsignedUnderlyingType());
+    }
+
+    return wiresharkIntegralFieldVarLengthBigEndianCode(!genIsUnsignedUnderlyingType());
+}
+
+std::string WiresharkEnumField::wiresharkVarLengthCodeLargeNumInternal() const
+{
+    auto parseObj = genEnumFieldParseObj();
+    if (parseObj.parseEndian() == commsdsl::parse::ParseEndian_Little) {
+        return wiresharkIntegralFieldVarLengthLargeNumLittleEndianCode(!genIsUnsignedType());
+    }
+
+    return wiresharkIntegralFieldVarLengthLargeNumBigEndianCode(!genIsUnsignedType());
+}
+
+} // namespace commsdsl2wireshark

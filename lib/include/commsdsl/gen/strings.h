@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -124,6 +124,14 @@ const std::string& genLittleStr();
 const std::string& genDescriptionStr();
 const std::string& genCommsNameSuffixStr();
 const std::string& genValueTypeStr();
+const std::string& genValsSuffixStr();
+const std::string& genReadSuffixStr();
+const std::string& genValidSuffixStr();
+const std::string& genValueSuffixStr();
+const std::string& genNameSuffixStr();
+const std::string& genNilStr();
+const std::string& genLittleEndianSuffixStr();
+const std::string& genLittleEndianPrefixStr();
 
 char genSiblingRefPrefix();
 char genStringRefPrefix();

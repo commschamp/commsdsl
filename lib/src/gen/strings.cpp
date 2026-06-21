@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -599,6 +599,54 @@ const std::string& genCommsNameSuffixStr()
 const std::string& genValueTypeStr()
 {
     static const std::string Str("ValueType");
+    return Str;
+}
+
+const std::string& genValsSuffixStr()
+{
+    static const std::string Str("_vals");
+    return Str;
+}
+
+const std::string& genReadSuffixStr()
+{
+    static const std::string Str("_read");
+    return Str;
+}
+
+const std::string& genValidSuffixStr()
+{
+    static const std::string Str("_valid");
+    return Str;
+}
+
+const std::string& genValueSuffixStr()
+{
+    static const std::string Str("_value");
+    return Str;
+}
+
+const std::string& genNameSuffixStr()
+{
+    static const std::string Str("_name");
+    return Str;
+}
+
+const std::string& genNilStr()
+{
+    static const std::string Str("nil");
+    return Str;
+}
+
+const std::string& genLittleEndianSuffixStr()
+{
+    static const std::string Str("_le");
+    return Str;
+}
+
+const std::string& genLittleEndianPrefixStr()
+{
+    static const std::string Str("le_");
     return Str;
 }
 

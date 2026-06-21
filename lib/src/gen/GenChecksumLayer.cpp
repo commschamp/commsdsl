@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -53,7 +53,7 @@ bool GenChecksumLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool&
         return false;
     }
 
-    auto obj = genChecksumDslObj();
+    auto obj = genChecksumParseObj();
     auto& untilStr = obj.parseUntilLayer();
     if (!untilStr.empty()) {
         assert(obj.parseFromLayer().empty());
@@ -120,7 +120,7 @@ bool GenChecksumLayer::genForceCommsOrderImpl(GenLayersAccessList& layers, bool&
     return genAdjustSuffixLayersOrder(layers, success);
 }
 
-GenChecksumLayer::ParseChecksumLayer GenChecksumLayer::genChecksumDslObj() const
+GenChecksumLayer::ParseChecksumLayer GenChecksumLayer::genChecksumParseObj() const
 {
     return ParseChecksumLayer(genParseObj());
 }

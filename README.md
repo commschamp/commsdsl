@@ -7,11 +7,11 @@ as well as create bindings (glue code) for other high level programming language
 
 # What's Inside
 - **commsdsl2comms** - A code generator, that produces C++11 code for binary
-protocol definition out of [CommsDSL](https://github.com/commschamp/CommsDSL-Specification) 
+protocol definition out of [CommsDSL](https://github.com/commschamp/CommsDSL-Specification)
 schema files. The generated outcome is actually a CMake project that can be used to
-properly install protocol definition headers as well as relevant cmake configuration files. 
-For details on how to use the tool, please read the 
-[commsdsl2comms Manual](doc/Manual_commsdsl2comms.md) 
+properly install protocol definition headers as well as relevant cmake configuration files.
+For details on how to use the tool, please read the
+[commsdsl2comms Manual](doc/Manual_commsdsl2comms.md)
 documentation page. For details on the generated CMake project please read the
 [Generated CMake Project Walkthrough](doc/GeneratedProjectWalkthrough.md)
 documentation page.
@@ -27,9 +27,9 @@ of the messages between different systems. Details are in the
 [Visual Protocol Analysis](doc/VisualProtocolAnalysis.md) documentation page.
 For details on how to use the tool, please read the [commsdsl2tools_qt Manual](doc/Manual_commsdsl2tools_qt.md) documentation page.
 Build requires explicit cmake enable [option](CMakeLists.txt).
-- **commsdsl2swig** - A code generator that produces [SWIG](https://www.swig.org) interface 
+- **commsdsl2swig** - A code generator that produces [SWIG](https://www.swig.org) interface
 file(s) for the protocol definition produced by the **commsdsl2comms**.
-It allows generation of the bindings (glue code) to other high level 
+It allows generation of the bindings (glue code) to other high level
 programming languages using external [swig](https://www.swig.org) utility.
 Details are in the [Other Languages Support](doc/OtherLanguagesSupport.md) documentation page.
 For details on how to use the tool, please read the [commsdsl2swig Manual](doc/Manual_commsdsl2swig.md) documentation page.
@@ -52,6 +52,13 @@ files for the protocol specification. The produced files can be built into
 **pdf** and/or **html** documents. For details on how to use the tool, please read the
 [commsdsl2latex Manual](doc/Manual_commsdsl2latex.md)
 documentation page. Build requires explicit cmake enable [option](CMakeLists.txt).
+- **commsdsl2wireshark** - A code generator that produces [lua](https://wiki.wireshark.org/lua)
+code for the [Wireshark](https://www.wireshark.org/) custom protocol dissector.
+For details on how to use the tool, please read the
+[commsdsl2wireshark Manual](doc/Manual_commsdsl2wireshark.md) documentation page.
+How to use the custom dissector is explained in the
+[Wireshark Protocol Analysis](doc/WiresharkProtocolAnalysis.md) documentation page.
+Build requires explicit cmake enable [option](CMakeLists.txt).
 - **libcommsdsl** - A C++ library containing common functionality for parsing
 [CommsDSL](https://github.com/commschamp/CommsDSL-Specification) schema files as
 well code generation. It can be used to implement independent code generators.
@@ -69,11 +76,11 @@ pick any as long as it's compatible with the
 relevant [CommsChampion Ecosystem](https://commschamp.github.io) dependency project.
 
 # Tutorial
-The [cc_tutorial](https://github.com/commschamp/cc_tutorial/) project contains a 
-tutorial on how to use 
+The [cc_tutorial](https://github.com/commschamp/cc_tutorial/) project contains a
+tutorial on how to use
 [CommsDSL](https://commschamp.github.io/commsdsl_spec/) to define binary communication protocol,
-**commsdsl2comms** to generate code, and 
-[COMMS Library](https://github.com/commschamp/comms) to customize and 
+**commsdsl2comms** to generate code, and
+[COMMS Library](https://github.com/commschamp/comms) to customize and
 integrate the protocol definition with the business logic of the application.
 
 # How to Build
@@ -85,13 +92,13 @@ Please check the [doc](doc) folder for the available additional documentation.
 
 # Versioning
 This project will use [Semantic Versioning](https://semver.org/), where
-**MAJOR** number will be equal to the latest **DSL** version 
+**MAJOR** number will be equal to the latest **DSL** version
 (The first number of [CommsDSL](https://github.com/commschamp/CommsDSL-Specification)
 version) it supports. The **MINOR** number will indicate various improvements
 in the code of this repository, and **PATCH** number will indicate various bug fixes.
 
 # Supported Compilers
-This project (the code generator and [CommsDSL](https://github.com/commschamp/CommsDSL-Specification) 
+This project (the code generator and [CommsDSL](https://github.com/commschamp/CommsDSL-Specification)
 parsing library) is implemented using C++17 programming language. As the result,
 the supported compilers are:
 - **GCC**: >=8
@@ -105,7 +112,7 @@ versions of the compilers:
 - **MSVC**: >= 2015
 
 # Branching Model
-This repository will follow the 
+This repository will follow the
 [Successful Git Branching Model](http://nvie.com/posts/a-successful-git-branching-model/).
 
 The **master** branch will always point to the latest release, the

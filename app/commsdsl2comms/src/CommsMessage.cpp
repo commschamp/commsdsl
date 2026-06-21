@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -299,7 +299,7 @@ bool CommsMessage::commsCopyCodeFromInternal()
         return true;
     }
 
-    auto* origMsg = genGenerator().genGindMessage(copyFrom);
+    auto* origMsg = genGenerator().genFindMessage(copyFrom);
     if (origMsg == nullptr) {
         genGenerator().genLogger().genError(
             "Failed to find referenced field \"" + copyFrom + "\" for copying overriding code.");

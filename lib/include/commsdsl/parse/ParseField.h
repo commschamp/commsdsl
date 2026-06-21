@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -75,11 +75,13 @@ public:
     ParseSemanticType parseSemanticType() const;
     std::size_t parseMinLength() const;
     std::size_t parseMaxLength() const;
+    static std::size_t parseMaxPossibleLength();
     std::size_t parseBitLength() const;
     unsigned parseSinceVersion() const;
     unsigned parseDeprecatedSince() const;
     bool parseIsDeprecatedRemoved() const;
     std::string parseExternalRef(bool schemaRef = true) const;
+    std::string parseInnerRef(bool schemaRef = true) const;
     bool parseIsPseudo() const;
     bool parseIsFixedValue() const;
     bool parseIsCustomizable() const;

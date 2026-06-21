@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -184,14 +184,14 @@ public:
     void genSetAllInterfacesReferenced()
     {
         for (auto& iPtr : m_interfaces) {
-            iPtr->genSetReferenced(true);
+            iPtr->genSetReferenced();
         }
     }
 
     void genSetAllMessagesReferenced()
     {
         for (auto& mPtr : m_messages) {
-            mPtr->genSetReferenced(true);
+            mPtr->genSetReferenced();
         }
     }
 
@@ -715,7 +715,7 @@ const GenField* GenNamespace::genFindField(const std::string& externalRef) const
     return (*nsIter)->genFindField(remStr);
 }
 
-const GenMessage* GenNamespace::genGindMessage(const std::string& externalRef) const
+const GenMessage* GenNamespace::genFindMessage(const std::string& externalRef) const
 {
     assert(!externalRef.empty());
     auto pos = externalRef.find_first_of('.');
@@ -759,7 +759,7 @@ const GenMessage* GenNamespace::genGindMessage(const std::string& externalRef) c
         fromPos = pos + 1U;
     }
     std::string remStr(externalRef, fromPos);
-    return (*nsIter)->genGindMessage(remStr);
+    return (*nsIter)->genFindMessage(remStr);
 }
 
 const GenFrame* GenNamespace::genFindFrame(const std::string& externalRef) const
@@ -965,7 +965,7 @@ GenInterface* GenNamespace::genAddDefaultInterface()
     }
 
     auto iter = intList.insert(intList.begin(), genGenerator().genCreateInterface(commsdsl::parse::ParseInterface(nullptr), this));
-    (*iter)->genSetReferenced(true);
+    (*iter)->genSetReferenced();
     if (!(*iter)->genPrepare()) {
         intList.erase(iter);
         return nullptr;

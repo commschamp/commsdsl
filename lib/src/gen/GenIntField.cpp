@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -86,6 +86,17 @@ bool GenIntField::genIsUnsignedType(ParseIntField::ParseType value)
         ParseIntField::ParseType::Uint16,
         ParseIntField::ParseType::Uint32,
         ParseIntField::ParseType::Uint64,
+        ParseIntField::ParseType::Uintvar,
+    };
+
+    auto iter = std::find(std::begin(Map), std::end(Map), value);
+    return iter != std::end(Map);
+}
+
+bool GenIntField::genIsVarLengthType(ParseIntField::ParseType value)
+{
+    static const ParseIntField::ParseType Map[] = {
+        ParseIntField::ParseType::Intvar,
         ParseIntField::ParseType::Uintvar,
     };
 

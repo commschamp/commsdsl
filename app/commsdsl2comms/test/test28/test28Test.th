@@ -12,6 +12,7 @@ public:
     void test1();
     void test2();
     void test3();
+    void test4();
 
     using Interface =
         test28::Message<
@@ -64,4 +65,28 @@ void TestSuite::test3()
     TS_ASSERT_EQUALS(msg.field_variant1().currentField(), 0U);
     msg.field_variant1().selectField(1U);
     TS_ASSERT_EQUALS(msg.field_variant1().currentField(), 1U);
+}
+
+void TestSuite::test4()
+{
+    static const std::uint8_t Buf1[] =
+    {
+        3, 2, 0x3, 1, 2
+    };
+    static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
+
+    Frame::MsgPtr msgPtr;
+    Frame frame;
+
+    auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
+    auto es = frame.read(msgPtr, readIter, Buf1Size);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test28::MsgId_M3);
+    auto* msg = static_cast<const Msg3*>(msgPtr.get());
+    TS_ASSERT_EQUALS(msg->field_f1().currentField(), 2U);
+    TS_ASSERT(msg->field_f1().accessField_p3().field_v1().doesExist());
+    TS_ASSERT_EQUALS(msg->field_f1().accessField_p3().field_v1().field().value(), 1);
+    TS_ASSERT(msg->field_f1().accessField_p3().field_v2().doesExist());
+    TS_ASSERT_EQUALS(msg->field_f1().accessField_p3().field_v2().field().value(), 2);
 }

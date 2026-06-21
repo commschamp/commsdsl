@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -115,6 +115,8 @@ public:
     {
         return m_extraChildren;
     }
+
+    std::string parseInnerRef(bool schemaRef = true) const;
 
 protected:
     ParseLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);

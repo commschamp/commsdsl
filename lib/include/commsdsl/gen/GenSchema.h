@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -68,8 +68,8 @@ public:
     GenFieldsAccessList genGetAllMessageIdFields() const;
     const GenField* genFindField(const std::string& externalRef) const;
     GenField* genFindField(const std::string& externalRef);
-    const GenMessage* genGindMessage(const std::string& externalRef) const;
-    GenMessage* genGindMessage(const std::string& externalRef);
+    const GenMessage* genFindMessage(const std::string& externalRef) const;
+    GenMessage* genFindMessage(const std::string& externalRef);
     const GenFrame* genFindFrame(const std::string& externalRef) const;
     const GenInterface* genFindInterface(const std::string& externalRef) const;
 

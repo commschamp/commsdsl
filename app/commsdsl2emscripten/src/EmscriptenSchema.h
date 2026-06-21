@@ -1,5 +1,5 @@
 //
-// Copyright 2022 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2022 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -38,9 +38,9 @@ public:
     explicit EmscriptenSchema(EmscriptenGenerator& generator, ParseSchema parseObj, GenElem* parent);
     virtual ~EmscriptenSchema();
 
-    static const EmscriptenSchema* emscriptenCast(const commsdsl::gen::GenSchema* schema)
+    static const EmscriptenSchema* emscriptenCast(const commsdsl::gen::GenSchema* obj)
     {
-        return static_cast<const EmscriptenSchema*>(schema);
+        return static_cast<const EmscriptenSchema*>(obj);
     }
 
     void emscriptenAddSourceFiles(GenStringsList& sources) const;

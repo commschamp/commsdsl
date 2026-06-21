@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -701,13 +701,18 @@ std::string CommsSetField::commsDefBitNameFuncCodeInternal() const
 
 void CommsSetField::commsAddLengthOptInternal(commsdsl::gen::util::GenStringsList& opts) const
 {
-    auto bitLength = genParseObj().parseBitLength();
+    auto obj = genSetFieldParseObj();
+    auto bitLength = obj.parseBitLength();
     if (bitLength != 0U) {
         opts.push_back("comms::option::def::FixedBitLength<" + util::genNumToString(bitLength) + '>');
         return;
     }
 
-    opts.push_back("comms::option::def::FixedLength<" + util::genNumToString(genSetFieldParseObj().parseMinLength()) + '>');
+    if (obj.parseMinLength() != obj.parseMaxLength()) {
+        return;
+    }
+
+    opts.push_back("comms::option::def::FixedLength<" + util::genNumToString(obj.parseMinLength()) + '>');
 }
 
 void CommsSetField::commsAddDefaultValueOptInternal(commsdsl::gen::util::GenStringsList& opts) const

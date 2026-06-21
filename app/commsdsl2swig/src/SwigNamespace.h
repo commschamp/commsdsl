@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -48,9 +48,9 @@ public:
 
     void swigAddDef(GenStringsList& list) const;
 
-    static const SwigNamespace* swigCast(const commsdsl::gen::GenNamespace* ns)
+    static const SwigNamespace* swigCast(const commsdsl::gen::GenNamespace* obj)
     {
-        return static_cast<const SwigNamespace*>(ns);
+        return static_cast<const SwigNamespace*>(obj);
     }
 
     std::string swigMsgIdClassName() const;

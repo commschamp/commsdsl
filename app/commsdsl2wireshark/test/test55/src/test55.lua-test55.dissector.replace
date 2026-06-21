@@ -1,0 +1,28 @@
+-- Injected code
+if tvb:len() == 0 then
+    return
+end
+
+pinfo.cols.protocol = test55.name
+test55_local.last_pinfo = pinfo
+
+local result = test55_local.StatusCode.SUCCESS
+local next_offset = 0
+repeat
+    result, next_offset = test55_local.wrap_frame_WrapFrame_read(tvb, tree, next_offset)
+    if result == test55_local.StatusCode.SUCCESS then
+        break
+    end
+
+until true
+
+if (result ~= test55_local.StatusCode.NOT_ENOUGH_DATA) and (result ~= test55_local.StatusCode.SUCCESS) then
+    -- Consume everything
+    tree:add_expert_info(PI_MALFORMED, PI_WARN, "Invalid protocol data")
+    return
+end
+
+if next_offset < tvb:len() then
+    pinfo.desegment_offset = next_offset
+    pinfo.desegment_len = DESEGMENT_ONE_MORE_SEGMENT
+end

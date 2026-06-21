@@ -15,6 +15,19 @@
                 <int name="type" type="uint8" defaultValidValue="1" failOnInvalid="true" fixedValue="true" />
                 <int name="val" type="uint8" />
             </bundle>
+            <bundle name="P3">
+                <int name="type" type="uint8" defaultValidValue="2" failOnInvalid="true" fixedValue="true" />
+                <set name="flags" length="1">
+                    <bit name="V1Present" idx="0" />
+                    <bit name="V2Present" idx="1" />
+                </set>
+                <optional name="v1" cond="$flags.V1Present" defaultMode="missing">
+                    <int name="ActV1" type="uint8" />
+                </optional>
+                <optional name="v2" cond="$flags.V2Present" defaultMode="missing">
+                    <int name="ActV2" type="uint8" />
+                </optional>
+            </bundle>
         </variant>
 
         <variant name="Variant2" reuse="Variant1" defaultMember="P1" />
@@ -600,6 +613,10 @@
 
     <message name="Msg2" id="MsgId.M2">
         <ref field="Variant3" name="F1" />
+    </message>
+
+    <message name="Msg3" id="MsgId.M3">
+        <ref field="Variant1" name="F1" />
     </message>
 
     <frame name="Frame">

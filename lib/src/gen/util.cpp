@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2026 (C). Alex Robenko. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -24,6 +24,7 @@
 #include <cctype>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
 #include <iterator>
 #include <limits>
 #include <sstream>
@@ -544,6 +545,7 @@ std::string genProcessTemplate(const std::string& templ, const GenReplacementMap
             auto nextNewLinePos = templ.find_first_of('\n', suffixPos + Suffix.size());
             if (nextNewLinePos == std::string::npos) {
                 [[maybe_unused]] static constexpr bool Incorrect_template = false;
+                std::cerr << "[BUG]: Incorrect template:\n" << templ << std::endl;
                 assert(Incorrect_template);
                 break;
             }
@@ -558,7 +560,7 @@ std::string genProcessTemplate(const std::string& templ, const GenReplacementMap
             nextTemplPos = nextNewLinePos + 1;
         } while (false);
 
-        result.insert(result.end(), templ.begin() + templPos, templ.begin() + posToCopyUntil);
+        result.append(templ.begin() + templPos, templ.begin() + posToCopyUntil);
         templPos = nextTemplPos;
 
         if (value.empty()) {
