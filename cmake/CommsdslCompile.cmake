@@ -67,10 +67,17 @@ macro (commsdsl_compile)
                 list (APPEND extra_flags_list "-Wno-dangling-reference")
             endif() 
 
+            if((CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15) AND (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 16))
+                list (APPEND extra_flags_list "-Wno-error=free-nonheap-object")
+            endif()            
         endif ()
 
         if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
             list (APPEND extra_flags_list "-Wno-dangling-field -Wno-unused-command-line-argument")
+
+            if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 21)
+                list (APPEND extra_flags_list "-Wno-unnecessary-virtual-specifier")
+            endif()              
         endif ()
 
         if (COMMSDSL_COMPILE_DEFAULT_SANITIZERS)
