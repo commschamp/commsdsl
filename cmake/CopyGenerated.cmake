@@ -3,10 +3,10 @@
 # CLEANUP_DIRS
 
 function (copyIfDifferent generated output)
-    if (("${generated}" STREQUAL "") OR ("${output}" STREQUAL "")) 
+    if (("${generated}" STREQUAL "") OR ("${output}" STREQUAL ""))
         message (FATAL_ERROR "Bad directory name(s)")
     endif ()
-    
+
     file(GLOB_RECURSE genFiles RELATIVE "${generated}/" "${generated}/*")
     foreach( f ${genFiles} )
       set(dest "${output}/${f}")
@@ -15,7 +15,7 @@ function (copyIfDifferent generated output)
       execute_process(
         COMMAND ${CMAKE_COMMAND}
             -E copy_if_different ${src} ${dest})
-    endforeach()    
+    endforeach()
 endfunction ()
 
 function (deleteRemoved generated output)
@@ -27,8 +27,8 @@ function (deleteRemoved generated output)
             message (STATUS "Removing: ${output}/${f}")
             execute_process(
                 COMMAND ${CMAKE_COMMAND} -E remove ${output}/${f})
-        endif ()    
-    endforeach()    
+        endif ()
+    endforeach()
 endfunction ()
 
 message (STATUS "Copying: ${GENERATED} --> ${OUTPUT}")
