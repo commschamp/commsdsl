@@ -1,4 +1,4 @@
-# This file contains contains a function that prefetches comms project. 
+# This file contains contains a function that prefetches comms project.
 
 # ******************************************************
 # Set predefined compilation flags
@@ -12,11 +12,11 @@
 # - WARN_AS_ERR - Treat warnings as errors.
 # - STATIC_RUNTIME - Static link with runtime.
 # - USE_CCACHE - Force usage of ccache
-# 
+#
 # ******************************************************
 # Update default MSVC warning level option
 #     commsdsl_msvc_force_warn_opt(opt)
-# 
+#
 # Example:
 #     commsdsl_msvc_force_warn_opt("/W4")
 #
@@ -27,16 +27,16 @@ macro (commsdsl_compile)
     set (_oneValueArgs)
     set (_mutiValueArgs)
     cmake_parse_arguments(${_prefix} "${_options}" "${_oneValueArgs}" "${_mutiValueArgs}" ${ARGN})
-   
+
     if ((CMAKE_COMPILER_IS_GNUCC) OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
         set (extra_flags_list
             "-Wall" "-Wextra" "-Wcast-align" "-Wcast-qual" "-Wctor-dtor-privacy"
             "-Wmissing-include-dirs"
             "-Woverloaded-virtual" "-Wredundant-decls" "-Wshadow" "-Wundef" "-Wunused"
             "-Wno-unknown-pragmas" "-fdiagnostics-show-option"
-            "-Wcast-align" "-Wunused" "-Wconversion" 
+            "-Wcast-align" "-Wunused" "-Wconversion"
             "-Wold-style-cast" "-Wdouble-promotion"
-            
+
             "-Wno-sign-conversion" # This one is impractical
         )
 
@@ -53,41 +53,44 @@ macro (commsdsl_compile)
 
             if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "6.0")
                 list (APPEND extra_flags_list
-                    "-Wmisleading-indentation" "-Wduplicated-cond" 
+                    "-Wmisleading-indentation" "-Wduplicated-cond"
                 )
-            endif()      
+            endif()
 
             if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "7.0")
                 list (APPEND extra_flags_list
-                    "-Wduplicated-branches" 
+                    "-Wduplicated-branches"
                 )
-            endif()   
-            
+            endif()
+
             if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "13.0")
                 list (APPEND extra_flags_list "-Wno-dangling-reference")
-            endif() 
-
+            endif()
         endif ()
 
         if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
             list (APPEND extra_flags_list "-Wno-dangling-field -Wno-unused-command-line-argument")
+
+            if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 21)
+                list (APPEND extra_flags_list "-Wno-unnecessary-virtual-specifier")
+            endif()
         endif ()
 
         if (COMMSDSL_COMPILE_DEFAULT_SANITIZERS)
             list (APPEND extra_flags_list
-                -fno-omit-frame-pointer 
+                -fno-omit-frame-pointer
                 -fsanitize=address
                 -fsanitize=undefined
-                -fno-sanitize-recover=all)        
-        endif ()        
-        
+                -fno-sanitize-recover=all)
+        endif ()
+
         if (COMMSDSL_COMPILE_WARN_AS_ERR)
             list (APPEND extra_flags_list "-Werror")
         endif ()
-        
+
         string(REPLACE ";" " " extra_flags "${extra_flags_list}")
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${extra_flags}")
-        
+
         if (COMMSDSL_COMPILE_STATIC_RUNTIME)
             SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++ -static-libgcc")
         endif ()
@@ -99,7 +102,7 @@ macro (commsdsl_compile)
         endif ()
 
         if (COMMSDSL_COMPILE_STATIC_RUNTIME)
-            foreach(flag_var 
+            foreach(flag_var
                     CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
                     CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
                 if(${flag_var} MATCHES "/MD")
@@ -107,7 +110,7 @@ macro (commsdsl_compile)
                 endif()
             endforeach()
         endif ()
-    endif ()   
+    endif ()
 
     if (COMMSDSL_COMPILE_USE_CCACHE)
         if (NOT COMMSDSL_COMPILE_CCACHE_EXECUTABLE)
@@ -118,12 +121,12 @@ macro (commsdsl_compile)
             set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${COMMSDSL_COMPILE_CCACHE_EXECUTABLE})
             set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ${COMMSDSL_COMPILE_CCACHE_EXECUTABLE})
         endif ()
-    endif ()      
+    endif ()
 endmacro()
 
 macro (commsdsl_msvc_force_warn_opt opt)
     if (MSVC)
-        foreach(flag_var 
+        foreach(flag_var
                 CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
                 CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
 
@@ -132,6 +135,6 @@ macro (commsdsl_msvc_force_warn_opt opt)
             string(REGEX REPLACE "/W3" "${opt}" ${flag_var} "${${flag_var}}")
             string(REGEX REPLACE "/W4" "${opt}" ${flag_var} "${${flag_var}}")
             string(REGEX REPLACE "/Wall" "${opt}" ${flag_var} "${${flag_var}}")
-        endforeach()    
+        endforeach()
     endif ()
 endmacro()
