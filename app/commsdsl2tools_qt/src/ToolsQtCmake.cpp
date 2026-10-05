@@ -64,7 +64,7 @@ bool ToolsQtCmake::toolsWriteInternal() const
         "# OPT_CCACHE_EXECUTABLE - Custom ccache executable\n\n"
         "######################################################################\n\n"
         "if (\"${OPT_QT_MAJOR_VERSION}\" STREQUAL \"\")\n"
-        "    set(OPT_QT_MAJOR_VERSION 5)\n"
+        "    set(OPT_QT_MAJOR_VERSION 6)\n"
         "endif()\n\n"
         "if (\"${CMAKE_CXX_STANDARD}\" STREQUAL \"\")\n"
         "    set(CMAKE_CXX_STANDARD 17)\n"

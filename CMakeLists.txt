@@ -68,7 +68,7 @@ endif ()
 ################################################
 
 if ("${COMMSDSL_TESTS_QT_VERSION}" STREQUAL "")
-    set (COMMSDSL_TESTS_QT_VERSION 5)
+    set (COMMSDSL_TESTS_QT_VERSION 6)
 endif ()
 
 if ("${CMAKE_CXX_STANDARD}" STREQUAL "")

@@ -51,7 +51,11 @@ if [ -z "${COMMON_BUILD_TYPE}" ]; then
 fi
 
 if [ -z "${COMMON_CXX_STANDARD}" ]; then
-    COMMON_CXX_STANDARD="11"
+    COMMON_CXX_STANDARD="17"
+fi
+
+if [ -z "${CC_TOOLS_QT_MAJOR_QT_VERSION}" ]; then
+    CC_TOOLS_QT_MAJOR_QT_VERSION="6"
 fi
 
 COMMS_SRC_DIR=${EXTERNALS_DIR}/comms
