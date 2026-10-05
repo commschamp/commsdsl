@@ -209,8 +209,9 @@ std::string WiresharkSetField::wiresharkValidFuncBodyImpl([[maybe_unused]] const
     }
 
     static const std::string Templ =
+        "local bit = #^#BIT_ACC#$#()\n"
         "local value = #^#FUNC#$#(#^#FIELD#$#)\n"
-        "return bit32.band(value, #^#MASK#$#) == #^#VAL#$#, true\n"
+        "return bit.band(value, #^#MASK#$#) == #^#VAL#$#, true\n"
         ;
 
     util::GenReplacementMap repl = {
@@ -219,6 +220,7 @@ std::string WiresharkSetField::wiresharkValidFuncBodyImpl([[maybe_unused]] const
         {"FIELD", wiresharkFieldStr()},
         {"MASK", wiresharkHexString(reservedMask, 2U)},
         {"VAL", wiresharkHexString(reservedValue, 2U)},
+        {"BIT_ACC", Wireshark::wiresharkBitLibAccFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
     };
 
     return util::genProcessTemplate(Templ, repl);

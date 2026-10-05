@@ -31,6 +31,7 @@ end
 
 test46_local.frame_FrameLayers_Checksum_checksum_calc_func_sum8 =
     function (tvb, offset, offset_limit)
+        local bit = test46_local.bit_lib()
         local sum = 0
         local length = offset_limit - offset
         if length <= 0 then
@@ -41,7 +42,7 @@ test46_local.frame_FrameLayers_Checksum_checksum_calc_func_sum8 =
         for i = 1, #data do
             sum = sum + data:byte(i)
         end
-        return bit32.band(sum, 0xff)
+        return bit.band(sum, 0xff)
     end
 
 test46_local.frame_FrameLayers_Checksum_checksum_calc_func_crc16 = test46_local.create_crc_calc(16, 0x8005, 0x0000, true, true, 0x0000)

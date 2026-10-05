@@ -145,6 +145,7 @@ std::string WiresharkChecksumLayer::wiresharkSumChecksumExtraCodeInternal() cons
 {
     static const std::string Templ =
         "function(#^#TVB#$#, #^#OFFSET#$#, #^#LIMIT#$#)\n"
+        "    local bit = #^#BIT_ACC#$#()\n"
         "    local sum = 0\n"
         "    local length = #^#LIMIT#$# - #^#OFFSET#$#\n"
         "    if length <= 0 then\n"
@@ -155,7 +156,7 @@ std::string WiresharkChecksumLayer::wiresharkSumChecksumExtraCodeInternal() cons
         "    for i = 1, #data do\n"
         "        sum = sum + data:byte(i)\n"
         "    end\n"
-        "    return bit32.band(sum, #^#MASK#$#)\n"
+        "    return bit.band(sum, #^#MASK#$#)\n"
         "end\n"
         ;
 
@@ -175,6 +176,7 @@ std::string WiresharkChecksumLayer::wiresharkSumChecksumExtraCodeInternal() cons
         {"LIMIT", WiresharkField::wiresharkOffsetLimitStr()},
         {"TVB", WiresharkField::wiresharkTvbStr()},
         {"MASK", std::move(maskStr)},
+        {"BIT_ACC", Wireshark::wiresharkBitLibAccFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -226,6 +228,7 @@ std::string WiresharkChecksumLayer::wiresharkXorChecksumExtraCodeInternal() cons
 {
     static const std::string Templ =
         "function (#^#TVB#$#, #^#OFFSET#$#, #^#LIMIT#$#)\n"
+        "    local bit = #^#BIT_ACC#$#()\n"
         "    local xor_val = 0\n"
         "    local length = #^#LIMIT#$# - #^#OFFSET#$#\n"
         "    if length <= 0 then\n"
@@ -234,7 +237,7 @@ std::string WiresharkChecksumLayer::wiresharkXorChecksumExtraCodeInternal() cons
         "\n"
         "    local data = #^#TVB#$#:range(#^#OFFSET#$#, length):raw()\n"
         "    for i = 1, #data do\n"
-        "        xor_val = bit32.bxor(xor_val, data:byte(i))\n"
+        "        xor_val = bit.bxor(xor_val, data:byte(i))\n"
         "    end\n"
         "    return xor_val\n"
         "end\n"
@@ -244,6 +247,7 @@ std::string WiresharkChecksumLayer::wiresharkXorChecksumExtraCodeInternal() cons
         {"OFFSET", WiresharkField::wiresharkOffsetStr()},
         {"LIMIT", WiresharkField::wiresharkOffsetLimitStr()},
         {"TVB", WiresharkField::wiresharkTvbStr()},
+        {"BIT_ACC", Wireshark::wiresharkBitLibAccFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
     };
 
     return util::genProcessTemplate(Templ, repl);

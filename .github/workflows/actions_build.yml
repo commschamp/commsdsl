@@ -132,7 +132,11 @@ jobs:
         sudo apt install libqt${{matrix.qt_ver}}gui${{matrix.qt_ver}} qt6-base-dev libxml2-dev doxygen gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} \
         python3 libpython3-dev swig default-jdk default-jre emscripten nodejs \
         texlive-base texlive-latex-base texlive-latex-recommended texlive-plain-generic tex4ht \
-        tshark
+        tshark apparmor-utils
+
+    - name: Disable tshark AppArmor profile
+      run: |
+        sudo aa-disable /etc/apparmor.d/tshark        
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
@@ -165,7 +169,7 @@ jobs:
         -DCOMMSDSL_BUILD_COMMSDSL2LATEX=ON -DCOMMSDSL_BUILD_COMMSDSL2C=ON \
         -DCOMMSDSL_BUILD_COMMSDSL2WIRESHARK=ON \
         -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}} \
-        -DCOMMSDSL_BUILD_WITH_SANITIZERS=ON -DCOMMSDSL_BUILD_COMMSDSL2WIRESHARK_TESTS=OFF
+        -DCOMMSDSL_BUILD_WITH_SANITIZERS=ON
       env:
         CC: gcc-${{matrix.cc_ver}}
         CXX: g++-${{matrix.cc_ver}}
@@ -332,7 +336,11 @@ jobs:
     - name: Install Packages
       run: |
         sudo apt install libqt${{matrix.qt_ver}}gui${{matrix.qt_ver}} qt6-base-dev libxml2-dev clang-${{matrix.cc_ver}} \
-        python3 libpython3-dev swig default-jdk default-jre emscripten nodejs tshark
+        python3 libpython3-dev swig default-jdk default-jre emscripten nodejs tshark apparmor-utils
+
+    - name: Disable tshark AppArmor profile
+      run: |
+        sudo aa-disable /etc/apparmor.d/tshark  
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
@@ -365,7 +373,7 @@ jobs:
           -DCOMMSDSL_BUILD_COMMSDSL2LATEX=ON -DCOMMSDSL_BUILD_COMMSDSL2C=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2WIRESHARK=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}} \
-          -DCOMMSDSL_BUILD_WITH_SANITIZERS=ON -DCOMMSDSL_BUILD_COMMSDSL2WIRESHARK_TESTS=OFF
+          -DCOMMSDSL_BUILD_WITH_SANITIZERS=ON
 
       env:
         CC: clang-${{matrix.cc_ver}}

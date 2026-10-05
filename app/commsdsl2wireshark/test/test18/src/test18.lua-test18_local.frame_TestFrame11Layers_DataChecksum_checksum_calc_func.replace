@@ -1,4 +1,5 @@
 function(tvb, offset, offset_limit)
+    local bit = test18_local.bit_lib()
     local sum = 0
     local length = offset_limit - offset
     if length <= 0 then
@@ -9,5 +10,5 @@ function(tvb, offset, offset_limit)
     for i = 1, #data do
         sum = sum + data:byte(i)
     end
-    return bit32.band(sum, 0xff)
+    return bit.band(sum, 0xff)
 end

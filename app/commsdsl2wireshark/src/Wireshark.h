@@ -60,6 +60,7 @@ public:
     static std::string wiresharkPinfoName(const WiresharkGenerator& generator);
     static std::string wiresharkPacketIdFuncName(const WiresharkGenerator& generator);
     static std::string wiresharkCreateCrcFuncName(const WiresharkGenerator& generator);
+    static std::string wiresharkBitLibAccFuncName(const WiresharkGenerator& generator);
 
 private:
     explicit Wireshark(const WiresharkGenerator& generator) : m_wiresharkGenerator(generator) {}
@@ -82,6 +83,7 @@ private:
     std::string wiresharkExtractorsRegCodeInternal() const;
     std::string wiresharkFieldValueFuncInternal() const;
     std::string wiresharkProtocolVersionDefInternal() const;
+    std::string wiresharkBitLibAccessFuncInternal() const;
     std::string wiresharkPinfoDefInternal() const;
     std::string wiresharkCrcCodeDefInternal() const;
 

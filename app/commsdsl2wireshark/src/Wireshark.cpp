@@ -130,6 +130,11 @@ std::string Wireshark::wiresharkCreateCrcFuncName(const WiresharkGenerator& gene
     return wiresharkLocalNamespaceName(generator) + ".create_crc_calc";
 }
 
+std::string Wireshark::wiresharkBitLibAccFuncName(const WiresharkGenerator& generator)
+{
+    return wiresharkLocalNamespaceName(generator) + ".bit_lib";
+}
+
 bool Wireshark::wiresharkWriteInternal() const
 {
     return
@@ -156,6 +161,7 @@ bool Wireshark::wiresharkWriteMainInternal() const
             "#^#LOCAL#$#\n"
             "#^#PINFO#$#\n"
             "#^#PROT_VERSION#$#\n"
+            "#^#BIT_LIB#$#\n"
             "#^#STATUS_CODE#$#\n"
             "#^#OPT_MODE#$#\n"
             "#^#CRC#$#\n"
@@ -185,6 +191,7 @@ bool Wireshark::wiresharkWriteMainInternal() const
             {"EXTRACTORS_REG", wiresharkExtractorsRegCodeInternal()},
             {"FIELD_VALUE_FUNC", wiresharkFieldValueFuncInternal()},
             {"PROT_VERSION", wiresharkProtocolVersionDefInternal()},
+            {"BIT_LIB", wiresharkBitLibAccessFuncInternal()},
             {"PINFO", wiresharkPinfoDefInternal()},
             {"CRC", wiresharkCrcCodeDefInternal()},
         };
@@ -645,6 +652,21 @@ std::string Wireshark::wiresharkProtocolVersionDefInternal() const
     return util::genProcessTemplate(Templ, repl);
 }
 
+std::string Wireshark::wiresharkBitLibAccessFuncInternal() const
+{
+    const std::string Templ =
+        "function #^#NAME#$#()\n"
+        "    return bit32 or bit\n"
+        "end\n"
+        ;
+
+    util::GenReplacementMap repl = {
+        {"NAME", wiresharkBitLibAccFuncName(m_wiresharkGenerator)}
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
 std::string Wireshark::wiresharkPinfoDefInternal() const
 {
     const std::string Templ =
@@ -681,19 +703,20 @@ std::string Wireshark::wiresharkCrcCodeDefInternal() const
 
     const std::string Templ =
         "function #^#NAME#$#(width, poly, init, ref_in, ref_out, xor_out)\n"
+        "    local bit = #^#BIT_ACC#$#()\n"
         "    local function reflect(val, w)\n"
         "        local res = 0\n"
         "        for i = 0, w - 1 do\n"
-        "            if bit32.band(bit32.rshift(val, i), 1) == 1 then\n"
-        "                res = bit32.bor(res, bit32.lshift(1, w - 1 - i))\n"
+        "            if bit.band(bit.rshift(val, i), 1) == 1 then\n"
+        "                res = bit.bor(res, bit.lshift(1, w - 1 - i))\n"
         "            end\n"
         "        end\n"
         "        return res\n"
         "    end\n"
         "\n"
         "    local tbl = {}\n"
-        "    local mask = (width == 32) and 0xFFFFFFFF or (bit32.lshift(1, width) - 1)\n"
-        "    local msb_mask = bit32.lshift(1, width - 1)\n"
+        "    local mask = (width == 32) and 0xFFFFFFFF or (bit.lshift(1, width) - 1)\n"
+        "    local msb_mask = bit.lshift(1, width - 1)\n"
         "\n"
         "    -- Precompute the 256-value lookup table for this specific CRC profile\n"
         "    for i = 0, 255 do\n"
@@ -702,23 +725,23 @@ std::string Wireshark::wiresharkCrcCodeDefInternal() const
         "            crc = i\n"
         "            local ref_poly = reflect(poly, width)\n"
         "            for j = 1, 8 do\n"
-        "                if bit32.band(crc, 1) == 1 then\n"
-        "                    crc = bit32.bxor(bit32.rshift(crc, 1), ref_poly)\n"
+        "                if bit.band(crc, 1) == 1 then\n"
+        "                    crc = bit.bxor(bit.rshift(crc, 1), ref_poly)\n"
         "                else\n"
-        "                    crc = bit32.rshift(crc, 1)\n"
+        "                    crc = bit.rshift(crc, 1)\n"
         "                end\n"
         "            end\n"
         "        else\n"
-        "            crc = bit32.lshift(i, width - 8)\n"
+        "            crc = bit.lshift(i, width - 8)\n"
         "            for j = 1, 8 do\n"
-        "                if bit32.band(crc, msb_mask) ~= 0 then\n"
-        "                    crc = bit32.bxor(bit32.lshift(crc, 1), poly)\n"
+        "                if bit.band(crc, msb_mask) ~= 0 then\n"
+        "                    crc = bit.bxor(bit.lshift(crc, 1), poly)\n"
         "                else\n"
-        "                    crc = bit32.lshift(crc, 1)\n"
+        "                    crc = bit.lshift(crc, 1)\n"
         "                end\n"
         "            end\n"
         "        end\n"
-        "        tbl[i] = bit32.band(crc, mask)\n"
+        "        tbl[i] = bit.band(crc, mask)\n"
         "    end\n"
         "\n"
         "    -- Return the actual high-speed checksum function\n"
@@ -736,13 +759,13 @@ std::string Wireshark::wiresharkCrcCodeDefInternal() const
         "        for i = 1, #data do\n"
         "            local byte = data:byte(i)\n"
         "            if ref_in then\n"
-        "                local idx = bit32.band(bit32.bxor(crc, byte), 0xFF)\n"
-        "                crc = bit32.bxor(bit32.rshift(crc, 8), tbl[idx])\n"
+        "                local idx = bit.band(bit.bxor(crc, byte), 0xFF)\n"
+        "                crc = bit.bxor(bit.rshift(crc, 8), tbl[idx])\n"
         "            else\n"
-        "                local idx = bit32.band(bit32.bxor(bit32.rshift(crc, width - 8), byte), 0xFF)\n"
-        "                crc = bit32.bxor(bit32.lshift(crc, 8), tbl[idx])\n"
+        "                local idx = bit.band(bit.bxor(bit.rshift(crc, width - 8), byte), 0xFF)\n"
+        "                crc = bit.bxor(bit.lshift(crc, 8), tbl[idx])\n"
         "            end\n"
-        "            crc = bit32.band(crc, mask)\n"
+        "            crc = bit.band(crc, mask)\n"
         "        end\n"
         "\n"
         "        -- If output reflection differs from input reflection, we must reflect it\n"
@@ -750,20 +773,21 @@ std::string Wireshark::wiresharkCrcCodeDefInternal() const
         "            crc = reflect(crc, width)\n"
         "        end\n"
         "\n"
-        "        crc = bit32.bxor(crc, xor_out)\n"
+        "        crc = bit.bxor(crc, xor_out)\n"
         "\n"
         "        -- Force unsigned 32-bit (for environments where bitwise ops return signed 32-bit)\n"
         "        if crc < 0 then\n"
         "            crc = crc + 4294967296\n"
         "        end\n"
         "\n"
-        "        return bit32.band(crc, mask)\n"
+        "        return bit.band(crc, mask)\n"
         "    end\n"
         "end\n";
 
     util::GenReplacementMap repl = {
         {"NAME", wiresharkCreateCrcFuncName(m_wiresharkGenerator)},
         {"TVB", WiresharkField::wiresharkTvbStr()},
+        {"BIT_ACC", wiresharkBitLibAccFuncName(m_wiresharkGenerator)},
     };
 
     return util::genProcessTemplate(Templ, repl);
