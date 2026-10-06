@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema32" endian="big">
+    <fields>
+        <set name="S1" type="uint8">
+            <bit name="B0" idx="0" />
+            <bit name="B1" idx="1" />
+            <bit name="B2" idx="2" />
+            <bit name="B3" idx="3" />
+            <mask name="M1" bits="B0, B1 | B0" />
+        </set>
+    </fields>
+</schema>

@@ -48,6 +48,8 @@ public:
 
     using ParseBits = std::map<std::string, ParseBitInfo>;
     using ParseRevBits = std::multimap<unsigned, std::string>;
+    using ParseBitNamesList = std::vector<std::string>;
+    using ParseMasks = std::map<std::string, ParseBitNamesList>;
 
     explicit ParseSetField(const ParseSetFieldImpl* impl);
     explicit ParseSetField(ParseField field);
@@ -58,6 +60,7 @@ public:
     bool parseReservedBitValue() const;
     const ParseBits& parseBits() const;
     const ParseRevBits& parseRevBits() const;
+    const ParseMasks& parseMasks() const;
     bool parseIsNonUniqueAllowed() const;
     bool parseIsUnique() const;
     bool parseValidCheckVersion() const;

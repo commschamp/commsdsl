@@ -351,6 +351,12 @@ const std::string& parseBitStr()
     return Str;
 }
 
+const std::string& parseBitsStr()
+{
+    static const std::string Str("bits");
+    return Str;
+}
+
 const std::string& parseIdxStr()
 {
     static const std::string Str("idx");
@@ -360,6 +366,12 @@ const std::string& parseIdxStr()
 const std::string& parseSetStr()
 {
     static const std::string Str("set");
+    return Str;
+}
+
+const std::string& parseMaskStr()
+{
+    static const std::string Str("mask");
     return Str;
 }
 

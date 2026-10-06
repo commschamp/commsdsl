@@ -39,6 +39,9 @@ public:
     void test28();
     void test29();
     void test30();
+    void test31();
+    void test32();
+    void test33();
 };
 
 void SetTestSuite::setUp()
@@ -820,3 +823,87 @@ void SetTestSuite::test30()
     TS_ASSERT_EQUALS(setField.parseDisplayName(), "Hello");
     TS_ASSERT_EQUALS(bits.size(), 2);
 }
+
+void SetTestSuite::test31()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema31.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.parseName().empty());
+
+    auto fields = ns.parseFields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.parseName(), "S1");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
+
+    commsdsl::parse::ParseSetField setField(field);
+    auto& masks = setField.parseMasks();
+    TS_ASSERT_EQUALS(masks.size(), 2);
+
+    auto& m1 = masks.find("M1")->second;
+    TS_ASSERT_EQUALS(m1.size(), 2);
+    static const std::vector<std::string> ExpM1 = {"B0", "B1"};
+    TS_ASSERT_EQUALS(m1, ExpM1);
+
+    auto& m2 = masks.find("M2")->second;
+    TS_ASSERT_EQUALS(m2.size(), 3);
+    static const std::vector<std::string> ExpM2 = {"B1", "B2", "B3"};
+    TS_ASSERT_EQUALS(m2, ExpM2);
+}
+
+void SetTestSuite::test32()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema32.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.parseName().empty());
+
+    auto fields = ns.parseFields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.parseName(), "S1");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
+
+    commsdsl::parse::ParseSetField setField(field);
+    auto& masks = setField.parseMasks();
+    TS_ASSERT_EQUALS(masks.size(), 1);
+
+    auto& m1 = masks.find("M1")->second;
+    TS_ASSERT_EQUALS(m1.size(), 2);
+    static const std::vector<std::string> ExpM1 = {"B0", "B1"};
+    TS_ASSERT_EQUALS(m1, ExpM1);
+}
+
+void SetTestSuite::test33()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema33.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.parseName().empty());
+
+    auto fields = ns.parseFields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.parseName(), "S1");
+    TS_ASSERT_EQUALS(field.parseKind(), commsdsl::parse::ParseField::ParseKind::Set);
+
+    commsdsl::parse::ParseSetField setField(field);
+    auto& masks = setField.parseMasks();
+    TS_ASSERT(masks.empty());
+}
+

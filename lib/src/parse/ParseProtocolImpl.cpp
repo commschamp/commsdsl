@@ -506,6 +506,11 @@ bool ParseProtocolImpl::parseIsSyncSuffixLayerSupported() const
     return parseIsFeatureSupported(8U);
 }
 
+bool ParseProtocolImpl::parseIsSetMaskSupported() const
+{
+    return parseIsFeatureSupported(8U);
+}
+
 void ParseProtocolImpl::parseCbXmlErrorFunc(void* userData, const xmlError* err)
 {
     reinterpret_cast<ParseProtocolImpl*>(userData)->parseHandleXmlError(err);

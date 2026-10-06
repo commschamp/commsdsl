@@ -38,6 +38,8 @@ public:
     using ParseBitInfo = ParseSetField::ParseBitInfo;
     using ParseBits = ParseSetField::ParseBits;
     using ParseRevBits = ParseSetField::ParseRevBits;
+    using ParseBitNamesList = ParseSetField::ParseBitNamesList;
+    using ParseMasks = ParseSetField::ParseMasks;
 
     ParseSetFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseSetFieldImpl(const ParseSetFieldImpl&);
@@ -70,6 +72,11 @@ public:
     const ParseRevBits& parseRevBits() const
     {
         return m_state.m_revBits;
+    }
+
+    const ParseMasks& parseMasks() const
+    {
+        return m_state.m_masks;
     }
 
     bool parseIsNonUniqueAllowed() const
@@ -117,6 +124,7 @@ private:
     bool parseUpdateReservedValue();
     bool parseUpdateAvailableLengthLimit();
     bool parseUpdateBits();
+    bool parseUpdateMasks();
     bool parseStrToValue(const std::string& str, bool& val) const;
 
     struct ParseState
@@ -127,6 +135,7 @@ private:
         std::size_t m_bitLength = 0U;
         ParseBits m_bits;
         ParseRevBits m_revBits;
+        ParseMasks m_masks;
         bool m_nonUniqueAllowed = false;
         bool m_defaultBitValue = false;
         bool m_reservedBitValue = false;

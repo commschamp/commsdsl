@@ -100,7 +100,8 @@ const ParseXmlWrap::ParseNamesList& ParseSetFieldImpl::parseExtraPropsNamesImpl(
 const ParseXmlWrap::ParseNamesList& ParseSetFieldImpl::parseExtraChildrenNamesImpl() const
 {
     static const ParseXmlWrap::ParseNamesList List = {
-        common::parseBitStr()
+        common::parseBitStr(),
+        common::parseMaskStr()
     };
 
     return List;
@@ -125,7 +126,8 @@ bool ParseSetFieldImpl::parseImpl()
         parseUpdateDefaultValue() &&
         parseUpdateReservedValue() &&
         parseUpdateAvailableLengthLimit() &&
-        parseUpdateBits();
+        parseUpdateBits() &&
+        parseUpdateMasks();
 }
 
 std::size_t ParseSetFieldImpl::parseMinLengthImpl() const
@@ -723,6 +725,95 @@ bool ParseSetFieldImpl::parseUpdateBits()
 
         m_state.m_bits.emplace(nameIter->second, info);
         m_state.m_revBits.emplace(idx, nameIter->second);
+    }
+
+    return true;
+}
+
+bool ParseSetFieldImpl::parseUpdateMasks()
+{
+    auto masks = ParseXmlWrap::parseGetChildren(parseGetNode(), common::parseMaskStr());
+
+    if (masks.empty()) {
+        return true;
+    }
+
+    if (!parseProtocol().parseIsSetMaskSupported()) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
+            "Usage of <" << common::parseMaskStr() << "> child nodes for <set> field is not supported for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion() << ", ignoring...";
+        return true;
+    }
+
+    for (auto* m : masks) {
+        static const ParseXmlWrap::ParseNamesList PropNames = {
+            common::parseNameStr(),
+            common::parseBitsStr(),
+        };
+
+        auto props = ParseXmlWrap::parseNodeProps(m);
+        if (!ParseXmlWrap::parseChildrenAsProps(m, PropNames, parseProtocol().parseLogger(), props)) {
+            return false;
+        }
+
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(m, props, common::parseNameStr(), parseProtocol().parseLogger(), true)) {
+            return false;
+        }
+
+        auto nameIter = props.find(common::parseNameStr());
+        assert(nameIter != props.end());
+
+        if (!common::parseIsValidName(nameIter->second)) {
+            parseLogError() << ParseXmlWrap::parseLogPrefix(m) <<
+                  "Property \"" << common::parseNameStr() <<
+                  "\" has unexpected value (" << nameIter->second << ").";
+            return false;
+        }
+
+        auto masksIter = m_state.m_masks.find(nameIter->second);
+        if (masksIter != m_state.m_masks.end()) {
+            parseLogError() << ParseXmlWrap::parseLogPrefix(m) << "Mask with name \"" << nameIter->second <<
+                          "\" has already been defined for set \"" << parseName() << "\".";
+            return false;
+        }
+
+        auto iters = props.equal_range(common::parseBitsStr());
+        if (iters.first == iters.second) {
+            parseLogError() << ParseXmlWrap::parseLogPrefix(m) << "No bits have been listed for mask \"" << nameIter->second << "\".";
+            return false;
+        }
+
+        ParseBitNamesList bitsList;
+        for (auto it = iters.first; it != iters.second; ++it) {
+            auto& bitsStr = it->second;
+            std::size_t fromPos = 0U;
+            while (fromPos < bitsStr.size()) {
+                auto sepPos = bitsStr.find_first_of(",|", fromPos);
+                sepPos = std::min(sepPos, bitsStr.size());
+
+                auto nextBit = bitsStr.substr(fromPos, sepPos - fromPos);
+                common::parseRemoveHeadingTrailingWhitespaces(nextBit);
+                fromPos = sepPos + 1U;
+
+                auto bitIter = m_state.m_bits.find(nextBit);
+                if (bitIter == m_state.m_bits.end()) {
+                    parseLogError() << ParseXmlWrap::parseLogPrefix(m) <<
+                        "Unknown bit name \"" << nextBit << "\" used define mask \"" << nameIter->second << "\".";
+                    return false;
+                }
+
+                auto addedBitIter = std::find(bitsList.begin(), bitsList.end(), nextBit);
+                if (addedBitIter != bitsList.end()) {
+                    parseLogWarning() << ParseXmlWrap::parseLogPrefix(m) <<
+                        "Bit \"" << nextBit << "\" has already been added to mask \"" << nameIter->second << "\".";
+                    continue;
+                }
+
+                bitsList.push_back(std::move(nextBit));
+            }
+        }
+
+        std::sort(bitsList.begin(), bitsList.end());
+        m_state.m_masks.emplace(nameIter->second, std::move(bitsList));
     }
 
     return true;

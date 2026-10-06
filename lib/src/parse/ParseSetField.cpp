@@ -78,6 +78,11 @@ const ParseSetField::ParseRevBits& ParseSetField::parseRevBits() const
     return cast(m_pImpl)->parseRevBits();
 }
 
+const ParseSetField::ParseMasks& ParseSetField::parseMasks() const
+{
+    return cast(m_pImpl)->parseMasks();
+}
+
 bool ParseSetField::parseIsNonUniqueAllowed() const
 {
     return cast(m_pImpl)->parseIsNonUniqueAllowed();
