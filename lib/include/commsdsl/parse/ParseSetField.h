@@ -49,7 +49,14 @@ public:
     using ParseBits = std::map<std::string, ParseBitInfo>;
     using ParseRevBits = std::multimap<unsigned, std::string>;
     using ParseBitNamesList = std::vector<std::string>;
-    using ParseMasks = std::map<std::string, ParseBitNamesList>;
+
+    struct ParseMaskInfo
+    {
+        std::string m_description;
+        ParseBitNamesList m_bits;
+    };
+
+    using ParseMasks = std::map<std::string, ParseMaskInfo>;
 
     explicit ParseSetField(const ParseSetFieldImpl* impl);
     explicit ParseSetField(ParseField field);

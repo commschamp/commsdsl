@@ -39,6 +39,7 @@ public:
     using ParseBits = ParseSetField::ParseBits;
     using ParseRevBits = ParseSetField::ParseRevBits;
     using ParseBitNamesList = ParseSetField::ParseBitNamesList;
+    using ParseMaskInfo = ParseSetField::ParseMaskInfo;
     using ParseMasks = ParseSetField::ParseMasks;
 
     ParseSetFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);

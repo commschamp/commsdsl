@@ -17,6 +17,7 @@ public:
     void test7();
     void test8();
     void test9();
+    void test10();
 
     using Interface =
         test11::Message<
@@ -331,4 +332,12 @@ void TestSuite::test9()
 
     auto& castMsg = static_cast<const Msg9&>(*msgPtr);
     TS_ASSERT_EQUALS(msg, castMsg);
+}
+
+void TestSuite::test10()
+{
+    Msg11 msg;
+    msg.field_f1().setBits(Msg11::Field_f1::BitMask_M1);
+    TS_ASSERT(msg.field_f1().getBitValue_B0());
+    TS_ASSERT(msg.field_f1().getBitValue_B1());
 }

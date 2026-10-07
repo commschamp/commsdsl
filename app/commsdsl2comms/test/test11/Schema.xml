@@ -264,6 +264,8 @@
                 <bit name="B1" idx="1" />
                 <bit name="B2" idx="2" />
                 <bit name="B3" idx="3" />
+                <mask name="M1" bits="B0 | B1" description="Mask M1. Details about M1"/>
+                <mask name="M2" bits="B2 | B3" />
             </set>
 
             <optional name="O1" cond="$F1.B0" defaultMode="missing">

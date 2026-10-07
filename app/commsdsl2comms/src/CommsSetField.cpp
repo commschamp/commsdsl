@@ -114,12 +114,17 @@ std::string CommsSetField::commsDefBaseClassImpl() const
 std::string CommsSetField::commsDefPublicCodeImpl() const
 {
     static const std::string Templ =
+        "/// @brief Re-definition of the value type.\n"
+        "using ValueType = typename Base::ValueType;\n"
+        "\n"
         "#^#BITS_ACCESS#$#\n"
+        "#^#MASKS#$#\n"
         "#^#BIT_NAME#$#";
 
     util::GenReplacementMap repl = {
         {"BITS_ACCESS", commsDefBitsAccessCodeInternal()},
         {"BIT_NAME", commsDefBitNameFuncCodeInternal()},
+        {"MASKS", commsDefMasksCodeInternal()},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -697,6 +702,90 @@ std::string CommsSetField::commsDefBitNameFuncCodeInternal() const
         {"COMMON", comms::genCommonScopeFor(*this, genGenerator())}
     };
     return util::genProcessTemplate(Templ, repl);
+}
+
+std::string CommsSetField::commsDefMasksCodeInternal() const
+{
+    util::GenStringsList result;
+    auto parseObj = genSetFieldParseObj();
+    auto& bits = parseObj.parseBits();
+    auto& masks = parseObj.parseMasks();
+    for (auto& m : masks) {
+        util::GenStringsList bitElems;
+        bitElems.reserve(m.second.m_bits.size());
+
+        static const std::string BitTempl =
+            "Base::bitAsMask(BitIdx_#^#NAME#$#)";
+
+        for (auto& b : m.second.m_bits) {
+            auto iter = bits.find(b);
+            assert(iter != bits.end()); // Must be present if parsing succesful
+            if (iter == bits.end()) {
+                continue;
+            }
+
+            if (!genGenerator().genDoesElementExist(iter->second.m_sinceVersion, iter->second.m_deprecatedSince, false)) {
+                continue;
+            }
+
+            util::GenReplacementMap bitRepl = {
+                {"NAME", b}
+            };
+
+            bitElems.push_back(util::genProcessTemplate(BitTempl, bitRepl));
+        }
+
+        if (bitElems.empty()) {
+            continue;
+        }
+
+        static const std::string Templ =
+            "/// @brief #^#BRIEF#$#\n"
+            "#^#DETAILS#$#\n"
+            "static constexpr ValueType BitMask_#^#NAME#$# =\n"
+            "    #^#BITS#$#;\n"
+            ;
+
+        util::GenReplacementMap repl = {
+            {"NAME", m.first},
+            {"BITS", util::genStrListToString(bitElems, " |\n", "")},
+        };
+
+        do {
+            if (m.second.m_description.empty()) {
+                repl["BRIEF"] = "Mask " + m.first;
+                break;
+            }
+
+            auto dotPos = m.second.m_description.find_first_of(".");
+            if (dotPos == std::string::npos) {
+                repl["BRIEF"] = m.second.m_description;
+                break;
+            }
+
+            repl["BRIEF"] = m.second.m_description.substr(0, dotPos + 1);
+            auto details = util::genStrMakeMultiline(m.second.m_description.substr(dotPos + 1));
+            if (details.empty()) {
+                break;
+            }
+
+            util::genRemoveHeadingTrailingWhitespaces(details);
+
+            static const std::string DetailsTempl =
+                "/// @details #^#TEXT#$#"
+                ;
+
+            util::GenReplacementMap detailsRepl = {
+                {"TEXT", util::genStrReplace(details, "\n", "///     ")},
+            };
+
+            repl["DETAILS"] = util::genProcessTemplate(DetailsTempl, detailsRepl);
+        } while (false);
+
+        result.push_back(util::genProcessTemplate(Templ, repl));
+    }
+
+    return util::genStrListToString(result, "\n", "");
 }
 
 void CommsSetField::commsAddLengthOptInternal(commsdsl::gen::util::GenStringsList& opts) const

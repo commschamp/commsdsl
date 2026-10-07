@@ -845,12 +845,16 @@ void SetTestSuite::test31()
     auto& masks = setField.parseMasks();
     TS_ASSERT_EQUALS(masks.size(), 2);
 
-    auto& m1 = masks.find("M1")->second;
+    auto m1Info = masks.find("M1")->second;
+    TS_ASSERT(!m1Info.m_description.empty());
+    auto& m1 = m1Info.m_bits;
     TS_ASSERT_EQUALS(m1.size(), 2);
     static const std::vector<std::string> ExpM1 = {"B0", "B1"};
     TS_ASSERT_EQUALS(m1, ExpM1);
 
-    auto& m2 = masks.find("M2")->second;
+    auto m2Info = masks.find("M2")->second;
+    TS_ASSERT(!m2Info.m_description.empty());
+    auto& m2 = m2Info.m_bits;
     TS_ASSERT_EQUALS(m2.size(), 3);
     static const std::vector<std::string> ExpM2 = {"B1", "B2", "B3"};
     TS_ASSERT_EQUALS(m2, ExpM2);
@@ -878,7 +882,7 @@ void SetTestSuite::test32()
     auto& masks = setField.parseMasks();
     TS_ASSERT_EQUALS(masks.size(), 1);
 
-    auto& m1 = masks.find("M1")->second;
+    auto& m1 = masks.find("M1")->second.m_bits;
     TS_ASSERT_EQUALS(m1.size(), 2);
     static const std::vector<std::string> ExpM1 = {"B0", "B1"};
     TS_ASSERT_EQUALS(m1, ExpM1);

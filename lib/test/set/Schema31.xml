@@ -6,9 +6,10 @@
             <bit name="B1" idx="1" />
             <bit name="B2" idx="2" />
             <bit name="B3" idx="3" />
-            <mask name="M1" bits="B0, B1" />
+            <mask name="M1" bits="B0, B1" description="bla" />
             <mask name="M2" bits="B1">
                 <bits value="B3 | B2" />
+                <description>bla</description>
             </mask>
         </set>
     </fields>

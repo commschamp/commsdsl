@@ -58,6 +58,7 @@ private:
     std::string commsDefFieldOptsInternal() const;
     std::string commsDefBitsAccessCodeInternal() const;
     std::string commsDefBitNameFuncCodeInternal() const;
+    std::string commsDefMasksCodeInternal() const;
 
     void commsAddLengthOptInternal(commsdsl::gen::util::GenStringsList& opts) const;
     void commsAddDefaultValueOptInternal(commsdsl::gen::util::GenStringsList& opts) const;

@@ -488,6 +488,29 @@ std::string genScopeToRelPath(const std::string& value)
     return genStrReplace(value, "::", "/");
 }
 
+void genRemoveHeadingTrailingWhitespaces(std::string& str)
+{
+    static const std::string WhiteSpaces(" \r\n\t");
+    auto startPos = str.find_first_not_of(WhiteSpaces);
+    if (startPos == std::string::npos) {
+        str.clear();
+        return;
+    }
+
+    if (startPos != 0U) {
+        str.erase(str.begin(), str.begin() + startPos);
+    }
+
+    assert(!str.empty());
+    auto endPos = str.find_last_not_of(WhiteSpaces);
+    assert(endPos != std::string::npos);
+    if (endPos == (str.size() - 1U)) {
+        return;
+    }
+
+    str.erase(str.begin() + endPos + 1, str.end());
+}
+
 std::string genProcessTemplate(const std::string& templ, const GenReplacementMap& repl, bool tidyCode)
 {
     std::string result;

@@ -746,8 +746,9 @@ bool ParseSetFieldImpl::parseUpdateMasks()
 
     for (auto* m : masks) {
         static const ParseXmlWrap::ParseNamesList PropNames = {
-            common::parseNameStr(),
             common::parseBitsStr(),
+            common::parseDescriptionStr(),
+            common::parseNameStr(),
         };
 
         auto props = ParseXmlWrap::parseNodeProps(m);
@@ -756,6 +757,10 @@ bool ParseSetFieldImpl::parseUpdateMasks()
         }
 
         if (!ParseXmlWrap::parseValidateSinglePropInstance(m, props, common::parseNameStr(), parseProtocol().parseLogger(), true)) {
+            return false;
+        }
+
+        if (!ParseXmlWrap::parseValidateSinglePropInstance(m, props, common::parseDescriptionStr(), parseProtocol().parseLogger())) {
             return false;
         }
 
@@ -782,7 +787,12 @@ bool ParseSetFieldImpl::parseUpdateMasks()
             return false;
         }
 
-        ParseBitNamesList bitsList;
+        ParseMaskInfo info;
+        auto descIter = props.find(common::parseDescriptionStr());
+        if (descIter != props.end()) {
+            info.m_description = descIter->second;
+        }
+
         for (auto it = iters.first; it != iters.second; ++it) {
             auto& bitsStr = it->second;
             std::size_t fromPos = 0U;
@@ -801,19 +811,19 @@ bool ParseSetFieldImpl::parseUpdateMasks()
                     return false;
                 }
 
-                auto addedBitIter = std::find(bitsList.begin(), bitsList.end(), nextBit);
-                if (addedBitIter != bitsList.end()) {
+                auto addedBitIter = std::find(info.m_bits.begin(), info.m_bits.end(), nextBit);
+                if (addedBitIter != info.m_bits.end()) {
                     parseLogWarning() << ParseXmlWrap::parseLogPrefix(m) <<
                         "Bit \"" << nextBit << "\" has already been added to mask \"" << nameIter->second << "\".";
                     continue;
                 }
 
-                bitsList.push_back(std::move(nextBit));
+                info.m_bits.push_back(std::move(nextBit));
             }
         }
 
-        std::sort(bitsList.begin(), bitsList.end());
-        m_state.m_masks.emplace(nameIter->second, std::move(bitsList));
+        std::sort(info.m_bits.begin(), info.m_bits.end());
+        m_state.m_masks.emplace(nameIter->second, std::move(info));
     }
 
     return true;
