@@ -194,11 +194,12 @@ std::string EmscriptenSetField::emscriptenSourceBindExtraImpl() const
         }
 
         static const std::string MaskTempl =
-            "emscripten::constant(\"#^#CLASS_NAME#$#_BitMask_#^#NAME#$#\", #^#CLASS_NAME#$#::BitMask_#^#NAME#$#);";
+            "emscripten::constant(\"#^#CLASS_NAME#$#_BitMask_#^#NAME#$#\", static_cast<#^#CLASS_NAME#$#::#^#VALUE_TYPE#$#>(#^#CLASS_NAME#$#::BitMask_#^#NAME#$#));";
 
         util::GenReplacementMap maskRepl = {
             {"CLASS_NAME", emscriptenBindClassName()},
             {"NAME", maskInfo.first},
+            {"VALUE_TYPE", strings::genValueTypeStr()},
         };
 
         masks.push_back(util::genProcessTemplate(MaskTempl, maskRepl));
