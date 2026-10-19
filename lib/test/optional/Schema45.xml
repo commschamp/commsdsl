@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema45" endian="big">
+    <description>
+        Using set mask in optional condition.
+    </description>
+
+    <message name="Msg1" id="1">
+        <set name="F1" length="1">
+            <bit name="B0" idx="0" />
+            <bit name="B1" idx="1" />
+            <mask name="M0" bits="B0 | B1" />
+        </set>
+        <optional name="F2" cond="$F1.M0">
+            <int name="ActF2" type="uint16" />
+        </optional>
+    </message>
+</schema>

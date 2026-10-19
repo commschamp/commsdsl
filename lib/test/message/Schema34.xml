@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema34" endian="Big">
+    <description>
+        Testing construct with set mask
+    </description>
+    <interface name="Message">
+        <set name="Flags" length="1">
+            <bit name="B0" idx="0" />
+            <bit name="B1" idx="1" />
+            <mask name="M0" bits="B0 | B1" />
+        </set>
+    </interface>
+
+    <message name="Msg1" id="1" construct="%Flags.M0">
+        <fields>
+            <int name="F1" type="uint8" />
+            <int name="F2" type="uint8" />
+        </fields>
+        <constructAsReadCond value="true" />
+        <constructAsValidCond value="true" />
+    </message>
+</schema>

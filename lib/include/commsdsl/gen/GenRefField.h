@@ -44,6 +44,16 @@ public:
     GenField* genReferencedField();
     const GenField* genReferencedField() const;
 
+    static GenRefField* genCast(GenField* ptr)
+    {
+        return static_cast<GenRefField*>(ptr);
+    }
+
+    static const GenRefField* genCast(const GenField* ptr)
+    {
+        return static_cast<const GenRefField*>(ptr);
+    }
+
 protected:
     virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl(bool referenced) override;

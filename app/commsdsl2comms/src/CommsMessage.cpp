@@ -25,6 +25,8 @@
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
+#include "commsdsl/parse/ParseSetField.h"
+
 #include <algorithm>
 #include <cassert>
 #include <fstream>
@@ -102,25 +104,78 @@ void commsUpdateConstructBoolInternal(const CommsGenerator& generator, const com
     }
 
     auto fieldAccess = fieldInfo.first->commsFieldAccessStr(fieldInfo.second, commsInterfaceFieldAccStrInternal(*fieldInfo.first));
+    auto accSep = right.find_first_of(".");
+    assert(accSep < right.size());
+    auto accStr = right.substr(accSep + 1U);
+    generator.genLogger().genError("!!! Looking for " + accStr);
+    auto accInfo = fieldInfo.first->commsGenField().genProcessInnerRef(accStr);
+    if (accInfo.m_field == nullptr) {
+        accInfo = commsdsl::gen::GenField::genProcessMemberRef(fieldInfo.first->commsGenField().genMembers(), accStr);
+    }
+    assert(accInfo.m_field != nullptr);
+    assert(accInfo.m_refType == commsdsl::gen::GenField::FieldRefType_InnerValue);
 
-    static const std::string TrueStr("true");
-    static const std::string FalseStr("false");
-
-    auto* valStr = &TrueStr;
-    if (!cond.parseOp().empty()) {
-        valStr = &FalseStr;
+    auto parseObj = accInfo.m_field->genParseObj();
+    if (parseObj.parseKind() != commsdsl::parse::ParseField::ParseKind::Set) {
+        generator.genLogger().genError("Not set field: " + parseObj.parseInnerRef() + " for condition: " + right);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
+        assert(Should_not_happen);
+        return;
     }
 
-    static const std::string Templ =
-        "Base::#^#ACC#$#.setBitValue_#^#NAME#$#(#^#VAL#$#);\n";
+    commsdsl::parse::ParseSetField parseSetObj(parseObj);
+    auto accName = right.substr(lastSepPos + 1U);
+    auto& bits = parseSetObj.parseBits();
+    auto bitIter = bits.find(accName);
+    if (bitIter != bits.end()) {
+        static const std::string TrueStr("true");
+        static const std::string FalseStr("false");
 
-    util::GenReplacementMap repl = {
-        {"ACC", std::move(fieldAccess)},
-        {"NAME", right.substr(lastSepPos + 1U)},
-        {"VAL", *valStr},
-    };
+        auto* valStr = &TrueStr;
+        if (!cond.parseOp().empty()) {
+            valStr = &FalseStr;
+        }
 
-    code.push_back(util::genProcessTemplate(Templ, repl));
+        static const std::string Templ =
+            "Base::#^#ACC#$#.setBitValue_#^#NAME#$#(#^#VAL#$#);\n";
+
+        util::GenReplacementMap repl = {
+            {"ACC", std::move(fieldAccess)},
+            {"NAME", accName},
+            {"VAL", *valStr},
+        };
+
+        code.push_back(util::genProcessTemplate(Templ, repl));
+        return;
+    }
+
+    auto& masks = parseSetObj.parseMasks();
+    auto maskIter = masks.find(accName);
+    if (maskIter != masks.end()) {
+        static const std::string SetFunc("setBits");
+        static const std::string ClearFunc("clearBits");
+
+        auto* func = &SetFunc;
+        if (!cond.parseOp().empty()) {
+            func = &ClearFunc;
+        }
+
+        static const std::string Templ =
+            "Base::#^#ACC#$#.#^#FUNC#$#_#^#NAME#$#();\n";
+
+        util::GenReplacementMap repl = {
+            {"ACC", std::move(fieldAccess)},
+            {"NAME", accName},
+            {"FUNC", *func},
+        };
+
+        code.push_back(util::genProcessTemplate(Templ, repl));
+        return;
+    }
+
+    generator.genLogger().genError("Failed to find bit / mask \"" + accName + "\" in " + parseObj.parseInnerRef());
+    [[maybe_unused]] static constexpr bool Should_not_happen = false;
+    assert(Should_not_happen);
 }
 
 void commsUpdateConstructExprInternal(

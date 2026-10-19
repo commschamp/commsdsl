@@ -32,8 +32,19 @@ class CommsRefField final : public commsdsl::gen::GenRefField, public CommsField
 public:
     using ParseField = commsdsl::parse::ParseField;
     using GenElem = commsdsl::gen::GenElem;
+    using GenRefField = commsdsl::gen::GenRefField;
 
     CommsRefField(CommsGenerator& generator, ParseField parseObj, GenElem* parent);
+
+    static const CommsRefField* commsCast(const GenRefField* ptr)
+    {
+        return static_cast<const CommsRefField*>(ptr);
+    }
+
+    static const CommsRefField* commsCast(const CommsField* ptr)
+    {
+        return static_cast<const CommsRefField*>(ptr);
+    }
 
 protected:
     // GenBase overrides

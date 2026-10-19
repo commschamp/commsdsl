@@ -191,7 +191,24 @@ std::string CSetField::cHeaderBitsCodeInternal() const
         static const std::string MaskTempl =
             "/// @brief #^#BRIEF#$#\n"
             "#^#DETAILS#$#\n"
-            "#define #^#NAME#$##^#SUFFIX#$#_BitMask_#^#MASK_NAME#$# ((#^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$#)#^#VAL#$#)\n";
+            "#define #^#NAME#$##^#SUFFIX#$#_BitMask_#^#MASK_NAME#$# ((#^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$#)#^#VAL#$#)\n"
+            "\n"
+            "/// @brief Check that all bits of @ref #^#NAME#$##^#SUFFIX#$#_BitMask_#^#MASK_NAME#$# mask are set\n"
+            "bool #^#NAME#$##^#SUFFIX#$#_hasAllBitsSet_#^#MASK_NAME#$#(const #^#NAME#$##^#SUFFIX#$#* field);\n"
+            "\n"
+            "/// @brief Check that any bit of @ref #^#NAME#$##^#SUFFIX#$#_BitMask_#^#MASK_NAME#$# mask is set\n"
+            "bool #^#NAME#$##^#SUFFIX#$#_hasAnyBitsSet_#^#MASK_NAME#$#(const #^#NAME#$##^#SUFFIX#$#* field);\n"
+            "\n"
+            "/// @brief Check that all bits of @ref #^#NAME#$##^#SUFFIX#$#_BitMask_#^#MASK_NAME#$# mask are cleared\n"
+            "bool #^#NAME#$##^#SUFFIX#$#_hasAllBitsCleared_#^#MASK_NAME#$#(const #^#NAME#$##^#SUFFIX#$#* field);\n"
+            "\n"
+            "/// @brief Set all bits of @ref #^#NAME#$##^#SUFFIX#$#_BitMask_#^#MASK_NAME#$# mask\n"
+            "void #^#NAME#$##^#SUFFIX#$#_setBits_#^#MASK_NAME#$#(#^#NAME#$##^#SUFFIX#$#* field);\n"
+            "\n"
+            "/// @brief Clear all bits of @ref #^#NAME#$##^#SUFFIX#$#_BitMask_#^#MASK_NAME#$# mask\n"
+            "void #^#NAME#$##^#SUFFIX#$#_clearBits_#^#MASK_NAME#$#(#^#NAME#$##^#SUFFIX#$#* field);\n"
+            "\n"
+            ;
 
         util::GenReplacementMap maskRepl = {
             {"NAME", cName()},
@@ -253,6 +270,9 @@ std::string CSetField::cHeaderBitsCodeInternal() const
         "/// @brief Check any bits of the requested mask are set in the @ref #^#NAME#$##^#SUFFIX#$# field.\n"
         "bool #^#NAME#$##^#SUFFIX#$#_hasAnyBitsSet(const #^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# mask);\n"
         "\n"
+        "/// @brief Check all bits of the requested mask are cleared in the @ref #^#NAME#$##^#SUFFIX#$# field.\n"
+        "bool #^#NAME#$##^#SUFFIX#$#_hasAllBitsCleared(const #^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# mask);\n"
+        "\n"
         "/// @brief Set all bits of the requested mask in the @ref #^#NAME#$##^#SUFFIX#$# field value.\n"
         "void #^#NAME#$##^#SUFFIX#$#_setBits(#^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# mask);\n"
         "\n"
@@ -291,8 +311,13 @@ std::string CSetField::cSourceBitsCodeInternal() const
     auto parseObj = genSetFieldParseObj();
     util::GenStringsList asserts;
     util::GenStringsList accesses;
+    util::GenStringsList masks;
 
     for (auto& bitInfo : parseObj.parseRevBits()) {
+        if (!genDoesBitExist(bitInfo.second)) {
+            continue;
+        }
+
         auto idx = bitInfo.first;
         if (CMaxBits <= idx) {
             [[maybe_unused]] static constexpr bool Should_not_happen = false;
@@ -333,6 +358,51 @@ std::string CSetField::cSourceBitsCodeInternal() const
         accesses.push_back(util::genProcessTemplate(AccTempl, bitRepl));
     }
 
+    for (auto& maskInfo : parseObj.parseMasks()) {
+        if (!genDoesMaskExist(maskInfo.first)) {
+            continue;
+        }
+
+        static const std::string MaskTempl =
+            "bool #^#NAME#$##^#SUFFIX#$#_hasAllBitsSet_#^#MASK_NAME#$#(const #^#NAME#$##^#SUFFIX#$#* field)\n"
+            "{\n"
+            "    return from#^#CONV_SUFFIX#$#(field)->hasAllBitsSet_#^#MASK_NAME#$#();\n"
+            "}\n"
+            "\n"
+            "bool #^#NAME#$##^#SUFFIX#$#_hasAnyBitsSet_#^#MASK_NAME#$#(const #^#NAME#$##^#SUFFIX#$#* field)\n"
+            "{\n"
+            "    return from#^#CONV_SUFFIX#$#(field)->hasAnyBitsSet_#^#MASK_NAME#$#();\n"
+            "}\n"
+            "\n"
+            "bool #^#NAME#$##^#SUFFIX#$#_hasAllBitsCleared_#^#MASK_NAME#$#(const #^#NAME#$##^#SUFFIX#$#* field)\n"
+            "{\n"
+            "    return from#^#CONV_SUFFIX#$#(field)->hasAllBitsCleared_#^#MASK_NAME#$#();\n"
+            "}\n"
+            "\n"
+            "void #^#NAME#$##^#SUFFIX#$#_setBits_#^#MASK_NAME#$#(#^#NAME#$##^#SUFFIX#$#* field)\n"
+            "{\n"
+            "    from#^#CONV_SUFFIX#$#(field)->setBits_#^#MASK_NAME#$#();\n"
+            "}\n"
+            "\n"
+            "void #^#NAME#$##^#SUFFIX#$#_clearBits_#^#MASK_NAME#$#(#^#NAME#$##^#SUFFIX#$#* field)\n"
+            "{\n"
+            "    from#^#CONV_SUFFIX#$#(field)->clearBits_#^#MASK_NAME#$#();\n"
+            "}\n"
+            ;
+
+        util::GenReplacementMap maskRepl = {
+            {"NAME", cName()},
+            {"CONV_SUFFIX", cConversionSuffix()},
+            {"MASK_NAME", maskInfo.first},
+        };
+
+        if (cIsVersionOptional()) {
+            maskRepl["SUFFIX"] = strings::genVersionOptionalFieldSuffixStr();
+        }
+
+        masks.push_back(util::genProcessTemplate(MaskTempl, maskRepl));
+    }
+
     static const std::string Templ =
         "#^#ASSERTS#$#\n"
         "bool #^#NAME#$##^#SUFFIX#$#_hasAllBitsSet(const #^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# mask)\n"
@@ -343,6 +413,11 @@ std::string CSetField::cSourceBitsCodeInternal() const
         "bool #^#NAME#$##^#SUFFIX#$#_hasAnyBitsSet(const #^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# mask)\n"
         "{\n"
         "    return from#^#CONV_SUFFIX#$#(field)->hasAnyBitsSet(mask);\n"
+        "}\n"
+        "\n"
+        "bool #^#NAME#$##^#SUFFIX#$#_hasAllBitsCleared(const #^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# mask)\n"
+        "{\n"
+        "    return from#^#CONV_SUFFIX#$#(field)->hasAllBitsCleared(mask);\n"
         "}\n"
         "\n"
         "void #^#NAME#$##^#SUFFIX#$#_setBits(#^#NAME#$##^#SUFFIX#$#* field, #^#NAME#$##^#SUFFIX#$#_#^#VALUE_TYPE#$# mask)\n"
@@ -371,6 +446,7 @@ std::string CSetField::cSourceBitsCodeInternal() const
         "}\n"
         "\n"
         "#^#ACCESSES#$#\n"
+        "#^#MASKS#$#\n"
     ;
 
     util::GenReplacementMap repl = {
@@ -378,6 +454,7 @@ std::string CSetField::cSourceBitsCodeInternal() const
         {"BIT_IDX", BitIdxStr},
         {"ASSERTS", util::genStrListToString(asserts, "\n", "\n")},
         {"ACCESSES", util::genStrListToString(accesses, "\n", "")},
+        {"MASKS", util::genStrListToString(masks, "\n", "")},
         {"CONV_SUFFIX", cConversionSuffix()},
         {"COMMS", strings::genCommsNameSuffixStr()},
         {"VALUE_TYPE", strings::genValueTypeStr()},

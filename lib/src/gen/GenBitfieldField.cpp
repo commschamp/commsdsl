@@ -90,11 +90,6 @@ GenBitfieldField::GenBitfieldField(GenGenerator& generator, ParseField dslObj, G
 
 GenBitfieldField::~GenBitfieldField() = default;
 
-const GenBitfieldField::GenFieldsList& GenBitfieldField::genMembers() const
-{
-    return m_impl->genMembers();
-}
-
 bool GenBitfieldField::genPrepareImpl()
 {
     return m_impl->genPrepare();
@@ -107,12 +102,17 @@ void GenBitfieldField::genSetReferencedImpl(bool referenced)
 
 GenBitfieldField::GenFieldRefInfo GenBitfieldField::genProcessInnerRefImpl(const std::string& refStr) const
 {
-    auto& memFields = genMembers();
+    auto& memFields = genMembersImpl();
     if (!memFields.empty()) {
         return genProcessMemberRef(memFields, refStr);
     }
 
     return Base::genProcessInnerRefImpl(refStr);
+}
+
+const GenBitfieldField::GenFieldsList& GenBitfieldField::genMembersImpl() const
+{
+    return m_impl->genMembers();
 }
 
 GenBitfieldField::ParseBitfieldField GenBitfieldField::genBitfieldFieldParseObj() const

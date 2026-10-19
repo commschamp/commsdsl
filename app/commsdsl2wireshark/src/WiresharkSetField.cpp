@@ -55,6 +55,7 @@ std::string WiresharkSetField::wiresharkExtractorsRegCodeImpl(const WiresharkFie
     auto refName = wiresharkFieldRefName(refField);
     auto parentWidth = wiresharkBitParentWidthInternal(refField);
 
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
     for (const auto& bitInfo : bits) {
         if (!genGenerator().genDoesElementExist(bitInfo.second.m_sinceVersion, bitInfo.second.m_deprecatedSince, true)) {
             continue;
@@ -64,11 +65,28 @@ std::string WiresharkSetField::wiresharkExtractorsRegCodeImpl(const WiresharkFie
             "#^#REG_FUNC#$#(\"#^#REF_NAME#$#\", #^#FIELD#$#)\n"
             ;
 
-        auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
         util::GenReplacementMap repl = {
             {"REG_FUNC", Wireshark::wiresharkCreateExtractorFuncName(wiresharkGenerator)},
             {"REF_NAME", refName + '.' + bitInfo.first},
             {"FIELD", wiresharkBitObjNameInternal(refField, bitInfo.first)},
+        };
+
+        elems.push_back(util::genProcessTemplate(Templ, repl));
+    }
+
+    for (const auto& maskInfo : parseObj.parseMasks()) {
+        if (!genDoesMaskExist(maskInfo.first)) {
+            continue;
+        }
+
+        static const std::string Templ =
+            "#^#REG_FUNC#$#(\"#^#REF_NAME#$#\", #^#FIELD#$#)\n"
+            ;
+
+        util::GenReplacementMap repl = {
+            {"REG_FUNC", Wireshark::wiresharkCreateExtractorFuncName(wiresharkGenerator)},
+            {"REF_NAME", refName + '.' + maskInfo.first},
+            {"FIELD", wiresharkBitObjNameInternal(refField, maskInfo.first)},
         };
 
         elems.push_back(util::genProcessTemplate(Templ, repl));
@@ -82,11 +100,13 @@ std::string WiresharkSetField::wiresharkFieldRegistrationImpl(const WiresharkFie
     static const std::string Templ =
         "#^#OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.#^#TYPE#$#(\"#^#REF_NAME#$#\", #^#DISP_NAME#$#, base.HEX, #^#NIL#$#, #^#MASK#$#, #^#DESC#$#))\n"
         "#^#BITS#$#\n"
+        "#^#MASKS#$#\n"
     ;
 
     auto parseObj = genSetFieldParseObj();
     util::GenReplacementMap repl = {
         {"BITS", wiresharkRegistrationBitsInternal(refField)},
+        {"MASKS", wiresharkRegistrationMasksInternal(refField)},
         {"OBJ_NAME", wiresharkFieldObjName(refField)},
         {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
         {"TYPE", wiresharkForcedIntegralFieldType(refField)},
@@ -155,6 +175,10 @@ std::string WiresharkSetField::wiresharkDissectBodyImpl(const WiresharkField* re
     auto& revBits = parseObj.parseRevBits();
 
     for (auto& b : revBits) {
+        if (!genDoesBitExist(b.second)) {
+            continue;
+        }
+
         static const std::string BitTempl =
             "#^#SUBTREE#$#:add#^#SUFFIX#$#(#^#FIELD#$#, range)"
             ;
@@ -233,9 +257,9 @@ std::string WiresharkSetField::wiresharkValueAccessStrImpl(const std::string& ac
     }
 
     auto& bits = genSetFieldParseObj().parseBits();
-    auto iter = bits.find(accStr);
-    if (iter == bits.end()) {
-        genGenerator().genLogger().genError("Failed to find bit reference " + accStr + " for field " + genParseObj().parseInnerRef());
+    auto& masks = genSetFieldParseObj().parseMasks();
+    if ((bits.find(accStr) == bits.end()) && (masks.find(accStr) == masks.end())) {
+        genGenerator().genLogger().genError("Failed to find bit/mask reference " + accStr + " for field " + genParseObj().parseInnerRef());
         assert(false);
         return WiresharkBase::wiresharkValueAccessStrImpl(std::string(), refField);
     }
@@ -351,7 +375,7 @@ std::string WiresharkSetField::wiresharkRegistrationBitsInternal(const Wireshark
         }
 
         static const std::string Templ =
-            "#^#BIT_OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bool(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", #^#PARENT_WIDTH#$#, #^#NIL#$#, #^#MASK#$#, #^#DESC#$#))\n"
+            "#^#BIT_OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bool(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", #^#PARENT_WIDTH#$#, #^#NIL#$#, #^#MASK#$#, #^#DESC#$#))"
         ;
 
         auto forcedShift = wiresharkForcedMaskShift(refField);
@@ -373,12 +397,75 @@ std::string WiresharkSetField::wiresharkRegistrationBitsInternal(const Wireshark
         elems.push_back(util::genProcessTemplate(Templ, repl));
     }
 
+    return util::genStrListToString(elems, "\n", "");
+}
+
+std::string WiresharkSetField::wiresharkRegistrationMasksInternal(const WiresharkField* refField) const
+{
+    if ((refField != nullptr) && (!refField->wiresharkIsBitfieldMember())) {
+        // No need for bits info for non-bitfield member <ref> field.
+        return strings::genEmptyString();
+    }
+
+    GenStringsList elems;
+
+    auto parseObj = genSetFieldParseObj();
+    auto& bits = parseObj.parseBits();
+    auto& masks = parseObj.parseMasks();
+
+    auto refName = wiresharkFieldRefName(refField);
+    auto parentWidth = wiresharkBitParentWidthInternal(refField);
+
+    for (auto m : masks) {
+        if (!genDoesMaskExist(m.first)) {
+            continue;
+        }
+
+        std::uintmax_t mask = 0U;
+        auto forcedShift = wiresharkForcedMaskShift(refField);
+        for (auto& b : m.second.m_bits) {
+            if (!genDoesBitExist(b)) {
+                continue;
+            }
+
+            auto iter = bits.find(b);
+            assert(iter != bits.end());
+
+            mask |= (1ULL << (iter->second.m_idx + forcedShift));
+        }
+
+        std::stringstream maskStream;
+        maskStream << std::hex << "0x" << std::uppercase <<
+            std::setfill('0') << std::setw(static_cast<int>(wiresharkMaxFieldLength(refField) * 2U)) << mask;
+
+        static const std::string Templ =
+            "#^#MASK_OBJ_NAME#$# = #^#CREATE_FUNC#$#(ProtoField.bool(\"#^#REF_NAME#$#\", \"#^#DISP_NAME#$#\", #^#PARENT_WIDTH#$#, #^#NIL#$#, #^#MASK#$#, #^#DESC#$#))\n"
+        ;
+
+        util::GenReplacementMap repl = {
+            {"MASK_OBJ_NAME", wiresharkBitObjNameInternal(refField, m.first)},
+            {"CREATE_FUNC", Wireshark::wiresharkCreateFieldFuncName(WiresharkGenerator::wiresharkCast(genGenerator()))},
+            {"REF_NAME", refName + '.' + m.first},
+            {"DISP_NAME", util::genDisplayName(strings::genEmptyString(), m.first)},
+            {"MASK", maskStream.str()},
+            {"DESC", strings::genNilStr()},
+            {"NIL", strings::genNilStr()},
+            {"PARENT_WIDTH", parentWidth},
+        };
+
+        if (!m.second.m_description.empty()) {
+            repl["DESC"] = '\"' + m.second.m_description + '\"';
+        }
+
+        elems.push_back(util::genProcessTemplate(Templ, repl));
+    }
+
     return util::genStrListToString(elems, "", "");
 }
 
 std::string WiresharkSetField::wiresharkBitMaskInternal(const WiresharkField* refField, unsigned idx) const
 {
-    auto mask = 1U << idx;
+    auto mask = 1ULL << idx;
     auto parseObj = genSetFieldParseObj();
     std::stringstream stream;
     stream << std::hex << "0x" << std::uppercase <<

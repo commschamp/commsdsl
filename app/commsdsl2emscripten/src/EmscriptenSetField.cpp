@@ -52,8 +52,11 @@ std::string EmscriptenSetField::emscriptenHeaderExtraPublicFuncsImpl() const
     auto obj = genSetFieldParseObj();
 
     util::GenStringsList accesses;
-
     for (auto& bitInfo : obj.parseRevBits()) {
+
+        if (!genDoesBitExist(bitInfo.second)) {
+            continue;
+        }
 
         static const std::string Templ =
             "bool getBitValue_#^#NAME#$#() const\n"
@@ -72,6 +75,43 @@ std::string EmscriptenSetField::emscriptenHeaderExtraPublicFuncsImpl() const
         accesses.push_back(util::genProcessTemplate(Templ, repl));
     }
 
+    util::GenStringsList masks;
+    for (auto& maskInfo : obj.parseMasks()) {
+
+        if (!genDoesMaskExist(maskInfo.first)) {
+            continue;
+        }
+
+        static const std::string Templ =
+            "bool hasAllBitsSet_#^#NAME#$#() const\n"
+            "{\n"
+            "    return Base::hasAllBitsSet_#^#NAME#$#();\n"
+            "}\n\n"
+            "bool hasAnyBitsSet_#^#NAME#$#() const\n"
+            "{\n"
+            "    return Base::hasAnyBitsSet_#^#NAME#$#();\n"
+            "}\n\n"
+            "bool hasAllBitsCleared_#^#NAME#$#() const\n"
+            "{\n"
+            "    return Base::hasAllBitsCleared_#^#NAME#$#();\n"
+            "}\n\n"
+            "void setBits_#^#NAME#$#()\n"
+            "{\n"
+            "    Base::setBits_#^#NAME#$#();\n"
+            "}\n\n"
+            "void clearBits_#^#NAME#$#()\n"
+            "{\n"
+            "    Base::clearBits_#^#NAME#$#();\n"
+            "}\n"
+            ;
+
+        util::GenReplacementMap repl = {
+            {"NAME", maskInfo.first}
+        };
+
+        masks.push_back(util::genProcessTemplate(Templ, repl));
+    }
+
     static const std::string Templ =
         "bool hasAllBitsSet(ValueType mask) const\n"
         "{\n"
@@ -80,6 +120,10 @@ std::string EmscriptenSetField::emscriptenHeaderExtraPublicFuncsImpl() const
         "bool hasAnyBitsSet(ValueType mask) const\n"
         "{\n"
         "    return Base::hasAnyBitsSet(mask);\n"
+        "}\n\n"
+        "bool hasAllBitsCleared(ValueType mask) const\n"
+        "{\n"
+        "    return Base::hasAllBitsCleared(mask);\n"
         "}\n\n"
         "void setBits(ValueType mask)\n"
         "{\n"
@@ -102,10 +146,12 @@ std::string EmscriptenSetField::emscriptenHeaderExtraPublicFuncsImpl() const
         "    return Base::bitAsMask(bitIdx);\n"
         "}\n\n"
         "#^#ACCESS_FUNCS#$#\n"
+        "#^#MASKS#$#\n"
         ;
 
     util::GenReplacementMap repl = {
-        {"ACCESS_FUNCS", util::genStrListToString(accesses, "\n", "")}
+        {"ACCESS_FUNCS", util::genStrListToString(accesses, "\n", "")},
+        {"MASKS", util::genStrListToString(masks, "\n", "")}
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -115,25 +161,52 @@ std::string EmscriptenSetField::emscriptenSourceBindFuncsImpl() const
 {
     auto obj = genSetFieldParseObj();
 
-    util::GenReplacementMap repl = {
-        {"CLASS_NAME", emscriptenBindClassName()},
-    };
-
     util::GenStringsList accesses;
     for (auto& bitInfo : obj.parseRevBits()) {
+        if (!genDoesBitExist(bitInfo.second)) {
+            continue;
+        }
 
         static const std::string Templ =
             ".function(\"getBitValue_#^#NAME#$#\", &#^#CLASS_NAME#$#::getBitValue_#^#NAME#$#)\n"
             ".function(\"setBitValue_#^#NAME#$#\", &#^#CLASS_NAME#$#::setBitValue_#^#NAME#$#)";
 
-        repl["NAME"] = bitInfo.second;
+        util::GenReplacementMap repl = {
+            {"CLASS_NAME", emscriptenBindClassName()},
+            {"NAME", bitInfo.second},
+        };
+
         accesses.push_back(util::genProcessTemplate(Templ, repl));
+    }
+
+    util::GenStringsList masks;
+    for (auto& maskInfo : obj.parseMasks()) {
+        if (!genDoesMaskExist(maskInfo.first)) {
+            continue;
+        }
+
+        static const std::string Templ =
+            ".function(\"hasAllBitsSet_#^#NAME#$#\", &#^#CLASS_NAME#$#::hasAllBitsSet_#^#NAME#$#)\n"
+            ".function(\"hasAnyBitsSet_#^#NAME#$#\", &#^#CLASS_NAME#$#::hasAnyBitsSet_#^#NAME#$#)\n"
+            ".function(\"hasAllBitsCleared_#^#NAME#$#\", &#^#CLASS_NAME#$#::hasAllBitsCleared_#^#NAME#$#)\n"
+            ".function(\"setBits_#^#NAME#$#\", &#^#CLASS_NAME#$#::setBits_#^#NAME#$#)\n"
+            ".function(\"clearBits_#^#NAME#$#\", &#^#CLASS_NAME#$#::clearBits_#^#NAME#$#)"
+            ;
+
+        util::GenReplacementMap repl = {
+            {"CLASS_NAME", emscriptenBindClassName()},
+            {"NAME", maskInfo.first},
+        };
+
+        masks.push_back(util::genProcessTemplate(Templ, repl));
     }
 
     static const std::string Templ =
         "#^#ACCESS_FUNCS#$#\n"
+        "#^#MASKS#$#\n"
         ".function(\"hasAllBitsSet\", &#^#CLASS_NAME#$#::hasAllBitsSet)\n"
         ".function(\"hasAnyBitsSet\", &#^#CLASS_NAME#$#::hasAnyBitsSet)\n"
+        ".function(\"hasAllBitsCleared\", &#^#CLASS_NAME#$#::hasAllBitsCleared)\n"
         ".function(\"setBits\", &#^#CLASS_NAME#$#::setBits)\n"
         ".function(\"clearBits\", &#^#CLASS_NAME#$#::clearBits)\n"
         ".function(\"getBitValue\", &#^#CLASS_NAME#$#::getBitValue)\n"
@@ -141,7 +214,12 @@ std::string EmscriptenSetField::emscriptenSourceBindFuncsImpl() const
         ".class_function(\"bitAsMask\", &#^#CLASS_NAME#$#::bitAsMask)"
         ;
 
-    repl["ACCESS_FUNCS"] = util::genStrListToString(accesses, "\n", "");
+    util::GenReplacementMap repl = {
+        {"CLASS_NAME", emscriptenBindClassName()},
+        {"ACCESS_FUNCS", util::genStrListToString(accesses, "\n", "")},
+        {"MASKS", util::genStrListToString(masks, "\n", "")},
+    };
+
     return util::genProcessTemplate(Templ, repl);
 }
 

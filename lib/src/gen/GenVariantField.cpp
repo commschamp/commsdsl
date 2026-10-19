@@ -88,11 +88,6 @@ GenVariantField::GenVariantField(GenGenerator& generator, ParseField parseObj, G
 
 GenVariantField::~GenVariantField() = default;
 
-const GenVariantField::GenFieldsList& GenVariantField::genMembers() const
-{
-    return m_impl->genMembers();
-}
-
 bool GenVariantField::genPrepareImpl()
 {
     return m_impl->genPrepare();
@@ -105,12 +100,17 @@ void GenVariantField::genSetReferencedImpl(bool referenced)
 
 GenVariantField::GenFieldRefInfo GenVariantField::genProcessInnerRefImpl(const std::string& refStr) const
 {
-    auto& memFields = genMembers();
+    auto& memFields = genMembersImpl();
     if (!memFields.empty()) {
         return genProcessMemberRef(memFields, refStr);
     }
 
     return Base::genProcessInnerRefImpl(refStr);
+}
+
+const GenVariantField::GenFieldsList& GenVariantField::genMembersImpl() const
+{
+    return m_impl->genMembers();
 }
 
 GenVariantField::ParseVariantField GenVariantField::genVariantFieldParseObj() const

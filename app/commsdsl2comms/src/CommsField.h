@@ -42,6 +42,7 @@ public:
     virtual ~CommsField();
 
     static CommsFieldsList commsTransformFieldsList(const GenFieldsList& fields);
+    static const CommsField* commsCast(const GenField* field);
 
     bool commsPrepare();
     bool commsWrite() const;

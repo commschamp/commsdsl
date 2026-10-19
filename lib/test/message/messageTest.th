@@ -42,6 +42,7 @@ public:
     void test31();
     void test32();
     void test33();
+    void test34();
 };
 
 void MessageTestSuite::setUp()
@@ -826,5 +827,43 @@ void MessageTestSuite::test33()
         auto validCond = msg.parseValidCond();
         TS_ASSERT(validCond.parseValid());
         TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::List);
+    }
+}
+
+void MessageTestSuite::test34()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema34.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.parseName().empty());
+
+    auto messages = ns.parseMessages();
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(1U, messages.size());
+
+        auto& msg = messages[0];
+        auto construct = msg.parseConstruct();
+        TS_ASSERT(construct.parseValid());
+        TS_ASSERT_EQUALS(construct.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::Expr);
+        commsdsl::parse::ParseOptCondExpr constructCond(construct);
+        auto constructCondLeftInfo = constructCond.parseLeftInfo();
+        auto constructCondRightInfo = constructCond.parseRightInfo();
+        TS_ASSERT_EQUALS(constructCondLeftInfo.m_type, commsdsl::parse::ParseOptCondExpr::ParseOperandType::Invalid);
+
+        TS_ASSERT_EQUALS(constructCondRightInfo.m_type, commsdsl::parse::ParseOptCondExpr::ParseOperandType::InterfaceRef);
+        TS_ASSERT_EQUALS(constructCondRightInfo.m_mode, commsdsl::parse::ParseOptCondExpr::ParseAccMode::Itself);
+        TS_ASSERT_EQUALS(constructCondRightInfo.m_access, "Flags.M0");
+
+        auto readCond = msg.parseReadCond();
+        TS_ASSERT(readCond.parseValid());
+        TS_ASSERT_EQUALS(readCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::Expr);
+
+        auto validCond = msg.parseValidCond();
+        TS_ASSERT(validCond.parseValid());
+        TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::Expr);
     }
 }

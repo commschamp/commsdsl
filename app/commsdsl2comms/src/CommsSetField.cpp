@@ -404,21 +404,36 @@ std::string CommsSetField::commsValueAccessStrImpl(const std::string& accStr, co
         return CommsBase::commsValueAccessStrImpl(accStr, prefix);
     }
 
-    auto& bits = genSetFieldParseObj().parseBits();
-    auto iter = bits.find(accStr);
-    if (iter == bits.end()) {
-        genGenerator().genLogger().genError("Failed to find bit reference " + accStr + " for field " + comms::genScopeFor(*this, genGenerator()));
-        assert(false);
-        return strings::genUnexpectedValueStr();
+    auto parseObj = genSetFieldParseObj();
+    auto& bits = parseObj.parseBits();
+    auto bitIter = bits.find(accStr);
+    if (bitIter != bits.end()) {
+        return prefix + ".getBitValue_" + accStr + "()";
     }
 
-    return prefix + ".getBitValue_" + accStr + "()";
+    auto masks = parseObj.parseMasks();
+    auto maskIter = masks.find(accStr);
+    if (maskIter != masks.end()) {
+        return prefix + ".hasAllBitsSet_" + accStr + "()";
+    }
+
+    genGenerator().genLogger().genError("Failed to find bit reference " + accStr + " for field " + comms::genScopeFor(*this, genGenerator()));
+    assert(false);
+    return strings::genUnexpectedValueStr();
+
 }
 
 bool CommsSetField::commsVerifyInnerRefImpl(const std::string& refStr) const
 {
-    auto& bits = genSetFieldParseObj().parseBits();
-    return bits.find(refStr) != bits.end();
+    auto parseObj = genSetFieldParseObj();
+    auto& bits = parseObj.parseBits();
+    if (bits.find(refStr) != bits.end()) {
+        return true;
+    }
+
+    auto& masks = parseObj.parseMasks();
+    return masks.find(refStr) != masks.end();
+
 }
 
 std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
@@ -429,6 +444,10 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
     std::intmax_t nextBit = 0;
     GenStringsList names;
     for (auto& b : revBits) {
+        if (!genDoesBitExist(b.second)) {
+            continue;
+        }
+
         if (b.first < nextBit) {
             continue;
         }
@@ -708,47 +727,42 @@ std::string CommsSetField::commsDefMasksCodeInternal() const
 {
     util::GenStringsList result;
     auto parseObj = genSetFieldParseObj();
-    auto& bits = parseObj.parseBits();
     auto& masks = parseObj.parseMasks();
     for (auto& m : masks) {
-        util::GenStringsList bitElems;
-        bitElems.reserve(m.second.m_bits.size());
-
-        static const std::string BitTempl =
-            "Base::bitAsMask(BitIdx_#^#NAME#$#)";
-
-        for (auto& b : m.second.m_bits) {
-            auto iter = bits.find(b);
-            assert(iter != bits.end()); // Must be present if parsing succesful
-            if (iter == bits.end()) {
-                continue;
-            }
-
-            if (!genGenerator().genDoesElementExist(iter->second.m_sinceVersion, iter->second.m_deprecatedSince, false)) {
-                continue;
-            }
-
-            util::GenReplacementMap bitRepl = {
-                {"NAME", b}
-            };
-
-            bitElems.push_back(util::genProcessTemplate(BitTempl, bitRepl));
+        if (!genDoesMaskExist(m.first)) {
+            continue;
         }
 
-        if (bitElems.empty()) {
-            continue;
+        util::GenStringsList bits;
+        bits.reserve(m.second.m_bits.size());
+
+        for (auto& b : m.second.m_bits) {
+            if (!genDoesBitExist(b)) {
+                continue;
+            }
+
+            bits.push_back(b);
         }
 
         static const std::string Templ =
             "/// @brief #^#BRIEF#$#\n"
-            "#^#DETAILS#$#\n"
-            "static constexpr ValueType BitMask_#^#NAME#$# =\n"
-            "    #^#BITS#$#;\n"
+            "/// @details #^#DETAILS#$#\n"
+            "///     Generates:\n"
+            "///     @li Constant: `static const ValueType BitMask_#^#NAME#$#`\n"
+            "///     @li Function: `bool hasAllBitsSet_#^#NAME#$#()`\n"
+            "///     @li Function: `bool hasAnyBitsSet_#^#NAME#$#()`\n"
+            "///     @li Function: `bool hasAllBitsCleared_#^#NAME#$#()`\n"
+            "///     @li Function: `void setBits_#^#NAME#$#()`\n"
+            "///     @li Function: `void clearBits_#^#NAME#$#()`\n"
+            "COMMS_BITMASK_MASK(\n"
+            "    #^#NAME#$#,\n"
+            "    #^#BITS#$#\n"
+            ");\n"
             ;
 
         util::GenReplacementMap repl = {
             {"NAME", m.first},
-            {"BITS", util::genStrListToString(bitElems, " |\n", "")},
+            {"BITS", util::genStrListToString(bits, ",\n", "")},
         };
 
         do {
@@ -772,11 +786,11 @@ std::string CommsSetField::commsDefMasksCodeInternal() const
             util::genRemoveHeadingTrailingWhitespaces(details);
 
             static const std::string DetailsTempl =
-                "/// @details #^#TEXT#$#"
+                "/// #^#TEXT#$#"
                 ;
 
             util::GenReplacementMap detailsRepl = {
-                {"TEXT", util::genStrReplace(details, "\n", "///     ")},
+                {"TEXT", util::genStrReplace(details, "\n", "///     @n")},
             };
 
             repl["DETAILS"] = util::genProcessTemplate(DetailsTempl, detailsRepl);

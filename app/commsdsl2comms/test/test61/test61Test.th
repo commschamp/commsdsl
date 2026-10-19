@@ -1,0 +1,78 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test61/Interface.h"
+#include "test61/frame/Frame.h"
+
+#include "comms/process.h"
+
+#include <cstdint>
+#include <type_traits>
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+    void test2();
+
+    // struct Handler
+    // {
+    //     template <typename TMsg>
+    //     void handle(TMsg& msg)
+    //     {
+    //         static_cast<void>(msg);
+    //     }
+    // };
+
+    using Interface = test61::Interface<
+        comms::option::app::IdInfoInterface,
+        comms::option::app::LengthInfoInterface,
+        comms::option::app::ReadIterator<const std::uint8_t*>,
+        comms::option::app::WriteIterator<std::uint8_t*>,
+        comms::option::app::NameInterface
+    >;
+    using Frame = test61::frame::Frame<Interface>;
+
+    TEST61_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
+};
+
+void TestSuite::test1()
+{
+    const std::uint8_t Buf[] = {
+        static_cast<std::uint8_t>(test61::MsgId_M1),
+        0x03,
+        0x01, 0x02, 0x03, 0x04,
+    };
+    const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+    Frame frame;
+    Frame::MsgPtr msgPtr;
+
+    auto iter = comms::readIteratorFor<Interface>(Buf);
+    auto es = frame.read(msgPtr, iter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test61::MsgId_M1);
+}
+
+void TestSuite::test2()
+{
+    Msg2 msg2;
+    TS_ASSERT(msg2.transportField_flags().hasAllBitsSet_M0());
+
+    const std::uint8_t Buf[] = {
+        static_cast<std::uint8_t>(test61::MsgId_M2),
+        0x03,
+        0x01, 0x02,
+    };
+    const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+    Frame frame;
+    Frame::MsgPtr msgPtr;
+
+    auto iter = comms::readIteratorFor<Interface>(Buf);
+    auto es = frame.read(msgPtr, iter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test61::MsgId_M2);
+}
+

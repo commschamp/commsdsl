@@ -301,6 +301,11 @@ const GenNamespace* GenField::genParentNamespace() const
     return static_cast<const GenNamespace*>(parent);
 }
 
+const GenField::GenFieldsList& GenField::genMembers() const
+{
+    return genMembersImpl();
+}
+
 GenElem::GenType GenField::genElemTypeImpl() const
 {
     return GenType_Field;
@@ -325,6 +330,12 @@ GenField::GenFieldRefInfo GenField::genProcessInnerRefImpl([[maybe_unused]] cons
     assert(!refStr.empty());
     GenFieldRefInfo info;
     return info;
+}
+
+const GenField::GenFieldsList& GenField::genMembersImpl() const
+{
+    static const GenFieldsList List;
+    return List;
 }
 
 } // namespace gen

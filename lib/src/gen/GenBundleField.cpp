@@ -89,11 +89,6 @@ GenBundleField::GenBundleField(GenGenerator& generator, commsdsl::parse::ParseFi
 
 GenBundleField::~GenBundleField() = default;
 
-const GenBundleField::GenFieldsList& GenBundleField::genMembers() const
-{
-    return m_impl->genMembers();
-}
-
 bool GenBundleField::genPrepareImpl()
 {
     return m_impl->genPrepare();
@@ -106,12 +101,17 @@ void GenBundleField::genSetReferencedImpl(bool referenced)
 
 GenBundleField::GenFieldRefInfo GenBundleField::genProcessInnerRefImpl(const std::string& refStr) const
 {
-    auto& memFields = genMembers();
+    auto& memFields = genMembersImpl();
     if (!memFields.empty()) {
         return genProcessMemberRef(memFields, refStr);
     }
 
     return Base::genProcessInnerRefImpl(refStr);
+}
+
+const GenBundleField::GenFieldsList& GenBundleField::genMembersImpl() const
+{
+    return m_impl->genMembers();
 }
 
 GenBundleField::ParseBundleField GenBundleField::genBundleFieldParseObj() const

@@ -84,6 +84,7 @@ public:
     static GenFieldRefInfo genProcessMemberRef(const GenFieldsList& fields, const std::string& refStr);
 
     const GenNamespace* genParentNamespace() const;
+    const GenFieldsList& genMembers() const;
 
 protected:
     GenField(GenGenerator& generator, const ParseField& parseObj, GenElem* parent = nullptr);
@@ -93,6 +94,7 @@ protected:
     virtual bool genWriteImpl() const;
     virtual void genSetReferencedImpl(bool referenced);
     virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const;
+    virtual const GenFieldsList& genMembersImpl() const;
 
 private:
     std::unique_ptr<GenFieldImpl> m_impl;

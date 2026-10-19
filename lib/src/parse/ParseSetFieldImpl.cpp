@@ -249,8 +249,8 @@ ParseSetFieldImpl::ParseFieldRefInfo ParseSetFieldImpl::parseProcessInnerRefImpl
     assert(!refStr.empty());
 
     ParseFieldRefInfo info;
-    auto iter = m_state.m_bits.find(refStr);
-    if (iter != m_state.m_bits.end()) {
+    if ((m_state.m_bits.find(refStr) != m_state.m_bits.end()) ||
+        (m_state.m_masks.find(refStr) != m_state.m_masks.end())) {
         info.m_field = this;
         info.m_valueName = refStr;
         info.m_refType = FieldRefType_InnerValue;

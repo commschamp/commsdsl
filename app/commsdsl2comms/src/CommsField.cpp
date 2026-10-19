@@ -84,6 +84,13 @@ CommsField::CommsFieldsList CommsField::commsTransformFieldsList(const GenFields
     return result;
 }
 
+const CommsField* CommsField::commsCast(const GenField* field)
+{
+    auto* commsField = dynamic_cast<const CommsField*>(field);
+    assert(commsField != nullptr);
+    return commsField;
+}
+
 bool CommsField::commsPrepare()
 {
     if (!commsCopyCodeFromInternal()) {

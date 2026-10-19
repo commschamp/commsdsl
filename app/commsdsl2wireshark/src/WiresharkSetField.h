@@ -49,6 +49,7 @@ protected:
 
 private:
     std::string wiresharkRegistrationBitsInternal(const WiresharkField* refField) const;
+    std::string wiresharkRegistrationMasksInternal(const WiresharkField* refField) const;
     std::string wiresharkBitMaskInternal(const WiresharkField* refField, unsigned idx) const;
     std::string wiresharkBitParentWidthInternal(const WiresharkField* refField) const;
     std::string wiresharkBitObjNameInternal(const WiresharkField* refField, const std::string& bitName) const;

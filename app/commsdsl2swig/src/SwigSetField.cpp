@@ -66,13 +66,7 @@ std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
     util::GenStringsList accesses;
 
     for (auto& bitInfo : obj.parseRevBits()) {
-        auto iter = bits.find(bitInfo.second);
-        assert(iter != bits.end());
-        if (iter == bits.end()) {
-            continue;
-        }
-
-        if (!genGenerator().genDoesElementExist(iter->second.m_sinceVersion, iter->second.m_deprecatedSince, false)) {
+        if (!genDoesBitExist(bitInfo.second)) {
             continue;
         }
 
@@ -91,18 +85,16 @@ std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
     }
 
     util::GenStringsList masks;
+    util::GenStringsList maskChecks;
     for (auto& maskInfo : obj.parseMasks()) {
         std::uintmax_t maskVal = 0U;
         for (auto& b : maskInfo.second.m_bits) {
-            auto iter = bits.find(b);
-            assert(iter != bits.end());
-            if (iter == bits.end()) {
+            if (!genDoesBitExist(b)) {
                 continue;
             }
 
-            if (!genGenerator().genDoesElementExist(iter->second.m_sinceVersion, iter->second.m_deprecatedSince, false)) {
-                continue;
-            }
+            auto iter = bits.find(b);
+            assert(iter != bits.end());
 
             maskVal |= static_cast<decltype(maskVal)>(1) << iter->second.m_idx;
         }
@@ -120,6 +112,20 @@ std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
         };
 
         masks.push_back(util::genProcessTemplate(MaskTempl, maskRepl));
+
+        static const std::string MaskCheckTempl =
+            "bool hasAllBitsSet_#^#NAME#$#() const;\n"
+            "bool hasAnyBitsSet_#^#NAME#$#() const;\n"
+            "bool hasAllBitsCleared_#^#NAME#$#() const;\n"
+            "void setBits_#^#NAME#$#();\n"
+            "void clearBits_#^#NAME#$#();"
+            ;
+
+        util::GenReplacementMap maskCheckRepl = {
+            {"NAME", maskInfo.first},
+        };
+
+        maskChecks.push_back(util::genProcessTemplate(MaskCheckTempl, maskCheckRepl));
     }
 
     static const std::string Templ =
@@ -137,12 +143,14 @@ std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
         "void setBitValue(unsigned bitNum, bool val);\n"
         "static ValueType bitAsMask(BitIdx idx);\n"
         "#^#ACCESS_FUNCS#$#\n"
+        "#^#MASK_CHECKS#$#\n"
         ;
 
     util::GenReplacementMap repl = {
         {"INDICES", util::genStrListToString(indices, ",\n", ",")},
         {"ACCESS_FUNCS", util::genStrListToString(accesses, "\n", "")},
         {"MASKS", util::genStrListToString(masks, "\n", "\n")},
+        {"MASK_CHECKS", util::genStrListToString(maskChecks, "\n", "\n")},
     };
 
     return util::genProcessTemplate(Templ, repl);
