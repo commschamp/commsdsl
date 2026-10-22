@@ -1,0 +1,3 @@
+function test21_local.message_Msg3Fields_F1_readOrig(tvb, tree, offset, offset_limit, field)
+    return test21_local.message_Msg3Fields_F1_readOrig(tvb, tree, offset, offset_limit, field)
+end

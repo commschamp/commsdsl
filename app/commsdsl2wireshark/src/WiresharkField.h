@@ -162,14 +162,20 @@ private:
     struct WiresharkCustomCode
     {
         std::string m_read;
+        std::string m_extRead;
         std::string m_valid;
-        std::string m_name;
+        std::string m_extValid;
         std::string m_value;
+        std::string m_extValue;
+        std::string m_name;
 
         bool m_hasRead = false;
+        bool m_hasExtRead = false;
         bool m_hasValid = false;
-        bool m_hasName = false;
+        bool m_hasExtValid = false;
         bool m_hasValue = false;
+        bool m_hasExtValue = false;
+        bool m_hasName = false;
     };
 
     bool wiresharkCopyCodeFromInternal();
@@ -178,14 +184,20 @@ private:
         const std::string& name,
         WiresharkCustomCodeFunc codeFunc,
         std::string& code,
-        bool& hasCode);
+        bool& hasCode,
+        WiresharkCustomCodeFunc extCodeFunc = nullptr,
+        std::string* extCode = nullptr,
+        bool* hasExtCode = nullptr);
 
     std::string wiresharkNameDefInternal(const WiresharkField* refField) const;
     std::string wiresharkDissectBodyInternal(const WiresharkField* refField) const;
     std::string wiresharkCustomReadCodeInternal(bool& hasRealCode) const;
+    std::string wiresharkExtReadCodeInternal(bool& hasRealCode) const;
     std::string wiresharkCustomValidCodeInternal(bool& hasRealCode) const;
+    std::string wiresharkExtValidCodeInternal(bool& hasRealCode) const;
     std::string wiresharkCustomNameCodeInternal(bool& hasRealCode) const;
     std::string wiresharkCustomValueCodeInternal(bool& hasRealCode) const;
+    std::string wiresharkExtValueCodeInternal(bool& hasRealCode) const;
     std::string wiresharkDissectValidCheckInternal(const WiresharkField* refField) const;
     std::string wiresharkValidFuncCodeInternal(const WiresharkField* refField) const;
     std::string wiresharkValueFuncCodeInternal(const WiresharkField* refField) const;

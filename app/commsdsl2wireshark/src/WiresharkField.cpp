@@ -49,10 +49,15 @@ bool wiresharkIsOverrideCodeAllowedInternal(commsdsl::parse::ParseOverrideType v
     return (value != commsdsl::parse::ParseOverrideType_None);
 }
 
-bool wiresharkIsOverrideCodeRequiredInternal(commsdsl::parse::ParseOverrideType value)
+bool wiresharkIsReplaceCodeRequiredInternal(commsdsl::parse::ParseOverrideType value)
 {
     return
-        (value == commsdsl::parse::ParseOverrideType_Replace) ||
+        (value == commsdsl::parse::ParseOverrideType_Replace);
+}
+
+bool wiresharkIsExtendCodeRequiredInternal(commsdsl::parse::ParseOverrideType value)
+{
+    return
         (value == commsdsl::parse::ParseOverrideType_Extend);
 }
 
@@ -168,10 +173,39 @@ bool WiresharkField::wiresharkPrepare()
 
     auto& obj = m_genField.genParseObj();
     bool overrides =
-        wiresharkPrepareOverrideInternal(obj.parseReadOverride(), "read", &WiresharkField::wiresharkCustomReadCodeInternal, m_customCode.m_read, m_customCode.m_hasRead) &&
-        wiresharkPrepareOverrideInternal(obj.parseValidOverride(), "valid", &WiresharkField::wiresharkCustomValidCodeInternal, m_customCode.m_valid, m_customCode.m_hasValid) &&
-        wiresharkPrepareOverrideInternal(obj.parseNameOverride(), "name", &WiresharkField::wiresharkCustomNameCodeInternal, m_customCode.m_name, m_customCode.m_hasName) &&
-        wiresharkPrepareOverrideInternal(obj.parseValueOverride(), "value", &WiresharkField::wiresharkCustomValueCodeInternal, m_customCode.m_value, m_customCode.m_hasValue)
+        wiresharkPrepareOverrideInternal(
+            obj.parseReadOverride(),
+            "read",
+            &WiresharkField::wiresharkCustomReadCodeInternal,
+            m_customCode.m_read,
+            m_customCode.m_hasRead,
+            &WiresharkField::wiresharkExtReadCodeInternal,
+            &m_customCode.m_extRead,
+            &m_customCode.m_hasExtRead) &&
+        wiresharkPrepareOverrideInternal(
+            obj.parseValidOverride(),
+            "valid",
+            &WiresharkField::wiresharkCustomValidCodeInternal,
+            m_customCode.m_valid,
+            m_customCode.m_hasValid,
+            &WiresharkField::wiresharkExtValidCodeInternal,
+            &m_customCode.m_extValid,
+            &m_customCode.m_hasExtValid) &&
+        wiresharkPrepareOverrideInternal(
+            obj.parseValueOverride(),
+            "value",
+            &WiresharkField::wiresharkCustomValueCodeInternal,
+            m_customCode.m_value,
+            m_customCode.m_hasValue,
+            &WiresharkField::wiresharkExtValueCodeInternal,
+            &m_customCode.m_extValue,
+            &m_customCode.m_hasExtValue) &&
+        wiresharkPrepareOverrideInternal(
+            obj.parseNameOverride(),
+            "name",
+            &WiresharkField::wiresharkCustomNameCodeInternal,
+            m_customCode.m_name,
+            m_customCode.m_hasName)
         ;
 
     if (!overrides) {
@@ -859,6 +893,7 @@ std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refFi
         "    #^#REPLACE#$#\n"
         "    #^#BODY#$#\n"
         "end\n"
+        "\n"
         "#^#EXTEND#$#\n"
         ;
 
@@ -867,13 +902,12 @@ std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refFi
     auto prependFileName = relPath + strings::genPrependFileSuffixStr();
     auto extendFileName = relPath + strings::genExtendFileSuffixStr();
 
-    bool extended = false;
     util::GenReplacementMap repl = {
         {"REG", wiresharkFieldRegistration(refField)},
         {"NAME", wiresharkDissectName(refField)},
         {"REPLACE", m_customCode.m_read},
         {"PREPEND", wiresharkGenerator.genReadCodeInjectCode(prependFileName, "Prepend here")},
-        {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
+        {"EXTEND", m_customCode.m_extRead},
         {"NAME_VAR", wiresharkNameDefInternal(refField)},
         {"SIG", wiresharkDissectSignature()},
         {"VALID_FUNC", wiresharkValidFuncCodeInternal(refField)},
@@ -888,7 +922,7 @@ std::string WiresharkField::wiresharkDissectCodeImpl(const WiresharkField* refFi
         repl["BODY"] = wiresharkDissectBodyInternal(refField);
     }
 
-    if (extended) {
+    if (m_customCode.m_hasExtRead) {
         repl["SUFFIX"] = strings::genOrigSuffixStr();
     }
 
@@ -1090,6 +1124,7 @@ std::string WiresharkField::wiresharkValidFuncCodeImpl(const WiresharkField* ref
         "    #^#REPLACE#$#\n"
         "    #^#BODY#$#\n"
         "end\n"
+        "\n"
         "#^#EXTEND#$#\n"
         ;
 
@@ -1098,11 +1133,10 @@ std::string WiresharkField::wiresharkValidFuncCodeImpl(const WiresharkField* ref
     auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
     auto extendFileName = relPath + strings::genExtendFileSuffixStr();
 
-    bool extended = false;
     util::GenReplacementMap repl = {
         {"NAME", wiresharkValidFuncName(refField)},
         {"REPLACE", m_customCode.m_valid},
-        {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
+        {"EXTEND", m_customCode.m_extValid},
         {"FIELD", wiresharkFieldStr()},
     };
 
@@ -1110,7 +1144,7 @@ std::string WiresharkField::wiresharkValidFuncCodeImpl(const WiresharkField* ref
         repl["BODY"] = wiresharkValidFuncBodyImpl(refField);
     }
 
-    if (extended) {
+    if (m_customCode.m_hasExtValid) {
         repl["SUFFIX"] = strings::genOrigSuffixStr();
     }
 
@@ -1630,15 +1664,11 @@ bool WiresharkField::wiresharkPrepareOverrideInternal(
     const std::string& name,
     WiresharkCustomCodeFunc codeFunc,
     std::string& code,
-    bool& hasCode)
+    bool& hasCode,
+    WiresharkCustomCodeFunc extCodeFunc,
+    std::string* extCode,
+    bool* hasExtCode)
 {
-    if (wiresharkIsOverrideCodeRequiredInternal(type) && (!comms::genIsGlobalField(m_genField))) {
-        m_genField.genGenerator().genLogger().genError(
-            "Overriding \"" + name + "\" operation is not supported for non global fields, detected on \"" +
-            comms::genScopeFor(m_genField, m_genField.genGenerator()) + "\".");
-        return false;
-    }
-
     do {
         if (!wiresharkIsOverrideCodeAllowedInternal(type)) {
             code.clear();
@@ -1651,18 +1681,41 @@ bool WiresharkField::wiresharkPrepareOverrideInternal(
         if ((hasCodeTmp) || (!hasCode)) {
             code = std::move(customCode);
             hasCode = hasCode || hasCodeTmp;
+        }
+
+        if (extCodeFunc == nullptr) {
             break;
+        }
+
+        assert(extCode != nullptr);
+        assert(hasExtCode != nullptr);
+
+        bool hasExtCodeTmp = false;
+        auto customExtCode = (this->*extCodeFunc)(hasExtCodeTmp);
+        if ((hasExtCodeTmp) || (!*hasExtCode)) {
+            *extCode = std::move(customExtCode);
+            *hasExtCode = *hasExtCode || hasExtCodeTmp;
         }
 
     } while (false);
 
-    if ((!hasCode) && wiresharkIsOverrideCodeRequiredInternal(type)) {
-        auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    if ((!hasCode) && wiresharkIsReplaceCodeRequiredInternal(type)) {
         auto injectName = wiresharkGenerator.wiresharkInputRelPathFor(m_genField, '_' + name) + strings::genReplaceFileSuffixStr();
 
         wiresharkGenerator.genLogger().genError(
-            "Overriding \"" + name + "\" operation is not provided in injected code for field \"" +
-            m_genField.genParseObj().parseExternalRef() + "\". Use \"" + injectName + "\" to inject code.");
+            "Replacing \"" + name + "\" code for field \"" +
+            m_genField.genParseObj().parseInnerRef() + "\" is not provided. Use \"" + injectName + "\" to inject code.");
+
+        return false;
+    }
+
+    if (((hasExtCode == nullptr) || (!*hasExtCode)) && wiresharkIsExtendCodeRequiredInternal(type)) {
+        auto injectName = wiresharkGenerator.wiresharkInputRelPathFor(m_genField, '_' + name) + strings::genExtendFileSuffixStr();
+
+        wiresharkGenerator.genLogger().genError(
+            "Extending \"" + name + "\" code for field \"" +
+            m_genField.genParseObj().parseInnerRef() + "\" is not provided. Use \"" + injectName + "\" to inject code.");
 
         return false;
     }
@@ -1726,6 +1779,15 @@ std::string WiresharkField::wiresharkCustomReadCodeInternal(bool& hasRealCode) c
     return wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &hasRealCode);
 }
 
+std::string WiresharkField::wiresharkExtReadCodeInternal(bool& hasRealCode) const
+{
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    auto relPath = wiresharkGenerator.wiresharkInputDissectRelPathFor(m_genField);
+    auto extendFileName = relPath + strings::genExtendFileSuffixStr();
+    //m_genField.genGenerator().genLogger().genDebug("Looking for \"" + extendFileName + "\" to extend read functionality");
+    return wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &hasRealCode);
+}
+
 std::string WiresharkField::wiresharkCustomValidCodeInternal(bool& hasRealCode) const
 {
     auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
@@ -1733,6 +1795,15 @@ std::string WiresharkField::wiresharkCustomValidCodeInternal(bool& hasRealCode) 
     auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
     //m_genField.genGenerator().genLogger().genDebug("Looking for \"" + replaceFileName + "\" to replace valid functionality");
     return wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &hasRealCode);
+}
+
+std::string WiresharkField::wiresharkExtValidCodeInternal(bool& hasRealCode) const
+{
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    auto relPath = wiresharkGenerator.wiresharkInputRelPathFor(m_genField, strings::genValidSuffixStr());
+    auto extendFileName = relPath + strings::genExtendFileSuffixStr();
+    //m_genField.genGenerator().genLogger().genDebug("Looking for \"" + extendFileName + "\" to extend read functionality");
+    return wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &hasRealCode);
 }
 
 std::string WiresharkField::wiresharkCustomNameCodeInternal(bool& hasRealCode) const
@@ -1751,6 +1822,15 @@ std::string WiresharkField::wiresharkCustomValueCodeInternal(bool& hasRealCode) 
     auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
     //m_genField.genGenerator().genLogger().genDebug("Looking for \"" + replaceFileName + "\" to replace valid functionality");
     return wiresharkGenerator.genReadCodeInjectCode(replaceFileName, "Replace this function body", &hasRealCode);
+}
+
+std::string WiresharkField::wiresharkExtValueCodeInternal(bool& hasRealCode) const
+{
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    auto relPath = wiresharkGenerator.wiresharkInputRelPathFor(m_genField, strings::genValueSuffixStr());
+    auto extendFileName = relPath + strings::genExtendFileSuffixStr();
+    //m_genField.genGenerator().genLogger().genDebug("Looking for \"" + extendFileName + "\" to extend read functionality");
+    return wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &hasRealCode);
 }
 
 std::string WiresharkField::wiresharkDissectValidCheckInternal(const WiresharkField* refField) const
@@ -1786,11 +1866,10 @@ std::string WiresharkField::wiresharkValueFuncCodeInternal(const WiresharkField*
     auto replaceFileName = relPath + strings::genReplaceFileSuffixStr();
     auto extendFileName = relPath + strings::genExtendFileSuffixStr();
 
-    bool extended = false;
     util::GenReplacementMap repl = {
         {"NAME", wiresharkValueFuncName(refField)},
         {"REPLACE", m_customCode.m_value},
-        {"EXTEND", wiresharkGenerator.genReadCodeInjectCode(extendFileName, "Extend function above", &extended)},
+        {"EXTEND", m_customCode.m_extValue},
         {"FIELD", wiresharkFieldStr()},
     };
 
@@ -1798,7 +1877,7 @@ std::string WiresharkField::wiresharkValueFuncCodeInternal(const WiresharkField*
         repl["BODY"] = wiresharkValueFuncBodyImpl(refField);
     }
 
-    if (extended) {
+    if (m_customCode.m_hasExtValue) {
         repl["SUFFIX"] = strings::genOrigSuffixStr();
     }
 

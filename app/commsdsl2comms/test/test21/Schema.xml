@@ -4,6 +4,7 @@
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
+            <validValue name="M3" val="3" />
         </enum>
         <int name="I1" type="uint32" />
         <ref name="R1" field="I1" />
@@ -81,6 +82,10 @@
             <validValue name="V4" val="0x7fffffffffffffff" />
             <validValue name="V5" val="0xffffffffffffffff" />
         </enum>
+    </message>
+
+    <message name="Msg3" id="MsgId.M3" >
+        <int name="F1" type="uint16" readOverride="extend" />
     </message>
 
     <frame name="Frame">

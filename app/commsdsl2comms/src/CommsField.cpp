@@ -910,13 +910,6 @@ bool CommsField::commsPrepareOverrideInternal(
     std::string& code,
     bool& hasCode)
 {
-    if (commsIsOverrideCodeRequired(type) && (!comms::genIsGlobalField(m_genField))) {
-        m_genField.genGenerator().genLogger().genError(
-            "Overriding \"" + name + "\" operation is not supported for non global fields, detected on \"" +
-            comms::genScopeFor(m_genField, m_genField.genGenerator()) + "\".");
-        return false;
-    }
-
     do {
         if (!commsIsOverrideCodeAllowed(type)) {
             code.clear();
@@ -932,7 +925,7 @@ bool CommsField::commsPrepareOverrideInternal(
     if ((!hasCode) && commsIsOverrideCodeRequired(type)) {
         m_genField.genGenerator().genLogger().genError(
             "Overriding \"" + name + "\" operation is not provided in injected code for field \"" +
-            m_genField.genParseObj().parseExternalRef() + "\".");
+            m_genField.genParseObj().parseInnerRef() + "\".");
         return false;
     }
 
