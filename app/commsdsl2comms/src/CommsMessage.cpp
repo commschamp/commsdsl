@@ -1150,11 +1150,14 @@ std::string CommsMessage::commsDefPrivateInternal() const
     ;
 
     util::GenReplacementMap repl = {
-        {"CONSTRUCT", commsDefPrivateConstructInternal()},
         {"READS", util::genStrListToString(reads, "\n", "")},
         {"REFRESHES", util::genStrListToString(refreshes, "\n", "")},
         {"CUSTOM", m_customCode.m_private}
     };
+
+    if (hasPrivateConstruct) {
+        repl["CONSTRUCT"] = commsDefPrivateConstructInternal();
+    }
 
     return util::genProcessTemplate(Templ, repl);
 }
