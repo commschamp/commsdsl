@@ -60,6 +60,8 @@ protected:
     virtual bool genWriteImpl() const override;
 
 private:
+    bool cHasValidInterfaceInternal() const;
+
     CMsgId m_msgId;
     CMsgHandler m_msgHandler;
     CInputMessages m_input;

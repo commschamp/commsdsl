@@ -41,6 +41,17 @@ const std::string& TestGenerator::testFileGeneratedComment()
     return Str;
 }
 
+bool TestGenerator::genPrepareImpl()
+{
+    auto frames = genGetAllFramesFromAllSchemas();
+    if (frames.empty()) {
+        genLogger().genError("The commsdsl2test code generator supports only full protocol definition with frames and messages");
+        return false;
+    }
+
+    return true;
+}
+
 bool TestGenerator::genWriteImpl()
 {
     assert(&genCurrentSchema() == &genProtocolSchema());

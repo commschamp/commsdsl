@@ -1,0 +1,16 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test62/field/B1.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+};
+
+void TestSuite::test1()
+{
+    test62::field::B1<> field;
+    field.field_f1().setBits_M0();
+    field.field_f2().value() = 3;
+}

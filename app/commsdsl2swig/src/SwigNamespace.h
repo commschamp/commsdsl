@@ -69,6 +69,8 @@ protected:
 private:
     using SwigFieldsList = SwigField::SwigFieldsList;
 
+    bool swigHasValidInterfaceInternal() const;
+
     SwigFieldsList m_swigFields;
     SwigMsgId m_msgId;
     SwigMsgHandler m_handler;

@@ -27,6 +27,7 @@ public:
     static const std::string& testFileGeneratedComment();
 
 protected:
+    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() override;
 
 private:

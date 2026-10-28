@@ -68,7 +68,7 @@ void EmscriptenNamespace::emscriptenAddSourceFiles(GenStringsList& sources) cons
     emscriptenAddSourceFilesInternal<EmscriptenMessage>(genMessages(), sources);
     emscriptenAddSourceFilesInternal<EmscriptenFrame>(genFrames(), sources);
 
-    if (!genInterfaces().empty()) {
+    if (emscriptenHasValidInterfaceInternal()) {
         m_msgId.emscriptenAddSourceFiles(sources);
         m_handler.emscriptenAddSourceFiles(sources);
     }
@@ -112,11 +112,13 @@ void EmscriptenNamespace::emscriptenAddInputMessageIncludes(GenStringsList& incl
 
 std::string EmscriptenNamespace::emscriptenHandlerRelHeader() const
 {
+    assert(emscriptenHasValidInterfaceInternal());
     return m_handler.emscriptenRelHeader();
 }
 
 std::string EmscriptenNamespace::emscriptenHandlerClassName() const
 {
+    assert(emscriptenHasValidInterfaceInternal());
     return m_handler.emscriptenClassName();
 }
 
@@ -149,7 +151,7 @@ const EmscriptenInterface* EmscriptenNamespace::emscriptenInterface() const
 
 bool EmscriptenNamespace::genWriteImpl() const
 {
-    if (!genInterfaces().empty()) {
+    if (emscriptenHasValidInterfaceInternal()) {
         if ((!m_msgId.emscriptenWrite()) ||
             (!m_handler.emscriptenWrite())) {
             return false;
@@ -163,6 +165,18 @@ bool EmscriptenNamespace::genWriteImpl() const
     }
 
     return true;
+}
+
+bool EmscriptenNamespace::emscriptenHasValidInterfaceInternal() const
+{
+    auto* iFace = emscriptenInterface();
+    if ((iFace == nullptr) || (!iFace->emscriptenIsPresent())) {
+        return false;
+    }
+
+    auto* parent = iFace->genGetParent();
+    auto* iFaceNs = emscriptenCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
+    return iFaceNs == this;
 }
 
 } // namespace commsdsl2emscripten

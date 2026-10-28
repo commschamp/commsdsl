@@ -177,6 +177,17 @@ WiresharkGenerator::GenFieldPtr WiresharkGenerator::genCreateVariantFieldImpl(Pa
     return std::make_unique<WiresharkVariantField>(*this, parseObj, parent);
 }
 
+bool WiresharkGenerator::genPrepareImpl()
+{
+    auto frames = genGetAllFramesFromAllSchemas();
+    if (frames.empty()) {
+        genLogger().genError("The commsdsl2wiresh code generator supports only full protocol definition with frames and messages");
+        return false;
+    }
+
+    return true;
+}
+
 bool WiresharkGenerator::genWriteImpl()
 {
     assert(&genCurrentSchema() == &genProtocolSchema());

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test62" endian="big" displayName="Binary Encoding Test">
+    <description>
+        Testing encoding / decoding without framing.
+    </description>
+    <fields>
+        <set name="S1" length="1">
+            <bit name="B0" idx="0" />
+            <bit name="B1" idx="1" />
+            <mask name="M0" bits="B0 | B1" />
+        </set>
+
+        <bundle name="B1" forceGen="true">
+            <ref field="S1" name="F1" />
+            <int type="uint16" name="F2" />
+        </bundle>
+    </fields>
+</schema>

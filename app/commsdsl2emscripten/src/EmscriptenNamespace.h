@@ -65,6 +65,8 @@ protected:
     virtual bool genWriteImpl() const override;
 
 private:
+    bool emscriptenHasValidInterfaceInternal() const;
+
     EmscriptenMsgId m_msgId;
     EmscriptenMsgHandler m_handler;
     EmscriptenInputMessages m_input;

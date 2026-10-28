@@ -51,6 +51,8 @@ public:
 
     const CommsField* commsFindValidReferencedField(const std::string& refStr) const;
 
+    bool commsIsPresent() const;
+
 protected:
     virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;

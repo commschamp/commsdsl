@@ -248,6 +248,10 @@ bool CommsDefaultOptions::commsWriteDefaultOptionsInternal() const
 
 bool CommsDefaultOptions::commsWriteClientDefaultOptionsInternal() const
 {
+    if (!m_commsGenerator.genHasAnyReferencedMessageAllSchemas()) {
+        return true;
+    }
+
     util::GenReplacementMap repl = commsExtInitialRepl(m_commsGenerator);
     auto name = "Client" + strings::genDefaultOptionsClassStr();
     bool classExtended = false;
@@ -269,6 +273,10 @@ bool CommsDefaultOptions::commsWriteClientDefaultOptionsInternal() const
 
 bool CommsDefaultOptions::commsWriteServerDefaultOptionsInternal() const
 {
+    if (!m_commsGenerator.genHasAnyReferencedMessageAllSchemas()) {
+        return true;
+    }
+
     util::GenReplacementMap repl = commsExtInitialRepl(m_commsGenerator);
     auto name = "Server" + strings::genDefaultOptionsClassStr();
     bool classExtended = false;
@@ -341,6 +349,10 @@ bool CommsDefaultOptions::commsWriteBareMetalDefaultOptionsInternal() const
 bool CommsDefaultOptions::commsWriteMsgFactoryDefaultOptionsInternal() const
 {
     if (!m_commsGenerator.genIsCurrentProtocolSchema()) {
+        return true;
+    }
+
+    if (!m_commsGenerator.genHasAnyReferencedMessage()) {
         return true;
     }
 

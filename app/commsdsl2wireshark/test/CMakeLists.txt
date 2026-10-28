@@ -18,11 +18,15 @@ if (NOT TSHARK_EXECUTABLE)
 endif ()
 
 foreach (name ${tests})
+    set (this_test_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}")
+    if (EXISTS ${this_test_dir}/commsdsl2wireshark.disabled.txt)
+        continue ()
+    endif ()
+
     set (test_dir "${tests_path}/${name}")
     file (GLOB schema_files ${test_dir}/Schema*.xml)
     set (output_dir ${CMAKE_CURRENT_BINARY_DIR}/${name})
 
-    set (this_test_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}")
     set (code_input_dir "${this_test_dir}/src")
     set (code_input_param)
     if (EXISTS "${code_input_dir}/")

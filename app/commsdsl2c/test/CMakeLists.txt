@@ -53,11 +53,11 @@ find_package (Doxygen)
 foreach (name ${tests})
     set (this_test_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}")
 
-    if (EXISTS ${this_test_dir}/disabled.txt)
+    if (EXISTS ${this_test_dir}/commsdsl2c.disabled.txt)
         continue ()
     endif ()
 
-    if (WIN32 AND (EXISTS ${this_test_dir}/win_disabled.txt))
+    if (WIN32 AND (EXISTS ${this_test_dir}/commsdsl2c.win_disabled.txt))
         continue ()
     endif ()
 

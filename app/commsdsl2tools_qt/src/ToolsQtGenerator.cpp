@@ -219,6 +219,10 @@ bool ToolsQtGenerator::genPrepareImpl()
 
         if (info.m_frame.empty()) {
             auto allFrames = genGetAllFrames();
+            if (allFrames.empty()) {
+                genLogger().genError("The commsdsl2tools_qt code generator supports only full protocol definition with frames and messages");
+                return false;
+            }
             assert(!allFrames.empty());
             info.m_frame = allFrames.front()->genParseObj().parseExternalRef();
         }

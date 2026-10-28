@@ -142,6 +142,11 @@ const CommsField* CommsInterface::commsFindValidReferencedField(const std::strin
     return nullptr;
 }
 
+bool CommsInterface::commsIsPresent() const
+{
+    return genParseObj().parseValid() || genGenerator().genHasAnyReferencedMessage();
+}
+
 bool CommsInterface::genPrepareImpl()
 {
     if (!GenBase::genPrepareImpl()) {
@@ -184,6 +189,11 @@ bool CommsInterface::genPrepareImpl()
 
 bool CommsInterface::genWriteImpl() const
 {
+    if (!commsIsPresent()) {
+        // Default interface without messages.
+        return true;
+    }
+
     return
         commsWriteCommonInternal() &&
         commsWriteDefInternal();

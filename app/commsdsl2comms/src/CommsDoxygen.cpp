@@ -17,6 +17,7 @@
 #include "CommsDoxygen.h"
 
 #include "CommsGenerator.h"
+#include "CommsInterface.h"
 #include "CommsSchema.h"
 
 #include "commsdsl/gen/comms.h"
@@ -396,7 +397,7 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
 
     util::GenReplacementMap repl = {
         {"SCHEMAS", util::genStrListToString(elems, "", "")},
-        {"APPEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForDoc(FileName) + strings::genAppendFileSuffixStr(), "Append here")},
+        {"APPEND", m_commsGenerator.genReadDoxygenInjectCode(comms::genInputCodeRelPathForDoc(FileName) + strings::genAppendFileSuffixStr(), "Append here")},
     };
 
     return commsWriteFileInternal(FileName, util::genProcessTemplate(Templ, repl, true), m_commsGenerator);
@@ -446,7 +447,7 @@ bool CommsDoxygen::commsWriteMainpageInternal() const
         {"DISPATCH_DOC", commsDispatchDocInternal()},
         {"CUSTOMIZE_DOC", commsCustomizeDocInternal()},
         {"VERSION_DOC", commsVersionDocInternal()},
-        {"APPEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForDoc(FileName) + strings::genAppendFileSuffixStr(), "Append here")},
+        {"APPEND", m_commsGenerator.genReadDoxygenInjectCode(comms::genInputCodeRelPathForDoc(FileName) + strings::genAppendFileSuffixStr(), "Append here")},
         {"TITLE", m_commsGenerator.genCurrentSchema().genParseObj().parseDisplayName()},
         {"DESC", std::move(desc)},
     };
@@ -463,6 +464,10 @@ std::string CommsDoxygen::commsMessagesDocInternal() const
     auto nsList = m_commsGenerator.genGetAllNamespaces();
     util::GenStringsList elems;
     for (auto* n : nsList) {
+        if (!n->genHasAnyReferencedMessage()) {
+            continue;
+        }
+
         static const std::string Templ =
             "/// @li @ref #^#SCOPE#$#::#^#SUFFIX#$# (defined in @b #^#PATH#$#/#^#SUFFIX#$#  directory)";
 
@@ -473,6 +478,10 @@ std::string CommsDoxygen::commsMessagesDocInternal() const
         };
 
         elems.push_back(util::genProcessTemplate(Templ, repl));
+    }
+
+    if (elems.empty()) {
+        return strings::genEmptyString();
     }
 
     const std::string Templ =
@@ -526,9 +535,17 @@ std::string CommsDoxygen::commsInterfaceDocInternal() const
 
     util::GenStringsList list;
     for (auto* i : interfaces) {
+        if (!CommsInterface::commsCast(i)->commsIsPresent()) {
+            continue;
+        }
+
         list.push_back(
             "/// @li @ref " + comms::genScopeFor(*i, m_commsGenerator) +
             " (defined in @b " + comms::genRelHeaderPathFor(*i, m_commsGenerator) + " header file).");
+    }
+
+    if (list.empty()) {
+        return strings::genEmptyString();
     }
 
     static const std::string Templ =
@@ -545,6 +562,11 @@ std::string CommsDoxygen::commsInterfaceDocInternal() const
 
 std::string CommsDoxygen::commsFrameDocInternal() const
 {
+    auto frames = m_commsGenerator.genGetAllFrames();
+    if (frames.empty()) {
+        return strings::genEmptyString();
+    }
+
     const std::string Templ =
         "/// @section main_frames Frame Classes\n"
         "/// The available frame classes are:\n"
@@ -565,9 +587,6 @@ std::string CommsDoxygen::commsFrameDocInternal() const
         "/// The available bundles of input messages are:\n"
         "#^#MESSAGES_LIST#$#\n"
         "///";
-
-    auto frames = m_commsGenerator.genGetAllFrames();
-    assert(!frames.empty());
 
     util::GenStringsList list;
     for (auto* f : frames) {
@@ -634,6 +653,10 @@ std::string CommsDoxygen::commsFrameDocInternal() const
 
 std::string CommsDoxygen::commsDispatchDocInternal() const
 {
+    if (!m_commsGenerator.genHasAnyReferencedMessageAllSchemas()) {
+        return strings::genEmptyString();
+    }
+
     const std::string Templ =
         "/// @section main_dispatch Dispatching Message Objects\n"
         "/// While the @b COMMS library provides various built-in ways of \n"
@@ -735,6 +758,33 @@ std::string CommsDoxygen::commsCustomizeDocInternal() const
         "/// @b NOTE, that inner scope of structs in the #^#OPTIONS#$#\n"
         "/// resembles scope of namespaces used in protocol definition.\n"
         "///\n"
+        "#^#INTERFACE_DOC#$#\n"
+        "/// Also there is @ref #^#BARE_METAL_OPTIONS#$#\n"
+        "/// (defined in @b #^#BARE_METAL_OPTIONS_HDR#$# file) which can help in defining\n"
+        "/// options for bare-metal applications. It exclude all usage of dynamic memory allocation.\n"
+        "///\n"
+        "/// In case non-custom &lt;id&gt; frame layer has been used in schema (files), custom,\n"
+        "/// application-specific allocation options to it may include\n"
+        "/// @b comms::option::app::InPlaceAllocation and/or @b comms::option::app::SupportGenericMessage.\n"
+        "/// Please see the documentation of the @b COMMS library itself for more details.\n"
+        "///\n"
+        "/// In many cases the input buffer is sequential (not circular), where the end of message payload\n"
+        "/// never precedes its beginning and the processing is implemented in a way where message objects\n"
+        "/// never outlive the input buffer. In such scenarios it could be a waste of memory / CPU cycles to\n"
+        "/// copy bytes from the input buffer to internal storage of the fields like &lt;string&gt;\n"
+        "/// (@b comms::field::String) and/or &lt;data&gt; (@b comms::field::ArrayList of raw bytes).\n"
+        "/// The generated code also provides #^#DATA_VIEW_OPTIONS#$# (defined in\n"
+        "/// @b #^#DATA_VIEW_OPTIONS_HDR#$# file) where relevant fields apply @b comms::option::app::OrigDataView\n"
+        "/// option.\n"
+        "///\n"
+        "/// Also note that the specified extension options are implemented as the following template classes\n"
+        "/// which receive other options as their base class and apply relevant changes on top.\n"
+        "/// @li @ref #^#BARE_METAL_OPTIONS#$#T\n"
+        "/// @li @ref #^#DATA_VIEW_OPTIONS#$#T\n"
+        "#^#MSG_OPTS#$#\n"
+        ;
+
+    const std::string InterfaceTempl =
         "/// The @b COMMS library also provides a flexible way to configure polymorphic\n"
         "/// interface for the message classes. If the defined protocol has multiple\n"
         "/// uni-directional messages (marked using @b sender property in the schema),\n"
@@ -773,30 +823,11 @@ std::string CommsDoxygen::commsCustomizeDocInternal() const
         "/// going to be used. Consider using this structs as options instead of default\n"
         "/// #^#OPTIONS#$#.\n"
         "///\n"
-        "/// Also there is @ref #^#BARE_METAL_OPTIONS#$#\n"
-        "/// (defined in @b #^#BARE_METAL_OPTIONS_HDR#$# file) which can help in defining\n"
-        "/// options for bare-metal applications. It exclude all usage of dynamic memory allocation.\n"
-        "///\n"
-        "/// In case non-custom &lt;id&gt; layer has been used in schema (files), custom,\n"
-        "/// application-specific allocation options to it may include\n"
-        "/// @b comms::option::app::InPlaceAllocation and/or @b comms::option::app::SupportGenericMessage.\n"
-        "/// Please see the documentation of the @b COMMS library itself for more details.\n"
-        "///\n"
-        "/// In many cases the input buffer is sequential (not circular), where the end of message payload\n"
-        "/// never precedes its beginning and the processing is implemented in a way where message objects\n"
-        "/// never outlive the input buffer. In such scenarios it could be a waste of memory / CPU cycles to\n"
-        "/// copy bytes from the input buffer to internal storage of the fields like &lt;string&gt;\n"
-        "/// (@b comms::field::String) and/or &lt;data&gt; (@b comms::field::ArrayList of raw bytes).\n"
-        "/// The generated code also provides #^#DATA_VIEW_OPTIONS#$# (defined in\n"
-        "/// @b #^#DATA_VIEW_OPTIONS_HDR#$# file) where relevant fields apply @b comms::option::app::OrigDataView\n"
-        "/// option.\n"
-        "///\n"
-        "/// Also note that the specified extension options are implemented as the following template classes\n"
-        "/// which receive other options as their base class and apply relevant changes on top.\n"
+        ;
+
+    const std::string MsgOptsTempl =
         "/// @li @ref #^#CLIENT_OPTIONS#$#T\n"
         "/// @li @ref #^#SERVER_OPTIONS#$#T\n"
-        "/// @li @ref #^#BARE_METAL_OPTIONS#$#T\n"
-        "/// @li @ref #^#DATA_VIEW_OPTIONS#$#T\n"
         "///\n"
         "/// As the result it is possible to combine them. For example:\n"
         "/// @code\n"
@@ -810,8 +841,15 @@ std::string CommsDoxygen::commsCustomizeDocInternal() const
     auto allInterfaces = m_commsGenerator.genGetAllInterfaces();
     assert(!allInterfaces.empty());
 
+    auto interfaceIter =
+        std::find_if(
+            allInterfaces.begin(), allInterfaces.end(),
+            [](const auto* iFace)
+            {
+                return CommsInterface::commsCast(iFace)->commsIsPresent();
+            });
+
     util::GenReplacementMap repl = {
-        {"INTERFACE", comms::genScopeFor(*allInterfaces.front(), m_commsGenerator)},
         {"PROT_NAMESPACE", m_commsGenerator.genCurrentSchema().genMainNamespace()},
         {"OPTIONS", comms::genScopeForOptions(strings::genDefaultOptionsStr(), m_commsGenerator)},
         {"CLIENT_OPTIONS", comms::genScopeForOptions("Client" + strings::genDefaultOptionsStr(), m_commsGenerator)},
@@ -824,6 +862,12 @@ std::string CommsDoxygen::commsCustomizeDocInternal() const
         {"DATA_VIEW_OPTIONS", comms::genScopeForOptions(strings::genDataViewStr() + strings::genDefaultOptionsStr(), m_commsGenerator)},
         {"DATA_VIEW_OPTIONS_HDR", comms::genRelHeaderForOptions(strings::genDataViewStr() + strings::genDefaultOptionsStr(), m_commsGenerator)},
     };
+
+    if (interfaceIter != allInterfaces.end()) {
+        repl["INTERFACE"] = comms::genScopeFor(**interfaceIter, m_commsGenerator);
+        repl["INTERFACE_DOC"] = util::genProcessTemplate(InterfaceTempl, repl);
+        repl["MSG_OPTS"] = util::genProcessTemplate(MsgOptsTempl, repl);
+    }
 
     return util::genProcessTemplate(Templ, repl);
 }

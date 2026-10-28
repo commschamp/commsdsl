@@ -46,6 +46,8 @@ public:
     std::string emscriptenRelHeader() const;
     void emscriptenAddSourceFiles(GenStringsList& sources) const;
 
+    bool emscriptenIsPresent() const;
+
 protected:
     virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;

@@ -85,7 +85,7 @@ void CNamespace::cAddSourceFiles(GenStringsList& sources) const
     auto* iFace = cInterface();
     iFace->cAddSourceFiles(sources);
 
-    if (!genInterfaces().empty()) {
+    if (cHasValidInterfaceInternal()) {
         m_msgHandler.cAddSourceFiles(sources);
     }
 }
@@ -93,7 +93,7 @@ void CNamespace::cAddSourceFiles(GenStringsList& sources) const
 bool CNamespace::cCodeGenerationAllowed() const
 {
     auto* iFace = cInterface();
-    return iFace != nullptr;
+    return (iFace != nullptr) && (iFace->cIsPresent());
 }
 
 std::string CNamespace::cPrefixName() const
@@ -119,6 +119,10 @@ const CMsgId* CNamespace::cMsgId() const
         return iFaceNs->cMsgId();
     }
 
+    if (!iFace->cIsPresent()) {
+        return nullptr;
+    }
+
     return &m_msgId;
 }
 
@@ -133,6 +137,10 @@ const CMsgHandler* CNamespace::cMsgHandler() const
     auto* iFaceNs = cCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
     if (iFaceNs != this) {
         return iFaceNs->cMsgHandler();
+    }
+
+    if (!iFace->cIsPresent()) {
+        return nullptr;
     }
 
     return &m_msgHandler;
@@ -160,13 +168,25 @@ bool CNamespace::genWriteImpl() const
 
     auto* parent = iFace->genGetParent();
     auto* iFaceNs = cCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
-    if (iFaceNs != this) {
+    if ((iFaceNs != this) || (!iFace->cIsPresent())) {
         return true;
     }
 
     return
         m_msgId.cWrite() &&
         m_msgHandler.cWrite();
+}
+
+bool CNamespace::cHasValidInterfaceInternal() const
+{
+    auto* iFace = cInterface();
+    if ((iFace == nullptr) || (!iFace->cIsPresent())) {
+        return false;
+    }
+
+    auto* parent = iFace->genGetParent();
+    auto* iFaceNs = cCast(static_cast<const commsdsl::gen::GenNamespace*>(parent));
+    return iFaceNs == this;
 }
 
 } // namespace commsdsl2c

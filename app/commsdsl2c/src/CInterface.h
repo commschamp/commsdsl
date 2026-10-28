@@ -59,6 +59,8 @@ public:
     const CMsgId* cMsgId() const;
     const CMsgHandler* cMsgHandler() const;
 
+    bool cIsPresent() const;
+
 protected:
     virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() const override;

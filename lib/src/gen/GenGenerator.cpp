@@ -988,6 +988,22 @@ GenGenerator::GenFieldsAccessList GenGenerator::genGetAllFields() const
     return genCurrentSchema().genGetAllFields();
 }
 
+bool GenGenerator::genHasAnyReferencedMessage() const
+{
+    return genCurrentSchema().genHasAnyReferencedMessage();
+}
+
+bool GenGenerator::genHasAnyReferencedMessageAllSchemas() const
+{
+    return
+        std::any_of(
+            genSchemas().begin(), genSchemas().end(),
+            [](auto& sPtr)
+            {
+                return sPtr->genHasAnyReferencedMessage();
+            });
+}
+
 GenGenerator::GenNamespacesAccessList GenGenerator::genGetAllNamespacesFromAllSchemas() const
 {
     GenNamespacesAccessList result;
@@ -1458,6 +1474,14 @@ std::string GenGenerator::genReadScriptCodeInjectCode(
     bool* realCodeInjected) const
 {
     return genReadCodeInjectCode(relPath, comment, realCodeInjected, "# ");
+}
+
+std::string GenGenerator::genReadDoxygenInjectCode(
+    const std::string& relPath,
+    const std::string& comment,
+    bool* realCodeInjected) const
+{
+    return genReadCodeInjectCode(relPath, comment, realCodeInjected, "/// ");
 }
 
 bool GenGenerator::genCreateCompleteImpl()

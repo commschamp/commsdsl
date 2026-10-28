@@ -45,12 +45,20 @@ CInterface::~CInterface() = default;
 
 std::string CInterface::cRelHeader() const
 {
+    if (!cIsPresent()) {
+        return strings::genEmptyString();
+    }
+
     auto& cGenerator = CGenerator::cCast(genGenerator());
     return cGenerator.cRelHeaderFor(*this);
 }
 
 std::string CInterface::cRelCommsHeader() const
 {
+    if (!cIsPresent()) {
+        return strings::genEmptyString();
+    }
+
     auto& cGenerator = CGenerator::cCast(genGenerator());
     return cGenerator.cRelCommsHeaderFor(*this);
 }
@@ -75,7 +83,7 @@ bool CInterface::cCodeGenerationAllowed() const
 {
     auto* parentNs = CNamespace::cCast(genParentNamespace());
     assert(parentNs);
-    return this == parentNs->cInterface();
+    return (this == parentNs->cInterface()) && cIsPresent();
 }
 
 std::string CInterface::cName() const
@@ -105,6 +113,11 @@ const CMsgHandler* CInterface::cMsgHandler() const
     auto* handler = parentNs->cMsgHandler();
     assert(handler != nullptr);
     return handler;
+}
+
+bool CInterface::cIsPresent() const
+{
+    return genParseObj().parseValid() || genGenerator().genHasAnyReferencedMessage();
 }
 
 bool CInterface::genPrepareImpl()

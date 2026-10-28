@@ -85,7 +85,10 @@ void SwigProtocolOptions::swigAddCodeIncludes(SwigGenerator& generator, GenStrin
 
     assert(generator.genIsCurrentProtocolSchema());
 
-    list.push_back(comms::genRelHeaderForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator));
+    if (generator.genHasAnyReferencedMessageAllSchemas()) {
+        list.push_back(comms::genRelHeaderForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator));
+    }
+
     auto& schemas = generator.genSchemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
         generator.genChooseCurrentSchema(idx);
@@ -112,6 +115,14 @@ void SwigProtocolOptions::swigAddCode(const SwigGenerator& generator, GenStrings
         "        #^#CODE#$#\n"
         "    >;\n\n";
 
+    auto* templ = &Templ;
+    if (!generator.genHasAnyReferencedMessageAllSchemas()) {
+        static const std::string NoMsgTempl =
+        "using #^#OPT_TYPE#$# =\n"
+        "    #^#CODE#$#;\n\n";
+        templ = &NoMsgTempl;
+    }
+
     auto msgFactOptions = comms::genScopeForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator);
     util::GenReplacementMap repl = {
         {"OPT_TYPE", swigClassName(generator)},
@@ -120,7 +131,7 @@ void SwigProtocolOptions::swigAddCode(const SwigGenerator& generator, GenStrings
     };
 
     generator.genChooseProtocolSchema();
-    list.push_back(util::genProcessTemplate(Templ, repl));
+    list.push_back(util::genProcessTemplate(*templ, repl));
 }
 
 std::string SwigProtocolOptions::swigClassName(const SwigGenerator& generator)

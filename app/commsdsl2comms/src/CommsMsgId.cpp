@@ -45,6 +45,11 @@ CommsMsgId::CommsMsgId(CommsGenerator& generator, const CommsNamespace& parent) 
 
 bool CommsMsgId::commsWrite() const
 {
+    auto ids = commsIdsInternal();
+    if (ids.empty()) {
+        return true;
+    }
+
     auto filePath = comms::genHeaderPathForMsgId(strings::genMsgIdEnumNameStr(), m_commsGenerator, m_parent);
 
     m_commsGenerator.genLogger().genInfo("Generating " + filePath);
@@ -81,7 +86,7 @@ bool CommsMsgId::commsWrite() const
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", m_commsGenerator.genCurrentSchema().genMainNamespace()},
         {"TYPE", commsTypeInternal()},
-        {"IDS", commsIdsInternal()},
+        {"IDS", std::move(ids)},
         {"NS_BEGIN", comms::genNamespaceBeginFor(m_parent, m_commsGenerator)},
         {"NS_END", comms::genNamespaceEndFor(m_parent, m_commsGenerator)},
     };

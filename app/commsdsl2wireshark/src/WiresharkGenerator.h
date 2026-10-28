@@ -98,6 +98,7 @@ protected:
     virtual GenFieldPtr genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent) override;
     virtual GenFieldPtr genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent) override;
 
+    virtual bool genPrepareImpl() override;
     virtual bool genWriteImpl() override;
     virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
     virtual const std::string& genCommentPrefixImpl() const override;

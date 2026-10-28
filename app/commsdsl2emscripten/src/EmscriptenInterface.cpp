@@ -44,6 +44,10 @@ EmscriptenInterface::~EmscriptenInterface() = default;
 
 std::string EmscriptenInterface::emscriptenRelHeader() const
 {
+    if (!emscriptenIsPresent()) {
+        return strings::genEmptyString();
+    }
+
     auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
     return gen.emscriptenRelHeaderFor(*this);
 }
@@ -54,8 +58,17 @@ void EmscriptenInterface::emscriptenAddSourceFiles(GenStringsList& sources) cons
         return;
     }
 
+    if (!emscriptenIsPresent()) {
+        return;
+    }
+
     auto& gen = EmscriptenGenerator::emscriptenCast(genGenerator());
     sources.push_back(gen.emscriptenRelSourceFor(*this));
+}
+
+bool EmscriptenInterface::emscriptenIsPresent() const
+{
+    return genParseObj().parseValid() || genGenerator().genHasAnyReferencedMessage();
 }
 
 bool EmscriptenInterface::genPrepareImpl()
@@ -72,6 +85,10 @@ bool EmscriptenInterface::genPrepareImpl()
 
 bool EmscriptenInterface::genWriteImpl() const
 {
+    if (!emscriptenIsPresent()) {
+        return true;
+    }
+
     assert(genIsReferenced());
     return
         emscriptenWriteHeaderInternal() &&

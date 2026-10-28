@@ -166,6 +166,14 @@ std::string EmscriptenProtocolOptions::emscriptenTypeDefInternal()
         "        #^#CODE#$#\n"
         "    >;\n\n";
 
+    auto* templ = &Templ;
+    if (!m_emscriptenGenerator.genHasAnyReferencedMessageAllSchemas()) {
+        static const std::string NoMsgTempl =
+        "using #^#OPT_TYPE#$# =\n"
+        "    #^#CODE#$#;\n\n";
+        templ = &NoMsgTempl;
+    }
+
     auto msgFactOptions = comms::genScopeForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_emscriptenGenerator);
     util::GenReplacementMap repl = {
         {"OPT_TYPE", emscriptenClassName(m_emscriptenGenerator)},
@@ -174,7 +182,7 @@ std::string EmscriptenProtocolOptions::emscriptenTypeDefInternal()
     };
 
     m_emscriptenGenerator.genChooseProtocolSchema();
-    return util::genProcessTemplate(Templ, repl);
+    return util::genProcessTemplate(*templ, repl);
 }
 
 std::string EmscriptenProtocolOptions::emscriptenIncludesInternal()
@@ -182,7 +190,9 @@ std::string EmscriptenProtocolOptions::emscriptenIncludesInternal()
     assert(m_emscriptenGenerator.genIsCurrentProtocolSchema());
 
     util::GenStringsList list;
-    list.push_back(comms::genRelHeaderForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_emscriptenGenerator));
+    if (m_emscriptenGenerator.genHasAnyReferencedMessageAllSchemas()) {
+        list.push_back(comms::genRelHeaderForOptions(strings::genAllMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_emscriptenGenerator));
+    }
     auto& schemas = m_emscriptenGenerator.genSchemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
         m_emscriptenGenerator.genChooseCurrentSchema(idx);

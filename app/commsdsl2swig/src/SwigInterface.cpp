@@ -46,6 +46,10 @@ SwigInterface::~SwigInterface() = default;
 
 void SwigInterface::swigAddCodeIncludes(GenStringsList& list) const
 {
+    if (!swigIsPresent()) {
+        return;
+    }
+
     if (!genIsReferenced()) {
         return;
     }
@@ -60,6 +64,10 @@ void SwigInterface::swigAddCode(GenStringsList& list) const
     }
 
     m_codeAdded = true;
+
+    if (!swigIsPresent()) {
+        return;
+    }
 
     if (!genIsReferenced()) {
         return;
@@ -162,6 +170,10 @@ void SwigInterface::swigAddDef(GenStringsList& list) const
 
     m_defAdded = true;
 
+    if (!swigIsPresent()) {
+        return;
+    }
+
     if (!genIsReferenced()) {
         return;
     }
@@ -173,6 +185,11 @@ void SwigInterface::swigAddDef(GenStringsList& list) const
     auto& gen = SwigGenerator::swigCast(genGenerator());
     list.push_back("%nodefaultctor " + gen.swigClassName(*this) + ";");
     list.push_back(SwigGenerator::swigDefInclude(comms::genRelHeaderPathFor(*this, genGenerator())));
+}
+
+bool SwigInterface::swigIsPresent() const
+{
+    return genParseObj().parseValid() || genGenerator().genHasAnyReferencedMessage();
 }
 
 bool SwigInterface::genPrepareImpl()
@@ -189,6 +206,10 @@ bool SwigInterface::genPrepareImpl()
 
 bool SwigInterface::genWriteImpl() const
 {
+    if (!swigIsPresent()) {
+        return true;
+    }
+
     assert(genIsReferenced());
 
     auto filePath = comms::genHeaderPathFor(*this, genGenerator());

@@ -42,6 +42,8 @@ public:
     void swigAddCode(GenStringsList& list) const;
     void swigAddDef(GenStringsList& list) const;
 
+    bool swigIsPresent() const;
+
     static const SwigInterface* swigCast(const commsdsl::gen::GenInterface* obj)
     {
         return static_cast<const SwigInterface*>(obj);

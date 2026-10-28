@@ -86,7 +86,7 @@ bool CMsgId::cWrite() const
     util::GenReplacementMap repl = {
         {"GENERATED", CGenerator::cFileGeneratedComment()},
         {"IDS", cIdsInternal()},
-        {"CPP_GUARD_BEGIN", CGenerator::cCppGuardBegin()},
+        {"CPP_GUARD_BEGIN", CGenerator::cCppGuardBegin(false)},
         {"CPP_GUARD_END", CGenerator::cCppGuardEnd()},
         {"NAME", cName()},
     };

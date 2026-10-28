@@ -131,6 +131,8 @@ public:
     GenMessagesAccessList genGetAllMessagesIdSorted() const;
     GenFramesAccessList genGetAllFrames() const;
     GenFieldsAccessList genGetAllFields() const;
+    bool genHasAnyReferencedMessage() const;
+    bool genHasAnyReferencedMessageAllSchemas() const;
 
     GenNamespacesAccessList genGetAllNamespacesFromAllSchemas() const;
     GenInterfacesAccessList genGetAllInterfacesFromAllSchemas() const;
@@ -213,6 +215,11 @@ public:
         const std::string& forcedCommentPrefix = std::string()) const;
 
     [[nodiscard]] std::string genReadScriptCodeInjectCode(
+        const std::string& relPath,
+        const std::string& comment,
+        bool* realCodeInjected = nullptr) const;
+
+    [[nodiscard]] std::string genReadDoxygenInjectCode(
         const std::string& relPath,
         const std::string& comment,
         bool* realCodeInjected = nullptr) const;

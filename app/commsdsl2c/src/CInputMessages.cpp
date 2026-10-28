@@ -51,16 +51,25 @@ CInputMessages::CInputMessages(CGenerator& generator, const CNamespace& parent) 
 
 std::string CInputMessages::cRelHeader() const
 {
+    if (!m_cGenerator.genHasAnyReferencedMessageAllSchemas()) {
+        return strings::genEmptyString();
+    }
+
     return m_cGenerator.cRelHeaderForInput(CName, m_parent);
 }
 
 std::string CInputMessages::cName() const
 {
+    assert(m_cGenerator.genHasAnyReferencedMessageAllSchemas());
     return m_parent.cPrefixName() + "_input_" + CName;
 }
 
 bool CInputMessages::cWrite() const
 {
+    if (!m_cGenerator.genHasAnyReferencedMessageAllSchemas()) {
+        return true;
+    }
+
     auto filePath = m_cGenerator.cAbsHeaderForInput(CName, m_parent);
 
     m_cGenerator.genLogger().genInfo("Generating " + filePath);

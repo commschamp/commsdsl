@@ -40,7 +40,7 @@ foreach (name ${tests})
     set (test_dir "${tests_path}/${name}")
     set (this_test_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}")
 
-    if (EXISTS ${this_test_dir}/disabled.txt)
+    if (EXISTS ${this_test_dir}/commsdsl2emscripten.disabled.txt)
         continue ()
     endif ()
 
