@@ -397,7 +397,7 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
 
     util::GenReplacementMap repl = {
         {"SCHEMAS", util::genStrListToString(elems, "", "")},
-        {"APPEND", m_commsGenerator.genReadDoxygenInjectCode(comms::genInputCodeRelPathForDoc(FileName) + strings::genAppendFileSuffixStr(), "Append here")},
+        {"APPEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForDoc(FileName) + strings::genAppendFileSuffixStr(), "Append here")},
     };
 
     return commsWriteFileInternal(FileName, util::genProcessTemplate(Templ, repl, true), m_commsGenerator);
@@ -447,7 +447,7 @@ bool CommsDoxygen::commsWriteMainpageInternal() const
         {"DISPATCH_DOC", commsDispatchDocInternal()},
         {"CUSTOMIZE_DOC", commsCustomizeDocInternal()},
         {"VERSION_DOC", commsVersionDocInternal()},
-        {"APPEND", m_commsGenerator.genReadDoxygenInjectCode(comms::genInputCodeRelPathForDoc(FileName) + strings::genAppendFileSuffixStr(), "Append here")},
+        {"APPEND", m_commsGenerator.genReadCodeInjectCode(comms::genInputCodeRelPathForDoc(FileName) + strings::genAppendFileSuffixStr(), "Append here")},
         {"TITLE", m_commsGenerator.genCurrentSchema().genParseObj().parseDisplayName()},
         {"DESC", std::move(desc)},
     };

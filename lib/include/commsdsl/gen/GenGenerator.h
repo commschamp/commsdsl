@@ -219,11 +219,6 @@ public:
         const std::string& comment,
         bool* realCodeInjected = nullptr) const;
 
-    [[nodiscard]] std::string genReadDoxygenInjectCode(
-        const std::string& relPath,
-        const std::string& comment,
-        bool* realCodeInjected = nullptr) const;
-
 protected:
     virtual bool genCreateCompleteImpl();
     virtual bool genPrepareImpl();

@@ -1476,14 +1476,6 @@ std::string GenGenerator::genReadScriptCodeInjectCode(
     return genReadCodeInjectCode(relPath, comment, realCodeInjected, "# ");
 }
 
-std::string GenGenerator::genReadDoxygenInjectCode(
-    const std::string& relPath,
-    const std::string& comment,
-    bool* realCodeInjected) const
-{
-    return genReadCodeInjectCode(relPath, comment, realCodeInjected, "/// ");
-}
-
 bool GenGenerator::genCreateCompleteImpl()
 {
     return true;
