@@ -584,6 +584,12 @@ const std::string& genLittleStr()
     return Str;
 }
 
+const std::string& genSystemStr()
+{
+    static const std::string Str("System");
+    return Str;
+}
+
 const std::string& genDescriptionStr()
 {
     static const std::string Str("description");

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test62" endian="big" displayName="Binary Encoding Test">
+<schema name="test62" endian="system" displayName="Binary Encoding Test">
     <description>
         Testing encoding / decoding without framing.
     </description>

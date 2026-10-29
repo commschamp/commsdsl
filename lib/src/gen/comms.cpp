@@ -1084,8 +1084,9 @@ unsigned genSinceVersionOf(const GenElem& elem)
 const std::string& genParseEndianToOpt(commsdsl::parse::ParseEndian value)
 {
     static const std::string Map[] = {
-        "comms::option::def::LittleEndian",
-        "comms::option::def::BigEndian"
+        /* ParseEndian_Little*/ "comms::option::def::LittleEndian",
+        /* ParseEndian_Big*/ "comms::option::def::BigEndian",
+        /* ParseEndian_System*/ "comms::option::def::SystemEndian",
     };
 
     static const std::size_t MapSize =

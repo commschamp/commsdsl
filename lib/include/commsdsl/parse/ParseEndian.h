@@ -26,6 +26,7 @@ enum ParseEndian : unsigned
 {
     ParseEndian_Little,
     ParseEndian_Big,
+    ParseEndian_System,
     ParseEndian_NumOfValues
 };
 

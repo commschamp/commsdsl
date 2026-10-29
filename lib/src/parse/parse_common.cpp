@@ -927,6 +927,12 @@ const std::string& parseEscFieldStr()
     return Str;
 }
 
+const std::string& parseSystemStr()
+{
+    static const std::string Str("system");
+    return Str;
+}
+
 char parseSiblingRefPrefix()
 {
     return '$';
@@ -1312,7 +1318,8 @@ commsdsl::parse::ParseEndian parseEndian(const std::string& value, commsdsl::par
 
     static const std::string Map[] = {
         /* ParseEndian_Little */ common::parseLittleStr(),
-        /* Endian_Big */ common::parseBigStr()
+        /* Endian_Big */ common::parseBigStr(),
+        /* Endian_System */ common::parseSystemStr(),
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;

@@ -786,6 +786,7 @@ std::string LatexField::latexEndianInfo(commsdsl::parse::ParseEndian value)
     static const std::string* Map[] = {
         /* ParseEndian_Little */ &strings::genLittleStr(),
         /* ParseEndian_Big */ &strings::genBigStr(),
+        /* ParseEndian_System */ &strings::genSystemStr(),
     };
     static const std::size_t MapSize = std::extent_v<decltype(Map)>;
     static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::ParseEndian_NumOfValues));
