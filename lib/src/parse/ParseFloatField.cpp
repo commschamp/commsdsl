@@ -29,7 +29,7 @@ namespace parse
 namespace
 {
 
-const ParseFloatFieldImpl* cast(const ParseFieldImpl* ptr)
+[[nodiscard]] const ParseFloatFieldImpl* parseCastInternal(const ParseFieldImpl* ptr)
 {
     assert(ptr != nullptr);
     return static_cast<const ParseFloatFieldImpl*>(ptr);
@@ -50,47 +50,47 @@ ParseFloatField::ParseFloatField(ParseField field)
 
 ParseFloatField::ParseType ParseFloatField::parseType() const
 {
-    return cast(m_pImpl)->parseType();
+    return parseCastInternal(m_pImpl)->parseType();
 }
 
 ParseEndian ParseFloatField::parseEndian() const
 {
-    return cast(m_pImpl)->parseEndian();
+    return parseCastInternal(m_pImpl)->parseEndian();
 }
 
 double ParseFloatField::parseDefaultValue() const
 {
-    return cast(m_pImpl)->parseDefaultValue();
+    return parseCastInternal(m_pImpl)->parseDefaultValue();
 }
 
 const ParseFloatField::ParseValidRangesList& ParseFloatField::parseValidRanges() const
 {
-    return cast(m_pImpl)->parseValidRanges();
+    return parseCastInternal(m_pImpl)->parseValidRanges();
 }
 
 const ParseFloatField::ParseSpecialValues& ParseFloatField::parseSpecialValues() const
 {
-    return cast(m_pImpl)->parseSpecialValues();
+    return parseCastInternal(m_pImpl)->parseSpecialValues();
 }
 
 bool ParseFloatField::parseValidCheckVersion() const
 {
-    return cast(m_pImpl)->parseValidCheckVersion();
+    return parseCastInternal(m_pImpl)->parseValidCheckVersion();
 }
 
 ParseUnits ParseFloatField::parseUnits() const
 {
-    return cast(m_pImpl)->parseUnits();
+    return parseCastInternal(m_pImpl)->parseUnits();
 }
 
 unsigned ParseFloatField::parseDisplayDecimals() const
 {
-    return cast(m_pImpl)->parseDisplayDecimals();
+    return parseCastInternal(m_pImpl)->parseDisplayDecimals();
 }
 
 bool ParseFloatField::parseHasNonUniqueSpecials() const
 {
-    return cast(m_pImpl)->parseHasNonUniqueSpecials();
+    return parseCastInternal(m_pImpl)->parseHasNonUniqueSpecials();
 }
 
 } // namespace parse

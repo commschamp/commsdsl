@@ -43,49 +43,49 @@ public:
     ParseEnumFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseEnumFieldImpl(const ParseEnumFieldImpl&);
 
-    ParseType parseType() const
+    [[nodiscard]] ParseType parseType() const
     {
         return m_state.m_type;
     }
 
-    ParseEndian parseEndian() const
+    [[nodiscard]] ParseEndian parseEndian() const
     {
         return m_state.m_endian;
     }
 
-    std::intmax_t parseDefaultValue() const
+    [[nodiscard]] std::intmax_t parseDefaultValue() const
     {
         return m_state.m_defaultValue;
     }
 
-    const ParseValues& parseValues() const
+    [[nodiscard]] const ParseValues& parseValues() const
     {
         return m_state.m_values;
     }
 
-    const ParseRevValues& parseRevValues() const
+    [[nodiscard]] const ParseRevValues& parseRevValues() const
     {
         return m_state.m_revValues;
     }
 
-    bool parseIsNonUniqueAllowed() const
+    [[nodiscard]] bool parseIsNonUniqueAllowed() const
     {
         return m_state.m_nonUniqueAllowed;
     }
 
-    bool parseIsUnique() const;
+    [[nodiscard]] bool parseIsUnique() const;
 
-    bool parseValidCheckVersion() const
+    [[nodiscard]] bool parseValidCheckVersion() const
     {
         return m_state.m_validCheckVersion;
     }
 
-    bool parseHexAssign() const
+    [[nodiscard]] bool parseHexAssign() const
     {
         return m_state.m_hexAssign;
     }
 
-    bool parseAvailableLengthLimit() const
+    [[nodiscard]] bool parseAvailableLengthLimit() const
     {
         return m_state.m_availableLengthLimit;
     }
@@ -109,18 +109,18 @@ protected:
     virtual bool parseIsValidRefTypeImpl(ParseFieldRefType type) const override;
 
 private:
-    bool parseUpdateType();
-    bool parseUpdateEndian();
-    bool parseUpdateLength();
-    bool parseUpdateBitLength();
-    bool parseUpdateNonUniqueAllowed();
-    bool parseUpdateValidCheckVersion();
-    bool parseUpdateMinMaxValues();
-    bool parseUpdateValues();
-    bool parseUpdateDefaultValue();
-    bool parseUpdateHexAssign();
-    bool parseUpdateAvailableLengthLimit();
-    bool parseStrToValue(const std::string& str, std::intmax_t& val) const;
+    [[nodiscard]] bool parseUpdateType();
+    [[nodiscard]] bool parseUpdateEndian();
+    [[nodiscard]] bool parseUpdateLength();
+    [[nodiscard]] bool parseUpdateBitLength();
+    [[nodiscard]] bool parseUpdateNonUniqueAllowed();
+    [[nodiscard]] bool parseUpdateValidCheckVersion();
+    [[nodiscard]] bool parseUpdateMinMaxValues();
+    [[nodiscard]] bool parseUpdateValues();
+    [[nodiscard]] bool parseUpdateDefaultValue();
+    [[nodiscard]] bool parseUpdateHexAssign();
+    [[nodiscard]] bool parseUpdateAvailableLengthLimit();
+    [[nodiscard]] bool parseStrToValue(const std::string& str, std::intmax_t& val) const;
 
     struct ParseState
     {

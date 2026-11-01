@@ -35,15 +35,15 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::ParseNamesList& parseOptionalSupportedTypes()
+[[nodiscard]] const ParseXmlWrap::ParseNamesList& parseOptionalSupportedTypesInternal()
 {
     static const ParseXmlWrap::ParseNamesList Names = ParseFieldImpl::parseSupportedTypes();
     return Names;
 }
 
-ParseXmlWrap::ParseNamesList parseGetExtraNames()
+[[nodiscard]] ParseXmlWrap::ParseNamesList parseGetExtraNames()
 {
-    auto names = parseOptionalSupportedTypes();
+    auto names = parseOptionalSupportedTypesInternal();
     names.push_back(common::parseFieldStr());
     names.push_back(common::parseAndStr());
     names.push_back(common::parseOrStr());
@@ -429,7 +429,7 @@ bool ParseOptionalFieldImpl::parseCheckFieldAsChild()
         return false;
     }
 
-    auto fieldTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseOptionalSupportedTypes());
+    auto fieldTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseOptionalSupportedTypesInternal());
     if ((0U < children.size()) && (0U < fieldTypes.size())) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                   "The \"" << common::parseOptionalStr() << "\" element does not support "

@@ -29,14 +29,14 @@ namespace parse
 namespace
 {
 
-const ParseOptCondExprImpl* castExpr(const ParseOptCondImpl* ptr)
+[[nodiscard]] const ParseOptCondExprImpl* parseCastExprInternal(const ParseOptCondImpl* ptr)
 {
     assert(ptr != nullptr);
     assert(ptr->parseKind() == ParseOptCond::ParseKind::Expr);
     return static_cast<const ParseOptCondExprImpl*>(ptr);
 }
 
-const ParseOptCondListImpl* castList(const ParseOptCondImpl* ptr)
+[[nodiscard]] const ParseOptCondListImpl* parseCastListInternal(const ParseOptCondImpl* ptr)
 {
     assert(ptr != nullptr);
     assert(ptr->parseKind() == ParseOptCond::ParseKind::List);
@@ -78,27 +78,27 @@ ParseOptCondExpr::ParseOptCondExpr(ParseOptCond cond)
 
 const std::string& ParseOptCondExpr::parseLeft() const
 {
-    return castExpr(m_pImpl)->parseLeft();
+    return parseCastExprInternal(m_pImpl)->parseLeft();
 }
 
 const std::string& ParseOptCondExpr::parseOp() const
 {
-    return castExpr(m_pImpl)->parseOp();
+    return parseCastExprInternal(m_pImpl)->parseOp();
 }
 
 const std::string& ParseOptCondExpr::parseRight() const
 {
-    return castExpr(m_pImpl)->parseRight();
+    return parseCastExprInternal(m_pImpl)->parseRight();
 }
 
 ParseOptCondExpr::ParseOperandInfo ParseOptCondExpr::parseLeftInfo() const
 {
-    return castExpr(m_pImpl)->parseLeftInfo();
+    return parseCastExprInternal(m_pImpl)->parseLeftInfo();
 }
 
 ParseOptCondExpr::ParseOperandInfo ParseOptCondExpr::parseRightInfo() const
 {
-    return castExpr(m_pImpl)->parseRightInfo();
+    return parseCastExprInternal(m_pImpl)->parseRightInfo();
 }
 
 ParseOptCondList::ParseOptCondList(const ParseOptCondListImpl* impl)
@@ -114,12 +114,12 @@ ParseOptCondList::ParseOptCondList(ParseOptCond cond)
 
 ParseOptCondList::ParseType ParseOptCondList::parseType() const
 {
-    return castList(m_pImpl)->parseType();
+    return parseCastListInternal(m_pImpl)->parseType();
 }
 
 ParseOptCondList::ParseCondList ParseOptCondList::parseConditions() const
 {
-    return castList(m_pImpl)->parseCondList();
+    return parseCastListInternal(m_pImpl)->parseCondList();
 }
 
 } // namespace parse

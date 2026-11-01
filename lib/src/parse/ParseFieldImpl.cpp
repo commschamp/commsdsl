@@ -52,35 +52,35 @@ namespace {
 
 const unsigned ParseMinDslVersionForLengthSemanticType  = 2U;
 
-std::string parseInnerRefInternal_Namespace(bool schemaRef, const ParseObject* parent)
+[[nodiscard]] std::string parseInnerRefInternal_Namespace(bool schemaRef, const ParseObject* parent)
 {
     assert(parent->parseObjKind() == ParseObject::ParseObjKind::Namespace);
     auto& parentCast = static_cast<const ParseNamespaceImpl&>(*parent);
     return parentCast.parseExternalRef(schemaRef);
 }
 
-std::string parseInnerRefInternal_Field(bool schemaRef, const ParseObject* parent)
+[[nodiscard]] std::string parseInnerRefInternal_Field(bool schemaRef, const ParseObject* parent)
 {
     assert(parent->parseObjKind() == ParseObject::ParseObjKind::Field);
     auto& parentCast = static_cast<const ParseFieldImpl&>(*parent);
     return parentCast.parseInnerRef(schemaRef);
 }
 
-std::string parseInnerRefInternal_Message(bool schemaRef, const ParseObject* parent)
+[[nodiscard]] std::string parseInnerRefInternal_Message(bool schemaRef, const ParseObject* parent)
 {
     assert(parent->parseObjKind() == ParseObject::ParseObjKind::Message);
     auto& parentCast = static_cast<const ParseMessageImpl&>(*parent);
     return parentCast.parseExternalRef(schemaRef);
 }
 
-std::string parseInnerRefInternal_Interface(bool schemaRef, const ParseObject* parent)
+[[nodiscard]] std::string parseInnerRefInternal_Interface(bool schemaRef, const ParseObject* parent)
 {
     assert(parent->parseObjKind() == ParseObject::ParseObjKind::Interface);
     auto& parentCast = static_cast<const ParseInterfaceImpl&>(*parent);
     return parentCast.parseExternalRef(schemaRef);
 }
 
-std::string parseInnerRefInternal_Layer(bool schemaRef, const ParseObject* parent)
+[[nodiscard]] std::string parseInnerRefInternal_Layer(bool schemaRef, const ParseObject* parent)
 {
     assert(parent->parseObjKind() == ParseObject::ParseObjKind::Layer);
     auto& parentCast = static_cast<const ParseLayerImpl&>(*parent);

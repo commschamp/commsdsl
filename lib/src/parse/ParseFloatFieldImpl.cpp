@@ -36,7 +36,7 @@ namespace parse
 namespace
 {
 
-bool parseCompareLess(double val1, double val2)
+[[nodiscard]] bool parseCompareLessInternal(double val1, double val2)
 {
     static_assert(-std::numeric_limits<double>::infinity() < std::numeric_limits<double>::infinity(), "Invalid assumption");
 
@@ -67,7 +67,7 @@ bool parseCompareLess(double val1, double val2)
     return val1 < val2;
 }
 
-double parseMinValueForType(ParseFloatFieldImpl::ParseType value)
+[[nodiscard]] double parseMinValueForTypeInternal(ParseFloatFieldImpl::ParseType value)
 {
     static const double ParseValues[] = {
         /* ParseType::Float */ double(std::numeric_limits<float>::lowest()),
@@ -87,7 +87,7 @@ double parseMinValueForType(ParseFloatFieldImpl::ParseType value)
     return ParseValues[util::toUnsigned(value)];
 }
 
-double parseMaxValueForType(ParseFloatFieldImpl::ParseType value)
+[[nodiscard]] double parseMaxValueForTypeInternal(ParseFloatFieldImpl::ParseType value)
 {
     static const double ParseValues[] = {
         /* ParseType::Float */ double(std::numeric_limits<float>::max()),
@@ -353,8 +353,8 @@ bool ParseFloatFieldImpl::parseUpdateLength()
 
 bool ParseFloatFieldImpl::parseUpdateMinMaxValues()
 {
-    m_state.m_typeAllowedMinValue = parseMinValueForType(m_state.m_type);
-    m_state.m_typeAllowedMaxValue = parseMaxValueForType(m_state.m_type);
+    m_state.m_typeAllowedMinValue = parseMinValueForTypeInternal(m_state.m_type);
+    m_state.m_typeAllowedMaxValue = parseMaxValueForTypeInternal(m_state.m_type);
     return true;
 }
 
@@ -428,15 +428,15 @@ bool ParseFloatFieldImpl::parseUpdateValidRanges()
                 return elem1.m_deprecatedSince < elem2.m_deprecatedSince;
             }
 
-            if (parseCompareLess(elem1.m_min, elem2.m_min)) {
+            if (parseCompareLessInternal(elem1.m_min, elem2.m_min)) {
                 return true;
             }
 
-            if (parseCompareLess(elem2.m_min, elem1.m_min)) {
+            if (parseCompareLessInternal(elem2.m_min, elem1.m_min)) {
                 return false;
             }
 
-            return parseCompareLess(elem1.m_max, elem2.m_max);
+            return parseCompareLessInternal(elem1.m_max, elem2.m_max);
         });
 
     // Merge
@@ -460,7 +460,7 @@ bool ParseFloatFieldImpl::parseUpdateValidRanges()
                 (iter->m_deprecatedSince != nextIter->m_deprecatedSince) ||
                 (isSpecial(iter->m_max)) ||
                 (isSpecial(nextIter->m_min)) ||
-                (parseCompareLess(iter->m_max, nextIter->m_min))) {
+                (parseCompareLessInternal(iter->m_max, nextIter->m_min))) {
                 break;
             }
 
@@ -486,19 +486,19 @@ bool ParseFloatFieldImpl::parseUpdateValidRanges()
         {
             assert(elem1.m_deprecatedSince != 0U);
             assert(elem2.m_deprecatedSince != 0U);
-            if (parseCompareLess(elem1.m_min, elem2.m_min)) {
+            if (parseCompareLessInternal(elem1.m_min, elem2.m_min)) {
                 return true;
             }
 
-            if (parseCompareLess(elem2.m_min, elem1.m_min)) {
+            if (parseCompareLessInternal(elem2.m_min, elem1.m_min)) {
                 return false;
             }
 
-            if (parseCompareLess(elem1.m_max, elem2.m_max)) {
+            if (parseCompareLessInternal(elem1.m_max, elem2.m_max)) {
                 return true;
             }
 
-            if (parseCompareLess(elem2.m_max, elem1.m_max)) {
+            if (parseCompareLessInternal(elem2.m_max, elem1.m_max)) {
                 return false;
             }
 

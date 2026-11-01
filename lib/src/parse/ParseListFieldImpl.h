@@ -37,18 +37,18 @@ public:
     ParseListFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseListFieldImpl(const ParseListFieldImpl& other);
 
-    std::size_t parseCount() const
+    [[nodiscard]] std::size_t parseCount() const
     {
         return m_state.m_count;
     }
 
-    bool parseHasElementField() const
+    [[nodiscard]] bool parseHasElementField() const
     {
         return (m_state.m_extElementField != nullptr) ||
                static_cast<bool>(m_elementField);
     }
 
-    ParseField parseElementField() const
+    [[nodiscard]] ParseField parseElementField() const
     {
         if (m_state.m_extElementField != nullptr) {
             return ParseField(m_state.m_extElementField);
@@ -57,13 +57,13 @@ public:
         return ParseField(m_elementField.get());
     }
 
-    bool parseHasCountPrefixField() const
+    [[nodiscard]] bool parseHasCountPrefixField() const
     {
         return (m_state.m_extCountPrefixField != nullptr) ||
                static_cast<bool>(m_countPrefixField);
     }
 
-    ParseField parseCountPrefixField() const
+    [[nodiscard]] ParseField parseCountPrefixField() const
     {
         if (m_state.m_extCountPrefixField != nullptr) {
             return ParseField(m_state.m_extCountPrefixField);
@@ -72,18 +72,18 @@ public:
         return ParseField(m_countPrefixField.get());
     }
 
-    const std::string& parseDetachedCountPrefixFieldName() const
+    [[nodiscard]] const std::string& parseDetachedCountPrefixFieldName() const
     {
         return m_state.m_detachedCountPrefixField;
     }
 
-    bool parseHasLengthPrefixField() const
+    [[nodiscard]] bool parseHasLengthPrefixField() const
     {
         return (m_state.m_extLengthPrefixField != nullptr) ||
                static_cast<bool>(m_lengthPrefixField);
     }
 
-    ParseField parseLengthPrefixField() const
+    [[nodiscard]] ParseField parseLengthPrefixField() const
     {
         if (m_state.m_extLengthPrefixField != nullptr) {
             return ParseField(m_state.m_extLengthPrefixField);
@@ -92,18 +92,18 @@ public:
         return ParseField(m_lengthPrefixField.get());
     }
 
-    const std::string& parseDetachedLengthPrefixFieldName() const
+    [[nodiscard]] const std::string& parseDetachedLengthPrefixFieldName() const
     {
         return m_state.m_detachedLengthPrefixField;
     }
 
-    bool parseHasElemLengthPrefixField() const
+    [[nodiscard]] bool parseHasElemLengthPrefixField() const
     {
         return (m_state.m_extElemLengthPrefixField != nullptr) ||
                static_cast<bool>(m_elemLengthPrefixField);
     }
 
-    ParseField parseElemLengthPrefixField() const
+    [[nodiscard]] ParseField parseElemLengthPrefixField() const
     {
         if (m_state.m_extElemLengthPrefixField != nullptr) {
             return ParseField(m_state.m_extElemLengthPrefixField);
@@ -112,18 +112,18 @@ public:
         return ParseField(m_elemLengthPrefixField.get());
     }
 
-    const std::string& parseDetachedElemLengthPrefixFieldName() const
+    [[nodiscard]] const std::string& parseDetachedElemLengthPrefixFieldName() const
     {
         return m_state.m_detachedElemLengthPrefixField;
     }
 
-    bool parseHasTermSuffixField() const
+    [[nodiscard]] bool parseHasTermSuffixField() const
     {
         return (m_state.m_extTermSuffixField != nullptr) ||
                static_cast<bool>(m_termSuffixField);
     }
 
-    ParseField parseTermSuffixField() const
+    [[nodiscard]] ParseField parseTermSuffixField() const
     {
         if (m_state.m_extTermSuffixField != nullptr) {
             return ParseField(m_state.m_extTermSuffixField);
@@ -132,12 +132,12 @@ public:
         return ParseField(m_termSuffixField.get());
     }
 
-    const std::string& parseDetachedTermSuffixFieldName() const
+    [[nodiscard]] const std::string& parseDetachedTermSuffixFieldName() const
     {
         return m_state.m_detachedTermSuffixField;
     }
 
-    bool parseElemFixedLength() const
+    [[nodiscard]] bool parseElemFixedLength() const
     {
         return m_state.m_elemFixedLength;
     }
@@ -157,28 +157,28 @@ protected:
 
 private:
     void parseCloneFields(const ParseListFieldImpl& other);
-    bool parseUpdateElement();
-    bool parseUpdateCount();
-    bool parseUpdateCountPrefix();
-    bool parseUpdateLengthPrefix();
-    bool parseUpdateElemLengthPrefix();
-    bool parseUpdateElemFixedLength();
-    bool parseUpdateTermSuffix();
-    bool parseCheckElementFromRef();
-    bool parseCheckElementAsChild();
-    bool parseCheckPrefixFromRef(
+    [[nodiscard]] bool parseUpdateElement();
+    [[nodiscard]] bool parseUpdateCount();
+    [[nodiscard]] bool parseUpdateCountPrefix();
+    [[nodiscard]] bool parseUpdateLengthPrefix();
+    [[nodiscard]] bool parseUpdateElemLengthPrefix();
+    [[nodiscard]] bool parseUpdateElemFixedLength();
+    [[nodiscard]] bool parseUpdateTermSuffix();
+    [[nodiscard]] bool parseCheckElementFromRef();
+    [[nodiscard]] bool parseCheckElementAsChild();
+    [[nodiscard]] bool parseCheckPrefixFromRef(
         const std::string& type,
         const ParseFieldImpl*& extField,
         ParseFieldImplPtr& locField,
         std::string& detachedPrefix);
-    bool parseCheckPrefixAsChild(
+    [[nodiscard]] bool parseCheckPrefixAsChild(
         const std::string& type,
         const ParseFieldImpl*& extField,
         ParseFieldImplPtr& locField,
         std::string& detachedPrefix);
-    const ParseFieldImpl* parseGetCountPrefixField() const;
-    const ParseFieldImpl* parseGetLengthPrefixField() const;
-    bool parseVerifySiblingsForPrefix(const ParseFieldsList& fields, const std::string& detachedName) const;
+    [[nodiscard]] const ParseFieldImpl* parseGetCountPrefixField() const;
+    [[nodiscard]] const ParseFieldImpl* parseGetLengthPrefixField() const;
+    [[nodiscard]] bool parseVerifySiblingsForPrefix(const ParseFieldsList& fields, const std::string& detachedName) const;
 
     struct ParseState
     {

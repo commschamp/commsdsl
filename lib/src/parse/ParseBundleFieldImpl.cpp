@@ -35,15 +35,15 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::ParseNamesList& parseBundleSupportedTypes()
+[[nodiscard]] const ParseXmlWrap::ParseNamesList& parseBundleSupportedTypesInternal()
 {
     static const ParseXmlWrap::ParseNamesList Names = ParseFieldImpl::parseSupportedTypes();
     return Names;
 }
 
-ParseXmlWrap::ParseNamesList parseGetExtraNames()
+[[nodiscard]] ParseXmlWrap::ParseNamesList parseGetExtraNamesInternal()
 {
-    auto names = parseBundleSupportedTypes();
+    auto names = parseBundleSupportedTypesInternal();
     names.push_back(common::parseMembersStr());
     names.push_back(common::parseAliasStr());
     names.push_back(common::parseValidCondStr());
@@ -123,7 +123,7 @@ const ParseXmlWrap::ParseNamesList& ParseBundleFieldImpl::parseExtraPossibleProp
 
 const ParseXmlWrap::ParseNamesList& ParseBundleFieldImpl::parseExtraChildrenNamesImpl() const
 {
-    static const ParseXmlWrap::ParseNamesList Names = parseGetExtraNames();
+    static const ParseXmlWrap::ParseNamesList Names = parseGetExtraNamesInternal();
     return Names;
 }
 
@@ -294,7 +294,7 @@ bool ParseBundleFieldImpl::parseVerifyAliasedMemberImpl(const std::string& field
 
 const ParseXmlWrap::ParseNamesList& ParseBundleFieldImpl::parseSupportedMemberTypesImpl() const
 {
-    return parseBundleSupportedTypes();
+    return parseBundleSupportedTypesInternal();
 }
 
 const ParseBundleFieldImpl::ParseFieldsList& ParseBundleFieldImpl::parseMembersImpl() const
@@ -330,7 +330,7 @@ bool ParseBundleFieldImpl::parseUpdateMembers()
             return false;
         }
 
-        auto memberFieldsTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseBundleSupportedTypes());
+        auto memberFieldsTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseBundleSupportedTypesInternal());
         if ((0U < membersNodes.size()) && (0U < memberFieldsTypes.size())) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                           "The \"" << common::parseBundleStr() << "\" element does not support "
@@ -364,7 +364,7 @@ bool ParseBundleFieldImpl::parseUpdateMembers()
         if (0U < membersNodes.size()) {
             assert(0U == memberFieldsTypes.size());
             memberFieldsTypes = ParseXmlWrap::parseGetChildren(membersNodes.front());
-            auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(membersNodes.front(), parseBundleSupportedTypes());
+            auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(membersNodes.front(), parseBundleSupportedTypesInternal());
             if (cleanMemberFieldsTypes.size() != memberFieldsTypes.size()) {
                 parseLogError() << ParseXmlWrap::parseLogPrefix(membersNodes.front()) <<
                               "The \"" << common::parseMembersStr() << "\" child node of \"" <<

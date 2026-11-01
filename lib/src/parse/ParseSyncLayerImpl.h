@@ -30,14 +30,14 @@ class ParseSyncLayerImpl final : public ParseLayerImpl
 public:
     ParseSyncLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
 
-    bool parseHasEscField() const
+    [[nodiscard]] bool parseHasEscField() const
     {
         return
             (m_extEscField != nullptr) ||
             static_cast<bool>(m_escField);
     }
 
-    ParseField parseEscField() const
+    [[nodiscard]] ParseField parseEscField() const
     {
         if (m_extEscField != nullptr) {
             return ParseField(m_extEscField);
@@ -46,22 +46,22 @@ public:
         return ParseField(m_escField.get());
     }
 
-    bool parseSeekField() const
+    [[nodiscard]] bool parseSeekField() const
     {
         return m_seekField;
     }
 
-    bool parseVerifyBeforeRead() const
+    [[nodiscard]] bool parseVerifyBeforeRead() const
     {
         return m_verifyBeforeRead;
     }
 
-    const std::string& parseFrom() const
+    [[nodiscard]] const std::string& parseFrom() const
     {
         return *m_from;
     }
 
-    bool parseIsAfterPayload() const
+    [[nodiscard]] bool parseIsAfterPayload() const
     {
         return m_afterPayload;
     }
@@ -74,12 +74,12 @@ protected:
     virtual bool parseVerifyImpl(const ParseLayersList& layers) override;
 
 private:
-    bool parseUpdateSeekFieldInternal();
-    bool parseUpdateEscFieldInternal();
-    bool parseUpdateVerifyBeforeReadInternal();
-    bool parseUpdateFromInternal();
-    bool parseCheckEscFieldFromRefInternal();
-    bool parseCheckEscFieldAsChildInternal();
+    [[nodiscard]] bool parseUpdateSeekFieldInternal();
+    [[nodiscard]] bool parseUpdateEscFieldInternal();
+    [[nodiscard]] bool parseUpdateVerifyBeforeReadInternal();
+    [[nodiscard]] bool parseUpdateFromInternal();
+    [[nodiscard]] bool parseCheckEscFieldFromRefInternal();
+    [[nodiscard]] bool parseCheckEscFieldAsChildInternal();
 
     const ParseFieldImpl* m_extEscField = nullptr;
     ParseFieldImplPtr m_escField;

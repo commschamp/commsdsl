@@ -33,16 +33,16 @@ public:
     using ParseInterfacesList = ParseValueLayer::ParseInterfaces;
     ParseValueLayerImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
 
-    ParseInterfacesList parseInterfacesList() const;
+    [[nodiscard]] ParseInterfacesList parseInterfacesList() const;
 
-    const std::string& parseFieldName() const
+    [[nodiscard]] const std::string& parseFieldName() const
     {
         return *m_fieldName;
     }
 
-    std::size_t parseFieldIdx() const;
+    [[nodiscard]] std::size_t parseFieldIdx() const;
 
-    bool parsePseudo() const
+    [[nodiscard]] bool parsePseudo() const
     {
         return m_pseudo;
     }
@@ -54,9 +54,9 @@ protected:
     virtual bool parseVerifyImpl(const ParseLayersList& layers) override;
 
 private:
-    bool parseUpdateInterfaces();
-    bool parseUpdateFieldName();
-    bool parseUpdatePseudo();
+    [[nodiscard]] bool parseUpdateInterfaces();
+    [[nodiscard]] bool parseUpdateFieldName();
+    [[nodiscard]] bool parseUpdatePseudo();
 
     ParseInterfaces m_interfaces;
     const std::string* m_fieldName = nullptr;

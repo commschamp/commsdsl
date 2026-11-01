@@ -51,14 +51,14 @@ static const ParseXmlWrap::ParseNamesList ChildrenNames = {
     common::parseInterfaceStr(),
 };
 
-ParseXmlWrap::ParseNamesList parseAllNames()
+[[nodiscard]] ParseXmlWrap::ParseNamesList parseAllNamesInternal()
 {
     ParseXmlWrap::ParseNamesList names = PropNames;
     names.insert(names.end(), ChildrenNames.begin(), ChildrenNames.end());
     return names;
 }
 
-bool parseUpdateStringProperty(const ParseXmlWrap::ParsePropsMap& map, const std::string& name, std::string& prop)
+[[nodiscard]] bool parseUpdateStringPropertyInternal(const ParseXmlWrap::ParsePropsMap& map, const std::string& name, std::string& prop)
 {
     auto iter = map.find(name);
     if (iter == map.end()) {
@@ -92,8 +92,8 @@ bool ParseNamespaceImpl::parseProps()
         return false;
     }
 
-    if ((!parseUpdateStringProperty(m_props, common::parseNameStr(), m_name)) ||
-        (!parseUpdateStringProperty(m_props, common::parseDescriptionStr(), m_description)) ||
+    if ((!parseUpdateStringPropertyInternal(m_props, common::parseNameStr(), m_name)) ||
+        (!parseUpdateStringPropertyInternal(m_props, common::parseDescriptionStr(), m_description)) ||
         (!parseUpdateDisplayName()) ||
         (!parseUpdateExtraAttrs()) ||
         (!parseUpdateExtraChildren())) {
@@ -734,7 +734,7 @@ bool ParseNamespaceImpl::parseUpdateExtraAttrs()
 
 bool ParseNamespaceImpl::parseUpdateExtraChildren()
 {
-    static const ParseXmlWrap::ParseNamesList Names = parseAllNames();
+    static const ParseXmlWrap::ParseNamesList Names = parseAllNamesInternal();
     m_extraChildren = ParseXmlWrap::parseGetExtraChildren(m_node, Names, m_protocol);
     return true;
 }
@@ -742,7 +742,7 @@ bool ParseNamespaceImpl::parseUpdateExtraChildren()
 bool ParseNamespaceImpl::parseUpdateDisplayName()
 {
     auto& propName = common::parseDisplayNameStr();
-    if (!parseUpdateStringProperty(m_props, propName, m_displayName)) {
+    if (!parseUpdateStringPropertyInternal(m_props, propName, m_displayName)) {
         return false;
     }
 

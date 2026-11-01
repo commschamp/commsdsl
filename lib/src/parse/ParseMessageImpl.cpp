@@ -38,13 +38,13 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::ParseNamesList& parseMessageSupportedTypes()
+[[nodiscard]] const ParseXmlWrap::ParseNamesList& parseMessageSupportedTypesInternal()
 {
     static const ParseXmlWrap::ParseNamesList Names = ParseFieldImpl::parseSupportedTypes();
     return Names;
 }
 
-bool parseVerifyConstructInternal(const ParseOptCond& cond)
+[[nodiscard]] bool parseVerifyConstructInternal(const ParseOptCond& cond)
 {
     if (cond.parseKind() == ParseOptCond::ParseKind::Expr) {
         ParseOptCondExpr exprCond(cond);
@@ -403,7 +403,7 @@ const ParseXmlWrap::ParseNamesList& ParseMessageImpl::parseAllProps()
 ParseXmlWrap::ParseNamesList ParseMessageImpl::parseAllNames()
 {
     auto names = parseAllProps();
-    auto& fieldTypes = parseMessageSupportedTypes();
+    auto& fieldTypes = parseMessageSupportedTypesInternal();
     names.insert(names.end(), fieldTypes.begin(), fieldTypes.end());
 
     names.push_back(common::parseFieldsStr());
@@ -857,7 +857,7 @@ bool ParseMessageImpl::parseReplaceFields()
         return true;
     }
 
-    auto fieldsTypes = ParseXmlWrap::parseGetChildren(replaceNodes.front(), parseMessageSupportedTypes());
+    auto fieldsTypes = ParseXmlWrap::parseGetChildren(replaceNodes.front(), parseMessageSupportedTypesInternal());
     if (fieldsTypes.size() != replaceNodes.size()) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(replaceNodes.front()) <<
             "The \"" << common::parseReplaceStr() << "\" child node of \"" <<
@@ -992,7 +992,7 @@ bool ParseMessageImpl::parseUpdateFields()
             return false;
         }
 
-        auto fieldsTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseMessageSupportedTypes());
+        auto fieldsTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseMessageSupportedTypesInternal());
         if ((!fieldsNodes.empty()) && (!fieldsTypes.empty())) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                           "The \"" << common::parseMessageStr() << "\" element does not support "
@@ -1020,7 +1020,7 @@ bool ParseMessageImpl::parseUpdateFields()
         if (0U < fieldsNodes.size()) {
             assert(0U == fieldsTypes.size());
             fieldsTypes = ParseXmlWrap::parseGetChildren(fieldsNodes.front());
-            auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(fieldsNodes.front(), parseMessageSupportedTypes());
+            auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(fieldsNodes.front(), parseMessageSupportedTypesInternal());
             if (cleanMemberFieldsTypes.size() != fieldsTypes.size()) {
                 parseLogError() << ParseXmlWrap::parseLogPrefix(fieldsNodes.front()) <<
                     "The \"" << common::parseFieldsStr() << "\" child node of \"" <<

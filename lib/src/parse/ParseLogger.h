@@ -94,21 +94,21 @@ private:
     ParseLogger& m_logger;
 };
 
-inline
+[[nodiscard]] inline
 ParseLogWrapper parseLogError(ParseLogger& logger)
 {
     logger.parseSetCurrLevel(ParseErrorLevel_Error);
     return ParseLogWrapper(logger);
 }
 
-inline
+[[nodiscard]] inline
 ParseLogWrapper parseLogWarning(ParseLogger& logger)
 {
     logger.parseSetCurrLevel(ParseErrorLevel_Warning);
     return ParseLogWrapper(logger);
 }
 
-inline
+[[nodiscard]] inline
 ParseLogWrapper parseLogInfo(ParseLogger& logger)
 {
     logger.parseSetCurrLevel(ParseErrorLevel_Info);

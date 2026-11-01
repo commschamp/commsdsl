@@ -29,7 +29,7 @@ namespace parse
 namespace
 {
 
-const ParseVariantFieldImpl* cast(const ParseFieldImpl* ptr)
+const ParseVariantFieldImpl* parseCastInternal(const ParseFieldImpl* ptr)
 {
     assert(ptr != nullptr);
     return static_cast<const ParseVariantFieldImpl*>(ptr);
@@ -50,12 +50,12 @@ ParseVariantField::ParseVariantField(ParseField field)
 
 ParseVariantField::ParseMembers ParseVariantField::parseMembers() const
 {
-    return cast(m_pImpl)->parseMembersList();
+    return parseCastInternal(m_pImpl)->parseMembersList();
 }
 
 std::size_t ParseVariantField::parseDefaultMemberIdx() const
 {
-    return cast(m_pImpl)->parseDefaultMemberIdx();
+    return parseCastInternal(m_pImpl)->parseDefaultMemberIdx();
 }
 
 } // namespace parse

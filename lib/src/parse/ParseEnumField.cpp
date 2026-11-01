@@ -29,7 +29,7 @@ namespace parse
 namespace
 {
 
-const ParseEnumFieldImpl* cast(const ParseFieldImpl* ptr)
+[[nodiscard]] const ParseEnumFieldImpl* parseCastInternal(const ParseFieldImpl* ptr)
 {
     assert(ptr != nullptr);
     return static_cast<const ParseEnumFieldImpl*>(ptr);
@@ -50,52 +50,52 @@ ParseEnumField::ParseEnumField(ParseField field)
 
 ParseEnumField::ParseType ParseEnumField::parseType() const
 {
-    return cast(m_pImpl)->parseType();
+    return parseCastInternal(m_pImpl)->parseType();
 }
 
 ParseEndian ParseEnumField::parseEndian() const
 {
-    return cast(m_pImpl)->parseEndian();
+    return parseCastInternal(m_pImpl)->parseEndian();
 }
 
 std::intmax_t ParseEnumField::parseDefaultValue() const
 {
-    return cast(m_pImpl)->parseDefaultValue();
+    return parseCastInternal(m_pImpl)->parseDefaultValue();
 }
 
 const ParseEnumField::ParseValues& ParseEnumField::parseValues() const
 {
-    return cast(m_pImpl)->parseValues();
+    return parseCastInternal(m_pImpl)->parseValues();
 }
 
 const ParseEnumField::ParseRevValues& ParseEnumField::parseRevValues() const
 {
-    return cast(m_pImpl)->parseRevValues();
+    return parseCastInternal(m_pImpl)->parseRevValues();
 }
 
 bool ParseEnumField::parseIsNonUniqueAllowed() const
 {
-    return cast(m_pImpl)->parseIsNonUniqueAllowed();
+    return parseCastInternal(m_pImpl)->parseIsNonUniqueAllowed();
 }
 
 bool ParseEnumField::parseIsUnique() const
 {
-    return cast(m_pImpl)->parseIsUnique();
+    return parseCastInternal(m_pImpl)->parseIsUnique();
 }
 
 bool ParseEnumField::parseValidCheckVersion() const
 {
-    return cast(m_pImpl)->parseValidCheckVersion();
+    return parseCastInternal(m_pImpl)->parseValidCheckVersion();
 }
 
 bool ParseEnumField::parseHexAssign() const
 {
-    return cast(m_pImpl)->parseHexAssign();
+    return parseCastInternal(m_pImpl)->parseHexAssign();
 }
 
 bool ParseEnumField::parseAvailableLengthLimit() const
 {
-    return cast(m_pImpl)->parseAvailableLengthLimit();
+    return parseCastInternal(m_pImpl)->parseAvailableLengthLimit();
 }
 
 } // namespace parse

@@ -37,7 +37,7 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::ParseNamesList& parseInterfaceSupportedTypes()
+[[nodiscard]] const ParseXmlWrap::ParseNamesList& parseInterfaceSupportedTypesInternal()
 {
     static const ParseXmlWrap::ParseNamesList Names = ParseFieldImpl::parseSupportedTypes();
     return Names;
@@ -298,7 +298,7 @@ const ParseXmlWrap::ParseNamesList& ParseInterfaceImpl::parseCommonProps()
 ParseXmlWrap::ParseNamesList ParseInterfaceImpl::parseAllNames()
 {
     auto names = parseCommonProps();
-    auto& fieldTypes = parseInterfaceSupportedTypes();
+    auto& fieldTypes = parseInterfaceSupportedTypesInternal();
     names.insert(names.end(), fieldTypes.begin(), fieldTypes.end());
     names.push_back(common::parseFieldsStr());
     names.push_back(common::parseAliasStr());
@@ -450,7 +450,7 @@ bool ParseInterfaceImpl::parseUpdateFields()
             return false;
         }
 
-        auto fieldsTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseInterfaceSupportedTypes());
+        auto fieldsTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseInterfaceSupportedTypesInternal());
         if ((!fieldsNodes.empty()) && (!fieldsTypes.empty())) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                           "The \"" << common::parseInterfaceStr() << "\" element does not support "
@@ -478,7 +478,7 @@ bool ParseInterfaceImpl::parseUpdateFields()
         if (0U < fieldsNodes.size()) {
             assert(0U == fieldsTypes.size());
             fieldsTypes = ParseXmlWrap::parseGetChildren(fieldsNodes.front());
-            auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(fieldsNodes.front(), parseInterfaceSupportedTypes());
+            auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(fieldsNodes.front(), parseInterfaceSupportedTypesInternal());
             if (cleanMemberFieldsTypes.size() != fieldsTypes.size()) {
                 parseLogError() << ParseXmlWrap::parseLogPrefix(fieldsNodes.front()) <<
                     "The \"" << common::parseFieldsStr() << "\" child node of \"" <<

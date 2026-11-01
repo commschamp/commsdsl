@@ -44,7 +44,7 @@ const char Esc = '\\';
 const char Deref = common::parseSiblingRefPrefix();
 const char IfaceDeref = common::parseInterfaceRefPrefix();
 
-void parseDiscardNonSizeReferences(ParseFieldImpl::ParseFieldRefInfosList& infos)
+void parseDiscardNonSizeReferencesInternal(ParseFieldImpl::ParseFieldRefInfosList& infos)
 {
     infos.erase(
         std::remove_if(
@@ -56,7 +56,7 @@ void parseDiscardNonSizeReferences(ParseFieldImpl::ParseFieldRefInfosList& infos
         infos.end());
 }
 
-void parseDiscardNonFieldReferences(ParseFieldImpl::ParseFieldRefInfosList& infos)
+void parseDiscardNonFieldReferencesInternal(ParseFieldImpl::ParseFieldRefInfosList& infos)
 {
     infos.erase(
         std::remove_if(
@@ -68,7 +68,7 @@ void parseDiscardNonFieldReferences(ParseFieldImpl::ParseFieldRefInfosList& info
         infos.end());
 }
 
-ParseOptCondExprImpl::ParseOperandInfo parseDperandInfoInternal(const std::string& val)
+[[nodiscard]] ParseOptCondExprImpl::ParseOperandInfo parseDperandInfoInternal(const std::string& val)
 {
     ParseOptCondExprImpl::ParseOperandInfo result;
     if (val.empty()) {
@@ -177,7 +177,7 @@ bool ParseOptCondExprImpl::parseHasInterfaceReferenceImpl() const
         ((!m_right.empty()) && (m_right[0] == IfaceDeref));
 }
 
-bool ParseOptCondExprImpl::parseHasUpdatedValue()
+bool ParseOptCondExprImpl::parseHasUpdatedValue() const
 {
     return (!m_left.empty()) ||
            (!m_right.empty()) ||
@@ -472,7 +472,7 @@ bool ParseOptCondExprImpl::parseVerifySiblingComparison(const ParseOptCondImpl::
     if (m_right[0] == IfaceDeref) {
         auto& schema = protocol.parseCurrSchema();
         auto rightFields = schema.parseProcessInterfaceFieldRef(m_right.substr(1));
-        parseDiscardNonFieldReferences(rightFields);
+        parseDiscardNonFieldReferencesInternal(rightFields);
 
         if (rightFields.empty()) {
             parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
@@ -514,7 +514,7 @@ bool ParseOptCondExprImpl::parseVerifyInterfaceComparison(const ParseFieldsList&
     auto leftFields = schema.parseProcessInterfaceFieldRef(m_left.substr(1));
 
     auto leftSizeChecks = leftFields;
-    parseDiscardNonSizeReferences(leftSizeChecks);
+    parseDiscardNonSizeReferencesInternal(leftSizeChecks);
 
     if (!leftSizeChecks.empty()) {
         if (!protocol.parseIsSizeCompInConditionalsSupported()) {
@@ -526,7 +526,7 @@ bool ParseOptCondExprImpl::parseVerifyInterfaceComparison(const ParseFieldsList&
         return parseVerifyValidSizeValueComparison();
     }
 
-    parseDiscardNonFieldReferences(leftFields);
+    parseDiscardNonFieldReferencesInternal(leftFields);
 
     if (leftFields.empty()) {
         parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<
@@ -569,7 +569,7 @@ bool ParseOptCondExprImpl::parseVerifyInterfaceComparison(const ParseFieldsList&
 
     if (m_right[0] == IfaceDeref) {
         auto rightFields = schema.parseProcessInterfaceFieldRef(m_right.substr(1));
-        parseDiscardNonFieldReferences(rightFields);
+        parseDiscardNonFieldReferencesInternal(rightFields);
 
         if (rightFields.empty()) {
             parseLogError(logger) << ParseXmlWrap::parseLogPrefix(node) <<

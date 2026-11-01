@@ -34,7 +34,7 @@ namespace parse
 namespace
 {
 
-ParseXmlWrap::ParseNamesList parseGetExtraNames()
+[[nodiscard]] ParseXmlWrap::ParseNamesList parseGetExtraNamesInternal()
 {
     auto names = ParseBitfieldFieldImpl::parseSupportedTypes();
     names.push_back(common::parseMembersStr());
@@ -115,7 +115,7 @@ const ParseXmlWrap::ParseNamesList& ParseBitfieldFieldImpl::parseExtraPossiblePr
 
 const ParseXmlWrap::ParseNamesList& ParseBitfieldFieldImpl::parseExtraChildrenNamesImpl() const
 {
-    static const ParseXmlWrap::ParseNamesList Names = parseGetExtraNames();
+    static const ParseXmlWrap::ParseNamesList Names = parseGetExtraNamesInternal();
     return Names;
 }
 

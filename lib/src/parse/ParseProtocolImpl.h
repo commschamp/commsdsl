@@ -48,95 +48,95 @@ public:
     using ParseSchemasAccessList = ParseProtocol::ParseSchemasList;
 
     ParseProtocolImpl();
-    bool parse(const std::string& input);
-    bool parseValidate();
+    [[nodiscard]] bool parse(const std::string& input);
+    [[nodiscard]] bool parseValidate();
 
-    ParseSchemasAccessList parseSchemas() const;
+    [[nodiscard]] ParseSchemasAccessList parseSchemas() const;
 
-    ParseSchemasList& parseSchemaImpls()
+    [[nodiscard]] ParseSchemasList& parseSchemaImpls()
     {
         return m_schemas;
     }
 
-    const ParseSchemasList& parseSchemaImpls() const
+    [[nodiscard]] const ParseSchemasList& parseSchemaImpls() const
     {
         return m_schemas;
     }
 
-    ParseSchemaImpl& parseCurrSchema();
-    const ParseSchemaImpl& parseCurrSchema() const;
+    [[nodiscard]] ParseSchemaImpl& parseCurrSchema();
+    [[nodiscard]] const ParseSchemaImpl& parseCurrSchema() const;
 
     void parseSetErrorReportCallback(ParseErrorReportFunction&& cb)
     {
         m_errorReportCb = std::move(cb);
     }
 
-    ParseLogger& parseLogger() const
+    [[nodiscard]] ParseLogger& parseLogger() const
     {
         return m_logger;
     }
 
-    const ParseFieldImpl* parseFindField(const std::string& ref, bool checkRef = true) const;
+    [[nodiscard]] const ParseFieldImpl* parseFindField(const std::string& ref, bool checkRef = true) const;
 
-    const ParseMessageImpl* parseFindMessage(const std::string& ref, bool checkRef = true) const;
+    [[nodiscard]] const ParseMessageImpl* parseFindMessage(const std::string& ref, bool checkRef = true) const;
 
-    const ParseInterfaceImpl* parseFindInterface(const std::string& ref, bool checkRef = true) const;
+    [[nodiscard]] const ParseInterfaceImpl* parseFindInterface(const std::string& ref, bool checkRef = true) const;
 
-    bool parseStrToEnumValue(const std::string& ref, std::intmax_t& val, bool checkRef = true) const;
+    [[nodiscard]] bool parseStrToEnumValue(const std::string& ref, std::intmax_t& val, bool checkRef = true) const;
 
-    bool parseStrToNumeric(const std::string& ref, bool checkRef, std::intmax_t& val, bool& isBigUnsigned) const;
-    bool parseStrToFp(const std::string& ref, bool checkRef, double& val) const;
-    bool parseStrToBool(const std::string& ref, bool checkRef, bool& val) const;
-    bool parseStrToString(const std::string& ref, bool checkRef, std::string& val) const;
-    bool parseStrToData(const std::string& ref, bool checkRef, std::vector<std::uint8_t>& val) const;
+    [[nodiscard]] bool parseStrToNumeric(const std::string& ref, bool checkRef, std::intmax_t& val, bool& isBigUnsigned) const;
+    [[nodiscard]] bool parseStrToFp(const std::string& ref, bool checkRef, double& val) const;
+    [[nodiscard]] bool parseStrToBool(const std::string& ref, bool checkRef, bool& val) const;
+    [[nodiscard]] bool parseStrToString(const std::string& ref, bool checkRef, std::string& val) const;
+    [[nodiscard]] bool parseStrToData(const std::string& ref, bool checkRef, std::vector<std::uint8_t>& val) const;
 
-    bool parseStrToStringValue(const std::string& str, std::string& val) const;
+    [[nodiscard]] bool parseStrToStringValue(const std::string& str, std::string& val) const;
 
     void parseAddExpectedExtraPrefix(const std::string& value)
     {
         m_extraPrefixes.push_back(value);
     }
 
-    const ParseExtraPrefixes& parseExtraElementPrefixes() const
+    [[nodiscard]] const ParseExtraPrefixes& parseExtraElementPrefixes() const
     {
         return m_extraPrefixes;
     }
 
-    bool parseIsFeatureSupported(unsigned minDslVersion) const;
-    bool parseIsFeatureDeprecated(unsigned deprecatedVersion) const;
-    bool parseIsPropertySupported(const std::string& name) const;
-    bool parseIsPropertyDeprecated(const std::string& name) const;
-    bool parseIsFieldValueReferenceSupported() const;
-    bool parseIsSemanticTypeLengthSupported() const;
-    bool parseIsSemanticTypeRefInheritanceSupported() const;
-    bool parseIsNonIntSemanticTypeLengthSupported() const;
-    bool parseIsNonUniqueSpecialsAllowedSupported() const;
-    bool parseIsFieldAliasSupported() const;
-    bool parseIsCopyFieldsFromBundleSupported() const;
-    bool parseIsOverrideTypeSupported() const;
-    bool parseIsMemberReplaceSupported() const;
-    bool parseIsMultiSchemaSupported() const;
-    bool parseIsInterfaceFieldReferenceSupported() const;
-    bool parseIsFailOnInvalidInMessageSupported() const;
-    bool parseIsSizeCompInConditionalsSupported() const;
-    bool parseIsExistsCheckInConditionalsSupported() const;
-    bool parseIsValidValueInStringAndDataSupported() const;
-    bool parseIsValidateMinLengthForFieldsSupported() const;
-    bool parseIsMessageReuseSupported() const;
-    bool parseIsInterfaceReuseSupported() const;
-    bool parseIsValidCondSupportedInCompositeFields() const;
-    bool parseIsNamespaceDisplayNameSupported() const;
-    bool parseIsFrameDisplayNameSupported() const;
-    bool parseIsLayerDisplayNameSupported() const;
-    bool parseIsSyncSuffixLayerSupported() const;
-    bool parseIsSetMaskSupported() const;
+    [[nodiscard]] bool parseIsFeatureSupported(unsigned minDslVersion) const;
+    [[nodiscard]] bool parseIsFeatureDeprecated(unsigned deprecatedVersion) const;
+    [[nodiscard]] bool parseIsPropertySupported(const std::string& name) const;
+    [[nodiscard]] bool parseIsPropertyDeprecated(const std::string& name) const;
+    [[nodiscard]] bool parseIsFieldValueReferenceSupported() const;
+    [[nodiscard]] bool parseIsSemanticTypeLengthSupported() const;
+    [[nodiscard]] bool parseIsSemanticTypeRefInheritanceSupported() const;
+    [[nodiscard]] bool parseIsNonIntSemanticTypeLengthSupported() const;
+    [[nodiscard]] bool parseIsNonUniqueSpecialsAllowedSupported() const;
+    [[nodiscard]] bool parseIsFieldAliasSupported() const;
+    [[nodiscard]] bool parseIsCopyFieldsFromBundleSupported() const;
+    [[nodiscard]] bool parseIsOverrideTypeSupported() const;
+    [[nodiscard]] bool parseIsMemberReplaceSupported() const;
+    [[nodiscard]] bool parseIsMultiSchemaSupported() const;
+    [[nodiscard]] bool parseIsInterfaceFieldReferenceSupported() const;
+    [[nodiscard]] bool parseIsFailOnInvalidInMessageSupported() const;
+    [[nodiscard]] bool parseIsSizeCompInConditionalsSupported() const;
+    [[nodiscard]] bool parseIsExistsCheckInConditionalsSupported() const;
+    [[nodiscard]] bool parseIsValidValueInStringAndDataSupported() const;
+    [[nodiscard]] bool parseIsValidateMinLengthForFieldsSupported() const;
+    [[nodiscard]] bool parseIsMessageReuseSupported() const;
+    [[nodiscard]] bool parseIsInterfaceReuseSupported() const;
+    [[nodiscard]] bool parseIsValidCondSupportedInCompositeFields() const;
+    [[nodiscard]] bool parseIsNamespaceDisplayNameSupported() const;
+    [[nodiscard]] bool parseIsFrameDisplayNameSupported() const;
+    [[nodiscard]] bool parseIsLayerDisplayNameSupported() const;
+    [[nodiscard]] bool parseIsSyncSuffixLayerSupported() const;
+    [[nodiscard]] bool parseIsSetMaskSupported() const;
 
     void parseSetMultipleSchemasEnabled(bool value)
     {
         m_multipleSchemasEnabled = value;
     }
 
-    bool parseGetMultipleSchemasEnabled() const
+    [[nodiscard]] bool parseGetMultipleSchemasEnabled() const
     {
         return m_multipleSchemasEnabled;
     }
@@ -157,18 +157,18 @@ private:
     static void parseCbXmlErrorFunc(void* userData, const xmlError* err);
     static void parseCbXmlErrorFunc(void* userData, xmlErrorPtr err);
     void parseHandleXmlError(const xmlError* err);
-    bool parseValidateDoc(::xmlDocPtr doc);
-    bool parseValidateSchema(::xmlNodePtr node);
-    bool parseValidatePlatforms(::xmlNodePtr root);
-    bool parseValidateSinglePlatform(::xmlNodePtr node);
-    bool parseValidateNamespaces(::xmlNodePtr root);
-    bool parseValidateAllMessages();
-    bool parseStrToValue(const std::string& ref, bool checkRef, ParseStrToValueConvertFunc&& func) const;
-    std::pair<const ParseSchemaImpl*, std::string> parseExternalRef(const std::string& externalRef) const;
-    bool parseCanRefSchema(const ParseSchemaImpl* schema, const std::string& externalRef) const;
+    [[nodiscard]] bool parseValidateDoc(::xmlDocPtr doc);
+    [[nodiscard]] bool parseValidateSchema(::xmlNodePtr node);
+    [[nodiscard]] bool parseValidatePlatforms(::xmlNodePtr root);
+    [[nodiscard]] bool parseValidateSinglePlatform(::xmlNodePtr node);
+    [[nodiscard]] bool parseValidateNamespaces(::xmlNodePtr root);
+    [[nodiscard]] bool parseValidateAllMessages();
+    [[nodiscard]] bool parseStrToValue(const std::string& ref, bool checkRef, ParseStrToValueConvertFunc&& func) const;
+    [[nodiscard]] std::pair<const ParseSchemaImpl*, std::string> parseExternalRef(const std::string& externalRef) const;
+    [[nodiscard]] bool parseCanRefSchema(const ParseSchemaImpl* schema, const std::string& externalRef) const;
 
-    ParseLogWrapper parseLogError() const;
-    ParseLogWrapper parseLogWarning() const;
+    [[nodiscard]] ParseLogWrapper parseLogError() const;
+    [[nodiscard]] ParseLogWrapper parseLogWarning() const;
 
     ParseErrorReportFunction m_errorReportCb;
     ParseDocsList m_docs;

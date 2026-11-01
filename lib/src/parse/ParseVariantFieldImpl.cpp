@@ -35,15 +35,15 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::ParseNamesList& parseVariantSupportedTypes()
+[[nodiscard]] const ParseXmlWrap::ParseNamesList& parseVariantSupportedTypesInternal()
 {
     static const ParseXmlWrap::ParseNamesList Names = ParseFieldImpl::parseSupportedTypes();
     return Names;
 }
 
-ParseXmlWrap::ParseNamesList parseGetExtraNames()
+[[nodiscard]] ParseXmlWrap::ParseNamesList parseGetExtraNames()
 {
-    auto names = parseVariantSupportedTypes();
+    auto names = parseVariantSupportedTypesInternal();
     names.push_back(common::parseMembersStr());
     return names;
 }
@@ -233,7 +233,7 @@ bool ParseVariantFieldImpl::parseUpdateMembers()
             return false;
         }
 
-        auto memberFieldsTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseVariantSupportedTypes());
+        auto memberFieldsTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseVariantSupportedTypesInternal());
         if ((0U < membersNodes.size()) && (0U < memberFieldsTypes.size())) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                           "The \"" << common::parseVariantStr() << "\" element does not support "
@@ -267,7 +267,7 @@ bool ParseVariantFieldImpl::parseUpdateMembers()
         if (0U < membersNodes.size()) {
             assert(0U == memberFieldsTypes.size());
             memberFieldsTypes = ParseXmlWrap::parseGetChildren(membersNodes.front());
-            auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(membersNodes.front(), parseVariantSupportedTypes());
+            auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(membersNodes.front(), parseVariantSupportedTypesInternal());
             if (cleanMemberFieldsTypes.size() != memberFieldsTypes.size()) {
                 parseLogError() << ParseXmlWrap::parseLogPrefix(membersNodes.front()) <<
                               "The \"" << common::parseMembersStr() << "\" child node of \"" <<

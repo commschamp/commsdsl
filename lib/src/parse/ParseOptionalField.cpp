@@ -29,7 +29,7 @@ namespace parse
 namespace
 {
 
-const ParseOptionalFieldImpl* cast(const ParseFieldImpl* ptr)
+[[nodiscard]] const ParseOptionalFieldImpl* parseCastInternal(const ParseFieldImpl* ptr)
 {
     assert(ptr != nullptr);
     return static_cast<const ParseOptionalFieldImpl*>(ptr);
@@ -50,27 +50,27 @@ ParseOptionalField::ParseOptionalField(ParseField field)
 
 ParseOptionalField::ParseMode ParseOptionalField::parseDefaultMode() const
 {
-    return cast(m_pImpl)->parseDefaultMode();
+    return parseCastInternal(m_pImpl)->parseDefaultMode();
 }
 
 ParseField ParseOptionalField::parseField() const
 {
-    return cast(m_pImpl)->parseField();
+    return parseCastInternal(m_pImpl)->parseField();
 }
 
 ParseOptCond ParseOptionalField::parseCond() const
 {
-    return cast(m_pImpl)->parseWrappedCondition();
+    return parseCastInternal(m_pImpl)->parseWrappedCondition();
 }
 
 bool ParseOptionalField::parseMissingOnReadFail() const
 {
-    return cast(m_pImpl)->parseMissingOnReadFail();
+    return parseCastInternal(m_pImpl)->parseMissingOnReadFail();
 }
 
 bool ParseOptionalField::parseMissingOnInvalid() const
 {
-    return cast(m_pImpl)->parseMissingOnInvalid();
+    return parseCastInternal(m_pImpl)->parseMissingOnInvalid();
 }
 
 } // namespace parse

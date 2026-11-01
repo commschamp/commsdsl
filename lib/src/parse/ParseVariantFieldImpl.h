@@ -36,9 +36,9 @@ public:
     ParseVariantFieldImpl(const ParseVariantFieldImpl& other);
     using ParseMembers = ParseVariantField::ParseMembers;
 
-    ParseMembers parseMembersList() const;
+    [[nodiscard]] ParseMembers parseMembersList() const;
 
-    std::size_t parseDefaultMemberIdx() const
+    [[nodiscard]] std::size_t parseDefaultMemberIdx() const
     {
         return m_state.m_defaultIdx;
     }
@@ -62,10 +62,9 @@ protected:
     virtual const ParseFieldsList& parseMembersImpl() const override;
 
 private:
-
-    bool parseUpdateMembers();
-    bool parseUpdateDefaultMember();
-    bool parseUpdateIdxHidden();
+    [[nodiscard]] bool parseUpdateMembers();
+    [[nodiscard]] bool parseUpdateDefaultMember();
+    [[nodiscard]] bool parseUpdateIdxHidden();
 
     struct ParseReusableState
     {

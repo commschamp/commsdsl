@@ -50,57 +50,56 @@ public:
     ParseFrameImpl(ParseFrameImpl&&) = default;
     virtual ~ParseFrameImpl() = default;
 
-    ::xmlNodePtr parseGetNode() const
+    [[nodiscard]] ::xmlNodePtr parseGetNode() const
     {
         return m_node;
     }
 
-    bool parse();
+    [[nodiscard]] bool parse();
 
-    const ParsePropsMap& parseProps() const
+    [[nodiscard]] const ParsePropsMap& parseProps() const
     {
         return m_props;
     }
 
-    const std::string& parseName() const;
-    const std::string& parseDisplayName() const;
-    const std::string& parseDescription() const;
+    [[nodiscard]] const std::string& parseName() const;
+    [[nodiscard]] const std::string& parseDisplayName() const;
+    [[nodiscard]] const std::string& parseDescription() const;
 
-    ParseLayersList parseLayersList() const;
+    [[nodiscard]] ParseLayersList parseLayersList() const;
 
-    std::string parseExternalRef(bool schemaRef) const;
+    [[nodiscard]] std::string parseExternalRef(bool schemaRef) const;
 
-    const ParsePropsMap& parseExtraAttributes() const
+    [[nodiscard]] const ParsePropsMap& parseExtraAttributes() const
     {
         return m_extraAttrs;
     }
 
-    const ParseContentsList& parseExtraChildren() const
+    [[nodiscard]] const ParseContentsList& parseExtraChildren() const
     {
         return m_extraChildren;
     }
 
 protected:
-
     virtual ParseObjKind parseObjKindImpl() const override;
 
 private:
-    ParseLogWrapper parseLogError() const;
-    ParseLogWrapper parseLogWarning() const;
-    ParseLogWrapper parseLogInfo() const;
+    [[nodiscard]] ParseLogWrapper parseLogError() const;
+    [[nodiscard]] ParseLogWrapper parseLogWarning() const;
+    [[nodiscard]] ParseLogWrapper parseLogInfo() const;
 
-    static const ParseXmlWrap::ParseNamesList& parseCommonProps();
-    static ParseXmlWrap::ParseNamesList parseAllNames();
+    [[nodiscard]] static const ParseXmlWrap::ParseNamesList& parseCommonProps();
+    [[nodiscard]] static ParseXmlWrap::ParseNamesList parseAllNames();
 
-    bool parseValidateSinglePropInstance(const std::string& str, bool mustHave = false);
-    bool parseValidateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
+    [[nodiscard]] bool parseValidateSinglePropInstance(const std::string& str, bool mustHave = false);
+    [[nodiscard]] bool parseValidateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
     void parseReportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
-    bool parseUpdateName();
-    bool parseUpdateDisplayName();
-    bool parseUpdateDescription();
-    bool parseUpdateLayers();
-    bool parseUpdateExtraAttrs();
-    bool parseUpdateExtraChildren();
+    [[nodiscard]] bool parseUpdateName();
+    [[nodiscard]] bool parseUpdateDisplayName();
+    [[nodiscard]] bool parseUpdateDescription();
+    [[nodiscard]] bool parseUpdateLayers();
+    [[nodiscard]] bool parseUpdateExtraAttrs();
+    [[nodiscard]] bool parseUpdateExtraChildren();
 
     ::xmlNodePtr m_node = nullptr;
     ParseProtocolImpl& m_protocol;

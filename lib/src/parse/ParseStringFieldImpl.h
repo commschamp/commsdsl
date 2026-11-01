@@ -40,27 +40,27 @@ public:
     ParseStringFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseStringFieldImpl(const ParseStringFieldImpl& other);
 
-    const std::string& parseDefaultValue() const
+    [[nodiscard]] const std::string& parseDefaultValue() const
     {
         return m_state.m_defaultValue;
     }
 
-    const std::string& parseEncodingStr() const
+    [[nodiscard]] const std::string& parseEncodingStr() const
     {
         return m_state.m_encoding;
     }
 
-    std::size_t parseLength() const
+    [[nodiscard]] std::size_t parseLength() const
     {
         return m_state.m_length;
     }
 
-    bool parseHasPrefixField() const
+    [[nodiscard]] bool parseHasPrefixField() const
     {
         return (m_state.m_extPrefixField != nullptr) || static_cast<bool>(m_prefixField);
     }
 
-    ParseField parsePrefixField() const
+    [[nodiscard]] ParseField parsePrefixField() const
     {
         if (m_state.m_extPrefixField != nullptr) {
             return ParseField(m_state.m_extPrefixField);
@@ -69,17 +69,17 @@ public:
         return ParseField(m_prefixField.get());
     }
 
-    const std::string& parseDetachedPrefixFieldName() const
+    [[nodiscard]] const std::string& parseDetachedPrefixFieldName() const
     {
         return m_state.m_detachedPrefixField;
     }
 
-    bool parseHasZeroTermSuffix() const
+    [[nodiscard]] bool parseHasZeroTermSuffix() const
     {
         return m_state.m_haxZeroSuffix;
     }
 
-    const ParseValidValuesList& parseValidValues() const
+    [[nodiscard]] const ParseValidValuesList& parseValidValues() const
     {
         return m_state.m_validValues;
     }
@@ -100,19 +100,19 @@ protected:
     virtual bool parseIsValidRefTypeImpl(ParseFieldRefType type) const override;
 
 private:
-    bool parseUpdateDefaultValue();
-    bool parseUpdateDefaultValidValue();
-    bool parseUpdateEncoding();
-    bool parseUpdateLength();
-    bool parseUpdatePrefix();
-    bool parseUpdateZeroTerm();
-    bool parseUpdateValidValues();
-    bool parseCheckPrefixFromRef();
-    bool parseCheckPrefixAsChild();
-    bool parseCheckValidValueAsAttr(const ParsePropsMap& xmlAttrs);
-    bool parseCheckValidValueAsChild(::xmlNodePtr child);
-    const ParseFieldImpl* parseGetPrefixField() const;
-    bool parseStrToValue(const std::string& str, std::string& val) const;
+    [[nodiscard]] bool parseUpdateDefaultValue();
+    [[nodiscard]] bool parseUpdateDefaultValidValue();
+    [[nodiscard]] bool parseUpdateEncoding();
+    [[nodiscard]] bool parseUpdateLength();
+    [[nodiscard]] bool parseUpdatePrefix();
+    [[nodiscard]] bool parseUpdateZeroTerm();
+    [[nodiscard]] bool parseUpdateValidValues();
+    [[nodiscard]] bool parseCheckPrefixFromRef();
+    [[nodiscard]] bool parseCheckPrefixAsChild();
+    [[nodiscard]] bool parseCheckValidValueAsAttr(const ParsePropsMap& xmlAttrs);
+    [[nodiscard]] bool parseCheckValidValueAsChild(::xmlNodePtr child);
+    [[nodiscard]] const ParseFieldImpl* parseGetPrefixField() const;
+    [[nodiscard]] bool parseStrToValue(const std::string& str, std::string& val) const;
 
     struct ParseState
     {

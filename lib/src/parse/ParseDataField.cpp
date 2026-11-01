@@ -29,7 +29,7 @@ namespace parse
 namespace
 {
 
-const ParseDataFieldImpl* cast(const ParseFieldImpl* ptr)
+[[nodiscard]] const ParseDataFieldImpl* parseCastInternal(const ParseFieldImpl* ptr)
 {
     assert(ptr != nullptr);
     return static_cast<const ParseDataFieldImpl*>(ptr);
@@ -50,32 +50,32 @@ ParseDataField::ParseDataField(ParseField field)
 
 const ParseDataField::ParseValueType& ParseDataField::parseDefaultValue() const
 {
-    return cast(m_pImpl)->parseDefaultValue();
+    return parseCastInternal(m_pImpl)->parseDefaultValue();
 }
 
 std::size_t ParseDataField::parseFixedLength() const
 {
-    return cast(m_pImpl)->parseLength();
+    return parseCastInternal(m_pImpl)->parseLength();
 }
 
 bool ParseDataField::parseHasLengthPrefixField() const
 {
-    return cast(m_pImpl)->parseHasPrefixField();
+    return parseCastInternal(m_pImpl)->parseHasPrefixField();
 }
 
 ParseField ParseDataField::parseLengthPrefixField() const
 {
-    return cast(m_pImpl)->parsePrefixField();
+    return parseCastInternal(m_pImpl)->parsePrefixField();
 }
 
 const std::string& ParseDataField::parseDetachedPrefixFieldName() const
 {
-    return cast(m_pImpl)->parseDetachedPrefixFieldName();
+    return parseCastInternal(m_pImpl)->parseDetachedPrefixFieldName();
 }
 
 const ParseDataField::ParseValidValuesList& ParseDataField::parseValidValues() const
 {
-    return cast(m_pImpl)->parseValidValues();
+    return parseCastInternal(m_pImpl)->parseValidValues();
 }
 
 } // namespace parse

@@ -42,17 +42,17 @@ public:
     ParseOptCondImpl(ParseOptCondImpl&&) = default;
     virtual ~ParseOptCondImpl() = default;
 
-    ParseKind parseKind() const
+    [[nodiscard]] ParseKind parseKind() const
     {
         return parseKindImpl();
     }
 
-    ParsePtr parseClone() const
+    [[nodiscard]] ParsePtr parseClone() const
     {
         return parseCloneImpl();
     }
 
-    bool parseVerify(const ParseFieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
+    [[nodiscard]] bool parseVerify(const ParseFieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const
     {
         return parseVerifyImpl(fields, node, protocol);
     }
@@ -62,7 +62,7 @@ public:
         m_condStr = str;
     }
 
-    bool parseHasInterfaceReference() const
+    [[nodiscard]] bool parseHasInterfaceReference() const
     {
         return parseHasInterfaceReferenceImpl();
     }
@@ -93,25 +93,25 @@ public:
     ParseOptCondExprImpl(const ParseOptCondExprImpl&) = default;
     ParseOptCondExprImpl(ParseOptCondExprImpl&&) = default;
 
-    bool parse(const std::string& expr, ::xmlNodePtr node, const ParseProtocolImpl& protocol);
+    [[nodiscard]] bool parse(const std::string& expr, ::xmlNodePtr node, const ParseProtocolImpl& protocol);
 
-    const std::string& parseLeft() const
+    [[nodiscard]] const std::string& parseLeft() const
     {
         return m_left;
     }
 
-    const std::string& parseOp() const
+    [[nodiscard]] const std::string& parseOp() const
     {
         return m_op;
     }
 
-    const std::string& parseRight() const
+    [[nodiscard]] const std::string& parseRight() const
     {
         return m_right;
     }
 
-    ParseOperandInfo parseLeftInfo() const;
-    ParseOperandInfo parseRightInfo() const;
+    [[nodiscard]] ParseOperandInfo parseLeftInfo() const;
+    [[nodiscard]] ParseOperandInfo parseRightInfo() const;
 
 protected:
     virtual ParseKind parseKindImpl() const override;
@@ -120,7 +120,7 @@ protected:
     virtual bool parseHasInterfaceReferenceImpl() const override;
 
 private:
-    bool parseHasUpdatedValue();
+    [[nodiscard]] bool parseHasUpdatedValue() const;
     bool parseCheckComparison(const std::string& expr, const std::string& op, ::xmlNodePtr node, const ParseProtocolImpl& protocol);
     bool parseCheckBool(const std::string& expr, ::xmlNodePtr node, const ParseProtocolImpl& protocol);
     bool parseVerifySingleElementCheck(const ParseFieldsList& fields, ::xmlNodePtr node, const ParseProtocolImpl& protocol) const;
@@ -148,14 +148,14 @@ public:
     ParseOptCondListImpl(const ParseOptCondListImpl& other);
     ParseOptCondListImpl(ParseOptCondListImpl&&) = default;
 
-    ParseType parseType() const
+    [[nodiscard]] ParseType parseType() const
     {
         return m_type;
     }
 
-    ParseCondList parseCondList() const;
+    [[nodiscard]] ParseCondList parseCondList() const;
 
-    bool parse(::xmlNodePtr node, const ParseProtocolImpl& protocol);
+    [[nodiscard]] bool parse(::xmlNodePtr node, const ParseProtocolImpl& protocol);
 
 protected:
     virtual ParseKind parseKindImpl() const override;

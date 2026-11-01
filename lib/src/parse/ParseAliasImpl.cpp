@@ -32,7 +32,7 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::ParseNamesList& parseCommonProps()
+[[nodiscard]] const ParseXmlWrap::ParseNamesList& parseCommonPropsInternal()
 {
     static const ParseXmlWrap::ParseNamesList CommonNames = {
         common::parseNameStr(),
@@ -61,7 +61,7 @@ bool ParseAliasImpl::parse()
 {
     auto props = ParseXmlWrap::parseNodeProps(m_node);
 
-    if (!ParseXmlWrap::parseChildrenAsProps(m_node, parseCommonProps(), m_protocol.parseLogger(), props)) {
+    if (!ParseXmlWrap::parseChildrenAsProps(m_node, parseCommonPropsInternal(), m_protocol.parseLogger(), props)) {
         return false;
     }
 
@@ -74,12 +74,12 @@ bool ParseAliasImpl::parse()
         return false;
     }
 
-    ParseXmlWrap::ParseNamesList expectedProps = parseCommonProps();
+    ParseXmlWrap::ParseNamesList expectedProps = parseCommonPropsInternal();
     if (!parseUpdateExtraAttrs(expectedProps)) {
         return false;
     }
 
-    ParseXmlWrap::ParseNamesList expectedChildren = parseCommonProps();
+    ParseXmlWrap::ParseNamesList expectedChildren = parseCommonPropsInternal();
     if (!parseUpdateExtraChildren(expectedChildren)) {
         return false;
     }

@@ -97,7 +97,7 @@ bool CCmake::cWriteInternal() const
         "            \"-Wall\" \"-Wextra\" \"-Wcast-align\" \"-Wcast-qual\" \"-Wctor-dtor-privacy\"\n"
         "            \"-Wmissing-include-dirs\" \"-Woverloaded-virtual\" \"-Wredundant-decls\" \"-Wshadow\"\n"
         "            \"-Wundef\" \"-Wunused\" \"-Wno-unknown-pragmas\" \"-fdiagnostics-show-option\"\n"
-        "            \"-Wunused\" \"-Wconversion\" \"-Wold-style-cast\" \"-Wdouble-promotion\"\n"
+        "            \"-Wunused-result\" \"-Wconversion\" \"-Wold-style-cast\" \"-Wdouble-promotion\"\n"
         "            \"-Wno-sign-conversion\" # This one is impractical\n"
         "        )\n\n"
         "        if (CMAKE_COMPILER_IS_GNUCC)\n"

@@ -56,46 +56,45 @@ public:
     ParseInterfaceImpl(ParseInterfaceImpl&&) = default;
     virtual ~ParseInterfaceImpl() = default;
 
-    ::xmlNodePtr parseGetNode() const
+    [[nodiscard]] ::xmlNodePtr parseGetNode() const
     {
         return m_node;
     }
 
-    bool parse();
+    [[nodiscard]] bool parse();
 
-    const ParsePropsMap& parseProps() const
+    [[nodiscard]] const ParsePropsMap& parseProps() const
     {
         return m_props;
     }
 
-    const std::string& parseName() const;
-    const std::string& parseDisplayName() const;
-    const std::string& parseDescription() const;
-    const std::string& parseCopyCodeFrom() const;
+    [[nodiscard]] const std::string& parseName() const;
+    [[nodiscard]] const std::string& parseDisplayName() const;
+    [[nodiscard]] const std::string& parseDescription() const;
+    [[nodiscard]] const std::string& parseCopyCodeFrom() const;
 
-    ParseFieldsList parseFieldsList() const;
-    ParseAliasesList parseAliasesList() const;
+    [[nodiscard]] ParseFieldsList parseFieldsList() const;
+    [[nodiscard]] ParseAliasesList parseAliasesList() const;
 
-    std::string parseExternalRef(bool schemaRef) const;
+    [[nodiscard]] std::string parseExternalRef(bool schemaRef) const;
 
-    const ParsePropsMap& parseExtraAttributes() const
+    [[nodiscard]] const ParsePropsMap& parseExtraAttributes() const
     {
         return m_extraAttrs;
     }
 
-    const ParseContentsList& parseExtraChildren() const
+    [[nodiscard]] const ParseContentsList& parseExtraChildren() const
     {
         return m_extraChildren;
     }
 
-    std::size_t parseFindFieldIdx(const std::string& name) const;
+    [[nodiscard]] std::size_t parseFindFieldIdx(const std::string& name) const;
 
-    ParseImplFieldsList parseAllImplFields() const;
+    [[nodiscard]] ParseImplFieldsList parseAllImplFields() const;
 
-    ParseFieldRefInfo processInnerFieldRef(const std::string refStr) const;
+    [[nodiscard]] ParseFieldRefInfo processInnerFieldRef(const std::string refStr) const;
 
 protected:
-
     virtual ParseObjKind parseObjKindImpl() const override;
 
 private:
@@ -110,7 +109,7 @@ private:
         ParseReusableState() = default;
         ParseReusableState(ParseReusableState&&) = default;
 
-        auto basicForwardAsTuple()
+        [[nodiscard]] auto parseForwardAsTuple()
         {
             return
                 std::forward_as_tuple(
@@ -122,14 +121,14 @@ private:
                 );
         }
 
-        auto basicForwardAsTuple() const
+        [[nodiscard]] auto parseForwardAsTuple() const
         {
-            return const_cast<ParseReusableState*>(this)->basicForwardAsTuple();
+            return const_cast<ParseReusableState*>(this)->parseForwardAsTuple();
         }
 
         ParseReusableState& operator=(const ParseReusableState& other)
         {
-            basicForwardAsTuple() = other.basicForwardAsTuple();
+            parseForwardAsTuple() = other.parseForwardAsTuple();
 
             m_fields.clear();
             m_fields.reserve(other.m_fields.size());
@@ -147,30 +146,30 @@ private:
         }
     };
 
-    ParseLogWrapper parseLogError() const;
-    ParseLogWrapper parseLogWarning() const;
-    ParseLogWrapper parseLogInfo() const;
+    [[nodiscard]] ParseLogWrapper parseLogError() const;
+    [[nodiscard]] ParseLogWrapper parseLogWarning() const;
+    [[nodiscard]] ParseLogWrapper parseLogInfo() const;
 
-    static const ParseXmlWrap::ParseNamesList& parseCommonProps();
-    static ParseXmlWrap::ParseNamesList parseAllNames();
+    [[nodiscard]] static const ParseXmlWrap::ParseNamesList& parseCommonProps();
+    [[nodiscard]] static ParseXmlWrap::ParseNamesList parseAllNames();
 
-    bool parseValidateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
-    bool parseValidateSinglePropInstance(const std::string& str, bool mustHave = false);
-    bool parseValidateAndUpdateStringPropValue(const std::string& str, std::string& value, bool mustHave = false);
+    [[nodiscard]] bool parseValidateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
+    [[nodiscard]] bool parseValidateSinglePropInstance(const std::string& str, bool mustHave = false);
+    [[nodiscard]] bool parseValidateAndUpdateStringPropValue(const std::string& str, std::string& value, bool mustHave = false);
     void parseReportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
-    bool parseCheckReuse();
-    bool parseUpdateName();
-    bool parseUpdateDescription();
-    bool parseCopyFields();
-    bool parseUpdateFields();
-    bool parseCopyAliases();
-    bool parseUpdateAliases();
+    [[nodiscard]] bool parseCheckReuse();
+    [[nodiscard]] bool parseUpdateName();
+    [[nodiscard]] bool parseUpdateDescription();
+    [[nodiscard]] bool parseCopyFields();
+    [[nodiscard]] bool parseUpdateFields();
+    [[nodiscard]] bool parseCopyAliases();
+    [[nodiscard]] bool parseUpdateAliases();
     void parseCloneFieldsFrom(const ParseInterfaceImpl& other);
     void parseCloneFieldsFrom(const ParseBundleFieldImpl& other);
     void parseCloneAliasesFrom(const ParseInterfaceImpl& other);
     void parseCloneAliasesFrom(const ParseBundleFieldImpl& other);
-    bool parseUpdateExtraAttrs();
-    bool parseUpdateExtraChildren();
+    [[nodiscard]] bool parseUpdateExtraAttrs();
+    [[nodiscard]] bool parseUpdateExtraChildren();
 
     ::xmlNodePtr m_node = nullptr;
     ParseProtocolImpl& m_protocol;

@@ -29,7 +29,7 @@ namespace parse
 namespace
 {
 
-const ParseStringFieldImpl* cast(const ParseFieldImpl* ptr)
+[[nodiscard]] const ParseStringFieldImpl* parseCastInternal(const ParseFieldImpl* ptr)
 {
     assert(ptr != nullptr);
     return static_cast<const ParseStringFieldImpl*>(ptr);
@@ -50,42 +50,42 @@ ParseStringField::ParseStringField(ParseField field)
 
 const std::string& ParseStringField::parseDefaultValue() const
 {
-    return cast(m_pImpl)->parseDefaultValue();
+    return parseCastInternal(m_pImpl)->parseDefaultValue();
 }
 
 const std::string& ParseStringField::parseEncodingStr() const
 {
-    return cast(m_pImpl)->parseEncodingStr();
+    return parseCastInternal(m_pImpl)->parseEncodingStr();
 }
 
 std::size_t ParseStringField::parseFixedLength() const
 {
-    return cast(m_pImpl)->parseLength();
+    return parseCastInternal(m_pImpl)->parseLength();
 }
 
 bool ParseStringField::parseHasLengthPrefixField() const
 {
-    return cast(m_pImpl)->parseHasPrefixField();
+    return parseCastInternal(m_pImpl)->parseHasPrefixField();
 }
 
 ParseField ParseStringField::parseLengthPrefixField() const
 {
-    return cast(m_pImpl)->parsePrefixField();
+    return parseCastInternal(m_pImpl)->parsePrefixField();
 }
 
 bool ParseStringField::parseHasZeroTermSuffix() const
 {
-    return cast(m_pImpl)->parseHasZeroTermSuffix();
+    return parseCastInternal(m_pImpl)->parseHasZeroTermSuffix();
 }
 
 const std::string& ParseStringField::parseDetachedPrefixFieldName() const
 {
-    return cast(m_pImpl)->parseDetachedPrefixFieldName();
+    return parseCastInternal(m_pImpl)->parseDetachedPrefixFieldName();
 }
 
 const ParseStringField::ParseValidValuesList& ParseStringField::parseValidValues() const
 {
-    return cast(m_pImpl)->parseValidValues();
+    return parseCastInternal(m_pImpl)->parseValidValues();
 }
 
 } // namespace parse

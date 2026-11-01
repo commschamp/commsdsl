@@ -29,7 +29,7 @@ namespace parse
 namespace
 {
 
-const ParseBundleFieldImpl* cast(const ParseFieldImpl* ptr)
+[[nodiscard]] const ParseBundleFieldImpl* parseCastInternal(const ParseFieldImpl* ptr)
 {
     assert(ptr != nullptr);
     return static_cast<const ParseBundleFieldImpl*>(ptr);
@@ -50,17 +50,17 @@ ParseBundleField::ParseBundleField(ParseField field)
 
 ParseBundleField::ParseMembers ParseBundleField::parseMembers() const
 {
-    return cast(m_pImpl)->parseMembersList();
+    return parseCastInternal(m_pImpl)->parseMembersList();
 }
 
 ParseBundleField::ParseAliases ParseBundleField::parseAliases() const
 {
-    return cast(m_pImpl)->parseAliasesList();
+    return parseCastInternal(m_pImpl)->parseAliasesList();
 }
 
 ParseOptCond ParseBundleField::parseValidCond() const
 {
-    return cast(m_pImpl)->parseValidCond();
+    return parseCastInternal(m_pImpl)->parseValidCond();
 }
 
 } // namespace parse

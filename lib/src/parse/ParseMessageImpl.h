@@ -57,117 +57,117 @@ public:
     ParseMessageImpl(ParseMessageImpl&&) = default;
     virtual ~ParseMessageImpl() = default;
 
-    ::xmlNodePtr parseGetNode() const
+    [[nodiscard]] ::xmlNodePtr parseGetNode() const
     {
         return m_node;
     }
 
-    bool parse();
+    [[nodiscard]] bool parse();
 
-    const ParsePropsMap& parseProps() const
+    [[nodiscard]] const ParsePropsMap& parseProps() const
     {
         return m_props;
     }
 
-    const std::string& parseName() const;
-    const std::string& parseDisplayName() const;
-    const std::string& parseDescription() const;
+    [[nodiscard]] const std::string& parseName() const;
+    [[nodiscard]] const std::string& parseDisplayName() const;
+    [[nodiscard]] const std::string& parseDescription() const;
 
-    std::uintmax_t parseId() const
+    [[nodiscard]] std::uintmax_t parseId() const
     {
         return m_state.m_id;
     }
 
-    unsigned parseOrder() const
+    [[nodiscard]] unsigned parseOrder() const
     {
         return m_state.m_order;
     }
 
-    std::size_t parseMinLength() const;
+    [[nodiscard]] std::size_t parseMinLength() const;
 
-    std::size_t parseMaxLength() const;
+    [[nodiscard]] std::size_t parseMaxLength() const;
 
-    ParseFieldsList parseFieldsList() const;
-    ParseAliasesList parseAliasesList() const;
+    [[nodiscard]] ParseFieldsList parseFieldsList() const;
+    [[nodiscard]] ParseAliasesList parseAliasesList() const;
 
-    std::string parseExternalRef(bool schemaRef) const;
+    [[nodiscard]] std::string parseExternalRef(bool schemaRef) const;
 
-    const ParsePropsMap& parseExtraAttributes() const
+    [[nodiscard]] const ParsePropsMap& parseExtraAttributes() const
     {
         return m_extraAttrs;
     }
 
-    const ParseContentsList& parseExtraChildren() const
+    [[nodiscard]] const ParseContentsList& parseExtraChildren() const
     {
         return m_extraChildren;
     }
 
-    const ParsePlatformsList& parsePlatforms() const
+    [[nodiscard]] const ParsePlatformsList& parsePlatforms() const
     {
         return m_state.m_platforms;
     }
 
-    bool parseIsCustomizable() const
+    [[nodiscard]] bool parseIsCustomizable() const
     {
         return m_state.m_customizable;
     }
 
-    bool parseIsFailOnInvalid() const
+    [[nodiscard]] bool parseIsFailOnInvalid() const
     {
         return m_state.m_failOnInvalid;
     }
 
-    ParseSender parseSender() const
+    [[nodiscard]] ParseSender parseSender() const
     {
         return m_state.m_sender;
     }
 
-    ParseOverrideType parseReadOverride() const
+    [[nodiscard]] ParseOverrideType parseReadOverride() const
     {
         return m_state.m_readOverride;
     }
 
-    ParseOverrideType parseWriteOverride() const
+    [[nodiscard]] ParseOverrideType parseWriteOverride() const
     {
         return m_state.m_writeOverride;
     }
 
-    ParseOverrideType parseRefreshOverride() const
+    [[nodiscard]] ParseOverrideType parseRefreshOverride() const
     {
         return m_state.m_refreshOverride;
     }
 
-    ParseOverrideType parseLengthOverride() const
+    [[nodiscard]] ParseOverrideType parseLengthOverride() const
     {
         return m_state.m_lengthOverride;
     }
 
-    ParseOverrideType parseValidOverride() const
+    [[nodiscard]] ParseOverrideType parseValidOverride() const
     {
         return m_state.m_validOverride;
     }
 
-    ParseOverrideType parseNameOverride() const
+    [[nodiscard]] ParseOverrideType parseNameOverride() const
     {
         return m_state.m_nameOverride;
     }
 
-    const std::string& parseCopyCodeFrom() const
+    [[nodiscard]] const std::string& parseCopyCodeFrom() const
     {
         return m_state.m_copyCodeFrom;
     }
 
-    ParseOptCond parseConstruct() const
+    [[nodiscard]] ParseOptCond parseConstruct() const
     {
         return ParseOptCond(m_state.m_construct.get());
     }
 
-    ParseOptCond parseReadCond() const
+    [[nodiscard]] ParseOptCond parseReadCond() const
     {
         return ParseOptCond(m_state.m_readCond.get());
     }
 
-    ParseOptCond parseValidCond() const
+    [[nodiscard]] ParseOptCond parseValidCond() const
     {
         return ParseOptCond(m_state.m_validCond.get());
     }
@@ -204,7 +204,7 @@ private:
         ParseReusableState() = default;
         ParseReusableState(ParseReusableState&&) = default;
 
-        auto basicForwardAsTuple()
+        [[nodiscard]] auto parseForwardAsTuple()
         {
             return
                 std::forward_as_tuple(
@@ -233,14 +233,14 @@ private:
                 );
         }
 
-        auto basicForwardAsTuple() const
+        [[nodiscard]] auto parseForwardAsTuple() const
         {
-            return const_cast<ParseReusableState*>(this)->basicForwardAsTuple();
+            return const_cast<ParseReusableState*>(this)->parseForwardAsTuple();
         }
 
         ParseReusableState& operator=(const ParseReusableState& other)
         {
-            basicForwardAsTuple() = other.basicForwardAsTuple();
+            parseForwardAsTuple() = other.parseForwardAsTuple();
 
             m_fields.clear();
             m_fields.reserve(other.m_fields.size());
@@ -270,66 +270,66 @@ private:
         }
     };
 
-    ParseLogWrapper parseLogError() const;
-    ParseLogWrapper parseLogWarning() const;
-    ParseLogWrapper parseLogInfo() const;
+    [[nodiscard]] ParseLogWrapper parseLogError() const;
+    [[nodiscard]] ParseLogWrapper parseLogWarning() const;
+    [[nodiscard]] ParseLogWrapper parseLogInfo() const;
 
-    static const ParseXmlWrap::ParseNamesList& parseCommonProps();
-    static const ParseXmlWrap::ParseNamesList& parseExtraProps();
-    static const ParseXmlWrap::ParseNamesList& parseAllProps();
+    [[nodiscard]] static const ParseXmlWrap::ParseNamesList& parseCommonProps();
+    [[nodiscard]] static const ParseXmlWrap::ParseNamesList& parseExtraProps();
+    [[nodiscard]] static const ParseXmlWrap::ParseNamesList& parseAllProps();
 
-    static ParseXmlWrap::ParseNamesList parseAllNames();
+    [[nodiscard]] static ParseXmlWrap::ParseNamesList parseAllNames();
 
-    bool parseValidateSinglePropInstance(const std::string& str, bool mustHave = false);
-    bool parseValidateAndUpdateStringPropValue(const std::string& str, std::string& value, bool mustHave = false, bool allowDeref = false);
-    bool parseValidateAndUpdateOverrideTypePropValue(const std::string& propName, ParseOverrideType& value);
-    bool parseValidateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
+    [[nodiscard]] bool parseValidateSinglePropInstance(const std::string& str, bool mustHave = false);
+    [[nodiscard]] bool parseValidateAndUpdateStringPropValue(const std::string& str, std::string& value, bool mustHave = false, bool allowDeref = false);
+    [[nodiscard]] bool parseValidateAndUpdateOverrideTypePropValue(const std::string& propName, ParseOverrideType& value);
+    [[nodiscard]] bool parseValidateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
     void parseReportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
-    bool parseCheckReuse();
-    bool parseUpdateName();
-    bool parseUpdateDescription();
-    bool parseUpdateDisplayName();
-    bool parseUpdateId();
-    bool parseUpdateOrder();
-    bool parseUpdateVersions();
-    bool parseUpdatePlatforms();
-    bool parseUpdateCustomizable();
-    bool parseUpdateSender();
-    bool parseUpdateValidateMinLength();
-    bool parseUpdateFailOnInvalid();
-    bool parseCopyFields();
-    bool parseCopyAliases();
-    bool parseReplaceFields();
-    bool parseUpdateFields();
-    bool parseUpdateAliases();
+    [[nodiscard]] bool parseCheckReuse();
+    [[nodiscard]] bool parseUpdateName();
+    [[nodiscard]] bool parseUpdateDescription();
+    [[nodiscard]] bool parseUpdateDisplayName();
+    [[nodiscard]] bool parseUpdateId();
+    [[nodiscard]] bool parseUpdateOrder();
+    [[nodiscard]] bool parseUpdateVersions();
+    [[nodiscard]] bool parseUpdatePlatforms();
+    [[nodiscard]] bool parseUpdateCustomizable();
+    [[nodiscard]] bool parseUpdateSender();
+    [[nodiscard]] bool parseUpdateValidateMinLength();
+    [[nodiscard]] bool parseUpdateFailOnInvalid();
+    [[nodiscard]] bool parseCopyFields();
+    [[nodiscard]] bool parseCopyAliases();
+    [[nodiscard]] bool parseReplaceFields();
+    [[nodiscard]] bool parseUpdateFields();
+    [[nodiscard]] bool parseUpdateAliases();
     void parseCloneFieldsFrom(const ParseMessageImpl& other);
     void parseCloneFieldsFrom(const ParseBundleFieldImpl& other);
     void parseCloneAliasesFrom(const ParseMessageImpl& other);
     void parseCloneAliasesFrom(const ParseBundleFieldImpl& other);
-    bool parseUpdateReadOverride();
-    bool parseUpdateWriteOverride();
-    bool parseUpdateRefreshOverride();
-    bool parseUpdateLengthOverride();
-    bool parseUpdateValidOverride();
-    bool parseUpdateNameOverride();
-    bool parseUpdateCopyOverrideCodeFrom();
-    bool parseCopyConstruct();
-    bool parseCopyReadCond();
-    bool parseCopyValidCond();
-    bool parseUpdateSingleConstruct();
-    bool parseUpdateMultiConstruct();
-    bool parseUpdateSingleReadCond();
-    bool parseUpdateMultiReadCond();
-    bool parseUpdateSingleValidCond();
-    bool parseUpdateMultiValidCond();
-    bool parseCopyConstructToReadCond();
-    bool parseCopyConstructToValidCond();
-    bool parseUpdateExtraAttrs();
-    bool parseUpdateExtraChildren();
+    [[nodiscard]] bool parseUpdateReadOverride();
+    [[nodiscard]] bool parseUpdateWriteOverride();
+    [[nodiscard]] bool parseUpdateRefreshOverride();
+    [[nodiscard]] bool parseUpdateLengthOverride();
+    [[nodiscard]] bool parseUpdateValidOverride();
+    [[nodiscard]] bool parseUpdateNameOverride();
+    [[nodiscard]] bool parseUpdateCopyOverrideCodeFrom();
+    [[nodiscard]] bool parseCopyConstruct();
+    [[nodiscard]] bool parseCopyReadCond();
+    [[nodiscard]] bool parseCopyValidCond();
+    [[nodiscard]] bool parseUpdateSingleConstruct();
+    [[nodiscard]] bool parseUpdateMultiConstruct();
+    [[nodiscard]] bool parseUpdateSingleReadCond();
+    [[nodiscard]] bool parseUpdateMultiReadCond();
+    [[nodiscard]] bool parseUpdateSingleValidCond();
+    [[nodiscard]] bool parseUpdateMultiValidCond();
+    [[nodiscard]] bool parseCopyConstructToReadCond();
+    [[nodiscard]] bool parseCopyConstructToValidCond();
+    [[nodiscard]] bool parseUpdateExtraAttrs();
+    [[nodiscard]] bool parseUpdateExtraChildren();
 
-    bool parseUpdateSingleCondInternal(const std::string& prop, ParseOptCondImplPtr& cond, bool allowFieldsAccess = false);
-    bool parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond, bool allowFieldsAccess = false);
-    bool parseCopyCondInternal(
+    [[nodiscard]] bool parseUpdateSingleCondInternal(const std::string& prop, ParseOptCondImplPtr& cond, bool allowFieldsAccess = false);
+    [[nodiscard]] bool parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond, bool allowFieldsAccess = false);
+    [[nodiscard]] bool parseCopyCondInternal(
         const std::string& copyProp,
         const std::string& fromProp,
         const ParseOptCondImplPtr& fromCond,

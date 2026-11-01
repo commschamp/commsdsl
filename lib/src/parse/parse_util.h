@@ -26,7 +26,7 @@ namespace util
 {
 
 template <typename T>
-constexpr unsigned toUnsigned(T val)
+[[nodiscard]] constexpr unsigned toUnsigned(T val)
 {
     return static_cast<unsigned>(val);
 }

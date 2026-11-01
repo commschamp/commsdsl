@@ -29,7 +29,7 @@ namespace parse
 namespace
 {
 
-const ParseListFieldImpl* cast(const ParseFieldImpl* ptr)
+[[nodiscard]] const ParseListFieldImpl* parseCastInternal(const ParseFieldImpl* ptr)
 {
     assert(ptr != nullptr);
     return static_cast<const ParseListFieldImpl*>(ptr);
@@ -50,77 +50,77 @@ ParseListField::ParseListField(ParseField field)
 
 ParseField ParseListField::parseElementField() const
 {
-    return cast(m_pImpl)->parseElementField();
+    return parseCastInternal(m_pImpl)->parseElementField();
 }
 
 std::size_t ParseListField::parseFixedCount() const
 {
-    return cast(m_pImpl)->parseCount();
+    return parseCastInternal(m_pImpl)->parseCount();
 }
 
 bool ParseListField::parseHasCountPrefixField() const
 {
-    return cast(m_pImpl)->parseHasCountPrefixField();
+    return parseCastInternal(m_pImpl)->parseHasCountPrefixField();
 }
 
 ParseField ParseListField::parseCountPrefixField() const
 {
-    return cast(m_pImpl)->parseCountPrefixField();
+    return parseCastInternal(m_pImpl)->parseCountPrefixField();
 }
 
 const std::string& ParseListField::parseDetachedCountPrefixFieldName() const
 {
-    return cast(m_pImpl)->parseDetachedCountPrefixFieldName();
+    return parseCastInternal(m_pImpl)->parseDetachedCountPrefixFieldName();
 }
 
 bool ParseListField::parseHasLengthPrefixField() const
 {
-    return cast(m_pImpl)->parseHasLengthPrefixField();
+    return parseCastInternal(m_pImpl)->parseHasLengthPrefixField();
 }
 
 ParseField ParseListField::parseLengthPrefixField() const
 {
-    return cast(m_pImpl)->parseLengthPrefixField();
+    return parseCastInternal(m_pImpl)->parseLengthPrefixField();
 }
 
 const std::string& ParseListField::parseDetachedLengthPrefixFieldName() const
 {
-    return cast(m_pImpl)->parseDetachedLengthPrefixFieldName();
+    return parseCastInternal(m_pImpl)->parseDetachedLengthPrefixFieldName();
 }
 
 bool ParseListField::parseHasElemLengthPrefixField() const
 {
-    return cast(m_pImpl)->parseHasElemLengthPrefixField();
+    return parseCastInternal(m_pImpl)->parseHasElemLengthPrefixField();
 }
 
 ParseField ParseListField::parseElemLengthPrefixField() const
 {
-    return cast(m_pImpl)->parseElemLengthPrefixField();
+    return parseCastInternal(m_pImpl)->parseElemLengthPrefixField();
 }
 
 const std::string& ParseListField::parseDetachedElemLengthPrefixFieldName() const
 {
-    return cast(m_pImpl)->parseDetachedElemLengthPrefixFieldName();
+    return parseCastInternal(m_pImpl)->parseDetachedElemLengthPrefixFieldName();
 }
 
 bool ParseListField::parseElemFixedLength() const
 {
-    return cast(m_pImpl)->parseElemFixedLength();
+    return parseCastInternal(m_pImpl)->parseElemFixedLength();
 }
 
 bool ParseListField::parseHasTermSuffixField() const
 {
-    return cast(m_pImpl)->parseHasTermSuffixField();
+    return parseCastInternal(m_pImpl)->parseHasTermSuffixField();
 }
 
 ParseField ParseListField::parseTermSuffixField() const
 {
-    return cast(m_pImpl)->parseTermSuffixField();
+    return parseCastInternal(m_pImpl)->parseTermSuffixField();
 }
 
 const std::string& ParseListField::parseDetachedTermSuffixFieldName() const
 {
-    return cast(m_pImpl)->parseDetachedTermSuffixFieldName();
+    return parseCastInternal(m_pImpl)->parseDetachedTermSuffixFieldName();
 }
 
 } // namespace parse

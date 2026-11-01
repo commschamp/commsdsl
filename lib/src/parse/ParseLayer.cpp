@@ -36,25 +36,25 @@ namespace parse
 namespace
 {
 
-const ParseChecksumLayerImpl* asChecksum(const ParseLayerImpl* layer)
+[[nodiscard]] const ParseChecksumLayerImpl* parseAsChecksumInternal(const ParseLayerImpl* layer)
 {
     assert(layer != nullptr);
     return static_cast<const ParseChecksumLayerImpl*>(layer);
 }
 
-const ParseValueLayerImpl* asValue(const ParseLayerImpl* layer)
+[[nodiscard]] const ParseValueLayerImpl* parseAsValueInternal(const ParseLayerImpl* layer)
 {
     assert(layer != nullptr);
     return static_cast<const ParseValueLayerImpl*>(layer);
 }
 
-const ParseCustomLayerImpl* asCustom(const ParseLayerImpl* layer)
+[[nodiscard]] const ParseCustomLayerImpl* parseAsCustomInternal(const ParseLayerImpl* layer)
 {
     assert(layer != nullptr);
     return static_cast<const ParseCustomLayerImpl*>(layer);
 }
 
-const ParseSyncLayerImpl* asSync(const ParseLayerImpl* layer)
+[[nodiscard]] const ParseSyncLayerImpl* parseAsSyncInternal(const ParseLayerImpl* layer)
 {
     assert(layer != nullptr);
     return static_cast<const ParseSyncLayerImpl*>(layer);
@@ -138,19 +138,19 @@ ParseCustomLayer::ParseCustomLayer(ParseLayer layer) :
 ParseLayer::ParseKind ParseCustomLayer::parseSemanticLayerType() const
 {
     assert(parseValid());
-    return asCustom(m_pImpl)->parseSemanticLayerType();
+    return parseAsCustomInternal(m_pImpl)->parseSemanticLayerType();
 }
 
 const std::string& ParseCustomLayer::parseChecksumFromLayer() const
 {
     assert(parseValid());
-    return asCustom(m_pImpl)->parseChecksumFromLayer();
+    return parseAsCustomInternal(m_pImpl)->parseChecksumFromLayer();
 }
 
 const std::string& ParseCustomLayer::parseChecksumUntilLayer() const
 {
     assert(parseValid());
-    return asCustom(m_pImpl)->parseChecksumUntilLayer();
+    return parseAsCustomInternal(m_pImpl)->parseChecksumUntilLayer();
 }
 
 ParsePayloadLayer::ParsePayloadLayer(const ParsePayloadLayerImpl* impl) :
@@ -199,32 +199,32 @@ ParseSyncLayer::ParseSyncLayer(ParseLayer layer) :
 
 bool ParseSyncLayer::parseSeekField() const
 {
-    return asSync(m_pImpl)->parseSeekField();
+    return parseAsSyncInternal(m_pImpl)->parseSeekField();
 }
 
 bool ParseSyncLayer::parseHasEscField() const
 {
-    return asSync(m_pImpl)->parseHasEscField();
+    return parseAsSyncInternal(m_pImpl)->parseHasEscField();
 }
 
 ParseField ParseSyncLayer::parseEscField() const
 {
-    return asSync(m_pImpl)->parseEscField();
+    return parseAsSyncInternal(m_pImpl)->parseEscField();
 }
 
 const std::string& ParseSyncLayer::parseFromLayer() const
 {
-    return asSync(m_pImpl)->parseFrom();
+    return parseAsSyncInternal(m_pImpl)->parseFrom();
 }
 
 bool ParseSyncLayer::parseVerifyBeforeRead() const
 {
-    return asSync(m_pImpl)->parseVerifyBeforeRead();
+    return parseAsSyncInternal(m_pImpl)->parseVerifyBeforeRead();
 }
 
 bool ParseSyncLayer::parseIsAfterPayload() const
 {
-    return asSync(m_pImpl)->parseIsAfterPayload();
+    return parseAsSyncInternal(m_pImpl)->parseIsAfterPayload();
 }
 
 ParseChecksumLayer::ParseChecksumLayer(const ParseChecksumLayerImpl* impl) :
@@ -241,31 +241,31 @@ ParseChecksumLayer::ParseChecksumLayer(ParseLayer layer) :
 ParseChecksumLayer::ParseAlg ParseChecksumLayer::parseAlg() const
 {
     assert(parseValid());
-    return asChecksum(m_pImpl)->parseAlg();
+    return parseAsChecksumInternal(m_pImpl)->parseAlg();
 }
 
 const std::string& ParseChecksumLayer::parseCustomAlgName() const
 {
     assert(parseValid());
-    return asChecksum(m_pImpl)->parseAlgName();
+    return parseAsChecksumInternal(m_pImpl)->parseAlgName();
 }
 
 const std::string& ParseChecksumLayer::parseFromLayer() const
 {
     assert(parseValid());
-    return asChecksum(m_pImpl)->parseFrom();
+    return parseAsChecksumInternal(m_pImpl)->parseFrom();
 }
 
 const std::string& ParseChecksumLayer::parseUntilLayer() const
 {
     assert(parseValid());
-    return asChecksum(m_pImpl)->parseUntil();
+    return parseAsChecksumInternal(m_pImpl)->parseUntil();
 }
 
 bool ParseChecksumLayer::parseVerifyBeforeRead() const
 {
     assert(parseValid());
-    return asChecksum(m_pImpl)->parseVerifyBeforeRead();
+    return parseAsChecksumInternal(m_pImpl)->parseVerifyBeforeRead();
 }
 
 ParseValueLayer::ParseValueLayer(const ParseValueLayerImpl* impl) :
@@ -282,25 +282,25 @@ ParseValueLayer::ParseValueLayer(ParseLayer layer) :
 ParseValueLayer::ParseInterfaces ParseValueLayer::parseInterfaces() const
 {
     assert(parseValid());
-    return asValue(m_pImpl)->parseInterfacesList();
+    return parseAsValueInternal(m_pImpl)->parseInterfacesList();
 }
 
 const std::string& ParseValueLayer::parseFieldName() const
 {
     assert(parseValid());
-    return asValue(m_pImpl)->parseFieldName();
+    return parseAsValueInternal(m_pImpl)->parseFieldName();
 }
 
 std::size_t ParseValueLayer::parseFieldIdx() const
 {
     assert(parseValid());
-    return asValue(m_pImpl)->parseFieldIdx();
+    return parseAsValueInternal(m_pImpl)->parseFieldIdx();
 }
 
 bool ParseValueLayer::parsePseudo() const
 {
     assert(parseValid());
-    return asValue(m_pImpl)->parsePseudo();
+    return parseAsValueInternal(m_pImpl)->parsePseudo();
 }
 
 } // namespace parse

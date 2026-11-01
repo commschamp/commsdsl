@@ -50,24 +50,24 @@ static_assert(
     "The code expects 2's compliment negative integers representation.");
 
 template <typename T>
-constexpr std::intmax_t parseMinValueForType()
+[[nodiscard]] constexpr std::intmax_t parseMinValueForTypeInternal()
 {
     return static_cast<std::intmax_t>(std::numeric_limits<T>::min());
 }
 
 template <typename T>
-constexpr std::intmax_t parseMaxValueForType()
+[[nodiscard]] constexpr std::intmax_t parseMaxValueForTypeInternal()
 {
     return static_cast<std::intmax_t>(std::numeric_limits<T>::max());
 }
 
 template <typename T>
-constexpr std::uintmax_t parseMaxValueForBigUnsignedType()
+[[nodiscard]] constexpr std::uintmax_t parseMaxValueForBigUnsignedTypeInternal()
 {
     return static_cast<std::uintmax_t>(std::numeric_limits<T>::max());
 }
 
-std::intmax_t parseCalcMaxFixedSignedValue(std::size_t bitsLen) {
+[[nodiscard]] std::intmax_t parseCalcMaxFixedSignedValueInternal(std::size_t bitsLen) {
     assert(0U < bitsLen);
     if (64U <= bitsLen) {
         return std::numeric_limits<std::int64_t>::max();
@@ -77,13 +77,13 @@ std::intmax_t parseCalcMaxFixedSignedValue(std::size_t bitsLen) {
     return static_cast<std::intmax_t>(result);
 }
 
-std::intmax_t parseCalcMinFixedSignedValue(std::size_t bitsLen) {
+[[nodiscard]] std::intmax_t parseCalcMinFixedSignedValueInternal(std::size_t bitsLen) {
     assert(0U < bitsLen);
-    std::uintmax_t result = ~(static_cast<std::uintmax_t>(parseCalcMaxFixedSignedValue(bitsLen)));
+    std::uintmax_t result = ~(static_cast<std::uintmax_t>(parseCalcMaxFixedSignedValueInternal(bitsLen)));
     return static_cast<std::intmax_t>(result);
 }
 
-std::uintmax_t parseCalcMaxFixedUnsignedValue(std::size_t bitsLen) {
+[[nodiscard]] std::uintmax_t parseCalcMaxFixedUnsignedValueInternal(std::size_t bitsLen) {
     assert(0U < bitsLen);
     if (64U <= bitsLen) {
         return std::numeric_limits<std::uint64_t>::max();
@@ -93,7 +93,7 @@ std::uintmax_t parseCalcMaxFixedUnsignedValue(std::size_t bitsLen) {
     return result;
 }
 
-std::uintmax_t parseCalcMaxVarUnsignedValue(std::size_t bitsLen) {
+[[nodiscard]] std::uintmax_t parseCalcMaxVarUnsignedValueInternal(std::size_t bitsLen) {
     assert(0U < bitsLen);
     auto totalValueBits = std::min((bitsLen / 8) * 7, std::size_t(64U));
     if (totalValueBits == 64U) {
@@ -103,36 +103,36 @@ std::uintmax_t parseCalcMaxVarUnsignedValue(std::size_t bitsLen) {
     return (static_cast<std::uint64_t>(1U) << totalValueBits) - 1U;
 }
 
-std::intmax_t parseCalcMaxVarSignedValue(std::size_t bitsLen) {
+[[nodiscard]] std::intmax_t parseCalcMaxVarSignedValueInternal(std::size_t bitsLen) {
     assert(0U < bitsLen);
     auto totalValueBits = std::min((bitsLen / 8U) * 7U, std::size_t(64U));
     if (totalValueBits == 64U) {
         return std::numeric_limits<std::int64_t>::max();
     }
 
-    auto result = parseCalcMaxVarUnsignedValue(bitsLen);
+    auto result = parseCalcMaxVarUnsignedValueInternal(bitsLen);
     auto mask = (result + 1) >> 1U;
     return static_cast<std::intmax_t>(result ^ mask);
 }
 
-std::intmax_t parseCalcMinVarSignedValue(std::size_t bitsLen) {
+[[nodiscard]] std::intmax_t parseCalcMinVarSignedValueInternal(std::size_t bitsLen) {
     assert(0U < bitsLen);
     auto totalValueBits = std::min((bitsLen / 8U) * 7U, std::size_t(64U));
     if (totalValueBits == 64U) {
         return std::numeric_limits<std::int64_t>::min();
     }
 
-    std::uintmax_t result = ~(parseCalcMaxVarSignedValue(bitsLen));
+    std::uintmax_t result = ~(parseCalcMaxVarSignedValueInternal(bitsLen));
     return static_cast<std::intmax_t>(result);
 }
 
-std::uintmax_t parseCalcMaxUnsignedValue(ParseIntFieldImpl::ParseType t, std::size_t bitsLen)
+[[nodiscard]] std::uintmax_t parseCalcMaxUnsignedValueInternal(ParseIntFieldImpl::ParseType t, std::size_t bitsLen)
 {
     if (t == ParseIntFieldImpl::ParseType::Uintvar) {
-        return parseCalcMaxVarUnsignedValue(bitsLen);
+        return parseCalcMaxVarUnsignedValueInternal(bitsLen);
     }
 
-    return parseCalcMaxFixedUnsignedValue(bitsLen);
+    return parseCalcMaxFixedUnsignedValueInternal(bitsLen);
 }
 
 } // namespace
@@ -198,16 +198,16 @@ std::size_t ParseIntFieldImpl::parseMaxTypeLength(ParseType t)
 std::intmax_t ParseIntFieldImpl::parseMinTypeValue(ParseType t)
 {
     static const std::intmax_t Map[] = {
-        /* ParseType::Int8 */ parseMinValueForType<std::int8_t>(),
-        /* ParseType::Uint8 */ parseMinValueForType<std::uint8_t>(),
-        /* ParseType::Int16 */ parseMinValueForType<std::int16_t>(),
-        /* ParseType::Uint16 */ parseMinValueForType<std::uint16_t>(),
-        /* ParseType::Int32 */ parseMinValueForType<std::int32_t>(),
-        /* ParseType::Uint32 */ parseMinValueForType<std::uint32_t>(),
-        /* ParseType::Int64 */ parseMinValueForType<std::int64_t>(),
-        /* ParseType::Uint64 */ parseMinValueForType<std::uint64_t>(),
-        /* ParseType::Intvar */ parseMinValueForType<std::int64_t>(),
-        /* ParseType::Uintvar */ parseMinValueForType<std::uint64_t>()
+        /* ParseType::Int8 */ parseMinValueForTypeInternal<std::int8_t>(),
+        /* ParseType::Uint8 */ parseMinValueForTypeInternal<std::uint8_t>(),
+        /* ParseType::Int16 */ parseMinValueForTypeInternal<std::int16_t>(),
+        /* ParseType::Uint16 */ parseMinValueForTypeInternal<std::uint16_t>(),
+        /* ParseType::Int32 */ parseMinValueForTypeInternal<std::int32_t>(),
+        /* ParseType::Uint32 */ parseMinValueForTypeInternal<std::uint32_t>(),
+        /* ParseType::Int64 */ parseMinValueForTypeInternal<std::int64_t>(),
+        /* ParseType::Uint64 */ parseMinValueForTypeInternal<std::uint64_t>(),
+        /* ParseType::Intvar */ parseMinValueForTypeInternal<std::int64_t>(),
+        /* ParseType::Uintvar */ parseMinValueForTypeInternal<std::uint64_t>()
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
@@ -217,7 +217,7 @@ std::intmax_t ParseIntFieldImpl::parseMinTypeValue(ParseType t)
     if (MapSize <= util::toUnsigned(t)) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
-        return parseMaxValueForType<std::intmax_t>();
+        return parseMaxValueForTypeInternal<std::intmax_t>();
     }
 
     return Map[util::toUnsigned(t)];
@@ -226,16 +226,16 @@ std::intmax_t ParseIntFieldImpl::parseMinTypeValue(ParseType t)
 std::intmax_t ParseIntFieldImpl::parseMaxTypeValue(ParseType t)
 {
     static const std::intmax_t Map[] = {
-        /* ParseType::Int8 */ parseMaxValueForType<std::int8_t>(),
-        /* ParseType::Uint8 */ parseMaxValueForType<std::uint8_t>(),
-        /* ParseType::Int16 */ parseMaxValueForType<std::int16_t>(),
-        /* ParseType::Uint16 */ parseMaxValueForType<std::uint16_t>(),
-        /* ParseType::Int32 */ parseMaxValueForType<std::int32_t>(),
-        /* ParseType::Uint32 */ parseMaxValueForType<std::uint32_t>(),
-        /* ParseType::Int64 */ parseMaxValueForType<std::int64_t>(),
-        /* ParseType::Uint64 */ parseMaxValueForType<std::uint64_t>(),
-        /* ParseType::Intvar */ parseMaxValueForType<std::intmax_t>(),
-        /* ParseType::Uintvar */ parseMaxValueForType<std::uintmax_t>(),
+        /* ParseType::Int8 */ parseMaxValueForTypeInternal<std::int8_t>(),
+        /* ParseType::Uint8 */ parseMaxValueForTypeInternal<std::uint8_t>(),
+        /* ParseType::Int16 */ parseMaxValueForTypeInternal<std::int16_t>(),
+        /* ParseType::Uint16 */ parseMaxValueForTypeInternal<std::uint16_t>(),
+        /* ParseType::Int32 */ parseMaxValueForTypeInternal<std::int32_t>(),
+        /* ParseType::Uint32 */ parseMaxValueForTypeInternal<std::uint32_t>(),
+        /* ParseType::Int64 */ parseMaxValueForTypeInternal<std::int64_t>(),
+        /* ParseType::Uint64 */ parseMaxValueForTypeInternal<std::uint64_t>(),
+        /* ParseType::Intvar */ parseMaxValueForTypeInternal<std::intmax_t>(),
+        /* ParseType::Uintvar */ parseMaxValueForTypeInternal<std::uintmax_t>(),
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
@@ -246,7 +246,7 @@ std::intmax_t ParseIntFieldImpl::parseMaxTypeValue(ParseType t)
     if (MapSize <= util::toUnsigned(t)) {
         [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
-        return parseMinValueForType<std::intmax_t>();
+        return parseMinValueForTypeInternal<std::intmax_t>();
     }
 
     return Map[util::toUnsigned(t)];
@@ -259,27 +259,27 @@ std::intmax_t ParseIntFieldImpl::parseCalcMinValue(ParseType t, std::size_t bits
     }
 
     if (t == ParseIntFieldImpl::ParseType::Intvar) {
-        return parseCalcMinVarSignedValue(bitsLen);
+        return parseCalcMinVarSignedValueInternal(bitsLen);
     }
 
-    return parseCalcMinFixedSignedValue(bitsLen);
+    return parseCalcMinFixedSignedValueInternal(bitsLen);
 }
 
 std::intmax_t ParseIntFieldImpl::parseCalcMaxValue(ParseType t, std::size_t bitsLen)
 {
     if (parseIsBigUnsigned(t)) {
-        return static_cast<std::intmax_t>(parseCalcMaxUnsignedValue(t, bitsLen));
+        return static_cast<std::intmax_t>(parseCalcMaxUnsignedValueInternal(t, bitsLen));
     }
 
     if (t == ParseIntFieldImpl::ParseType::Intvar) {
-        return parseCalcMaxVarSignedValue(bitsLen);
+        return parseCalcMaxVarSignedValueInternal(bitsLen);
     }
 
     if (parseIsTypeUnsigned(t)) {
-        return static_cast<std::intmax_t>(parseCalcMaxUnsignedValue(t, bitsLen));
+        return static_cast<std::intmax_t>(parseCalcMaxUnsignedValueInternal(t, bitsLen));
     }
 
-    return parseCalcMaxFixedSignedValue(bitsLen);
+    return parseCalcMaxFixedSignedValueInternal(bitsLen);
 }
 
 bool ParseIntFieldImpl::parseIsUnsigned(ParseType t)

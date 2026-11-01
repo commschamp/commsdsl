@@ -35,15 +35,15 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::ParseNamesList& parseListSupportedTypes()
+[[nodiscard]] const ParseXmlWrap::ParseNamesList& parseListSupportedTypesInternal()
 {
     static const ParseXmlWrap::ParseNamesList Names = ParseFieldImpl::parseSupportedTypes();
     return Names;
 }
 
-ParseXmlWrap::ParseNamesList parseGetExtraNames()
+[[nodiscard]] ParseXmlWrap::ParseNamesList parseGetExtraNamesInternal()
 {
-    auto names = parseListSupportedTypes();
+    auto names = parseListSupportedTypesInternal();
     names.push_back(common::parseElementStr());
     names.push_back(common::parseCountPrefixStr());
     names.push_back(common::parseLengthPrefixStr());
@@ -100,7 +100,7 @@ const ParseXmlWrap::ParseNamesList& ParseListFieldImpl::parseExtraPossiblePropsN
 
 const ParseXmlWrap::ParseNamesList& ParseListFieldImpl::parseExtraChildrenNamesImpl() const
 {
-    static const ParseXmlWrap::ParseNamesList List = parseGetExtraNames();
+    static const ParseXmlWrap::ParseNamesList List = parseGetExtraNamesInternal();
     return List;
 }
 
@@ -499,7 +499,7 @@ bool ParseListFieldImpl::parseCheckElementAsChild()
         return false;
     }
 
-    auto fieldTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseListSupportedTypes());
+    auto fieldTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseListSupportedTypesInternal());
     if ((0U < children.size()) && (0U < fieldTypes.size())) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                   "The \"" << common::parseListStr() << "\" does not support "

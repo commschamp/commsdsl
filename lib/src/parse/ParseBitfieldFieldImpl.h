@@ -36,16 +36,16 @@ public:
     ParseBitfieldFieldImpl(const ParseBitfieldFieldImpl& other);
     using ParseMembers = ParseBitfieldField::ParseMembers;
 
-    ParseEndian parseEndian() const
+    [[nodiscard]] ParseEndian parseEndian() const
     {
         return m_endian;
     }
 
-    ParseMembers parseMembersList() const;
+    [[nodiscard]] ParseMembers parseMembersList() const;
 
-    static const ParseXmlWrap::ParseNamesList& parseSupportedTypes();
+    [[nodiscard]] static const ParseXmlWrap::ParseNamesList& parseSupportedTypes();
 
-    ParseOptCond parseValidCond() const
+    [[nodiscard]] ParseOptCond parseValidCond() const
     {
         return ParseOptCond(m_validCond.get());
     }
@@ -70,14 +70,14 @@ protected:
     virtual const ParseFieldsList& parseMembersImpl() const override;
 
 private:
-    bool parseUpdateEndian();
-    bool parseUpdateMembers();
-    bool parseUpdateSingleValidCond();
-    bool parseUpdateMultiValidCond();
-    bool parseCopyValidCond();
+    [[nodiscard]] bool parseUpdateEndian();
+    [[nodiscard]] bool parseUpdateMembers();
+    [[nodiscard]] bool parseUpdateSingleValidCond();
+    [[nodiscard]] bool parseUpdateMultiValidCond();
+    [[nodiscard]] bool parseCopyValidCond();
 
-    bool parseUpdateSingleCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);
-    bool parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);
+    [[nodiscard]] bool parseUpdateSingleCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);
+    [[nodiscard]] bool parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);
 
     ParseEndian m_endian = ParseEndian_NumOfValues;
     ParseFieldsList m_members;

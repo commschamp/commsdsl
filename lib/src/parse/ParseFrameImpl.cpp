@@ -36,7 +36,7 @@ namespace parse
 namespace
 {
 
-const ParseXmlWrap::ParseNamesList& parseFrameSupportedTypes()
+[[nodiscard]] const ParseXmlWrap::ParseNamesList& parseFrameSupportedTypesInternal()
 {
     static const ParseXmlWrap::ParseNamesList Names = ParseLayerImpl::parseSupportedTypes();
     return Names;
@@ -177,7 +177,7 @@ const ParseXmlWrap::ParseNamesList& ParseFrameImpl::parseCommonProps()
 ParseXmlWrap::ParseNamesList ParseFrameImpl::parseAllNames()
 {
     auto names = parseCommonProps();
-    auto& layerTypes = parseFrameSupportedTypes();
+    auto& layerTypes = parseFrameSupportedTypesInternal();
     names.insert(names.end(), layerTypes.begin(), layerTypes.end());
     names.push_back(common::parseLayersStr());
     return names;
@@ -231,7 +231,7 @@ bool ParseFrameImpl::parseUpdateLayers()
         return false;
     }
 
-    auto layersTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseFrameSupportedTypes());
+    auto layersTypes = ParseXmlWrap::parseGetChildren(parseGetNode(), parseFrameSupportedTypesInternal());
     if ((!layersNodes.empty()) && (!layersTypes.empty())) {
         parseLogError() << ParseXmlWrap::parseLogPrefix(parseGetNode()) <<
                       "The \"" << common::parseFrameStr() << "\" element does not support "
@@ -261,7 +261,7 @@ bool ParseFrameImpl::parseUpdateLayers()
     if (0U < layersNodes.size()) {
         assert(0U == layersTypes.size());
         layersTypes = ParseXmlWrap::parseGetChildren(layersNodes.front());
-        auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(layersNodes.front(), parseFrameSupportedTypes());
+        auto cleanMemberFieldsTypes = ParseXmlWrap::parseGetChildren(layersNodes.front(), parseFrameSupportedTypesInternal());
         if (cleanMemberFieldsTypes.size() != layersTypes.size()) {
             parseLogError() << ParseXmlWrap::parseLogPrefix(layersNodes.front()) <<
                 "The \"" << common::parseLayersStr() << "\" child node of \"" <<

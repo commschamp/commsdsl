@@ -39,12 +39,12 @@ public:
         NumOfValues
     };
 
-    ParseObject* parseGetParent()
+    [[nodiscard]] ParseObject* parseGetParent()
     {
         return m_parent;
     }
 
-    const ParseObject* parseGetParent() const
+    [[nodiscard]] const ParseObject* parseGetParent() const
     {
         return m_parent;
     }
@@ -54,12 +54,12 @@ public:
         m_parent = obj;
     }
 
-    ParseObjKind parseObjKind() const
+    [[nodiscard]] ParseObjKind parseObjKind() const
     {
         return parseObjKindImpl();
     }
 
-    unsigned parseGetSinceVersion() const
+    [[nodiscard]] unsigned parseGetSinceVersion() const
     {
         return m_rState.m_sinceVersion;
     }
@@ -69,12 +69,12 @@ public:
         m_rState.m_sinceVersion = val;
     }
 
-    unsigned parseGetDeprecated() const
+    [[nodiscard]] unsigned parseGetDeprecated() const
     {
         return m_rState.m_deprecated;
     }
 
-    bool parseIsDeprecatedRemoved() const
+    [[nodiscard]] bool parseIsDeprecatedRemoved() const
     {
         return m_rState.m_deprecatedRemoved;
     }
@@ -83,7 +83,7 @@ protected:
     ParseObject() = default;
     ~ParseObject() = default;
 
-    virtual ParseObjKind parseObjKindImpl() const = 0;
+    [[nodiscard]] virtual ParseObjKind parseObjKindImpl() const = 0;
 
     void parseSetDeprecated(unsigned val)
     {

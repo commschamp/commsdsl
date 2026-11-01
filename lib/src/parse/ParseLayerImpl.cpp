@@ -44,13 +44,13 @@ namespace parse
 namespace
 {
 
-const std::string& parseRetrieveSyncFrom(const ParseLayerImpl& layer)
+[[nodiscard]] const std::string& parseRetrieveSyncFromInternal(const ParseLayerImpl& layer)
 {
     assert(layer.parseKind() == ParseLayerImpl::ParseKind::Sync);
     return static_cast<const ParseSyncLayerImpl&>(layer).parseFrom();
 }
 
-const std::string& parseRetrieveChecksumFrom(const ParseLayerImpl& layer)
+[[nodiscard]] const std::string& parseRetrieveChecksumFromInternal(const ParseLayerImpl& layer)
 {
     assert(layer.parseKind() == ParseLayerImpl::ParseKind::Checksum);
     return static_cast<const ParseChecksumLayerImpl&>(layer).parseFrom();
@@ -283,8 +283,8 @@ bool ParseLayerImpl::parseVerifySuffixLayersOrder(const ParseLayersList& layers,
 
         using FromRetrieveFunc = const std::string& (*)(const ParseLayerImpl& layer);
         static const std::map<ParseKind, FromRetrieveFunc> Map = {
-            {ParseKind::Sync, &parseRetrieveSyncFrom},
-            {ParseKind::Checksum, &parseRetrieveChecksumFrom},
+            {ParseKind::Sync, &parseRetrieveSyncFromInternal},
+            {ParseKind::Checksum, &parseRetrieveChecksumFromInternal},
         };
 
         auto iter = Map.find(midLayerPtr->parseKind());

@@ -46,7 +46,7 @@ const ParseXmlWrap::ParseNamesList PropNames = {
     common::parseNonUniqueMsgIdAllowedStr()
 };
 
-ParseXmlWrap::ParseNamesList parseGetChildrenList()
+[[nodiscard]] ParseXmlWrap::ParseNamesList parseGetChildrenListInternal()
 {
     ParseXmlWrap::ParseNamesList result = PropNames;
     auto& nsNames = ParseNamespaceImpl::expectedChildrenNames();
@@ -352,7 +352,7 @@ bool ParseSchemaImpl::parseUpdateExtraAttrs()
 
 bool ParseSchemaImpl::parseUpdateExtraChildren()
 {
-    static const ParseXmlWrap::ParseNamesList ChildrenNames = parseGetChildrenList();
+    static const ParseXmlWrap::ParseNamesList ChildrenNames = parseGetChildrenListInternal();
     m_extraChildren = ParseXmlWrap::parseGetExtraChildren(m_node, ChildrenNames, m_protocol);
     return true;
 }

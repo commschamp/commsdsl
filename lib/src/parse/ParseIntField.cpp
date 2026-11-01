@@ -29,7 +29,7 @@ namespace parse
 namespace
 {
 
-const ParseIntFieldImpl* cast(const ParseFieldImpl* ptr)
+[[nodiscard]] const ParseIntFieldImpl* parseCastInternal(const ParseFieldImpl* ptr)
 {
     assert(ptr != nullptr);
     return static_cast<const ParseIntFieldImpl*>(ptr);
@@ -50,77 +50,77 @@ ParseIntField::ParseIntField(ParseField field)
 
 ParseIntField::ParseType ParseIntField::parseType() const
 {
-    return cast(m_pImpl)->parseType();
+    return parseCastInternal(m_pImpl)->parseType();
 }
 
 ParseEndian ParseIntField::parseEndian() const
 {
-    return cast(m_pImpl)->parseEndian();
+    return parseCastInternal(m_pImpl)->parseEndian();
 }
 
 std::intmax_t ParseIntField::parseSerOffset() const
 {
-    return cast(m_pImpl)->parseSerOffset();
+    return parseCastInternal(m_pImpl)->parseSerOffset();
 }
 
 std::intmax_t ParseIntField::parseMinValue() const
 {
-    return cast(m_pImpl)->parseMinValue();
+    return parseCastInternal(m_pImpl)->parseMinValue();
 }
 
 std::intmax_t ParseIntField::parseMaxValue() const
 {
-    return cast(m_pImpl)->parseMaxValue();
+    return parseCastInternal(m_pImpl)->parseMaxValue();
 }
 
 std::intmax_t ParseIntField::parseDefaultValue() const
 {
-    return cast(m_pImpl)->parseDefaultValue();
+    return parseCastInternal(m_pImpl)->parseDefaultValue();
 }
 
 ParseIntField::ParseScalingRatio ParseIntField::parseScaling() const
 {
-    return cast(m_pImpl)->parseScaling();
+    return parseCastInternal(m_pImpl)->parseScaling();
 }
 
 const ParseIntField::ParseValidRangesList& ParseIntField::parseValidRanges() const
 {
-    return cast(m_pImpl)->parseValidRanges();
+    return parseCastInternal(m_pImpl)->parseValidRanges();
 }
 
 const ParseIntField::ParseSpecialValues& ParseIntField::parseSpecialValues() const
 {
-    return cast(m_pImpl)->parseSpecialValues();
+    return parseCastInternal(m_pImpl)->parseSpecialValues();
 }
 
 ParseUnits ParseIntField::parseUnits() const
 {
-    return cast(m_pImpl)->parseUnits();
+    return parseCastInternal(m_pImpl)->parseUnits();
 }
 
 bool ParseIntField::parseValidCheckVersion() const
 {
-    return cast(m_pImpl)->parseValidCheckVersion();
+    return parseCastInternal(m_pImpl)->parseValidCheckVersion();
 }
 
 unsigned ParseIntField::parseDisplayDecimals() const
 {
-    return cast(m_pImpl)->parseDisplayDecimals();
+    return parseCastInternal(m_pImpl)->parseDisplayDecimals();
 }
 
 std::intmax_t ParseIntField::parseDisplayOffset() const
 {
-    return cast(m_pImpl)->parseDisplayOffset();
+    return parseCastInternal(m_pImpl)->parseDisplayOffset();
 }
 
 bool ParseIntField::parseSignExt() const
 {
-    return cast(m_pImpl)->parseSignExt();
+    return parseCastInternal(m_pImpl)->parseSignExt();
 }
 
 bool ParseIntField::parseAvailableLengthLimit() const
 {
-    return cast(m_pImpl)->parseAvailableLengthLimit();
+    return parseCastInternal(m_pImpl)->parseAvailableLengthLimit();
 }
 
 } // namespace parse

@@ -36,12 +36,12 @@ public:
     ParseRefFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseRefFieldImpl(const ParseRefFieldImpl& other);
 
-    ParseField parseField() const
+    [[nodiscard]] ParseField parseField() const
     {
         return ParseField(m_field);
     }
 
-    const ParseFieldImpl* parseFieldImpl() const
+    [[nodiscard]] const ParseFieldImpl* parseFieldImpl() const
     {
         return m_field;
     }
@@ -70,9 +70,9 @@ protected:
 private:
     using ParseStrToValueFieldConvertFunc = std::function<bool (const ParseFieldImpl& f, const std::string& ref)>;
 
-    bool parseUpdateBitLength();
+    [[nodiscard]] bool parseUpdateBitLength();
 
-    bool parseStrToValue(
+    [[nodiscard]] bool parseStrToValue(
         const std::string& ref,
         ParseStrToValueFieldConvertFunc&& forwardFunc) const;
 

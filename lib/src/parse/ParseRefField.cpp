@@ -29,7 +29,7 @@ namespace parse
 namespace
 {
 
-const ParseRefFieldImpl* cast(const ParseFieldImpl* ptr)
+[[nodiscard]] const ParseRefFieldImpl* parseCastInternal(const ParseFieldImpl* ptr)
 {
     assert(ptr != nullptr);
     return static_cast<const ParseRefFieldImpl*>(ptr);
@@ -50,7 +50,7 @@ ParseRefField::ParseRefField(ParseField field) :
 
 ParseField ParseRefField::parseField() const
 {
-    return cast(m_pImpl)->parseField();
+    return parseCastInternal(m_pImpl)->parseField();
 }
 
 } // namespace parse

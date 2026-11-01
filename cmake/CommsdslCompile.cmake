@@ -34,7 +34,7 @@ macro (commsdsl_compile)
             "-Wmissing-include-dirs"
             "-Woverloaded-virtual" "-Wredundant-decls" "-Wshadow" "-Wundef" "-Wunused"
             "-Wno-unknown-pragmas" "-fdiagnostics-show-option"
-            "-Wcast-align" "-Wunused" "-Wconversion"
+            "-Wcast-align" "-Wunused" "-Wunused-result" "-Wconversion"
             "-Wold-style-cast" "-Wdouble-promotion"
 
             "-Wno-sign-conversion" # This one is impractical

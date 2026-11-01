@@ -46,95 +46,95 @@ public:
     ParseIntFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseIntFieldImpl(const ParseIntFieldImpl&) = default;
 
-    ParseType parseType() const
+    [[nodiscard]] ParseType parseType() const
     {
         return m_state.m_type;
     }
 
-    ParseEndian parseEndian() const
+    [[nodiscard]] ParseEndian parseEndian() const
     {
         return m_state.m_endian;
     }
 
-    std::intmax_t parseSerOffset() const
+    [[nodiscard]] std::intmax_t parseSerOffset() const
     {
         return m_state.m_serOffset;
     }
 
-    std::intmax_t parseMinValue() const
+    [[nodiscard]] std::intmax_t parseMinValue() const
     {
         return m_state.m_minValue;
     }
 
-    std::intmax_t parseMaxValue() const
+    [[nodiscard]] std::intmax_t parseMaxValue() const
     {
         return m_state.m_maxValue;
     }
 
-    std::intmax_t parseDefaultValue() const
+    [[nodiscard]] std::intmax_t parseDefaultValue() const
     {
         return m_state.m_defaultValue;
     }
 
-    ParseScalingRatio parseScaling() const
+    [[nodiscard]] ParseScalingRatio parseScaling() const
     {
         return m_state.m_scaling;
     }
 
-    const ParseValidRangesList& parseValidRanges() const
+    [[nodiscard]] const ParseValidRangesList& parseValidRanges() const
     {
         return m_state.m_validRanges;
     }
 
-    const ParseSpecialValues& parseSpecialValues() const
+    [[nodiscard]] const ParseSpecialValues& parseSpecialValues() const
     {
         return m_state.m_specials;
     }
 
-    bool parseValidCheckVersion() const
+    [[nodiscard]] bool parseValidCheckVersion() const
     {
         return m_state.m_validCheckVersion;
     }
 
-    ParseUnits parseUnits() const
+    [[nodiscard]] ParseUnits parseUnits() const
     {
         return m_state.m_units;
     }
 
-    unsigned parseDisplayDecimals() const
+    [[nodiscard]] unsigned parseDisplayDecimals() const
     {
         return m_state.m_displayDecimals;
     }
 
-    std::intmax_t parseDisplayOffset() const
+    [[nodiscard]] std::intmax_t parseDisplayOffset() const
     {
         return m_state.m_displayOffset;
     }
 
-    bool parseSignExt() const
+    [[nodiscard]] bool parseSignExt() const
     {
         return m_state.m_signExt;
     }
 
-    bool parseAvailableLengthLimit() const
+    [[nodiscard]] bool parseAvailableLengthLimit() const
     {
         return m_state.m_availableLengthLimit;
     }
 
-    static ParseType parseTypeValue(const std::string& value);
+    [[nodiscard]] static ParseType parseTypeValue(const std::string& value);
 
-    static std::size_t parseMaxTypeLength(ParseType t);
-    static std::intmax_t parseMinTypeValue(ParseType t);
-    static std::intmax_t parseMaxTypeValue(ParseType t);
-    static std::intmax_t parseCalcMinValue(ParseType t, std::size_t bitsLen);
-    static std::intmax_t parseCalcMaxValue(ParseType t, std::size_t bitsLen);
-    static bool parseIsUnsigned(ParseType t);
-    static bool parseIsBigUnsigned(ParseType t)
+    [[nodiscard]] static std::size_t parseMaxTypeLength(ParseType t);
+    [[nodiscard]] static std::intmax_t parseMinTypeValue(ParseType t);
+    [[nodiscard]] static std::intmax_t parseMaxTypeValue(ParseType t);
+    [[nodiscard]] static std::intmax_t parseCalcMinValue(ParseType t, std::size_t bitsLen);
+    [[nodiscard]] static std::intmax_t parseCalcMaxValue(ParseType t, std::size_t bitsLen);
+    [[nodiscard]] static bool parseIsUnsigned(ParseType t);
+    [[nodiscard]] static bool parseIsBigUnsigned(ParseType t)
     {
         return (t == ParseType::Uint64) || (t == ParseType::Uintvar);
     }
 
-    static bool parseIsTypeUnsigned(ParseIntFieldImpl::ParseType t);
+    [[nodiscard]] static bool parseIsTypeUnsigned(ParseIntFieldImpl::ParseType t);
 
 protected:
     virtual ParseKind parseKindImpl() const override;
@@ -155,41 +155,41 @@ protected:
     virtual bool parseIsValidRefTypeImpl(ParseFieldRefType type) const override;
 
 private:
-    bool parseUpdateType();
-    bool parseUpdateEndian();
-    bool parseUpdateLength();
-    bool parseUpdateBitLength();
-    bool parseUpdateSerOffset();
-    bool parseUpdateMinMaxValues();
-    bool parseUpdateDefaultValue();
-    bool parseUpdateDefaultValidValue();
-    bool parseUpdateScaling();
-    bool parseUpdateValidCheckVersion();
-    bool parseUpdateValidRanges();
-    bool parseUpdateNonUniqueSpecialsAllowed();
-    bool parseUpdateSpecials();
-    bool parseUpdateUnits();
-    bool parseUpdateDisplayDecimals();
-    bool parseUpdateDisplayOffset();
-    bool parseUpdateSignExt();
-    bool parseUpdateDisplaySpecials();
-    bool parseUpdateAvailableLengthLimit();
-    bool parseCheckValidRangeAsAttr(const ParsePropsMap& xmlAttrs);
-    bool parseCheckValidRangeAsChild(::xmlNodePtr child);
-    bool parseCheckValidRangeProps(const ParsePropsMap& xmlAttrs);
-    bool parseCheckValidValueAsAttr(const ParsePropsMap& xmlAttrs);
-    bool parseCheckValidValueAsChild(::xmlNodePtr child);
-    bool parseCheckValidValueProps(const ParsePropsMap& xmlAttrs);
-    bool parseCheckValidMinAsAttr(const ParsePropsMap& xmlAttrs);
-    bool parseCheckValidMinAsChild(::xmlNodePtr child);
-    bool parseCheckValidMinProps(const ParsePropsMap& xmlAttrs);
-    bool parseCheckValidMaxAsAttr(const ParsePropsMap& xmlAttrs);
-    bool parseCheckValidMaxAsChild(::xmlNodePtr child);
-    bool parseCheckValidMaxProps(const ParsePropsMap& xmlAttrs);
-    bool parseValidateValidRangeStr(const std::string& str, std::intmax_t& minVal, std::intmax_t& maxVal);
-    bool parseValidateValidValueStr(const std::string& str, const std::string& type, std::intmax_t& val);
-    bool parseStrToValue(const std::string& str, std::intmax_t& val) const;
-    bool parseUpdateDefaultValueInternal(const std::string& valueStr);
+    [[nodiscard]] bool parseUpdateType();
+    [[nodiscard]] bool parseUpdateEndian();
+    [[nodiscard]] bool parseUpdateLength();
+    [[nodiscard]] bool parseUpdateBitLength();
+    [[nodiscard]] bool parseUpdateSerOffset();
+    [[nodiscard]] bool parseUpdateMinMaxValues();
+    [[nodiscard]] bool parseUpdateDefaultValue();
+    [[nodiscard]] bool parseUpdateDefaultValidValue();
+    [[nodiscard]] bool parseUpdateScaling();
+    [[nodiscard]] bool parseUpdateValidCheckVersion();
+    [[nodiscard]] bool parseUpdateValidRanges();
+    [[nodiscard]] bool parseUpdateNonUniqueSpecialsAllowed();
+    [[nodiscard]] bool parseUpdateSpecials();
+    [[nodiscard]] bool parseUpdateUnits();
+    [[nodiscard]] bool parseUpdateDisplayDecimals();
+    [[nodiscard]] bool parseUpdateDisplayOffset();
+    [[nodiscard]] bool parseUpdateSignExt();
+    [[nodiscard]] bool parseUpdateDisplaySpecials();
+    [[nodiscard]] bool parseUpdateAvailableLengthLimit();
+    [[nodiscard]] bool parseCheckValidRangeAsAttr(const ParsePropsMap& xmlAttrs);
+    [[nodiscard]] bool parseCheckValidRangeAsChild(::xmlNodePtr child);
+    [[nodiscard]] bool parseCheckValidRangeProps(const ParsePropsMap& xmlAttrs);
+    [[nodiscard]] bool parseCheckValidValueAsAttr(const ParsePropsMap& xmlAttrs);
+    [[nodiscard]] bool parseCheckValidValueAsChild(::xmlNodePtr child);
+    [[nodiscard]] bool parseCheckValidValueProps(const ParsePropsMap& xmlAttrs);
+    [[nodiscard]] bool parseCheckValidMinAsAttr(const ParsePropsMap& xmlAttrs);
+    [[nodiscard]] bool parseCheckValidMinAsChild(::xmlNodePtr child);
+    [[nodiscard]] bool parseCheckValidMinProps(const ParsePropsMap& xmlAttrs);
+    [[nodiscard]] bool parseCheckValidMaxAsAttr(const ParsePropsMap& xmlAttrs);
+    [[nodiscard]] bool parseCheckValidMaxAsChild(::xmlNodePtr child);
+    [[nodiscard]] bool parseCheckValidMaxProps(const ParsePropsMap& xmlAttrs);
+    [[nodiscard]] bool parseValidateValidRangeStr(const std::string& str, std::intmax_t& minVal, std::intmax_t& maxVal);
+    [[nodiscard]] bool parseValidateValidValueStr(const std::string& str, const std::string& type, std::intmax_t& val);
+    [[nodiscard]] bool parseStrToValue(const std::string& str, std::intmax_t& val) const;
+    [[nodiscard]] bool parseUpdateDefaultValueInternal(const std::string& valueStr);
 
     struct ParseState
     {

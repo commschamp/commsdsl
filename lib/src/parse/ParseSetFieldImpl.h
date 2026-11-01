@@ -45,54 +45,54 @@ public:
     ParseSetFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseSetFieldImpl(const ParseSetFieldImpl&);
 
-    ParseType parseType() const
+    [[nodiscard]] ParseType parseType() const
     {
         return m_state.m_type;
     }
 
-    ParseEndian parseEndian() const
+    [[nodiscard]] ParseEndian parseEndian() const
     {
         return m_state.m_endian;
     }
 
-    bool parseDefaultBitValue() const
+    [[nodiscard]] bool parseDefaultBitValue() const
     {
         return m_state.m_defaultBitValue;
     }
 
-    bool parseReservedBitValue() const
+    [[nodiscard]] bool parseReservedBitValue() const
     {
         return m_state.m_reservedBitValue;
     }
 
-    const ParseBits& parseBits() const
+    [[nodiscard]] const ParseBits& parseBits() const
     {
         return m_state.m_bits;
     }
 
-    const ParseRevBits& parseRevBits() const
+    [[nodiscard]] const ParseRevBits& parseRevBits() const
     {
         return m_state.m_revBits;
     }
 
-    const ParseMasks& parseMasks() const
+    [[nodiscard]] const ParseMasks& parseMasks() const
     {
         return m_state.m_masks;
     }
 
-    bool parseIsNonUniqueAllowed() const
+    [[nodiscard]] bool parseIsNonUniqueAllowed() const
     {
         return m_state.m_nonUniqueAllowed;
     }
 
-    bool parseIsUnique() const;
+    [[nodiscard]] bool parseIsUnique() const;
 
-    bool parseValidCheckVersion() const
+    [[nodiscard]] bool parseValidCheckVersion() const
     {
         return m_state.m_validCheckVersion;
     }
 
-    bool parseAvailableLengthLimit() const
+    [[nodiscard]] bool parseAvailableLengthLimit() const
     {
         return m_state.m_availableLengthLimit;
     }
@@ -116,17 +116,17 @@ protected:
     virtual bool parseIsValidRefTypeImpl(ParseFieldRefType type) const override;
 
 private:
-    bool parseUpdateEndian();
-    bool parseUpdateType();
-    bool parseUpdateLength();
-    bool parseUpdateNonUniqueAllowed();
-    bool parseUpdateValidCheckVersion();
-    bool parseUpdateDefaultValue();
-    bool parseUpdateReservedValue();
-    bool parseUpdateAvailableLengthLimit();
-    bool parseUpdateBits();
-    bool parseUpdateMasks();
-    bool parseStrToValue(const std::string& str, bool& val) const;
+    [[nodiscard]] bool parseUpdateEndian();
+    [[nodiscard]] bool parseUpdateType();
+    [[nodiscard]] bool parseUpdateLength();
+    [[nodiscard]] bool parseUpdateNonUniqueAllowed();
+    [[nodiscard]] bool parseUpdateValidCheckVersion();
+    [[nodiscard]] bool parseUpdateDefaultValue();
+    [[nodiscard]] bool parseUpdateReservedValue();
+    [[nodiscard]] bool parseUpdateAvailableLengthLimit();
+    [[nodiscard]] bool parseUpdateBits();
+    [[nodiscard]] bool parseUpdateMasks();
+    [[nodiscard]] bool parseStrToValue(const std::string& str, bool& val) const;
 
     struct ParseState
     {

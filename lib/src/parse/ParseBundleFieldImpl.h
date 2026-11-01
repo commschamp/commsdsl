@@ -40,20 +40,20 @@ public:
     ParseBundleFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseBundleFieldImpl(const ParseBundleFieldImpl& other);
 
-    ParseMembers parseMembersList() const;
-    ParseAliasesList parseAliasesList() const;
+    [[nodiscard]] ParseMembers parseMembersList() const;
+    [[nodiscard]] ParseAliasesList parseAliasesList() const;
 
-    const std::vector<ParseAliasImplPtr>& parseAliases() const
+    [[nodiscard]] const std::vector<ParseAliasImplPtr>& parseAliases() const
     {
         return m_aliases;
     }
 
-    ParseOptCond parseValidCond() const
+    [[nodiscard]] ParseOptCond parseValidCond() const
     {
         return ParseOptCond(m_validCond.get());
     }
 
-    const ParseOptCondImplPtr& parseValidCondImpl() const
+    [[nodiscard]] const ParseOptCondImplPtr& parseValidCondImpl() const
     {
         return m_validCond;
     }
@@ -81,14 +81,14 @@ protected:
     virtual const ParseFieldsList& parseMembersImpl() const override;
 
 private:
-    bool parseUpdateMembers();
-    bool parseUpdateAliases();
-    bool parseUpdateSingleValidCond();
-    bool parseUpdateMultiValidCond();
-    bool parseCopyValidCond();
+    [[nodiscard]] bool parseUpdateMembers();
+    [[nodiscard]] bool parseUpdateAliases();
+    [[nodiscard]] bool parseUpdateSingleValidCond();
+    [[nodiscard]] bool parseUpdateMultiValidCond();
+    [[nodiscard]] bool parseCopyValidCond();
 
-    bool parseUpdateSingleCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);
-    bool parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);
+    [[nodiscard]] bool parseUpdateSingleCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);
+    [[nodiscard]] bool parseUpdateMultiCondInternal(const std::string& prop, ParseOptCondImplPtr& cond);
 
     ParseFieldsList m_members;
     std::vector<ParseAliasImplPtr> m_aliases;

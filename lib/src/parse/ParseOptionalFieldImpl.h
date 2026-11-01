@@ -40,27 +40,27 @@ public:
     ParseOptionalFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseOptionalFieldImpl(const ParseOptionalFieldImpl& other);
 
-    ParseMode parseDefaultMode() const
+    [[nodiscard]] ParseMode parseDefaultMode() const
     {
         return m_state.m_mode;
     }
 
-    bool parseMissingOnReadFail() const
+    [[nodiscard]] bool parseMissingOnReadFail() const
     {
         return m_state.m_missingOnReadFail;
     }
 
-    bool parseMissingOnInvalid() const
+    [[nodiscard]] bool parseMissingOnInvalid() const
     {
         return m_state.m_missingOnInvalid;
     }
 
-    bool parseHasField() const
+    [[nodiscard]] bool parseHasField() const
     {
         return (m_state.m_extField != nullptr) || static_cast<bool>(m_field);
     }
 
-    ParseField parseField() const
+    [[nodiscard]] ParseField parseField() const
     {
         if (m_state.m_extField != nullptr) {
             return ParseField(m_state.m_extField);
@@ -69,17 +69,17 @@ public:
         return ParseField(m_field.get());
     }
 
-    ParseOptCond parseWrappedCondition() const
+    [[nodiscard]] ParseOptCond parseWrappedCondition() const
     {
         return ParseOptCond(m_cond.get());
     }
 
-    ParseOptCondImplPtr& parseCond()
+    [[nodiscard]] ParseOptCondImplPtr& parseCond()
     {
         return m_cond;
     }
 
-    const ParseOptCondImplPtr& parseCond() const
+    [[nodiscard]] const ParseOptCondImplPtr& parseCond() const
     {
         return m_cond;
     }
@@ -106,18 +106,18 @@ protected:
 private:
     using ParseStrToValueFieldConvertFunc = std::function<bool (const ParseFieldImpl& f, const std::string& ref)>;
 
-    bool parseUpdateMode();
-    bool parseUpdateExternalModeCtrl();
-    bool parseUpdateMissingOnReadFail();
-    bool parseUpdateMissingOnInvalid();
-    bool parseUpdateField();
-    bool parseUpdateSingleCondition();
-    bool parseUpdateMultiCondition();
-    bool parseCheckFieldFromRef();
-    bool parseCheckFieldAsChild();
-    const ParseFieldImpl* parseGetField() const;
+    [[nodiscard]] bool parseUpdateMode();
+    [[nodiscard]] bool parseUpdateExternalModeCtrl();
+    [[nodiscard]] bool parseUpdateMissingOnReadFail();
+    [[nodiscard]] bool parseUpdateMissingOnInvalid();
+    [[nodiscard]] bool parseUpdateField();
+    [[nodiscard]] bool parseUpdateSingleCondition();
+    [[nodiscard]] bool parseUpdateMultiCondition();
+    [[nodiscard]] bool parseCheckFieldFromRef();
+    [[nodiscard]] bool parseCheckFieldAsChild();
+    [[nodiscard]] const ParseFieldImpl* parseGetField() const;
 
-    bool parseStrToValue(
+    [[nodiscard]] bool parseStrToValue(
         const std::string& ref,
         ParseStrToValueFieldConvertFunc&& forwardFunc) const;
 

@@ -66,241 +66,241 @@ public:
 
     virtual ~ParseFieldImpl() = default;
 
-    static ParsePtr parseCreate(const std::string& kind, ::xmlNodePtr node, ParseProtocolImpl& protocol);
-    ParsePtr parseClone() const
+    [[nodiscard]] static ParsePtr parseCreate(const std::string& kind, ::xmlNodePtr node, ParseProtocolImpl& protocol);
+    [[nodiscard]] ParsePtr parseClone() const
     {
         return parseCloneImpl();
     }
 
-    ::xmlNodePtr parseGetNode() const
+    [[nodiscard]] ::xmlNodePtr parseGetNode() const
     {
         return m_node;
     }
 
-    bool parse();
-    bool parseVerifySiblings(const ParseFieldsList& fields) const
+    [[nodiscard]] bool parse();
+    [[nodiscard]] bool parseVerifySiblings(const ParseFieldsList& fields) const
     {
         return parseVerifySiblingsImpl(fields);
     }
 
-    const ParsePropsMap& parseProps() const
+    [[nodiscard]] const ParsePropsMap& parseProps() const
     {
         return m_props;
     }
 
-    const std::string& parseName() const;
-    const std::string& parseDisplayName() const;
-    const std::string& parseDescription() const;
+    [[nodiscard]] const std::string& parseName() const;
+    [[nodiscard]] const std::string& parseDisplayName() const;
+    [[nodiscard]] const std::string& parseDescription() const;
 
-    ParseKind parseKind() const
+    [[nodiscard]] ParseKind parseKind() const
     {
         return parseKindImpl();
     }
 
-    const std::string& parseKindStr() const;
+    [[nodiscard]] const std::string& parseKindStr() const;
 
-    ParseSemanticType parseSemanticType() const
+    [[nodiscard]] ParseSemanticType parseSemanticType() const
     {
         return m_state.m_semanticType;
     }
 
-    bool parseIsPseudo() const
+    [[nodiscard]] bool parseIsPseudo() const
     {
         return m_state.m_pseudo;
     }
 
-    bool parseIsFixedValue() const
+    [[nodiscard]] bool parseIsFixedValue() const
     {
         return m_state.m_fixedValue;
     }
 
-    bool parseIsCustomizable() const
+    [[nodiscard]] bool parseIsCustomizable() const
     {
         return m_state.m_customizable;
     }
 
-    bool parseIsFailOnInvalid() const
+    [[nodiscard]] bool parseIsFailOnInvalid() const
     {
         return m_state.m_failOnInvalid;
     }
 
-    bool parseIsForceGen() const
+    [[nodiscard]] bool parseIsForceGen() const
     {
         return m_state.m_forceGen;
     }
 
-    ParseOverrideType parseValueOverride() const
+    [[nodiscard]] ParseOverrideType parseValueOverride() const
     {
         return m_state.m_valueOverride;
     }
 
-    ParseOverrideType parseReadOverride() const
+    [[nodiscard]] ParseOverrideType parseReadOverride() const
     {
         return m_state.m_readOverride;
     }
 
-    ParseOverrideType parseWriteOverride() const
+    [[nodiscard]] ParseOverrideType parseWriteOverride() const
     {
         return m_state.m_writeOverride;
     }
 
-    ParseOverrideType parseRefreshOverride() const
+    [[nodiscard]] ParseOverrideType parseRefreshOverride() const
     {
         return m_state.m_refreshOverride;
     }
 
-    ParseOverrideType parseLengthOverride() const
+    [[nodiscard]] ParseOverrideType parseLengthOverride() const
     {
         return m_state.m_lengthOverride;
     }
 
-    ParseOverrideType parseValidOverride() const
+    [[nodiscard]] ParseOverrideType parseValidOverride() const
     {
         return m_state.m_validOverride;
     }
 
-    ParseOverrideType parseNameOverride() const
+    [[nodiscard]] ParseOverrideType parseNameOverride() const
     {
         return m_state.m_nameOverride;
     }
 
-    const std::string& parseCopyCodeFrom() const
+    [[nodiscard]] const std::string& parseCopyCodeFrom() const
     {
         return m_state.m_copyCodeFrom;
     }
 
-    std::size_t parseMinLength() const
+    [[nodiscard]] std::size_t parseMinLength() const
     {
         return parseMinLengthImpl();
     }
 
-    std::size_t parseMaxLength() const
+    [[nodiscard]] std::size_t parseMaxLength() const
     {
         return parseMaxLengthImpl();
     }
 
-    std::size_t parseBitLength() const
+    [[nodiscard]] std::size_t parseBitLength() const
     {
         return parseBitLengthImpl();
     }
 
-    static ParseXmlWrap::ParseNamesList parseSupportedTypes();
+    [[nodiscard]] static ParseXmlWrap::ParseNamesList parseSupportedTypes();
 
-    static bool parseValidateMembersNames(
+    [[nodiscard]] static bool parseValidateMembersNames(
             const ParseFieldsList& fields,
             ParseLogger& logger);
 
-    bool parseValidateMembersNames(const ParseFieldsList& fields);
+    [[nodiscard]] bool parseValidateMembersNames(const ParseFieldsList& fields);
 
-    const ParseXmlWrap::ParseNamesList& parseExtraPropsNames() const
+    [[nodiscard]] const ParseXmlWrap::ParseNamesList& parseExtraPropsNames() const
     {
         return parseExtraPropsNamesImpl();
     }
 
-    const ParseXmlWrap::ParseNamesList& parseExtraPossiblePropsNames() const
+    [[nodiscard]] const ParseXmlWrap::ParseNamesList& parseExtraPossiblePropsNames() const
     {
         return parseExtraPossiblePropsNamesImpl();
     }
 
-    const ParseXmlWrap::ParseNamesList& parseExtraChildrenNames() const
+    [[nodiscard]] const ParseXmlWrap::ParseNamesList& parseExtraChildrenNames() const
     {
         return parseExtraChildrenNamesImpl();
     }
 
-    bool parseIsBitfieldMember() const;
-    bool parseIsBundleMember() const;
-    bool parseIsMessageMember() const;
+    [[nodiscard]] bool parseIsBitfieldMember() const;
+    [[nodiscard]] bool parseIsBundleMember() const;
+    [[nodiscard]] bool parseIsMessageMember() const;
 
-    std::string parseExternalRef(bool schemaRef) const;
-    std::string parseInnerRef(bool schemaRef) const;
+    [[nodiscard]] std::string parseExternalRef(bool schemaRef) const;
+    [[nodiscard]] std::string parseInnerRef(bool schemaRef) const;
 
-    bool parseIsComparableToValue(const std::string& val) const;
-    bool parseIsComparableToField(const ParseFieldImpl& field) const;
+    [[nodiscard]] bool parseIsComparableToValue(const std::string& val) const;
+    [[nodiscard]] bool parseIsComparableToField(const ParseFieldImpl& field) const;
 
-    const ParsePropsMap& parseExtraAttributes() const
+    [[nodiscard]] const ParsePropsMap& parseExtraAttributes() const
     {
         return m_state.m_extraAttrs;
     }
 
-    ParsePropsMap& parseExtraAttributes()
+    [[nodiscard]] ParsePropsMap& parseExtraAttributes()
     {
         return m_state.m_extraAttrs;
     }
 
-    const ParseContentsList& parseExtraChildren() const
+    [[nodiscard]] const ParseContentsList& parseExtraChildren() const
     {
         return m_state.m_extraChildren;
     }
 
-    ParseContentsList& parseExtraChildren()
+    [[nodiscard]] ParseContentsList& parseExtraChildren()
     {
         return m_state.m_extraChildren;
     }
 
-    bool parseStrToNumeric(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+    [[nodiscard]] bool parseStrToNumeric(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
     {
         return parseStrToNumericImpl(ref, val, isBigUnsigned);
     }
 
-    bool parseStrToFp(const std::string& ref, double& val) const
+    [[nodiscard]] bool parseStrToFp(const std::string& ref, double& val) const
     {
         return parseStrToFpImpl(ref, val);
     }
 
-    bool parseStrToBool(const std::string& ref, bool& val) const
+    [[nodiscard]] bool parseStrToBool(const std::string& ref, bool& val) const
     {
         return parseStrToBoolImpl(ref, val);
     }
 
-    bool parseStrToString(const std::string& ref, std::string& val) const
+    [[nodiscard]] bool parseStrToString(const std::string& ref, std::string& val) const
     {
         return parseStrToStringImpl(ref, val);
     }
 
-    bool parseStrToData(const std::string& ref, std::vector<std::uint8_t>& val) const
+    [[nodiscard]] bool parseStrToData(const std::string& ref, std::vector<std::uint8_t>& val) const
     {
         return parseStrToDataImpl(ref, val);
     }
 
-    bool parseValidateBitLengthValue(::xmlNodePtr node, std::size_t bitLength) const
+    [[nodiscard]] bool parseValidateBitLengthValue(::xmlNodePtr node, std::size_t bitLength) const
     {
         return parseValidateBitLengthValueImpl(node, bitLength);
     }
 
-    bool parseValidateBitLengthValue(std::size_t bitLength) const
+    [[nodiscard]] bool parseValidateBitLengthValue(std::size_t bitLength) const
     {
         return parseValidateBitLengthValue(m_node, bitLength);
     }
 
-    bool parseVerifySemanticType() const;
-    bool parseVerifySemanticType(::xmlNodePtr node, ParseSemanticType type) const;
-    bool parseVerifyAliasedMember(const std::string& fieldName);
-    bool parseVerifyMinLength() const;
+    [[nodiscard]] bool parseVerifySemanticType() const;
+    [[nodiscard]] bool parseVerifySemanticType(::xmlNodePtr node, ParseSemanticType type) const;
+    [[nodiscard]] bool parseVerifyAliasedMember(const std::string& fieldName);
+    [[nodiscard]] bool parseVerifyMinLength() const;
 
-    std::string parseSchemaPos() const;
+    [[nodiscard]] std::string parseSchemaPos() const;
 
     const ParseFieldsList& parseMembers() const
     {
         return parseMembersImpl();
     }
 
-    static ParseFieldRefInfo parseProcessSiblingRef(const ParseFieldsList& siblings, const std::string& refStr);
+    [[nodiscard]] static ParseFieldRefInfo parseProcessSiblingRef(const ParseFieldsList& siblings, const std::string& refStr);
 
-    ParseFieldRefInfo parseProcessInnerRef(const std::string& refStr) const;
+    [[nodiscard]] ParseFieldRefInfo parseProcessInnerRef(const std::string& refStr) const;
 
-    bool parseIsValidInnerRef(const std::string& refStr) const;
-    bool parseIsValidRefType(ParseFieldRefType type) const;
+    [[nodiscard]] bool parseIsValidInnerRef(const std::string& refStr) const;
+    [[nodiscard]] bool parseIsValidRefType(ParseFieldRefType type) const;
 
 protected:
     ParseFieldImpl(::xmlNodePtr node, ParseProtocolImpl& protocol);
     ParseFieldImpl(const ParseFieldImpl&);
 
-    ParseProtocolImpl& parseProtocol()
+    [[nodiscard]] ParseProtocolImpl& parseProtocol()
     {
         return m_protocol;
     }
 
-    const ParseProtocolImpl& parseProtocol() const
+    [[nodiscard]] const ParseProtocolImpl& parseProtocol() const
     {
         return m_protocol;
     }
@@ -320,84 +320,84 @@ protected:
         m_state.m_semanticType = val;
     }
 
-    ParseLogWrapper parseLogError() const;
-    ParseLogWrapper parseLogWarning() const;
-    ParseLogWrapper parseLogInfo() const;
+    [[nodiscard]] ParseLogWrapper parseLogError() const;
+    [[nodiscard]] ParseLogWrapper parseLogWarning() const;
+    [[nodiscard]] ParseLogWrapper parseLogInfo() const;
 
-    virtual ParseObjKind parseObjKindImpl() const override final;
-    virtual ParseKind parseKindImpl() const = 0;
-    virtual ParsePtr parseCloneImpl() const = 0;
-    virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const;
-    virtual const ParseXmlWrap::ParseNamesList& parseExtraPossiblePropsNamesImpl() const;
-    virtual const ParseXmlWrap::ParseNamesList& parseExtraChildrenNamesImpl() const;
-    virtual bool parseReuseImpl(const ParseFieldImpl& other);
-    virtual bool parseImpl();
-    virtual bool parseReplaceMembersImpl(ParseFieldsList& members);
-    virtual bool parseVerifySiblingsImpl(const ParseFieldsList& fields) const;
-    virtual std::size_t parseMinLengthImpl() const = 0;
-    virtual std::size_t parseMaxLengthImpl() const;
-    virtual std::size_t parseBitLengthImpl() const;
-    virtual bool parseIsComparableToValueImpl(const std::string& val) const;
-    virtual bool parseIsComparableToFieldImpl(const ParseFieldImpl& field) const;
-    virtual bool parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const;
-    virtual bool parseStrToFpImpl(const std::string& ref, double& val) const;
-    virtual bool parseStrToBoolImpl(const std::string& ref, bool& val) const;
-    virtual bool parseStrToStringImpl(const std::string& ref, std::string& val) const;
-    virtual bool parseStrToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const;
-    virtual bool parseValidateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const;
-    virtual bool parseVerifySemanticTypeImpl(::xmlNodePtr node, ParseSemanticType type) const;
-    virtual bool parseVerifyAliasedMemberImpl(const std::string& fieldName) const;
-    virtual const ParseXmlWrap::ParseNamesList& parseSupportedMemberTypesImpl() const;
-    virtual const ParseFieldsList& parseMembersImpl() const;
-    virtual ParseFieldRefInfo parseProcessInnerRefImpl(const std::string& refStr) const;
-    virtual bool parseIsValidRefTypeImpl(ParseFieldRefType type) const;
+    [[nodiscard]] virtual ParseObjKind parseObjKindImpl() const override final;
+    [[nodiscard]] virtual ParseKind parseKindImpl() const = 0;
+    [[nodiscard]] virtual ParsePtr parseCloneImpl() const = 0;
+    [[nodiscard]] virtual const ParseXmlWrap::ParseNamesList& parseExtraPropsNamesImpl() const;
+    [[nodiscard]] virtual const ParseXmlWrap::ParseNamesList& parseExtraPossiblePropsNamesImpl() const;
+    [[nodiscard]] virtual const ParseXmlWrap::ParseNamesList& parseExtraChildrenNamesImpl() const;
+    [[nodiscard]] virtual bool parseReuseImpl(const ParseFieldImpl& other);
+    [[nodiscard]] virtual bool parseImpl();
+    [[nodiscard]] virtual bool parseReplaceMembersImpl(ParseFieldsList& members);
+    [[nodiscard]] virtual bool parseVerifySiblingsImpl(const ParseFieldsList& fields) const;
+    [[nodiscard]] virtual std::size_t parseMinLengthImpl() const = 0;
+    [[nodiscard]] virtual std::size_t parseMaxLengthImpl() const;
+    [[nodiscard]] virtual std::size_t parseBitLengthImpl() const;
+    [[nodiscard]] virtual bool parseIsComparableToValueImpl(const std::string& val) const;
+    [[nodiscard]] virtual bool parseIsComparableToFieldImpl(const ParseFieldImpl& field) const;
+    [[nodiscard]] virtual bool parseStrToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const;
+    [[nodiscard]] virtual bool parseStrToFpImpl(const std::string& ref, double& val) const;
+    [[nodiscard]] virtual bool parseStrToBoolImpl(const std::string& ref, bool& val) const;
+    [[nodiscard]] virtual bool parseStrToStringImpl(const std::string& ref, std::string& val) const;
+    [[nodiscard]] virtual bool parseStrToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const;
+    [[nodiscard]] virtual bool parseValidateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const;
+    [[nodiscard]] virtual bool parseVerifySemanticTypeImpl(::xmlNodePtr node, ParseSemanticType type) const;
+    [[nodiscard]] virtual bool parseVerifyAliasedMemberImpl(const std::string& fieldName) const;
+    [[nodiscard]] virtual const ParseXmlWrap::ParseNamesList& parseSupportedMemberTypesImpl() const;
+    [[nodiscard]] virtual const ParseFieldsList& parseMembersImpl() const;
+    [[nodiscard]] virtual ParseFieldRefInfo parseProcessInnerRefImpl(const std::string& refStr) const;
+    [[nodiscard]] virtual bool parseIsValidRefTypeImpl(ParseFieldRefType type) const;
 
-    bool parseValidateSinglePropInstance(const std::string& str, bool mustHave = false);
-    bool parseValidateNoPropInstance(const std::string& str);
-    bool parseValidateAndUpdateStringPropValue(
+    [[nodiscard]] bool parseValidateSinglePropInstance(const std::string& str, bool mustHave = false);
+    [[nodiscard]] bool parseValidateNoPropInstance(const std::string& str);
+    [[nodiscard]] bool parseValidateAndUpdateStringPropValue(
             const std::string& str,
             std::string &value,
             bool mustHave = false,
             bool allowDeref = false);
     void parseReportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
     void parseCheckAndReportDeprecatedPropertyValue(const std::string& propName);
-    bool parseValidateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
-    bool parseValidateAndUpdateOverrideTypePropValue(const std::string& propName, ParseOverrideType& value);
+    [[nodiscard]] bool parseValidateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
+    [[nodiscard]] bool parseValidateAndUpdateOverrideTypePropValue(const std::string& propName, ParseOverrideType& value);
 
-    static const ParseXmlWrap::ParseNamesList& parseCommonProps();
-    static const ParseXmlWrap::ParseNamesList& parseCommonChildren();
-    const ParseFieldImpl* parseFindSibling(const ParseFieldsList& fields, const std::string& sibName) const;
-    static ParseKind parseGetNonRefFieldKind(const ParseFieldImpl& field);
-    bool parseCheckDetachedPrefixAllowed() const;
+    [[nodiscard]] static const ParseXmlWrap::ParseNamesList& parseCommonProps();
+    [[nodiscard]] static const ParseXmlWrap::ParseNamesList& parseCommonChildren();
+    [[nodiscard]] const ParseFieldImpl* parseFindSibling(const ParseFieldsList& fields, const std::string& sibName) const;
+    [[nodiscard]] static ParseKind parseGetNonRefFieldKind(const ParseFieldImpl& field);
+    [[nodiscard]] bool parseCheckDetachedPrefixAllowed() const;
 
     using ParseStrToValueFieldConvertFunc = std::function<bool (const ParseFieldImpl& f, const std::string& ref)>;
-    bool parseStrToValueOnFields(
+    [[nodiscard]] bool parseStrToValueOnFields(
         const std::string& ref,
         const ParseFieldsList& fields,
         ParseStrToValueFieldConvertFunc&& func) const;
 
-    bool parseStrToNumericOnFields(
+    [[nodiscard]] bool parseStrToNumericOnFields(
         const std::string& ref,
         const ParseFieldsList& fields,
         std::intmax_t& val,
         bool& isBigUnsigned) const;
 
-    bool parseStrToFpOnFields(
+    [[nodiscard]] bool parseStrToFpOnFields(
         const std::string& ref,
         const ParseFieldsList& fields,
         double& val) const;
 
-    bool parseStrToBoolOnFields(
+    [[nodiscard]] bool parseStrToBoolOnFields(
         const std::string& ref,
         const ParseFieldsList& fields,
         bool& val) const;
 
-    bool parseStrToStringOnFields(
+    [[nodiscard]] bool parseStrToStringOnFields(
         const std::string& ref,
         const ParseFieldsList& fields,
         std::string& val) const;
 
-    bool parseStrToDataOnFields(
+    [[nodiscard]] bool parseStrToDataOnFields(
         const std::string& ref,
         const ParseFieldsList& fields,
         std::vector<std::uint8_t>& val) const;
@@ -430,35 +430,35 @@ private:
         bool m_forceGen = false;
     };
 
-    bool parseCheckReuse();
-    bool parseCheckReplace();
-    bool parseUpdateName();
-    bool parseUpdateDescription();
-    bool parseUpdateDisplayName();
-    bool parseUpdateVersions();
-    bool parseUpdateSemanticType();
-    bool parseUpdatePseudo();
-    bool parseUpdateFixedValue();
-    bool parseUpdateDisplayReadOnly();
-    bool parseUpdateDisplayHidden();
-    bool parseUpdateCustomizable();
-    bool parseUpdateFailOnInvalid();
-    bool parseUpdateForceGen();
-    bool parseUpdateValueOverride();
-    bool parseUpdateReadOverride();
-    bool parseUpdateWriteOverride();
-    bool parseUpdateRefreshOverride();
-    bool parseUpdateLengthOverride();
-    bool parseUpdateValidOverride();
-    bool parseUpdateNameOverride();
-    bool parseUpdateCopyOverrideCodeFrom();
-    bool parseUpdateValidateMinLength();
-    bool parseUpdateExtraAttrs(const ParseXmlWrap::ParseNamesList& names);
-    bool parseUpdateExtraChildren(const ParseXmlWrap::ParseNamesList& names);
+    [[nodiscard]] bool parseCheckReuse();
+    [[nodiscard]] bool parseCheckReplace();
+    [[nodiscard]] bool parseUpdateName();
+    [[nodiscard]] bool parseUpdateDescription();
+    [[nodiscard]] bool parseUpdateDisplayName();
+    [[nodiscard]] bool parseUpdateVersions();
+    [[nodiscard]] bool parseUpdateSemanticType();
+    [[nodiscard]] bool parseUpdatePseudo();
+    [[nodiscard]] bool parseUpdateFixedValue();
+    [[nodiscard]] bool parseUpdateDisplayReadOnly();
+    [[nodiscard]] bool parseUpdateDisplayHidden();
+    [[nodiscard]] bool parseUpdateCustomizable();
+    [[nodiscard]] bool parseUpdateFailOnInvalid();
+    [[nodiscard]] bool parseUpdateForceGen();
+    [[nodiscard]] bool parseUpdateValueOverride();
+    [[nodiscard]] bool parseUpdateReadOverride();
+    [[nodiscard]] bool parseUpdateWriteOverride();
+    [[nodiscard]] bool parseUpdateRefreshOverride();
+    [[nodiscard]] bool parseUpdateLengthOverride();
+    [[nodiscard]] bool parseUpdateValidOverride();
+    [[nodiscard]] bool parseUpdateNameOverride();
+    [[nodiscard]] bool parseUpdateCopyOverrideCodeFrom();
+    [[nodiscard]] bool parseUpdateValidateMinLength();
+    [[nodiscard]] bool parseUpdateExtraAttrs(const ParseXmlWrap::ParseNamesList& names);
+    [[nodiscard]] bool parseUpdateExtraChildren(const ParseXmlWrap::ParseNamesList& names);
 
-    static const ParseCreateMap& parseCreateMap();
+    [[nodiscard]] static const ParseCreateMap& parseCreateMap();
 
-    bool parseVerifyName() const;
+    [[nodiscard]] bool parseVerifyName() const;
 
     ::xmlNodePtr m_node = nullptr;
     ParseProtocolImpl& m_protocol;

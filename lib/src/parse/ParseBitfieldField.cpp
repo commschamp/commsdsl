@@ -29,7 +29,7 @@ namespace parse
 namespace
 {
 
-const ParseBitfieldFieldImpl* cast(const ParseFieldImpl* ptr)
+[[nodiscard]] const ParseBitfieldFieldImpl* parseCastInternal(const ParseFieldImpl* ptr)
 {
     assert(ptr != nullptr);
     return static_cast<const ParseBitfieldFieldImpl*>(ptr);
@@ -50,17 +50,17 @@ ParseBitfieldField::ParseBitfieldField(ParseField field)
 
 ParseEndian ParseBitfieldField::parseEndian() const
 {
-    return cast(m_pImpl)->parseEndian();
+    return parseCastInternal(m_pImpl)->parseEndian();
 }
 
 ParseBitfieldField::ParseMembers ParseBitfieldField::parseMembers() const
 {
-    return cast(m_pImpl)->parseMembersList();
+    return parseCastInternal(m_pImpl)->parseMembersList();
 }
 
 ParseOptCond ParseBitfieldField::parseValidCond() const
 {
-    return cast(m_pImpl)->parseValidCond();
+    return parseCastInternal(m_pImpl)->parseValidCond();
 }
 
 } // namespace parse
