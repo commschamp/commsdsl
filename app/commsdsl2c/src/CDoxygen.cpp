@@ -39,12 +39,7 @@ namespace commsdsl2c
 namespace
 {
 
-// const std::string CServerInputPrefixStr = "ServerInput";
-// const std::string CClientInputPrefixStr = "ClientInput";
-// const std::string CServerInputMessagesStr = CServerInputPrefixStr + "Messages";
-// const std::string CClientInputMessagesStr = CClientInputPrefixStr + "Messages";
-
-bool cWriteFileInternal(const std::string& name, const std::string& str, CGenerator& generator)
+[[nodiscard]] bool cWriteFileInternal(const std::string& name, const std::string& str, CGenerator& generator)
 {
     auto filePath = generator.cAbsPathForDoc(name);
     generator.genLogger().genInfo("Generating " + filePath);

@@ -39,7 +39,7 @@ namespace
 
 const std::string CName("ProtocolOptions");
 
-std::string cCodeInternal(const util::GenStringsList& opts, std::size_t idx)
+[[nodiscard]] std::string cCodeInternal(const util::GenStringsList& opts, std::size_t idx)
 {
     if (idx == 0U) {
         return opts[idx];

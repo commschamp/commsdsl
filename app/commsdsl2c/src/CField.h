@@ -39,61 +39,61 @@ public:
     explicit CField(GenField& field);
     virtual ~CField();
 
-    static const CField* cCast(const commsdsl::gen::GenField* field);
-    static CField* cCast(commsdsl::gen::GenField* field);
-    static CFieldsList cTransformFieldsList(const GenFieldsList& fields);
+    [[nodiscard]] static const CField* cCast(const commsdsl::gen::GenField* field);
+    [[nodiscard]] static CField* cCast(commsdsl::gen::GenField* field);
+    [[nodiscard]] static CFieldsList cTransformFieldsList(const GenFieldsList& fields);
 
-    bool cWrite() const;
-    std::string cRelHeader() const;
+    [[nodiscard]] bool cWrite() const;
+    [[nodiscard]] std::string cRelHeader() const;
     void cAddHeaderIncludes(CIncludesList& includes) const;
     void cAddSourceIncludes(CIncludesList& includes) const;
     void cAddCommsHeaderIncludes(CIncludesList& includes) const;
-    std::string cName(bool forceOptional = false) const;
-    std::string cCommsTypeName(bool forceOptional = false) const;
-    std::string cHeaderCode() const;
-    std::string cSourceCode() const;
-    std::string cCommsHeaderCode() const;
-    std::string cCommsType(bool forceOptional = false) const;
-    bool cIsVersionOptional() const;
+    [[nodiscard]] std::string cName(bool forceOptional = false) const;
+    [[nodiscard]] std::string cCommsTypeName(bool forceOptional = false) const;
+    [[nodiscard]] std::string cHeaderCode() const;
+    [[nodiscard]] std::string cSourceCode() const;
+    [[nodiscard]] std::string cCommsHeaderCode() const;
+    [[nodiscard]] std::string cCommsType(bool forceOptional = false) const;
+    [[nodiscard]] bool cIsVersionOptional() const;
     void cAddSourceFiles(GenStringsList& sources) const;
-    std::string cRelCommsHeader() const;
-    std::string cFrameValueDef(const std::string& name) const;
-    std::string cFrameValueAssign(const std::string& valueAccess, const std::string& fieldAccess) const;
+    [[nodiscard]] std::string cRelCommsHeader() const;
+    [[nodiscard]] std::string cFrameValueDef(const std::string& name) const;
+    [[nodiscard]] std::string cFrameValueAssign(const std::string& valueAccess, const std::string& fieldAccess) const;
 
-    const GenField& cGenField() const
+    [[nodiscard]] const GenField& cGenField() const
     {
         return m_genField;
     }
 
-    const std::string& cConversionSuffix() const;
+    [[nodiscard]] const std::string& cConversionSuffix() const;
 
 protected:
     virtual void cAddHeaderIncludesImpl(CIncludesList& includes) const;
     virtual void cAddSourceIncludesImpl(CIncludesList& includes) const;
     virtual void cAddCommsHeaderIncludesImpl(CIncludesList& includes) const;
-    virtual std::string cHeaderCodeImpl() const;
-    virtual std::string cSourceCodeImpl() const;
-    virtual std::string cCommsHeaderCodeImpl() const;
-    virtual std::string cFrameValueDefImpl(const std::string& name) const;
-    virtual std::string cFrameValueAssignImpl(const std::string& valueAccess, const std::string& fieldAccess) const;
+    [[nodiscard]] virtual std::string cHeaderCodeImpl() const;
+    [[nodiscard]] virtual std::string cSourceCodeImpl() const;
+    [[nodiscard]] virtual std::string cCommsHeaderCodeImpl() const;
+    [[nodiscard]] virtual std::string cFrameValueDefImpl(const std::string& name) const;
+    [[nodiscard]] virtual std::string cFrameValueAssignImpl(const std::string& valueAccess, const std::string& fieldAccess) const;
 
-    std::string cHeaderCommonValueAccessFuncs() const;
-    std::string cSourceCommonValueAccessFuncs() const;
-    std::string cCommonFrameValueDef(const std::string& typeStr, const std::string& name) const;
-    std::string cCommonFrameValueAssign(const std::string& valueAccess, const std::string& fieldAccess) const;
+    [[nodiscard]] std::string cHeaderCommonValueAccessFuncs() const;
+    [[nodiscard]] std::string cSourceCommonValueAccessFuncs() const;
+    [[nodiscard]] std::string cCommonFrameValueDef(const std::string& typeStr, const std::string& name) const;
+    [[nodiscard]] std::string cCommonFrameValueAssign(const std::string& valueAccess, const std::string& fieldAccess) const;
 
 private:
-    bool cWriteHeaderInternal() const;
-    bool cWriteSrcInternal() const;
-    bool cWriteCommsHeaderInternal() const;
-    std::string cHeaderIncludesInternal() const;
-    std::string cSourceIncludesInternal() const;
-    std::string cHeaderCommonFuncsInternal(bool forcedOptional) const;
-    std::string cSourceCommonFuncsInternal(bool forcedOptional) const;
-    std::string cHandleBriefInternal(bool forcedOptional) const;
-    std::string cCommsHeaderIncludesInternal() const;
-    std::string cHeaderOptionalCodeInternal() const;
-    std::string cSourceOptionalCodeInternal() const;
+    [[nodiscard]] bool cWriteHeaderInternal() const;
+    [[nodiscard]] bool cWriteSrcInternal() const;
+    [[nodiscard]] bool cWriteCommsHeaderInternal() const;
+    [[nodiscard]] std::string cHeaderIncludesInternal() const;
+    [[nodiscard]] std::string cSourceIncludesInternal() const;
+    [[nodiscard]] std::string cHeaderCommonFuncsInternal(bool forcedOptional) const;
+    [[nodiscard]] std::string cSourceCommonFuncsInternal(bool forcedOptional) const;
+    [[nodiscard]] std::string cHandleBriefInternal(bool forcedOptional) const;
+    [[nodiscard]] std::string cCommsHeaderIncludesInternal() const;
+    [[nodiscard]] std::string cHeaderOptionalCodeInternal() const;
+    [[nodiscard]] std::string cSourceOptionalCodeInternal() const;
 
     GenField& m_genField;
 };

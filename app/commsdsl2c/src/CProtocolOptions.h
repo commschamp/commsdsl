@@ -29,17 +29,17 @@ class CProtocolOptions
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    static std::string cName(const CGenerator& generator);
-    static std::string cRelHeader(const CGenerator& generator);
+    [[nodiscard]] static std::string cName(const CGenerator& generator);
+    [[nodiscard]] static std::string cRelHeader(const CGenerator& generator);
 
-    static bool cWrite(CGenerator& generator);
+    [[nodiscard]] static bool cWrite(CGenerator& generator);
 
 private:
     explicit CProtocolOptions(CGenerator& generator);
 
-    bool cWriteHeaderInternal();
-    std::string cTypeDefInternal();
-    std::string cIncludesInternal();
+    [[nodiscard]] bool cWriteHeaderInternal();
+    [[nodiscard]] std::string cTypeDefInternal();
+    [[nodiscard]] std::string cIncludesInternal();
 
     CGenerator& m_cGenerator;
 };

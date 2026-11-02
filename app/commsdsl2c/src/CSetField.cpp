@@ -38,7 +38,7 @@ namespace
 const auto CMaxBits = std::numeric_limits<std::uintmax_t>::digits;
 const std::string BitIdxStr = "BitIdx";
 
-const std::string& cCodeTemplInternal()
+[[nodiscard]] const std::string& cCodeTemplInternal()
 {
     static const std::string Templ =
         "#^#VALUE#$#\n"

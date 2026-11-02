@@ -36,8 +36,8 @@ public:
     CCustomLayer(CGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool cHasInputMessagesImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool cHasInputMessagesImpl() const override;
 };
 
 } // namespace commsdsl2c

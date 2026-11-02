@@ -36,7 +36,7 @@ namespace commsdsl2c
 namespace
 {
 
-std::intmax_t cMaxLimitValStrInternal(commsdsl::parse::ParseIntField::ParseType value, std::size_t len)
+[[nodiscard]] std::intmax_t cMaxLimitValStrInternal(commsdsl::parse::ParseIntField::ParseType value, std::size_t len)
 {
     static const std::intmax_t TypeMap[] = {
         /* Int8 */ std::numeric_limits<std::int8_t>::max(),

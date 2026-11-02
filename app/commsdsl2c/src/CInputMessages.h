@@ -32,14 +32,14 @@ public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     CInputMessages(CGenerator& generator, const CNamespace& parent);
-    bool cWrite() const;
+    [[nodiscard]] bool cWrite() const;
 
-    std::string cRelHeader() const;
-    std::string cName() const;
+    [[nodiscard]] std::string cRelHeader() const;
+    [[nodiscard]] std::string cName() const;
 
 private:
-    std::string cCommsNameInternal() const;
-    std::string cInputDefInternal() const;
+    [[nodiscard]] std::string cCommsNameInternal() const;
+    [[nodiscard]] std::string cInputDefInternal() const;
     void cAddIncludesInternal(GenStringsList& includes) const;
 
     CGenerator& m_cGenerator;

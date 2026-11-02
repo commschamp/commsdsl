@@ -34,26 +34,26 @@ public:
     using GenMessagesAccessList = commsdsl::gen::GenNamespace::GenMessagesAccessList;
 
     CMsgHandler(CGenerator& generator, const CNamespace& parent);
-    bool cWrite() const;
+    [[nodiscard]] bool cWrite() const;
 
-    std::string cRelHeader() const;
-    std::string cRelCommsHeader() const;
-    std::string cRelSource() const;
-    std::string cName() const;
-    std::string cCommsTypeName() const;
+    [[nodiscard]] std::string cRelHeader() const;
+    [[nodiscard]] std::string cRelCommsHeader() const;
+    [[nodiscard]] std::string cRelSource() const;
+    [[nodiscard]] std::string cName() const;
+    [[nodiscard]] std::string cCommsTypeName() const;
     void cAddSourceFiles(GenStringsList& sources) const;
 
 private:
-    bool cWriteHeaderInternal() const;
-    bool cWriteSourceInternal() const;
-    bool cWriteCommsHeaderInternal() const;
-    std::string cHeaderFuncsInternal() const;
-    std::string cHeaderFwdInternal() const;
-    std::string cCommsHeaderIncludesInternal() const;
-    std::string cCommsHeaderFuncsInternal() const;
-    std::string cCommsSourceIncludesInternal() const;
-    std::string cCommsSourceFuncsInternal() const;
-    GenMessagesAccessList cMessagesListInternal() const;
+    [[nodiscard]] bool cWriteHeaderInternal() const;
+    [[nodiscard]] bool cWriteSourceInternal() const;
+    [[nodiscard]] bool cWriteCommsHeaderInternal() const;
+    [[nodiscard]] std::string cHeaderFuncsInternal() const;
+    [[nodiscard]] std::string cHeaderFwdInternal() const;
+    [[nodiscard]] std::string cCommsHeaderIncludesInternal() const;
+    [[nodiscard]] std::string cCommsHeaderFuncsInternal() const;
+    [[nodiscard]] std::string cCommsSourceIncludesInternal() const;
+    [[nodiscard]] std::string cCommsSourceFuncsInternal() const;
+    [[nodiscard]] GenMessagesAccessList cMessagesListInternal() const;
 
     CGenerator& m_cGenerator;
     const CNamespace& m_parent;

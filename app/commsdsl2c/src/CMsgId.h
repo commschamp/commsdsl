@@ -28,13 +28,13 @@ class CMsgId
 {
 public:
     CMsgId(CGenerator& generator, const CNamespace& parent);
-    bool cWrite() const;
+    [[nodiscard]] bool cWrite() const;
 
-    std::string cRelHeader() const;
-    std::string cName() const;
+    [[nodiscard]] std::string cRelHeader() const;
+    [[nodiscard]] std::string cName() const;
 
 private:
-    std::string cIdsInternal() const;
+    [[nodiscard]] std::string cIdsInternal() const;
 
     CGenerator& m_cGenerator;
     const CNamespace& m_parent;

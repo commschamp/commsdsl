@@ -32,14 +32,14 @@ public:
 
     CProgramOptions();
 
-    static const CProgramOptions& cCast(const GenProgramOptions& obj)
+    [[nodiscard]] static const CProgramOptions& cCast(const GenProgramOptions& obj)
     {
         return static_cast<const CProgramOptions&>(obj);
     }
 
-    const std::string& cGetNamesPrefix() const;
-    const std::string& cGetCommsOptions() const;
-    const std::string& cGetCommsInput() const;
+    [[nodiscard]] const std::string& cGetNamesPrefix() const;
+    [[nodiscard]] const std::string& cGetCommsOptions() const;
+    [[nodiscard]] const std::string& cGetCommsInput() const;
 };
 
 } // namespace commsdsl2c

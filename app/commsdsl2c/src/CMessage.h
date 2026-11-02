@@ -40,38 +40,38 @@ public:
     explicit CMessage(CGenerator& generator, ParseMessage parseObj, GenElem* parent);
     virtual ~CMessage();
 
-    static const CMessage* cCast(const commsdsl::gen::GenMessage* i)
+    [[nodiscard]] static const CMessage* cCast(const commsdsl::gen::GenMessage* i)
     {
         return static_cast<const CMessage*>(i);
     }
 
-    std::string cRelHeader() const;
-    std::string cRelCommsHeader() const;
+    [[nodiscard]] std::string cRelHeader() const;
+    [[nodiscard]] std::string cRelCommsHeader() const;
     void cAddSourceFiles(GenStringsList& sources) const;
-    std::string cCommsType(bool appendOptions = true) const;
-    std::string cName() const;
-    std::string cCommsTypeName() const;
+    [[nodiscard]] std::string cCommsType(bool appendOptions = true) const;
+    [[nodiscard]] std::string cName() const;
+    [[nodiscard]] std::string cCommsTypeName() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
     using CFieldsList = CField::CFieldsList;
 
-    bool cWriteHeaderInternal() const;
-    bool cWriteSourceInternal() const;
-    bool cWriteCommsHeaderInternal() const;
+    [[nodiscard]] bool cWriteHeaderInternal() const;
+    [[nodiscard]] bool cWriteSourceInternal() const;
+    [[nodiscard]] bool cWriteCommsHeaderInternal() const;
 
-    std::string cHeaderIncludesInternal() const;
-    std::string cHeaderFieldsInternal() const;
-    std::string cHeaderCodeInternal() const;
-    std::string cSourceIncludesInternal() const;
-    std::string cSourceFieldsInternal() const;
-    std::string cSourceCodeInternal() const;
-    std::string cCommsHeaderIncludesInternal() const;
-    std::string cCommsHeaderFieldsInternal() const;
-    std::string cCommsHeaderCodeInternal() const;
+    [[nodiscard]] std::string cHeaderIncludesInternal() const;
+    [[nodiscard]] std::string cHeaderFieldsInternal() const;
+    [[nodiscard]] std::string cHeaderCodeInternal() const;
+    [[nodiscard]] std::string cSourceIncludesInternal() const;
+    [[nodiscard]] std::string cSourceFieldsInternal() const;
+    [[nodiscard]] std::string cSourceCodeInternal() const;
+    [[nodiscard]] std::string cCommsHeaderIncludesInternal() const;
+    [[nodiscard]] std::string cCommsHeaderFieldsInternal() const;
+    [[nodiscard]] std::string cCommsHeaderCodeInternal() const;
 
     CFieldsList m_cFields;
 };

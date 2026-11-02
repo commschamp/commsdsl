@@ -29,18 +29,18 @@ class CErrorStatus
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    static std::string cName(const CGenerator& generator);
-    static std::string cRelHeader(const CGenerator& generator);
-    static std::string cRelSourcePath(const CGenerator& generator);
+    [[nodiscard]] static std::string cName(const CGenerator& generator);
+    [[nodiscard]] static std::string cRelHeader(const CGenerator& generator);
+    [[nodiscard]] static std::string cRelSourcePath(const CGenerator& generator);
     static void cAddSourceFiles(const CGenerator& generator, GenStringsList& sources);
 
-    static bool cWrite(CGenerator& generator);
+    [[nodiscard]] static bool cWrite(CGenerator& generator);
 
 private:
     explicit CErrorStatus(CGenerator& generator);
 
-    bool cWriteHeaderInternal();
-    bool cWriteSourceInternal();
+    [[nodiscard]] bool cWriteHeaderInternal();
+    [[nodiscard]] bool cWriteSourceInternal();
 
     CGenerator& m_cGenerator;
 };

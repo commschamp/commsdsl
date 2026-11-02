@@ -28,19 +28,19 @@ class CGenerator;
 class CDoxygen
 {
 public:
-    static bool cWrite(CGenerator& generator);
+    [[nodiscard]] static bool cWrite(CGenerator& generator);
 
 private:
     explicit CDoxygen(CGenerator& generator);
 
     void cPrepareInternal();
-    bool cWriteInternal() const;
+    [[nodiscard]] bool cWriteInternal() const;
 
-    bool cWriteConfInternal() const;
-    bool cWriteLayoutInternal() const;
-    bool cWriteMainpageInternal() const;
-    std::string cInputDocInternal() const;
-    std::string cOutputDocInternal() const;
+    [[nodiscard]] bool cWriteConfInternal() const;
+    [[nodiscard]] bool cWriteLayoutInternal() const;
+    [[nodiscard]] bool cWriteMainpageInternal() const;
+    [[nodiscard]] std::string cInputDocInternal() const;
+    [[nodiscard]] std::string cOutputDocInternal() const;
 
     CGenerator& m_cGenerator;
     std::vector<const CFrame*> m_frames;

@@ -42,25 +42,25 @@ public:
     explicit CNamespace(CGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~CNamespace();
 
-    static const CNamespace* cCast(const commsdsl::gen::GenNamespace* obj)
+    [[nodiscard]] static const CNamespace* cCast(const commsdsl::gen::GenNamespace* obj)
     {
         return static_cast<const CNamespace*>(obj);
     }
 
-    const CInterface* cInterface() const;
+    [[nodiscard]] const CInterface* cInterface() const;
     void cAddSourceFiles(GenStringsList& sources) const;
-    bool cCodeGenerationAllowed() const;
-    std::string cPrefixName() const;
+    [[nodiscard]] bool cCodeGenerationAllowed() const;
+    [[nodiscard]] std::string cPrefixName() const;
 
-    const CMsgId* cMsgId() const;
-    const CMsgHandler* cMsgHandler() const;
-    const CInputMessages* cInputMessages() const;
+    [[nodiscard]] const CMsgId* cMsgId() const;
+    [[nodiscard]] const CMsgHandler* cMsgHandler() const;
+    [[nodiscard]] const CInputMessages* cInputMessages() const;
 
 protected:
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
-    bool cHasValidInterfaceInternal() const;
+    [[nodiscard]] bool cHasValidInterfaceInternal() const;
 
     CMsgId m_msgId;
     CMsgHandler m_msgHandler;

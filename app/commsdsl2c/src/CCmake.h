@@ -29,12 +29,12 @@ class CCmake
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    static bool cWrite(CGenerator& generator);
+    [[nodiscard]] static bool cWrite(CGenerator& generator);
 
 private:
     explicit CCmake(CGenerator& generator) : m_cGenerator(generator) {}
 
-    bool cWriteInternal() const;
+    [[nodiscard]] bool cWriteInternal() const;
 
     CGenerator& m_cGenerator;
 };

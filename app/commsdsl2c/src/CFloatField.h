@@ -37,17 +37,17 @@ public:
 
 protected:
     // GenBase overrides
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // CBase overrides
-    virtual std::string cHeaderCodeImpl() const override;
-    virtual std::string cSourceCodeImpl() const override;
+    [[nodiscard]] virtual std::string cHeaderCodeImpl() const override;
+    [[nodiscard]] virtual std::string cSourceCodeImpl() const override;
 
 private:
-    std::string cTypeInternal() const;
-    std::string cHeaderValueCodeInternal() const;
-    std::string cHeaderSpecialsCodeInternal() const;
-    std::string cSourceSpecialsCodeInternal() const;
+    [[nodiscard]] std::string cTypeInternal() const;
+    [[nodiscard]] std::string cHeaderValueCodeInternal() const;
+    [[nodiscard]] std::string cHeaderSpecialsCodeInternal() const;
+    [[nodiscard]] std::string cSourceSpecialsCodeInternal() const;
 };
 
 } // namespace commsdsl2c

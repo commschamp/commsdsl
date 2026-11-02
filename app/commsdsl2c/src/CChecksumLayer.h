@@ -36,7 +36,7 @@ public:
     CChecksumLayer(CGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
 };
 
 } // namespace commsdsl2c

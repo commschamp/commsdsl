@@ -36,10 +36,10 @@ public:
     CValueLayer(CGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual std::string cHeaderCodeImpl() const override;
-    virtual std::string cSourceCodeImpl() const override;
-    virtual bool cIsInterfaceSupportedImpl(const CInterface& iFace) const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual std::string cHeaderCodeImpl() const override;
+    [[nodiscard]] virtual std::string cSourceCodeImpl() const override;
+    [[nodiscard]] virtual bool cIsInterfaceSupportedImpl(const CInterface& iFace) const override;
 
 private:
     bool m_hasPseudoField = false;

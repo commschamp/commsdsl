@@ -42,42 +42,42 @@ public:
     explicit CFrame(CGenerator& generator, ParseFrame parseObj, commsdsl::gen::GenElem* parent);
     virtual ~CFrame();
 
-    static const CFrame* cCast(const GenFrame* obj)
+    [[nodiscard]] static const CFrame* cCast(const GenFrame* obj)
     {
         return static_cast<const CFrame*>(obj);
     }
 
-    std::string cRelHeader() const;
-    std::string cRelCommsHeader() const;
+    [[nodiscard]] std::string cRelHeader() const;
+    [[nodiscard]] std::string cRelCommsHeader() const;
     void cAddSourceFiles(GenStringsList& sources) const;
-    std::string cCommsType(bool appendOptions = true) const;
-    std::string cName() const;
-    std::string cCommsTypeName() const;
-    bool cIsValidFrame() const;
+    [[nodiscard]] std::string cCommsType(bool appendOptions = true) const;
+    [[nodiscard]] std::string cName() const;
+    [[nodiscard]] std::string cCommsTypeName() const;
+    [[nodiscard]] bool cIsValidFrame() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
     using CLayersList = std::vector<CLayer*>;
 
-    bool cWriteHeaderInternal() const;
-    bool cWriteSourceInternal() const;
-    bool cWriteCommsHeaderInternal() const;
-    std::string cHeaderIncludesInternal() const;
-    std::string cHeaderLayersCodeInternal() const;
-    std::string cHeaderFrameCodeInternal() const;
-    std::string cHeaderFrameFieldsCodeInternal() const;
-    std::string cSourceIncludesInternal() const;
-    std::string cSourceLayersCodeInternal() const;
-    std::string cSourceFrameCodeInternal() const;
-    std::string cCommsHeaderIncludesInternal() const;
-    std::string cCommsHeaderLayersCodeInternal() const;
-    std::string cCommsHeaderFrameCodeInternal() const;
-    const CInterface* cInterfaceInternal() const;
-    const CMsgHandler* cMsgHandlerInternal() const;
-    std::string cMsgIdTypeInternal() const;
+    [[nodiscard]] bool cWriteHeaderInternal() const;
+    [[nodiscard]] bool cWriteSourceInternal() const;
+    [[nodiscard]] bool cWriteCommsHeaderInternal() const;
+    [[nodiscard]] std::string cHeaderIncludesInternal() const;
+    [[nodiscard]] std::string cHeaderLayersCodeInternal() const;
+    [[nodiscard]] std::string cHeaderFrameCodeInternal() const;
+    [[nodiscard]] std::string cHeaderFrameFieldsCodeInternal() const;
+    [[nodiscard]] std::string cSourceIncludesInternal() const;
+    [[nodiscard]] std::string cSourceLayersCodeInternal() const;
+    [[nodiscard]] std::string cSourceFrameCodeInternal() const;
+    [[nodiscard]] std::string cCommsHeaderIncludesInternal() const;
+    [[nodiscard]] std::string cCommsHeaderLayersCodeInternal() const;
+    [[nodiscard]] std::string cCommsHeaderFrameCodeInternal() const;
+    [[nodiscard]] const CInterface* cInterfaceInternal() const;
+    [[nodiscard]] const CMsgHandler* cMsgHandlerInternal() const;
+    [[nodiscard]] std::string cMsgIdTypeInternal() const;
 
     CLayersList m_cLayers;
     bool m_validFrame = false;

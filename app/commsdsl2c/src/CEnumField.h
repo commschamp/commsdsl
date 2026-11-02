@@ -39,21 +39,21 @@ public:
 
     CEnumField(CGenerator& generator, ParseField parseObj, GenElem* parent);
 
-    GenStringsList cEnumValues(const std::string& forcedPrefix = std::string()) const;
+    [[nodiscard]] GenStringsList cEnumValues(const std::string& forcedPrefix = std::string()) const;
 
 protected:
     // GenBase overrides
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // CBase overrides
-    virtual std::string cHeaderCodeImpl() const override;
-    virtual std::string cSourceCodeImpl() const override;
-    virtual std::string cFrameValueDefImpl(const std::string& name) const override;
-    virtual std::string cFrameValueAssignImpl(const std::string& valueAccess, const std::string& fieldAccess) const override;
+    [[nodiscard]] virtual std::string cHeaderCodeImpl() const override;
+    [[nodiscard]] virtual std::string cSourceCodeImpl() const override;
+    [[nodiscard]] virtual std::string cFrameValueDefImpl(const std::string& name) const override;
+    [[nodiscard]] virtual std::string cFrameValueAssignImpl(const std::string& valueAccess, const std::string& fieldAccess) const override;
 
 private:
-    std::string cHeaderEnumInternal() const;
-    std::string cHeaderEnumTypeNameInternal() const;
+    [[nodiscard]] std::string cHeaderEnumInternal() const;
+    [[nodiscard]] std::string cHeaderEnumTypeNameInternal() const;
 };
 
 } // namespace commsdsl2c

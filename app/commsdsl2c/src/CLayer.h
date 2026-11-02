@@ -38,48 +38,48 @@ public:
     explicit CLayer(GenLayer& layer);
     virtual ~CLayer();
 
-    static const CLayer* cCast(const GenLayer* layer);
+    [[nodiscard]] static const CLayer* cCast(const GenLayer* layer);
 
-    commsdsl::gen::GenLayer& cGenLayer()
+    [[nodiscard]] commsdsl::gen::GenLayer& cGenLayer()
     {
         return m_genLayer;
     }
 
-    const commsdsl::gen::GenLayer& cGenLayer() const
+    [[nodiscard]] const commsdsl::gen::GenLayer& cGenLayer() const
     {
         return m_genLayer;
     }
 
-    bool cPrepare();
+    [[nodiscard]] bool cPrepare();
     void cAddHeaderIncludes(GenStringsList& includes) const;
     void cAddSourceIncludes(GenStringsList& includes) const;
     void cAddCommsHeaderIncludes(GenStringsList& includes) const;
-    std::string cName() const;
-    std::string cCommsTypeName() const;
-    std::string cCommsType() const;
-    std::string cHeaderCode() const;
-    std::string cSourceCode() const;
-    std::string cCommsHeaderCode(const CInterface& iFace) const;
-    bool cIsInterfaceSupported(const CInterface& iFace) const;
-    std::string cFrameValueDef() const;
-    std::string cFrameValueAssign(
+    [[nodiscard]] std::string cName() const;
+    [[nodiscard]] std::string cCommsTypeName() const;
+    [[nodiscard]] std::string cCommsType() const;
+    [[nodiscard]] std::string cHeaderCode() const;
+    [[nodiscard]] std::string cSourceCode() const;
+    [[nodiscard]] std::string cCommsHeaderCode(const CInterface& iFace) const;
+    [[nodiscard]] bool cIsInterfaceSupported(const CInterface& iFace) const;
+    [[nodiscard]] std::string cFrameValueDef() const;
+    [[nodiscard]] std::string cFrameValueAssign(
         const std::string& valuesPtrName,
         const std::string& commsBundleName,
         unsigned layerIdx) const;
 
 protected:
-    virtual std::string cHeaderCodeImpl() const;
-    virtual std::string cSourceCodeImpl() const;
-    virtual bool cIsInterfaceSupportedImpl(const CInterface& iFace) const;
-    virtual bool cHasInputMessagesImpl() const;
-    virtual std::string cFrameValueDefImpl() const;
-    virtual std::string cFrameValueAssignImpl(
+    [[nodiscard]] virtual std::string cHeaderCodeImpl() const;
+    [[nodiscard]] virtual std::string cSourceCodeImpl() const;
+    [[nodiscard]] virtual bool cIsInterfaceSupportedImpl(const CInterface& iFace) const;
+    [[nodiscard]] virtual bool cHasInputMessagesImpl() const;
+    [[nodiscard]] virtual std::string cFrameValueDefImpl() const;
+    [[nodiscard]] virtual std::string cFrameValueAssignImpl(
         const std::string& valuesPtrName,
         const std::string& commsBundleName,
         unsigned layerIdx) const;
 
-    const CField* cField() const;
-    const CFrame* cParentFrame() const;
+    [[nodiscard]] const CField* cField() const;
+    [[nodiscard]] const CFrame* cParentFrame() const;
 
 private:
     commsdsl::gen::GenLayer& m_genLayer;

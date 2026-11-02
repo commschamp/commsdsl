@@ -34,7 +34,7 @@ namespace commsdsl2c
 namespace
 {
 
-const std::string& cCodeTemplInternal()
+[[nodiscard]] const std::string& cCodeTemplInternal()
 {
     static const std::string Templ =
         "#^#VALUE#$#\n"

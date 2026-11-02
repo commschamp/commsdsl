@@ -43,105 +43,105 @@ public:
     using GenFieldPtr = commsdsl::gen::GenFieldPtr;
     using GenLayerPtr = commsdsl::gen::GenLayerPtr;
 
-    static const std::string& cFileGeneratedComment();
+    [[nodiscard]] static const std::string& cFileGeneratedComment();
 
-    static CGenerator& cCast(GenGenerator& obj)
+    [[nodiscard]] static CGenerator& cCast(GenGenerator& obj)
     {
         return static_cast<CGenerator&>(obj);
     }
 
-    static const CGenerator& cCast(const GenGenerator& obj)
+    [[nodiscard]] static const CGenerator& cCast(const GenGenerator& obj)
     {
         return static_cast<const CGenerator&>(obj);
     }
 
-    std::string cRelHeaderFor(const GenElem& elem) const;
-    std::string cAbsHeaderFor(const GenElem& elem) const;
-    std::string cRelSourceFor(const GenElem& elem) const;
-    std::string cAbsSourceFor(const GenElem& elem) const;
-    std::string cRelCommsHeaderFor(const GenElem& elem) const;
-    std::string cAbsCommsHeaderFor(const GenElem& elem) const;
-    std::string cRelHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
-    std::string cAbsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
-    std::string cRelCommsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
-    std::string cAbsCommsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
-    std::string cRelSourceForNamespaceMember(const std::string& name, const CNamespace& parent) const;
-    std::string cAbsSourceForNamespaceMember(const std::string& name, const CNamespace& parent) const;
-    std::string cRelHeaderForInput(const std::string& name, const CNamespace& parent) const;
-    std::string cAbsHeaderForInput(const std::string& name, const CNamespace& parent) const;
-    std::string cRelRootHeaderFor(const std::string& name) const;
-    std::string cAbsRootHeaderFor(const std::string& name) const;
-    std::string cRelRootSourceFor(const std::string& name) const;
-    std::string cAbsRootSourceFor(const std::string& name) const;
-    std::string cRelRootCommsHeaderFor(const std::string& name) const;
-    std::string cAbsRootCommsHeaderFor(const std::string& name) const;
-    std::string cRelPathForDoc(const std::string& name) const;
-    std::string cAbsPathForDoc(const std::string& name) const;
+    [[nodiscard]] std::string cRelHeaderFor(const GenElem& elem) const;
+    [[nodiscard]] std::string cAbsHeaderFor(const GenElem& elem) const;
+    [[nodiscard]] std::string cRelSourceFor(const GenElem& elem) const;
+    [[nodiscard]] std::string cAbsSourceFor(const GenElem& elem) const;
+    [[nodiscard]] std::string cRelCommsHeaderFor(const GenElem& elem) const;
+    [[nodiscard]] std::string cAbsCommsHeaderFor(const GenElem& elem) const;
+    [[nodiscard]] std::string cRelHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
+    [[nodiscard]] std::string cAbsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
+    [[nodiscard]] std::string cRelCommsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
+    [[nodiscard]] std::string cAbsCommsHeaderForNamespaceMember(const std::string& name, const CNamespace& parent) const;
+    [[nodiscard]] std::string cRelSourceForNamespaceMember(const std::string& name, const CNamespace& parent) const;
+    [[nodiscard]] std::string cAbsSourceForNamespaceMember(const std::string& name, const CNamespace& parent) const;
+    [[nodiscard]] std::string cRelHeaderForInput(const std::string& name, const CNamespace& parent) const;
+    [[nodiscard]] std::string cAbsHeaderForInput(const std::string& name, const CNamespace& parent) const;
+    [[nodiscard]] std::string cRelRootHeaderFor(const std::string& name) const;
+    [[nodiscard]] std::string cAbsRootHeaderFor(const std::string& name) const;
+    [[nodiscard]] std::string cRelRootSourceFor(const std::string& name) const;
+    [[nodiscard]] std::string cAbsRootSourceFor(const std::string& name) const;
+    [[nodiscard]] std::string cRelRootCommsHeaderFor(const std::string& name) const;
+    [[nodiscard]] std::string cAbsRootCommsHeaderFor(const std::string& name) const;
+    [[nodiscard]] std::string cRelPathForDoc(const std::string& name) const;
+    [[nodiscard]] std::string cAbsPathForDoc(const std::string& name) const;
 
-    std::string cInputRelHeaderFor(const GenElem& elem) const;
-    std::string cInputAbsHeaderFor(const GenElem& elem) const;
-    std::string cInputRelSourceFor(const GenElem& elem) const;
-    std::string cInputAbsSourceFor(const GenElem& elem) const;
-    std::string cInputRelPathForDoc(const std::string& name) const;
-    std::string cInputAbsPathForDoc(const std::string& name) const;
-    std::string cInputRelRootHeaderFor(const std::string& name) const;
-    std::string cInputAbsRootHeaderFor(const std::string& name) const;
+    [[nodiscard]] std::string cInputRelHeaderFor(const GenElem& elem) const;
+    [[nodiscard]] std::string cInputAbsHeaderFor(const GenElem& elem) const;
+    [[nodiscard]] std::string cInputRelSourceFor(const GenElem& elem) const;
+    [[nodiscard]] std::string cInputAbsSourceFor(const GenElem& elem) const;
+    [[nodiscard]] std::string cInputRelPathForDoc(const std::string& name) const;
+    [[nodiscard]] std::string cInputAbsPathForDoc(const std::string& name) const;
+    [[nodiscard]] std::string cInputRelRootHeaderFor(const std::string& name) const;
+    [[nodiscard]] std::string cInputAbsRootHeaderFor(const std::string& name) const;
 
-    std::string cNameFor(const GenElem& elem) const;
-    const std::string& cNamesPrefix() const;
+    [[nodiscard]] std::string cNameFor(const GenElem& elem) const;
+    [[nodiscard]] const std::string& cNamesPrefix() const;
 
-    static std::string cScopeToName(const std::string& scope);
-    static const std::string& cCppGuardBegin(bool addBool = true);
-    static const std::string& cCppGuardEnd();
+    [[nodiscard]] static std::string cScopeToName(const std::string& scope);
+    [[nodiscard]] static const std::string& cCppGuardBegin(bool addBool = true);
+    [[nodiscard]] static const std::string& cCppGuardEnd();
 
-    const GenStringsList& cProtocolOptions() const;
-    const std::string& cInputName() const;
+    [[nodiscard]] const GenStringsList& cProtocolOptions() const;
+    [[nodiscard]] const std::string& cInputName() const;
 
-    const CInterface* cForcedInterface() const;
+    [[nodiscard]] const CInterface* cForcedInterface() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() override;
 
-    virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
-    virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
-    virtual GenInterfacePtr genCreateInterfaceImpl(ParseInterface parseObj, GenElem* parent) override;
-    virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent) override;
-    virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenInterfacePtr genCreateInterfaceImpl(ParseInterface parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent) override;
 
-    virtual GenFieldPtr genCreateIntFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateSetFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateFloatFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateBitfieldFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateBundleFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateStringFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateDataFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateListFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateRefFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateIntFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateSetFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateFloatFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateBitfieldFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateBundleFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateStringFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateDataFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateListFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateRefFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent) override;
 
-    virtual GenLayerPtr genCreateCustomLayerImpl(ParseLayer parseObj, GenElem* parent) override;
-    virtual GenLayerPtr genCreateSyncLayerImpl(ParseLayer parseObj, GenElem* parent) override;
-    virtual GenLayerPtr genCreateSizeLayerImpl(ParseLayer parseObj, GenElem* parent) override;
-    virtual GenLayerPtr genCreateIdLayerImpl(ParseLayer parseObj, GenElem* parent) override;
-    virtual GenLayerPtr genCreateValueLayerImpl(ParseLayer parseObj, GenElem* parent) override;
-    virtual GenLayerPtr genCreatePayloadLayerImpl(ParseLayer parseObj, GenElem* parent) override;
-    virtual GenLayerPtr genCreateChecksumLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateCustomLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateSyncLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateSizeLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateIdLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateValueLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreatePayloadLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateChecksumLayerImpl(ParseLayer parseObj, GenElem* parent) override;
 
-    virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
+    [[nodiscard]] virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
 
 private:
-    bool cWriteExtraFilesInternal() const;
+    [[nodiscard]] bool cWriteExtraFilesInternal() const;
     void cSetNamesPrefixInternal(const std::string& value);
     void cSetCommsOptionsInternal(const std::string& value);
     void cSetCommsInputInternal(const std::string& value);
     void cSetCommsInterfaceInternal(const std::string& value);
 
-    bool cPrepareNamesPrefixInternal();
-    bool cPrepareCommsOptionsInternal();
-    bool cPrepareForcedInterfaceInternal();
+    [[nodiscard]] bool cPrepareNamesPrefixInternal();
+    [[nodiscard]] bool cPrepareCommsOptionsInternal();
+    [[nodiscard]] bool cPrepareForcedInterfaceInternal();
 
     std::string m_namesPrefix;
     std::string m_inputName;

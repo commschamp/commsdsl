@@ -35,7 +35,7 @@ namespace
 {
 
 const std::string FieldIdxStr("FieldIdx");
-const std::string& cCodeTemplInternal()
+[[nodiscard]] const std::string& cCodeTemplInternal()
 {
     static const std::string Templ =
         "#^#MEMBERS#$#\n"

@@ -38,7 +38,7 @@ public:
     explicit CSchema(CGenerator& generator, ParseSchema parseObj, GenElem* parent);
     virtual ~CSchema();
 
-    static const CSchema* cCast(const commsdsl::gen::GenSchema* obj)
+    [[nodiscard]] static const CSchema* cCast(const commsdsl::gen::GenSchema* obj)
     {
         return static_cast<const CSchema*>(obj);
     }
