@@ -41,15 +41,15 @@ public:
     ParseFrame(const ParseFrame& other);
     ~ParseFrame();
 
-    bool parseValid() const;
-    const std::string& parseName() const;
-    const std::string& parseDisplayName() const;
-    const std::string& parseDescription() const;
-    ParseLayersList parseLayers() const;
-    std::string parseExternalRef(bool schemaRef = true) const;
+    [[nodiscard]] bool parseValid() const;
+    [[nodiscard]] const std::string& parseName() const;
+    [[nodiscard]] const std::string& parseDisplayName() const;
+    [[nodiscard]] const std::string& parseDescription() const;
+    [[nodiscard]] ParseLayersList parseLayers() const;
+    [[nodiscard]] std::string parseExternalRef(bool schemaRef = true) const;
 
-    const ParseAttributesMap& parseExtraAttributes() const;
-    const ParseElementsList& parseExtraElements() const;
+    [[nodiscard]] const ParseAttributesMap& parseExtraAttributes() const;
+    [[nodiscard]] const ParseElementsList& parseExtraElements() const;
 
 protected:
     const ParseFrameImpl* m_pImpl;

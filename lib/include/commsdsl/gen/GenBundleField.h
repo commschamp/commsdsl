@@ -42,12 +42,12 @@ public:
     virtual ~GenBundleField();
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl(bool referenced) override;
-    virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
-    virtual const GenFieldsList& genMembersImpl() const override;
+    [[nodiscard]] virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
+    [[nodiscard]] virtual const GenFieldsList& genMembersImpl() const override;
 
-    ParseBundleField genBundleFieldParseObj() const;
+    [[nodiscard]] ParseBundleField genBundleFieldParseObj() const;
 
 private:
     std::unique_ptr<GenBundleFieldImpl> m_impl;

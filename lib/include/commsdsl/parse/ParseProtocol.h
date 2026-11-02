@@ -45,24 +45,24 @@ public:
 
     void parseSetErrorReportCallback(ParseErrorReportFunction&& cb);
 
-    bool parse(const std::string& input);
-    bool parseValidate();
+    [[nodiscard]] bool parse(const std::string& input);
+    [[nodiscard]] bool parseValidate();
 
-    ParseSchemasList parseSchemas() const;
+    [[nodiscard]] ParseSchemasList parseSchemas() const;
 
-    ParseSchema parseLastParsedSchema() const;
+    [[nodiscard]] ParseSchema parseLastParsedSchema() const;
 
-    static constexpr unsigned parseNotYetDeprecated() noexcept
+    [[nodiscard]] static constexpr unsigned parseNotYetDeprecated() noexcept
     {
         return std::numeric_limits<unsigned>::max();
     }
 
-    ParseField parseFindField(const std::string& externalRef) const;
+    [[nodiscard]] ParseField parseFindField(const std::string& externalRef) const;
 
     void parseAddExpectedExtraPrefix(const std::string& value);
 
     void parseSetMultipleSchemasEnabled(bool value);
-    bool parseGetMultipleSchemasEnabled() const;
+    [[nodiscard]] bool parseGetMultipleSchemasEnabled() const;
 
 private:
     std::unique_ptr<ParseProtocolImpl> m_pImpl;

@@ -47,20 +47,20 @@ public:
     ParseNamespace(const ParseNamespace& other);
     ~ParseNamespace();
 
-    bool parseValid() const;
-    const std::string& parseName() const;
-    const std::string& parseDisplayName() const;
-    const std::string& parseDescription() const;
-    ParseNamespacesList parseNamespaces() const;
-    ParseFieldsList parseFields() const;
-    ParseMessagesList parseMessages() const;
-    bool parseHasMessages() const;
-    ParseInterfacesList parseInterfaces() const;
-    ParseFramesList parseFrames() const;
-    std::string parseExternalRef(bool schemaRef = true) const;
+    [[nodiscard]] bool parseValid() const;
+    [[nodiscard]] const std::string& parseName() const;
+    [[nodiscard]] const std::string& parseDisplayName() const;
+    [[nodiscard]] const std::string& parseDescription() const;
+    [[nodiscard]] ParseNamespacesList parseNamespaces() const;
+    [[nodiscard]] ParseFieldsList parseFields() const;
+    [[nodiscard]] ParseMessagesList parseMessages() const;
+    [[nodiscard]] bool parseHasMessages() const;
+    [[nodiscard]] ParseInterfacesList parseInterfaces() const;
+    [[nodiscard]] ParseFramesList parseFrames() const;
+    [[nodiscard]] std::string parseExternalRef(bool schemaRef = true) const;
 
-    const ParseAttributesMap& parseExtraAttributes() const;
-    const ParseElementsList& parseExtraElements() const;
+    [[nodiscard]] const ParseAttributesMap& parseExtraAttributes() const;
+    [[nodiscard]] const ParseElementsList& parseExtraElements() const;
 
 private:
     const ParseNamespaceImpl* m_pImpl;

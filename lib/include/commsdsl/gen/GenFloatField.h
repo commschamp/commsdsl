@@ -45,13 +45,13 @@ public:
     GenFloatField(GenGenerator& generator, ParseField dslObj, GenElem* parent = nullptr);
     virtual ~GenFloatField();
 
-    const GenSpecialsList& genSpecialsSortedByValue() const;
+    [[nodiscard]] const GenSpecialsList& genSpecialsSortedByValue() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
 
-    ParseFloatField genFloatFieldParseObj() const;
+    [[nodiscard]] ParseFloatField genFloatFieldParseObj() const;
 
 private:
     std::unique_ptr<GenFloatFieldImpl> m_impl;

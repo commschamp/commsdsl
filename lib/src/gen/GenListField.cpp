@@ -40,7 +40,7 @@ public:
     {
     }
 
-    bool genPrepare()
+    [[nodiscard]] bool genPrepare()
     {
         do {
             auto elementField = m_parseObj.parseElementField();
@@ -176,102 +176,102 @@ public:
         return true;
     }
 
-    GenField* genExternalElementField()
+    [[nodiscard]] GenField* genExternalElementField()
     {
         return m_externalElementField;
     }
 
-    const GenField* genExternalElementField() const
+    [[nodiscard]] const GenField* genExternalElementField() const
     {
         return m_externalElementField;
     }
 
-    GenField* genMemberElementField()
+    [[nodiscard]] GenField* genMemberElementField()
     {
         return m_memberElementField.get();
     }
 
-    const GenField* genMemberElementField() const
+    [[nodiscard]] const GenField* genMemberElementField() const
     {
         return m_memberElementField.get();
     }
 
-    GenField* genExternalCountPrefixField()
+    [[nodiscard]] GenField* genExternalCountPrefixField()
     {
         return m_externalCountPrefixField;
     }
 
-    const GenField* genExternalCountPrefixField() const
+    [[nodiscard]] const GenField* genExternalCountPrefixField() const
     {
         return m_externalCountPrefixField;
     }
 
-    GenField* genMemberCountPrefixField()
+    [[nodiscard]] GenField* genMemberCountPrefixField()
     {
         return m_memberCountPrefixField.get();
     }
 
-    const GenField* genMemberCountPrefixField() const
+    [[nodiscard]] const GenField* genMemberCountPrefixField() const
     {
         return m_memberCountPrefixField.get();
     }
 
-    GenField* genExternalLengthPrefixField()
+    [[nodiscard]] GenField* genExternalLengthPrefixField()
     {
         return m_externalLengthPrefixField;
     }
 
-    const GenField* genExternalLengthPrefixField() const
+    [[nodiscard]] const GenField* genExternalLengthPrefixField() const
     {
         return m_externalLengthPrefixField;
     }
 
-    GenField* genMemberLengthPrefixField()
+    [[nodiscard]] GenField* genMemberLengthPrefixField()
     {
         return m_memberLengthPrefixField.get();
     }
 
-    const GenField* genMemberLengthPrefixField() const
+    [[nodiscard]] const GenField* genMemberLengthPrefixField() const
     {
         return m_memberLengthPrefixField.get();
     }
 
-    GenField* genExternalElemLengthPrefixField()
+    [[nodiscard]] GenField* genExternalElemLengthPrefixField()
     {
         return m_externalElemLengthPrefixField;
     }
 
-    const GenField* genExternalElemLengthPrefixField() const
+    [[nodiscard]] const GenField* genExternalElemLengthPrefixField() const
     {
         return m_externalElemLengthPrefixField;
     }
 
-    GenField* genMemberElemLengthPrefixField()
+    [[nodiscard]] GenField* genMemberElemLengthPrefixField()
     {
         return m_memberElemLengthPrefixField.get();
     }
 
-    const GenField* genMemberElemLengthPrefixField() const
+    [[nodiscard]] const GenField* genMemberElemLengthPrefixField() const
     {
         return m_memberElemLengthPrefixField.get();
     }
 
-    GenField* genExternalTermSuffixField()
+    [[nodiscard]] GenField* genExternalTermSuffixField()
     {
         return m_externalTermSuffixField;
     }
 
-    const GenField* genExternalTermSuffixField() const
+    [[nodiscard]] const GenField* genExternalTermSuffixField() const
     {
         return m_externalTermSuffixField;
     }
 
-    GenField* genMemberTermSuffixField()
+    [[nodiscard]] GenField* genMemberTermSuffixField()
     {
         return m_memberTermSuffixField.get();
     }
 
-    const GenField* genMemberTermSuffixField() const
+    [[nodiscard]] const GenField* genMemberTermSuffixField() const
     {
         return m_memberTermSuffixField.get();
     }

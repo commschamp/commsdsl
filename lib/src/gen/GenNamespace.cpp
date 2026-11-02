@@ -38,7 +38,7 @@ namespace
 {
 
 template <typename TList>
-bool genWriteElements(TList& list)
+[[nodiscard]] bool genWriteElementsInternal(TList& list)
 {
     return std::all_of(
         list.begin(), list.end(),
@@ -68,7 +68,7 @@ public:
     {
     }
 
-    bool genCreateAll()
+    [[nodiscard]] bool genCreateAll()
     {
         if (!m_parseObj.parseValid()) {
             return true;
@@ -82,7 +82,7 @@ public:
             genCreateFrames();
     }
 
-    bool genPrepare()
+    [[nodiscard]] bool genPrepare()
     {
         if (!m_parseObj.parseValid()) {
             return true;
@@ -96,52 +96,52 @@ public:
             genPrepareFrames();
     }
 
-    bool genWrite() const
+    [[nodiscard]] bool genWrite() const
     {
         return
-            genWriteElements(m_namespaces) &&
-            genWriteElements(m_fields) &&
-            genWriteElements(m_interfaces) &&
-            genWriteElements(m_messages) &&
-            genWriteElements(m_frames);
+            genWriteElementsInternal(m_namespaces) &&
+            genWriteElementsInternal(m_fields) &&
+            genWriteElementsInternal(m_interfaces) &&
+            genWriteElementsInternal(m_messages) &&
+            genWriteElementsInternal(m_frames);
     }
 
-    ParseNamespace genParseObj() const
+    [[nodiscard]] ParseNamespace genParseObj() const
     {
         return m_parseObj;
     }
 
-    const GenNamespacesList& genNamespaces() const
+    [[nodiscard]] const GenNamespacesList& genNamespaces() const
     {
         return m_namespaces;
     }
 
-    const GenFieldsList& genFields() const
+    [[nodiscard]] const GenFieldsList& genFields() const
     {
         return m_fields;
     }
 
-    const GenInterfacesList& genInterfaces() const
+    [[nodiscard]] const GenInterfacesList& genInterfaces() const
     {
         return m_interfaces;
     }
 
-    GenInterfacesList& genInterfaces()
+    [[nodiscard]] GenInterfacesList& genInterfaces()
     {
         return m_interfaces;
     }
 
-    const GenMessagesList& genMessages() const
+    [[nodiscard]] const GenMessagesList& genMessages() const
     {
         return m_messages;
     }
 
-    const GenFramesList& genFrames() const
+    [[nodiscard]] const GenFramesList& genFrames() const
     {
         return m_frames;
     }
 
-    bool genHasFramesRecursive() const
+    [[nodiscard]] bool genHasFramesRecursive() const
     {
         if (!m_frames.empty()) {
             return true;
@@ -156,7 +156,7 @@ public:
                 });
     }
 
-    bool genHasMessagesRecursive() const
+    [[nodiscard]] bool genHasMessagesRecursive() const
     {
         if (!m_messages.empty()) {
             return true;
@@ -171,12 +171,12 @@ public:
                 });
     }
 
-    GenGenerator& genGenerator()
+    [[nodiscard]] GenGenerator& genGenerator()
     {
         return m_generator;
     }
 
-    const GenGenerator& genGenerator() const
+    [[nodiscard]] const GenGenerator& genGenerator() const
     {
         return m_generator;
     }
@@ -195,7 +195,7 @@ public:
         }
     }
 
-    bool genHasReferencedMessageIdField() const
+    [[nodiscard]] bool genHasReferencedMessageIdField() const
     {
         bool hasInFields =
             std::any_of(
@@ -220,7 +220,7 @@ public:
                 });
     }
 
-    bool genHasAnyReferencedMessage() const
+    [[nodiscard]] bool genHasAnyReferencedMessage() const
     {
         bool hasMessage =
             std::any_of(
@@ -243,7 +243,7 @@ public:
                 });
     }
 
-    bool genHasAnyReferencedComponent() const
+    [[nodiscard]] bool genHasAnyReferencedComponent() const
     {
         if (!m_frames.empty()) {
             return true;
@@ -294,7 +294,7 @@ public:
                 });
     }
 
-    const GenInterface* genFindSuitableInterface() const
+    [[nodiscard]] const GenInterface* genFindSuitableInterface() const
     {
         auto* iFace = m_generator.genForcedInterface();
 
@@ -310,7 +310,7 @@ public:
         return nullptr;
     }
 
-    bool genIsSuitableInterface(const GenInterface& iFace) const
+    [[nodiscard]] bool genIsSuitableInterface(const GenInterface& iFace) const
     {
         auto& thisNsInterfaces = genInterfaces();
         auto iter =
@@ -349,7 +349,7 @@ public:
     }
 
 private:
-    bool genCreateNamespaces()
+    [[nodiscard]] bool genCreateNamespaces()
     {
         auto namespaces = m_parseObj.parseNamespaces();
         m_namespaces.reserve(namespaces.size());
@@ -365,7 +365,7 @@ private:
         return true;
     }
 
-    bool genPrepareNamespaces()
+    [[nodiscard]] bool genPrepareNamespaces()
     {
         return
             std::all_of(
@@ -377,7 +377,7 @@ private:
                 });
     }
 
-    bool genCreateFields()
+    [[nodiscard]] bool genCreateFields()
     {
         if (!m_parseObj.parseValid()) {
             return true;
@@ -394,7 +394,7 @@ private:
         return true;
     }
 
-    bool genPrepareFields()
+    [[nodiscard]] bool genPrepareFields()
     {
         return
             std::all_of(
@@ -407,7 +407,7 @@ private:
 
     }
 
-    bool genCreateInterfaces()
+    [[nodiscard]] bool genCreateInterfaces()
     {
         auto interfaces = m_parseObj.parseInterfaces();
         m_interfaces.reserve(interfaces.size());
@@ -424,7 +424,7 @@ private:
         return true;
     }
 
-    bool genPrepareInterfaces()
+    [[nodiscard]] bool genPrepareInterfaces()
     {
         return
             std::all_of(
@@ -436,7 +436,7 @@ private:
                 });
     }
 
-    bool genCreateMessages()
+    [[nodiscard]] bool genCreateMessages()
     {
         auto messages = m_parseObj.parseMessages();
         m_messages.reserve(messages.size());
@@ -452,7 +452,7 @@ private:
         return true;
     }
 
-    bool genPrepareMessages()
+    [[nodiscard]] bool genPrepareMessages()
     {
         return
             std::all_of(
@@ -464,7 +464,7 @@ private:
                 });
     }
 
-    bool genCreateFrames()
+    [[nodiscard]] bool genCreateFrames()
     {
         auto frames = m_parseObj.parseFrames();
         m_frames.reserve(frames.size());
@@ -477,7 +477,7 @@ private:
         return true;
     }
 
-    bool genPrepareFrames()
+    [[nodiscard]] bool genPrepareFrames()
     {
         return
             std::all_of(
@@ -489,7 +489,7 @@ private:
                 });
     }
 
-    const GenInterface* genFindSuitableInterfaceInternal() const
+    [[nodiscard]] const GenInterface* genFindSuitableInterfaceInternal() const
     {
         auto& thisNsInterfaces = genInterfaces();
         do {

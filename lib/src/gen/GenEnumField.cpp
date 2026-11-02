@@ -36,7 +36,7 @@ namespace gen
 namespace
 {
 
-std::uintmax_t genMaxTypeValueInternal(commsdsl::parse::ParseEnumField::ParseType val)
+[[nodiscard]] std::uintmax_t genMaxTypeValueInternal(commsdsl::parse::ParseEnumField::ParseType val)
 {
     static const std::uintmax_t Map[] = {
         /* Int8 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int8_t>::max()),
@@ -75,7 +75,7 @@ public:
 
     explicit GenEnumFieldImpl(ParseEnumField dslObj) : m_dslObj(dslObj) {}
 
-    bool genPrepare()
+    [[nodiscard]] bool genPrepare()
     {
         auto type = m_dslObj.parseType();
         m_bigUnsigned =
@@ -98,7 +98,7 @@ public:
         return true;
     }
 
-    unsigned genHexWidth() const
+    [[nodiscard]] unsigned genHexWidth() const
     {
         std::uintmax_t hexWidth = 0U;
         if (m_dslObj.parseHexAssign()) {
@@ -107,7 +107,7 @@ public:
         return static_cast<unsigned>(hexWidth);
     }
 
-    std::string genAdjustName(const std::string& val) const
+    [[nodiscard]] std::string genAdjustName(const std::string& val) const
     {
         std::string result = val;
         genAdjustFirstLetterInName(result);
@@ -124,7 +124,7 @@ public:
         return result;
     }
 
-    std::string genValueToString(std::intmax_t val) const
+    [[nodiscard]] std::string genValueToString(std::intmax_t val) const
     {
         unsigned hexW = genHexWidth();
 
@@ -135,7 +135,7 @@ public:
         return util::genNumToString(val);
     }
 
-    bool genHasValuesLimit() const
+    [[nodiscard]] bool genHasValuesLimit() const
     {
         auto maxTypeValue = genMaxTypeValueInternal(m_dslObj.parseType());
         if (m_bigUnsigned) {
@@ -145,7 +145,7 @@ public:
         return m_sortedRevValues.back().first < static_cast<std::intmax_t>(maxTypeValue);
     }
 
-    const GenSortedRevValues& genSortedRevValues() const
+    [[nodiscard]] const GenSortedRevValues& genSortedRevValues() const
     {
         return m_sortedRevValues;
     }

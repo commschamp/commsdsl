@@ -38,9 +38,9 @@ public:
     explicit ParseBundleField(const ParseBundleFieldImpl* impl);
     explicit ParseBundleField(ParseField field);
 
-    ParseMembers parseMembers() const;
-    ParseAliases parseAliases() const;
-    ParseOptCond parseValidCond() const;
+    [[nodiscard]] ParseMembers parseMembers() const;
+    [[nodiscard]] ParseAliases parseAliases() const;
+    [[nodiscard]] ParseOptCond parseValidCond() const;
 };
 
 } // namespace parse

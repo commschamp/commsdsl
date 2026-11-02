@@ -46,7 +46,7 @@ public:
     {
     }
 
-    bool genPrepare()
+    [[nodiscard]] bool genPrepare()
     {
         auto dslField = m_parseObj.parseField();
         if (!dslField.parseValid()) {
@@ -77,7 +77,7 @@ public:
         return true;
     }
 
-    bool genWrite()
+    [[nodiscard]] bool genWrite()
     {
         if (m_memberField != nullptr) {
             return m_memberField->genWrite();
@@ -86,37 +86,37 @@ public:
         return true;
     }
 
-    ParseLayer genParseObj() const
+    [[nodiscard]] ParseLayer genParseObj() const
     {
         return m_parseObj;
     }
 
-    GenField* genExternalField()
+    [[nodiscard]] GenField* genExternalField()
     {
         return m_externalField;
     }
 
-    const GenField* genExternalField() const
+    [[nodiscard]] const GenField* genExternalField() const
     {
         return m_externalField;
     }
 
-    GenField* genMemberField()
+    [[nodiscard]] GenField* genMemberField()
     {
         return m_memberField.get();
     }
 
-    const GenField* genMemberField() const
+    [[nodiscard]] const GenField* genMemberField() const
     {
         return m_memberField.get();
     }
 
-    GenGenerator& genGenerator()
+    [[nodiscard]] GenGenerator& genGenerator()
     {
         return m_generator;
     }
 
-    const GenGenerator& genGenerator() const
+    [[nodiscard]] const GenGenerator& genGenerator() const
     {
         return m_generator;
     }

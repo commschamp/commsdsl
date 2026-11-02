@@ -35,7 +35,7 @@ public:
     using ParseFloatField = GenFloatField::ParseFloatField;
     using GenSpecialsList = GenFloatField::GenSpecialsList;
 
-    bool genPrepare(ParseFloatField parseObj)
+    [[nodiscard]] bool genPrepare(ParseFloatField parseObj)
     {
         auto& dslSpecials = parseObj.parseSpecialValues();
         m_specialsSorted.reserve(dslSpecials.size());
@@ -103,7 +103,7 @@ public:
         return true;
     }
 
-    const GenSpecialsList& genSpecialsSortedByValue() const
+    [[nodiscard]] const GenSpecialsList& genSpecialsSortedByValue() const
     {
         return m_specialsSorted;
     }

@@ -81,132 +81,132 @@ public:
     GenGenerator();
     virtual ~GenGenerator();
 
-    int genExec(const GenProgramOptions& options);
+    [[nodiscard]] int genExec(const GenProgramOptions& options);
 
     void genForceSchemaVersion(unsigned value);
     void genSetMinRemoteVersion(unsigned value);
-    unsigned genGetMinRemoteVersion() const;
-    const std::string& genGetCodeVersion() const;
-    std::vector<std::string> genGetCodeVersionTokens() const;
+    [[nodiscard]] unsigned genGetMinRemoteVersion() const;
+    [[nodiscard]] const std::string& genGetCodeVersion() const;
+    [[nodiscard]] std::vector<std::string> genGetCodeVersionTokens() const;
     void genSetCodeVersion(const std::string& value);
     void genSetMessagesListFile(const std::string& value);
-    const std::string& genGetMessagesListFile() const;
+    [[nodiscard]] const std::string& genGetMessagesListFile() const;
     void genSetForcedPlatform(const std::string& value);
-    const std::string& genGetForcedPlatform() const;
+    [[nodiscard]] const std::string& genGetForcedPlatform() const;
     void genSetForcedInterface(const std::string& value);
-    const std::string& genGetForcedInterface() const;
-    const GenInterface* genForcedInterface() const;
+    [[nodiscard]] const std::string& genGetForcedInterface() const;
+    [[nodiscard]] const GenInterface* genForcedInterface() const;
     void genSetNamespaceOverride(const std::string& value);
 
     void genSetTopNamespace(const std::string& value);
-    const std::string& genGetTopNamespace() const;
+    [[nodiscard]] const std::string& genGetTopNamespace() const;
 
     void genSetOutputDir(const std::string& outDir);
-    const std::string& genGetOutputDir() const;
+    [[nodiscard]] const std::string& genGetOutputDir() const;
 
     void genSetCodeDir(const std::string& dir);
-    const std::string& genGetCodeDir() const;
+    [[nodiscard]] const std::string& genGetCodeDir() const;
 
     void genSetMultipleSchemasEnabled(bool enabled);
-    bool genGetMultipleSchemasEnabled() const;
+    [[nodiscard]] bool genGetMultipleSchemasEnabled() const;
 
     void genSetVersionIndependentCodeForced(bool value = true);
-    bool genGetVersionIndependentCodeForced() const;
+    [[nodiscard]] bool genGetVersionIndependentCodeForced() const;
 
     void genSetCodeInjectCommentsRequested(bool value = true);
-    bool genGetCodeInjectCommentsRequested() const;
+    [[nodiscard]] bool genGetCodeInjectCommentsRequested() const;
 
-    const GenField* genFindField(const std::string& externalRef) const;
-    GenField* genFindField(const std::string& externalRef);
-    const GenMessage* genFindMessage(const std::string& externalRef) const;
-    GenMessage* genFindMessage(const std::string& externalRef);
-    const GenFrame* genFindFrame(const std::string& externalRef) const;
-    const GenInterface* genFindInterface(const std::string& externalRef) const;
-    static const GenSchema& genSchemaOf(const GenElem& elem);
+    [[nodiscard]] const GenField* genFindField(const std::string& externalRef) const;
+    [[nodiscard]] GenField* genFindField(const std::string& externalRef);
+    [[nodiscard]] const GenMessage* genFindMessage(const std::string& externalRef) const;
+    [[nodiscard]] GenMessage* genFindMessage(const std::string& externalRef);
+    [[nodiscard]] const GenFrame* genFindFrame(const std::string& externalRef) const;
+    [[nodiscard]] const GenInterface* genFindInterface(const std::string& externalRef) const;
+    [[nodiscard]] static const GenSchema& genSchemaOf(const GenElem& elem);
 
-    GenNamespacesAccessList genGetAllNamespaces() const;
-    GenInterfacesAccessList genGetAllInterfaces() const;
-    GenMessagesAccessList genGetAllMessages() const;
+    [[nodiscard]] GenNamespacesAccessList genGetAllNamespaces() const;
+    [[nodiscard]] GenInterfacesAccessList genGetAllInterfaces() const;
+    [[nodiscard]] GenMessagesAccessList genGetAllMessages() const;
     static void genSortMessages(GenMessagesAccessList& list);
-    GenMessagesAccessList genGetAllMessagesIdSorted() const;
-    GenFramesAccessList genGetAllFrames() const;
-    GenFieldsAccessList genGetAllFields() const;
-    bool genHasAnyReferencedMessage() const;
-    bool genHasAnyReferencedMessageAllSchemas() const;
+    [[nodiscard]] GenMessagesAccessList genGetAllMessagesIdSorted() const;
+    [[nodiscard]] GenFramesAccessList genGetAllFrames() const;
+    [[nodiscard]] GenFieldsAccessList genGetAllFields() const;
+    [[nodiscard]] bool genHasAnyReferencedMessage() const;
+    [[nodiscard]] bool genHasAnyReferencedMessageAllSchemas() const;
 
-    GenNamespacesAccessList genGetAllNamespacesFromAllSchemas() const;
-    GenInterfacesAccessList genGetAllInterfacesFromAllSchemas() const;
-    GenMessagesAccessList genGetAllMessagesFromAllSchemas() const;
-    GenMessagesAccessList genGetAllMessagesIdSortedFromAllSchemas() const;
-    GenFramesAccessList genGetAllFramesFromAllSchemas() const;
-    GenFieldsAccessList genGetAllFieldsFromAllSchemas() const;
+    [[nodiscard]] GenNamespacesAccessList genGetAllNamespacesFromAllSchemas() const;
+    [[nodiscard]] GenInterfacesAccessList genGetAllInterfacesFromAllSchemas() const;
+    [[nodiscard]] GenMessagesAccessList genGetAllMessagesFromAllSchemas() const;
+    [[nodiscard]] GenMessagesAccessList genGetAllMessagesIdSortedFromAllSchemas() const;
+    [[nodiscard]] GenFramesAccessList genGetAllFramesFromAllSchemas() const;
+    [[nodiscard]] GenFieldsAccessList genGetAllFieldsFromAllSchemas() const;
 
-    bool genPrepare(const GenFilesList& files);
-    bool genWrite();
+    [[nodiscard]] bool genPrepare(const GenFilesList& files);
+    [[nodiscard]] bool genWrite();
 
-    bool genDoesElementExist(
+    [[nodiscard]] bool genDoesElementExist(
         unsigned sinceVersion,
         unsigned deprecatedSince,
         bool deprecatedRemoved) const;
 
-    bool genIsElementOptional(
+    [[nodiscard]] bool genIsElementOptional(
         unsigned sinceVersion,
         unsigned deprecatedSince,
         bool deprecatedRemoved) const;
 
-    bool genIsElementDeprecated(unsigned deprecatedSince) const;
+    [[nodiscard]] bool genIsElementDeprecated(unsigned deprecatedSince) const;
 
-    GenLogger& genLogger();
-    const GenLogger& genLogger() const;
+    [[nodiscard]] GenLogger& genLogger();
+    [[nodiscard]] const GenLogger& genLogger() const;
 
-    const GenSchemasList& genSchemas() const;
+    [[nodiscard]] const GenSchemasList& genSchemas() const;
 
-    GenSchema& genCurrentSchema();
-    const GenSchema& genCurrentSchema() const;
-    GenSchema& genProtocolSchema();
-    const GenSchema& genProtocolSchema() const;
-    bool genIsCurrentProtocolSchema() const;
+    [[nodiscard]] GenSchema& genCurrentSchema();
+    [[nodiscard]] const GenSchema& genCurrentSchema() const;
+    [[nodiscard]] GenSchema& genProtocolSchema();
+    [[nodiscard]] const GenSchema& genProtocolSchema() const;
+    [[nodiscard]] bool genIsCurrentProtocolSchema() const;
 
-    GenSchemaPtr genCreateSchema(ParseSchema parseObj, GenElem* parent = nullptr);
-    GenNamespacePtr genCreateNamespace(ParseNamespace parseObj, GenElem* parent = nullptr);
-    GenInterfacePtr genCreateInterface(ParseInterface parseObj, GenElem* parent);
-    GenMessagePtr genCreateMessage(ParseMessage parseObj, GenElem* parent);
-    GenFramePtr genCreateFrame(ParseFrame parseObj, GenElem* parent);
+    [[nodiscard]] GenSchemaPtr genCreateSchema(ParseSchema parseObj, GenElem* parent = nullptr);
+    [[nodiscard]] GenNamespacePtr genCreateNamespace(ParseNamespace parseObj, GenElem* parent = nullptr);
+    [[nodiscard]] GenInterfacePtr genCreateInterface(ParseInterface parseObj, GenElem* parent);
+    [[nodiscard]] GenMessagePtr genCreateMessage(ParseMessage parseObj, GenElem* parent);
+    [[nodiscard]] GenFramePtr genCreateFrame(ParseFrame parseObj, GenElem* parent);
 
-    GenFieldPtr genCreateIntField(ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateEnumField(ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateSetField(ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateFloatField(ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateBitfieldField(ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateBundleField(ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateStringField(ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateDataField(ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateListField(ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateRefField(ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateOptionalField(ParseField parseObj, GenElem* parent);
-    GenFieldPtr genCreateVariantField(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] GenFieldPtr genCreateIntField(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] GenFieldPtr genCreateEnumField(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] GenFieldPtr genCreateSetField(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] GenFieldPtr genCreateFloatField(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] GenFieldPtr genCreateBitfieldField(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] GenFieldPtr genCreateBundleField(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] GenFieldPtr genCreateStringField(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] GenFieldPtr genCreateDataField(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] GenFieldPtr genCreateListField(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] GenFieldPtr genCreateRefField(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] GenFieldPtr genCreateOptionalField(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] GenFieldPtr genCreateVariantField(ParseField parseObj, GenElem* parent);
 
-    GenLayerPtr genCreateCustomLayer(ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreateSyncLayer(ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreateSizeLayer(ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreateIdLayer(ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreateValueLayer(ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreatePayloadLayer(ParseLayer parseObj, GenElem* parent);
-    GenLayerPtr genCreateChecksumLayer(ParseLayer parseObj, GenElem* parent);
+    [[nodiscard]] GenLayerPtr genCreateCustomLayer(ParseLayer parseObj, GenElem* parent);
+    [[nodiscard]] GenLayerPtr genCreateSyncLayer(ParseLayer parseObj, GenElem* parent);
+    [[nodiscard]] GenLayerPtr genCreateSizeLayer(ParseLayer parseObj, GenElem* parent);
+    [[nodiscard]] GenLayerPtr genCreateIdLayer(ParseLayer parseObj, GenElem* parent);
+    [[nodiscard]] GenLayerPtr genCreateValueLayer(ParseLayer parseObj, GenElem* parent);
+    [[nodiscard]] GenLayerPtr genCreatePayloadLayer(ParseLayer parseObj, GenElem* parent);
+    [[nodiscard]] GenLayerPtr genCreateChecksumLayer(ParseLayer parseObj, GenElem* parent);
 
-    unsigned genCurrentSchemaIdx() const;
+    [[nodiscard]] unsigned genCurrentSchemaIdx() const;
     void genChooseCurrentSchema(unsigned idx);
     void genChooseCurrentSchema(unsigned idx) const;
     void genChooseProtocolSchema();
     void genChooseProtocolSchema() const;
 
-    bool genCreateDirectory(const std::string& path) const;
+    [[nodiscard]] bool genCreateDirectory(const std::string& path) const;
 
     void genReferenceAllMessages();
 
     void genReferenceAllInterfaces();
 
-    OptsProcessResult genProcessOptions(const GenProgramOptions& options);
+    [[nodiscard]] OptsProcessResult genProcessOptions(const GenProgramOptions& options);
 
     [[nodiscard]] std::string genReadCodeInjectCode(
         const std::string& relPath,
@@ -220,48 +220,48 @@ public:
         bool* realCodeInjected = nullptr) const;
 
 protected:
-    virtual bool genCreateCompleteImpl();
-    virtual bool genPrepareImpl();
+    [[nodiscard]] virtual bool genCreateCompleteImpl();
+    [[nodiscard]] virtual bool genPrepareImpl();
 
-    virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent);
-    virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent);
-    virtual GenInterfacePtr genCreateInterfaceImpl(ParseInterface parseObj, GenElem* parent);
-    virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent);
-    virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenInterfacePtr genCreateInterfaceImpl(ParseInterface parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent);
 
-    virtual GenFieldPtr genCreateIntFieldImpl(ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateSetFieldImpl(ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateFloatFieldImpl(ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateBitfieldFieldImpl(ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateBundleFieldImpl(ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateStringFieldImpl(ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateDataFieldImpl(ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateListFieldImpl(ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateRefFieldImpl(ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent);
-    virtual GenFieldPtr genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenFieldPtr genCreateIntFieldImpl(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenFieldPtr genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenFieldPtr genCreateSetFieldImpl(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenFieldPtr genCreateFloatFieldImpl(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenFieldPtr genCreateBitfieldFieldImpl(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenFieldPtr genCreateBundleFieldImpl(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenFieldPtr genCreateStringFieldImpl(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenFieldPtr genCreateDataFieldImpl(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenFieldPtr genCreateListFieldImpl(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenFieldPtr genCreateRefFieldImpl(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenFieldPtr genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenFieldPtr genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent);
 
-    virtual GenLayerPtr genCreateCustomLayerImpl(ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreateSyncLayerImpl(ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreateSizeLayerImpl(ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreateIdLayerImpl(ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreateValueLayerImpl(ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreatePayloadLayerImpl(ParseLayer parseObj, GenElem* parent);
-    virtual GenLayerPtr genCreateChecksumLayerImpl(ParseLayer parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenLayerPtr genCreateCustomLayerImpl(ParseLayer parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenLayerPtr genCreateSyncLayerImpl(ParseLayer parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenLayerPtr genCreateSizeLayerImpl(ParseLayer parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenLayerPtr genCreateIdLayerImpl(ParseLayer parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenLayerPtr genCreateValueLayerImpl(ParseLayer parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenLayerPtr genCreatePayloadLayerImpl(ParseLayer parseObj, GenElem* parent);
+    [[nodiscard]] virtual GenLayerPtr genCreateChecksumLayerImpl(ParseLayer parseObj, GenElem* parent);
 
-    virtual bool genWriteImpl();
-    virtual GenLoggerPtr genCreateLoggerImpl();
+    [[nodiscard]] virtual bool genWriteImpl();
+    [[nodiscard]] virtual GenLoggerPtr genCreateLoggerImpl();
 
-    virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options);
+    [[nodiscard]] virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options);
 
-    virtual const std::string& genCommentPrefixImpl() const;
+    [[nodiscard]] virtual const std::string& genCommentPrefixImpl() const;
 
-    GenNamespace* genAddDefaultNamespace();
+    [[nodiscard]] GenNamespace* genAddDefaultNamespace();
 
-    bool genCopyExtraSourceFiles(const std::vector<std::string>& reservedExtensions) const;
+    [[nodiscard]] bool genCopyExtraSourceFiles(const std::vector<std::string>& reservedExtensions) const;
 
-    static std::string genVersionStr();
+    [[nodiscard]] static std::string genVersionStr();
 
 private:
     std::unique_ptr<GenGeneratorImpl> m_impl;

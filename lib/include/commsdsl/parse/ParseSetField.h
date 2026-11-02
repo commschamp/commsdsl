@@ -61,20 +61,20 @@ public:
     explicit ParseSetField(const ParseSetFieldImpl* impl);
     explicit ParseSetField(ParseField field);
 
-    ParseType parseType() const;
-    ParseEndian parseEndian() const;
-    bool parseDefaultBitValue() const;
-    bool parseReservedBitValue() const;
-    const ParseBits& parseBits() const;
-    const ParseRevBits& parseRevBits() const;
-    const ParseMasks& parseMasks() const;
-    bool parseIsNonUniqueAllowed() const;
-    bool parseIsUnique() const;
-    bool parseValidCheckVersion() const;
-    bool parseAvailableLengthLimit() const;
+    [[nodiscard]] ParseType parseType() const;
+    [[nodiscard]] ParseEndian parseEndian() const;
+    [[nodiscard]] bool parseDefaultBitValue() const;
+    [[nodiscard]] bool parseReservedBitValue() const;
+    [[nodiscard]] const ParseBits& parseBits() const;
+    [[nodiscard]] const ParseRevBits& parseRevBits() const;
+    [[nodiscard]] const ParseMasks& parseMasks() const;
+    [[nodiscard]] bool parseIsNonUniqueAllowed() const;
+    [[nodiscard]] bool parseIsUnique() const;
+    [[nodiscard]] bool parseValidCheckVersion() const;
+    [[nodiscard]] bool parseAvailableLengthLimit() const;
 };
 
-inline
+[[nodiscard]] inline
 bool operator==(const ParseSetField::ParseBitInfo& i1, const ParseSetField::ParseBitInfo& i2)
 {
     return (i1.m_idx == i2.m_idx) &&
@@ -82,7 +82,7 @@ bool operator==(const ParseSetField::ParseBitInfo& i1, const ParseSetField::Pars
            (i1.m_deprecatedSince == i2.m_deprecatedSince);
 }
 
-inline
+[[nodiscard]] inline
 bool operator!=(const ParseSetField::ParseBitInfo& i1, const ParseSetField::ParseBitInfo& i2)
 {
     return !(i1 == i2);

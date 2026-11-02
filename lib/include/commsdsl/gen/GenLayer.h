@@ -45,37 +45,37 @@ public:
 
     virtual ~GenLayer();
 
-    static GenPtr genCreate(GenGenerator& generator, ParseLayer parseObj, GenElem* parent = nullptr);
+    [[nodiscard]] static GenPtr genCreate(GenGenerator& generator, ParseLayer parseObj, GenElem* parent = nullptr);
 
-    bool genPrepare();
-    bool genWrite() const;
+    [[nodiscard]] bool genPrepare();
+    [[nodiscard]] bool genWrite() const;
 
-    ParseLayer genParseObj() const;
+    [[nodiscard]] ParseLayer genParseObj() const;
 
-    GenField* genExternalField();
-    const GenField* genExternalField() const;
-    GenField* genMemberField();
-    const GenField* genMemberField() const;
+    [[nodiscard]] GenField* genExternalField();
+    [[nodiscard]] const GenField* genExternalField() const;
+    [[nodiscard]] GenField* genMemberField();
+    [[nodiscard]] const GenField* genMemberField() const;
 
-    GenGenerator& genGenerator();
-    const GenGenerator& genGenerator() const;
+    [[nodiscard]] GenGenerator& genGenerator();
+    [[nodiscard]] const GenGenerator& genGenerator() const;
 
     // return true if re-order happened, false otherwise
-    bool genForceCommsOrder(GenLayersAccessList& layers, bool& success) const;
+    [[nodiscard]] bool genForceCommsOrder(GenLayersAccessList& layers, bool& success) const;
 
-    std::string genTemplateScopeOfComms(const std::string& iFaceStr, const std::string& allMessagesStr, const std::string& protOptionsStr) const;
+    [[nodiscard]] std::string genTemplateScopeOfComms(const std::string& iFaceStr, const std::string& allMessagesStr, const std::string& protOptionsStr) const;
 
-    const GenFrame* genParentFrame() const;
+    [[nodiscard]] const GenFrame* genParentFrame() const;
 
 protected:
     GenLayer(GenGenerator& generator, const ParseLayer& parseObj, GenElem* parent = nullptr);
 
-    virtual GenType genElemTypeImpl() const override final;
-    virtual bool genPrepareImpl();
-    virtual bool genWriteImpl() const;
-    virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const;
+    [[nodiscard]] virtual GenType genElemTypeImpl() const override final;
+    [[nodiscard]] virtual bool genPrepareImpl();
+    [[nodiscard]] virtual bool genWriteImpl() const;
+    [[nodiscard]] virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const;
 
-    bool genAdjustSuffixLayersOrder(GenLayersAccessList& layers, bool& success) const;
+    [[nodiscard]] bool genAdjustSuffixLayersOrder(GenLayersAccessList& layers, bool& success) const;
 
 private:
     std::unique_ptr<GenLayerImpl> m_impl;

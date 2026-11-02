@@ -39,12 +39,12 @@ public:
     ParseAlias(const ParseAlias& other);
     ~ParseAlias();
 
-    const std::string& parseName() const;
-    const std::string& parseDescription() const;
-    const std::string& parseFieldName() const;
+    [[nodiscard]] const std::string& parseName() const;
+    [[nodiscard]] const std::string& parseDescription() const;
+    [[nodiscard]] const std::string& parseFieldName() const;
 
-    const ParseAttributesMap& parseExtraAttributes() const;
-    const ParseElementsList& parseExtraElements() const;
+    [[nodiscard]] const ParseAttributesMap& parseExtraAttributes() const;
+    [[nodiscard]] const ParseElementsList& parseExtraElements() const;
 
 protected:
     const ParseAliasImpl* m_pImpl;

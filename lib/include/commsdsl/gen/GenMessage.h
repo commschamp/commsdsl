@@ -47,26 +47,26 @@ public:
     explicit GenMessage(GenGenerator& generator, ParseMessage dslObj, GenElem* parent = nullptr);
     virtual ~GenMessage();
 
-    bool genCreateAll();
-    bool genIsPrepared() const;
-    bool genPrepare();
-    bool genWrite() const;
-    bool genIsReferenced() const;
+    [[nodiscard]] bool genCreateAll();
+    [[nodiscard]] bool genIsPrepared() const;
+    [[nodiscard]] bool genPrepare();
+    [[nodiscard]] bool genWrite() const;
+    [[nodiscard]] bool genIsReferenced() const;
     void genSetReferenced(bool value = true);
 
-    ParseMessage genParseObj() const;
+    [[nodiscard]] ParseMessage genParseObj() const;
 
-    const GenFieldsList& genFields() const;
+    [[nodiscard]] const GenFieldsList& genFields() const;
 
-    GenGenerator& genGenerator();
-    const GenGenerator& genGenerator() const;
+    [[nodiscard]] GenGenerator& genGenerator();
+    [[nodiscard]] const GenGenerator& genGenerator() const;
 
-    const GenNamespace* genParentNamespace() const;
+    [[nodiscard]] const GenNamespace* genParentNamespace() const;
 
 protected:
-    virtual GenType genElemTypeImpl() const override final;
-    virtual bool genPrepareImpl();
-    virtual bool genWriteImpl() const;
+    [[nodiscard]] virtual GenType genElemTypeImpl() const override final;
+    [[nodiscard]] virtual bool genPrepareImpl();
+    [[nodiscard]] virtual bool genWriteImpl() const;
 
 private:
     std::unique_ptr<GenMessageImpl> m_impl;

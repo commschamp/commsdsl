@@ -60,41 +60,41 @@ public:
 
     virtual ~GenField();
 
-    static GenPtr genCreate(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
+    [[nodiscard]] static GenPtr genCreate(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
 
-    const std::string& genDisplayName() const;
+    [[nodiscard]] const std::string& genDisplayName() const;
 
-    bool genIsPrepared() const;
-    bool genPrepare();
-    bool genWrite() const;
+    [[nodiscard]] bool genIsPrepared() const;
+    [[nodiscard]] bool genPrepare();
+    [[nodiscard]] bool genWrite() const;
 
-    const ParseField& genParseObj() const;
+    [[nodiscard]] const ParseField& genParseObj() const;
 
-    GenGenerator& genGenerator();
-    const GenGenerator& genGenerator() const;
+    [[nodiscard]] GenGenerator& genGenerator();
+    [[nodiscard]] const GenGenerator& genGenerator() const;
 
-    bool genIsReferenced() const;
+    [[nodiscard]] bool genIsReferenced() const;
     void genSetReferenced(bool referenced = true);
 
     static void genSetFieldReferencedIfExists(GenField* field, bool referenced = true);
 
-    std::string genTemplateScopeOfComms(const std::string& protOptionsStr) const;
+    [[nodiscard]] std::string genTemplateScopeOfComms(const std::string& protOptionsStr) const;
 
-    GenFieldRefInfo genProcessInnerRef(const std::string& refStr) const;
-    static GenFieldRefInfo genProcessMemberRef(const GenFieldsList& fields, const std::string& refStr);
+    [[nodiscard]] GenFieldRefInfo genProcessInnerRef(const std::string& refStr) const;
+    [[nodiscard]] static GenFieldRefInfo genProcessMemberRef(const GenFieldsList& fields, const std::string& refStr);
 
-    const GenNamespace* genParentNamespace() const;
-    const GenFieldsList& genMembers() const;
+    [[nodiscard]] const GenNamespace* genParentNamespace() const;
+    [[nodiscard]] const GenFieldsList& genMembers() const;
 
 protected:
     GenField(GenGenerator& generator, const ParseField& parseObj, GenElem* parent = nullptr);
 
-    virtual GenType genElemTypeImpl() const override final;
-    virtual bool genPrepareImpl();
-    virtual bool genWriteImpl() const;
+    [[nodiscard]] virtual GenType genElemTypeImpl() const override final;
+    [[nodiscard]] virtual bool genPrepareImpl();
+    [[nodiscard]] virtual bool genWriteImpl() const;
     virtual void genSetReferencedImpl(bool referenced);
-    virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const;
-    virtual const GenFieldsList& genMembersImpl() const;
+    [[nodiscard]] virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const;
+    [[nodiscard]] virtual const GenFieldsList& genMembersImpl() const;
 
 private:
     std::unique_ptr<GenFieldImpl> m_impl;

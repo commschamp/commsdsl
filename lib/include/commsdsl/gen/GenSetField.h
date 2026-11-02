@@ -41,12 +41,12 @@ public:
     virtual ~GenSetField();
 
 protected:
-    virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
+    [[nodiscard]] virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
 
-    ParseSetField genSetFieldParseObj() const;
+    [[nodiscard]] ParseSetField genSetFieldParseObj() const;
 
-    bool genDoesBitExist(const std::string& name) const;
-    bool genDoesMaskExist(const std::string& name) const;
+    [[nodiscard]] bool genDoesBitExist(const std::string& name) const;
+    [[nodiscard]] bool genDoesMaskExist(const std::string& name) const;
 };
 
 } // namespace gen

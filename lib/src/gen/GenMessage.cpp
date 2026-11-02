@@ -42,7 +42,7 @@ public:
     {
     }
 
-    bool genIsPrepared() const
+    [[nodiscard]] bool genIsPrepared() const
     {
         return m_prepared;
     }
@@ -52,7 +52,7 @@ public:
         m_prepared = true;
     }
 
-    bool genCreateAll()
+    [[nodiscard]] bool genCreateAll()
     {
         if (!m_parseObj.parseValid()) {
             return true;
@@ -69,7 +69,7 @@ public:
         return true;
     }
 
-    bool genPrepare()
+    [[nodiscard]] bool genPrepare()
     {
         if (!m_referenced) {
             return true;
@@ -91,7 +91,7 @@ public:
             });
     }
 
-    bool genWrite() const
+    [[nodiscard]] bool genWrite() const
     {
         if (!m_referenced) {
             return true;
@@ -108,27 +108,27 @@ public:
         return result;
     }
 
-    ParseMessage genParseObj() const
+    [[nodiscard]] ParseMessage genParseObj() const
     {
         return m_parseObj;
     }
 
-    const GenFieldsList& genFields() const
+    [[nodiscard]] const GenFieldsList& genFields() const
     {
         return m_fields;
     }
 
-    GenGenerator& genGenerator()
+    [[nodiscard]] GenGenerator& genGenerator()
     {
         return m_generator;
     }
 
-    const GenGenerator& genGenerator() const
+    [[nodiscard]] const GenGenerator& genGenerator() const
     {
         return m_generator;
     }
 
-    bool genIsReferenced() const
+    [[nodiscard]] bool genIsReferenced() const
     {
         return m_referenced;
     }

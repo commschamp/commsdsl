@@ -41,7 +41,7 @@ public:
     {
     }
 
-    bool genPrepare()
+    [[nodiscard]] bool genPrepare()
     {
         if (!m_dslObj.parseValid()) {
             return true;
@@ -62,7 +62,7 @@ public:
         return true;
     }
 
-    const GenFieldsList& genMembers() const
+    [[nodiscard]] const GenFieldsList& genMembers() const
     {
         return m_members;
     }

@@ -42,12 +42,12 @@ public:
     virtual ~GenBitfieldField();
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl(bool referenced) override;
-    virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
-    virtual const GenFieldsList& genMembersImpl() const override;
+    [[nodiscard]] virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
+    [[nodiscard]] virtual const GenFieldsList& genMembersImpl() const override;
 
-    ParseBitfieldField genBitfieldFieldParseObj() const;
+    [[nodiscard]] ParseBitfieldField genBitfieldFieldParseObj() const;
 
 private:
     std::unique_ptr<GenBitfieldFieldImpl> m_impl;

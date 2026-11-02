@@ -40,7 +40,7 @@ public:
     {
     }
 
-    bool genPrepare()
+    [[nodiscard]] bool genPrepare()
     {
         do {
             if (!m_parseObj.parseHasEscField()) {
@@ -67,22 +67,22 @@ public:
         return true;
     }
 
-    GenField* genExternalEscField()
+    [[nodiscard]] GenField* genExternalEscField()
     {
         return m_externalEscField;
     }
 
-    const GenField* genExternalEscField() const
+    [[nodiscard]] const GenField* genExternalEscField() const
     {
         return m_externalEscField;
     }
 
-    GenField* genMemberEscField()
+    [[nodiscard]] GenField* genMemberEscField()
     {
         return m_memberEscField.get();
     }
 
-    const GenField* genMemberEscField() const
+    [[nodiscard]] const GenField* genMemberEscField() const
     {
         return m_memberEscField.get();
     }

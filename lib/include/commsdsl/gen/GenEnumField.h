@@ -45,28 +45,28 @@ public:
     GenEnumField(GenGenerator& generator, ParseField dslObj, GenElem* parent = nullptr);
     virtual ~GenEnumField();
 
-    bool genIsUnsignedUnderlyingType() const;
-    unsigned genHexWidth() const;
-    std::string genValueName(std::intmax_t value) const;
-    std::string genAdjustName(const std::string& val) const;
+    [[nodiscard]] bool genIsUnsignedUnderlyingType() const;
+    [[nodiscard]] unsigned genHexWidth() const;
+    [[nodiscard]] std::string genValueName(std::intmax_t value) const;
+    [[nodiscard]] std::string genAdjustName(const std::string& val) const;
 
-    ParseEnumField genEnumFieldParseObj() const;
+    [[nodiscard]] ParseEnumField genEnumFieldParseObj() const;
 
-    const GenSortedRevValues& genSortedRevValues() const;
+    [[nodiscard]] const GenSortedRevValues& genSortedRevValues() const;
 
-    std::string genValueToString(std::intmax_t val) const;
+    [[nodiscard]] std::string genValueToString(std::intmax_t val) const;
 
-    bool genHasValuesLimit() const;
+    [[nodiscard]] bool genHasValuesLimit() const;
 
-    std::string genFirstValueStr() const;
-    std::string genLastValueStr() const;
-    std::string genValuesLimitStr() const;
+    [[nodiscard]] std::string genFirstValueStr() const;
+    [[nodiscard]] std::string genLastValueStr() const;
+    [[nodiscard]] std::string genValuesLimitStr() const;
 
-    bool genIsUnsignedType() const;
+    [[nodiscard]] bool genIsUnsignedType() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
 
 private:
     std::unique_ptr<GenEnumFieldImpl> m_impl;

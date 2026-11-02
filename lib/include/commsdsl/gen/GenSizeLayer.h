@@ -41,7 +41,7 @@ public:
     virtual ~GenSizeLayer();
 
 protected:
-    ParseSizeLayer genSizeLayerParseObj() const;
+    [[nodiscard]] ParseSizeLayer genSizeLayerParseObj() const;
 };
 
 } // namespace gen

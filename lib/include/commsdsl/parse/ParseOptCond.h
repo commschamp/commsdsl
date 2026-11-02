@@ -43,9 +43,9 @@ public:
     ParseOptCond(const ParseOptCond& other);
     ~ParseOptCond();
 
-    bool parseValid() const;
+    [[nodiscard]] bool parseValid() const;
 
-    ParseKind parseKind() const;
+    [[nodiscard]] ParseKind parseKind() const;
 
 protected:
     const ParseOptCondImpl* m_pImpl;
@@ -83,11 +83,11 @@ public:
     ParseOptCondExpr(const ParseOptCondExprImpl* impl);
     ParseOptCondExpr(ParseOptCond cond);
 
-    const std::string& parseLeft() const;
-    const std::string& parseOp() const;
-    const std::string& parseRight() const;
-    ParseOperandInfo parseLeftInfo() const;
-    ParseOperandInfo parseRightInfo() const;
+    [[nodiscard]] const std::string& parseLeft() const;
+    [[nodiscard]] const std::string& parseOp() const;
+    [[nodiscard]] const std::string& parseRight() const;
+    [[nodiscard]] ParseOperandInfo parseLeftInfo() const;
+    [[nodiscard]] ParseOperandInfo parseRightInfo() const;
 };
 
 class ParseOptCondListImpl;

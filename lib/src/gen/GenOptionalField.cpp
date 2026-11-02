@@ -39,7 +39,7 @@ public:
     {
     }
 
-    bool genPrepare()
+    [[nodiscard]] bool genPrepare()
     {
         auto field = m_parseObj.parseField();
         assert(field.parseValid());
@@ -59,22 +59,22 @@ public:
         return true;
     }
 
-    GenField* genExternalField()
+    [[nodiscard]] GenField* genExternalField()
     {
         return m_externalField;
     }
 
-    const GenField* genExternalField() const
+    [[nodiscard]] const GenField* genExternalField() const
     {
         return m_externalField;
     }
 
-    GenField* genMemberField()
+    [[nodiscard]] GenField* genMemberField()
     {
         return m_memberField.get();
     }
 
-    const GenField* genMemberField() const
+    [[nodiscard]] const GenField* genMemberField() const
     {
         return m_memberField.get();
     }

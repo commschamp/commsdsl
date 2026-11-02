@@ -49,16 +49,16 @@ public:
     explicit ParseEnumField(const ParseEnumFieldImpl* impl);
     explicit ParseEnumField(ParseField field);
 
-    ParseType parseType() const;
-    ParseEndian parseEndian() const;
-    std::intmax_t parseDefaultValue() const;
-    const ParseValues& parseValues() const;
-    const ParseRevValues& parseRevValues() const;
-    bool parseIsNonUniqueAllowed() const;
-    bool parseIsUnique() const;
-    bool parseValidCheckVersion() const;
-    bool parseHexAssign() const;
-    bool parseAvailableLengthLimit() const;
+    [[nodiscard]] ParseType parseType() const;
+    [[nodiscard]] ParseEndian parseEndian() const;
+    [[nodiscard]] std::intmax_t parseDefaultValue() const;
+    [[nodiscard]] const ParseValues& parseValues() const;
+    [[nodiscard]] const ParseRevValues& parseRevValues() const;
+    [[nodiscard]] bool parseIsNonUniqueAllowed() const;
+    [[nodiscard]] bool parseIsUnique() const;
+    [[nodiscard]] bool parseValidCheckVersion() const;
+    [[nodiscard]] bool parseHexAssign() const;
+    [[nodiscard]] bool parseAvailableLengthLimit() const;
 };
 
 inline

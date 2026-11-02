@@ -149,7 +149,7 @@ public:
         }
     }
 
-    bool genIsOptUsed(const std::string& optStr) const
+    [[nodiscard]] bool genIsOptUsed(const std::string& optStr) const
     {
         if ((optStr.size() == 1) && genIsOptUsedInternal(optStr, m_shortOpts)) {
             return true;
@@ -158,7 +158,7 @@ public:
         return genIsOptUsedInternal(optStr, m_longOpts);
     }
 
-    const std::string& genValue(const std::string& optStr) const
+    [[nodiscard]] const std::string& genValue(const std::string& optStr) const
     {
         if ((optStr.size() == 1) && (genFindOptInfo(optStr, m_shortOpts) != nullptr)) {
             return genValueInternal(optStr, m_shortOpts);
@@ -167,17 +167,17 @@ public:
         return genValueInternal(optStr, m_longOpts);
     }
 
-    const GenStringsList& genArgs() const
+    [[nodiscard]] const GenStringsList& genArgs() const
     {
         return m_args;
     }
 
-    const std::string& genApp() const
+    [[nodiscard]] const std::string& genApp() const
     {
         return m_app;
     }
 
-    std::string genHelpStr() const
+    [[nodiscard]] std::string genHelpStr() const
     {
         util::GenStringsList opts;
         for (auto& optPtr : m_opts) {
@@ -296,7 +296,7 @@ private:
         std::cerr << "WARNING: Unknown option \"" << opt << "\"!" << std::endl;
     }
 
-    static const OptInfo* genFindOptInfo(const std::string& optStr, const OptInfosMap& map)
+    [[nodiscard]] static const OptInfo* genFindOptInfo(const std::string& optStr, const OptInfosMap& map)
     {
         auto iter = map.find(optStr);
         if (iter == map.end()) {
@@ -308,7 +308,7 @@ private:
         return optInfo;
     }
 
-    static bool genIsOptUsedInternal(const std::string& optStr, const OptInfosMap& map)
+    [[nodiscard]] static bool genIsOptUsedInternal(const std::string& optStr, const OptInfosMap& map)
     {
         auto* optInfo = genFindOptInfo(optStr, map);
         if (optInfo == nullptr) {
@@ -318,7 +318,7 @@ private:
         return optInfo->m_wasUsed;
     }
 
-    static const std::string& genValueInternal(const std::string& optStr, const OptInfosMap& map)
+    [[nodiscard]] static const std::string& genValueInternal(const std::string& optStr, const OptInfosMap& map)
     {
         auto* optInfo = genFindOptInfo(optStr, map);
         if ((optInfo == nullptr) || (!optInfo->m_hasParam)) {

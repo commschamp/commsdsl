@@ -40,16 +40,16 @@ public:
     GenStringField(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
     virtual ~GenStringField();
 
-    GenField* genExternalPrefixField();
-    const GenField* genExternalPrefixField() const;
+    [[nodiscard]] GenField* genExternalPrefixField();
+    [[nodiscard]] const GenField* genExternalPrefixField() const;
 
-    GenField* genMemberPrefixField();
-    const GenField* genMemberPrefixField() const;
+    [[nodiscard]] GenField* genMemberPrefixField();
+    [[nodiscard]] const GenField* genMemberPrefixField() const;
 
-    ParseStringField genStringFieldParseObj() const;
+    [[nodiscard]] ParseStringField genStringFieldParseObj() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl(bool referenced) override;
 
 private:

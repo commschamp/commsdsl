@@ -42,10 +42,10 @@ public:
     GenValueLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent = nullptr);
     virtual ~GenValueLayer();
 
-    bool genIsInterfaceSupported(const GenInterface* iFace) const;
+    [[nodiscard]] bool genIsInterfaceSupported(const GenInterface* iFace) const;
 
 protected:
-    ParseValueLayer genValueLayerParseObj() const;
+    [[nodiscard]] ParseValueLayer genValueLayerParseObj() const;
 };
 
 } // namespace gen

@@ -40,41 +40,41 @@ public:
     GenListField(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
     virtual ~GenListField();
 
-    GenField* genExternalElementField();
-    const GenField* genExternalElementField() const;
+    [[nodiscard]] GenField* genExternalElementField();
+    [[nodiscard]] const GenField* genExternalElementField() const;
 
-    GenField* genMemberElementField();
-    const GenField* genMemberElementField() const;
+    [[nodiscard]] GenField* genMemberElementField();
+    [[nodiscard]] const GenField* genMemberElementField() const;
 
-    GenField* genExternalCountPrefixField();
-    const GenField* genExternalCountPrefixField() const;
+    [[nodiscard]] GenField* genExternalCountPrefixField();
+    [[nodiscard]] const GenField* genExternalCountPrefixField() const;
 
-    GenField* genMemberCountPrefixField();
-    const GenField* genMemberCountPrefixField() const;
+    [[nodiscard]] GenField* genMemberCountPrefixField();
+    [[nodiscard]] const GenField* genMemberCountPrefixField() const;
 
-    GenField* genExternalLengthPrefixField();
-    const GenField* genExternalLengthPrefixField() const;
+    [[nodiscard]] GenField* genExternalLengthPrefixField();
+    [[nodiscard]] const GenField* genExternalLengthPrefixField() const;
 
-    GenField* genMemberLengthPrefixField();
-    const GenField* genMemberLengthPrefixField() const;
+    [[nodiscard]] GenField* genMemberLengthPrefixField();
+    [[nodiscard]] const GenField* genMemberLengthPrefixField() const;
 
-    GenField* genExternalElemLengthPrefixField();
-    const GenField* genExternalElemLengthPrefixField() const;
+    [[nodiscard]] GenField* genExternalElemLengthPrefixField();
+    [[nodiscard]] const GenField* genExternalElemLengthPrefixField() const;
 
-    GenField* genMemberElemLengthPrefixField();
-    const GenField* genMemberElemLengthPrefixField() const;
+    [[nodiscard]] GenField* genMemberElemLengthPrefixField();
+    [[nodiscard]] const GenField* genMemberElemLengthPrefixField() const;
 
-    GenField* genExternalTermSuffixField();
-    const GenField* genExternalTermSuffixField() const;
+    [[nodiscard]] GenField* genExternalTermSuffixField();
+    [[nodiscard]] const GenField* genExternalTermSuffixField() const;
 
-    GenField* genMemberTermSuffixField();
-    const GenField* genMemberTermSuffixField() const;
+    [[nodiscard]] GenField* genMemberTermSuffixField();
+    [[nodiscard]] const GenField* genMemberTermSuffixField() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl(bool referenced) override;
 
-    ParseListField genListFieldParseObj() const;
+    [[nodiscard]] ParseListField genListFieldParseObj() const;
 
 private:
     std::unique_ptr<GenListFieldImpl> m_impl;

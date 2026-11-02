@@ -38,7 +38,7 @@ public:
     {
     }
 
-    bool genPrepare()
+    [[nodiscard]] bool genPrepare()
     {
         auto fieldObj = m_parseObj.parseField();
         if (fieldObj.parseIsPseudo() != m_parseObj.parseIsPseudo()) {
@@ -66,12 +66,12 @@ public:
         return true;
     }
 
-    GenField* genReferencedField()
+    [[nodiscard]] GenField* genReferencedField()
     {
         return m_referencedField;
     }
 
-    const GenField* genReferencedField() const
+    [[nodiscard]] const GenField* genReferencedField() const
     {
         return m_referencedField;
     }

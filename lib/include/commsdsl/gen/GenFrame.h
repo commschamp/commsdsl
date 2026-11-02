@@ -47,23 +47,23 @@ public:
     explicit GenFrame(GenGenerator& generator, ParseFrame parseObj, GenElem* parent = nullptr);
     virtual ~GenFrame();
 
-    bool genPrepare();
-    bool genWrite() const;
+    [[nodiscard]] bool genPrepare();
+    [[nodiscard]] bool genWrite() const;
 
-    commsdsl::parse::ParseFrame genParseObj() const;
-    const GenLayersList& genLayers() const;
+    [[nodiscard]] commsdsl::parse::ParseFrame genParseObj() const;
+    [[nodiscard]] const GenLayersList& genLayers() const;
 
-    GenGenerator& genGenerator();
-    const GenGenerator& genGenerator() const;
+    [[nodiscard]] GenGenerator& genGenerator();
+    [[nodiscard]] const GenGenerator& genGenerator() const;
 
-    GenLayersAccessList genCommsOrderOfLayers(bool& success) const;
+    [[nodiscard]] GenLayersAccessList genCommsOrderOfLayers(bool& success) const;
 
-    const GenNamespace* genParentNamespace() const;
+    [[nodiscard]] const GenNamespace* genParentNamespace() const;
 
 protected:
-    virtual GenType genElemTypeImpl() const override final;
-    virtual bool genPrepareImpl();
-    virtual bool genWriteImpl() const;
+    [[nodiscard]] virtual GenType genElemTypeImpl() const override final;
+    [[nodiscard]] virtual bool genPrepareImpl();
+    [[nodiscard]] virtual bool genWriteImpl() const;
 
 private:
     std::unique_ptr<GenFrameImpl> m_impl;

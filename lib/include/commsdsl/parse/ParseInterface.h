@@ -43,16 +43,16 @@ public:
     ParseInterface(const ParseInterface& other);
     ~ParseInterface();
 
-    bool parseValid() const;
-    const std::string& parseName() const;
-    const std::string& parseDescription() const;
-    ParseFieldsList parseFields() const;
-    ParseAliasesList parseAliases() const;
-    std::string parseExternalRef(bool schemaRef = true) const;
-    const std::string& parseCopyCodeFrom() const;
+    [[nodiscard]] bool parseValid() const;
+    [[nodiscard]] const std::string& parseName() const;
+    [[nodiscard]] const std::string& parseDescription() const;
+    [[nodiscard]] ParseFieldsList parseFields() const;
+    [[nodiscard]] ParseAliasesList parseAliases() const;
+    [[nodiscard]] std::string parseExternalRef(bool schemaRef = true) const;
+    [[nodiscard]] const std::string& parseCopyCodeFrom() const;
 
-    const ParseAttributesMap& parseExtraAttributes() const;
-    const ParseElementsList& parseExtraElements() const;
+    [[nodiscard]] const ParseAttributesMap& parseExtraAttributes() const;
+    [[nodiscard]] const ParseElementsList& parseExtraElements() const;
 
 protected:
     const ParseInterfaceImpl* m_pImpl;

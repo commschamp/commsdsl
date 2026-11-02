@@ -44,7 +44,7 @@ public:
     {
     }
 
-    bool genIsPrepared()
+    [[nodiscard]] bool genIsPrepared()
     {
         return m_prepared;
     }
@@ -54,22 +54,22 @@ public:
         m_prepared = true;
     }
 
-    const ParseField& genParseObj() const
+    [[nodiscard]] const ParseField& genParseObj() const
     {
         return m_parseObj;
     }
 
-    GenGenerator& genGenerator()
+    [[nodiscard]] GenGenerator& genGenerator()
     {
         return m_generator;
     }
 
-    const GenGenerator& genGenerator() const
+    [[nodiscard]] const GenGenerator& genGenerator() const
     {
         return m_generator;
     }
 
-    bool genIsReferenced() const
+    [[nodiscard]] bool genIsReferenced() const
     {
         return m_referencedCnt > 0;
     }

@@ -47,12 +47,12 @@ public:
     explicit ParseDataField(const ParseDataFieldImpl* impl);
     explicit ParseDataField(ParseField field);
 
-    const ParseValueType& parseDefaultValue() const;
-    std::size_t parseFixedLength() const;
-    bool parseHasLengthPrefixField() const;
-    ParseField parseLengthPrefixField() const;
-    const std::string& parseDetachedPrefixFieldName() const;
-    const ParseValidValuesList& parseValidValues() const;
+    [[nodiscard]] const ParseValueType& parseDefaultValue() const;
+    [[nodiscard]] std::size_t parseFixedLength() const;
+    [[nodiscard]] bool parseHasLengthPrefixField() const;
+    [[nodiscard]] ParseField parseLengthPrefixField() const;
+    [[nodiscard]] const std::string& parseDetachedPrefixFieldName() const;
+    [[nodiscard]] const ParseValidValuesList& parseValidValues() const;
 };
 
 } // namespace parse

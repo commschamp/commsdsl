@@ -42,35 +42,35 @@ public:
 
     explicit ParseSchema(const ParseSchemaImpl* impl);
 
-    bool parseValid() const;
+    [[nodiscard]] bool parseValid() const;
 
-    const std::string& parseName() const;
+    [[nodiscard]] const std::string& parseName() const;
 
-    const std::string& parseDisplayName() const;
+    [[nodiscard]] const std::string& parseDisplayName() const;
 
-    const std::string& parseDescription() const;
+    [[nodiscard]] const std::string& parseDescription() const;
 
-    unsigned parseId() const;
+    [[nodiscard]] unsigned parseId() const;
 
-    unsigned parseVersion() const;
+    [[nodiscard]] unsigned parseVersion() const;
 
-    unsigned parseDslVersion() const;
+    [[nodiscard]] unsigned parseDslVersion() const;
 
-    ParseEndian parseEndian() const;
+    [[nodiscard]] ParseEndian parseEndian() const;
 
-    bool parseNonUniqueMsgIdAllowed() const;
+    [[nodiscard]] bool parseNonUniqueMsgIdAllowed() const;
 
-    const ParseAttributesMap& parseExtraAttributes() const;
+    [[nodiscard]] const ParseAttributesMap& parseExtraAttributes() const;
 
-    const ParseElementsList& parseExtraElements() const;
+    [[nodiscard]] const ParseElementsList& parseExtraElements() const;
 
-    ParseNamespacesList parseNamespaces() const;
+    [[nodiscard]] ParseNamespacesList parseNamespaces() const;
 
-    const ParsePlatformsList& parsePlatforms() const;
+    [[nodiscard]] const ParsePlatformsList& parsePlatforms() const;
 
-    ParseMessagesList parseAllMessages() const;
+    [[nodiscard]] ParseMessagesList parseAllMessages() const;
 
-    std::string parseExternalRef() const;
+    [[nodiscard]] std::string parseExternalRef() const;
 
 private:
     const ParseSchemaImpl* m_pImpl;

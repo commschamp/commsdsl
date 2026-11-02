@@ -41,7 +41,7 @@ public:
     virtual ~GenPayloadLayer();
 
 protected:
-    ParsePayloadLayer genPayloadLayerParseObj() const;
+    [[nodiscard]] ParsePayloadLayer genPayloadLayerParseObj() const;
 };
 
 } // namespace gen

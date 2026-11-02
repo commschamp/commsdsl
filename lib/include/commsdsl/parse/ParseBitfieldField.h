@@ -37,9 +37,9 @@ public:
     explicit ParseBitfieldField(const ParseBitfieldFieldImpl* impl);
     explicit ParseBitfieldField(ParseField field);
 
-    ParseEndian parseEndian() const;
-    ParseMembers parseMembers() const;
-    ParseOptCond parseValidCond() const;
+    [[nodiscard]] ParseEndian parseEndian() const;
+    [[nodiscard]] ParseMembers parseMembers() const;
+    [[nodiscard]] ParseOptCond parseValidCond() const;
 };
 
 } // namespace parse

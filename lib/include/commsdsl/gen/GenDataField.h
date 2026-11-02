@@ -41,17 +41,17 @@ public:
     GenDataField(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
     virtual ~GenDataField();
 
-    GenField* genExternalPrefixField();
-    const GenField* genExternalPrefixField() const;
+    [[nodiscard]] GenField* genExternalPrefixField();
+    [[nodiscard]] const GenField* genExternalPrefixField() const;
 
-    GenField* genMemberPrefixField();
-    const GenField* genMemberPrefixField() const;
+    [[nodiscard]] GenField* genMemberPrefixField();
+    [[nodiscard]] const GenField* genMemberPrefixField() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl(bool referenced) override;
 
-    ParseDataField genDataFieldParseObj() const;
+    [[nodiscard]] ParseDataField genDataFieldParseObj() const;
 
 private:
     std::unique_ptr<GenDataFieldImpl> m_impl;

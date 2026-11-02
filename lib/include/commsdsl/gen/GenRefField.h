@@ -41,25 +41,25 @@ public:
     GenRefField(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
     virtual ~GenRefField();
 
-    GenField* genReferencedField();
-    const GenField* genReferencedField() const;
+    [[nodiscard]] GenField* genReferencedField();
+    [[nodiscard]] const GenField* genReferencedField() const;
 
-    static GenRefField* genCast(GenField* ptr)
+    [[nodiscard]] static GenRefField* genCast(GenField* ptr)
     {
         return static_cast<GenRefField*>(ptr);
     }
 
-    static const GenRefField* genCast(const GenField* ptr)
+    [[nodiscard]] static const GenRefField* genCast(const GenField* ptr)
     {
         return static_cast<const GenRefField*>(ptr);
     }
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl(bool referenced) override;
-    virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
+    [[nodiscard]] virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
 
-    ParseRefField genRefFieldParseObj() const;
+    [[nodiscard]] ParseRefField genRefFieldParseObj() const;
 
 private:
     std::unique_ptr<GenRefFieldImpl> m_impl;

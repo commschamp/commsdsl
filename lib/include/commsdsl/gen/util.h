@@ -31,33 +31,33 @@ namespace gen
 namespace util
 {
 
-std::string genStrReplace(const std::string& str, const std::string& what, const std::string& with);
-std::string genStrToName(const std::string& value);
-std::vector<std::string> genStrSplitByAnyChar(const std::string& str, const std::string& splitChars, bool compressed = true);
-std::vector<std::string> genStrSplit(const std::string& str, const std::string& sep, bool compressed = true);
-std::string genStrInsertIndent(const std::string& str);
-unsigned genStrToUnsigned(const std::string& str);
-bool genStrStartsWith(const std::string& str, const std::string& prefix);
-bool genStrEndsWith(const std::string& str, const std::string& suffix);
-std::string genStrToUpper(const std::string& str);
-std::string genStrToLower(const std::string& str);
-std::string genStrToMacroName(const std::string& str);
-std::string genNumToString(std::uintmax_t value, unsigned hexWidth = 0U);
-std::string genNumToString(std::intmax_t value);
-std::string genNumToStringWithHexComment(std::intmax_t value);
-std::string genNumToString(unsigned value, unsigned hexWidth = 0U);
-const std::string& genBoolToString(bool value);
-std::string genPathAddElem(const std::string& path, const std::string& elem);
-std::string genPathUp(const std::string& path);
-std::string genNameToNs(const std::string& value);
-std::string genScopeToRelPath(const std::string& value);
+[[nodiscard]] std::string genStrReplace(const std::string& str, const std::string& what, const std::string& with);
+[[nodiscard]] std::string genStrToName(const std::string& value);
+[[nodiscard]] std::vector<std::string> genStrSplitByAnyChar(const std::string& str, const std::string& splitChars, bool compressed = true);
+[[nodiscard]] std::vector<std::string> genStrSplit(const std::string& str, const std::string& sep, bool compressed = true);
+[[nodiscard]] std::string genStrInsertIndent(const std::string& str);
+[[nodiscard]] unsigned genStrToUnsigned(const std::string& str);
+[[nodiscard]] bool genStrStartsWith(const std::string& str, const std::string& prefix);
+[[nodiscard]] bool genStrEndsWith(const std::string& str, const std::string& suffix);
+[[nodiscard]] std::string genStrToUpper(const std::string& str);
+[[nodiscard]] std::string genStrToLower(const std::string& str);
+[[nodiscard]] std::string genStrToMacroName(const std::string& str);
+[[nodiscard]] std::string genNumToString(std::uintmax_t value, unsigned hexWidth = 0U);
+[[nodiscard]] std::string genNumToString(std::intmax_t value);
+[[nodiscard]] std::string genNumToStringWithHexComment(std::intmax_t value);
+[[nodiscard]] std::string genNumToString(unsigned value, unsigned hexWidth = 0U);
+[[nodiscard]] const std::string& genBoolToString(bool value);
+[[nodiscard]] std::string genPathAddElem(const std::string& path, const std::string& elem);
+[[nodiscard]] std::string genPathUp(const std::string& path);
+[[nodiscard]] std::string genNameToNs(const std::string& value);
+[[nodiscard]] std::string genScopeToRelPath(const std::string& value);
 void genRemoveHeadingTrailingWhitespaces(std::string& str);
 
 using GenReplacementMap = std::map<std::string, std::string>;
-std::string genProcessTemplate(const std::string& templ, const GenReplacementMap& repl, bool tidyCode = false);
+[[nodiscard]] std::string genProcessTemplate(const std::string& templ, const GenReplacementMap& repl, bool tidyCode = false);
 
 using GenStringsList = std::vector<std::string>;
-std::string genStrListToString(
+[[nodiscard]] std::string genStrListToString(
     const GenStringsList& list,
     const std::string& join = ",\n",
     const std::string& last = "\n");
@@ -65,12 +65,12 @@ std::string genStrListToString(
 void genAddToStrList(std::string&& value, GenStringsList& list);
 void genAddToStrList(const std::string& value, GenStringsList& list);
 
-std::string genStrMakeMultiline(const std::string& value, unsigned len = 60, bool dropReplacedWhiteChar = true);
+[[nodiscard]] std::string genStrMakeMultiline(const std::string& value, unsigned len = 60, bool dropReplacedWhiteChar = true);
 
-std::string genReadFileContents(const std::string& filePath);
-bool genIsFileReadable(const std::string& filePath);
+[[nodiscard]] std::string genReadFileContents(const std::string& filePath);
+[[nodiscard]] bool genIsFileReadable(const std::string& filePath);
 
-const std::string& genDisplayName(const std::string& dslDisplayName, const std::string& dslName);
+[[nodiscard]] const std::string& genDisplayName(const std::string& dslDisplayName, const std::string& dslName);
 
 } // namespace util
 

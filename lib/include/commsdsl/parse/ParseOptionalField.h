@@ -42,11 +42,11 @@ public:
     explicit ParseOptionalField(const ParseOptionalFieldImpl* impl);
     explicit ParseOptionalField(ParseField field);
 
-    ParseMode parseDefaultMode() const;
-    ParseField parseField() const;
-    ParseOptCond parseCond() const;
-    bool parseMissingOnReadFail() const;
-    bool parseMissingOnInvalid() const;
+    [[nodiscard]] ParseMode parseDefaultMode() const;
+    [[nodiscard]] ParseField parseField() const;
+    [[nodiscard]] ParseOptCond parseCond() const;
+    [[nodiscard]] bool parseMissingOnReadFail() const;
+    [[nodiscard]] bool parseMissingOnInvalid() const;
 };
 
 } // namespace parse

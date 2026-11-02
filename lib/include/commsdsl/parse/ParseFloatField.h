@@ -66,18 +66,18 @@ public:
     explicit ParseFloatField(const ParseFloatFieldImpl* impl);
     explicit ParseFloatField(ParseField field);
 
-    ParseType parseType() const;
-    ParseEndian parseEndian() const;
-    double parseDefaultValue() const;
-    const ParseValidRangesList& parseValidRanges() const;
-    const ParseSpecialValues& parseSpecialValues() const;
-    bool parseValidCheckVersion() const;
-    ParseUnits parseUnits() const;
-    unsigned parseDisplayDecimals() const;
-    bool parseHasNonUniqueSpecials() const;
+    [[nodiscard]] ParseType parseType() const;
+    [[nodiscard]] ParseEndian parseEndian() const;
+    [[nodiscard]] double parseDefaultValue() const;
+    [[nodiscard]] const ParseValidRangesList& parseValidRanges() const;
+    [[nodiscard]] const ParseSpecialValues& parseSpecialValues() const;
+    [[nodiscard]] bool parseValidCheckVersion() const;
+    [[nodiscard]] ParseUnits parseUnits() const;
+    [[nodiscard]] unsigned parseDisplayDecimals() const;
+    [[nodiscard]] bool parseHasNonUniqueSpecials() const;
 };
 
-inline
+[[nodiscard]] inline
 bool operator==(const ParseFloatField::ParseSpecialValueInfo& i1, const ParseFloatField::ParseSpecialValueInfo& i2)
 {
     return (i1.m_value == i2.m_value) &&
@@ -85,13 +85,13 @@ bool operator==(const ParseFloatField::ParseSpecialValueInfo& i1, const ParseFlo
            (i1.m_deprecatedSince == i2.m_deprecatedSince);
 }
 
-inline
+[[nodiscard]] inline
 bool operator!=(const ParseFloatField::ParseSpecialValueInfo& i1, const ParseFloatField::ParseSpecialValueInfo& i2)
 {
     return !(i1 == i2);
 }
 
-inline
+[[nodiscard]] inline
 bool operator==(const ParseFloatField::ParseValidRangeInfo& i1, const ParseFloatField::ParseValidRangeInfo& i2)
 {
     return (i1.m_min == i2.m_min) &&
@@ -100,7 +100,7 @@ bool operator==(const ParseFloatField::ParseValidRangeInfo& i1, const ParseFloat
            (i1.m_deprecatedSince == i2.m_deprecatedSince);
 }
 
-inline
+[[nodiscard]] inline
 bool operator!=(const ParseFloatField::ParseValidRangeInfo& i1, const ParseFloatField::ParseValidRangeInfo& i2)
 {
     return !(i1 == i2);

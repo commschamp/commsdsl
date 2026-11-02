@@ -42,9 +42,9 @@ public:
     virtual ~GenChecksumLayer();
 
 protected:
-    virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const override final;
+    [[nodiscard]] virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const override final;
 
-    ParseChecksumLayer genChecksumParseObj() const;
+    [[nodiscard]] ParseChecksumLayer genChecksumParseObj() const;
 };
 
 } // namespace gen

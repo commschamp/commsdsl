@@ -46,17 +46,17 @@ public:
     GenIntField(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
     virtual ~GenIntField();
 
-    static bool genIsUnsignedType(ParseIntField::ParseType value);
-    static bool genIsVarLengthType(ParseIntField::ParseType value);
-    bool genIsUnsignedType() const;
+    [[nodiscard]] static bool genIsUnsignedType(ParseIntField::ParseType value);
+    [[nodiscard]] static bool genIsVarLengthType(ParseIntField::ParseType value);
+    [[nodiscard]] bool genIsUnsignedType() const;
 
-    const GenSpecialsList& genSpecialsSortedByValue() const;
+    [[nodiscard]] const GenSpecialsList& genSpecialsSortedByValue() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
 
-    ParseIntField genIntFieldParseObj() const;
+    [[nodiscard]] ParseIntField genIntFieldParseObj() const;
 
 private:
     std::unique_ptr<GenIntFieldImpl> m_impl;

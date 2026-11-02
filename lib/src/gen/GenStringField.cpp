@@ -41,7 +41,7 @@ public:
     {
     }
 
-    bool genPrepare()
+    [[nodiscard]] bool genPrepare()
     {
         if (!m_parseObj.parseHasLengthPrefixField()) {
             return true;
@@ -62,22 +62,22 @@ public:
         return true;
     }
 
-    GenField* genExternalPrefixField()
+    [[nodiscard]] GenField* genExternalPrefixField()
     {
         return m_externalPrefixField;
     }
 
-    const GenField* genExternalPrefixField() const
+    [[nodiscard]] const GenField* genExternalPrefixField() const
     {
         return m_externalPrefixField;
     }
 
-    GenField* genMemberPrefixField()
+    [[nodiscard]] GenField* genMemberPrefixField()
     {
         return m_memberPrefixField.get();
     }
 
-    const GenField* genMemberPrefixField() const
+    [[nodiscard]] const GenField* genMemberPrefixField() const
     {
         return m_memberPrefixField.get();
     }

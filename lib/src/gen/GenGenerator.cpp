@@ -74,12 +74,12 @@ public:
     {
     }
 
-    GenLoggerPtr& genGetLogger()
+    [[nodiscard]] GenLoggerPtr& genGetLogger()
     {
         return m_logger;
     }
 
-    const GenLoggerPtr& genGetLogger() const
+    [[nodiscard]] const GenLoggerPtr& genGetLogger() const
     {
         return m_logger;
     }
@@ -89,30 +89,30 @@ public:
         m_logger = std::move(logger);
     }
 
-    const GenSchemasList& genSchemas() const
+    [[nodiscard]] const GenSchemasList& genSchemas() const
     {
         return m_schemas;
     }
 
-    GenSchema& genCurrentSchema()
+    [[nodiscard]] GenSchema& genCurrentSchema()
     {
         assert(m_currentSchema != nullptr);
         return *m_currentSchema;
     }
 
-    const GenSchema& genCurrentSchema() const
+    [[nodiscard]] const GenSchema& genCurrentSchema() const
     {
         assert(m_currentSchema != nullptr);
         return *m_currentSchema;
     }
 
-    GenSchema& genProtocolSchema()
+    [[nodiscard]] GenSchema& genProtocolSchema()
     {
         assert(!m_schemas.empty());
         return *m_schemas.back();
     }
 
-    const GenSchema& genProtocolSchema() const
+    [[nodiscard]] const GenSchema& genProtocolSchema() const
     {
         assert(!m_schemas.empty());
         return *m_schemas.back();
@@ -124,7 +124,7 @@ public:
         m_currentSchema = m_schemas[idx].get();
     }
 
-    unsigned genCurrentSchemaIdx() const
+    [[nodiscard]] unsigned genCurrentSchemaIdx() const
     {
         assert(m_currentSchema != nullptr);
         auto iter =
@@ -148,12 +148,12 @@ public:
         m_minRemoteVersion = value;
     }
 
-    unsigned genGetMinRemoteVersion() const
+    [[nodiscard]] unsigned genGetMinRemoteVersion() const
     {
         return m_minRemoteVersion;
     }
 
-    const std::string& genGetCodeVersion() const
+    [[nodiscard]] const std::string& genGetCodeVersion() const
     {
         return m_codeVersion;
     }
@@ -168,7 +168,7 @@ public:
         m_messagesListFile = value;
     }
 
-    const std::string& genGetMessagesListFile() const
+    [[nodiscard]] const std::string& genGetMessagesListFile() const
     {
         return m_messagesListFile;
     }
@@ -178,7 +178,7 @@ public:
         m_forcedPlatform = value;
     }
 
-    const std::string& genGetForcedPlatform() const
+    [[nodiscard]] const std::string& genGetForcedPlatform() const
     {
         return m_forcedPlatform;
     }
@@ -188,22 +188,22 @@ public:
         m_forcedInterfaceName = value;
     }
 
-    const std::string& genGetForcedInterface() const
+    [[nodiscard]] const std::string& genGetForcedInterface() const
     {
         return m_forcedInterfaceName;
     }
 
-    const GenInterface* genForcedInterface() const
+    [[nodiscard]] const GenInterface* genForcedInterface() const
     {
         return m_forcedInterface;
     }
 
-    GenInterfacesAccessList genGetAllInterfaces() const
+    [[nodiscard]] GenInterfacesAccessList genGetAllInterfaces() const
     {
         return genCurrentSchema().genGetAllInterfaces();
     }
 
-    GenNamespace* genAddDefaultNamespace()
+    [[nodiscard]] GenNamespace* genAddDefaultNamespace()
     {
         return genCurrentSchema().genAddDefaultNamespace();
     }
@@ -242,7 +242,7 @@ public:
         m_topNamespace = value;
     }
 
-    const std::string& genGetTopNamespace() const
+    [[nodiscard]] const std::string& genGetTopNamespace() const
     {
         return m_topNamespace;
     }
@@ -254,7 +254,7 @@ public:
         }
     }
 
-    const std::string& genGetOutputDir() const
+    [[nodiscard]] const std::string& genGetOutputDir() const
     {
         return m_outputDir;
     }
@@ -264,7 +264,7 @@ public:
         m_codeDir = dir;
     }
 
-    const std::string& genGetCodeDir() const
+    [[nodiscard]] const std::string& genGetCodeDir() const
     {
         return m_codeDir;
     }
@@ -274,7 +274,7 @@ public:
         m_protocol.parseSetMultipleSchemasEnabled(enabled);
     }
 
-    bool genGetMultipleSchemasEnabled() const
+    [[nodiscard]] bool genGetMultipleSchemasEnabled() const
     {
         return m_protocol.parseGetMultipleSchemasEnabled();
     }
@@ -284,7 +284,7 @@ public:
         m_versionIndependentCodeForced = value;
     }
 
-    bool genGetVersionIndependentCodeForced() const
+    [[nodiscard]] bool genGetVersionIndependentCodeForced() const
     {
         return m_versionIndependentCodeForced;
     }
@@ -299,7 +299,7 @@ public:
         return m_codeInjectCommentsRequested;
     }
 
-    const GenField* genFindField(const std::string& externalRef) const
+    [[nodiscard]] const GenField* genFindField(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
         auto parsedRef = genParseExternalRef(externalRef);
@@ -310,7 +310,7 @@ public:
         return parsedRef.first->genFindField(parsedRef.second);
     }
 
-    GenField* genFindField(const std::string& externalRef)
+    [[nodiscard]] GenField* genFindField(const std::string& externalRef)
     {
         assert(!externalRef.empty());
         auto parsedRef = genParseExternalRef(externalRef);
@@ -321,7 +321,7 @@ public:
         return const_cast<GenSchema*>(parsedRef.first)->genFindField(parsedRef.second);
     }
 
-    const GenMessage* genFindMessage(const std::string& externalRef) const
+    [[nodiscard]] const GenMessage* genFindMessage(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
         auto parsedRef = genParseExternalRef(externalRef);
@@ -332,7 +332,7 @@ public:
         return parsedRef.first->genFindMessage(parsedRef.second);
     }
 
-    GenMessage* genFindMessage(const std::string& externalRef)
+    [[nodiscard]] GenMessage* genFindMessage(const std::string& externalRef)
     {
         assert(!externalRef.empty());
         auto parsedRef = genParseExternalRef(externalRef);
@@ -343,7 +343,7 @@ public:
         return const_cast<GenSchema*>(parsedRef.first)->genFindMessage(parsedRef.second);
     }
 
-    const GenFrame* genFindFrame(const std::string& externalRef) const
+    [[nodiscard]] const GenFrame* genFindFrame(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
         auto parsedRef = genParseExternalRef(externalRef);
@@ -354,7 +354,7 @@ public:
         return parsedRef.first->genFindFrame(parsedRef.second);
     }
 
-    const GenInterface* genFindInterface(const std::string& externalRef) const
+    [[nodiscard]] const GenInterface* genFindInterface(const std::string& externalRef) const
     {
         if (externalRef.empty()) {
             return genCurrentSchema().genFindInterface(externalRef);
@@ -370,7 +370,7 @@ public:
     }
 
     using CreateCompleteFunc = std::function<bool ()>;
-    bool genPrepare(const GenFilesList& files, CreateCompleteFunc createCompleteCb = CreateCompleteFunc())
+    [[nodiscard]] bool genPrepare(const GenFilesList& files, CreateCompleteFunc createCompleteCb = CreateCompleteFunc())
     {
         m_protocol.parseSetErrorReportCallback(
             [this](commsdsl::parse::ParseErrorLevel level, const std::string& msg)
@@ -468,7 +468,7 @@ public:
         return true;
     }
 
-    bool genWrite()
+    [[nodiscard]] bool genWrite()
     {
         return std::all_of(
             m_schemas.begin(), m_schemas.end(),
@@ -479,7 +479,7 @@ public:
             });
     }
 
-    bool genWasDirectoryCreated(const std::string& path) const
+    [[nodiscard]] bool genWasDirectoryCreated(const std::string& path) const
     {
         auto iter =
             std::find(m_createdDirectories.begin(), m_createdDirectories.end(), path);
@@ -492,7 +492,7 @@ public:
         m_createdDirectories.push_back(path);
     }
 
-    const commsdsl::parse::ParseProtocol& genProtocol() const
+    [[nodiscard]] const commsdsl::parse::ParseProtocol& genProtocol() const
     {
         return m_protocol;
     }
@@ -512,7 +512,7 @@ public:
     }
 
 private:
-    std::pair<const GenSchema*, std::string> genParseExternalRef(const std::string& externalRef) const
+    [[nodiscard]] std::pair<const GenSchema*, std::string> genParseExternalRef(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
         if (externalRef[0] != strings::genSchemaRefPrefix()) {
@@ -546,7 +546,7 @@ private:
         return std::make_pair(iter->get(), std::move(restRef));
     }
 
-    bool genPrepareDefaultInterfaceInternal()
+    [[nodiscard]] bool genPrepareDefaultInterfaceInternal()
     {
         auto allInterfaces = genGetAllInterfaces();
         if (!allInterfaces.empty()) {
@@ -563,7 +563,7 @@ private:
         return true;
     }
 
-    bool genReferenceRequestedInterfacesInternal()
+    [[nodiscard]] bool genReferenceRequestedInterfacesInternal()
     {
         if (m_forcedInterfaceName.empty()) {
             m_logger->genDebug("Referencing all interfaces.");
@@ -582,7 +582,7 @@ private:
         return true;
     }
 
-    bool genReferenceRequestedMessagesInternal()
+    [[nodiscard]] bool genReferenceRequestedMessagesInternal()
     {
         if ((m_messagesListFile.empty()) && (m_forcedPlatform.empty())) {
             m_logger->genDebug("Referencing all messages.");
@@ -606,7 +606,7 @@ private:
         return true;
     }
 
-    bool genProcessMessagesListFileInternal()
+    [[nodiscard]] bool genProcessMessagesListFileInternal()
     {
         std::ifstream stream(m_messagesListFile);
         if (!stream) {
@@ -630,7 +630,7 @@ private:
         return true;
     }
 
-    bool genProcessForcedPlatformInternal()
+    [[nodiscard]] bool genProcessForcedPlatformInternal()
     {
         bool validPlatform = false;
 

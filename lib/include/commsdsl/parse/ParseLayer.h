@@ -51,16 +51,16 @@ public:
     ParseLayer(const ParseLayer& other);
     ~ParseLayer();
 
-    bool parseValid() const;
-    const std::string& parseName() const;
-    const std::string& parseDisplayName() const;
-    const std::string& parseDescription() const;
-    ParseKind parseKind() const;
-    bool parseHasField() const;
-    ParseField parseField() const;
+    [[nodiscard]] bool parseValid() const;
+    [[nodiscard]] const std::string& parseName() const;
+    [[nodiscard]] const std::string& parseDisplayName() const;
+    [[nodiscard]] const std::string& parseDescription() const;
+    [[nodiscard]] ParseKind parseKind() const;
+    [[nodiscard]] bool parseHasField() const;
+    [[nodiscard]] ParseField parseField() const;
 
-    const ParseAttributesMap& parseExtraAttributes() const;
-    const ParseElementsList& parseExtraElements() const;
+    [[nodiscard]] const ParseAttributesMap& parseExtraAttributes() const;
+    [[nodiscard]] const ParseElementsList& parseExtraElements() const;
 
 protected:
     const ParseLayerImpl* m_pImpl;

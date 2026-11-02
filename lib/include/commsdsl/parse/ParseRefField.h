@@ -33,7 +33,7 @@ public:
     explicit ParseRefField(const ParseRefFieldImpl* impl);
     explicit ParseRefField(ParseField field);
 
-    ParseField parseField() const;
+    [[nodiscard]] ParseField parseField() const;
 };
 
 } // namespace parse

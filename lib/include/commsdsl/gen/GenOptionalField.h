@@ -40,17 +40,17 @@ public:
     GenOptionalField(GenGenerator& generator, ParseField parseObj, GenElem* parent = nullptr);
     virtual ~GenOptionalField();
 
-    GenField* genExternalField();
-    const GenField* genExternalField() const;
+    [[nodiscard]] GenField* genExternalField();
+    [[nodiscard]] const GenField* genExternalField() const;
 
-    GenField* genMemberField();
-    const GenField* genMemberField() const;
+    [[nodiscard]] GenField* genMemberField();
+    [[nodiscard]] const GenField* genMemberField() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl(bool referenced) override;
 
-    ParseOptionalField genOptionalFieldParseObj() const;
+    [[nodiscard]] ParseOptionalField genOptionalFieldParseObj() const;
 
 private:
     std::unique_ptr<GenOptionalFieldImpl> m_impl;

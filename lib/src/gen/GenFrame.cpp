@@ -43,7 +43,7 @@ public:
     {
     }
 
-    bool genPrepare()
+    [[nodiscard]] bool genPrepare()
     {
         if (!m_dslObj.parseValid()) {
             return true;
@@ -64,7 +64,7 @@ public:
         return true;
     }
 
-    bool genWrite() const
+    [[nodiscard]] bool genWrite() const
     {
         bool result =
             std::all_of(
@@ -77,27 +77,27 @@ public:
         return result;
     }
 
-    ParseFrame genParseObj() const
+    [[nodiscard]] ParseFrame genParseObj() const
     {
         return m_dslObj;
     }
 
-    const GenLayersList& genLayers() const
+    [[nodiscard]] const GenLayersList& genLayers() const
     {
         return m_layers;
     }
 
-    GenLayersList& genLayers()
+    [[nodiscard]] GenLayersList& genLayers()
     {
         return m_layers;
     }
 
-    const GenGenerator& genGenerator() const
+    [[nodiscard]] const GenGenerator& genGenerator() const
     {
         return m_generator;
     }
 
-    GenGenerator& genGenerator()
+    [[nodiscard]] GenGenerator& genGenerator()
     {
         return m_generator;
     }

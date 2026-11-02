@@ -42,12 +42,12 @@ public:
     virtual ~GenVariantField();
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
     virtual void genSetReferencedImpl(bool referenced) override;
-    virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
-    virtual const GenFieldsList& genMembersImpl() const override;
+    [[nodiscard]] virtual GenFieldRefInfo genProcessInnerRefImpl(const std::string& refStr) const override final;
+    [[nodiscard]] virtual const GenFieldsList& genMembersImpl() const override;
 
-    ParseVariantField genVariantFieldParseObj() const;
+    [[nodiscard]] ParseVariantField genVariantFieldParseObj() const;
 
 private:
     std::unique_ptr<GenVariantFieldImpl> m_impl;

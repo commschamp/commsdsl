@@ -60,17 +60,17 @@ public:
     {
     }
 
-    const ParseSchema& genParseObj() const
+    [[nodiscard]] const ParseSchema& genParseObj() const
     {
         return m_parseObj;
     }
 
-    GenNamespacesList& genNamespaces()
+    [[nodiscard]] GenNamespacesList& genNamespaces()
     {
         return m_namespaces;
     }
 
-    const GenNamespacesList& genNamespaces() const
+    [[nodiscard]] const GenNamespacesList& genNamespaces() const
     {
         return m_namespaces;
     }
@@ -80,7 +80,7 @@ public:
         return m_parseObj.parseName();
     }
 
-    const std::string& genDisplayName() const
+    [[nodiscard]] const std::string& genDisplayName() const
     {
         auto& dispName = m_parseObj.parseDisplayName();
         if (!dispName.empty()) {
@@ -90,12 +90,12 @@ public:
         return genSchemaName();
     }
 
-    parse::ParseEndian genSchemaEndian() const
+    [[nodiscard]] parse::ParseEndian genSchemaEndian() const
     {
         return m_parseObj.parseEndian();
     }
 
-    unsigned genSchemaVersion() const
+    [[nodiscard]] unsigned genSchemaVersion() const
     {
         if (0 <= m_forcedSchemaVersion) {
             return static_cast<unsigned>(m_forcedSchemaVersion);
@@ -104,7 +104,7 @@ public:
         return m_parseObj.parseVersion();
     }
 
-    const GenField* genFindField(const std::string& externalRef) const
+    [[nodiscard]] const GenField* genFindField(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
         auto pos = externalRef.find_first_of('.');
@@ -142,12 +142,12 @@ public:
         return result;
     }
 
-    GenField* genFindField(const std::string& externalRef)
+    [[nodiscard]] GenField* genFindField(const std::string& externalRef)
     {
         return const_cast<GenField*>(static_cast<const GenSchemaImpl*>(this)->genFindField(externalRef));
     }
 
-    const GenMessage* genFindMessage(const std::string& externalRef) const
+    [[nodiscard]] const GenMessage* genFindMessage(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
         auto pos = externalRef.find_first_of('.');
@@ -185,12 +185,12 @@ public:
         return result;
     }
 
-    GenMessage* genFindMessage(const std::string& externalRef)
+    [[nodiscard]] GenMessage* genFindMessage(const std::string& externalRef)
     {
         return const_cast<GenMessage*>(static_cast<const GenSchemaImpl*>(this)->genFindMessage(externalRef));
     }
 
-    const GenFrame* genFindFrame(const std::string& externalRef) const
+    [[nodiscard]] const GenFrame* genFindFrame(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
         auto pos = externalRef.find_first_of('.');
@@ -228,7 +228,7 @@ public:
         return result;
     }
 
-    const GenInterface* genFindInterface(const std::string& externalRef) const
+    [[nodiscard]] const GenInterface* genFindInterface(const std::string& externalRef) const
     {
         auto pos = externalRef.find_first_of('.');
         std::string nsName;
@@ -262,7 +262,7 @@ public:
         return result;
     }
 
-    bool genCreateAll()
+    [[nodiscard]] bool genCreateAll()
     {
         auto namespaces = m_parseObj.parseNamespaces();
         m_namespaces.reserve(namespaces.size());
@@ -278,7 +278,7 @@ public:
         return true;
     }
 
-    bool genPrepare()
+    [[nodiscard]] bool genPrepare()
     {
         auto dslVersion = m_parseObj.parseDslVersion();
         if (MaxDslVersion < dslVersion) {
@@ -322,7 +322,7 @@ public:
         return true;
     }
 
-    bool genWrite()
+    [[nodiscard]] bool genWrite()
     {
         return
             std::all_of(
@@ -333,17 +333,17 @@ public:
                 });
     }
 
-    GenGenerator& genGenerator()
+    [[nodiscard]] GenGenerator& genGenerator()
     {
         return m_generator;
     }
 
-    const GenGenerator& genGenerator() const
+    [[nodiscard]] const GenGenerator& genGenerator() const
     {
         return m_generator;
     }
 
-    GenFieldsAccessList genFindMessageIdFields() const
+    [[nodiscard]] GenFieldsAccessList genFindMessageIdFields() const
     {
         GenFieldsAccessList result;
         for (auto& n : m_namespaces) {
@@ -353,7 +353,7 @@ public:
         return result;
     }
 
-    bool genAnyInterfaceHasVersion() const
+    [[nodiscard]] bool genAnyInterfaceHasVersion() const
     {
         return
             std::any_of(
@@ -386,7 +386,7 @@ public:
         m_forcedSchemaVersion = static_cast<decltype(m_forcedSchemaVersion)>(value);
     }
 
-    const GenPlatformNamesList& platformNames()
+    [[nodiscard]] const GenPlatformNamesList& platformNames()
     {
         return m_parseObj.parsePlatforms();
     }
@@ -396,22 +396,22 @@ public:
         m_versionIndependentCodeForced = value;
     }
 
-    bool genVersionDependentCode() const
+    [[nodiscard]] bool genVersionDependentCode() const
     {
         return m_versionDependentCode;
     }
 
-    const std::string& genMainNamespace() const
+    [[nodiscard]] const std::string& genMainNamespace() const
     {
         return m_mainNamespace;
     }
 
-    const std::string& genOrigNamespace() const
+    [[nodiscard]] const std::string& genOrigNamespace() const
     {
         return m_origNamespace;
     }
 
-    GenFieldsAccessList genGetAllMessageIdFields() const
+    [[nodiscard]] GenFieldsAccessList genGetAllMessageIdFields() const
     {
         return m_messageIdFields;
     }
@@ -421,7 +421,7 @@ public:
         m_mainNamespace = value;
     }
 
-    bool genDoesElementExist(
+    [[nodiscard]] bool genDoesElementExist(
         unsigned sinceVersion,
         unsigned deprecatedSince,
         bool deprecatedRemoved) const
@@ -437,7 +437,7 @@ public:
         return true;
     }
 
-    bool genIsElementOptional(
+    [[nodiscard]] bool genIsElementOptional(
         unsigned sinceVersion,
         unsigned deprecatedSince,
         bool deprecatedRemoved) const
@@ -472,7 +472,7 @@ public:
         }
     }
 
-    bool genHasReferencedMessageIdField() const
+    [[nodiscard]] bool genHasReferencedMessageIdField() const
     {
         return
             std::any_of(
@@ -483,7 +483,7 @@ public:
                 });
     }
 
-    bool genHasAnyReferencedMessage() const
+    [[nodiscard]] bool genHasAnyReferencedMessage() const
     {
         return
             std::any_of(
@@ -494,7 +494,7 @@ public:
                 });
     }
 
-    bool genHasAnyReferencedComponent() const
+    [[nodiscard]] bool genHasAnyReferencedComponent() const
     {
         return
             std::any_of(

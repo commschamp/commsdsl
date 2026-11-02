@@ -45,7 +45,7 @@ public:
     void genDebug(const std::string& msg) const;
     void genSetMinLevel(ParseErrorLevel level);
     void genSetWarnAsError();
-    bool genHadWarning() const;
+    [[nodiscard]] bool genHadWarning() const;
 
 protected:
     virtual void genLogImpl(ParseErrorLevel level, const std::string& msg) const;

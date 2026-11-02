@@ -47,7 +47,7 @@ static const char GenPathSep = '/';
 static const char GenWinPathSep = '\\';
 #endif
 
-bool genIsPathSep(char ch)
+[[nodiscard]] bool genIsPathSepInternal(char ch)
 {
     if (ch == GenPathSep) {
         return true;
@@ -62,7 +62,7 @@ bool genIsPathSep(char ch)
     return false;
 }
 
-void genCleanSpaces(std::string& code)
+void genCleanSpacesInternal(std::string& code)
 {
     bool removeChar = false;
     std::size_t processedCount = 0U;
@@ -98,7 +98,7 @@ void genCleanSpaces(std::string& code)
         code.end());
 }
 
-void genCleanExtraNewLines(std::string& code)
+void genCleanExtraNewLinesInternal(std::string& code)
 {
     code.erase(
         std::remove_if(
@@ -121,7 +121,7 @@ void genCleanExtraNewLines(std::string& code)
         code.end());
 }
 
-void genCleanNewLinesBeforeCloseBracket(std::string& code)
+void genCleanNewLinesBeforeCloseBracketInternal(std::string& code)
 {
     std::size_t processedCount = 0U;
 
@@ -181,11 +181,11 @@ void genCleanNewLinesBeforeCloseBracket(std::string& code)
         code.end());
 }
 
-void genDoTidyCode(std::string& code)
+void genDoTidyCodeInternal(std::string& code)
 {
-    genCleanSpaces(code);
-    genCleanExtraNewLines(code);
-    genCleanNewLinesBeforeCloseBracket(code);
+    genCleanSpacesInternal(code);
+    genCleanExtraNewLinesInternal(code);
+    genCleanNewLinesBeforeCloseBracketInternal(code);
 }
 
 } // namespace
@@ -435,7 +435,7 @@ const std::string& genBoolToString(bool value)
 std::string genPathAddElem(const std::string& path, const std::string& elem)
 {
     std::string result = path;
-    if ((!result.empty()) && (!genIsPathSep(result.back()))) {
+    if ((!result.empty()) && (!genIsPathSepInternal(result.back()))) {
         result.push_back(GenPathSep);
     }
 
@@ -607,7 +607,7 @@ std::string genProcessTemplate(const std::string& templ, const GenReplacementMap
     }
 
     if (tidyCode) {
-        genDoTidyCode(result);
+        genDoTidyCodeInternal(result);
     }
     return result;
 }

@@ -47,31 +47,31 @@ public:
     GenProgramOptions& operator()(const std::string& optStr, const std::string& desc, const std::string& defaultValue);
 
     void genParse(int argc, const char** argv);
-    bool genIsOptUsed(const std::string& optStr) const;
-    const std::string& genValue(const std::string& optStr) const;
-    const GenStringsList& genArgs() const;
-    const std::string& genApp() const;
-    std::string genHelpStr() const;
+    [[nodiscard]] bool genIsOptUsed(const std::string& optStr) const;
+    [[nodiscard]] const std::string& genValue(const std::string& optStr) const;
+    [[nodiscard]] const GenStringsList& genArgs() const;
+    [[nodiscard]] const std::string& genApp() const;
+    [[nodiscard]] std::string genHelpStr() const;
 
-    bool genHelpRequested() const;
-    bool genVersionRequested() const;
-    bool genQuietRequested() const;
-    bool genDebugRequested() const;
-    bool genWarnAsErrRequested() const;
-    const std::string& genGetOutputDirectory() const;
-    GenStringsList genGetInputFiles() const;
-    const std::string& genGetCodeInputDirectory() const;
-    bool genMultipleSchemasEnabled() const;
-    bool genHasNamespaceOverride() const;
-    const std::string& genGetNamespace() const;
-    unsigned genGetMinRemoteVersion() const;
-    bool genHasForcedSchemaVersion() const;
-    unsigned genGetForcedSchemaVersion() const;
-    bool genCodeInjectComments() const;
-    const std::string& genGetCodeVersion() const;
-    const std::string& genMessagesListFile() const;
-    const std::string& genForcedPlatform() const;
-    const std::string& genForcedInterface() const;
+    [[nodiscard]] bool genHelpRequested() const;
+    [[nodiscard]] bool genVersionRequested() const;
+    [[nodiscard]] bool genQuietRequested() const;
+    [[nodiscard]] bool genDebugRequested() const;
+    [[nodiscard]] bool genWarnAsErrRequested() const;
+    [[nodiscard]] const std::string& genGetOutputDirectory() const;
+    [[nodiscard]] GenStringsList genGetInputFiles() const;
+    [[nodiscard]] const std::string& genGetCodeInputDirectory() const;
+    [[nodiscard]] bool genMultipleSchemasEnabled() const;
+    [[nodiscard]] bool genHasNamespaceOverride() const;
+    [[nodiscard]] const std::string& genGetNamespace() const;
+    [[nodiscard]] unsigned genGetMinRemoteVersion() const;
+    [[nodiscard]] bool genHasForcedSchemaVersion() const;
+    [[nodiscard]] unsigned genGetForcedSchemaVersion() const;
+    [[nodiscard]] bool genCodeInjectComments() const;
+    [[nodiscard]] const std::string& genGetCodeVersion() const;
+    [[nodiscard]] const std::string& genMessagesListFile() const;
+    [[nodiscard]] const std::string& genForcedPlatform() const;
+    [[nodiscard]] const std::string& genForcedInterface() const;
 
 private:
     std::unique_ptr<GenProgramOptionsImpl> m_impl;

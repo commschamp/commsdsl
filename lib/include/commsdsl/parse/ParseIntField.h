@@ -79,24 +79,24 @@ public:
     explicit ParseIntField(const ParseIntFieldImpl* impl);
     explicit ParseIntField(ParseField field);
 
-    ParseType parseType() const;
-    ParseEndian parseEndian() const;
-    std::intmax_t parseSerOffset() const;
-    std::intmax_t parseMinValue() const;
-    std::intmax_t parseMaxValue() const;
-    std::intmax_t parseDefaultValue() const;
-    ParseScalingRatio parseScaling() const;
-    const ParseValidRangesList& parseValidRanges() const;
-    const ParseSpecialValues& parseSpecialValues() const;
-    ParseUnits parseUnits() const;
-    bool parseValidCheckVersion() const;
-    unsigned parseDisplayDecimals() const;
-    std::intmax_t parseDisplayOffset() const;
-    bool parseSignExt() const;
-    bool parseAvailableLengthLimit() const;
+    [[nodiscard]] ParseType parseType() const;
+    [[nodiscard]] ParseEndian parseEndian() const;
+    [[nodiscard]] std::intmax_t parseSerOffset() const;
+    [[nodiscard]] std::intmax_t parseMinValue() const;
+    [[nodiscard]] std::intmax_t parseMaxValue() const;
+    [[nodiscard]] std::intmax_t parseDefaultValue() const;
+    [[nodiscard]] ParseScalingRatio parseScaling() const;
+    [[nodiscard]] const ParseValidRangesList& parseValidRanges() const;
+    [[nodiscard]] const ParseSpecialValues& parseSpecialValues() const;
+    [[nodiscard]] ParseUnits parseUnits() const;
+    [[nodiscard]] bool parseValidCheckVersion() const;
+    [[nodiscard]] unsigned parseDisplayDecimals() const;
+    [[nodiscard]] std::intmax_t parseDisplayOffset() const;
+    [[nodiscard]] bool parseSignExt() const;
+    [[nodiscard]] bool parseAvailableLengthLimit() const;
 };
 
-inline
+[[nodiscard]] inline
 bool operator==(const ParseIntField::ParseSpecialValueInfo& i1, const ParseIntField::ParseSpecialValueInfo& i2)
 {
     return (i1.m_value == i2.m_value) &&
@@ -104,13 +104,13 @@ bool operator==(const ParseIntField::ParseSpecialValueInfo& i1, const ParseIntFi
            (i1.m_deprecatedSince == i2.m_deprecatedSince);
 }
 
-inline
+[[nodiscard]] inline
 bool operator!=(const ParseIntField::ParseSpecialValueInfo& i1, const ParseIntField::ParseSpecialValueInfo& i2)
 {
     return !(i1 == i2);
 }
 
-inline
+[[nodiscard]] inline
 bool operator==(const ParseIntField::ParseValidRangeInfo& i1, const ParseIntField::ParseValidRangeInfo& i2)
 {
     return (i1.m_min == i2.m_min) &&
@@ -119,7 +119,7 @@ bool operator==(const ParseIntField::ParseValidRangeInfo& i1, const ParseIntFiel
            (i1.m_deprecatedSince == i2.m_deprecatedSince);
 }
 
-inline
+[[nodiscard]] inline
 bool operator!=(const ParseIntField::ParseValidRangeInfo& i1, const ParseIntField::ParseValidRangeInfo& i2)
 {
     return !(i1 == i2);

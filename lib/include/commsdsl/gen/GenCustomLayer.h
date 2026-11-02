@@ -41,10 +41,10 @@ public:
     GenCustomLayer(GenGenerator& generator, ParseLayer parseObj, GenElem* parent = nullptr);
     virtual ~GenCustomLayer();
 
-    ParseCustomLayer genCustomLayerParseObj() const;
+    [[nodiscard]] ParseCustomLayer genCustomLayerParseObj() const;
 
 protected:
-    virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const override final;
+    [[nodiscard]] virtual bool genForceCommsOrderImpl(GenLayersAccessList& layers, bool& success) const override final;
 };
 
 } // namespace gen

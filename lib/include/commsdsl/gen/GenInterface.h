@@ -47,29 +47,29 @@ public:
     explicit GenInterface(GenGenerator& generator, ParseInterface parseObj, GenElem* parent = nullptr);
     virtual ~GenInterface();
 
-    bool genCreateAll();
-    bool genPrepare();
-    bool genWrite() const;
+    [[nodiscard]] bool genCreateAll();
+    [[nodiscard]] bool genPrepare();
+    [[nodiscard]] bool genWrite() const;
 
-    const GenFieldsList& genFields() const;
-    ParseInterface genParseObj() const;
-    std::string genAdjustedExternalRef() const;
-    const std::string& genAdjustedName() const;
+    [[nodiscard]] const GenFieldsList& genFields() const;
+    [[nodiscard]] ParseInterface genParseObj() const;
+    [[nodiscard]] std::string genAdjustedExternalRef() const;
+    [[nodiscard]] const std::string& genAdjustedName() const;
 
-    GenGenerator& genGenerator();
-    const GenGenerator& genGenerator() const;
+    [[nodiscard]] GenGenerator& genGenerator();
+    [[nodiscard]] const GenGenerator& genGenerator() const;
 
-    bool genHasVersionField() const;
+    [[nodiscard]] bool genHasVersionField() const;
 
-    bool genIsReferenced() const;
+    [[nodiscard]] bool genIsReferenced() const;
     void genSetReferenced(bool value = true);
 
-    const GenNamespace* genParentNamespace() const;
+    [[nodiscard]] const GenNamespace* genParentNamespace() const;
 
 protected:
-    virtual GenType genElemTypeImpl() const override final;
-    virtual bool genPrepareImpl();
-    virtual bool genWriteImpl() const;
+    [[nodiscard]] virtual GenType genElemTypeImpl() const override final;
+    [[nodiscard]] virtual bool genPrepareImpl();
+    [[nodiscard]] virtual bool genWriteImpl() const;
 
 private:
     std::unique_ptr<GenInterfaceImpl> m_impl;

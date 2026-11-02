@@ -34,7 +34,7 @@ public:
     using ParseIntField = GenIntField::ParseIntField;
     using GenSpecialsList = GenIntField::GenSpecialsList;
 
-    bool genPrepare(ParseIntField parseObj)
+    [[nodiscard]] bool genPrepare(ParseIntField parseObj)
     {
         auto& dslSpecials = parseObj.parseSpecialValues();
         m_specialsSorted.reserve(dslSpecials.size());
@@ -61,7 +61,7 @@ public:
         return true;
     }
 
-    const GenSpecialsList& genSpecialsSortedByValue() const
+    [[nodiscard]] const GenSpecialsList& genSpecialsSortedByValue() const
     {
         return m_specialsSorted;
     }

@@ -54,7 +54,7 @@ public:
         *stream << PrefixMap[level] << msg << std::endl;
     }
 
-    ParseErrorLevel getMinLevel() const
+    [[nodiscard]] ParseErrorLevel getMinLevel() const
     {
         return m_minLevel;
     }
@@ -64,7 +64,7 @@ public:
         m_minLevel = level;
     }
 
-    bool getWarnAsErr() const
+    [[nodiscard]] bool getWarnAsErr() const
     {
         return m_warnAsErr;
     }
@@ -79,7 +79,7 @@ public:
         m_hadWarning = true;
     }
 
-    bool getHadWarning() const
+    [[nodiscard]] bool getHadWarning() const
     {
         return m_hadWarning;
     }
