@@ -48,28 +48,28 @@ public:
 
     void swigAddDef(GenStringsList& list) const;
 
-    static const SwigNamespace* swigCast(const commsdsl::gen::GenNamespace* obj)
+    [[nodiscard]] static const SwigNamespace* swigCast(const commsdsl::gen::GenNamespace* obj)
     {
         return static_cast<const SwigNamespace*>(obj);
     }
 
-    std::string swigMsgIdClassName() const;
+    [[nodiscard]] std::string swigMsgIdClassName() const;
 
-    const SwigMsgId* swigMsgId() const;
-    const SwigMsgHandler* swigMsgHandler() const;
-    const SwigInputMessages* swigInputMessages() const;
+    [[nodiscard]] const SwigMsgId* swigMsgId() const;
+    [[nodiscard]] const SwigMsgHandler* swigMsgHandler() const;
+    [[nodiscard]] const SwigInputMessages* swigInputMessages() const;
 
-    bool swigHasInput() const;
-    const SwigInterface* swigInterface() const;
+    [[nodiscard]] bool swigHasInput() const;
+    [[nodiscard]] const SwigInterface* swigInterface() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
     using SwigFieldsList = SwigField::SwigFieldsList;
 
-    bool swigHasValidInterfaceInternal() const;
+    [[nodiscard]] bool swigHasValidInterfaceInternal() const;
 
     SwigFieldsList m_swigFields;
     SwigMsgId m_msgId;

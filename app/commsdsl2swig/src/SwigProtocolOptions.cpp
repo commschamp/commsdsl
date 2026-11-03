@@ -38,7 +38,7 @@ namespace commsdsl2swig
 namespace
 {
 
-std::string swigCodeInternal(const SwigGenerator& generator, std::size_t idx)
+[[nodiscard]] std::string swigCodeInternal(const SwigGenerator& generator, std::size_t idx)
 {
     assert(idx < generator.genSchemas().size());
 

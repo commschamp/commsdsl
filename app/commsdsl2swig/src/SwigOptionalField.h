@@ -36,21 +36,19 @@ public:
 
     SwigOptionalField(SwigGenerator& generator, ParseField parseObj, GenElem* parent);
 
-    static std::string swigDeclFuncs(const SwigGenerator& generator, const std::string& fieldType);
+    [[nodiscard]] static std::string swigDeclFuncs(const SwigGenerator& generator, const std::string& fieldType);
 
 protected:
     // GenBase overrides
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // SwigBase overrides
-    virtual std::string swigMembersDeclImpl() const override;
-    virtual std::string swigValueTypeDeclImpl() const override;
-    virtual std::string swigValueAccDeclImpl() const override;
-    virtual std::string swigExtraPublicFuncsDeclImpl() const override;
+    [[nodiscard]] virtual std::string swigMembersDeclImpl() const override;
+    [[nodiscard]] virtual std::string swigValueTypeDeclImpl() const override;
+    [[nodiscard]] virtual std::string swigValueAccDeclImpl() const override;
+    [[nodiscard]] virtual std::string swigExtraPublicFuncsDeclImpl() const override;
     virtual void swigAddDefImpl(GenStringsList& list) const override;
     virtual void swigAddMembersCodeImpl(GenStringsList& list) const override;
-
-private:
 };
 
 } // namespace commsdsl2swig

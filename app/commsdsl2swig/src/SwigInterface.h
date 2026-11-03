@@ -42,25 +42,25 @@ public:
     void swigAddCode(GenStringsList& list) const;
     void swigAddDef(GenStringsList& list) const;
 
-    bool swigIsPresent() const;
+    [[nodiscard]] bool swigIsPresent() const;
 
-    static const SwigInterface* swigCast(const commsdsl::gen::GenInterface* obj)
+    [[nodiscard]] static const SwigInterface* swigCast(const commsdsl::gen::GenInterface* obj)
     {
         return static_cast<const SwigInterface*>(obj);
     }
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
     using SwigFieldsList = SwigField::SwigFieldsList;
 
-    std::string swigFieldDeclsInternal() const;
-    std::string swigClassDeclInternal() const;
-    std::string swigFieldsAccDeclInternal() const;
-    std::string swigFieldsAccCodeInternal() const;
-    std::string swigCommonCodeInternal() const;
+    [[nodiscard]] std::string swigFieldDeclsInternal() const;
+    [[nodiscard]] std::string swigClassDeclInternal() const;
+    [[nodiscard]] std::string swigFieldsAccDeclInternal() const;
+    [[nodiscard]] std::string swigFieldsAccCodeInternal() const;
+    [[nodiscard]] std::string swigCommonCodeInternal() const;
 
     SwigFieldsList m_swigFields;
     mutable bool m_codeAdded = false;

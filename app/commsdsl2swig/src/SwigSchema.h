@@ -38,14 +38,14 @@ public:
     explicit SwigSchema(SwigGenerator& generator, ParseSchema parseObj, GenElem* parent);
     virtual ~SwigSchema();
 
-    bool swigHasAnyMessage() const;
-    bool swigHasReferencedMsgId() const;
+    [[nodiscard]] bool swigHasAnyMessage() const;
+    [[nodiscard]] bool swigHasReferencedMsgId() const;
 
     void swigAddCodeIncludes(GenStringsList& list) const;
     void swigAddCode(GenStringsList& list) const;
     void swigAddDef(GenStringsList& list) const;
 
-    static const SwigSchema* swigCast(const commsdsl::gen::GenSchema* obj)
+    [[nodiscard]] static const SwigSchema* swigCast(const commsdsl::gen::GenSchema* obj)
     {
         return static_cast<const SwigSchema*>(obj);
     }

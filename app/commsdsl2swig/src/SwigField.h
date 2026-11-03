@@ -34,35 +34,35 @@ public:
     explicit SwigField(commsdsl::gen::GenField& field);
     virtual ~SwigField();
 
-    static const SwigField* swigCast(const commsdsl::gen::GenField* field);
-    static SwigField* swigCast(commsdsl::gen::GenField* field);
+    [[nodiscard]] static const SwigField* swigCast(const commsdsl::gen::GenField* field);
+    [[nodiscard]] static SwigField* swigCast(commsdsl::gen::GenField* field);
 
-    static SwigFieldsList swigTransformFieldsList(const commsdsl::gen::GenField::GenFieldsList& fields);
+    [[nodiscard]] static SwigFieldsList swigTransformFieldsList(const commsdsl::gen::GenField::GenFieldsList& fields);
 
-    commsdsl::gen::GenField& swigGenField()
+    [[nodiscard]] commsdsl::gen::GenField& swigGenField()
     {
         return m_genField;
     }
 
-    const commsdsl::gen::GenField& swigGenField() const
+    [[nodiscard]] const commsdsl::gen::GenField& swigGenField() const
     {
         return m_genField;
     }
 
-    std::string swigRelHeaderPath() const;
+    [[nodiscard]] std::string swigRelHeaderPath() const;
 
-    bool swigIsVersionOptional() const;
-    std::string swigClassDecl() const;
-    std::string swigPublicDecl() const;
-    std::string swigExtraPublicFuncsCode() const;
+    [[nodiscard]] bool swigIsVersionOptional() const;
+    [[nodiscard]] std::string swigClassDecl() const;
+    [[nodiscard]] std::string swigPublicDecl() const;
+    [[nodiscard]] std::string swigExtraPublicFuncsCode() const;
 
     void swigAddCodeIncludes(GenStringsList& list) const;
     void swigAddCode(GenStringsList& list) const;
     void swigAddDef(GenStringsList& list) const;
 
-    std::string swigTemplateScope() const;
+    [[nodiscard]] std::string swigTemplateScope() const;
 
-    bool swigWrite() const;
+    [[nodiscard]] bool swigWrite() const;
 
     void swigSetListElement()
     {
@@ -70,26 +70,26 @@ public:
     }
 
 protected:
-    virtual std::string swigMembersDeclImpl() const;
-    virtual std::string swigValueTypeDeclImpl() const;
-    virtual std::string swigValueAccDeclImpl() const;
-    virtual std::string swigExtraPublicFuncsDeclImpl() const;
-    virtual std::string swigExtraPublicFuncsCodeImpl() const;
-    virtual std::string swigPublicDeclImpl() const;
+    [[nodiscard]] virtual std::string swigMembersDeclImpl() const;
+    [[nodiscard]] virtual std::string swigValueTypeDeclImpl() const;
+    [[nodiscard]] virtual std::string swigValueAccDeclImpl() const;
+    [[nodiscard]] virtual std::string swigExtraPublicFuncsDeclImpl() const;
+    [[nodiscard]] virtual std::string swigExtraPublicFuncsCodeImpl() const;
+    [[nodiscard]] virtual std::string swigPublicDeclImpl() const;
     virtual void swigAddDefImpl(GenStringsList& list) const;
     virtual void swigAddMembersCodeImpl(GenStringsList& list) const;
 
-    std::string swigCommonPublicFuncsDecl() const;
-    std::string swigCommonPublicFuncsCode() const;
+    [[nodiscard]] std::string swigCommonPublicFuncsDecl() const;
+    [[nodiscard]] std::string swigCommonPublicFuncsCode() const;
 
-    std::string swigSemanticTypeLengthValueAccDecl() const;
-    std::string swigSemanticTypeLengthValueAccCode() const;
+    [[nodiscard]] std::string swigSemanticTypeLengthValueAccDecl() const;
+    [[nodiscard]] std::string swigSemanticTypeLengthValueAccCode() const;
 
 private:
-    std::string swigClassDeclInternal() const;
-    std::string swigOptionalDeclInternal() const;
-    std::string swigClassCodeInternal() const;
-    std::string swigComparisonRenameInternal() const;
+    [[nodiscard]] std::string swigClassDeclInternal() const;
+    [[nodiscard]] std::string swigOptionalDeclInternal() const;
+    [[nodiscard]] std::string swigClassCodeInternal() const;
+    [[nodiscard]] std::string swigComparisonRenameInternal() const;
     void swigAddVectorTemplateInternal(GenStringsList& list) const;
 
     commsdsl::gen::GenField& m_genField;

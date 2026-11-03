@@ -38,18 +38,18 @@ public:
 
 protected:
     // GenBase overrides
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // SwigBase overrides
-    virtual std::string swigValueTypeDeclImpl() const override;
-    virtual std::string swigExtraPublicFuncsDeclImpl() const override;
-    virtual std::string swigExtraPublicFuncsCodeImpl() const override;
+    [[nodiscard]] virtual std::string swigValueTypeDeclImpl() const override;
+    [[nodiscard]] virtual std::string swigExtraPublicFuncsDeclImpl() const override;
+    [[nodiscard]] virtual std::string swigExtraPublicFuncsCodeImpl() const override;
 
 private:
-    std::string swigSpecialsDeclInternal() const;
-    std::string swigDisplayDecimalsDeclInternal() const;
-    std::string swigScaledFuncsDeclInternal() const;
-    std::string swigScaledFuncsCodeInternal() const;
+    [[nodiscard]] std::string swigSpecialsDeclInternal() const;
+    [[nodiscard]] std::string swigDisplayDecimalsDeclInternal() const;
+    [[nodiscard]] std::string swigScaledFuncsDeclInternal() const;
+    [[nodiscard]] std::string swigScaledFuncsCodeInternal() const;
 };
 
 } // namespace commsdsl2swig

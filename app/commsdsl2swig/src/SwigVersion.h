@@ -29,7 +29,7 @@ class SwigVersion
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    static bool swigWrite(SwigGenerator& generator);
+    [[nodiscard]] static bool swigWrite(SwigGenerator& generator);
     static void swigAddCodeIncludes(SwigGenerator& generator, GenStringsList& list);
     static void swigAddDef(SwigGenerator& generator, GenStringsList& list);
     static void swigAddCode(SwigGenerator& generator, GenStringsList& list);
@@ -37,8 +37,8 @@ public:
 private:
     explicit SwigVersion(SwigGenerator& generator) : m_swigGenerator(generator) {}
 
-    bool swigWriteInternal() const;
-    static std::string swigVersionsAssertInternal(SwigGenerator& generator);
+    [[nodiscard]] bool swigWriteInternal() const;
+    [[nodiscard]] static std::string swigVersionsAssertInternal(SwigGenerator& generator);
 
     SwigGenerator& m_swigGenerator;
 };

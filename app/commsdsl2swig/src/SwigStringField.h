@@ -38,13 +38,11 @@ public:
 
 protected:
     // GenBase overrides
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // SwigBase overrides
-    virtual std::string swigValueTypeDeclImpl() const override;
-    virtual std::string swigValueAccDeclImpl() const override;
-
-private:
+    [[nodiscard]] virtual std::string swigValueTypeDeclImpl() const override;
+    [[nodiscard]] virtual std::string swigValueAccDeclImpl() const override;
 };
 
 } // namespace commsdsl2swig

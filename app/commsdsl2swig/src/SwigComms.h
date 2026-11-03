@@ -29,20 +29,20 @@ class SwigComms
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    static bool swigWrite(SwigGenerator& generator);
+    [[nodiscard]] static bool swigWrite(SwigGenerator& generator);
 
-    static const std::string& swigRelHeader();
+    [[nodiscard]] static const std::string& swigRelHeader();
 
     static void swigAddDef(GenStringsList& list);
     static void swigAddCode(const SwigGenerator& generator, GenStringsList& list);
 
-    static std::string swigErrorStatusClassName(const SwigGenerator& generator);
-    static std::string swigOptionalModeClassName(const SwigGenerator& generator);
+    [[nodiscard]] static std::string swigErrorStatusClassName(const SwigGenerator& generator);
+    [[nodiscard]] static std::string swigOptionalModeClassName(const SwigGenerator& generator);
 
 private:
     explicit SwigComms(SwigGenerator& generator) : m_swigGenerator(generator) {}
 
-    bool swigWriteInternal() const;
+    [[nodiscard]] bool swigWriteInternal() const;
 
     SwigGenerator& m_swigGenerator;
 };

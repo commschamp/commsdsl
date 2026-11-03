@@ -35,9 +35,6 @@ public:
     using GenElem = commsdsl::gen::GenElem;
 
     SwigIdLayer(SwigGenerator& generator, ParseLayer parseObj, GenElem* parent);
-
-protected:
-    // SwigBase overrides
 };
 
 } // namespace commsdsl2swig

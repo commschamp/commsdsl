@@ -48,40 +48,40 @@ public:
     void swigAddCode(GenStringsList& list) const;
     void swigAddDef(GenStringsList& list) const;
 
-    static const SwigFrame* swigCast(const commsdsl::gen::GenFrame* obj)
+    [[nodiscard]] static const SwigFrame* swigCast(const commsdsl::gen::GenFrame* obj)
     {
         return static_cast<const SwigFrame*>(obj);
     }
 
-    const SwigLayersList& swigLayers() const
+    [[nodiscard]] const SwigLayersList& swigLayers() const
     {
         return m_swigLayers;
     }
 
-    const SwigInterface* swigInterface() const
+    [[nodiscard]] const SwigInterface* swigInterface() const
     {
         return swigInterfaceInternal();
     }
 
-    const SwigInputMessages* swigInput() const
+    [[nodiscard]] const SwigInputMessages* swigInput() const
     {
         return swigInputInternal();
     }
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
-    std::string swigLayerDeclsInternal() const;
-    std::string swigClassDeclInternal() const;
-    std::string swigLayersAccDeclInternal() const;
-    std::string swigLayersAccCodeInternal() const;
-    std::string swigFrameCodeInternal() const;
-    std::string swigAllFieldsInternal() const;
-    const SwigInterface* swigInterfaceInternal() const;
-    const SwigMsgHandler* swigMsgHandlerInternal() const;
-    const SwigInputMessages* swigInputInternal() const;
+    [[nodiscard]] std::string swigLayerDeclsInternal() const;
+    [[nodiscard]] std::string swigClassDeclInternal() const;
+    [[nodiscard]] std::string swigLayersAccDeclInternal() const;
+    [[nodiscard]] std::string swigLayersAccCodeInternal() const;
+    [[nodiscard]] std::string swigFrameCodeInternal() const;
+    [[nodiscard]] std::string swigAllFieldsInternal() const;
+    [[nodiscard]] const SwigInterface* swigInterfaceInternal() const;
+    [[nodiscard]] const SwigMsgHandler* swigMsgHandlerInternal() const;
+    [[nodiscard]] const SwigInputMessages* swigInputInternal() const;
 
     SwigLayersList m_swigLayers;
     bool m_validFrame = true;

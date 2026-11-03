@@ -31,7 +31,7 @@ public:
 
     static void swigAddCodeIncludes(SwigGenerator& generator, GenStringsList& list);
     static void swigAddCode(const SwigGenerator& generator, GenStringsList& list);
-    static std::string swigClassName(const SwigGenerator& generator);
+    [[nodiscard]] static std::string swigClassName(const SwigGenerator& generator);
     static bool swigIsDefined(const SwigGenerator& generator);
 };
 

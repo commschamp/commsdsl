@@ -25,18 +25,18 @@ class SwigGenerator;
 class Swig
 {
 public:
-    static bool swigWrite(SwigGenerator& generator);
+    [[nodiscard]] static bool swigWrite(SwigGenerator& generator);
 
 private:
     explicit Swig(SwigGenerator& generator) : m_swigGenerator(generator) {}
 
-    bool swigWriteInternal();
-    std::string swigCodeBlockInternal();
-    std::string swigDefInternal();
-    std::string swigLangDefsInternal() const;
-    std::string swigPrependInternal() const;
-    std::string swigAppendInternal() const;
-    std::string swigFileNameInternal() const;
+    [[nodiscard]] bool swigWriteInternal();
+    [[nodiscard]] std::string swigCodeBlockInternal();
+    [[nodiscard]] std::string swigDefInternal();
+    [[nodiscard]] std::string swigLangDefsInternal() const;
+    [[nodiscard]] std::string swigPrependInternal() const;
+    [[nodiscard]] std::string swigAppendInternal() const;
+    [[nodiscard]] std::string swigFileNameInternal() const;
 
     SwigGenerator& m_swigGenerator;
 };

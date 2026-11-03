@@ -38,14 +38,14 @@ public:
 
 protected:
     // GenBase overrides
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // SwigBase overrides
-    virtual std::string swigMembersDeclImpl() const override;
-    virtual std::string swigValueTypeDeclImpl() const override;
-    virtual std::string swigValueAccDeclImpl() const override;
-    virtual std::string swigExtraPublicFuncsCodeImpl() const override;
+    [[nodiscard]] virtual std::string swigMembersDeclImpl() const override;
+    [[nodiscard]] virtual std::string swigValueTypeDeclImpl() const override;
+    [[nodiscard]] virtual std::string swigValueAccDeclImpl() const override;
+    [[nodiscard]] virtual std::string swigExtraPublicFuncsCodeImpl() const override;
     virtual void swigAddDefImpl(GenStringsList& list) const override;
     virtual void swigAddMembersCodeImpl(GenStringsList& list) const override;
 };

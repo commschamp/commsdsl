@@ -36,28 +36,28 @@ public:
 
     SwigVariantField(SwigGenerator& generator, ParseField parseObj, GenElem* parent);
 
-    const SwigFieldsList& swigMembers() const
+    [[nodiscard]] const SwigFieldsList& swigMembers() const
     {
         return m_swigMembers;
     }
 
 protected:
     // GenBase overrides
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // SwigBase overrides
-    virtual std::string swigMembersDeclImpl() const override;
-    virtual std::string swigValueAccDeclImpl() const override;
-    virtual std::string swigExtraPublicFuncsDeclImpl() const override;
-    virtual std::string swigExtraPublicFuncsCodeImpl() const override;
+    [[nodiscard]] virtual std::string swigMembersDeclImpl() const override;
+    [[nodiscard]] virtual std::string swigValueAccDeclImpl() const override;
+    [[nodiscard]] virtual std::string swigExtraPublicFuncsDeclImpl() const override;
+    [[nodiscard]] virtual std::string swigExtraPublicFuncsCodeImpl() const override;
 
     virtual void swigAddDefImpl(GenStringsList& list) const override;
     virtual void swigAddMembersCodeImpl(GenStringsList& list) const override;
 
 private:
-    bool swigPrepareInternal();
-    std::string swigHandlerDeclInternal() const;
+    [[nodiscard]] bool swigPrepareInternal();
+    [[nodiscard]] std::string swigHandlerDeclInternal() const;
     void swigAddHandlerCodeInternal(GenStringsList& list) const;
 
     SwigFieldsList m_swigMembers;

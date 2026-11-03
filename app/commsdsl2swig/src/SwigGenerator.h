@@ -45,70 +45,70 @@ public:
 
     SwigGenerator();
 
-    static const std::string& swigFileGeneratedComment();
+    [[nodiscard]] static const std::string& swigFileGeneratedComment();
 
-    static SwigGenerator& swigCast(commsdsl::gen::GenGenerator& obj)
+    [[nodiscard]] static SwigGenerator& swigCast(commsdsl::gen::GenGenerator& obj)
     {
         return static_cast<SwigGenerator&>(obj);
     }
 
-    static const SwigGenerator& swigCast(const commsdsl::gen::GenGenerator& obj)
+    [[nodiscard]] static const SwigGenerator& swigCast(const commsdsl::gen::GenGenerator& obj)
     {
         return static_cast<const SwigGenerator&>(obj);
     }
 
-    std::string swigInputCodeRelPathFor(const commsdsl::gen::GenElem& elem) const;
-    std::string swigInputCodeAbsPathFor(const commsdsl::gen::GenElem& elem) const;
-    std::string swigInputCodeAbsPathForFile(const std::string& name) const;
-    std::string swigClassName(const commsdsl::gen::GenElem& elem) const;
-    std::string swigScopeNameForRoot(const std::string& name) const;
-    std::string swigScopeNameForNamespaceMember(const std::string& name, const SwigNamespace& parent) const;
-    std::string swigProtocolClassNameForRoot(const std::string& name) const;
-    const std::string& swigConvertCppType(const std::string& str) const;
-    const std::string& swigConvertIntType(commsdsl::parse::ParseIntField::ParseType value, std::size_t len) const;
+    [[nodiscard]] std::string swigInputCodeRelPathFor(const commsdsl::gen::GenElem& elem) const;
+    [[nodiscard]] std::string swigInputCodeAbsPathFor(const commsdsl::gen::GenElem& elem) const;
+    [[nodiscard]] std::string swigInputCodeAbsPathForFile(const std::string& name) const;
+    [[nodiscard]] std::string swigClassName(const commsdsl::gen::GenElem& elem) const;
+    [[nodiscard]] std::string swigScopeNameForRoot(const std::string& name) const;
+    [[nodiscard]] std::string swigScopeNameForNamespaceMember(const std::string& name, const SwigNamespace& parent) const;
+    [[nodiscard]] std::string swigProtocolClassNameForRoot(const std::string& name) const;
+    [[nodiscard]] const std::string& swigConvertCppType(const std::string& str) const;
+    [[nodiscard]] const std::string& swigConvertIntType(commsdsl::parse::ParseIntField::ParseType value, std::size_t len) const;
 
-    static std::string swigScopeToName(const std::string& scope);
-    static std::string swigDefInclude(const std::string& path);
+    [[nodiscard]] static std::string swigScopeToName(const std::string& scope);
+    [[nodiscard]] static std::string swigDefInclude(const std::string& path);
 
     void swigSetMainNamespaceInNamesForced(bool value);
     void swigSetHasCodeVersion(bool value);
 
-    bool swigHasCodeVersion() const;
+    [[nodiscard]] bool swigHasCodeVersion() const;
 
 protected:
-    virtual bool genWriteImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() override;
 
-    virtual GenSchemaPtr genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenNamespacePtr genCreateNamespaceImpl(commsdsl::parse::ParseNamespace parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenInterfacePtr genCreateInterfaceImpl(commsdsl::parse::ParseInterface parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenMessagePtr genCreateMessageImpl(commsdsl::parse::ParseMessage parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenSchemaPtr genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenNamespacePtr genCreateNamespaceImpl(commsdsl::parse::ParseNamespace parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenInterfacePtr genCreateInterfaceImpl(commsdsl::parse::ParseInterface parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenMessagePtr genCreateMessageImpl(commsdsl::parse::ParseMessage parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame parseObj, commsdsl::gen::GenElem* parent) override;
 
-    virtual GenFieldPtr genCreateIntFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateEnumFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateSetFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateFloatFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateBitfieldFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateBundleFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateStringFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateDataFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateListFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateRefFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateOptionalFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateVariantFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateIntFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateEnumFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateSetFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateFloatFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateBitfieldFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateBundleFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateStringFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateDataFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateListFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateRefFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateOptionalFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateVariantFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
 
-    virtual GenLayerPtr genCreateCustomLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenLayerPtr genCreateSyncLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenLayerPtr genCreateSizeLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenLayerPtr genCreateIdLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenLayerPtr genCreateValueLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenLayerPtr genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenLayerPtr genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateCustomLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateSyncLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateSizeLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateIdLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateValueLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
 
-    virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
+    [[nodiscard]] virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
 
 private:
-    bool swigWriteExtraFilesInternal() const;
+    [[nodiscard]] bool swigWriteExtraFilesInternal() const;
 
     bool m_mainNamespaceInNamesForced = false;
     bool m_hasCodeVersion = false;

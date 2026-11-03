@@ -34,35 +34,35 @@ public:
     explicit SwigLayer(commsdsl::gen::GenLayer& layer);
     virtual ~SwigLayer();
 
-    static const SwigLayer* swigCast(const commsdsl::gen::GenLayer* layer);
+    [[nodiscard]] static const SwigLayer* swigCast(const commsdsl::gen::GenLayer* layer);
 
-    commsdsl::gen::GenLayer& swigGenLayer()
+    [[nodiscard]] commsdsl::gen::GenLayer& swigGenLayer()
     {
         return m_genLayer;
     }
 
-    const commsdsl::gen::GenLayer& swigGenLayer() const
+    [[nodiscard]] const commsdsl::gen::GenLayer& swigGenLayer() const
     {
         return m_genLayer;
     }
 
-    std::string swigDeclCode() const;
+    [[nodiscard]] std::string swigDeclCode() const;
     void swigAddDef(GenStringsList& list) const;
     void swigAddCode(GenStringsList& list) const;
     void swigAddToAllFieldsDecl(GenStringsList& list) const;
 
-    bool swigIsMainInterfaceSupported() const;
-    std::string swigFieldAccName() const;
+    [[nodiscard]] bool swigIsMainInterfaceSupported() const;
+    [[nodiscard]] std::string swigFieldAccName() const;
 
 protected:
-    virtual std::string swigDeclFuncsImpl() const;
-    virtual std::string swigCodeFuncsImpl() const;
-    virtual bool swigIsMainInterfaceSupportedImpl() const;
-    virtual std::string swigMemberFieldDeclImpl() const;
+    [[nodiscard]] virtual std::string swigDeclFuncsImpl() const;
+    [[nodiscard]] virtual std::string swigCodeFuncsImpl() const;
+    [[nodiscard]] virtual bool swigIsMainInterfaceSupportedImpl() const;
+    [[nodiscard]] virtual std::string swigMemberFieldDeclImpl() const;
     virtual void swigAddCodeImpl(GenStringsList& list) const;
-    virtual std::string swigFieldTypeImpl() const;
+    [[nodiscard]] virtual std::string swigFieldTypeImpl() const;
 
-    std::string swigTemplateScope() const;
+    [[nodiscard]] std::string swigTemplateScope() const;
 
 private:
     commsdsl::gen::GenLayer& m_genLayer;

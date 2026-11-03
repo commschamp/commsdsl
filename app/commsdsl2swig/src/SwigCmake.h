@@ -25,15 +25,15 @@ class SwigGenerator;
 class SwigCmake
 {
 public:
-    static bool swigWrite(SwigGenerator& generator);
+    [[nodiscard]] static bool swigWrite(SwigGenerator& generator);
 
 private:
     explicit SwigCmake(SwigGenerator& generator) : m_swigGenerator(generator) {}
 
-    bool swigWriteInternal() const;
-    std::string swigPrependInternal() const;
-    std::string swigPrependLangInternal() const;
-    std::string swigAppendInternal() const;
+    [[nodiscard]] bool swigWriteInternal() const;
+    [[nodiscard]] std::string swigPrependInternal() const;
+    [[nodiscard]] std::string swigPrependLangInternal() const;
+    [[nodiscard]] std::string swigAppendInternal() const;
 
     SwigGenerator& m_swigGenerator;
 };

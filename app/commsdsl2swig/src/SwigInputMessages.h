@@ -34,10 +34,10 @@ public:
 
     SwigInputMessages(SwigGenerator& generator, const SwigNamespace& parent);
     void swigAddCode(GenStringsList& list) const;
-    std::string swigClassName() const;
+    [[nodiscard]] std::string swigClassName() const;
 
 private:
-    GenMessagesAccessList swigMessagesListInternal() const;
+    [[nodiscard]] GenMessagesAccessList swigMessagesListInternal() const;
 
     SwigGenerator& m_swigGenerator;
     const SwigNamespace& m_parent;

@@ -33,16 +33,16 @@ public:
 
     SwigMsgId(SwigGenerator& generator, const SwigNamespace& parent);
 
-    bool swigWrite() const;
+    [[nodiscard]] bool swigWrite() const;
     void swigAddDef(GenStringsList& list) const;
     void swigAddCode(GenStringsList& list) const;
-    std::string swigClassName() const;
+    [[nodiscard]] std::string swigClassName() const;
     void swigAddCodeIncludes(GenStringsList& list) const;
 
 private:
-    std::string swigTypeInternal() const;
-    std::string swigIdsInternal() const;
-    std::string swigCodeInternal() const;
+    [[nodiscard]] std::string swigTypeInternal() const;
+    [[nodiscard]] std::string swigIdsInternal() const;
+    [[nodiscard]] std::string swigCodeInternal() const;
 
     SwigGenerator& m_swigGenerator;
     const SwigNamespace& m_parent;

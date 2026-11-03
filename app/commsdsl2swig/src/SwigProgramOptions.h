@@ -32,13 +32,13 @@ public:
 
     SwigProgramOptions();
 
-    static const SwigProgramOptions& swigCast(const GenProgramOptions& obj)
+    [[nodiscard]] static const SwigProgramOptions& swigCast(const GenProgramOptions& obj)
     {
         return static_cast<const SwigProgramOptions&>(obj);
     }
 
-    bool swigIsMainNamespaceInNamesForced() const;
-    bool swigHasCodeVersion() const;
+    [[nodiscard]] bool swigIsMainNamespaceInNamesForced() const;
+    [[nodiscard]] bool swigHasCodeVersion() const;
 };
 
 } // namespace commsdsl2swig

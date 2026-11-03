@@ -39,11 +39,11 @@ public:
     void swigAddFwdCode(GenStringsList& list) const;
     void swigAddClassCode(GenStringsList& list) const;
     void swigAddDef(GenStringsList& list) const;
-    std::string swigClassName() const;
+    [[nodiscard]] std::string swigClassName() const;
 
 private:
-    std::string swigClassDeclInternal() const;
-    GenMessagesAccessList swigMessagesListInternal() const;
+    [[nodiscard]] std::string swigClassDeclInternal() const;
+    [[nodiscard]] GenMessagesAccessList swigMessagesListInternal() const;
 
     SwigGenerator& m_swigGenerator;
     const SwigNamespace& m_parent;

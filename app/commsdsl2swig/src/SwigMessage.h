@@ -44,24 +44,24 @@ public:
     void swigAddCode(GenStringsList& list) const;
     void swigAddDef(GenStringsList& list) const;
 
-    static const SwigMessage* swigCast(const commsdsl::gen::GenMessage* obj)
+    [[nodiscard]] static const SwigMessage* swigCast(const commsdsl::gen::GenMessage* obj)
     {
         return static_cast<const SwigMessage*>(obj);
     }
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
     using SwigFieldsList = SwigField::SwigFieldsList;
 
-    std::string swigFieldDefsInternal() const;
-    std::string swigClassDeclInternal() const;
-    std::string swigFieldsAccDeclInternal() const;
-    std::string swigFieldsAccCodeInternal() const;
-    const SwigInterface* swigGetInterfaceInternal() const;
-    const SwigMsgHandler* swigMsgHandlerInternal() const;
+    [[nodiscard]] std::string swigFieldDefsInternal() const;
+    [[nodiscard]] std::string swigClassDeclInternal() const;
+    [[nodiscard]] std::string swigFieldsAccDeclInternal() const;
+    [[nodiscard]] std::string swigFieldsAccCodeInternal() const;
+    [[nodiscard]] const SwigInterface* swigGetInterfaceInternal() const;
+    [[nodiscard]] const SwigMsgHandler* swigMsgHandlerInternal() const;
 
     SwigFieldsList m_swigFields;
 };

@@ -36,16 +36,16 @@ public:
 
     SwigEnumField(SwigGenerator& generator, ParseField parseObj, GenElem* parent);
 
-    GenStringsList swigEnumValues() const;
+    [[nodiscard]] GenStringsList swigEnumValues() const;
 
 protected:
     // GenBase overrides
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // SwigBase overrides
-    virtual std::string swigValueTypeDeclImpl() const override;
-    virtual std::string swigExtraPublicFuncsDeclImpl() const override;
-    virtual std::string swigExtraPublicFuncsCodeImpl() const override;
+    [[nodiscard]] virtual std::string swigValueTypeDeclImpl() const override;
+    [[nodiscard]] virtual std::string swigExtraPublicFuncsDeclImpl() const override;
+    [[nodiscard]] virtual std::string swigExtraPublicFuncsCodeImpl() const override;
 };
 
 } // namespace commsdsl2swig
