@@ -38,49 +38,49 @@ public:
     explicit LatexField(const GenField& field);
     virtual ~LatexField();
 
-    static LatexFieldsList latexTransformFieldsList(const GenFieldsList& fields);
-    static std::string latexMembersDetails(const LatexFieldsList& latexFields);
-    static LatexField* latexCast(GenField* genField);
-    static const LatexField* latexCast(const GenField* genField);
-    const LatexField* latexFindSibling(const std::string& name) const;
+    [[nodiscard]] static LatexFieldsList latexTransformFieldsList(const GenFieldsList& fields);
+    [[nodiscard]] static std::string latexMembersDetails(const LatexFieldsList& latexFields);
+    [[nodiscard]] static LatexField* latexCast(GenField* genField);
+    [[nodiscard]] static const LatexField* latexCast(const GenField* genField);
+    [[nodiscard]] const LatexField* latexFindSibling(const std::string& name) const;
 
-    std::string latexRelFilePath() const;
-    std::string latexTitle() const;
-    std::string latexDoc() const;
-    std::string latexRefLabelId() const;
-    std::string latexInfoDetails() const;
-    std::string latexExtraDetails() const;
-    std::string latexDescription() const;
+    [[nodiscard]] std::string latexRelFilePath() const;
+    [[nodiscard]] std::string latexTitle() const;
+    [[nodiscard]] std::string latexDoc() const;
+    [[nodiscard]] std::string latexRefLabelId() const;
+    [[nodiscard]] std::string latexInfoDetails() const;
+    [[nodiscard]] std::string latexExtraDetails() const;
+    [[nodiscard]] std::string latexDescription() const;
 
-    bool latexWrite() const;
+    [[nodiscard]] bool latexWrite() const;
 
-    const GenField& latexGenField() const
+    [[nodiscard]] const GenField& latexGenField() const
     {
         return m_genField;
     }
 
-    const std::string& latexFieldKind() const
+    [[nodiscard]] const std::string& latexFieldKind() const
     {
         return latexFieldKindImpl();
     }
 
-    bool latexIsOptional() const;
+    [[nodiscard]] bool latexIsOptional() const;
 
 protected:
-    virtual std::string latexDocImpl() const;
-    virtual std::string latexDescriptionImpl() const;
-    virtual std::string latexRefLabelIdImpl() const;
-    virtual std::string latexInfoDetailsImpl() const;
-    virtual std::string latexExtraDetailsImpl() const;
-    virtual const std::string& latexFieldKindImpl() const;
-    virtual bool latexIsOptionalImpl() const;
+    [[nodiscard]] virtual std::string latexDocImpl() const;
+    [[nodiscard]] virtual std::string latexDescriptionImpl() const;
+    [[nodiscard]] virtual std::string latexRefLabelIdImpl() const;
+    [[nodiscard]] virtual std::string latexInfoDetailsImpl() const;
+    [[nodiscard]] virtual std::string latexExtraDetailsImpl() const;
+    [[nodiscard]] virtual const std::string& latexFieldKindImpl() const;
+    [[nodiscard]] virtual bool latexIsOptionalImpl() const;
 
-    static std::string latexSignedInfo(ParseIntField::ParseType value);
-    static std::string latexEndianInfo(commsdsl::parse::ParseEndian value);
-    static std::string latexUnitsInfo(commsdsl::parse::ParseUnits value);
+    [[nodiscard]] static std::string latexSignedInfo(ParseIntField::ParseType value);
+    [[nodiscard]] static std::string latexEndianInfo(commsdsl::parse::ParseEndian value);
+    [[nodiscard]] static std::string latexUnitsInfo(commsdsl::parse::ParseUnits value);
 
 private:
-    std::string latexSection() const;
+    [[nodiscard]] std::string latexSection() const;
 
     const GenField& m_genField;
 };

@@ -35,10 +35,10 @@ public:
     LatexEnumField(LatexGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
-    virtual std::string latexInfoDetailsImpl() const override;
-    virtual std::string latexExtraDetailsImpl() const override;
+    [[nodiscard]] virtual std::string latexInfoDetailsImpl() const override;
+    [[nodiscard]] virtual std::string latexExtraDetailsImpl() const override;
 };
 
 } // namespace commsdsl2latex

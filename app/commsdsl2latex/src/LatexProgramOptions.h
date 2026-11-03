@@ -32,7 +32,7 @@ public:
 
     LatexProgramOptions();
 
-    static const LatexProgramOptions& latexCast(const GenProgramOptions& obj)
+    [[nodiscard]] static const LatexProgramOptions& latexCast(const GenProgramOptions& obj)
     {
         return static_cast<const LatexProgramOptions&>(obj);
     }

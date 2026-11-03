@@ -54,7 +54,7 @@ bool LatexRefField::genWriteImpl() const
 
 std::string LatexRefField::latexDocImpl() const
 {
-    if (latexIsEmptyAlias()) {
+    if (latexIsEmptyAliasInternal()) {
         return "\n";
     }
 
@@ -63,7 +63,7 @@ std::string LatexRefField::latexDocImpl() const
 
 std::string LatexRefField::latexRefLabelIdImpl() const
 {
-    if (latexIsEmptyAlias()) {
+    if (latexIsEmptyAliasInternal()) {
         return m_latexField->latexRefLabelId();
     }
 
@@ -86,7 +86,7 @@ bool LatexRefField::latexIsOptionalImpl() const
     return m_latexField->latexIsOptional();
 }
 
-bool LatexRefField::latexIsEmptyAlias() const
+bool LatexRefField::latexIsEmptyAliasInternal() const
 {
     auto* parent = genGetParent();
     assert(parent != nullptr);

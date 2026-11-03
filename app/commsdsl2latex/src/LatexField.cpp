@@ -48,7 +48,7 @@ namespace
 
 const std::size_t InvalidLength = std::numeric_limits<std::size_t>::max();
 
-bool latexIsLengthInBits(const LatexField& f)
+[[nodiscard]] bool latexIsLengthInBitsInternal(const LatexField& f)
 {
     auto* parent = f.latexGenField().genGetParent();
     assert(parent != nullptr);
@@ -64,7 +64,7 @@ bool latexIsLengthInBits(const LatexField& f)
     return parentField->genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Bitfield;
 }
 
-bool latexIsLengthInBits(const LatexField::LatexFieldsList& fields)
+[[nodiscard]] bool latexIsLengthInBitsInternal(const LatexField::LatexFieldsList& fields)
 {
     return
         std::any_of(
@@ -72,11 +72,11 @@ bool latexIsLengthInBits(const LatexField::LatexFieldsList& fields)
             [](auto* f)
             {
                 assert(f != nullptr);
-                return latexIsLengthInBits(*f);
+                return latexIsLengthInBitsInternal(*f);
             });
 }
 
-bool latexIsOffsetPresent(const LatexField& f)
+[[nodiscard]] bool latexIsOffsetPresentInternal(const LatexField& f)
 {
     auto* parent = f.latexGenField().genGetParent();
     assert(parent != nullptr);
@@ -96,7 +96,7 @@ bool latexIsOffsetPresent(const LatexField& f)
     return parentField->genParseObj().parseKind() != commsdsl::parse::ParseField::ParseKind::Variant;
 }
 
-bool latexIsOffsetPresent(const LatexField::LatexFieldsList& fields)
+[[nodiscard]] bool latexIsOffsetPresentInternal(const LatexField::LatexFieldsList& fields)
 {
     return
         std::all_of(
@@ -104,7 +104,7 @@ bool latexIsOffsetPresent(const LatexField::LatexFieldsList& fields)
             [](auto* f)
             {
                 assert(f != nullptr);
-                return latexIsOffsetPresent(*f);
+                return latexIsOffsetPresentInternal(*f);
             });
 }
 
@@ -271,7 +271,7 @@ std::string LatexField::latexInfoDetails() const
         auto minLength = parseObj.parseMinLength();
         auto maxLength = parseObj.parseMaxLength();
 
-        bool inBits = latexIsLengthInBits(*this);
+        bool inBits = latexIsLengthInBitsInternal(*this);
         std::string units = " Bytes";
         if (inBits) {
             minLength = parseObj.parseBitLength();
@@ -357,8 +357,8 @@ LatexField::LatexFieldsList LatexField::latexTransformFieldsList(const GenFields
 
 std::string LatexField::latexMembersDetails(const LatexFieldsList& latexFields)
 {
-    bool inBits = latexIsLengthInBits(latexFields);
-    bool hasOffset = latexIsOffsetPresent(latexFields);
+    bool inBits = latexIsLengthInBitsInternal(latexFields);
+    bool hasOffset = latexIsOffsetPresentInternal(latexFields);
     bool longList = 40 <= latexFields.size();
 
     std::string units = "Bytes";

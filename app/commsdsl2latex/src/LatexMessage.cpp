@@ -39,7 +39,7 @@ namespace commsdsl2latex
 namespace
 {
 
-const std::string& latexSenderStr(LatexMessage::ParseMessage::ParseSender sender)
+[[nodiscard]] const std::string& latexSenderStrInternal(LatexMessage::ParseMessage::ParseSender sender)
 {
     static const std::string Map[] = {
         /* Both */ "Client + Server",
@@ -207,7 +207,7 @@ std::string LatexMessage::latexInfoDetails() const
     } while (false);
 
     do{
-        lines.push_back("\\textbf{Sent By} & " + latexSenderStr(parseObj.parseSender()));
+        lines.push_back("\\textbf{Sent By} & " + latexSenderStrInternal(parseObj.parseSender()));
     } while (false);
 
     do {

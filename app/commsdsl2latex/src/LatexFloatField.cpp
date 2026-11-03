@@ -37,7 +37,7 @@ namespace commsdsl2latex
 namespace
 {
 
-std::string latexFloatValToString(double val, const commsdsl::parse::ParseFloatField& parseObj)
+[[nodiscard]] std::string latexFloatValToStringInternal(double val, const commsdsl::parse::ParseFloatField& parseObj)
 {
     if (std::isnan(val)) {
         return "NaN";
@@ -121,11 +121,11 @@ std::string LatexFloatField::latexInfoDetailsImpl() const
             }
 
             if ((r.m_min == r.m_max) || (std::isnan(r.m_min))) {
-                values.push_back(latexFloatValToString(r.m_min, parseObj));
+                values.push_back(latexFloatValToStringInternal(r.m_min, parseObj));
                 continue;
             }
 
-            values.push_back("[" + latexFloatValToString(r.m_min, parseObj) + " - " + latexFloatValToString(r.m_max, parseObj) + "]");
+            values.push_back("[" + latexFloatValToStringInternal(r.m_min, parseObj) + " - " + latexFloatValToStringInternal(r.m_max, parseObj) + "]");
         }
 
         if (values.empty()) {
@@ -194,7 +194,7 @@ std::string LatexFloatField::latexExtraDetailsImpl() const
 
     util::GenStringsList lines;
     for (auto& elem : infos) {
-        auto l = latexFloatValToString(elem.m_value, parseObj) + " & " + elem.m_name + " & " + elem.m_description;
+        auto l = latexFloatValToStringInternal(elem.m_value, parseObj) + " & " + elem.m_name + " & " + elem.m_description;
         lines.push_back(std::move(l));
     }
 

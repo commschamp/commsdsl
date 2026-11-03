@@ -35,57 +35,57 @@ public:
     using GenGenerator = commsdsl::gen::GenGenerator;
     using GenFieldPtr = commsdsl::gen::GenFieldPtr;
 
-    static const std::string& latexFileGeneratedComment();
-    static const std::string& latexSchemaCommentPrefix();
-    static std::string latexWrapInput(const std::string& filePath);
+    [[nodiscard]] static const std::string& latexFileGeneratedComment();
+    [[nodiscard]] static const std::string& latexSchemaCommentPrefix();
+    [[nodiscard]] static std::string latexWrapInput(const std::string& filePath);
     static void latexWrapInputInPlace(std::string& filePath);
-    static const std::string& latexSectionDirective(const GenElem& elem);
-    static std::string latexLabelId(const GenElem& elem);
-    static std::string latexEscString(const std::string& str);
-    static std::string latexEscDisplayName(const std::string& displayName, const std::string& name);
+    [[nodiscard]] static const std::string& latexSectionDirective(const GenElem& elem);
+    [[nodiscard]] static std::string latexLabelId(const GenElem& elem);
+    [[nodiscard]] static std::string latexEscString(const std::string& str);
+    [[nodiscard]] static std::string latexEscDisplayName(const std::string& displayName, const std::string& name);
     static void latexEnsureNewLineBreak(std::string& str);
-    static std::string latexIntegralToStr(std::intmax_t value, bool isUnsigned, std::size_t hexWidth = 0);
-    static std::string latexIntegralToStr(std::uintmax_t value, std::size_t hexWidth = 0);
+    [[nodiscard]] static std::string latexIntegralToStr(std::intmax_t value, bool isUnsigned, std::size_t hexWidth = 0);
+    [[nodiscard]] static std::string latexIntegralToStr(std::uintmax_t value, std::size_t hexWidth = 0);
 
-    static LatexGenerator& latexCast(GenGenerator& obj)
+    [[nodiscard]] static LatexGenerator& latexCast(GenGenerator& obj)
     {
         return static_cast<LatexGenerator&>(obj);
     }
 
-    static const LatexGenerator& latexCast(const GenGenerator& obj)
+    [[nodiscard]] static const LatexGenerator& latexCast(const GenGenerator& obj)
     {
         return static_cast<const LatexGenerator&>(obj);
     }
 
-    std::string latexRelPathFor(const GenElem& elem) const;
+    [[nodiscard]] std::string latexRelPathFor(const GenElem& elem) const;
 
-    std::string latexInputCodePathForFile(const std::string& name) const;
+    [[nodiscard]] std::string latexInputCodePathForFile(const std::string& name) const;
 
 protected:
-    virtual bool genWriteImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() override;
 
-    virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
-    virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
-    virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent) override;
-    virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent) override;
 
-    virtual GenFieldPtr genCreateIntFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateSetFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateFloatFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateBitfieldFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateBundleFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateStringFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateDataFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateListFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateRefFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateIntFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateSetFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateFloatFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateBitfieldFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateBundleFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateStringFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateDataFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateListFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateRefFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent) override;
 
-    virtual const std::string& genCommentPrefixImpl() const override;
+    [[nodiscard]] virtual const std::string& genCommentPrefixImpl() const override;
 
 private:
-    bool latexWriteExtraFilesInternal() const;
+    [[nodiscard]] bool latexWriteExtraFilesInternal() const;
 };
 
 } // namespace commsdsl2latex

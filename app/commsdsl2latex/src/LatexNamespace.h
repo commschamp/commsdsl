@@ -44,28 +44,28 @@ public:
     LatexNamespace(LatexGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~LatexNamespace();
 
-    static const LatexNamespace* latexCast(const GenNamespace* obj)
+    [[nodiscard]] static const LatexNamespace* latexCast(const GenNamespace* obj)
     {
         return static_cast<const LatexNamespace*>(obj);
     }
 
-    static const LatexNamespace& latexCast(const GenNamespace& obj)
+    [[nodiscard]] static const LatexNamespace& latexCast(const GenNamespace& obj)
     {
         return static_cast<const LatexNamespace&>(obj);
     }
 
-    std::string latexRelDirPath() const;
-    std::string latexRelFilePath() const;
-    std::string latexTitle() const;
+    [[nodiscard]] std::string latexRelDirPath() const;
+    [[nodiscard]] std::string latexRelFilePath() const;
+    [[nodiscard]] std::string latexTitle() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
-    bool latexHasDocElements() const;
-    std::string latexInputs() const;
-    std::string latexSection(const std::string& title) const;
+    [[nodiscard]] bool latexHasDocElements() const;
+    [[nodiscard]] std::string latexInputs() const;
+    [[nodiscard]] std::string latexSection(const std::string& title) const;
 
     LatexFieldsList m_latexFields;
     LatexMessagesList m_latexMessages;

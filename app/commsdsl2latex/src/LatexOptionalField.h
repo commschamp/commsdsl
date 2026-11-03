@@ -34,18 +34,18 @@ public:
 
     LatexOptionalField(LatexGenerator& generator, ParseField parseObj, GenElem* parent);
 
-    bool latexIsPassThroughToMember() const;
+    [[nodiscard]] bool latexIsPassThroughToMember() const;
 
 protected:
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
-    virtual std::string latexDocImpl() const override;
-    virtual std::string latexDescriptionImpl() const override;
-    virtual std::string latexRefLabelIdImpl() const override;
-    virtual std::string latexInfoDetailsImpl() const override;
-    virtual std::string latexExtraDetailsImpl() const override;
-    virtual const std::string& latexFieldKindImpl() const override;
-    virtual bool latexIsOptionalImpl() const override;
+    [[nodiscard]] virtual std::string latexDocImpl() const override;
+    [[nodiscard]] virtual std::string latexDescriptionImpl() const override;
+    [[nodiscard]] virtual std::string latexRefLabelIdImpl() const override;
+    [[nodiscard]] virtual std::string latexInfoDetailsImpl() const override;
+    [[nodiscard]] virtual std::string latexExtraDetailsImpl() const override;
+    [[nodiscard]] virtual const std::string& latexFieldKindImpl() const override;
+    [[nodiscard]] virtual bool latexIsOptionalImpl() const override;
 };
 
 } // namespace commsdsl2latex

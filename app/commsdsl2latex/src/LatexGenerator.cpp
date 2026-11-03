@@ -58,7 +58,7 @@ namespace commsdsl2latex
 namespace
 {
 
-int latexSectionElemIndexInternal(const commsdsl::gen::GenElem& elem)
+[[nodiscard]] int latexSectionElemIndexInternal(const commsdsl::gen::GenElem& elem)
 {
     auto* parent = elem.genGetParent();
     auto type = elem.genElemType();
@@ -105,7 +105,7 @@ int latexSectionElemIndexInternal(const commsdsl::gen::GenElem& elem)
     return parentIndex + 1;
 }
 
-static const std::string& latexLabelPrefix(commsdsl::gen::GenElem::GenType type)
+[[nodiscard]] const std::string& latexLabelPrefixInternal(commsdsl::gen::GenElem::GenType type)
 {
     static const std::string Map[] = {
         /* GenType_Invalid */ std::string(),
@@ -191,7 +191,7 @@ std::string LatexGenerator::latexLabelId(const GenElem& elem)
 
     auto elemName = elem.genName();
     if (!elemName.empty()) {
-        elemName = latexLabelPrefix(elem.genElemType()) + elemName;
+        elemName = latexLabelPrefixInternal(elem.genElemType()) + elemName;
     }
 
     if ((!prefix.empty()) && (!elemName.empty())) {

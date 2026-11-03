@@ -35,7 +35,7 @@ namespace commsdsl2latex
 namespace
 {
 
-std::string latexDataStr(const std::vector<std::uint8_t>& data)
+[[nodiscard]] std::string latexDataStrInternal(const std::vector<std::uint8_t>& data)
 {
     std::stringstream stream;
     stream << "0x" << std::hex;
@@ -71,7 +71,7 @@ std::string LatexDataField::latexInfoDetailsImpl() const
 
         util::GenStringsList values;
         for (auto& v : validValues) {
-            values.push_back(latexDataStr(v.m_value));
+            values.push_back(latexDataStrInternal(v.m_value));
         }
 
         list.push_back("\\textbf{Valid Values} & " + util::genStrListToString(values, ", ", ""));

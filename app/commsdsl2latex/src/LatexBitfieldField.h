@@ -37,11 +37,11 @@ public:
     LatexBitfieldField(LatexGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
-    virtual std::string latexInfoDetailsImpl() const override;
-    virtual std::string latexExtraDetailsImpl() const override;
+    [[nodiscard]] virtual std::string latexInfoDetailsImpl() const override;
+    [[nodiscard]] virtual std::string latexExtraDetailsImpl() const override;
 
 private:
     LatexFieldsList m_latexFields;

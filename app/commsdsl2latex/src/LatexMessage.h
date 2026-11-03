@@ -40,32 +40,32 @@ public:
     LatexMessage(LatexGenerator& generator, ParseMessage parseObj, GenElem* parent);
     virtual ~LatexMessage();
 
-    static const LatexMessage* latexCast(const GenMessage* obj)
+    [[nodiscard]] static const LatexMessage* latexCast(const GenMessage* obj)
     {
         return static_cast<const LatexMessage*>(obj);
     }
 
-    static const LatexMessage& latexCast(const GenMessage& obj)
+    [[nodiscard]] static const LatexMessage& latexCast(const GenMessage& obj)
     {
         return static_cast<const LatexMessage&>(obj);
     }
 
-    std::string latexRelFilePath() const;
-    std::string latexTitle() const;
+    [[nodiscard]] std::string latexRelFilePath() const;
+    [[nodiscard]] std::string latexTitle() const;
 
-    const LatexFieldsList& latexMemberFields() const
+    [[nodiscard]] const LatexFieldsList& latexMemberFields() const
     {
         return m_latexFields;
     }
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
-    std::string latexSection() const;
-    std::string latexInfoDetails() const;
-    std::string latexFields() const;
+    [[nodiscard]] std::string latexSection() const;
+    [[nodiscard]] std::string latexInfoDetails() const;
+    [[nodiscard]] std::string latexFields() const;
 
     LatexFieldsList m_latexFields;
 };

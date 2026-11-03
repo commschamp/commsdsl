@@ -36,25 +36,25 @@ public:
     LatexSchema(LatexGenerator& generator, ParseSchema parseObj, GenElem* parent);
     virtual ~LatexSchema();
 
-    static const LatexSchema* latexCast(const GenSchema* obj)
+    [[nodiscard]] static const LatexSchema* latexCast(const GenSchema* obj)
     {
         return static_cast<const LatexSchema*>(obj);
     }
 
-    static const LatexSchema& latexCast(const GenSchema& obj)
+    [[nodiscard]] static const LatexSchema& latexCast(const GenSchema& obj)
     {
         return static_cast<const LatexSchema&>(obj);
     }
 
-    std::string latexRelDirPath() const;
-    std::string latexRelFilePath() const;
-    std::string latexTitle() const;
+    [[nodiscard]] std::string latexRelDirPath() const;
+    [[nodiscard]] std::string latexRelFilePath() const;
+    [[nodiscard]] std::string latexTitle() const;
 
 protected:
-    virtual bool genWriteImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() override;
 
 private:
-    std::string latexNamespaceInputs() const;
+    [[nodiscard]] std::string latexNamespaceInputsInternal() const;
 };
 
 } // namespace commsdsl2latex

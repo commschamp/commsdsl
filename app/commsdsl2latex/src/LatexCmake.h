@@ -25,16 +25,16 @@ class LatexGenerator;
 class LatexCmake
 {
 public:
-    static bool latexWrite(LatexGenerator& generator);
+    [[nodiscard]] static bool latexWrite(LatexGenerator& generator);
 
 private:
     explicit LatexCmake(LatexGenerator& generator) : m_latexGenerator(generator) {}
 
 private:
-    bool latexWriteInternal();
-    std::string latexSectionPdf() const;
-    std::string latexSectionHtml() const;
-    std::string latexAppendInternal() const;
+    [[nodiscard]] bool latexWriteInternal();
+    [[nodiscard]] std::string latexSectionPdf() const;
+    [[nodiscard]] std::string latexSectionHtml() const;
+    [[nodiscard]] std::string latexAppendInternal() const;
 
     LatexGenerator& m_latexGenerator;
 };

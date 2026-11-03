@@ -40,25 +40,25 @@ public:
     LatexFrame(LatexGenerator& generator, ParseFrame parseObj, GenElem* parent);
     virtual ~LatexFrame();
 
-    static const LatexFrame* latexCast(const GenFrame* obj)
+    [[nodiscard]] static const LatexFrame* latexCast(const GenFrame* obj)
     {
         return static_cast<const LatexFrame*>(obj);
     }
 
-    static const LatexFrame& latexCast(const GenFrame& obj)
+    [[nodiscard]] static const LatexFrame& latexCast(const GenFrame& obj)
     {
         return static_cast<const LatexFrame&>(obj);
     }
 
-    std::string latexRelFilePath() const;
-    std::string latexTitle() const;
+    [[nodiscard]] std::string latexRelFilePath() const;
+    [[nodiscard]] std::string latexTitle() const;
 
 protected:
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
-    std::string latexSection() const;
-    std::string latexLayers() const;
+    [[nodiscard]] std::string latexSection() const;
+    [[nodiscard]] std::string latexLayers() const;
 };
 
 } // namespace commsdsl2latex

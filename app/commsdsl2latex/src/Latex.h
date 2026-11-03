@@ -25,23 +25,23 @@ class LatexGenerator;
 class Latex
 {
 public:
-    static bool latexWrite(LatexGenerator& generator);
+    [[nodiscard]] static bool latexWrite(LatexGenerator& generator);
 
-    static std::string latexDocFileBaseName(const LatexGenerator& generator);
-    static std::string latexDocTexFileName(const LatexGenerator& generator);
-    static std::string latexDocCfgFileName(const LatexGenerator& generator);
+    [[nodiscard]] static std::string latexDocFileBaseName(const LatexGenerator& generator);
+    [[nodiscard]] static std::string latexDocTexFileName(const LatexGenerator& generator);
+    [[nodiscard]] static std::string latexDocCfgFileName(const LatexGenerator& generator);
 
 private:
     explicit Latex(LatexGenerator& generator) : m_latexGenerator(generator) {}
 
 private:
-    bool latexWriteInternal();
-    bool latexWriteCfgInternal();
-    std::string latexDocumentInternal() const;
-    std::string latexPackageInternal() const;
-    std::string latexMacroInternal() const;
-    std::string latexContentsInternal() const;
-    std::string latexTitleInternal() const;
+    [[nodiscard]] bool latexWriteInternal();
+    [[nodiscard]] bool latexWriteCfgInternal();
+    [[nodiscard]] std::string latexDocumentInternal() const;
+    [[nodiscard]] std::string latexPackageInternal() const;
+    [[nodiscard]] std::string latexMacroInternal() const;
+    [[nodiscard]] std::string latexContentsInternal() const;
+    [[nodiscard]] std::string latexTitleInternal() const;
 
     LatexGenerator& m_latexGenerator;
 };

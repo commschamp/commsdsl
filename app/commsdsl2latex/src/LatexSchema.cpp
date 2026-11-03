@@ -114,7 +114,7 @@ bool LatexSchema::genWriteImpl()
         auto appendFileName = latexRelFilePath() + strings::genAppendFileSuffixStr();
         util::GenReplacementMap repl = {
             {"GENERATED", LatexGenerator::latexFileGeneratedComment()},
-            {"INPUTS", latexNamespaceInputs()},
+            {"INPUTS", latexNamespaceInputsInternal()},
             {"REPLACE_COMMENT", std::move(replaceContents)},
             {"PREPEND", latexGenerator.genReadCodeInjectCode(prependFileName, "Prepend to details")},
             {"APPEND", latexGenerator.genReadCodeInjectCode(appendFileName, "Append to file")},
@@ -147,7 +147,7 @@ bool LatexSchema::genWriteImpl()
     return true;
 }
 
-std::string LatexSchema::latexNamespaceInputs() const
+std::string LatexSchema::latexNamespaceInputsInternal() const
 {
     util::GenStringsList inputs;
     for (auto& ns : genNamespaces()) {

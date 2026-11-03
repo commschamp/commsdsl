@@ -35,17 +35,17 @@ public:
     LatexRefField(LatexGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
-    virtual std::string latexDocImpl() const override;
-    virtual std::string latexRefLabelIdImpl() const override;
-    virtual const std::string& latexFieldKindImpl() const override;
-    virtual std::string latexInfoDetailsImpl() const override;
-    virtual bool latexIsOptionalImpl() const override;
+    [[nodiscard]] virtual std::string latexDocImpl() const override;
+    [[nodiscard]] virtual std::string latexRefLabelIdImpl() const override;
+    [[nodiscard]] virtual const std::string& latexFieldKindImpl() const override;
+    [[nodiscard]] virtual std::string latexInfoDetailsImpl() const override;
+    [[nodiscard]] virtual bool latexIsOptionalImpl() const override;
 
 private:
-    bool latexIsEmptyAlias() const;
+    [[nodiscard]] bool latexIsEmptyAliasInternal() const;
 
     LatexField* m_latexField = nullptr;
 };
