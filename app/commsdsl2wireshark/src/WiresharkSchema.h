@@ -32,20 +32,20 @@ public:
     WiresharkSchema(WiresharkGenerator& generator, ParseSchema parseObj, GenElem* parent);
     virtual ~WiresharkSchema();
 
-    static WiresharkSchema& wiresharkCast(GenSchema& obj)
+    [[nodiscard]] static WiresharkSchema& wiresharkCast(GenSchema& obj)
     {
         return static_cast<WiresharkSchema&>(obj);
     }
 
-    static const WiresharkSchema& wiresharkCast(const GenSchema& obj)
+    [[nodiscard]] static const WiresharkSchema& wiresharkCast(const GenSchema& obj)
     {
         return static_cast<const WiresharkSchema&>(obj);
     }
 
-    std::string wiresharkDissectCode() const;
-    std::string wiresharkExtractorsRegCode() const;
-    bool wiresharkNeedsOptionalModeDefinition() const;
-    bool wiresharkNeedsCrcCalc() const;
+    [[nodiscard]] std::string wiresharkDissectCode() const;
+    [[nodiscard]] std::string wiresharkExtractorsRegCode() const;
+    [[nodiscard]] bool wiresharkNeedsOptionalModeDefinition() const;
+    [[nodiscard]] bool wiresharkNeedsCrcCalc() const;
 };
 
 } // namespace commsdsl2wireshark

@@ -35,21 +35,21 @@ public:
     WiresharkChecksumLayer(WiresharkGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual std::string wiresharkDissectBodyImpl() const override;
-    virtual std::string wiresharkExtraDissectCodeImpl() const override;
-    virtual bool wiresharkNeedsCrcCalcImpl() const override;
+    [[nodiscard]] virtual std::string wiresharkDissectBodyImpl() const override;
+    [[nodiscard]] virtual std::string wiresharkExtraDissectCodeImpl() const override;
+    [[nodiscard]] virtual bool wiresharkNeedsCrcCalcImpl() const override;
 
 private:
-    std::string wiresharkCustomChecksumExtraCodeInternal() const;
-    std::string wiresharkSumChecksumExtraCodeInternal() const;
-    std::string wiresharkCrcCcittChecksumExtraCodeInternal() const;
-    std::string wiresharkCrc16ChecksumExtraCodeInternal() const;
-    std::string wiresharkCrc32ChecksumExtraCodeInternal() const;
-    std::string wiresharkXorChecksumExtraCodeInternal() const;
-    std::string wiresharkChecksumFuncNameInternal() const;
-    std::string wiresharkPrefixDissectBodyInternal() const;
-    std::string wiresharkSuffixDissectBodyInternal() const;
-    std::string wiresharkSuffixVerifyFirstDissectBodyInternal() const;
+    [[nodiscard]] std::string wiresharkCustomChecksumExtraCodeInternal() const;
+    [[nodiscard]] std::string wiresharkSumChecksumExtraCodeInternal() const;
+    [[nodiscard]] std::string wiresharkCrcCcittChecksumExtraCodeInternal() const;
+    [[nodiscard]] std::string wiresharkCrc16ChecksumExtraCodeInternal() const;
+    [[nodiscard]] std::string wiresharkCrc32ChecksumExtraCodeInternal() const;
+    [[nodiscard]] std::string wiresharkXorChecksumExtraCodeInternal() const;
+    [[nodiscard]] std::string wiresharkChecksumFuncNameInternal() const;
+    [[nodiscard]] std::string wiresharkPrefixDissectBodyInternal() const;
+    [[nodiscard]] std::string wiresharkSuffixDissectBodyInternal() const;
+    [[nodiscard]] std::string wiresharkSuffixVerifyFirstDissectBodyInternal() const;
 };
 
 } // namespace commsdsl2wireshark

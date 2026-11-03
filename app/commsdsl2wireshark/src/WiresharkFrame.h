@@ -37,34 +37,34 @@ public:
     WiresharkFrame(WiresharkGenerator& generator, ParseFrame parseObj, GenElem* parent);
     virtual ~WiresharkFrame();
 
-    static WiresharkFrame& wiresharkCast(GenFrame& obj)
+    [[nodiscard]] static WiresharkFrame& wiresharkCast(GenFrame& obj)
     {
         return static_cast<WiresharkFrame&>(obj);
     }
 
-    static const WiresharkFrame& wiresharkCast(const GenFrame& obj)
+    [[nodiscard]] static const WiresharkFrame& wiresharkCast(const GenFrame& obj)
     {
         return static_cast<const WiresharkFrame&>(obj);
     }
 
-    std::string wiresharkDissectName() const;
-    std::string wiresharkDissectCode() const;
-    std::string wiresharkExtractorsRegCode() const;
-    bool wiresharkNeedsOptionalModeDefinition() const;
-    bool wiresharkNeedsCrcCalc() const;
-    bool wiresharkValidFrame() const;
+    [[nodiscard]] std::string wiresharkDissectName() const;
+    [[nodiscard]] std::string wiresharkDissectCode() const;
+    [[nodiscard]] std::string wiresharkExtractorsRegCode() const;
+    [[nodiscard]] bool wiresharkNeedsOptionalModeDefinition() const;
+    [[nodiscard]] bool wiresharkNeedsCrcCalc() const;
+    [[nodiscard]] bool wiresharkValidFrame() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
 
 private:
-    std::string wiresharkDissectBodyInternal() const;
-    std::string wiresharkLayersDissectCodeInternal() const;
-    const WiresharkInterface* wiresharkInterfaceInternal() const;
-    std::string wiresharkLayerFuncsListInternal() const;
-    std::string wiresharkLayerFuncsListNameInternal() const;
-    std::string wiresharkRetvalMapDefInternal() const;
-    std::string wiresharkRetvalMapNameInternal() const;
+    [[nodiscard]] std::string wiresharkDissectBodyInternal() const;
+    [[nodiscard]] std::string wiresharkLayersDissectCodeInternal() const;
+    [[nodiscard]] const WiresharkInterface* wiresharkInterfaceInternal() const;
+    [[nodiscard]] std::string wiresharkLayerFuncsListInternal() const;
+    [[nodiscard]] std::string wiresharkLayerFuncsListNameInternal() const;
+    [[nodiscard]] std::string wiresharkRetvalMapDefInternal() const;
+    [[nodiscard]] std::string wiresharkRetvalMapNameInternal() const;
 
     WiresharkLayersAccessList m_wiresharkLayers;
     bool m_validFrame = false;

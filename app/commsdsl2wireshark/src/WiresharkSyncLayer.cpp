@@ -33,13 +33,13 @@ namespace commsdsl2wireshark
 namespace
 {
 
-const std::string& wiresharkEscDataSuffixInternal()
+[[nodiscard]] const std::string& wiresharkEscDataSuffixInternal()
 {
     static const std::string Str("_esc_data");
     return Str;
 }
 
-const std::string& wiresharkUnescDataSuffixInternal()
+[[nodiscard]] const std::string& wiresharkUnescDataSuffixInternal()
 {
     static const std::string Str("_unesc_data");
     return Str;

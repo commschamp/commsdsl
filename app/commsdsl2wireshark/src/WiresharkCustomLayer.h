@@ -37,9 +37,9 @@ public:
     WiresharkCustomLayer(WiresharkGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual std::string wiresharkExtraDissectCodeImpl() const override;
-    virtual bool wiresharkNeedsCrcCalcImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual std::string wiresharkExtraDissectCodeImpl() const override;
+    [[nodiscard]] virtual bool wiresharkNeedsCrcCalcImpl() const override;
 };
 
 } // namespace commsdsl2wireshark

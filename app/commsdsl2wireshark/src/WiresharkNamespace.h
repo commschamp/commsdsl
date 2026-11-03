@@ -33,21 +33,21 @@ public:
     WiresharkNamespace(WiresharkGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~WiresharkNamespace();
 
-    static WiresharkNamespace* wiresharkCast(GenNamespace* obj)
+    [[nodiscard]] static WiresharkNamespace* wiresharkCast(GenNamespace* obj)
     {
         return static_cast<WiresharkNamespace*>(obj);
     }
 
-    static const WiresharkNamespace* wiresharkCast(const GenNamespace* obj)
+    [[nodiscard]] static const WiresharkNamespace* wiresharkCast(const GenNamespace* obj)
     {
         return static_cast<const WiresharkNamespace*>(obj);
     }
 
-    const WiresharkInterface* wiresharkInterface() const;
-    std::string wiresharkDissectCode() const;
-    std::string wiresharkExtractorsRegCode() const;
-    bool wiresharkNeedsOptionalModeDefinition() const;
-    bool wiresharkNeedsCrcCalc() const;
+    [[nodiscard]] const WiresharkInterface* wiresharkInterface() const;
+    [[nodiscard]] std::string wiresharkDissectCode() const;
+    [[nodiscard]] std::string wiresharkExtractorsRegCode() const;
+    [[nodiscard]] bool wiresharkNeedsOptionalModeDefinition() const;
+    [[nodiscard]] bool wiresharkNeedsCrcCalc() const;
 };
 
 } // namespace commsdsl2wireshark

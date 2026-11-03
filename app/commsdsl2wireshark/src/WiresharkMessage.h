@@ -35,35 +35,35 @@ public:
     WiresharkMessage(WiresharkGenerator& generator, ParseMessage parseObj, GenElem* parent);
     virtual ~WiresharkMessage();
 
-    static WiresharkMessage& wiresharkCast(GenMessage& obj)
+    [[nodiscard]] static WiresharkMessage& wiresharkCast(GenMessage& obj)
     {
         return static_cast<WiresharkMessage&>(obj);
     }
 
-    static const WiresharkMessage& wiresharkCast(const GenMessage& obj)
+    [[nodiscard]] static const WiresharkMessage& wiresharkCast(const GenMessage& obj)
     {
         return static_cast<const WiresharkMessage&>(obj);
     }
 
-    std::string wiresharkDissectName() const;
-    std::string wiresharkDissectCode() const;
-    std::string wiresharkExtractorsRegCode() const;
-    bool wiresharkNeedsOptionalModeDefinition() const;
-    const WiresharkFieldsList& wiresharkMemberFields() const;
+    [[nodiscard]] std::string wiresharkDissectName() const;
+    [[nodiscard]] std::string wiresharkDissectCode() const;
+    [[nodiscard]] std::string wiresharkExtractorsRegCode() const;
+    [[nodiscard]] bool wiresharkNeedsOptionalModeDefinition() const;
+    [[nodiscard]] const WiresharkFieldsList& wiresharkMemberFields() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
 
 private:
-    std::string wiresharkDissectBodyInternal() const;
-    std::string wiresharkMessageNameVarNameStr() const;
-    std::string wiresharkNameDefInternal() const;
-    std::string wiresharkValidFuncNameInternal() const;
-    std::string wiresharkValidFuncCodeInternal() const;
-    std::string wiresharkValidFuncBodyInternal() const;
-    std::string wiresharkDissectValidCheckCodeInternal() const;
-    std::string wiresharkDissectReadCondCheckCodeInternal() const;
-    bool wiresharkHasTrivialValidInternal() const;
+    [[nodiscard]] std::string wiresharkDissectBodyInternal() const;
+    [[nodiscard]] std::string wiresharkMessageNameVarNameStr() const;
+    [[nodiscard]] std::string wiresharkNameDefInternal() const;
+    [[nodiscard]] std::string wiresharkValidFuncNameInternal() const;
+    [[nodiscard]] std::string wiresharkValidFuncCodeInternal() const;
+    [[nodiscard]] std::string wiresharkValidFuncBodyInternal() const;
+    [[nodiscard]] std::string wiresharkDissectValidCheckCodeInternal() const;
+    [[nodiscard]] std::string wiresharkDissectReadCondCheckCodeInternal() const;
+    [[nodiscard]] bool wiresharkHasTrivialValidInternal() const;
 
     WiresharkFieldsList m_wiresharkFields;
 };

@@ -43,52 +43,52 @@ public:
         ValuesLimit // Must be last
     };
 
-    static bool wiresharkWrite(const WiresharkGenerator& generator);
-    static std::string wiresharkFileName(const WiresharkGenerator& generator, const std::string& suffix = std::string());
-    static const std::string& wiresharkProtocolObjName(const WiresharkGenerator& generator);
-    static std::string wiresharkCreateFieldFuncName(const WiresharkGenerator& generator);
-    static std::string wiresharkCreateExtractorFuncName(const WiresharkGenerator& generator);
-    static std::string wiresharkFieldsListName(const WiresharkGenerator& generator);
-    static std::string wiresharkExtractorsMapName(const WiresharkGenerator& generator);
-    static std::string wiresharkStatusCodeStr(const WiresharkGenerator& generator, WiresharkStatusCode code);
-    static std::string wiresharkOptModeStr(const WiresharkGenerator& generator, WiresharkOptMode code);
-    static std::string wiresharkOptModeValsName(const WiresharkGenerator& generator);
-    static std::string wiresharkFieldValueFuncName(const WiresharkGenerator& generator);
-    static std::string wiresharkLocalNamespaceName(const WiresharkGenerator& generator);
-    static std::string wiresharkProtVersionGetFuncName(const WiresharkGenerator& generator);
-    static std::string wiresharkProtVersionSetFuncName(const WiresharkGenerator& generator);
-    static std::string wiresharkPinfoName(const WiresharkGenerator& generator);
-    static std::string wiresharkPacketIdFuncName(const WiresharkGenerator& generator);
-    static std::string wiresharkCreateCrcFuncName(const WiresharkGenerator& generator);
-    static std::string wiresharkBitLibAccFuncName(const WiresharkGenerator& generator);
+    [[nodiscard]] static bool wiresharkWrite(const WiresharkGenerator& generator);
+    [[nodiscard]] static std::string wiresharkFileName(const WiresharkGenerator& generator, const std::string& suffix = std::string());
+    [[nodiscard]] static const std::string& wiresharkProtocolObjName(const WiresharkGenerator& generator);
+    [[nodiscard]] static std::string wiresharkCreateFieldFuncName(const WiresharkGenerator& generator);
+    [[nodiscard]] static std::string wiresharkCreateExtractorFuncName(const WiresharkGenerator& generator);
+    [[nodiscard]] static std::string wiresharkFieldsListName(const WiresharkGenerator& generator);
+    [[nodiscard]] static std::string wiresharkExtractorsMapName(const WiresharkGenerator& generator);
+    [[nodiscard]] static std::string wiresharkStatusCodeStr(const WiresharkGenerator& generator, WiresharkStatusCode code);
+    [[nodiscard]] static std::string wiresharkOptModeStr(const WiresharkGenerator& generator, WiresharkOptMode code);
+    [[nodiscard]] static std::string wiresharkOptModeValsName(const WiresharkGenerator& generator);
+    [[nodiscard]] static std::string wiresharkFieldValueFuncName(const WiresharkGenerator& generator);
+    [[nodiscard]] static std::string wiresharkLocalNamespaceName(const WiresharkGenerator& generator);
+    [[nodiscard]] static std::string wiresharkProtVersionGetFuncName(const WiresharkGenerator& generator);
+    [[nodiscard]] static std::string wiresharkProtVersionSetFuncName(const WiresharkGenerator& generator);
+    [[nodiscard]] static std::string wiresharkPinfoName(const WiresharkGenerator& generator);
+    [[nodiscard]] static std::string wiresharkPacketIdFuncName(const WiresharkGenerator& generator);
+    [[nodiscard]] static std::string wiresharkCreateCrcFuncName(const WiresharkGenerator& generator);
+    [[nodiscard]] static std::string wiresharkBitLibAccFuncName(const WiresharkGenerator& generator);
 
 private:
     explicit Wireshark(const WiresharkGenerator& generator) : m_wiresharkGenerator(generator) {}
 
 private:
-    bool wiresharkWriteInternal() const;
-    bool wiresharkWriteMainInternal() const;
-    bool wiresharkWriteTcpInternal() const;
-    std::string wiresharkProtocolDefInternal() const;
-    std::string wiresharkLocalInternal() const;
-    std::string wiresharkDissectFuncInternal() const;
-    std::string wiresharkFieldsRegistrationInternal() const;
-    std::string wiresharkCodeInternal() const;
-    std::string wiresharkDissectFuncBodyInternal() const;
-    std::string wiresharkStatusCodeNameInternal() const;
-    std::string wiresharkStatusCodeDefInternal() const;
-    std::string wiresharkOptModeNameInternal() const;
-    std::string wiresharkOptionalModeDefInternal() const;
-    std::string wiresharkExtractorsDeclInternal() const;
-    std::string wiresharkExtractorsRegCodeInternal() const;
-    std::string wiresharkFieldValueFuncInternal() const;
-    std::string wiresharkProtocolVersionDefInternal() const;
-    std::string wiresharkBitLibAccessFuncInternal() const;
-    std::string wiresharkPinfoDefInternal() const;
-    std::string wiresharkCrcCodeDefInternal() const;
+    [[nodiscard]] bool wiresharkWriteInternal() const;
+    [[nodiscard]] bool wiresharkWriteMainInternal() const;
+    [[nodiscard]] bool wiresharkWriteTcpInternal() const;
+    [[nodiscard]] std::string wiresharkProtocolDefInternal() const;
+    [[nodiscard]] std::string wiresharkLocalInternal() const;
+    [[nodiscard]] std::string wiresharkDissectFuncInternal() const;
+    [[nodiscard]] std::string wiresharkFieldsRegistrationInternal() const;
+    [[nodiscard]] std::string wiresharkCodeInternal() const;
+    [[nodiscard]] std::string wiresharkDissectFuncBodyInternal() const;
+    [[nodiscard]] std::string wiresharkStatusCodeNameInternal() const;
+    [[nodiscard]] std::string wiresharkStatusCodeDefInternal() const;
+    [[nodiscard]] std::string wiresharkOptModeNameInternal() const;
+    [[nodiscard]] std::string wiresharkOptionalModeDefInternal() const;
+    [[nodiscard]] std::string wiresharkExtractorsDeclInternal() const;
+    [[nodiscard]] std::string wiresharkExtractorsRegCodeInternal() const;
+    [[nodiscard]] std::string wiresharkFieldValueFuncInternal() const;
+    [[nodiscard]] std::string wiresharkProtocolVersionDefInternal() const;
+    [[nodiscard]] std::string wiresharkBitLibAccessFuncInternal() const;
+    [[nodiscard]] std::string wiresharkPinfoDefInternal() const;
+    [[nodiscard]] std::string wiresharkCrcCodeDefInternal() const;
 
-    static const std::string& wiresharkStatusCodeStrInternal(WiresharkStatusCode code);
-    static const std::string& wiresharkOptModeStrInternal(WiresharkOptMode code);
+    [[nodiscard]] static const std::string& wiresharkStatusCodeStrInternal(WiresharkStatusCode code);
+    [[nodiscard]] static const std::string& wiresharkOptModeStrInternal(WiresharkOptMode code);
 
     const WiresharkGenerator& m_wiresharkGenerator;
 };

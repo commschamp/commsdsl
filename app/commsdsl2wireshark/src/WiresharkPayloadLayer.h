@@ -35,12 +35,12 @@ public:
     WiresharkPayloadLayer(WiresharkGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual std::string wiresharkDissectBodyImpl() const override;
-    virtual std::string wiresharkExtraDissectCodeImpl() const override;
+    [[nodiscard]] virtual std::string wiresharkDissectBodyImpl() const override;
+    [[nodiscard]] virtual std::string wiresharkExtraDissectCodeImpl() const override;
 
 private:
-    std::string wiresharkDissectFieldNameInternal() const;
-    std::string wiresharkDissectFieldRefNameInternal() const;
+    [[nodiscard]] std::string wiresharkDissectFieldNameInternal() const;
+    [[nodiscard]] std::string wiresharkDissectFieldRefNameInternal() const;
 };
 
 } // namespace commsdsl2wireshark

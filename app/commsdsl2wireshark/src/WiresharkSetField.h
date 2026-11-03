@@ -35,24 +35,24 @@ public:
     WiresharkSetField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual std::string wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkDissectLengthCheckImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkValidFuncBodyImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
-    virtual std::string wiresharkCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
-    virtual std::string wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const override;
-    virtual bool wiresharkHasTrivialValidImpl() const override;
-    virtual std::string wiresharkDefaultValueStrImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual std::string wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkDissectLengthCheckImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkValidFuncBodyImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
+    [[nodiscard]] virtual std::string wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual bool wiresharkHasTrivialValidImpl() const override;
+    [[nodiscard]] virtual std::string wiresharkDefaultValueStrImpl() const override;
 
 private:
-    std::string wiresharkRegistrationBitsInternal(const WiresharkField* refField) const;
-    std::string wiresharkRegistrationMasksInternal(const WiresharkField* refField) const;
-    std::string wiresharkBitMaskInternal(const WiresharkField* refField, unsigned idx) const;
-    std::string wiresharkBitParentWidthInternal(const WiresharkField* refField) const;
-    std::string wiresharkBitObjNameInternal(const WiresharkField* refField, const std::string& bitName) const;
+    [[nodiscard]] std::string wiresharkRegistrationBitsInternal(const WiresharkField* refField) const;
+    [[nodiscard]] std::string wiresharkRegistrationMasksInternal(const WiresharkField* refField) const;
+    [[nodiscard]] std::string wiresharkBitMaskInternal(const WiresharkField* refField, unsigned idx) const;
+    [[nodiscard]] std::string wiresharkBitParentWidthInternal(const WiresharkField* refField) const;
+    [[nodiscard]] std::string wiresharkBitObjNameInternal(const WiresharkField* refField, const std::string& bitName) const;
 };
 
 } // namespace commsdsl2wireshark

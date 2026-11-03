@@ -44,67 +44,67 @@ public:
 
     WiresharkGenerator();
 
-    static WiresharkGenerator& wiresharkCast(commsdsl::gen::GenGenerator& obj)
+    [[nodiscard]] static WiresharkGenerator& wiresharkCast(commsdsl::gen::GenGenerator& obj)
     {
         return static_cast<WiresharkGenerator&>(obj);
     }
 
-    static const WiresharkGenerator& wiresharkCast(const commsdsl::gen::GenGenerator& obj)
+    [[nodiscard]] static const WiresharkGenerator& wiresharkCast(const commsdsl::gen::GenGenerator& obj)
     {
         return static_cast<const WiresharkGenerator&>(obj);
     }
 
-    static const std::string& wiresharkFileGeneratedComment();
+    [[nodiscard]] static const std::string& wiresharkFileGeneratedComment();
 
-    std::string wiresharkScopeToName(const std::string& scope) const;
-    std::string wiresharkFuncNameFor(const GenElem& elem, const std::string& suffix) const;
-    std::string wiresharkDissectNameFor(const GenElem& elem) const;
+    [[nodiscard]] std::string wiresharkScopeToName(const std::string& scope) const;
+    [[nodiscard]] std::string wiresharkFuncNameFor(const GenElem& elem, const std::string& suffix) const;
+    [[nodiscard]] std::string wiresharkDissectNameFor(const GenElem& elem) const;
 
-    std::string wiresharkInputRelPathPrefix() const;
-    std::string wiresharkInputDissectRelPathFor(const GenElem& elem) const;
-    std::string wiresharkInputDissectAbsPathFor(const GenElem& elem) const;
-    std::string wiresharkInputDissectRelPathFor(const std::string& name) const;
-    std::string wiresharkInputDissectAbsPathFor(const std::string& name) const;
-    std::string wiresharkInputRelPathFor(const GenElem& elem, const std::string& suffix) const;
-    std::string wiresharkInputAbsPathFor(const GenElem& elem, const std::string& suffix) const;
+    [[nodiscard]] std::string wiresharkInputRelPathPrefix() const;
+    [[nodiscard]] std::string wiresharkInputDissectRelPathFor(const GenElem& elem) const;
+    [[nodiscard]] std::string wiresharkInputDissectAbsPathFor(const GenElem& elem) const;
+    [[nodiscard]] std::string wiresharkInputDissectRelPathFor(const std::string& name) const;
+    [[nodiscard]] std::string wiresharkInputDissectAbsPathFor(const std::string& name) const;
+    [[nodiscard]] std::string wiresharkInputRelPathFor(const GenElem& elem, const std::string& suffix) const;
+    [[nodiscard]] std::string wiresharkInputAbsPathFor(const GenElem& elem, const std::string& suffix) const;
 
-    unsigned wiresharkDefaultPort() const;
+    [[nodiscard]] unsigned wiresharkDefaultPort() const;
 
 protected:
-    virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
-    virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
-    virtual GenInterfacePtr genCreateInterfaceImpl(ParseInterface parseObj, GenElem* parent) override;
-    virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent) override;
-    virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenSchemaPtr genCreateSchemaImpl(ParseSchema parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenNamespacePtr genCreateNamespaceImpl(ParseNamespace parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenInterfacePtr genCreateInterfaceImpl(ParseInterface parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFramePtr genCreateFrameImpl(ParseFrame parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenMessagePtr genCreateMessageImpl(ParseMessage parseObj, GenElem* parent) override;
 
-    virtual GenLayerPtr genCreateCustomLayerImpl(ParseLayer parseObj, GenElem* parent) override;
-    virtual GenLayerPtr genCreateSyncLayerImpl(ParseLayer parseObj, GenElem* parent) override;
-    virtual GenLayerPtr genCreateSizeLayerImpl(ParseLayer parseObj, GenElem* parent) override;
-    virtual GenLayerPtr genCreateIdLayerImpl(ParseLayer parseObj, GenElem* parent) override;
-    virtual GenLayerPtr genCreateValueLayerImpl(ParseLayer parseObj, GenElem* parent) override;
-    virtual GenLayerPtr genCreatePayloadLayerImpl(ParseLayer parseObj, GenElem* parent) override;
-    virtual GenLayerPtr genCreateChecksumLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateCustomLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateSyncLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateSizeLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateIdLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateValueLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreatePayloadLayerImpl(ParseLayer parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateChecksumLayerImpl(ParseLayer parseObj, GenElem* parent) override;
 
-    virtual GenFieldPtr genCreateIntFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateSetFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateFloatFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateBitfieldFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateBundleFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateStringFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateDataFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateListFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateRefFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent) override;
-    virtual GenFieldPtr genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateIntFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateEnumFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateSetFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateFloatFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateBitfieldFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateBundleFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateStringFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateDataFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateListFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateRefFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateOptionalFieldImpl(ParseField parseObj, GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateVariantFieldImpl(ParseField parseObj, GenElem* parent) override;
 
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() override;
-    virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
-    virtual const std::string& genCommentPrefixImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() override;
+    [[nodiscard]] virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
+    [[nodiscard]] virtual const std::string& genCommentPrefixImpl() const override;
 
 private:
-    bool wiresharkWriteExtraFilesInternal() const;
+    [[nodiscard]] bool wiresharkWriteExtraFilesInternal() const;
 
     unsigned m_defaultPort = 0U;
 };

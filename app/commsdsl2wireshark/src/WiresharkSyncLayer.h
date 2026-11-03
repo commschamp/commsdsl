@@ -35,17 +35,17 @@ public:
     WiresharkSyncLayer(WiresharkGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual std::string wiresharkDissectBodyImpl() const override;
-    virtual std::string wiresharkExtraDissectCodeImpl() const override;
-    virtual std::string wiresharkExtractorsRegCodeImpl() const override;
+    [[nodiscard]] virtual std::string wiresharkDissectBodyImpl() const override;
+    [[nodiscard]] virtual std::string wiresharkExtraDissectCodeImpl() const override;
+    [[nodiscard]] virtual std::string wiresharkExtractorsRegCodeImpl() const override;
 
 private:
-    std::string wiresharkPrefixDissectCodeInternal() const;
-    std::string wiresharkSuffixDissectCodeInternal() const;
-    std::string wiresharkSeekPrefixFieldCodeInternal() const;
-    std::string wiresharkSeekSuffixFieldCodeInternal() const;
-    std::string wiresharkSyncValueCheckCodeInternal() const;
-    std::string wiresharkAdjustSuffixOffsetInternal() const;
+    [[nodiscard]] std::string wiresharkPrefixDissectCodeInternal() const;
+    [[nodiscard]] std::string wiresharkSuffixDissectCodeInternal() const;
+    [[nodiscard]] std::string wiresharkSeekPrefixFieldCodeInternal() const;
+    [[nodiscard]] std::string wiresharkSeekSuffixFieldCodeInternal() const;
+    [[nodiscard]] std::string wiresharkSyncValueCheckCodeInternal() const;
+    [[nodiscard]] std::string wiresharkAdjustSuffixOffsetInternal() const;
 };
 
 } // namespace commsdsl2wireshark

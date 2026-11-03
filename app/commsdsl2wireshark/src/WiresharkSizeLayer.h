@@ -35,7 +35,7 @@ public:
     WiresharkSizeLayer(WiresharkGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual std::string wiresharkDissectBodyImpl() const override;
+    [[nodiscard]] virtual std::string wiresharkDissectBodyImpl() const override;
 };
 
 } // namespace commsdsl2wireshark

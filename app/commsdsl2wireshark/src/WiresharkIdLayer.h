@@ -38,14 +38,14 @@ public:
     using GenMessagesAccessList = std::vector<const GenMessage*>;
 
     WiresharkIdLayer(WiresharkGenerator& generator, ParseLayer parseObj, GenElem* parent);
-    static std::string wiresharkMessagesMapCode(const GenMessagesAccessList& messages, const std::string& mapName);
+    [[nodiscard]] static std::string wiresharkMessagesMapCode(const GenMessagesAccessList& messages, const std::string& mapName);
 
 protected:
-    virtual std::string wiresharkDissectBodyImpl() const override;
-    virtual std::string wiresharkExtraDissectCodeImpl() const override;
+    [[nodiscard]] virtual std::string wiresharkDissectBodyImpl() const override;
+    [[nodiscard]] virtual std::string wiresharkExtraDissectCodeImpl() const override;
 
 private:
-    std::string wiresharkMsgMapNameInternal() const;
+    [[nodiscard]] std::string wiresharkMsgMapNameInternal() const;
 };
 
 } // namespace commsdsl2wireshark

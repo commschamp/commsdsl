@@ -35,7 +35,7 @@ namespace commsdsl2wireshark
 namespace
 {
 
-std::string wiresharkToHexStringInternal(const WiresharkDataField::ParseDataField::ParseValueType& value)
+[[nodiscard]] std::string wiresharkToHexStringInternal(const WiresharkDataField::ParseDataField::ParseValueType& value)
 {
     std::stringstream stream;
     stream << std::hex;

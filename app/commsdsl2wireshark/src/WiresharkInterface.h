@@ -35,27 +35,27 @@ public:
     WiresharkInterface(WiresharkGenerator& generator, ParseInterface parseObj, GenElem* parent);
     virtual ~WiresharkInterface();
 
-    static WiresharkInterface* wiresharkCast(GenInterface* obj)
+    [[nodiscard]] static WiresharkInterface* wiresharkCast(GenInterface* obj)
     {
         return static_cast<WiresharkInterface*>(obj);
     }
 
-    static const WiresharkInterface* wiresharkCast(const GenInterface* obj)
+    [[nodiscard]] static const WiresharkInterface* wiresharkCast(const GenInterface* obj)
     {
         return static_cast<const WiresharkInterface*>(obj);
     }
 
-    bool wiresharkDissectionAllowed() const;
-    std::string wiresharkDissectCode() const;
-    std::string wiresharkExtractorsRegCode() const;
-    bool wiresharkNeedsOptionalModeDefinition() const;
-    const WiresharkFieldsList& wiresharkMemberFields() const;
-    std::string wiresharkDefaultAssignments() const;
-    const WiresharkField* wiresharkFindField(const std::string& name) const;
-    const WiresharkField* wiresharkVersionField() const;
+    [[nodiscard]] bool wiresharkDissectionAllowed() const;
+    [[nodiscard]] std::string wiresharkDissectCode() const;
+    [[nodiscard]] std::string wiresharkExtractorsRegCode() const;
+    [[nodiscard]] bool wiresharkNeedsOptionalModeDefinition() const;
+    [[nodiscard]] const WiresharkFieldsList& wiresharkMemberFields() const;
+    [[nodiscard]] std::string wiresharkDefaultAssignments() const;
+    [[nodiscard]] const WiresharkField* wiresharkFindField(const std::string& name) const;
+    [[nodiscard]] const WiresharkField* wiresharkVersionField() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
 
 private:
     WiresharkFieldsList m_wiresharkFields;

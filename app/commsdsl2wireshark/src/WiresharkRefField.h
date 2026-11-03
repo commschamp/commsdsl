@@ -35,30 +35,30 @@ public:
     WiresharkRefField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
 
-    virtual std::string wiresharkDissectNameImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkValidFuncNameImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkValueFuncNameImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkDissectCodeImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkValidCheckCodeImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkFieldObjNameImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkValidFuncBodyImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkValueFuncBodyImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
-    virtual std::string wiresharkSizeAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
-    virtual std::string wiresharkCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
-    virtual std::string wiresharkExistsCheckStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
-    virtual std::string wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const override;
-    virtual bool wiresharkHasTrivialValidImpl() const override;
-    virtual std::string wiresharkDefaultValueStrImpl() const override;
+    [[nodiscard]] virtual std::string wiresharkDissectNameImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkValidFuncNameImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkValueFuncNameImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkDissectCodeImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkValidCheckCodeImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkExtractorsRegCodeImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkFieldObjNameImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkValidFuncBodyImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkValueFuncBodyImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkSizeAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
+    [[nodiscard]] virtual std::string wiresharkExistsCheckStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual bool wiresharkHasTrivialValidImpl() const override;
+    [[nodiscard]] virtual std::string wiresharkDefaultValueStrImpl() const override;
 
 private:
-    bool wiresharkIsAliasInternal() const;
-    bool wiresharkMustCopyDissectInternal() const;
+    [[nodiscard]] bool wiresharkIsAliasInternal() const;
+    [[nodiscard]] bool wiresharkMustCopyDissectInternal() const;
 
     WiresharkField* m_wiresharkField = nullptr;
     bool m_alias = false;

@@ -27,12 +27,12 @@ public:
 
     WiresharkProgramOptions();
 
-    static const WiresharkProgramOptions& wiresharkCast(const GenProgramOptions& obj)
+    [[nodiscard]] static const WiresharkProgramOptions& wiresharkCast(const GenProgramOptions& obj)
     {
         return static_cast<const WiresharkProgramOptions&>(obj);
     }
 
-    unsigned wiresharkDefaultPort() const;
+    [[nodiscard]] unsigned wiresharkDefaultPort() const;
 };
 
 } // namespace commsdsl2wireshark

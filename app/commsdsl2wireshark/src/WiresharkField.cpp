@@ -44,24 +44,24 @@ namespace commsdsl2wireshark
 namespace
 {
 
-bool wiresharkIsOverrideCodeAllowedInternal(commsdsl::parse::ParseOverrideType value)
+[[nodiscard]] bool wiresharkIsOverrideCodeAllowedInternal(commsdsl::parse::ParseOverrideType value)
 {
     return (value != commsdsl::parse::ParseOverrideType_None);
 }
 
-bool wiresharkIsReplaceCodeRequiredInternal(commsdsl::parse::ParseOverrideType value)
+[[nodiscard]] bool wiresharkIsReplaceCodeRequiredInternal(commsdsl::parse::ParseOverrideType value)
 {
     return
         (value == commsdsl::parse::ParseOverrideType_Replace);
 }
 
-bool wiresharkIsExtendCodeRequiredInternal(commsdsl::parse::ParseOverrideType value)
+[[nodiscard]] bool wiresharkIsExtendCodeRequiredInternal(commsdsl::parse::ParseOverrideType value)
 {
     return
         (value == commsdsl::parse::ParseOverrideType_Extend);
 }
 
-std::string wiresharkIntegralFieldSignExtendCodeInternal()
+[[nodiscard]] std::string wiresharkIntegralFieldSignExtendCodeInternal()
 {
     static const std::string Templ =
         "local sign_mask = bit.lshift(1, (len * 8) - (len + 1))\n"
@@ -85,7 +85,7 @@ std::string wiresharkIntegralFieldSignExtendCodeInternal()
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string wiresharkIntegralFieldBigNumSignExtendCodeInternal()
+[[nodiscard]] std::string wiresharkIntegralFieldBigNumSignExtendCodeInternal()
 {
     static const std::string Templ =
         "if len <= 4 then\n"

@@ -32,42 +32,42 @@ public:
     explicit WiresharkLayer(GenLayer& layer);
     virtual ~WiresharkLayer();
 
-    static const WiresharkLayer* wiresharkCast(const GenLayer* layer);
-    static WiresharkLayer* wiresharkCast(GenLayer* layer);
+    [[nodiscard]] static const WiresharkLayer* wiresharkCast(const GenLayer* layer);
+    [[nodiscard]] static WiresharkLayer* wiresharkCast(GenLayer* layer);
 
-    GenLayer& wiresharkGenLayer()
+    [[nodiscard]] GenLayer& wiresharkGenLayer()
     {
         return m_genLayer;
     }
 
-    const GenLayer& wiresharkGenLayer() const
+    [[nodiscard]] const GenLayer& wiresharkGenLayer() const
     {
         return m_genLayer;
     }
 
-    std::string wiresharkDissectName() const;
-    std::string wiresharkDissectCode() const;
-    std::string wiresharkExtractorsRegCode() const;
+    [[nodiscard]] std::string wiresharkDissectName() const;
+    [[nodiscard]] std::string wiresharkDissectCode() const;
+    [[nodiscard]] std::string wiresharkExtractorsRegCode() const;
 
-    bool wiresharkIsInterfaceSupported(const WiresharkInterface& iFace) const;
-    bool wiresharkNeedsOptionalModeDefinition() const;
-    bool wiresharkNeedsCrcCalc() const;
+    [[nodiscard]] bool wiresharkIsInterfaceSupported(const WiresharkInterface& iFace) const;
+    [[nodiscard]] bool wiresharkNeedsOptionalModeDefinition() const;
+    [[nodiscard]] bool wiresharkNeedsCrcCalc() const;
 
 protected:
-    virtual std::string wiresharkDissectBodyImpl() const;
-    virtual bool wiresharkIsInterfaceSupportedImpl(const WiresharkInterface& iFace) const;
-    virtual std::string wiresharkExtraDissectCodeImpl() const;
-    virtual std::string wiresharkExtractorsRegCodeImpl() const;
-    virtual bool wiresharkNeedsCrcCalcImpl() const;
+    [[nodiscard]] virtual std::string wiresharkDissectBodyImpl() const;
+    [[nodiscard]] virtual bool wiresharkIsInterfaceSupportedImpl(const WiresharkInterface& iFace) const;
+    [[nodiscard]] virtual std::string wiresharkExtraDissectCodeImpl() const;
+    [[nodiscard]] virtual std::string wiresharkExtractorsRegCodeImpl() const;
+    [[nodiscard]] virtual bool wiresharkNeedsCrcCalcImpl() const;
 
-    std::string wiresharkDissectFieldCode() const;
-    std::string wiresharkNextFuncCode() const;
+    [[nodiscard]] std::string wiresharkDissectFieldCode() const;
+    [[nodiscard]] std::string wiresharkNextFuncCode() const;
 
-    const WiresharkField* wiresharkField() const;
+    [[nodiscard]] const WiresharkField* wiresharkField() const;
 
 private:
-    std::string wiresharkFieldDissectCodeInternal() const;
-    std::string wiresharkDissectBodyInternal() const;
+    [[nodiscard]] std::string wiresharkFieldDissectCodeInternal() const;
+    [[nodiscard]] std::string wiresharkDissectBodyInternal() const;
 
     GenLayer& m_genLayer;
 };

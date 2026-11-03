@@ -37,33 +37,33 @@ public:
 
     WiresharkIntField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
 
-    static const std::string& wiresharkIntegralType(ParseIntField::ParseType type, std::size_t len);
-    static std::string wiresharkTvbRangeAccessIntegralValue(ParseIntField::ParseType type, ParseEndian endian, std::size_t len, bool forceUnsigned = false);
+    [[nodiscard]] static const std::string& wiresharkIntegralType(ParseIntField::ParseType type, std::size_t len);
+    [[nodiscard]] static std::string wiresharkTvbRangeAccessIntegralValue(ParseIntField::ParseType type, ParseEndian endian, std::size_t len, bool forceUnsigned = false);
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkTvbRangeAccessImpl() const override;
-    virtual std::string wiresharkDissectLengthCheckImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkValidFuncBodyImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
-    virtual std::string wiresharkCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
-    virtual std::string wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const override;
-    virtual bool wiresharkHasTrivialValidImpl() const override;
-    virtual std::string wiresharkDefaultValueStrImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkTvbRangeAccessImpl() const override;
+    [[nodiscard]] virtual std::string wiresharkDissectLengthCheckImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkValidFuncBodyImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
+    [[nodiscard]] virtual std::string wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual bool wiresharkHasTrivialValidImpl() const override;
+    [[nodiscard]] virtual std::string wiresharkDefaultValueStrImpl() const override;
 
 private:
-    std::string wiresharkSpecialsInternal(const WiresharkField* refField) const;
-    std::string wiresharkFieldAsFloatRegistrationInternal(const WiresharkField* refField) const;
-    std::string wiresharkValDeclCodeInternal() const;
-    std::string wiresharkVarLengthCodeInternal(bool& hasVal) const;
-    std::string wiresharkVarLengthCodeLargeNumInternal() const;
-    std::string wiresharkSerOffsetCodeInternal(bool& hasVal) const;
-    std::string wiresharkScalingCodeInternal(bool& hasVal) const;
-    std::string wiresharkDisplayOffsetCodeInternal(bool& hasVal) const;
-    std::string wiresharkValToNumberCodeInternal() const;
-    bool wiresharkIsLengthFieldInternal() const;
+    [[nodiscard]] std::string wiresharkSpecialsInternal(const WiresharkField* refField) const;
+    [[nodiscard]] std::string wiresharkFieldAsFloatRegistrationInternal(const WiresharkField* refField) const;
+    [[nodiscard]] std::string wiresharkValDeclCodeInternal() const;
+    [[nodiscard]] std::string wiresharkVarLengthCodeInternal(bool& hasVal) const;
+    [[nodiscard]] std::string wiresharkVarLengthCodeLargeNumInternal() const;
+    [[nodiscard]] std::string wiresharkSerOffsetCodeInternal(bool& hasVal) const;
+    [[nodiscard]] std::string wiresharkScalingCodeInternal(bool& hasVal) const;
+    [[nodiscard]] std::string wiresharkDisplayOffsetCodeInternal(bool& hasVal) const;
+    [[nodiscard]] std::string wiresharkValToNumberCodeInternal() const;
+    [[nodiscard]] bool wiresharkIsLengthFieldInternal() const;
 };
 
 } // namespace commsdsl2wireshark

@@ -38,19 +38,19 @@ public:
     WiresharkFloatField(WiresharkGenerator& generator, ParseField parseObj, GenElem* parent);
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
 
-    virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkValidFuncBodyImpl(const WiresharkField* refField) const override;
-    virtual std::string wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
-    virtual std::string wiresharkCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
-    virtual std::string wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const override;
-    virtual bool wiresharkHasTrivialValidImpl() const override;
+    [[nodiscard]] virtual std::string wiresharkFieldRegistrationImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkDissectBodyImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkValidFuncBodyImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkValueAccessStrImpl(const std::string& accStr, const WiresharkField* refField) const override;
+    [[nodiscard]] virtual std::string wiresharkCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
+    [[nodiscard]] virtual std::string wiresharkDefaultAssignmentsImpl(const WiresharkField* refField) const override;
+    [[nodiscard]] virtual bool wiresharkHasTrivialValidImpl() const override;
 
 private:
-    std::string wiresharkUnitNameInternal() const;
-    const std::string& wiresharkFloatTypeInternal() const;
+    [[nodiscard]] std::string wiresharkUnitNameInternal() const;
+    [[nodiscard]] const std::string& wiresharkFloatTypeInternal() const;
 };
 
 } // namespace commsdsl2wireshark
