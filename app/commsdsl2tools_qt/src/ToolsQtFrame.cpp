@@ -44,7 +44,7 @@ namespace
 
 const std::string ToolsProtTransportMsgSuffix("ProtTransportMessage");
 
-ToolsQtFrame::ToolsQtLayersList toolsTransformLayersList(const commsdsl::gen::GenFrame::GenLayersList& layers)
+[[nodiscard]] ToolsQtFrame::ToolsQtLayersList toolsTransformLayersListInternal(const commsdsl::gen::GenFrame::GenLayersList& layers)
 {
     ToolsQtFrame::ToolsQtLayersList result;
     result.reserve(layers.size());
@@ -110,7 +110,7 @@ bool ToolsQtFrame::genPrepareImpl()
         return false;
     }
 
-    m_toolsLayers = toolsTransformLayersList(GenBase::genLayers());
+    m_toolsLayers = toolsTransformLayersListInternal(GenBase::genLayers());
     return true;
 }
 

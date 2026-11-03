@@ -47,25 +47,24 @@ public:
     {
     }
 
-    bool toolsPrepare();
-    bool toolsWrite();
+    [[nodiscard]] bool toolsPrepare();
+    [[nodiscard]] bool toolsWrite();
 
-    std::string toolsProtocolName() const;
-    std::string toolsInterfaceName() const;
+    [[nodiscard]] std::string toolsProtocolName() const;
+    [[nodiscard]] std::string toolsInterfaceName() const;
 
 private:
+    [[nodiscard]] bool toolsWriteProtocolHeaderInternal();
+    [[nodiscard]] bool toolsWriteProtocolSrcInternal();
+    [[nodiscard]] bool toolsWritePluginHeaderInternal();
+    [[nodiscard]] bool toolsWritePluginSrcInternal();
+    [[nodiscard]] bool toolsWritePluginJsonInternal();
+    [[nodiscard]] bool toolsWritePluginConfigInternal();
 
-    bool toolsWriteProtocolHeaderInternal();
-    bool toolsWriteProtocolSrcInternal();
-    bool toolsWritePluginHeaderInternal();
-    bool toolsWritePluginSrcInternal();
-    bool toolsWritePluginJsonInternal();
-    bool toolsWritePluginConfigInternal();
-
-    const std::string& toolsAdjustedNameInternal() const;
-    std::string toolsProtClassNameInternal() const;
-    std::string toolsPluginClassNameInternal() const;
-    std::string toolsRelFilePath(const std::string& name) const;
+    [[nodiscard]] const std::string& toolsAdjustedNameInternal() const;
+    [[nodiscard]] std::string toolsProtClassNameInternal() const;
+    [[nodiscard]] std::string toolsPluginClassNameInternal() const;
+    [[nodiscard]] std::string toolsRelFilePath(const std::string& name) const;
 
     ToolsQtGenerator& m_toolsGenerator;
     std::string m_frame;

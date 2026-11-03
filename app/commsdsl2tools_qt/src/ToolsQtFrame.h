@@ -40,34 +40,34 @@ public:
 
     explicit ToolsQtFrame(ToolsQtGenerator& generator, ParseFrame parseObj, GenElem* parent);
 
-    std::string toolsHeaderFilePath(const commsdsl::gen::GenInterface& iFace) const;
-    GenStringsList toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const;
-    std::string toolsClassScope(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] std::string toolsHeaderFilePath(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] GenStringsList toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] std::string toolsClassScope(const commsdsl::gen::GenInterface& iFace) const;
 
-    static const ToolsQtFrame* toolsCast(const commsdsl::gen::GenFrame* obj)
+    [[nodiscard]] static const ToolsQtFrame* toolsCast(const commsdsl::gen::GenFrame* obj)
     {
         return static_cast<const ToolsQtFrame*>(obj);
     }
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
-    bool toolsWriteProtTransportMsgHeaderInternal() const;
-    bool toolsWriteHeaderInternal() const;
-    bool toolsWriteSrcInternal() const;
-    bool toolsWriteTransportMsgHeaderInternal() const;
-    bool toolsWriteTransportMsgSrcInternal() const;
-    unsigned toolsCalcBackPayloadOffsetInternal() const;
-    std::string toolsRelPathInternal(const commsdsl::gen::GenInterface& iFace) const;
-    std::string toolsProtTransportMsgDefInternal(const commsdsl::gen::GenInterface& iFace) const;
-    std::string toolsProtTransportMsgHeaderExtraIncInternal(const commsdsl::gen::GenInterface& iFace) const;
-    std::string toolsProtTransportMsgReadFuncInternal(const commsdsl::gen::GenInterface& iFace) const;
-    std::string toolsTransportMsgHeaderDefInternal() const;
-    std::string toolsTransportMsgSrcDefInternal(const commsdsl::gen::GenInterface& iFace) const;
-    std::string toolsFrameHeaderDefInternal() const;
-    std::string toolsFrameSrcDefInternal(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] bool toolsWriteProtTransportMsgHeaderInternal() const;
+    [[nodiscard]] bool toolsWriteHeaderInternal() const;
+    [[nodiscard]] bool toolsWriteSrcInternal() const;
+    [[nodiscard]] bool toolsWriteTransportMsgHeaderInternal() const;
+    [[nodiscard]] bool toolsWriteTransportMsgSrcInternal() const;
+    [[nodiscard]] unsigned toolsCalcBackPayloadOffsetInternal() const;
+    [[nodiscard]] std::string toolsRelPathInternal(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] std::string toolsProtTransportMsgDefInternal(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] std::string toolsProtTransportMsgHeaderExtraIncInternal(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] std::string toolsProtTransportMsgReadFuncInternal(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] std::string toolsTransportMsgHeaderDefInternal() const;
+    [[nodiscard]] std::string toolsTransportMsgSrcDefInternal(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] std::string toolsFrameHeaderDefInternal() const;
+    [[nodiscard]] std::string toolsFrameSrcDefInternal(const commsdsl::gen::GenInterface& iFace) const;
 
     ToolsQtLayersList m_toolsLayers;
 };

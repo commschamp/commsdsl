@@ -34,30 +34,30 @@ public:
 
     explicit ToolsQtInterface(ToolsQtGenerator& generator, ParseInterface parseObj, GenElem* parent);
 
-    std::string toolsClassScope() const;
-    std::string toolsHeaderFilePath() const;
-    GenStringsList toolsSourceFiles() const;
+    [[nodiscard]] std::string toolsClassScope() const;
+    [[nodiscard]] std::string toolsHeaderFilePath() const;
+    [[nodiscard]] GenStringsList toolsSourceFiles() const;
 
-    static const ToolsQtInterface* toolsCast(const commsdsl::gen::GenInterface* obj)
+    [[nodiscard]] static const ToolsQtInterface* toolsCast(const commsdsl::gen::GenInterface* obj)
     {
         return static_cast<const ToolsQtInterface*>(obj);
     }
 
-    static const ToolsQtInterface& toolsCast(const commsdsl::gen::GenInterface& obj)
+    [[nodiscard]] static const ToolsQtInterface& toolsCast(const commsdsl::gen::GenInterface& obj)
     {
         return static_cast<const ToolsQtInterface&>(obj);
     }
 
 protected:
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
-    bool toolsWriteHeaderInternal() const;
-    bool toolsWriteSrcInternal() const;
-    std::string toolsHeaderCodeInternal() const;
-    std::string toolsSrcCodeInternal() const;
-    const std::string& toolsNameInternal() const;
-    std::string toolsRelFilePath() const;
+    [[nodiscard]] bool toolsWriteHeaderInternal() const;
+    [[nodiscard]] bool toolsWriteSrcInternal() const;
+    [[nodiscard]] std::string toolsHeaderCodeInternal() const;
+    [[nodiscard]] std::string toolsSrcCodeInternal() const;
+    [[nodiscard]] const std::string& toolsNameInternal() const;
+    [[nodiscard]] std::string toolsRelFilePath() const;
 };
 
 } // namespace commsdsl2tools_qt

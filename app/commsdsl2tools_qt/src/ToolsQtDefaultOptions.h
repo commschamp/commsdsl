@@ -25,15 +25,15 @@ class ToolsQtGenerator;
 class ToolsQtDefaultOptions
 {
 public:
-    static bool toolsWrite(ToolsQtGenerator& generator);
-    static std::string toolsRelHeaderPath(const ToolsQtGenerator& generator);
-    static std::string toolsTemplParam(const ToolsQtGenerator& generator, const std::string& extraParams = std::string());
-    static std::string toolsClassScope(const ToolsQtGenerator& generator);
+    [[nodiscard]] static bool toolsWrite(ToolsQtGenerator& generator);
+    [[nodiscard]] static std::string toolsRelHeaderPath(const ToolsQtGenerator& generator);
+    [[nodiscard]] static std::string toolsTemplParam(const ToolsQtGenerator& generator, const std::string& extraParams = std::string());
+    [[nodiscard]] static std::string toolsClassScope(const ToolsQtGenerator& generator);
 
 private:
     explicit ToolsQtDefaultOptions(ToolsQtGenerator& generator) : m_toolsGenerator(generator) {}
 
-    bool toolsWriteInternal() const;
+    [[nodiscard]] bool toolsWriteInternal() const;
 
     ToolsQtGenerator& m_toolsGenerator;
 };

@@ -37,7 +37,7 @@ public:
 
 protected:
     // GenBase overrides
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
 };
 
 } // namespace commsdsl2tools_qt

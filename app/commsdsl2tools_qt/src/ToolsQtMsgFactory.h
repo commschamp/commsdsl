@@ -33,18 +33,18 @@ public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
     ToolsQtMsgFactory(const ToolsQtGenerator& generator, const ToolsQtNamespace& parent);
-    bool toolsWrite() const;
-    std::string toolsRelHeaderPath(const commsdsl::gen::GenInterface& iFace) const;
-    GenStringsList toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const;
-    std::string toolsClassScope(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] bool toolsWrite() const;
+    [[nodiscard]] std::string toolsRelHeaderPath(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] GenStringsList toolsSourceFiles(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] std::string toolsClassScope(const commsdsl::gen::GenInterface& iFace) const;
 
 private:
-    std::string toolsRelPathInternal(const commsdsl::gen::GenInterface& iFace) const;
-    bool toolsWriteHeaderInternal() const;
-    bool toolsWriteSourceInternal() const;
-    std::string toolsHeaderCodeInternal() const;
-    std::string toolsSourceCodeInternal(const commsdsl::gen::GenInterface& iFace) const;
-    std::string toolsSourceIncludesInternal(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] std::string toolsRelPathInternal(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] bool toolsWriteHeaderInternal() const;
+    [[nodiscard]] bool toolsWriteSourceInternal() const;
+    [[nodiscard]] std::string toolsHeaderCodeInternal() const;
+    [[nodiscard]] std::string toolsSourceCodeInternal(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] std::string toolsSourceIncludesInternal(const commsdsl::gen::GenInterface& iFace) const;
 
     const ToolsQtGenerator& m_toolsGenerator;
     const ToolsQtNamespace& m_parent;

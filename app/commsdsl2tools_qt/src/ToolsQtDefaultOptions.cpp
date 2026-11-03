@@ -38,7 +38,7 @@ namespace commsdsl2tools_qt
 namespace
 {
 
-std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t idx, bool wrapWithFactoryOpts = true)
+[[nodiscard]] std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t idx, bool wrapWithFactoryOpts = true)
 {
     assert(idx < generator.genSchemas().size());
 

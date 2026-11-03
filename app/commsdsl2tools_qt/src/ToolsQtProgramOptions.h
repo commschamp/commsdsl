@@ -42,13 +42,13 @@ public:
 
     ToolsQtProgramOptions();
 
-    static const ToolsQtProgramOptions& toolsCast(const GenProgramOptions& obj)
+    [[nodiscard]] static const ToolsQtProgramOptions& toolsCast(const GenProgramOptions& obj)
     {
         return static_cast<const ToolsQtProgramOptions&>(obj);
     }
 
-    ToolsPluginInfosList toolsGetPlugins() const;
-    bool toolsIsMainNamespaceInOptionsForced() const;
+    [[nodiscard]] ToolsPluginInfosList toolsGetPlugins() const;
+    [[nodiscard]] bool toolsIsMainNamespaceInOptionsForced() const;
 };
 
 } // namespace commsdsl2tools_qt

@@ -25,14 +25,14 @@ class ToolsQtGenerator;
 class ToolsQtCmake
 {
 public:
-    static bool toolsWrite(ToolsQtGenerator& generator);
+    [[nodiscard]] static bool toolsWrite(ToolsQtGenerator& generator);
 
 private:
     explicit ToolsQtCmake(ToolsQtGenerator& generator) : m_toolsGenerator(generator) {}
 
-    bool toolsWriteInternal() const;
-    std::string toolsPerInterfaceFuncsInternal() const;
-    std::string toolsPerInterfaceCallsInternal() const;
+    [[nodiscard]] bool toolsWriteInternal() const;
+    [[nodiscard]] std::string toolsPerInterfaceFuncsInternal() const;
+    [[nodiscard]] std::string toolsPerInterfaceCallsInternal() const;
 
 private:
     ToolsQtGenerator& m_toolsGenerator;

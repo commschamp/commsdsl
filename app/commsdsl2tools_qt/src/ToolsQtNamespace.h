@@ -38,18 +38,18 @@ public:
 
     explicit ToolsQtNamespace(ToolsQtGenerator& generator, ParseNamespace parseObj, GenElem* parent);
 
-    GenStringsList toolsSourceFiles(const ToolsQtInterface& interface) const;
+    [[nodiscard]] GenStringsList toolsSourceFiles(const ToolsQtInterface& interface) const;
 
-    static const ToolsQtNamespace* toolsCast(const commsdsl::gen::GenNamespace* obj)
+    [[nodiscard]] static const ToolsQtNamespace* toolsCast(const commsdsl::gen::GenNamespace* obj)
     {
         return static_cast<const ToolsQtNamespace*>(obj);
     }
 
-    std::string toolsFactoryRelHeaderPath(const commsdsl::gen::GenInterface& iFace) const;
-    std::string toolsFactoryClassScope(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] std::string toolsFactoryRelHeaderPath(const commsdsl::gen::GenInterface& iFace) const;
+    [[nodiscard]] std::string toolsFactoryClassScope(const commsdsl::gen::GenInterface& iFace) const;
 
 protected:
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
     ToolsQtMsgFactory m_factory;

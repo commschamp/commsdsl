@@ -25,14 +25,14 @@ class ToolsQtGenerator;
 class ToolsQtVersion
 {
 public:
-    static bool toolsWrite(ToolsQtGenerator& generator);
-    static std::string toolsRelHeaderPath(const ToolsQtGenerator& generator);
+    [[nodiscard]] static bool toolsWrite(ToolsQtGenerator& generator);
+    [[nodiscard]] static std::string toolsRelHeaderPath(const ToolsQtGenerator& generator);
 
 private:
     explicit ToolsQtVersion(ToolsQtGenerator& generator) : m_toolsGenerator(generator) {}
 
-    bool toolsWriteInternal() const;
-    std::string toolsCodeVersionInternal() const;
+    [[nodiscard]] bool toolsWriteInternal() const;
+    [[nodiscard]] std::string toolsCodeVersionInternal() const;
 
     ToolsQtGenerator& m_toolsGenerator;
 };

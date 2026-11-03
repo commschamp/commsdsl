@@ -40,7 +40,7 @@ namespace commsdsl2tools_qt
 namespace
 {
 
-unsigned toolsGetHexMsgIdWidthInternal(const commsdsl::gen::GenInterface& interface)
+[[nodiscard]] unsigned toolsGetHexMsgIdWidthInternal(const commsdsl::gen::GenInterface& interface)
 {
     auto* parentNs = interface.genParentNamespace();
     auto allMsgIdFields = parentNs->genFindMessageIdFields();

@@ -30,17 +30,17 @@ public:
     explicit ToolsQtLayer(commsdsl::gen::GenLayer& layer);
     virtual ~ToolsQtLayer() = default;
 
-    bool toolsPrepare();
+    [[nodiscard]] bool toolsPrepare();
 
-    unsigned toolsMinFieldLength() const;
+    [[nodiscard]] unsigned toolsMinFieldLength() const;
 
-    const commsdsl::gen::GenLayer& toolsGenLayer() const
+    [[nodiscard]] const commsdsl::gen::GenLayer& toolsGenLayer() const
     {
         return m_genLayer;
     }
 
 private:
-    commsdsl::gen::GenLayer& m_genLayer ;
+    commsdsl::gen::GenLayer& m_genLayer;
 };
 
 } // namespace commsdsl2tools_qt
