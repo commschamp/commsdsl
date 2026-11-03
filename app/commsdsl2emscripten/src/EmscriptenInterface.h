@@ -38,32 +38,32 @@ public:
     explicit EmscriptenInterface(EmscriptenGenerator& generator, ParseInterface parseObj, GenElem* parent);
     virtual ~EmscriptenInterface();
 
-    static const EmscriptenInterface* emscriptenCast(const commsdsl::gen::GenInterface* obj)
+    [[nodiscard]] static const EmscriptenInterface* emscriptenCast(const commsdsl::gen::GenInterface* obj)
     {
         return static_cast<const EmscriptenInterface*>(obj);
     }
 
-    std::string emscriptenRelHeader() const;
+    [[nodiscard]] std::string emscriptenRelHeader() const;
     void emscriptenAddSourceFiles(GenStringsList& sources) const;
 
-    bool emscriptenIsPresent() const;
+    [[nodiscard]] bool emscriptenIsPresent() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
     using EmscriptenFieldsList = EmscriptenField::EmscriptenFieldsList;
 
-    bool emscriptenWriteHeaderInternal() const;
-    bool emscriptenWriteSourceInternal() const;
+    [[nodiscard]] bool emscriptenWriteHeaderInternal() const;
+    [[nodiscard]] bool emscriptenWriteSourceInternal() const;
 
-    std::string emscriptenHeaderIncludesInternal() const;
-    std::string emscriptenHeaderFieldsInternal() const;
-    std::string emscriptenHeaderClassInternal() const;
-    std::string emscriptenHeaderBaseInternal() const;
-    std::string emscriptenSourceFieldsInternal() const;
-    std::string emscriptenSourceCodeInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderIncludesInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderFieldsInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderClassInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderBaseInternal() const;
+    [[nodiscard]] std::string emscriptenSourceFieldsInternal() const;
+    [[nodiscard]] std::string emscriptenSourceCodeInternal() const;
 
     EmscriptenFieldsList m_emscriptenFields;
 };

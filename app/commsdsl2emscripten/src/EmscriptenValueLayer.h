@@ -37,9 +37,9 @@ public:
     EmscriptenValueLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual bool emscriptenIsInterfaceSupportedImpl(const EmscriptenInterface& iFace) const override;
-    virtual std::string emscriptenHeaderExtraFuncsImpl() const override;
-    virtual std::string emscriptenSourceExtraFuncsImpl() const override;
+    [[nodiscard]] virtual bool emscriptenIsInterfaceSupportedImpl(const EmscriptenInterface& iFace) const override;
+    [[nodiscard]] virtual std::string emscriptenHeaderExtraFuncsImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenSourceExtraFuncsImpl() const override;
 };
 
 } // namespace commsdsl2emscripten

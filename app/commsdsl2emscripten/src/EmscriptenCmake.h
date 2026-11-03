@@ -29,12 +29,12 @@ class EmscriptenCmake
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    static bool emscriptenWrite(EmscriptenGenerator& generator);
+    [[nodiscard]] static bool emscriptenWrite(EmscriptenGenerator& generator);
 
 private:
     explicit EmscriptenCmake(EmscriptenGenerator& generator) : m_emscriptenGenerator(generator) {}
 
-    bool emscriptenWriteInternal() const;
+    [[nodiscard]] bool emscriptenWriteInternal() const;
 
     EmscriptenGenerator& m_emscriptenGenerator;
 };

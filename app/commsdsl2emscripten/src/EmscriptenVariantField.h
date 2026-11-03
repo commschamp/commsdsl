@@ -37,24 +37,24 @@ public:
 
 protected:
     // GenBase overrides
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // EmscriptenBase overrides
-    virtual std::string emscriptenHeaderExtraCodePrefixImpl() const override;
-    virtual std::string emscriptenHeaderValueAccImpl() const override;
-    virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
-    virtual std::string emscriptenSourceExtraCodeImpl() const override;
-    virtual std::string emscriptenSourceBindValueAccImpl() const override;
-    virtual std::string emscriptenSourceBindFuncsImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenHeaderExtraCodePrefixImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenHeaderValueAccImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenSourceExtraCodeImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenSourceBindValueAccImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenSourceBindFuncsImpl() const override;
 
 private:
-    std::string emscriptenHeaderMembersAccessInternal() const;
-    std::string emscriptenHandlerClassInternal() const;
-    std::string emscriptenHandlerWrapperClassInternal() const;
-    std::string emscriptenSourceWrapperFuncsInternal() const;
-    std::string emscriptenSourceWrapperBindsInternal() const;
-    std::string emscriptenSourceHandleFuncsInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderMembersAccessInternal() const;
+    [[nodiscard]] std::string emscriptenHandlerClassInternal() const;
+    [[nodiscard]] std::string emscriptenHandlerWrapperClassInternal() const;
+    [[nodiscard]] std::string emscriptenSourceWrapperFuncsInternal() const;
+    [[nodiscard]] std::string emscriptenSourceWrapperBindsInternal() const;
+    [[nodiscard]] std::string emscriptenSourceHandleFuncsInternal() const;
 };
 
 } // namespace commsdsl2emscripten

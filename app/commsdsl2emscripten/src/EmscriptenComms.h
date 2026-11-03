@@ -29,14 +29,14 @@ class EmscriptenComms
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    static bool emscriptenWrite(EmscriptenGenerator& generator);
+    [[nodiscard]] static bool emscriptenWrite(EmscriptenGenerator& generator);
     static void emscriptenAddSourceFiles(const EmscriptenGenerator& generator, GenStringsList& sources);
 
 private:
     explicit EmscriptenComms(EmscriptenGenerator& generator) : m_emscriptenGenerator(generator) {}
 
-    bool emscriptenWriteErrorStatusInternal() const;
-    bool emscriptenWriteOptionalModeInternal() const;
+    [[nodiscard]] bool emscriptenWriteErrorStatusInternal() const;
+    [[nodiscard]] bool emscriptenWriteOptionalModeInternal() const;
 
     EmscriptenGenerator& m_emscriptenGenerator;
 };

@@ -37,7 +37,7 @@ namespace commsdsl2emscripten
 namespace
 {
 
-std::string emscriptenCodeInternal(EmscriptenGenerator& generator, std::size_t idx)
+[[nodiscard]] std::string emscriptenCodeInternal(EmscriptenGenerator& generator, std::size_t idx)
 {
     assert(idx < generator.genSchemas().size());
 

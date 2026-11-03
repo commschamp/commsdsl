@@ -38,7 +38,7 @@ public:
     explicit EmscriptenSchema(EmscriptenGenerator& generator, ParseSchema parseObj, GenElem* parent);
     virtual ~EmscriptenSchema();
 
-    static const EmscriptenSchema* emscriptenCast(const commsdsl::gen::GenSchema* obj)
+    [[nodiscard]] static const EmscriptenSchema* emscriptenCast(const commsdsl::gen::GenSchema* obj)
     {
         return static_cast<const EmscriptenSchema*>(obj);
     }

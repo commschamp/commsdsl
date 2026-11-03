@@ -45,90 +45,90 @@ public:
 
     EmscriptenGenerator();
 
-    static const std::string& emscriptenFileGeneratedComment();
+    [[nodiscard]] static const std::string& emscriptenFileGeneratedComment();
 
-    static EmscriptenGenerator& emscriptenCast(commsdsl::gen::GenGenerator& obj)
+    [[nodiscard]] static EmscriptenGenerator& emscriptenCast(commsdsl::gen::GenGenerator& obj)
     {
         return static_cast<EmscriptenGenerator&>(obj);
     }
 
-    static const EmscriptenGenerator& emscriptenCast(const commsdsl::gen::GenGenerator& obj)
+    [[nodiscard]] static const EmscriptenGenerator& emscriptenCast(const commsdsl::gen::GenGenerator& obj)
     {
         return static_cast<const EmscriptenGenerator&>(obj);
     }
 
-    std::string emscriptenClassName(const commsdsl::gen::GenElem& elem) const;
-    std::string emscriptenScopeNameForRoot(const std::string& name) const;
-    std::string emscriptenScopeNameForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
-    std::string emscriptenProtocolClassNameForRoot(const std::string& name) const;
+    [[nodiscard]] std::string emscriptenClassName(const commsdsl::gen::GenElem& elem) const;
+    [[nodiscard]] std::string emscriptenScopeNameForRoot(const std::string& name) const;
+    [[nodiscard]] std::string emscriptenScopeNameForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
+    [[nodiscard]] std::string emscriptenProtocolClassNameForRoot(const std::string& name) const;
 
-    std::string emscriptenRelHeaderForRoot(const std::string& name) const;
-    std::string emscriptenAbsHeaderForRoot(const std::string& name) const;
-    std::string emscriptenRelHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
-    std::string emscriptenAbsHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
-    std::string emscriptenRelHeaderForInput(const std::string& name, const EmscriptenNamespace& parent) const;
-    std::string emscriptenAbsHeaderForInput(const std::string& name, const EmscriptenNamespace& parent) const;
+    [[nodiscard]] std::string emscriptenRelHeaderForRoot(const std::string& name) const;
+    [[nodiscard]] std::string emscriptenAbsHeaderForRoot(const std::string& name) const;
+    [[nodiscard]] std::string emscriptenRelHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
+    [[nodiscard]] std::string emscriptenAbsHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
+    [[nodiscard]] std::string emscriptenRelHeaderForInput(const std::string& name, const EmscriptenNamespace& parent) const;
+    [[nodiscard]] std::string emscriptenAbsHeaderForInput(const std::string& name, const EmscriptenNamespace& parent) const;
 
-    std::string emscriptenRelSourceForRoot(const std::string& name) const;
-    std::string emscriptenAbsSourceForRoot(const std::string& name) const;
-    std::string emscriptenRelSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
-    std::string emscriptenAbsSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
+    [[nodiscard]] std::string emscriptenRelSourceForRoot(const std::string& name) const;
+    [[nodiscard]] std::string emscriptenAbsSourceForRoot(const std::string& name) const;
+    [[nodiscard]] std::string emscriptenRelSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
+    [[nodiscard]] std::string emscriptenAbsSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
 
-    std::string emscriptenProtocolRelHeaderForRoot(const std::string& name) const;
-    std::string emscriptenProtocolRelHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
-    std::string emscriptenSchemaRelSourceForRoot(unsigned schemaIdx, const std::string& name) const;
+    [[nodiscard]] std::string emscriptenProtocolRelHeaderForRoot(const std::string& name) const;
+    [[nodiscard]] std::string emscriptenProtocolRelHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
+    [[nodiscard]] std::string emscriptenSchemaRelSourceForRoot(unsigned schemaIdx, const std::string& name) const;
 
-    std::string emscriptenRelHeaderFor(const commsdsl::gen::GenElem& elem) const;
-    std::string emscriptenAbsHeaderFor(const commsdsl::gen::GenElem& elem) const;
-    std::string emscriptenRelSourceFor(const commsdsl::gen::GenElem& elem) const;
-    std::string emscriptenAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
+    [[nodiscard]] std::string emscriptenRelHeaderFor(const commsdsl::gen::GenElem& elem) const;
+    [[nodiscard]] std::string emscriptenAbsHeaderFor(const commsdsl::gen::GenElem& elem) const;
+    [[nodiscard]] std::string emscriptenRelSourceFor(const commsdsl::gen::GenElem& elem) const;
+    [[nodiscard]] std::string emscriptenAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
 
-    std::string emscriptenInputRelHeaderFor(const commsdsl::gen::GenElem& elem) const;
-    std::string emscriptenInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const;
-    std::string emscriptenInputRelSourceFor(const commsdsl::gen::GenElem& elem) const;
-    std::string emscriptenInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
+    [[nodiscard]] std::string emscriptenInputRelHeaderFor(const commsdsl::gen::GenElem& elem) const;
+    [[nodiscard]] std::string emscriptenInputAbsHeaderFor(const commsdsl::gen::GenElem& elem) const;
+    [[nodiscard]] std::string emscriptenInputRelSourceFor(const commsdsl::gen::GenElem& elem) const;
+    [[nodiscard]] std::string emscriptenInputAbsSourceFor(const commsdsl::gen::GenElem& elem) const;
 
-    static std::string emscriptenScopeToName(const std::string& scope);
+    [[nodiscard]] static std::string emscriptenScopeToName(const std::string& scope);
 
     void emscriptenSetMainNamespaceInNamesForced(bool value);
     void emscriptenSetHasCodeVersion(bool value);
 
-    bool emscriptenHasCodeVersion() const;
+    [[nodiscard]] bool emscriptenHasCodeVersion() const;
 
 protected:
-    virtual bool genWriteImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() override;
 
-    virtual GenSchemaPtr genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenNamespacePtr genCreateNamespaceImpl(commsdsl::parse::ParseNamespace parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenInterfacePtr genCreateInterfaceImpl(commsdsl::parse::ParseInterface parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenMessagePtr genCreateMessageImpl(commsdsl::parse::ParseMessage parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenSchemaPtr genCreateSchemaImpl(commsdsl::parse::ParseSchema parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenNamespacePtr genCreateNamespaceImpl(commsdsl::parse::ParseNamespace parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenInterfacePtr genCreateInterfaceImpl(commsdsl::parse::ParseInterface parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenMessagePtr genCreateMessageImpl(commsdsl::parse::ParseMessage parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFramePtr genCreateFrameImpl(commsdsl::parse::ParseFrame parseObj, commsdsl::gen::GenElem* parent) override;
 
-    virtual GenFieldPtr genCreateIntFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateEnumFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateSetFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateFloatFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateBitfieldFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateBundleFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateStringFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateDataFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateListFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateRefFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateOptionalFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenFieldPtr genCreateVariantFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateIntFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateEnumFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateSetFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateFloatFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateBitfieldFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateBundleFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateStringFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateDataFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateListFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateRefFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateOptionalFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenFieldPtr genCreateVariantFieldImpl(commsdsl::parse::ParseField parseObj, commsdsl::gen::GenElem* parent) override;
 
-    virtual GenLayerPtr genCreateCustomLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenLayerPtr genCreateSyncLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenLayerPtr genCreateSizeLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenLayerPtr genCreateIdLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenLayerPtr genCreateValueLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenLayerPtr genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
-    virtual GenLayerPtr genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateCustomLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateSyncLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateSizeLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateIdLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateValueLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreatePayloadLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
+    [[nodiscard]] virtual GenLayerPtr genCreateChecksumLayerImpl(commsdsl::parse::ParseLayer parseObj, commsdsl::gen::GenElem* parent) override;
 
-    virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
+    [[nodiscard]] virtual OptsProcessResult genProcessOptionsImpl(const GenProgramOptions& options) override;
 
 private:
-    bool emscriptenWriteExtraFilesInternal() const;
+    [[nodiscard]] bool emscriptenWriteExtraFilesInternal() const;
 
     bool m_mainNamespaceInNamesForced = false;
     bool m_hasCodeVersion = false;

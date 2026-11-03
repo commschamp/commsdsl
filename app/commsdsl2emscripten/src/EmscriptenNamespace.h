@@ -42,7 +42,7 @@ public:
     explicit EmscriptenNamespace(EmscriptenGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~EmscriptenNamespace();
 
-    static const EmscriptenNamespace* emscriptenCast(const commsdsl::gen::GenNamespace* obj)
+    [[nodiscard]] static const EmscriptenNamespace* emscriptenCast(const commsdsl::gen::GenNamespace* obj)
     {
         return static_cast<const EmscriptenNamespace*>(obj);
     }
@@ -52,20 +52,20 @@ public:
     void emscriptenAddInputMessageFwdIncludes(GenStringsList& includes) const;
     void emscriptenAddInputMessageIncludes(GenStringsList& includes) const;
 
-    std::string emscriptenHandlerRelHeader() const;
-    std::string emscriptenHandlerClassName() const;
-    std::string emscriptenInputRelHeader() const;
-    std::string emscriptenInputClassName() const;
+    [[nodiscard]] std::string emscriptenHandlerRelHeader() const;
+    [[nodiscard]] std::string emscriptenHandlerClassName() const;
+    [[nodiscard]] std::string emscriptenInputRelHeader() const;
+    [[nodiscard]] std::string emscriptenInputClassName() const;
 
-    bool emscriptenHasInput() const;
+    [[nodiscard]] bool emscriptenHasInput() const;
 
-    const EmscriptenInterface* emscriptenInterface() const;
+    [[nodiscard]] const EmscriptenInterface* emscriptenInterface() const;
 
 protected:
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
-    bool emscriptenHasValidInterfaceInternal() const;
+    [[nodiscard]] bool emscriptenHasValidInterfaceInternal() const;
 
     EmscriptenMsgId m_msgId;
     EmscriptenMsgHandler m_handler;

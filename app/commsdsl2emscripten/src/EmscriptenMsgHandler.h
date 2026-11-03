@@ -34,23 +34,23 @@ public:
     using GenMessagesAccessList = commsdsl::gen::GenNamespace::GenMessagesAccessList;
 
     EmscriptenMsgHandler(EmscriptenGenerator& generator, const EmscriptenNamespace& parent);
-    bool emscriptenWrite() const;
-    std::string emscriptenClassName() const;
-    std::string emscriptenRelHeader() const;
+    [[nodiscard]] bool emscriptenWrite() const;
+    [[nodiscard]] std::string emscriptenClassName() const;
+    [[nodiscard]] std::string emscriptenRelHeader() const;
     void emscriptenAddSourceFiles(GenStringsList& sources) const;
 
 private:
-    bool emscriptenWriteHeaderInternal() const;
-    bool emscriptenWriteSrcInternal() const;
+    [[nodiscard]] bool emscriptenWriteHeaderInternal() const;
+    [[nodiscard]] bool emscriptenWriteSrcInternal() const;
 
-    std::string emscriptenHeaderIncludesInternal() const;
-    std::string emscriptenHeaderHandleFuncsInternal() const;
-    std::string emscriptenSourceHandleFuncsInternal() const;
-    std::string emscriptenSourceWrapperClassInternal() const;
-    std::string emscriptenSourceWrapperFuncsInternal() const;
-    std::string emscriptenSourceBindInternal() const;
-    std::string emscriptenSourceBindFuncsInternal() const;
-    GenMessagesAccessList emscriptenMessagesListInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderIncludesInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderHandleFuncsInternal() const;
+    [[nodiscard]] std::string emscriptenSourceHandleFuncsInternal() const;
+    [[nodiscard]] std::string emscriptenSourceWrapperClassInternal() const;
+    [[nodiscard]] std::string emscriptenSourceWrapperFuncsInternal() const;
+    [[nodiscard]] std::string emscriptenSourceBindInternal() const;
+    [[nodiscard]] std::string emscriptenSourceBindFuncsInternal() const;
+    [[nodiscard]] GenMessagesAccessList emscriptenMessagesListInternal() const;
 
     EmscriptenGenerator& m_emscriptenGenerator;
     const EmscriptenNamespace& m_parent;

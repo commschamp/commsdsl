@@ -39,39 +39,39 @@ public:
     explicit EmscriptenFrame(EmscriptenGenerator& generator, commsdsl::parse::ParseFrame parseObj, commsdsl::gen::GenElem* parent);
     virtual ~EmscriptenFrame();
 
-    static const EmscriptenFrame* emscriptenCast(const commsdsl::gen::GenFrame* obj)
+    [[nodiscard]] static const EmscriptenFrame* emscriptenCast(const commsdsl::gen::GenFrame* obj)
     {
         return static_cast<const EmscriptenFrame*>(obj);
     }
 
     void emscriptenAddSourceFiles(GenStringsList& sources) const;
-    const EmscriptenNamespace* emscriptenFindInputNamespace() const;
+    [[nodiscard]] const EmscriptenNamespace* emscriptenFindInputNamespace() const;
 
-    const EmscriptenInterface* emscriptenInterface() const;
+    [[nodiscard]] const EmscriptenInterface* emscriptenInterface() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
     using EmscriptenLayersList = std::vector<EmscriptenLayer*>;
 
-    bool emscriptenWriteHeaderInternal() const;
-    bool emscriptenWriteSourceInternal() const;
+    [[nodiscard]] bool emscriptenWriteHeaderInternal() const;
+    [[nodiscard]] bool emscriptenWriteSourceInternal() const;
 
-    std::string emscriptenHeaderIncludesInternal() const;
-    std::string emscriptenHeaderLayersInternal() const;
-    std::string emscriptenHeaderAllFieldsInternal() const;
-    std::string emscriptenHeaderAllFieldsNameInternal() const;
-    std::string emscriptenHeaderClassInternal() const;
-    std::string emscriptenHeaderLayersAccessInternal() const;
-    std::string emscriptenSourceLayersInternal() const;
-    std::string emscriptenSourceAllFieldsInternal() const;
-    std::string emscriptenSourceCodeInternal() const;
-    std::string emscriptenSourceBindInternal() const;
-    std::string emscriptenSourceLayersAccBindInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderIncludesInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderLayersInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderAllFieldsInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderAllFieldsNameInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderClassInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderLayersAccessInternal() const;
+    [[nodiscard]] std::string emscriptenSourceLayersInternal() const;
+    [[nodiscard]] std::string emscriptenSourceAllFieldsInternal() const;
+    [[nodiscard]] std::string emscriptenSourceCodeInternal() const;
+    [[nodiscard]] std::string emscriptenSourceBindInternal() const;
+    [[nodiscard]] std::string emscriptenSourceLayersAccBindInternal() const;
 
-    const EmscriptenInterface* emscriptenInterfaceInternal() const;
+    [[nodiscard]] const EmscriptenInterface* emscriptenInterfaceInternal() const;
 
     EmscriptenLayersList m_emscriptenLayers;
     bool m_validFrame = true;

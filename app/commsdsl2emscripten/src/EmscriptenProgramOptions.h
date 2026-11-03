@@ -37,8 +37,8 @@ public:
         return static_cast<const EmscriptenProgramOptions&>(obj);
     }
 
-    bool emscriptenIsMainNamespaceInNamesForced() const;
-    bool emscriptenHasCodeVersion() const;
+    [[nodiscard]] bool emscriptenIsMainNamespaceInNamesForced() const;
+    [[nodiscard]] bool emscriptenHasCodeVersion() const;
 };
 
 } // namespace commsdsl2emscripten

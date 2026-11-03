@@ -37,28 +37,28 @@ public:
     explicit EmscriptenField(commsdsl::gen::GenField& field);
     virtual ~EmscriptenField();
 
-    static const EmscriptenField* emscriptenCast(const commsdsl::gen::GenField* field);
-    static EmscriptenField* emscriptenCast(commsdsl::gen::GenField* field);
-    static EmscriptenFieldsList emscriptenTransformFieldsList(const GenFieldsList& fields);
+    [[nodiscard]] static const EmscriptenField* emscriptenCast(const commsdsl::gen::GenField* field);
+    [[nodiscard]] static EmscriptenField* emscriptenCast(commsdsl::gen::GenField* field);
+    [[nodiscard]] static EmscriptenFieldsList emscriptenTransformFieldsList(const GenFieldsList& fields);
 
-    commsdsl::gen::GenField& emscriptenGenField()
+    [[nodiscard]] commsdsl::gen::GenField& emscriptenGenField()
     {
         return m_genField;
     }
 
-    const commsdsl::gen::GenField& emscriptenGenField() const
+    [[nodiscard]] const commsdsl::gen::GenField& emscriptenGenField() const
     {
         return m_genField;
     }
 
-    std::string emscriptenRelHeaderPath() const;
+    [[nodiscard]] std::string emscriptenRelHeaderPath() const;
 
-    bool emscriptenIsVersionOptional() const;
-    bool emscriptenWrite() const;
+    [[nodiscard]] bool emscriptenIsVersionOptional() const;
+    [[nodiscard]] bool emscriptenWrite() const;
 
-    std::string emscriptenHeaderClass() const;
-    std::string emscriptenTemplateScope() const;
-    std::string emscriptenSourceCode() const;
+    [[nodiscard]] std::string emscriptenHeaderClass() const;
+    [[nodiscard]] std::string emscriptenTemplateScope() const;
+    [[nodiscard]] std::string emscriptenSourceCode() const;
 
     void emscriptenHeaderAddExtraIncludes(GenStringsList& incs) const;
     void emscriptenAddSourceFiles(GenStringsList& sources) const;
@@ -70,48 +70,48 @@ public:
 
 protected:
     virtual void emscriptenHeaderAddExtraIncludesImpl(GenStringsList& incs) const;
-    virtual std::string emscriptenHeaderExtraCodePrefixImpl() const;
-    virtual std::string emscriptenHeaderValueAccImpl() const;
-    virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const;
-    virtual std::string emscriptenSourceExtraCodeImpl() const;
-    virtual std::string emscriptenSourceBindValueAccImpl() const;
-    virtual std::string emscriptenSourceBindFuncsImpl() const;
-    virtual std::string emscriptenSourceBindExtraImpl() const;
+    [[nodiscard]] virtual std::string emscriptenHeaderExtraCodePrefixImpl() const;
+    [[nodiscard]] virtual std::string emscriptenHeaderValueAccImpl() const;
+    [[nodiscard]] virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const;
+    [[nodiscard]] virtual std::string emscriptenSourceExtraCodeImpl() const;
+    [[nodiscard]] virtual std::string emscriptenSourceBindValueAccImpl() const;
+    [[nodiscard]] virtual std::string emscriptenSourceBindFuncsImpl() const;
+    [[nodiscard]] virtual std::string emscriptenSourceBindExtraImpl() const;
 
     void emscriptenAssignMembers(const commsdsl::gen::GenField::GenFieldsList& fields);
     void emscriptenAddMember(commsdsl::gen::GenField* field);
-    std::string emscriptenHeaderValueAccByRef() const;
-    std::string emscriptenHeaderValueAccByValue() const;
-    std::string emscriptenHeaderValueAccLengthField() const;
-    std::string emscriptenHeaderValueAccByPointer() const;
-    std::string emscriptenHeaderValueStorageAccByPointer() const;
-    std::string emscriptenSourceBindValueAcc() const;
-    std::string emscriptenSourceBindValueAccByPointer() const;
-    std::string emscriptenSourceBindValueStorageAccByPointer() const;
+    [[nodiscard]] std::string emscriptenHeaderValueAccByRef() const;
+    [[nodiscard]] std::string emscriptenHeaderValueAccByValue() const;
+    [[nodiscard]] std::string emscriptenHeaderValueAccLengthField() const;
+    [[nodiscard]] std::string emscriptenHeaderValueAccByPointer() const;
+    [[nodiscard]] std::string emscriptenHeaderValueStorageAccByPointer() const;
+    [[nodiscard]] std::string emscriptenSourceBindValueAcc() const;
+    [[nodiscard]] std::string emscriptenSourceBindValueAccByPointer() const;
+    [[nodiscard]] std::string emscriptenSourceBindValueStorageAccByPointer() const;
 
     const EmscriptenFieldsList& emscriptenMembers() const
     {
         return m_emscriptenMembers;
     }
 
-    std::string emscriptenBindClassName(bool checkVersionOptional = true) const;
-    std::string emscriptenMembersAccessFuncs() const;
-    std::string emscriptenMembersBindFuncs() const;
+    [[nodiscard]] std::string emscriptenBindClassName(bool checkVersionOptional = true) const;
+    [[nodiscard]] std::string emscriptenMembersAccessFuncs() const;
+    [[nodiscard]] std::string emscriptenMembersBindFuncs() const;
 
 private:
-    bool emscriptenWriteHeaderInternal() const;
-    bool emscriptenWriteSrcInternal() const;
-    std::string emscriptenHeaderIncludesInternal() const;
-    std::string emscriptenHeaderClassInternal() const;
-    std::string emscriptenHeaderCommonPublicFuncsInternal() const;
-    std::string emscriptenSourceIncludesInternal() const;
-    std::string emscriptenSourceBindInternal() const;
-    std::string emscriptenSourceBindCommonInternal(bool skipVersionOptCheck = false) const;
-    std::string emscriptenHeaderMembersInternal() const;
-    std::string emscriptenSourceMembersInternal() const;
-    std::string emscriptenSourceRegisterVectorInternal() const;
-    std::string emscriptenSourceExtraVectorFuncsInternal() const;
-    std::string emscriptenSourceExtraCodeInternal() const;
+    [[nodiscard]] bool emscriptenWriteHeaderInternal() const;
+    [[nodiscard]] bool emscriptenWriteSrcInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderIncludesInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderClassInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderCommonPublicFuncsInternal() const;
+    [[nodiscard]] std::string emscriptenSourceIncludesInternal() const;
+    [[nodiscard]] std::string emscriptenSourceBindInternal() const;
+    [[nodiscard]] std::string emscriptenSourceBindCommonInternal(bool skipVersionOptCheck = false) const;
+    [[nodiscard]] std::string emscriptenHeaderMembersInternal() const;
+    [[nodiscard]] std::string emscriptenSourceMembersInternal() const;
+    [[nodiscard]] std::string emscriptenSourceRegisterVectorInternal() const;
+    [[nodiscard]] std::string emscriptenSourceExtraVectorFuncsInternal() const;
+    [[nodiscard]] std::string emscriptenSourceExtraCodeInternal() const;
 
     commsdsl::gen::GenField& m_genField;
     EmscriptenFieldsList m_emscriptenMembers;

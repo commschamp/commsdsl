@@ -37,9 +37,9 @@ public:
     EmscriptenPayloadLayer(EmscriptenGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual std::string emscriptenHeaderFieldDefImpl() const override;
-    virtual std::string emscriptenFieldClassNameImpl() const override;
-    virtual std::string emscriptenSourceFieldBindImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenHeaderFieldDefImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenFieldClassNameImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenSourceFieldBindImpl() const override;
 };
 
 } // namespace commsdsl2emscripten

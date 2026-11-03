@@ -37,7 +37,7 @@ public:
 
 protected:
     // GenBase overrides
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // EmscriptenBase overrides
 };

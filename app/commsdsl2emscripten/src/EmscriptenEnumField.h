@@ -37,22 +37,22 @@ public:
 
     EmscriptenEnumField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent);
 
-    static const EmscriptenEnumField* emscriptenCast(const commsdsl::gen::GenField* obj)
+    [[nodiscard]] static const EmscriptenEnumField* emscriptenCast(const commsdsl::gen::GenField* obj)
     {
         return static_cast<const EmscriptenEnumField*>(obj);
     }
 
-    std::string emscriptenBindValues(const EmscriptenNamespace* forcedParent = nullptr) const;
+    [[nodiscard]] std::string emscriptenBindValues(const EmscriptenNamespace* forcedParent = nullptr) const;
 
 protected:
     // GenBase overrides
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // EmscriptenBase overrides
-    virtual std::string emscriptenHeaderValueAccImpl() const override;
-    virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
-    virtual std::string emscriptenSourceBindFuncsImpl() const override;
-    virtual std::string emscriptenSourceBindExtraImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenHeaderValueAccImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenSourceBindFuncsImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenSourceBindExtraImpl() const override;
 
 private:
     bool emscriptenCanProvideValuesInternal() const;

@@ -29,18 +29,18 @@ class EmscriptenProtocolOptions
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    static std::string emscriptenClassName(const EmscriptenGenerator& generator);
-    static bool emscriptenIsDefined(const EmscriptenGenerator& generator);
+    [[nodiscard]] static std::string emscriptenClassName(const EmscriptenGenerator& generator);
+    [[nodiscard]] static bool emscriptenIsDefined(const EmscriptenGenerator& generator);
     static void emscriptenAddInclude(const EmscriptenGenerator& generator, GenStringsList& list);
 
-    static bool emscriptenWrite(EmscriptenGenerator& generator);
+    [[nodiscard]] static bool emscriptenWrite(EmscriptenGenerator& generator);
 
 private:
     explicit EmscriptenProtocolOptions(EmscriptenGenerator& generator);
 
-    bool emscriptenWriteHeaderInternal();
-    std::string emscriptenTypeDefInternal();
-    std::string emscriptenIncludesInternal();
+    [[nodiscard]] bool emscriptenWriteHeaderInternal();
+    [[nodiscard]] std::string emscriptenTypeDefInternal();
+    [[nodiscard]] std::string emscriptenIncludesInternal();
 
     EmscriptenGenerator& m_emscriptenGenerator;
 };

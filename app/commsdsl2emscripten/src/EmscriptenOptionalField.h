@@ -35,19 +35,19 @@ public:
 
     EmscriptenOptionalField(EmscriptenGenerator& generator, ParseField parseObj, GenElem* parent);
 
-    static const std::string& emscriptenHeaderCommonModeFuncs();
+    [[nodiscard]] static const std::string& emscriptenHeaderCommonModeFuncs();
 
 protected:
     // GenBase overrides
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // EmscriptenBase overrides
     virtual void emscriptenHeaderAddExtraIncludesImpl(GenStringsList& incs) const override;
-    virtual std::string emscriptenHeaderValueAccImpl() const override;
-    virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
-    virtual std::string emscriptenSourceBindValueAccImpl() const override;
-    virtual std::string emscriptenSourceBindFuncsImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenHeaderValueAccImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenSourceBindValueAccImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenSourceBindFuncsImpl() const override;
 
 private:
     const EmscriptenField* m_field = nullptr;

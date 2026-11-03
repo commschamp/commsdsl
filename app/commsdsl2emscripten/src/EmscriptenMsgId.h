@@ -33,11 +33,11 @@ public:
 
     EmscriptenMsgId(EmscriptenGenerator& generator, const EmscriptenNamespace& parent);
 
-    bool emscriptenWrite() const;
+    [[nodiscard]] bool emscriptenWrite() const;
     void emscriptenAddSourceFiles(GenStringsList& sources) const;
 
 private:
-    std::string emscriptenIdsInternal() const;
+    [[nodiscard]] std::string emscriptenIdsInternal() const;
 
     EmscriptenGenerator& m_emscriptenGenerator;
     const EmscriptenNamespace& m_parent;

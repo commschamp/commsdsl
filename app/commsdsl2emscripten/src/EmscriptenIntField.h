@@ -37,20 +37,20 @@ public:
 
 protected:
     // GenBase overrides
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // EmscriptenBase overrides
-    virtual std::string emscriptenHeaderValueAccImpl() const override;
-    virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
-    virtual std::string emscriptenSourceBindFuncsImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenHeaderValueAccImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenSourceBindFuncsImpl() const override;
 
 private:
-    std::string emscriptenHeaderSpecialsInternal() const;
-    std::string emscriptenHeaderDisplayDecimalsInternal() const;
-    std::string emscriptenHeaderScaledInternal() const;
-    std::string emscriptenSourceSpecialsBindInternal() const;
-    std::string emscriptenSourceDisplayDecimalsBindInternal() const;
-    std::string emscriptenSourceScaledBindInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderSpecialsInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderDisplayDecimalsInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderScaledInternal() const;
+    [[nodiscard]] std::string emscriptenSourceSpecialsBindInternal() const;
+    [[nodiscard]] std::string emscriptenSourceDisplayDecimalsBindInternal() const;
+    [[nodiscard]] std::string emscriptenSourceScaledBindInternal() const;
 };
 
 } // namespace commsdsl2emscripten

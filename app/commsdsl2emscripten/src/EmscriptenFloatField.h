@@ -37,16 +37,16 @@ public:
 
 protected:
     // GenBase overrides
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // EmscriptenBase overrides
-    virtual std::string emscriptenHeaderValueAccImpl() const override;
-    virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
-    virtual std::string emscriptenSourceBindFuncsImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenHeaderValueAccImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
+    [[nodiscard]] virtual std::string emscriptenSourceBindFuncsImpl() const override;
 
 private:
-    std::string emscriptenHeaderSpecialsInternal() const;
-    std::string emscriptenSourceSpecialsBindInternal() const;
+    [[nodiscard]] std::string emscriptenHeaderSpecialsInternal() const;
+    [[nodiscard]] std::string emscriptenSourceSpecialsBindInternal() const;
 };
 
 } // namespace commsdsl2emscripten

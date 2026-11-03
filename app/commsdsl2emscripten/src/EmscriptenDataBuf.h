@@ -29,18 +29,18 @@ class EmscriptenDataBuf
 public:
     using GenStringsList = commsdsl::gen::util::GenStringsList;
 
-    static bool emscriptenWrite(EmscriptenGenerator& generator);
-    static std::string emscriptenClassName(const EmscriptenGenerator& generator);
-    static std::string emscriptenRelHeader(const EmscriptenGenerator& generator);
-    static const std::string& emscriptenMemViewFuncName();
-    static const std::string& emscriptenJsArrayToDataBufFuncName();
+    [[nodiscard]] static bool emscriptenWrite(EmscriptenGenerator& generator);
+    [[nodiscard]] static std::string emscriptenClassName(const EmscriptenGenerator& generator);
+    [[nodiscard]] static std::string emscriptenRelHeader(const EmscriptenGenerator& generator);
+    [[nodiscard]] static const std::string& emscriptenMemViewFuncName();
+    [[nodiscard]] static const std::string& emscriptenJsArrayToDataBufFuncName();
     static void emscriptenAddSourceFiles(const EmscriptenGenerator& generator, GenStringsList& sources);
 
 private:
     explicit EmscriptenDataBuf(EmscriptenGenerator& generator) : m_emscriptenGenerator(generator) {}
 
-    bool emscriptenWriteHeaderInternal() const;
-    bool emscriptenWriteSrcInternal() const;
+    [[nodiscard]] bool emscriptenWriteHeaderInternal() const;
+    [[nodiscard]] bool emscriptenWriteSrcInternal() const;
 
     EmscriptenGenerator& m_emscriptenGenerator;
 };

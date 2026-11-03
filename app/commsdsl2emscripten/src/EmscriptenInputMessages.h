@@ -33,15 +33,14 @@ public:
 
     EmscriptenInputMessages(EmscriptenGenerator& generator, const EmscriptenNamespace& parent);
 
-    bool emscriptenWrite() const;
-    std::string emscriptenClassName() const;
-    std::string emscriptenRelHeader() const;
-    std::string emscriptenRelFwdHeader() const;
+    [[nodiscard]] bool emscriptenWrite() const;
+    [[nodiscard]] std::string emscriptenClassName() const;
+    [[nodiscard]] std::string emscriptenRelHeader() const;
+    [[nodiscard]] std::string emscriptenRelFwdHeader() const;
 
 private:
-
-    bool emscriptenWriteHeaderInternal() const;
-    bool emscriptenWriteHeaderFwdInternal() const;
+    [[nodiscard]] bool emscriptenWriteHeaderInternal() const;
+    [[nodiscard]] bool emscriptenWriteHeaderFwdInternal() const;
 
     EmscriptenGenerator& m_emscriptenGenerator;
     const EmscriptenNamespace& m_parent;
