@@ -40,7 +40,7 @@ namespace
 
 const std::size_t CommsMaxRangesInOpts = 5U;
 
-std::uintmax_t commsAsBigUnsigned(std::intmax_t val)
+[[nodiscard]] std::uintmax_t commsAsBigUnsignedInternal(std::intmax_t val)
 {
     return static_cast<std::uintmax_t>(val);
 }
@@ -627,16 +627,16 @@ bool CommsEnumField::commsPrepareValidRangesInternal()
             }
 
             if (bigUnsigned) {
-                if ((commsAsBigUnsigned(iter->m_max) < std::numeric_limits<std::uintmax_t>::max()) &&
-                    ((commsAsBigUnsigned(iter->m_max) + 1U) < commsAsBigUnsigned(nextIter->m_min))) {
+                if ((commsAsBigUnsignedInternal(iter->m_max) < std::numeric_limits<std::uintmax_t>::max()) &&
+                    ((commsAsBigUnsignedInternal(iter->m_max) + 1U) < commsAsBigUnsignedInternal(nextIter->m_min))) {
                     break;
                 }
 
-                assert(commsAsBigUnsigned(iter->m_min) <= commsAsBigUnsigned(nextIter->m_min));
+                assert(commsAsBigUnsignedInternal(iter->m_min) <= commsAsBigUnsignedInternal(nextIter->m_min));
                 nextIter->m_deprecatedSince = 0U; // invalidate next range
                 iter->m_max =
                     static_cast<decltype(iter->m_max)>(
-                        std::max(commsAsBigUnsigned(iter->m_max), commsAsBigUnsigned(nextIter->m_max)));
+                        std::max(commsAsBigUnsignedInternal(iter->m_max), commsAsBigUnsignedInternal(nextIter->m_max)));
             }
             else {
                 if ((iter->m_max < std::numeric_limits<decltype(iter->m_max)>::max()) &&

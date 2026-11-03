@@ -37,38 +37,38 @@ public:
 
 protected:
     // GenBase overrides
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // CommsBase overrides
-    virtual CommsIncludesList commsCommonIncludesImpl() const override;
-    virtual std::string commsCommonCodeBodyImpl() const override;
-    virtual CommsIncludesList commsDefIncludesImpl() const override;
-    virtual std::string commsDefConstructCodeImpl() const override;
-    virtual std::string commsDefBaseClassImpl() const override;
-    virtual std::string commsDefPublicCodeImpl() const override;
-    virtual std::string commsDefValidFuncBodyImpl() const override;
-    virtual bool commsIsVersionDependentImpl() const override;
-    virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
+    [[nodiscard]] virtual CommsIncludesList commsCommonIncludesImpl() const override;
+    [[nodiscard]] virtual std::string commsCommonCodeBodyImpl() const override;
+    [[nodiscard]] virtual CommsIncludesList commsDefIncludesImpl() const override;
+    [[nodiscard]] virtual std::string commsDefConstructCodeImpl() const override;
+    [[nodiscard]] virtual std::string commsDefBaseClassImpl() const override;
+    [[nodiscard]] virtual std::string commsDefPublicCodeImpl() const override;
+    [[nodiscard]] virtual std::string commsDefValidFuncBodyImpl() const override;
+    [[nodiscard]] virtual bool commsIsVersionDependentImpl() const override;
+    [[nodiscard]] virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
 
 private:
-    std::string commsCommonHasSpecialsFuncCodeInternal() const;
-    std::string commsCommonValueNamesMapCodeInternal() const;
-    std::string commsCommonSpecialsCodeInternal() const;
-    std::string commsCommonSpecialNamesMapCodeInternal() const;
-    std::string commsDefFieldOptsInternal() const;
-    std::string commsDefValueNamesMapCodeInternal() const;
-    std::string commsDefHasSpecialsFuncCodeInternal() const;
-    std::string commsDefSpecialsCodeInternal() const;
-    std::string commsDefSpecialNamesMapCodeInternal() const;
-    std::string commsDefDisplayDecimalsCodeInternal() const;
+    [[nodiscard]] std::string commsCommonHasSpecialsFuncCodeInternal() const;
+    [[nodiscard]] std::string commsCommonValueNamesMapCodeInternal() const;
+    [[nodiscard]] std::string commsCommonSpecialsCodeInternal() const;
+    [[nodiscard]] std::string commsCommonSpecialNamesMapCodeInternal() const;
+    [[nodiscard]] std::string commsDefFieldOptsInternal() const;
+    [[nodiscard]] std::string commsDefValueNamesMapCodeInternal() const;
+    [[nodiscard]] std::string commsDefHasSpecialsFuncCodeInternal() const;
+    [[nodiscard]] std::string commsDefSpecialsCodeInternal() const;
+    [[nodiscard]] std::string commsDefSpecialNamesMapCodeInternal() const;
+    [[nodiscard]] std::string commsDefDisplayDecimalsCodeInternal() const;
 
     void commsAddUnitsOptInternal(GenStringsList& opts) const;
     void commsAddVersionOptInternal(GenStringsList& opts) const;
     void commsAddInvalidOptInternal(GenStringsList& opts) const;
 
-    GenStringsList commsValidNormalConditionsInternal() const;
-    GenStringsList commsValidVersionBasedConditionsInternal() const;
+    [[nodiscard]] GenStringsList commsValidNormalConditionsInternal() const;
+    [[nodiscard]] GenStringsList commsValidVersionBasedConditionsInternal() const;
 };
 
 } // namespace commsdsl2comms

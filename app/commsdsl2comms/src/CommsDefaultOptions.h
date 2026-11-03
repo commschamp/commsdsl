@@ -25,24 +25,24 @@ class CommsGenerator;
 class CommsDefaultOptions
 {
 public:
-    static bool commsWrite(CommsGenerator& generator);
+    [[nodiscard]] static bool commsWrite(CommsGenerator& generator);
 
 private:
     explicit CommsDefaultOptions(CommsGenerator& generator) : m_commsGenerator(generator) {}
 
-    bool commsWriteInternal() const;
-    bool commsWriteDefaultOptionsInternal() const;
-    bool commsWriteClientDefaultOptionsInternal() const;
-    bool commsWriteServerDefaultOptionsInternal() const;
-    bool commsWriteDataViewDefaultOptionsInternal() const;
-    bool commsWriteBareMetalDefaultOptionsInternal() const;
-    bool commsWriteMsgFactoryDefaultOptionsInternal() const;
-    bool commsWriteAllMessagesDynMemMsgFactoryOptionsInternal() const;
-    bool commsWriteClientInputMessagesDynMemMsgFactoryOptionsInternal() const;
-    bool commsWriteServerInputMessagesDynMemMsgFactoryOptionsInternal() const;
-    bool commsWritePlatformSpecificDynMemMsgFactoryOptionsInternal() const;
-    bool commsWriteExtraBundlesDynMemMsgFactoryOptionsInternal() const;
-    bool commsWriteSingleMsgFactoryDefaultOptionsInternal(
+    [[nodiscard]] bool commsWriteInternal() const;
+    [[nodiscard]] bool commsWriteDefaultOptionsInternal() const;
+    [[nodiscard]] bool commsWriteClientDefaultOptionsInternal() const;
+    [[nodiscard]] bool commsWriteServerDefaultOptionsInternal() const;
+    [[nodiscard]] bool commsWriteDataViewDefaultOptionsInternal() const;
+    [[nodiscard]] bool commsWriteBareMetalDefaultOptionsInternal() const;
+    [[nodiscard]] bool commsWriteMsgFactoryDefaultOptionsInternal() const;
+    [[nodiscard]] bool commsWriteAllMessagesDynMemMsgFactoryOptionsInternal() const;
+    [[nodiscard]] bool commsWriteClientInputMessagesDynMemMsgFactoryOptionsInternal() const;
+    [[nodiscard]] bool commsWriteServerInputMessagesDynMemMsgFactoryOptionsInternal() const;
+    [[nodiscard]] bool commsWritePlatformSpecificDynMemMsgFactoryOptionsInternal() const;
+    [[nodiscard]] bool commsWriteExtraBundlesDynMemMsgFactoryOptionsInternal() const;
+    [[nodiscard]] bool commsWriteSingleMsgFactoryDefaultOptionsInternal(
         const std::string& prefix,
         const std::string& messagesDesc,
         const std::string& allocDesc) const;

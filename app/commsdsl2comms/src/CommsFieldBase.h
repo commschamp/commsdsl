@@ -23,12 +23,12 @@ class CommsGenerator;
 class CommsFieldBase
 {
 public:
-    static bool commsWrite(CommsGenerator& generator);
+    [[nodiscard]] static bool commsWrite(CommsGenerator& generator);
 
 private:
     explicit CommsFieldBase(CommsGenerator& generator) : m_commsGenerator(generator) {}
 
-    bool commsWriteInternal() const;
+    [[nodiscard]] bool commsWriteInternal() const;
 
 private:
     CommsGenerator& m_commsGenerator;

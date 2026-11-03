@@ -38,7 +38,7 @@ namespace commsdsl2comms
 namespace
 {
 
-const std::string& aliasTempl()
+[[nodiscard]] const std::string& aliasTemplInternal()
 {
     static const std::string Templ =
         "#^#GENERATED#$#\n"
@@ -65,7 +65,7 @@ const std::string& aliasTempl()
     return Templ;
 }
 
-const std::string& classTempl()
+[[nodiscard]] const std::string& classTemplInternal()
 {
     static const std::string Templ =
         "#^#GENERATED#$#\n"
@@ -343,7 +343,7 @@ bool CommsInterface::commsWriteDefInternal() const
         (!m_customCode.m_protected.empty()) ||
         (!m_customCode.m_private.empty());
 
-    const std::string* templ = &(aliasTempl());
+    const std::string* templ = &(aliasTemplInternal());
     if (useClass) {
         repl.insert({
             {"FIELDS_DEF", commsDefFieldsCodeInternal()},
@@ -351,7 +351,7 @@ bool CommsInterface::commsWriteDefInternal() const
             {"PROTECTED", commsDefProtectedInternal()},
             {"PRIVATE", commsDefPrivateInternal()},
         });
-        templ = &(classTempl());
+        templ = &(classTemplInternal());
     }
 
     return writeFunc(genFilePath, util::genProcessTemplate(*templ, repl, true));

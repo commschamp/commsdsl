@@ -36,7 +36,7 @@ namespace commsdsl2comms
 namespace
 {
 
-const std::string& commsOptsTemplInternal(bool defaultNs)
+[[nodiscard]] const std::string& commsOptsTemplInternal(bool defaultNs)
 {
     if (defaultNs) {
         static const std::string Templ =

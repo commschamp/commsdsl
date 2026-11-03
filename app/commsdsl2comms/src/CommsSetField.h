@@ -38,27 +38,27 @@ public:
 
 protected:
     // GenBase overrides
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // CommsBase overrides
-    virtual CommsIncludesList commsCommonIncludesImpl() const override;
-    virtual std::string commsCommonCodeBodyImpl() const override;
-    virtual CommsIncludesList commsDefIncludesImpl() const override;
-    virtual std::string commsDefBaseClassImpl() const override;
-    virtual std::string commsDefPublicCodeImpl() const override;
-    virtual std::string commsDefValidFuncBodyImpl() const override;
-    virtual bool commsIsVersionDependentImpl() const override;
-    virtual std::size_t commsMinLengthImpl() const override;
-    virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
-    virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
+    [[nodiscard]] virtual CommsIncludesList commsCommonIncludesImpl() const override;
+    [[nodiscard]] virtual std::string commsCommonCodeBodyImpl() const override;
+    [[nodiscard]] virtual CommsIncludesList commsDefIncludesImpl() const override;
+    [[nodiscard]] virtual std::string commsDefBaseClassImpl() const override;
+    [[nodiscard]] virtual std::string commsDefPublicCodeImpl() const override;
+    [[nodiscard]] virtual std::string commsDefValidFuncBodyImpl() const override;
+    [[nodiscard]] virtual bool commsIsVersionDependentImpl() const override;
+    [[nodiscard]] virtual std::size_t commsMinLengthImpl() const override;
+    [[nodiscard]] virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
+    [[nodiscard]] virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
 
 private:
-    std::string commsCommonBitNameFuncCodeInternal() const;
-    std::string commsDefFieldOptsInternal() const;
-    std::string commsDefBitsAccessCodeInternal() const;
-    std::string commsDefBitNameFuncCodeInternal() const;
-    std::string commsDefMasksCodeInternal() const;
+    [[nodiscard]] std::string commsCommonBitNameFuncCodeInternal() const;
+    [[nodiscard]] std::string commsDefFieldOptsInternal() const;
+    [[nodiscard]] std::string commsDefBitsAccessCodeInternal() const;
+    [[nodiscard]] std::string commsDefBitNameFuncCodeInternal() const;
+    [[nodiscard]] std::string commsDefMasksCodeInternal() const;
 
     void commsAddLengthOptInternal(commsdsl::gen::util::GenStringsList& opts) const;
     void commsAddDefaultValueOptInternal(commsdsl::gen::util::GenStringsList& opts) const;

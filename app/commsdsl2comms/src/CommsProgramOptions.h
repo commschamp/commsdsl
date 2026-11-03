@@ -32,15 +32,15 @@ public:
 
     CommsProgramOptions();
 
-    static const CommsProgramOptions& commsCast(const GenProgramOptions& obj)
+    [[nodiscard]] static const CommsProgramOptions& commsCast(const GenProgramOptions& obj)
     {
         return static_cast<const CommsProgramOptions&>(obj);
     }
 
-    const std::string& commsGetCustomizationLevel() const;
-    bool commsVersionIndependentCodeRequested() const;
-    std::vector<std::string> commsGetExtraInputBundles() const;
-    bool commsIsMainNamespaceInOptionsForced() const;
+    [[nodiscard]] const std::string& commsGetCustomizationLevel() const;
+    [[nodiscard]] bool commsVersionIndependentCodeRequested() const;
+    [[nodiscard]] std::vector<std::string> commsGetExtraInputBundles() const;
+    [[nodiscard]] bool commsIsMainNamespaceInOptionsForced() const;
 };
 
 } // namespace commsdsl2comms

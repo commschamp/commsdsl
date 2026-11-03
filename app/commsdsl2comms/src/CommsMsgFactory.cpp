@@ -55,7 +55,7 @@ using CommsMessagesMap = std::map<std::uintmax_t, GenMessagesAccessList>;
 using CommsCheckFunction = std::function<bool (const commsdsl::gen::GenMessage&)>;
 using CommsCodeFunction = std::function<std::string (const commsdsl::gen::GenMessage&, const CommsGenerator&, int)>;
 
-std::string commsDynMemAllocCodeFuncInternal(const commsdsl::gen::GenMessage& msg, const CommsGenerator& generator, int idx)
+[[nodiscard]] std::string commsDynMemAllocCodeFuncInternal(const commsdsl::gen::GenMessage& msg, const CommsGenerator& generator, int idx)
 {
     if (idx < 0) {
         static const std::string Templ =
@@ -81,7 +81,7 @@ std::string commsDynMemAllocCodeFuncInternal(const commsdsl::gen::GenMessage& ms
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string commsInPlaceAllocCodeFuncInternal(
+[[nodiscard]] std::string commsInPlaceAllocCodeFuncInternal(
     [[maybe_unused]] const commsdsl::gen::GenMessage& msg,
     [[maybe_unused]] const CommsGenerator& generator,
     [[maybe_unused]] int idx)
@@ -90,7 +90,7 @@ std::string commsInPlaceAllocCodeFuncInternal(
     return std::string();
 }
 
-std::string commsGetMsgAllocCodeInternal(
+[[nodiscard]] std::string commsGetMsgAllocCodeInternal(
     const CommsMessagesMap& map,
     const CommsGenerator& generator,
     CommsCodeFunction&& func,
@@ -165,7 +165,7 @@ std::string commsGetMsgAllocCodeInternal(
     return util::genProcessTemplate(Templ, repl);
 }
 
-std::string commsGetMsgCountCodeInternal(const CommsMessagesMap& map)
+[[nodiscard]] std::string commsGetMsgCountCodeInternal(const CommsMessagesMap& map)
 {
     static const std::string Templ =
         "switch (static_cast<std::intmax_t>(id))\n"
@@ -197,7 +197,7 @@ std::string commsGetMsgCountCodeInternal(const CommsMessagesMap& map)
     return util::genProcessTemplate(Templ, repl);
 }
 
-bool commsWriteFileInternal(
+[[nodiscard]] bool commsWriteFileInternal(
     const std::string& prefix,
     const std::string& desc,
     const CommsGenerator& generator,

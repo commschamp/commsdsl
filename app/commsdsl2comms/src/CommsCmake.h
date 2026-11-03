@@ -23,12 +23,12 @@ class CommsGenerator;
 class CommsCmake
 {
 public:
-    static bool commsWrite(CommsGenerator& generator);
+    [[nodiscard]] static bool commsWrite(CommsGenerator& generator);
 
 private:
     explicit CommsCmake(CommsGenerator& generator) : m_generator(generator) {}
 
-    bool commsWriteInternal() const;
+    [[nodiscard]] bool commsWriteInternal() const;
 
 private:
     CommsGenerator& m_generator;

@@ -40,87 +40,87 @@ public:
     explicit CommsLayer(GenLayer& layer);
     virtual ~CommsLayer();
 
-    static CommsLayer* commsCast(GenLayer* obj)
+    [[nodiscard]] static CommsLayer* commsCast(GenLayer* obj)
     {
         return dynamic_cast<CommsLayer*>(obj);
     }
 
-    static const CommsLayer* commsCast(const GenLayer* obj)
+    [[nodiscard]] static const CommsLayer* commsCast(const GenLayer* obj)
     {
         return dynamic_cast<const CommsLayer*>(obj);
     }
 
-    bool commsPrepare();
+    [[nodiscard]] bool commsPrepare();
 
-    CommsIncludesList commsCommonIncludes() const;
-    std::string commsCommonCode() const;
-    CommsIncludesList commsDefIncludes() const;
-    std::string commsDefType(const CommsLayer* prevLayer, bool& hasInputMessages) const;
-    bool commsIsCustomizable() const;
+    [[nodiscard]] CommsIncludesList commsCommonIncludes() const;
+    [[nodiscard]] std::string commsCommonCode() const;
+    [[nodiscard]] CommsIncludesList commsDefIncludes() const;
+    [[nodiscard]] std::string commsDefType(const CommsLayer* prevLayer, bool& hasInputMessages) const;
+    [[nodiscard]] bool commsIsCustomizable() const;
     void commsSetForcedPseudoField();
     void commsSetForcedFailOnInvalidField();
 
-    std::string commsDefaultOptions() const;
-    std::string commsDataViewDefaultOptions() const;
-    std::string commsBareMetalDefaultOptions() const;
-    std::string commsMsgFactoryDefaultOptions() const;
+    [[nodiscard]] std::string commsDefaultOptions() const;
+    [[nodiscard]] std::string commsDataViewDefaultOptions() const;
+    [[nodiscard]] std::string commsBareMetalDefaultOptions() const;
+    [[nodiscard]] std::string commsMsgFactoryDefaultOptions() const;
 
-    const GenLayer& commsGenLayer() const
+    [[nodiscard]] const GenLayer& commsGenLayer() const
     {
         return m_genLayer;
     }
 
-    const CommsField* commsExternalField() const
+    [[nodiscard]] const CommsField* commsExternalField() const
     {
         return m_commsExternalField;
     }
 
-    const CommsField* commsMemberField() const
+    [[nodiscard]] const CommsField* commsMemberField() const
     {
         return m_commsMemberField;
     }
 
-    CommsField* commsMemberField()
+    [[nodiscard]] CommsField* commsMemberField()
     {
         return m_commsMemberField;
     }
 
 protected:
-    virtual CommsIncludesList commsCommonIncludesImpl() const;
-    virtual CommsIncludesList commsDefIncludesImpl() const;
-    virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const;
-    virtual bool commsDefHasInputMessagesImpl() const;
-    virtual GenStringsList commsDefExtraOptsImpl() const;
-    virtual bool commsIsCustomizableImpl() const;
-    virtual GenStringsList commsExtraDataViewDefaultOptionsImpl() const;
-    virtual GenStringsList commsExtraBareMetalDefaultOptionsImpl() const;
-    virtual GenStringsList commsExtraMsgFactoryDefaultOptionsImpl() const;
-    virtual std::string commsCustomDefMembersCodeImpl() const;
-    virtual std::string commsCustomFieldOptsImpl() const;
-    virtual std::string commsCustomFieldDataViewOptsImpl() const;
-    virtual std::string commsCustomFieldBareMetalOptsImpl() const;
-    virtual std::string commsExtraMemberFieldsDefsImpl() const;
-    virtual std::string commsExtraMemberFieldsCommonCodeImpl() const;
+    [[nodiscard]] virtual CommsIncludesList commsCommonIncludesImpl() const;
+    [[nodiscard]] virtual CommsIncludesList commsDefIncludesImpl() const;
+    [[nodiscard]] virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const;
+    [[nodiscard]] virtual bool commsDefHasInputMessagesImpl() const;
+    [[nodiscard]] virtual GenStringsList commsDefExtraOptsImpl() const;
+    [[nodiscard]] virtual bool commsIsCustomizableImpl() const;
+    [[nodiscard]] virtual GenStringsList commsExtraDataViewDefaultOptionsImpl() const;
+    [[nodiscard]] virtual GenStringsList commsExtraBareMetalDefaultOptionsImpl() const;
+    [[nodiscard]] virtual GenStringsList commsExtraMsgFactoryDefaultOptionsImpl() const;
+    [[nodiscard]] virtual std::string commsCustomDefMembersCodeImpl() const;
+    [[nodiscard]] virtual std::string commsCustomFieldOptsImpl() const;
+    [[nodiscard]] virtual std::string commsCustomFieldDataViewOptsImpl() const;
+    [[nodiscard]] virtual std::string commsCustomFieldBareMetalOptsImpl() const;
+    [[nodiscard]] virtual std::string commsExtraMemberFieldsDefsImpl() const;
+    [[nodiscard]] virtual std::string commsExtraMemberFieldsCommonCodeImpl() const;
 
-    std::string commsDefFieldType() const;
-    std::string commsDefExtraOpts() const;
-    static std::string commsMsgFactoryAliasInOptions(const commsdsl::gen::GenElem* parent);
+    [[nodiscard]] std::string commsDefFieldType() const;
+    [[nodiscard]] std::string commsDefExtraOpts() const;
+    [[nodiscard]] static std::string commsMsgFactoryAliasInOptions(const commsdsl::gen::GenElem* parent);
 
 private:
     using CommsFieldOptsFunc = std::string (CommsField::*)() const;
     using CommsExtraLayerOptsFunc = GenStringsList (CommsLayer::*)() const;
 
-    std::string commsDefMembersCodeInternal() const;
-    std::string commsDefDocInternal() const;
-    std::string commsCustomizationOptionsInternal(
+    [[nodiscard]] std::string commsDefMembersCodeInternal() const;
+    [[nodiscard]] std::string commsDefDocInternal() const;
+    [[nodiscard]] std::string commsCustomizationOptionsInternal(
         CommsFieldOptsFunc fieldOptsFunc,
         CommsExtraLayerOptsFunc extraLayerOptsFunc,
         bool hasBase,
         const std::string& customFieldOpts) const;
 
-    GenStringsList commsExtraDataViewDefaultOptionsInternal() const;
-    GenStringsList commsExtraBareMetalDefaultOptionsInternal() const;
-    GenStringsList commsExtraMsgFactoryDefaultOptionsInternal() const;
+    [[nodiscard]] GenStringsList commsExtraDataViewDefaultOptionsInternal() const;
+    [[nodiscard]] GenStringsList commsExtraBareMetalDefaultOptionsInternal() const;
+    [[nodiscard]] GenStringsList commsExtraMsgFactoryDefaultOptionsInternal() const;
 
     GenLayer& m_genLayer;
     CommsField* m_commsExternalField = nullptr;

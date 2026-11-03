@@ -43,20 +43,20 @@ public:
     explicit CommsMessage(CommsGenerator& generator, ParseMessage parseObj, GenElem* parent);
     virtual ~CommsMessage();
 
-    const CommsFieldsList& commsFields() const
+    [[nodiscard]] const CommsFieldsList& commsFields() const
     {
         return m_commsFields;
     }
 
-    std::string commsDefaultOptions() const;
-    std::string commsClientDefaultOptions() const;
-    std::string commsServerDefaultOptions() const;
-    std::string commsDataViewDefaultOptions() const;
-    std::string commsBareMetalDefaultOptions() const;
+    [[nodiscard]] std::string commsDefaultOptions() const;
+    [[nodiscard]] std::string commsClientDefaultOptions() const;
+    [[nodiscard]] std::string commsServerDefaultOptions() const;
+    [[nodiscard]] std::string commsDataViewDefaultOptions() const;
+    [[nodiscard]] std::string commsBareMetalDefaultOptions() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
     using CommsFieldOptsFunc = std::string (CommsField::*)() const;
@@ -102,56 +102,56 @@ private:
 
     using CommsCustomCodeFunc = std::string (CommsMessage::*)(bool& hasCode) const;
 
-    bool commsCopyCodeFromInternal();
-    bool commsPrepareOverrideInternal(
+    [[nodiscard]] bool commsCopyCodeFromInternal();
+    [[nodiscard]] bool commsPrepareOverrideInternal(
         commsdsl::parse::ParseOverrideType type,
         const std::string& name,
         CommsCustomCodeFunc codeFunc,
         std::string& code,
         bool* hasCode);
 
-    std::string commsCustomReadCodeInternal(bool& hasRealCode) const;
-    std::string commsCustomWriteCodeInternal(bool& hasRealCode) const;
-    std::string commsCustomRefreshCodeInternal(bool& hasRealCode) const;
-    std::string commsCustomLengthCodeInternal(bool& hasRealCode) const;
-    std::string commsCustomValidCodeInternal(bool& hasRealCode) const;
-    std::string commsCustomNameCodeInternal(bool& hasRealCode) const;
-    bool commsWriteCommonInternal() const;
-    bool commsWriteDefInternal() const;
-    std::string commsCommonIncludesInternal() const;
-    std::string commsCommonBodyInternal() const;
-    std::string commsCommonNameFuncInternal() const;
-    std::string commsCommonFieldsCodeInternal() const;
-    std::string commsDefIncludesInternal() const;
-    std::string commsDefConstructInternal() const;
-    std::string commsDefFieldsCodeInternal() const;
-    std::string commsDefFieldClassNamesListInternal() const;
-    std::string commsDefDocDetailsInternal() const;
-    std::string commsDefDeprecatedDocInternal() const;
-    std::string commsDefBaseClassInternal() const;
-    std::string commsDefCustomizationOptInternal() const;
-    std::string commsDefExtraOptionsInternal() const;
-    std::string commsDefPublicInternal() const;
-    std::string commsDefProtectedInternal() const;
-    std::string commsDefPrivateInternal() const;
-    std::string commsDefFieldsAccessInternal() const;
-    std::string commsDefFieldsAliasesInternal() const;
-    std::string commsDefLengthCheckInternal() const;
-    std::string commsDefNameFuncInternal() const;
-    std::string commsDefReadFuncInternal() const;
-    std::string commsDefRefreshFuncInternal() const;
-    std::string commsDefPrivateConstructInternal() const;
-    bool commsIsCustomizableInternal() const;
-    std::string commsCustomizationOptionsInternal(
+    [[nodiscard]] std::string commsCustomReadCodeInternal(bool& hasRealCode) const;
+    [[nodiscard]] std::string commsCustomWriteCodeInternal(bool& hasRealCode) const;
+    [[nodiscard]] std::string commsCustomRefreshCodeInternal(bool& hasRealCode) const;
+    [[nodiscard]] std::string commsCustomLengthCodeInternal(bool& hasRealCode) const;
+    [[nodiscard]] std::string commsCustomValidCodeInternal(bool& hasRealCode) const;
+    [[nodiscard]] std::string commsCustomNameCodeInternal(bool& hasRealCode) const;
+    [[nodiscard]] bool commsWriteCommonInternal() const;
+    [[nodiscard]] bool commsWriteDefInternal() const;
+    [[nodiscard]] std::string commsCommonIncludesInternal() const;
+    [[nodiscard]] std::string commsCommonBodyInternal() const;
+    [[nodiscard]] std::string commsCommonNameFuncInternal() const;
+    [[nodiscard]] std::string commsCommonFieldsCodeInternal() const;
+    [[nodiscard]] std::string commsDefIncludesInternal() const;
+    [[nodiscard]] std::string commsDefConstructInternal() const;
+    [[nodiscard]] std::string commsDefFieldsCodeInternal() const;
+    [[nodiscard]] std::string commsDefFieldClassNamesListInternal() const;
+    [[nodiscard]] std::string commsDefDocDetailsInternal() const;
+    [[nodiscard]] std::string commsDefDeprecatedDocInternal() const;
+    [[nodiscard]] std::string commsDefBaseClassInternal() const;
+    [[nodiscard]] std::string commsDefCustomizationOptInternal() const;
+    [[nodiscard]] std::string commsDefExtraOptionsInternal() const;
+    [[nodiscard]] std::string commsDefPublicInternal() const;
+    [[nodiscard]] std::string commsDefProtectedInternal() const;
+    [[nodiscard]] std::string commsDefPrivateInternal() const;
+    [[nodiscard]] std::string commsDefFieldsAccessInternal() const;
+    [[nodiscard]] std::string commsDefFieldsAliasesInternal() const;
+    [[nodiscard]] std::string commsDefLengthCheckInternal() const;
+    [[nodiscard]] std::string commsDefNameFuncInternal() const;
+    [[nodiscard]] std::string commsDefReadFuncInternal() const;
+    [[nodiscard]] std::string commsDefRefreshFuncInternal() const;
+    [[nodiscard]] std::string commsDefPrivateConstructInternal() const;
+    [[nodiscard]] bool commsIsCustomizableInternal() const;
+    [[nodiscard]] std::string commsCustomizationOptionsInternal(
         CommsFieldOptsFunc fieldOptsFunc,
         CommsExtraMessageOptsFunc extraMessageOptsFunc,
         bool hasBase) const;
-    std::string commsDefReadConditionsCodeInternal() const;
-    std::string commsDefOrigValidCodeInternal() const;
-    std::string commsDefValidFuncInternal() const;
+    [[nodiscard]] std::string commsDefReadConditionsCodeInternal() const;
+    [[nodiscard]] std::string commsDefOrigValidCodeInternal() const;
+    [[nodiscard]] std::string commsDefValidFuncInternal() const;
 
-    GenStringsList commsClientExtraCustomizationOptionsInternal() const;
-    GenStringsList commsServerExtraCustomizationOptionsInternal() const;
+    [[nodiscard]] GenStringsList commsClientExtraCustomizationOptionsInternal() const;
+    [[nodiscard]] GenStringsList commsServerExtraCustomizationOptionsInternal() const;
     void commsPrepareConstructCodeInternal();
 
     CommsFieldsList m_commsFields;

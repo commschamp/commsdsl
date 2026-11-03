@@ -28,16 +28,16 @@ class CommsMsgFactory
 {
 public:
     CommsMsgFactory(CommsGenerator& generator, const CommsNamespace& parent);
-    bool commsWrite() const;
-    std::string commsScope(const std::string& prefix) const;
-    std::string commsRelHeaderPath(const std::string& prefix) const;
+    [[nodiscard]] bool commsWrite() const;
+    [[nodiscard]] std::string commsScope(const std::string& prefix) const;
+    [[nodiscard]] std::string commsRelHeaderPath(const std::string& prefix) const;
 
 private:
-    bool commsWriteAllMsgFactoryInternal() const;
-    bool commsWriteClientMsgFactoryInternal() const;
-    bool commsWriteServerMsgFactoryInternal() const;
-    bool commsWritePlatformMsgFactoryInternal() const;
-    bool commsWriteExtraMsgFactoryInternal() const;
+    [[nodiscard]] bool commsWriteAllMsgFactoryInternal() const;
+    [[nodiscard]] bool commsWriteClientMsgFactoryInternal() const;
+    [[nodiscard]] bool commsWriteServerMsgFactoryInternal() const;
+    [[nodiscard]] bool commsWritePlatformMsgFactoryInternal() const;
+    [[nodiscard]] bool commsWriteExtraMsgFactoryInternal() const;
 
     CommsGenerator& m_commsGenerator;
     const CommsNamespace& m_parent;

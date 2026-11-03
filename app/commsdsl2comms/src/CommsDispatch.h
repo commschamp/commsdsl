@@ -41,16 +41,16 @@ private:
     using CommsCheckMsgFunc = std::function<bool (const GenMessage& msg)>;
     using CommsMessagesMap = std::map<std::uintmax_t, GenMessagesList>;
 
-    bool commsWriteDispatchInternal() const;
-    bool commsWriteClientDispatchInternal() const;
-    bool commsWriteServerDispatchInternal() const;
-    bool commsWritePlatformDispatchInternal() const;
-    bool commsWriteExtraDispatchInternal() const;
+    [[nodiscard]] bool commsWriteDispatchInternal() const;
+    [[nodiscard]] bool commsWriteClientDispatchInternal() const;
+    [[nodiscard]] bool commsWriteServerDispatchInternal() const;
+    [[nodiscard]] bool commsWritePlatformDispatchInternal() const;
+    [[nodiscard]] bool commsWriteExtraDispatchInternal() const;
 
-    std::string commsIncludesInternal(const std::string& inputPrefix) const;
-    std::string commsDispatchCodeInternal(const std::string& name, CommsCheckMsgFunc&& func) const;
-    std::string commsCasesCodeInternal(const CommsMessagesMap& map) const;
-    std::string commsMsgDispatcherCodeInternal(const std::string& inputPrefix) const;
+    [[nodiscard]] std::string commsIncludesInternal(const std::string& inputPrefix) const;
+    [[nodiscard]] std::string commsDispatchCodeInternal(const std::string& name, CommsCheckMsgFunc&& func) const;
+    [[nodiscard]] std::string commsCasesCodeInternal(const CommsMessagesMap& map) const;
+    [[nodiscard]] std::string commsMsgDispatcherCodeInternal(const std::string& inputPrefix) const;
 
     CommsGenerator& m_commsGenerator;
     const CommsNamespace& m_commsParent;

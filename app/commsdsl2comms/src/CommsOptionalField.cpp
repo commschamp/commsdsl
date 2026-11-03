@@ -37,7 +37,7 @@ namespace commsdsl2comms
 namespace
 {
 
-const std::string commsGetFieldAccessPrefixInternal(const CommsField& field)
+[[nodiscard]] const std::string commsGetFieldAccessPrefixInternal(const CommsField& field)
 {
     if (comms::genIsInterfaceShallowMemberField(field.commsGenField())) {
         static const std::string Str("Base::transportField_");
@@ -48,7 +48,7 @@ const std::string commsGetFieldAccessPrefixInternal(const CommsField& field)
     return Str;
 }
 
-const std::string commsGetFieldTypePrefixInternal(const CommsField& field)
+[[nodiscard]] const std::string commsGetFieldTypePrefixInternal(const CommsField& field)
 {
     if (comms::genIsInterfaceShallowMemberField(field.commsGenField())) {
         static const std::string Str("Base::TransportField_");
@@ -59,7 +59,7 @@ const std::string commsGetFieldTypePrefixInternal(const CommsField& field)
     return Str;
 }
 
-const CommsField* commsFindInterfaceFieldInternal(const commsdsl::gen::GenGenerator& generator, const std::string refStr)
+[[nodiscard]] const CommsField* commsFindInterfaceFieldInternal(const commsdsl::gen::GenGenerator& generator, const std::string refStr)
 {
     if (refStr.empty()) {
         return nullptr;
@@ -97,7 +97,7 @@ const CommsField* commsFindInterfaceFieldInternal(const commsdsl::gen::GenGenera
     return nullptr;
 }
 
-bool commsInterfaceReferenceInternal(const commsdsl::parse::ParseOptCond& cond)
+[[nodiscard]] bool commsInterfaceReferenceInternal(const commsdsl::parse::ParseOptCond& cond)
 {
     if (cond.parseKind() == commsdsl::parse::ParseOptCond::ParseKind::Expr) {
         commsdsl::parse::ParseOptCondExpr exprCond(cond);

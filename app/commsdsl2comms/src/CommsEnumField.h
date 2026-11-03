@@ -41,26 +41,26 @@ public:
 
     CommsEnumField(CommsGenerator& generator, ParseField parseObj, GenElem* parent);
 
-    GenStringsList commsEnumValues() const;
+    [[nodiscard]] GenStringsList commsEnumValues() const;
 
 protected:
     // GenBase overrides
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // CommsBase overrides
-    virtual CommsIncludesList commsCommonIncludesImpl() const override;
-    virtual std::string commsCommonCodeBodyImpl() const override;
-    virtual std::string commsCommonCodeExtraImpl() const override;
-    virtual CommsIncludesList commsDefIncludesImpl() const override;
-    virtual std::string commsDefExtraDoxigenImpl() const override;
-    virtual std::string commsDefBaseClassImpl() const override;
-    virtual std::string commsDefPublicCodeImpl() const override;
-    virtual std::string commsDefValidFuncBodyImpl() const override;
-    virtual bool commsIsVersionDependentImpl() const override;
-    virtual std::size_t commsMinLengthImpl() const override;
-    virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
-    virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
+    [[nodiscard]] virtual CommsIncludesList commsCommonIncludesImpl() const override;
+    [[nodiscard]] virtual std::string commsCommonCodeBodyImpl() const override;
+    [[nodiscard]] virtual std::string commsCommonCodeExtraImpl() const override;
+    [[nodiscard]] virtual CommsIncludesList commsDefIncludesImpl() const override;
+    [[nodiscard]] virtual std::string commsDefExtraDoxigenImpl() const override;
+    [[nodiscard]] virtual std::string commsDefBaseClassImpl() const override;
+    [[nodiscard]] virtual std::string commsDefPublicCodeImpl() const override;
+    [[nodiscard]] virtual std::string commsDefValidFuncBodyImpl() const override;
+    [[nodiscard]] virtual bool commsIsVersionDependentImpl() const override;
+    [[nodiscard]] virtual std::size_t commsMinLengthImpl() const override;
+    [[nodiscard]] virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
+    [[nodiscard]] virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
 
 private:
     struct CommsRangeInfo
@@ -73,28 +73,28 @@ private:
 
     using CommsValidRangesList = std::vector<CommsRangeInfo>;
 
-    bool commsPrepareValidRangesInternal();
-    bool commsIsDirectValueNameMappingInternal() const;
-    std::string commsCommonEnumInternal() const;
-    std::string commsCommonValueNameMapInternal() const;
-    std::string commsCommonValueNameFuncCodeInternal() const;
-    const std::string& commsCommonValueNameDirectBodyInternal() const;
-    const std::string& commsCommonValueNameBinSearchBodyInternal() const;
-    std::string commsCommonValueNamesMapFuncCodeInternal() const;
-    std::string commsCommonValueNamesMapDirectBodyInternal() const;
-    std::string commsCommonValueNamesMapBinSearchBodyInternal() const;
-    std::string commsCommonBigUnsignedValueNameBinSearchPairsInternal() const;
-    std::string commsCommonValueNameBinSearchPairsInternal() const;
-    std::string commsDefFieldOptsInternal() const;
-    std::string commsDefValueNameMapInternal() const;
-    std::string commsDefValueNameFuncCodeInternal() const;
-    std::string commsDefValueNamesMapFuncCodeInternal() const;
+    [[nodiscard]] bool commsPrepareValidRangesInternal();
+    [[nodiscard]] bool commsIsDirectValueNameMappingInternal() const;
+    [[nodiscard]] std::string commsCommonEnumInternal() const;
+    [[nodiscard]] std::string commsCommonValueNameMapInternal() const;
+    [[nodiscard]] std::string commsCommonValueNameFuncCodeInternal() const;
+    [[nodiscard]] const std::string& commsCommonValueNameDirectBodyInternal() const;
+    [[nodiscard]] const std::string& commsCommonValueNameBinSearchBodyInternal() const;
+    [[nodiscard]] std::string commsCommonValueNamesMapFuncCodeInternal() const;
+    [[nodiscard]] std::string commsCommonValueNamesMapDirectBodyInternal() const;
+    [[nodiscard]] std::string commsCommonValueNamesMapBinSearchBodyInternal() const;
+    [[nodiscard]] std::string commsCommonBigUnsignedValueNameBinSearchPairsInternal() const;
+    [[nodiscard]] std::string commsCommonValueNameBinSearchPairsInternal() const;
+    [[nodiscard]] std::string commsDefFieldOptsInternal() const;
+    [[nodiscard]] std::string commsDefValueNameMapInternal() const;
+    [[nodiscard]] std::string commsDefValueNameFuncCodeInternal() const;
+    [[nodiscard]] std::string commsDefValueNamesMapFuncCodeInternal() const;
 
     void commsAddDefaultValueOptInternal(GenStringsList& opts) const;
     void commsAddLengthOptInternal(GenStringsList& opts) const;
     void commsAddValidRangesOptInternal(GenStringsList& opts) const;
     void commsAddAvailableLengthLimitOptInternal(GenStringsList& opts) const;
-    const CommsNamespace* commsNamespaceForMsgId() const;
+    [[nodiscard]] const CommsNamespace* commsNamespaceForMsgId() const;
 
     CommsValidRangesList m_validRanges;
 };

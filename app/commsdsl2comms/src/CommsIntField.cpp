@@ -35,7 +35,7 @@ namespace commsdsl2comms
 namespace
 {
 
-const std::string& commsSpecialNamesMapTempl()
+[[nodiscard]] const std::string& commsSpecialNamesMapTemplInternal()
 {
     static const std::string Templ =
         "/// @brief Single special value name info entry.\n"
@@ -48,7 +48,7 @@ const std::string& commsSpecialNamesMapTempl()
     return Templ;
 }
 
-const std::string& commsHasSpecialsFuncTempl()
+[[nodiscard]] const std::string& commsHasSpecialsFuncTemplInternal()
 {
     static const std::string Templ =
         "/// @brief Compile time detection of special values presence.\n"
@@ -473,7 +473,7 @@ std::string CommsIntField::commsCommonHasSpecialsFuncCodeInternal() const
         {"VALUE", util::genBoolToString(!specials.empty())}
     };
 
-    return util::genProcessTemplate(commsHasSpecialsFuncTempl(), repl);
+    return util::genProcessTemplate(commsHasSpecialsFuncTemplInternal(), repl);
 }
 
 std::string CommsIntField::commsCommonValueNamesMapCodeInternal() const
@@ -488,7 +488,7 @@ std::string CommsIntField::commsCommonValueNamesMapCodeInternal() const
         {"MAP_DEF", "std::pair<const SpecialNameInfo*, std::size_t>"}
     };
 
-    return util::genProcessTemplate(commsSpecialNamesMapTempl(), repl);
+    return util::genProcessTemplate(commsSpecialNamesMapTemplInternal(), repl);
 }
 
 std::string CommsIntField::commsCommonSpecialsCodeInternal() const
@@ -616,7 +616,7 @@ std::string CommsIntField::commsDefValueNamesMapCodeInternal() const
         {"MAP_DEF", scope + "::SpecialNamesMapInfo"}
     };
 
-    return util::genProcessTemplate(commsSpecialNamesMapTempl(), repl);
+    return util::genProcessTemplate(commsSpecialNamesMapTemplInternal(), repl);
 }
 
 std::string CommsIntField::commsDefHasSpecialsFuncCodeInternal() const
@@ -625,7 +625,7 @@ std::string CommsIntField::commsDefHasSpecialsFuncCodeInternal() const
         {"VALUE", comms::genCommonScopeFor(*this, genGenerator()) + "::hasSpecials()"}
     };
 
-    return util::genProcessTemplate(commsHasSpecialsFuncTempl(), repl);
+    return util::genProcessTemplate(commsHasSpecialsFuncTemplInternal(), repl);
 }
 
 std::string CommsIntField::commsDefSpecialsCodeInternal() const

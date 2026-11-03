@@ -42,7 +42,7 @@ namespace
 const std::string CommsMsgFactoryOptionsSuffix("MsgFactoryDefaultOptions");
 
 using NamespaceOptionsFunc = std::string (CommsNamespace::*)() const;
-std::string commsOptionsBodyInternal(
+[[nodiscard]] std::string commsOptionsBodyInternal(
     CommsGenerator& generator,
     NamespaceOptionsFunc nsFunc,
     bool hasBase)
@@ -82,7 +82,7 @@ std::string commsOptionsBodyInternal(
     return util::genProcessTemplate(Templ, repl);
 }
 
-bool commsWriteFileInternal(
+[[nodiscard]] bool commsWriteFileInternal(
     const std::string& name,
     CommsGenerator& generator,
     const std::string& data)
@@ -107,7 +107,7 @@ bool commsWriteFileInternal(
     return stream.good();
 }
 
-const std::string& commsExtOptionsTempl()
+[[nodiscard]] const std::string& commsExtOptionsTemplInternal()
 {
     static const std::string Templ =
         "#^#GENERATED#$#\n"
@@ -136,7 +136,7 @@ const std::string& commsExtOptionsTempl()
     return Templ;
 }
 
-util::GenReplacementMap commsExtInitialRepl(CommsGenerator& generator)
+[[nodiscard]] util::GenReplacementMap commsExtOptionsTemplInternal(CommsGenerator& generator)
 {
     util::GenReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
@@ -146,7 +146,7 @@ util::GenReplacementMap commsExtInitialRepl(CommsGenerator& generator)
     return repl;
 }
 
-const std::string& commsMsgFactoryOptionsTempl()
+[[nodiscard]] const std::string& commsMsgFactoryOptionsTemplInternal()
 {
     static const std::string Templ =
         "#^#GENERATED#$#\n"
@@ -242,8 +242,7 @@ bool CommsDefaultOptions::commsWriteDefaultOptionsInternal() const
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
-    commsWriteFileInternal(strings::genDefaultOptionsClassStr(), m_commsGenerator, util::genProcessTemplate(Templ, repl, true));
-    return true;
+    return commsWriteFileInternal(strings::genDefaultOptionsClassStr(), m_commsGenerator, util::genProcessTemplate(Templ, repl, true));
 }
 
 bool CommsDefaultOptions::commsWriteClientDefaultOptionsInternal() const
@@ -252,7 +251,7 @@ bool CommsDefaultOptions::commsWriteClientDefaultOptionsInternal() const
         return true;
     }
 
-    util::GenReplacementMap repl = commsExtInitialRepl(m_commsGenerator);
+    util::GenReplacementMap repl = commsExtOptionsTemplInternal(m_commsGenerator);
     auto name = "Client" + strings::genDefaultOptionsClassStr();
     bool classExtended = false;
     repl.insert({
@@ -267,8 +266,7 @@ bool CommsDefaultOptions::commsWriteClientDefaultOptionsInternal() const
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
-    commsWriteFileInternal(name, m_commsGenerator, util::genProcessTemplate(commsExtOptionsTempl(), repl, true));
-    return true;
+    return commsWriteFileInternal(name, m_commsGenerator, util::genProcessTemplate(commsExtOptionsTemplInternal(), repl, true));
 }
 
 bool CommsDefaultOptions::commsWriteServerDefaultOptionsInternal() const
@@ -277,7 +275,7 @@ bool CommsDefaultOptions::commsWriteServerDefaultOptionsInternal() const
         return true;
     }
 
-    util::GenReplacementMap repl = commsExtInitialRepl(m_commsGenerator);
+    util::GenReplacementMap repl = commsExtOptionsTemplInternal(m_commsGenerator);
     auto name = "Server" + strings::genDefaultOptionsClassStr();
     bool classExtended = false;
     repl.insert({
@@ -292,13 +290,12 @@ bool CommsDefaultOptions::commsWriteServerDefaultOptionsInternal() const
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
-    commsWriteFileInternal(name, m_commsGenerator, util::genProcessTemplate(commsExtOptionsTempl(), repl, true));
-    return true;
+    return commsWriteFileInternal(name, m_commsGenerator, util::genProcessTemplate(commsExtOptionsTemplInternal(), repl, true));
 }
 
 bool CommsDefaultOptions::commsWriteDataViewDefaultOptionsInternal() const
 {
-    util::GenReplacementMap repl = commsExtInitialRepl(m_commsGenerator);
+    util::GenReplacementMap repl = commsExtOptionsTemplInternal(m_commsGenerator);
     auto name = strings::genDataViewStr() + strings::genDefaultOptionsClassStr();
     bool classExtended = false;
     repl.insert({
@@ -313,8 +310,7 @@ bool CommsDefaultOptions::commsWriteDataViewDefaultOptionsInternal() const
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
-    commsWriteFileInternal(name, m_commsGenerator, util::genProcessTemplate(commsExtOptionsTempl(), repl, true));
-    return true;
+    return commsWriteFileInternal(name, m_commsGenerator, util::genProcessTemplate(commsExtOptionsTemplInternal(), repl, true));
 }
 
 bool CommsDefaultOptions::commsWriteBareMetalDefaultOptionsInternal() const
@@ -326,7 +322,7 @@ bool CommsDefaultOptions::commsWriteBareMetalDefaultOptionsInternal() const
         "#define DEFAULT_SEQ_FIXED_STORAGE_SIZE 32\n"
         "#endif\n";
 
-    util::GenReplacementMap repl = commsExtInitialRepl(m_commsGenerator);
+    util::GenReplacementMap repl = commsExtOptionsTemplInternal(m_commsGenerator);
     auto name = strings::genBareMetalStr() + strings::genDefaultOptionsClassStr();
     bool classExtended = false;
     repl.insert({
@@ -342,8 +338,7 @@ bool CommsDefaultOptions::commsWriteBareMetalDefaultOptionsInternal() const
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
-    commsWriteFileInternal(name, m_commsGenerator, util::genProcessTemplate(commsExtOptionsTempl(), repl, true));
-    return true;
+    return commsWriteFileInternal(name, m_commsGenerator, util::genProcessTemplate(commsExtOptionsTemplInternal(), repl, true));
 }
 
 bool CommsDefaultOptions::commsWriteMsgFactoryDefaultOptionsInternal() const
@@ -515,7 +510,7 @@ bool CommsDefaultOptions::commsWriteSingleMsgFactoryDefaultOptionsInternal(
     comms::genPrepareIncludeStatement(includes);
 
     bool classExtended = false;
-    util::GenReplacementMap repl = commsExtInitialRepl(m_commsGenerator);
+    util::GenReplacementMap repl = commsExtOptionsTemplInternal(m_commsGenerator);
     repl.insert({
         {"DESC", messagesDesc + " messages " + allocDesc + " allocation"},
         {"NAME", prefix},
@@ -530,8 +525,7 @@ bool CommsDefaultOptions::commsWriteSingleMsgFactoryDefaultOptionsInternal(
         repl["ORIG"] = strings::genOrigSuffixStr();
     }
 
-    commsWriteFileInternal(name, m_commsGenerator, util::genProcessTemplate(commsMsgFactoryOptionsTempl(), repl, true));
-    return true;
+    return commsWriteFileInternal(name, m_commsGenerator, util::genProcessTemplate(commsMsgFactoryOptionsTemplInternal(), repl, true));
 }
 
 } // namespace commsdsl2comms

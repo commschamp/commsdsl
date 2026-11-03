@@ -39,23 +39,23 @@ public:
     explicit CommsInterface(CommsGenerator& generator, ParseInterface parseObj, GenElem* parent);
     virtual ~CommsInterface();
 
-    static const CommsInterface* commsCast(const commsdsl::gen::GenInterface* obj)
+    [[nodiscard]] static const CommsInterface* commsCast(const commsdsl::gen::GenInterface* obj)
     {
         return static_cast<const CommsInterface*>(obj);
     }
 
-    const CommsFieldsList& commsFields() const
+    [[nodiscard]] const CommsFieldsList& commsFields() const
     {
         return m_commsFields;
     }
 
-    const CommsField* commsFindValidReferencedField(const std::string& refStr) const;
+    [[nodiscard]] const CommsField* commsFindValidReferencedField(const std::string& refStr) const;
 
-    bool commsIsPresent() const;
+    [[nodiscard]] bool commsIsPresent() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
     struct CommsCustomCode
@@ -82,21 +82,21 @@ private:
         bool m_hasExtend = false;
     };
 
-    bool commsCopyCodeFromInternal();
-    bool commsWriteCommonInternal() const;
-    bool commsWriteDefInternal() const;
-    std::string commsCommonIncludesInternal() const;
-    std::string commsCommonFieldsCodeInternal() const;
-    std::string commsDefIncludesInternal() const;
-    std::string commsDefFieldsCodeInternal() const;
-    std::string commsDefDocDetailsInternal() const;
-    std::string commsDefBaseClassInternal() const;
-    std::string commsDefExtraOptionsInternal() const;
-    std::string commsDefPublicInternal() const;
-    std::string commsDefProtectedInternal() const;
-    std::string commsDefPrivateInternal() const;
-    std::string commsDefFieldsAccessInternal() const;
-    std::string commsDefFieldsAliasesInternal() const;
+    [[nodiscard]] bool commsCopyCodeFromInternal();
+    [[nodiscard]] bool commsWriteCommonInternal() const;
+    [[nodiscard]] bool commsWriteDefInternal() const;
+    [[nodiscard]] std::string commsCommonIncludesInternal() const;
+    [[nodiscard]] std::string commsCommonFieldsCodeInternal() const;
+    [[nodiscard]] std::string commsDefIncludesInternal() const;
+    [[nodiscard]] std::string commsDefFieldsCodeInternal() const;
+    [[nodiscard]] std::string commsDefDocDetailsInternal() const;
+    [[nodiscard]] std::string commsDefBaseClassInternal() const;
+    [[nodiscard]] std::string commsDefExtraOptionsInternal() const;
+    [[nodiscard]] std::string commsDefPublicInternal() const;
+    [[nodiscard]] std::string commsDefProtectedInternal() const;
+    [[nodiscard]] std::string commsDefPrivateInternal() const;
+    [[nodiscard]] std::string commsDefFieldsAccessInternal() const;
+    [[nodiscard]] std::string commsDefFieldsAliasesInternal() const;
 
     std::string m_name;
     CommsFieldsList m_commsFields;

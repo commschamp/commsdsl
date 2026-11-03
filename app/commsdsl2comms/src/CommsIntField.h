@@ -34,41 +34,41 @@ public:
 
     CommsIntField(CommsGenerator& generator, ParseField parseObj, GenElem* parent);
 
-    std::string commsVariantPropKeyType() const;
-    std::string commsVariantPropKeyValueStr() const;
-    bool commsVariantIsValidPropKey() const;
-    bool commsVariantIsPropKeyEquivalent(const CommsIntField& other) const;
+    [[nodiscard]] std::string commsVariantPropKeyType() const;
+    [[nodiscard]] std::string commsVariantPropKeyValueStr() const;
+    [[nodiscard]] bool commsVariantIsValidPropKey() const;
+    [[nodiscard]] bool commsVariantIsPropKeyEquivalent(const CommsIntField& other) const;
 
 protected:
     // GenBase overrides
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // CommsBase overrides
-    virtual CommsIncludesList commsCommonIncludesImpl() const override;
-    virtual std::string commsCommonCodeBodyImpl() const override;
-    virtual CommsIncludesList commsDefIncludesImpl() const override;
-    virtual std::string commsDefBaseClassImpl() const override;
-    virtual std::string commsDefPublicCodeImpl() const override;
-    virtual std::string commsDefRefreshFuncBodyImpl() const override;
-    virtual std::string commsDefValidFuncBodyImpl() const override;
-    virtual bool commsIsVersionDependentImpl() const override;
-    virtual std::size_t commsMinLengthImpl() const override;
-    virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
-    virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
+    [[nodiscard]] virtual CommsIncludesList commsCommonIncludesImpl() const override;
+    [[nodiscard]] virtual std::string commsCommonCodeBodyImpl() const override;
+    [[nodiscard]] virtual CommsIncludesList commsDefIncludesImpl() const override;
+    [[nodiscard]] virtual std::string commsDefBaseClassImpl() const override;
+    [[nodiscard]] virtual std::string commsDefPublicCodeImpl() const override;
+    [[nodiscard]] virtual std::string commsDefRefreshFuncBodyImpl() const override;
+    [[nodiscard]] virtual std::string commsDefValidFuncBodyImpl() const override;
+    [[nodiscard]] virtual bool commsIsVersionDependentImpl() const override;
+    [[nodiscard]] virtual std::size_t commsMinLengthImpl() const override;
+    [[nodiscard]] virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
+    [[nodiscard]] virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
 
 private:
-    std::string commsCommonHasSpecialsFuncCodeInternal() const;
-    std::string commsCommonValueNamesMapCodeInternal() const;
-    std::string commsCommonSpecialsCodeInternal() const;
-    std::string commsCommonSpecialNamesMapCodeInternal() const;
-    std::string commsDefFieldOptsInternal(bool variantPropKey = false) const;
-    std::string commsDefValueNamesMapCodeInternal() const;
-    std::string commsDefHasSpecialsFuncCodeInternal() const;
-    std::string commsDefSpecialsCodeInternal() const;
-    std::string commsDefSpecialNamesMapCodeInternal() const;
-    std::string commsDefDisplayDecimalsCodeInternal() const;
-    std::string commsDefBaseClassInternal(bool variantPropKey = false) const;
+    [[nodiscard]] std::string commsCommonHasSpecialsFuncCodeInternal() const;
+    [[nodiscard]] std::string commsCommonValueNamesMapCodeInternal() const;
+    [[nodiscard]] std::string commsCommonSpecialsCodeInternal() const;
+    [[nodiscard]] std::string commsCommonSpecialNamesMapCodeInternal() const;
+    [[nodiscard]] std::string commsDefFieldOptsInternal(bool variantPropKey = false) const;
+    [[nodiscard]] std::string commsDefValueNamesMapCodeInternal() const;
+    [[nodiscard]] std::string commsDefHasSpecialsFuncCodeInternal() const;
+    [[nodiscard]] std::string commsDefSpecialsCodeInternal() const;
+    [[nodiscard]] std::string commsDefSpecialNamesMapCodeInternal() const;
+    [[nodiscard]] std::string commsDefDisplayDecimalsCodeInternal() const;
+    [[nodiscard]] std::string commsDefBaseClassInternal(bool variantPropKey = false) const;
 
     void commsAddLengthOptInternal(GenStringsList& opts) const;
     void commsAddSerOffsetOptInternal(GenStringsList& opts) const;
@@ -79,7 +79,7 @@ private:
     void commsAddValidRangesOptInternal(GenStringsList& opts) const;
     void commsAddCustomRefreshOptInternal(GenStringsList& opts) const;
     void commsAddAvailableLengthLimitOptInternal(GenStringsList& opts) const;
-    bool commsRequiresFailOnInvalidRefreshInternal() const;
+    [[nodiscard]] bool commsRequiresFailOnInvalidRefreshInternal() const;
 };
 
 } // namespace commsdsl2comms

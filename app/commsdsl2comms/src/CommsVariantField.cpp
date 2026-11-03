@@ -43,7 +43,7 @@ namespace
 
 constexpr std::size_t CommsMaxMembersSupportedByComms = 120;
 
-bool commsintIsValidPropKeyInternal(const CommsIntField& intField)
+[[nodiscard]] bool commsintIsValidPropKeyInternal(const CommsIntField& intField)
 {
     auto obj = intField.commsGenField().genParseObj();
     if (!obj.parseIsFailOnInvalid()) {
@@ -72,7 +72,7 @@ bool commsintIsValidPropKeyInternal(const CommsIntField& intField)
     return true;
 }
 
-const CommsField* commsBundleGetValidPropKeyInternal(const CommsBundleField& bundle)
+[[nodiscard]] const CommsField* commsBundleGetValidPropKeyInternal(const CommsBundleField& bundle)
 {
     auto& members = bundle.commsMembers();
     if (members.empty()) {
@@ -97,7 +97,7 @@ const CommsField* commsBundleGetValidPropKeyInternal(const CommsBundleField& bun
     return first;
 }
 
-std::string commsPropKeyTypeInternal(const CommsField& field)
+[[nodiscard]] std::string commsPropKeyTypeInternal(const CommsField& field)
 {
     assert(field.commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
 
@@ -105,7 +105,7 @@ std::string commsPropKeyTypeInternal(const CommsField& field)
     return keyField.commsVariantPropKeyType();
 }
 
-std::string commsPropKeyValueStrInternal(const CommsField& field)
+[[nodiscard]] std::string commsPropKeyValueStrInternal(const CommsField& field)
 {
     assert(field.commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
 
@@ -113,7 +113,7 @@ std::string commsPropKeyValueStrInternal(const CommsField& field)
     return keyField.commsVariantPropKeyValueStr();
 }
 
-bool commsPropKeysEquivalent(const CommsField& first, const CommsField& second)
+[[nodiscard]] bool commsPropKeysEquivalent(const CommsField& first, const CommsField& second)
 {
     assert(first.commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
     assert(second.commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Int);
@@ -121,7 +121,7 @@ bool commsPropKeysEquivalent(const CommsField& first, const CommsField& second)
     return static_cast<const CommsIntField&>(first).commsVariantIsPropKeyEquivalent(static_cast<const CommsIntField&>(second));
 }
 
-const CommsField* commsGetReferenceFieldInternal(const CommsField* field)
+[[nodiscard]] const CommsField* commsGetReferenceFieldInternal(const CommsField* field)
 {
     while (field->commsGenField().genParseObj().parseKind() == commsdsl::parse::ParseField::ParseKind::Ref) {
         auto& refField = static_cast<const CommsRefField&>(*field);

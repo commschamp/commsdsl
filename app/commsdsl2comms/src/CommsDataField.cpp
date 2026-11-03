@@ -38,7 +38,7 @@ namespace commsdsl2comms
 namespace
 {
 
-std::string commsBytesToString(const std::vector<std::uint8_t> value)
+[[nodiscard]] std::string commsBytesToStringInternal(const std::vector<std::uint8_t> value)
 {
     util::GenStringsList bytes;
     bytes.reserve(value.size());
@@ -196,7 +196,7 @@ std::string CommsDataField::commsDefConstructCodeImpl() const
         ;
 
     util::GenReplacementMap repl = {
-        {"BYTES", commsBytesToString(defaultValue)}
+        {"BYTES", commsBytesToStringInternal(defaultValue)}
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -342,7 +342,7 @@ std::string CommsDataField::commsDefValidFuncBodyImpl() const
         auto name = "ValidValue" + std::to_string(idx);
         util::GenReplacementMap defRepl = {
             {"NAME", name},
-            {"BYTES", commsBytesToString(info.m_value)},
+            {"BYTES", commsBytesToStringInternal(info.m_value)},
         };
 
         defs.push_back(util::genProcessTemplate(DefTempl, defRepl));

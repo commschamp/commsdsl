@@ -36,14 +36,14 @@ public:
     CommsSyncLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
 
     // CommsBase overrides
-    virtual CommsIncludesList commsCommonIncludesImpl() const override;
-    virtual CommsIncludesList commsDefIncludesImpl() const override;
-    virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
-    virtual std::string commsExtraMemberFieldsDefsImpl() const override;
-    virtual std::string commsExtraMemberFieldsCommonCodeImpl() const override;
+    [[nodiscard]] virtual CommsIncludesList commsCommonIncludesImpl() const override;
+    [[nodiscard]] virtual CommsIncludesList commsDefIncludesImpl() const override;
+    [[nodiscard]] virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
+    [[nodiscard]] virtual std::string commsExtraMemberFieldsDefsImpl() const override;
+    [[nodiscard]] virtual std::string commsExtraMemberFieldsCommonCodeImpl() const override;
 };
 
 } // namespace commsdsl2comms

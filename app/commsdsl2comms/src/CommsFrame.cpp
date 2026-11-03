@@ -39,7 +39,7 @@ namespace commsdsl2comms
 namespace
 {
 
-bool commsHasIdLayerInternal(const CommsFrame::CommsLayersList& commsLayers)
+[[nodiscard]] bool commsHasIdLayerInternal(const CommsFrame::CommsLayersList& commsLayers)
 {
     return
         std::any_of(

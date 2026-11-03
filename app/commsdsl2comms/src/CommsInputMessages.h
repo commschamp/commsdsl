@@ -28,14 +28,14 @@ class CommsInputMessages
 {
 public:
     CommsInputMessages(CommsGenerator& generator, const CommsNamespace& parent);
-    bool commsWrite() const;
+    [[nodiscard]] bool commsWrite() const;
 
 private:
-    bool commsWriteAllMessagesInternal() const;
-    bool commsWriteClientInputMessagesInternal() const;
-    bool commsWriteServerInputMessagesInternal() const;
-    bool commsWritePlatformInputMessagesInternal() const;
-    bool commsWriteExtraInputMessagesInternal() const;
+    [[nodiscard]] bool commsWriteAllMessagesInternal() const;
+    [[nodiscard]] bool commsWriteClientInputMessagesInternal() const;
+    [[nodiscard]] bool commsWriteServerInputMessagesInternal() const;
+    [[nodiscard]] bool commsWritePlatformInputMessagesInternal() const;
+    [[nodiscard]] bool commsWriteExtraInputMessagesInternal() const;
 
     CommsGenerator& m_generator;
     const CommsNamespace& m_parent;

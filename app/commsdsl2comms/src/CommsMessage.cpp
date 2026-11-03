@@ -44,24 +44,24 @@ namespace commsdsl2comms
 namespace
 {
 
-bool commsHasOrigCode(commsdsl::parse::ParseOverrideType value)
+[[nodiscard]] bool commsHasOrigCodeInternal(commsdsl::parse::ParseOverrideType value)
 {
     return (value != commsdsl::parse::ParseOverrideType_Replace);
 }
 
-bool commsIsOverrideCodeAllowed(commsdsl::parse::ParseOverrideType value)
+[[nodiscard]] bool commsIsOverrideCodeAllowedInternal(commsdsl::parse::ParseOverrideType value)
 {
     return (value != commsdsl::parse::ParseOverrideType_None);
 }
 
-bool commsIsOverrideCodeRequired(commsdsl::parse::ParseOverrideType value)
+[[nodiscard]] bool commsIsOverrideCodeRequiredInternal(commsdsl::parse::ParseOverrideType value)
 {
     return
         (value == commsdsl::parse::ParseOverrideType_Replace) ||
         (value == commsdsl::parse::ParseOverrideType_Extend);
 }
 
-std::pair<const CommsField*, std::string> commsFindInterfaceFieldInternal(const CommsGenerator& generator, const std::string& refStr)
+[[nodiscard]] std::pair<const CommsField*, std::string> commsFindInterfaceFieldInternal(const CommsGenerator& generator, const std::string& refStr)
 {
     auto& currSchema = CommsSchema::commsCast(generator.genCurrentSchema());
     auto* field = currSchema.commsFindValidInterfaceReferencedField(refStr);
@@ -79,7 +79,7 @@ std::pair<const CommsField*, std::string> commsFindInterfaceFieldInternal(const 
     return std::make_pair(field, refStr.substr(dotPos + 1));
 }
 
-std::string commsInterfaceFieldAccStrInternal(const CommsField& field)
+[[nodiscard]] std::string commsInterfaceFieldAccStrInternal(const CommsField& field)
 {
     return strings::genTransportFieldAccessPrefixStr() + comms::genAccessName(field.commsGenField().genParseObj().parseName()) + "()";
 }
@@ -387,7 +387,7 @@ bool CommsMessage::commsPrepareOverrideInternal(
         };
 
     do {
-        if (!commsIsOverrideCodeAllowed(type)) {
+        if (!commsIsOverrideCodeAllowedInternal(type)) {
             code.clear();
             updateHasCodeFlag(false);
             break;
@@ -403,7 +403,7 @@ bool CommsMessage::commsPrepareOverrideInternal(
 
     } while (false);
 
-    if (code.empty() && commsIsOverrideCodeRequired(type)) {
+    if (code.empty() && commsIsOverrideCodeRequiredInternal(type)) {
         genGenerator().genLogger().genError(
             "Overriding \"" + name + "\" operation is not provided in injected code for message \"" +
             genParseObj().parseExternalRef() + "\".");
@@ -1306,7 +1306,7 @@ std::string CommsMessage::commsDefLengthCheckInternal() const
 std::string CommsMessage::commsDefNameFuncInternal() const
 {
     std::string origCode;
-    if (commsHasOrigCode(genParseObj().parseNameOverride())) {
+    if (commsHasOrigCodeInternal(genParseObj().parseNameOverride())) {
         static const std::string Templ =
             "/// @brief Name of the message.\n"
             "static const char* doName#^#ORIG#$#()\n"
@@ -1342,7 +1342,7 @@ std::string CommsMessage::commsDefReadFuncInternal() const
 {
     std::string origCode;
     do {
-        if (!commsHasOrigCode(genParseObj().parseReadOverride())) {
+        if (!commsHasOrigCodeInternal(genParseObj().parseReadOverride())) {
             break;
         }
 
@@ -1482,7 +1482,7 @@ std::string CommsMessage::commsDefRefreshFuncInternal() const
 {
     std::string origCode;
     do {
-        if (!commsHasOrigCode(genParseObj().parseRefreshOverride())) {
+        if (!commsHasOrigCodeInternal(genParseObj().parseRefreshOverride())) {
             break;
         }
 
@@ -1712,7 +1712,7 @@ std::string CommsMessage::commsDefOrigValidCodeInternal() const
 {
     auto obj = genParseObj();
 
-    if ((m_customCode.m_hasValid) && (!commsHasOrigCode(obj.parseValidOverride()))) {
+    if ((m_customCode.m_hasValid) && (!commsHasOrigCodeInternal(obj.parseValidOverride()))) {
         return strings::genEmptyString();
     }
 

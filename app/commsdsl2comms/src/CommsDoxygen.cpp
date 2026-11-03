@@ -43,7 +43,7 @@ const std::string CommsClientInputPrefixStr = "ClientInput";
 const std::string CommsServerInputMessagesStr = CommsServerInputPrefixStr + "Messages";
 const std::string CommsClientInputMessagesStr = CommsClientInputPrefixStr + "Messages";
 
-bool commsWriteFileInternal(const std::string& name, const std::string& str, CommsGenerator& generator)
+[[nodiscard]] bool commsWriteFileInternal(const std::string& name, const std::string& str, CommsGenerator& generator)
 {
     auto filePath = comms::genPathForDoc(name, generator);
     generator.genLogger().genInfo("Generating " + filePath);

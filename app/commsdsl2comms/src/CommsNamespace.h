@@ -42,33 +42,33 @@ public:
     CommsNamespace(CommsGenerator& generator, ParseNamespace parseObj, GenElem* parent);
     virtual ~CommsNamespace();
 
-    static const CommsNamespace* commsCast(const commsdsl::gen::GenNamespace* obj)
+    [[nodiscard]] static const CommsNamespace* commsCast(const commsdsl::gen::GenNamespace* obj)
     {
         return static_cast<const CommsNamespace*>(obj);
     }
 
-    std::string commsDefaultOptions() const;
-    std::string commsClientDefaultOptions() const;
-    std::string commsServerDefaultOptions() const;
-    std::string commsDataViewDefaultOptions() const;
-    std::string commsBareMetalDefaultOptions() const;
-    std::string commsMsgFactoryDefaultOptions() const;
+    [[nodiscard]] std::string commsDefaultOptions() const;
+    [[nodiscard]] std::string commsClientDefaultOptions() const;
+    [[nodiscard]] std::string commsServerDefaultOptions() const;
+    [[nodiscard]] std::string commsDataViewDefaultOptions() const;
+    [[nodiscard]] std::string commsBareMetalDefaultOptions() const;
+    [[nodiscard]] std::string commsMsgFactoryDefaultOptions() const;
 
-    bool commsHasReferencedMsgId() const;
-    bool commsHasAnyGeneratedCode() const;
-    bool commsHasAnyField() const;
+    [[nodiscard]] bool commsHasReferencedMsgId() const;
+    [[nodiscard]] bool commsHasAnyGeneratedCode() const;
+    [[nodiscard]] bool commsHasAnyField() const;
 
-    const CommsField* commsFindValidInterfaceReferencedField(const std::string& refStr) const;
+    [[nodiscard]] const CommsField* commsFindValidInterfaceReferencedField(const std::string& refStr) const;
 
-    std::string commsMsgFactoryAliasType() const;
-    std::string commsMsgFactoryAliasDef(const std::string& namePrefix, const std::string& typeSuffix) const;
-    std::string commsRelHeaderPath(const std::string& namePrefix) const;
+    [[nodiscard]] std::string commsMsgFactoryAliasType() const;
+    [[nodiscard]] std::string commsMsgFactoryAliasDef(const std::string& namePrefix, const std::string& typeSuffix) const;
+    [[nodiscard]] std::string commsRelHeaderPath(const std::string& namePrefix) const;
 
-    bool commsHasMsgId() const;
+    [[nodiscard]] bool commsHasMsgId() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
     using CommsNamespaceOptsFunc = std::string (CommsNamespace::*)() const;
@@ -77,7 +77,7 @@ private:
     using CommsFrameOptsFunc = std::string (CommsFrame::*)() const;
     using CommsFieldsList = CommsField::CommsFieldsList;
 
-    std::string commsOptionsInternal(
+    [[nodiscard]] std::string commsOptionsInternal(
         CommsNamespaceOptsFunc nsOptsFunc,
         CommsFieldOptsFunc fieldOptsFunc,
         CommsMessageOptsFunc messageOptsFunc,

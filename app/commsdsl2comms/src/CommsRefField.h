@@ -36,41 +36,41 @@ public:
 
     CommsRefField(CommsGenerator& generator, ParseField parseObj, GenElem* parent);
 
-    static const CommsRefField* commsCast(const GenRefField* ptr)
+    [[nodiscard]] static const CommsRefField* commsCast(const GenRefField* ptr)
     {
         return static_cast<const CommsRefField*>(ptr);
     }
 
-    static const CommsRefField* commsCast(const CommsField* ptr)
+    [[nodiscard]] static const CommsRefField* commsCast(const CommsField* ptr)
     {
         return static_cast<const CommsRefField*>(ptr);
     }
 
 protected:
     // GenBase overrides
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // CommsBase overrides
-    virtual CommsIncludesList commsCommonIncludesImpl() const override;
-    virtual std::string commsCommonCodeBaseClassImpl() const override;
-    virtual std::string commsCommonCodeBodyImpl() const override;
-    virtual std::string commsCommonMembersBaseClassImpl() const override;
-    virtual CommsIncludesList commsDefIncludesImpl() const override;
-    virtual std::string commsDefBaseClassImpl() const override;
-    virtual bool commsIsLimitedCustomizableImpl() const override;
-    virtual bool commsDefHasNameFuncImpl() const override;
-    virtual std::size_t commsMinLengthImpl() const override;
-    virtual std::size_t commsMaxLengthImpl() const override;
-    virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
-    virtual std::string commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
+    [[nodiscard]] virtual CommsIncludesList commsCommonIncludesImpl() const override;
+    [[nodiscard]] virtual std::string commsCommonCodeBaseClassImpl() const override;
+    [[nodiscard]] virtual std::string commsCommonCodeBodyImpl() const override;
+    [[nodiscard]] virtual std::string commsCommonMembersBaseClassImpl() const override;
+    [[nodiscard]] virtual CommsIncludesList commsDefIncludesImpl() const override;
+    [[nodiscard]] virtual std::string commsDefBaseClassImpl() const override;
+    [[nodiscard]] virtual bool commsIsLimitedCustomizableImpl() const override;
+    [[nodiscard]] virtual bool commsDefHasNameFuncImpl() const override;
+    [[nodiscard]] virtual std::size_t commsMinLengthImpl() const override;
+    [[nodiscard]] virtual std::size_t commsMaxLengthImpl() const override;
+    [[nodiscard]] virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
+    [[nodiscard]] virtual std::string commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
     virtual void commsCompOptChecksImpl(const std::string& accStr, GenStringsList& checks, const std::string& prefix) const override;
-    virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const override;
-    virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
-    virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
+    [[nodiscard]] virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const override;
+    [[nodiscard]] virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
+    [[nodiscard]] virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
 
 private:
-    std::string commsDefFieldOptsInternal() const;
+    [[nodiscard]] std::string commsDefFieldOptsInternal() const;
 
     void commsAddProtocolOptInternal(GenStringsList& opts) const;
     void commsAddBitLengthOptInternal(GenStringsList& opts) const;

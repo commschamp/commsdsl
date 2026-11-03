@@ -43,7 +43,7 @@ const std::string ClientInputSuffixStr = "ClientInputMessages";
 const std::string ServerInputSuffixStr = "ServerInputMessages";
 
 using CheckFunction = std::function<bool (const commsdsl::gen::GenMessage&)>;
-bool writeFileInternal(
+[[nodiscard]] bool writeFileInternal(
     const std::string& name,
     const std::string& desc,
     CommsGenerator& generator,

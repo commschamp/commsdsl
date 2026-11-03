@@ -42,32 +42,32 @@ public:
     explicit CommsFrame(CommsGenerator& generator, ParseFrame parseObj, GenElem* parent);
     virtual ~CommsFrame();
 
-    std::string commsDefaultOptions() const;
-    std::string commsDataViewDefaultOptions() const;
-    std::string commsBareMetalDefaultOptions() const;
-    std::string commsMsgFactoryDefaultOptions() const;
+    [[nodiscard]] std::string commsDefaultOptions() const;
+    [[nodiscard]] std::string commsDataViewDefaultOptions() const;
+    [[nodiscard]] std::string commsBareMetalDefaultOptions() const;
+    [[nodiscard]] std::string commsMsgFactoryDefaultOptions() const;
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
 private:
     using CommsLayerOptsFunc = std::string (CommsLayer::*)() const;
 
-    bool commsWriteCommonInternal() const;
-    bool commsWriteDefInternal() const;
-    std::string commsCommonIncludesInternal() const;
-    std::string commsCommonBodyInternal() const;
-    std::string commsDefIncludesInternal() const;
-    std::string commsDefLayersDefInternal() const;
-    std::string commsDefFrameBaseInternal() const;
-    std::string commsDefInputMessagesDocInternal() const;
-    std::string commsDefInputMessagesParamInternal() const;
-    std::string commsDefAccessDocInternal() const;
-    std::string commsDefAccessListInternal() const;
-    std::string commsDefProtectedInternal() const;
-    std::string commsDefPrivateInternal() const;
-    std::string commsCustomizationOptionsInternal(
+    [[nodiscard]] bool commsWriteCommonInternal() const;
+    [[nodiscard]] bool commsWriteDefInternal() const;
+    [[nodiscard]] std::string commsCommonIncludesInternal() const;
+    [[nodiscard]] std::string commsCommonBodyInternal() const;
+    [[nodiscard]] std::string commsDefIncludesInternal() const;
+    [[nodiscard]] std::string commsDefLayersDefInternal() const;
+    [[nodiscard]] std::string commsDefFrameBaseInternal() const;
+    [[nodiscard]] std::string commsDefInputMessagesDocInternal() const;
+    [[nodiscard]] std::string commsDefInputMessagesParamInternal() const;
+    [[nodiscard]] std::string commsDefAccessDocInternal() const;
+    [[nodiscard]] std::string commsDefAccessListInternal() const;
+    [[nodiscard]] std::string commsDefProtectedInternal() const;
+    [[nodiscard]] std::string commsDefPrivateInternal() const;
+    [[nodiscard]] std::string commsCustomizationOptionsInternal(
         CommsLayerOptsFunc layerOptsFunc,
         bool hasBase) const;
 

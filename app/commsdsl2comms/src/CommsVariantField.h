@@ -38,50 +38,50 @@ public:
 
 protected:
     // GenBase overrides
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() const override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() const override;
 
     // CommsBase overrides
-    virtual CommsIncludesList commsCommonIncludesImpl() const override;
-    virtual std::string commsCommonCodeBodyImpl() const override;
-    virtual std::string commsCommonMembersCodeImpl() const override;
-    virtual CommsIncludesList commsDefIncludesImpl() const override;
-    virtual std::string commsDefMembersCodeImpl() const override;
-    virtual std::string commsDefBaseClassImpl() const override;
-    virtual std::string commsDefConstructCodeImpl() const override;
-    virtual std::string commsDefDestructCodeImpl() const override;
-    virtual std::string commsDefPublicCodeImpl() const override;
-    virtual std::string commsDefPrivateCodeImpl() const override;
-    virtual std::string commsDefReadFuncBodyImpl() const override;
-    virtual GenStringsList commsDefReadMsvcSuppressWarningsImpl() const override;
-    virtual std::string commsDefWriteFuncBodyImpl() const override;
-    virtual std::string commsDefRefreshFuncBodyImpl() const override;
-    virtual std::string commsDefLengthFuncBodyImpl() const override;
-    virtual std::string commsDefValidFuncBodyImpl() const override;
-    virtual bool commsIsVersionDependentImpl() const override;
-    virtual std::string commsMembersCustomizationOptionsBodyImpl(CommsFieldOptsFunc fieldOptsFunc) const override;
-    virtual std::size_t commsMaxLengthImpl() const override;
-    virtual bool commsHasCustomLengthDeepImpl() const override;
-    virtual bool commsMustDefineDefaultConstructorImpl() const override;
+    [[nodiscard]] virtual CommsIncludesList commsCommonIncludesImpl() const override;
+    [[nodiscard]] virtual std::string commsCommonCodeBodyImpl() const override;
+    [[nodiscard]] virtual std::string commsCommonMembersCodeImpl() const override;
+    [[nodiscard]] virtual CommsIncludesList commsDefIncludesImpl() const override;
+    [[nodiscard]] virtual std::string commsDefMembersCodeImpl() const override;
+    [[nodiscard]] virtual std::string commsDefBaseClassImpl() const override;
+    [[nodiscard]] virtual std::string commsDefConstructCodeImpl() const override;
+    [[nodiscard]] virtual std::string commsDefDestructCodeImpl() const override;
+    [[nodiscard]] virtual std::string commsDefPublicCodeImpl() const override;
+    [[nodiscard]] virtual std::string commsDefPrivateCodeImpl() const override;
+    [[nodiscard]] virtual std::string commsDefReadFuncBodyImpl() const override;
+    [[nodiscard]] virtual GenStringsList commsDefReadMsvcSuppressWarningsImpl() const override;
+    [[nodiscard]] virtual std::string commsDefWriteFuncBodyImpl() const override;
+    [[nodiscard]] virtual std::string commsDefRefreshFuncBodyImpl() const override;
+    [[nodiscard]] virtual std::string commsDefLengthFuncBodyImpl() const override;
+    [[nodiscard]] virtual std::string commsDefValidFuncBodyImpl() const override;
+    [[nodiscard]] virtual bool commsIsVersionDependentImpl() const override;
+    [[nodiscard]] virtual std::string commsMembersCustomizationOptionsBodyImpl(CommsFieldOptsFunc fieldOptsFunc) const override;
+    [[nodiscard]] virtual std::size_t commsMaxLengthImpl() const override;
+    [[nodiscard]] virtual bool commsHasCustomLengthDeepImpl() const override;
+    [[nodiscard]] virtual bool commsMustDefineDefaultConstructorImpl() const override;
 
 private:
-    bool commsPrepareInternal();
-    std::string commsDefFieldOptsInternal() const;
-    std::string commsDefCopyCodeInternal() const;
-    std::string commsDefAccessCodeInternal() const;
-    std::string commsDefAccessCodeByCommsInternal() const;
-    std::string commsDefAccessCodeGeneratedInternal() const;
-    std::string commsDefFieldExecCodeInternal() const;
-    std::string commsDefResetCodeInternal() const;
-    std::string commsDefCanWriteCodeInternal() const;
-    std::string commsDefSelectFieldCodeInternal() const;
+    [[nodiscard]] bool commsPrepareInternal();
+    [[nodiscard]] std::string commsDefFieldOptsInternal() const;
+    [[nodiscard]] std::string commsDefCopyCodeInternal() const;
+    [[nodiscard]] std::string commsDefAccessCodeInternal() const;
+    [[nodiscard]] std::string commsDefAccessCodeByCommsInternal() const;
+    [[nodiscard]] std::string commsDefAccessCodeGeneratedInternal() const;
+    [[nodiscard]] std::string commsDefFieldExecCodeInternal() const;
+    [[nodiscard]] std::string commsDefResetCodeInternal() const;
+    [[nodiscard]] std::string commsDefCanWriteCodeInternal() const;
+    [[nodiscard]] std::string commsDefSelectFieldCodeInternal() const;
 
     void commsAddCustomReadOptInternal(GenStringsList& opts) const;
-    std::string commsOptimizedReadKeyInternal() const;
-    const std::string& commsCommonMemberNameMapInternal() const;
-    std::string commsCommonMemberNameFuncsCodeInternal() const;
-    std::string commsDefMemberNamesTypesInternal() const;
-    std::string commsDefMemberNamesFuncsInternal() const;
+    [[nodiscard]] std::string commsOptimizedReadKeyInternal() const;
+    [[nodiscard]] const std::string& commsCommonMemberNameMapInternal() const;
+    [[nodiscard]] std::string commsCommonMemberNameFuncsCodeInternal() const;
+    [[nodiscard]] std::string commsDefMemberNamesTypesInternal() const;
+    [[nodiscard]] std::string commsDefMemberNamesFuncsInternal() const;
 
     CommsFieldsList m_commsMembers;
     std::string m_optimizedReadKey;

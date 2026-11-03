@@ -25,25 +25,25 @@ class CommsGenerator;
 class CommsDoxygen
 {
 public:
-    static bool commsWrite(CommsGenerator& generator);
+    [[nodiscard]] static bool commsWrite(CommsGenerator& generator);
 
 private:
     explicit CommsDoxygen(CommsGenerator& generator) : m_commsGenerator(generator) {}
 
-    bool commsWriteInternal() const;
+    [[nodiscard]] bool commsWriteInternal() const;
 
-    bool commsWriteConfInternal() const;
-    bool commsWriteLayoutInternal() const;
-    bool commsWriteNamespacesInternal() const;
-    bool commsWriteMainpageInternal() const;
-    std::string commsMessagesDocInternal() const;
-    std::string commsFieldsDocInternal() const;
-    std::string commsInterfaceDocInternal() const;
-    std::string commsFrameDocInternal() const;
-    std::string commsDispatchDocInternal() const;
-    std::string commsCustomizeDocInternal() const;
-    std::string commsVersionDocInternal() const;
-    std::string commsPlatformsDocInternal() const;
+    [[nodiscard]] bool commsWriteConfInternal() const;
+    [[nodiscard]] bool commsWriteLayoutInternal() const;
+    [[nodiscard]] bool commsWriteNamespacesInternal() const;
+    [[nodiscard]] bool commsWriteMainpageInternal() const;
+    [[nodiscard]] std::string commsMessagesDocInternal() const;
+    [[nodiscard]] std::string commsFieldsDocInternal() const;
+    [[nodiscard]] std::string commsInterfaceDocInternal() const;
+    [[nodiscard]] std::string commsFrameDocInternal() const;
+    [[nodiscard]] std::string commsDispatchDocInternal() const;
+    [[nodiscard]] std::string commsCustomizeDocInternal() const;
+    [[nodiscard]] std::string commsVersionDocInternal() const;
+    [[nodiscard]] std::string commsPlatformsDocInternal() const;
 
     CommsGenerator& m_commsGenerator;
 };

@@ -36,13 +36,13 @@ public:
     CommsValueLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
 
-    virtual CommsIncludesList commsDefIncludesImpl() const override;
-    virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
+    [[nodiscard]] virtual CommsIncludesList commsDefIncludesImpl() const override;
+    [[nodiscard]] virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
 
 private:
-    std::string commsDefExtraOptsInternal() const;
+    [[nodiscard]] std::string commsDefExtraOptsInternal() const;
 };
 
 } // namespace commsdsl2comms

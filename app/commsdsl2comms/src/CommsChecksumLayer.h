@@ -36,15 +36,15 @@ public:
     CommsChecksumLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
 
     // CommsBase overrides
-    virtual CommsIncludesList commsDefIncludesImpl() const override;
-    virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
+    [[nodiscard]] virtual CommsIncludesList commsDefIncludesImpl() const override;
+    [[nodiscard]] virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
 
 private:
-    std::string commsDefAlgInternal() const;
-    std::string commsDefExtraOptInternal() const;
+    [[nodiscard]] std::string commsDefAlgInternal() const;
+    [[nodiscard]] std::string commsDefExtraOptInternal() const;
 };
 
 } // namespace commsdsl2comms

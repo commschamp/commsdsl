@@ -40,17 +40,17 @@ namespace commsdsl2comms
 namespace
 {
 
-bool commsHasOrigCode(commsdsl::parse::ParseOverrideType value)
+[[nodiscard]] bool commsHasOrigCodeInternal(commsdsl::parse::ParseOverrideType value)
 {
     return (value != commsdsl::parse::ParseOverrideType_Replace);
 }
 
-bool commsIsOverrideCodeAllowed(commsdsl::parse::ParseOverrideType value)
+[[nodiscard]] bool commsIsOverrideCodeAllowedInternal(commsdsl::parse::ParseOverrideType value)
 {
     return (value != commsdsl::parse::ParseOverrideType_None);
 }
 
-bool commsIsOverrideCodeRequired(commsdsl::parse::ParseOverrideType value)
+[[nodiscard]] bool commsIsOverrideCodeRequiredInternal(commsdsl::parse::ParseOverrideType value)
 {
     return
         (value == commsdsl::parse::ParseOverrideType_Replace) ||
@@ -911,7 +911,7 @@ bool CommsField::commsPrepareOverrideInternal(
     bool& hasCode)
 {
     do {
-        if (!commsIsOverrideCodeAllowed(type)) {
+        if (!commsIsOverrideCodeAllowedInternal(type)) {
             code.clear();
             hasCode = false;
             break;
@@ -922,7 +922,7 @@ bool CommsField::commsPrepareOverrideInternal(
         commsAssignCustomCode(customCode, hasCodeTmp, code, hasCode);
     } while (false);
 
-    if ((!hasCode) && commsIsOverrideCodeRequired(type)) {
+    if ((!hasCode) && commsIsOverrideCodeRequiredInternal(type)) {
         m_genField.genGenerator().genLogger().genError(
             "Overriding \"" + name + "\" operation is not provided in injected code for field \"" +
             m_genField.genParseObj().parseInnerRef() + "\".");
@@ -1696,7 +1696,7 @@ std::string CommsField::commsDefNameFuncCodeInternal() const
         return strings::genEmptyString();
     }
 
-    if (!commsHasOrigCode(overrideType)) {
+    if (!commsHasOrigCodeInternal(overrideType)) {
         return m_customCode.m_name;
     }
 
@@ -1733,7 +1733,7 @@ std::string CommsField::commsDefReadFuncCodeInternal() const
 
     util::GenReplacementMap repl;
     std::string body;
-    if (commsHasOrigCode(m_genField.genParseObj().parseReadOverride())) {
+    if (commsHasOrigCodeInternal(m_genField.genParseObj().parseReadOverride())) {
         body = commsDefReadFuncBodyImpl();
     }
 
@@ -1794,7 +1794,7 @@ std::string CommsField::commsDefWriteFuncCodeInternal() const
     util::GenReplacementMap repl;
     std::string body;
 
-    if (commsHasOrigCode(m_genField.genParseObj().parseWriteOverride())) {
+    if (commsHasOrigCodeInternal(m_genField.genParseObj().parseWriteOverride())) {
         body = commsDefWriteFuncBodyImpl();
     }
 
@@ -1837,7 +1837,7 @@ std::string CommsField::commsDefRefreshFuncCodeInternal() const
 
     util::GenReplacementMap repl;
     std::string body;
-    if (commsHasOrigCode(m_genField.genParseObj().parseRefreshOverride())) {
+    if (commsHasOrigCodeInternal(m_genField.genParseObj().parseRefreshOverride())) {
         body = commsDefRefreshFuncBodyImpl();
     }
 
@@ -1880,7 +1880,7 @@ std::string CommsField::commsDefLengthFuncCodeInternal() const
     util::GenReplacementMap repl;
 
     std::string body;
-    if (commsHasOrigCode(m_genField.genParseObj().parseLengthOverride())) {
+    if (commsHasOrigCodeInternal(m_genField.genParseObj().parseLengthOverride())) {
         body = commsDefLengthFuncBodyImpl();
     }
 
@@ -1922,7 +1922,7 @@ std::string CommsField::commsDefValidFuncCodeInternal() const
 
     util::GenReplacementMap repl;
     std::string body;
-    if (commsHasOrigCode(m_genField.genParseObj().parseValidOverride())) {
+    if (commsHasOrigCodeInternal(m_genField.genParseObj().parseValidOverride())) {
         body = commsDefValidFuncBodyImpl();
     }
 

@@ -25,14 +25,14 @@ class CommsGenerator;
 class CommsVersion
 {
 public:
-    static bool commsWrite(CommsGenerator& generator);
+    [[nodiscard]] static bool commsWrite(CommsGenerator& generator);
 
 private:
     explicit CommsVersion(CommsGenerator& generator) : m_commsGenerator(generator) {}
 
-    bool commsWriteInternal() const;
-    std::string commsCodeVersionDefineInternal() const;
-    std::string commsCodeVersionFuncsInternal() const;
+    [[nodiscard]] bool commsWriteInternal() const;
+    [[nodiscard]] std::string commsCodeVersionDefineInternal() const;
+    [[nodiscard]] std::string commsCodeVersionFuncsInternal() const;
 
     CommsGenerator& m_commsGenerator;
 };

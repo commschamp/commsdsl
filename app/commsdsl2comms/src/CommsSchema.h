@@ -38,20 +38,20 @@ public:
     CommsSchema(CommsGenerator& generator, ParseSchema parseObj, GenElem* parent);
     virtual ~CommsSchema();
 
-    static const CommsSchema* commsCast(const GenSchema* obj)
+    [[nodiscard]] static const CommsSchema* commsCast(const GenSchema* obj)
     {
         return static_cast<const CommsSchema*>(obj);
     }
 
-    static const CommsSchema& commsCast(const GenSchema& obj)
+    [[nodiscard]] static const CommsSchema& commsCast(const GenSchema& obj)
     {
         return static_cast<const CommsSchema&>(obj);
     }
 
-    bool commsHasAnyMessage() const;
-    bool commsHasReferencedMsgId() const;
-    bool commsHasAnyField() const;
-    bool commsHasAnyGeneratedCode() const;
+    [[nodiscard]] bool commsHasAnyMessage() const;
+    [[nodiscard]] bool commsHasReferencedMsgId() const;
+    [[nodiscard]] bool commsHasAnyField() const;
+    [[nodiscard]] bool commsHasAnyGeneratedCode() const;
 
     const CommsField* commsFindValidInterfaceReferencedField(const std::string& refStr) const;
 };

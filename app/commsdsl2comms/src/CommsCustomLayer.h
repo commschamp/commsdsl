@@ -36,15 +36,15 @@ public:
     CommsCustomLayer(CommsGenerator& generator, ParseLayer parseObj, GenElem* parent);
 
 protected:
-    virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
 
     // CommsBase overrides
-    virtual CommsIncludesList commsDefIncludesImpl() const override;
-    virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
-    virtual bool commsDefHasInputMessagesImpl() const override;
-    virtual bool commsIsCustomizableImpl() const override;
-    virtual GenStringsList commsExtraBareMetalDefaultOptionsImpl() const override;
-    virtual GenStringsList commsExtraMsgFactoryDefaultOptionsImpl() const override;
+    [[nodiscard]] virtual CommsIncludesList commsDefIncludesImpl() const override;
+    [[nodiscard]] virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
+    [[nodiscard]] virtual bool commsDefHasInputMessagesImpl() const override;
+    [[nodiscard]] virtual bool commsIsCustomizableImpl() const override;
+    [[nodiscard]] virtual GenStringsList commsExtraBareMetalDefaultOptionsImpl() const override;
+    [[nodiscard]] virtual GenStringsList commsExtraMsgFactoryDefaultOptionsImpl() const override;
 };
 
 } // namespace commsdsl2comms
