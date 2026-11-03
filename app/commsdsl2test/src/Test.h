@@ -30,10 +30,10 @@ public:
 private:
     explicit Test(TestGenerator& generator) : m_testGenerator(generator) {}
 
-    bool testWriteInputTest() const;
+    [[nodiscard]] bool testWriteInputTest() const;
 
 private:
-    std::string testCodeVersionInternal() const;
+    [[nodiscard]] std::string testCodeVersionInternal() const;
 
     TestGenerator& m_testGenerator;
 };

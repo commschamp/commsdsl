@@ -24,14 +24,14 @@ namespace commsdsl2test
 class TestGenerator final : public commsdsl::gen::GenGenerator
 {
 public:
-    static const std::string& testFileGeneratedComment();
+    [[nodiscard]] static const std::string& testFileGeneratedComment();
 
 protected:
-    virtual bool genPrepareImpl() override;
-    virtual bool genWriteImpl() override;
+    [[nodiscard]] virtual bool genPrepareImpl() override;
+    [[nodiscard]] virtual bool genWriteImpl() override;
 
 private:
-    bool testWriteExtraFilesInternal() const;
+    [[nodiscard]] bool testWriteExtraFilesInternal() const;
 };
 
 } // namespace commsdsl2test

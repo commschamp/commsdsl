@@ -28,7 +28,7 @@ public:
 private:
     explicit TestCmake(TestGenerator& generator) : m_testGenerator(generator) {}
 
-    bool testWriteInternal() const;
+    [[nodiscard]] bool testWriteInternal() const;
 
 private:
     TestGenerator& m_testGenerator;
