@@ -204,6 +204,7 @@ private:
     [[nodiscard]] bool wiresharkHasTrivialValidInternal() const;
     [[nodiscard]] std::string wiresharkProcessNumericValueInternal(const std::string& val) const;
     [[nodiscard]] std::string wiresharkDissectVersionCheckInternal(const WiresharkField* refField) const;
+    [[nodiscard]] std::string wiresharkDissectReadAlignCodeInternal() const;
 
     [[nodiscard]] static std::string wiresharkDslCondToStringFieldValueCompInternal(
         const WiresharkField* leftField,

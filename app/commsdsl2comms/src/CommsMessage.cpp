@@ -1031,6 +1031,23 @@ std::string CommsMessage::commsDefExtraOptionsInternal() const
         util::genAddToStrList("comms::option::def::FailOnInvalid<>", opts);
     }
 
+    if (obj.parseReadAlign() != 0U) {
+        util::genAddToStrList("comms::option::def::ReadAlign<" + std::to_string(obj.parseReadAlign()) + '>', opts);
+    }
+
+    if (obj.parseWritePadAlign() != 0U) {
+        static const std::string TrueComment = " /* Pad is in length */";
+        static const std::string FalseComment = " /* Pad is NOT in length */";
+        auto* comment = &FalseComment;
+        auto padInLength = obj.parseWritePadInLength();
+        if (padInLength) {
+            comment = &TrueComment;
+        }
+
+        auto params = std::to_string(obj.parseWritePadAlign()) + ", " + util::genBoolToString(padInLength) + *comment;
+        util::genAddToStrList("comms::option::def::WritePadAlign<" + params + '>', opts);
+    }
+
     return util::genStrListToString(opts, ",\n", "");
 }
 

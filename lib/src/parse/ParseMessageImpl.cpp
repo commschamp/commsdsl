@@ -110,6 +110,9 @@ bool ParseMessageImpl::parse()
         parseUpdateSender() &&
         parseUpdateValidateMinLength() &&
         parseUpdateFailOnInvalid() &&
+        parseUpdateReadAlign() &&
+        parseUpdateWritePadAlign() &&
+        parseUpdateWritePadInLength() &&
         parseCopyFields() &&
         parseReplaceFields() &&
         parseUpdateFields() &&
@@ -334,6 +337,33 @@ bool ParseMessageImpl::parseValidateAndUpdateBoolPropValue(const std::string& pr
     return true;
 }
 
+bool ParseMessageImpl::parseValidateAndUpdateUnsignedPropValue(const std::string& propName, unsigned& value, bool mustHave)
+{
+    if (!parseValidateSinglePropInstance(propName, mustHave)) {
+        return false;
+    }
+
+    auto iter = m_props.find(propName);
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    if (!m_protocol.parseIsPropertySupported(propName)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
+            "Property \"" << common::parseAvailableLengthLimitStr() << "\" is not available for dslVersion= " << m_protocol.parseCurrSchema().parseDslVersion();
+        return true;
+    }
+
+    bool ok = false;
+    value = common::parseStrToUnsigned(iter->second, &ok);
+    if (!ok) {
+        parseReportUnexpectedPropertyValue(propName, iter->second);
+        return false;
+    }
+
+    return true;
+}
+
 void ParseMessageImpl::parseReportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue)
 {
     ParseXmlWrap::parseReportUnexpectedPropertyValue(m_node, common::parseMessageStr(), propName, propValue, m_protocol.parseLogger());
@@ -372,6 +402,9 @@ const ParseXmlWrap::ParseNamesList& ParseMessageImpl::parseCommonProps()
         common::parseCopyConstructFromStr(),
         common::parseCopyReadCondFromStr(),
         common::parseCopyValidCondFromStr(),
+        common::parseReadAlignStr(),
+        common::parseWritePadAlignStr(),
+        common::parseWritePadInLengthStr(),
     };
 
     return CommonNames;
@@ -773,6 +806,30 @@ bool ParseMessageImpl::parseUpdateFailOnInvalid()
         return true;
     }
 
+    return true;
+}
+
+bool ParseMessageImpl::parseUpdateReadAlign()
+{
+    return parseValidateAndUpdateUnsignedPropValue(common::parseReadAlignStr(), m_state.m_readAlign);
+}
+
+bool ParseMessageImpl::parseUpdateWritePadAlign()
+{
+    return parseValidateAndUpdateUnsignedPropValue(common::parseWritePadAlignStr(), m_state.m_writePadAlign);
+}
+
+bool ParseMessageImpl::parseUpdateWritePadInLength()
+{
+    if (!parseValidateAndUpdateBoolPropValue(common::parseWritePadInLengthStr(), m_state.m_writePadInLength)) {
+        return false;
+    }
+
+    if (m_state.m_writePadInLength && (m_state.m_writePadAlign == 0U)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
+            "Property \"" << common::parseWritePadInLengthStr() <<
+            "\" has no effect without \"" << common::parseWritePadAlignStr() << "\".";
+    }
     return true;
 }
 

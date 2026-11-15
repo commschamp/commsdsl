@@ -214,6 +214,24 @@ bool ParseField::parseIsValidInnerRef(const std::string& refStr) const
     return m_pImpl->parseIsValidInnerRef(refStr);
 }
 
+unsigned ParseField::parseReadAlign() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->parseReadAlign();
+}
+
+unsigned ParseField::parseWritePadAlign() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->parseWritePadAlign();
+}
+
+bool ParseField::parseWritePadInLength() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->parseWritePadInLength();
+}
+
 const ParseField::ParseAttributesMap& ParseField::parseExtraAttributes() const
 {
     assert(m_pImpl != nullptr);

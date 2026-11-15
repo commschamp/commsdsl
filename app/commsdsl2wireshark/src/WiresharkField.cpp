@@ -1750,7 +1750,8 @@ std::string WiresharkField::wiresharkDissectBodyInternal(const WiresharkField* r
         "#^#VERSION#$#\n"
         "#^#LENGTH#$#\n"
         "local result = #^#ERROR#$#\n"
-        "local next_offset = offset\n"
+        "local #^#NEXT_OFFSET#$# = #^#OFFSET#$#\n"
+        "#^#READ_ALIGN#$#\n"
         "#^#REST#$#\n"
         "#^#VALID#$#\n"
         "return result, next_offset"
@@ -1765,6 +1766,9 @@ std::string WiresharkField::wiresharkDissectBodyInternal(const WiresharkField* r
         {"VALID", wiresharkDissectValidCheckInternal(refField)},
         {"FIELD_STR", wiresharkFieldStr()},
         {"VERSION", wiresharkDissectVersionCheckInternal(refField)},
+        {"READ_ALIGN", wiresharkDissectReadAlignCodeInternal()},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+        {"OFFSET", wiresharkOffsetStr()},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -1949,6 +1953,31 @@ std::string WiresharkField::wiresharkDissectVersionCheckInternal(const Wireshark
         {"COND", std::move(verCheckStr)},
         {"SUCCESS", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::Success)},
         {"OFFSET", wiresharkOffsetStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkField::wiresharkDissectReadAlignCodeInternal() const
+{
+    auto parseObj = m_genField.genParseObj();
+    auto readAlign = parseObj.parseReadAlign();
+    if (readAlign == 0U) {
+        return strings::genEmptyString();
+    }
+
+    static const std::string Templ =
+        "local bit = #^#BIT_LIB#$#()\n"
+        "-- Align to #^#ALIGN#$# bytes\n"
+        "#^#NEXT_OFFSET#$# = bit.band(#^#NEXT_OFFSET#$# + #^#EXTRA#$#, bit.bnot(3))\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(m_genField.genGenerator());
+    util::GenReplacementMap repl = {
+        {"BIT_LIB", Wireshark::wiresharkBitLibAccFuncName(wiresharkGenerator)},
+        {"EXTRA", std::to_string(readAlign - 1)},
+        {"NEXT_OFFSET", wiresharkNextOffsetStr()},
+        {"ALIGN", std::to_string(readAlign)},
     };
 
     return util::genProcessTemplate(Templ, repl);

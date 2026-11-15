@@ -1,0 +1,86 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test63/Message.h"
+#include "test63/frame/Frame.h"
+#include "test63/field/B2.h"
+
+#include "comms/process.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+    void test2();
+    void test3();
+
+private:
+    using Interface = test63::Message<
+        comms::option::app::IdInfoInterface,
+        comms::option::app::LengthInfoInterface,
+        comms::option::app::ReadIterator<const std::uint8_t*>,
+        comms::option::app::WriteIterator<std::uint8_t*>,
+        comms::option::app::NameInterface
+    >;
+    using Frame = test63::frame::Frame<Interface>;
+
+    TEST63_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
+};
+
+void TestSuite::test1()
+{
+    const std::uint8_t Buf[] = {
+        static_cast<std::uint8_t>(test63::MsgId_M1),
+        0x00, 0x00, 0x00, /* padding */
+        0x01, 0x02, 0x03, 0x04, /* F1 */
+        0x05, 'h', 'e', 'l', 'l', 'o',
+    };
+    const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+    Frame frame;
+    Frame::MsgPtr msgPtr;
+
+    auto iter = comms::readIteratorFor<Interface>(Buf);
+    auto es = frame.read(msgPtr, iter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test63::MsgId_M1);
+
+    auto* msg = dynamic_cast<Msg1*>(msgPtr.get());
+    TS_ASSERT(msg != nullptr);
+    TS_ASSERT_EQUALS(msg->field_f1().value(), 0x01020304);
+    TS_ASSERT_EQUALS(msg->field_f2().value(), "hello");
+}
+
+void TestSuite::test2()
+{
+    Msg1 msg;
+    msg.field_f1().value() = 0x01020304;
+    msg.field_f2().value() = "hello";
+
+    std::vector<std::uint8_t> outBuf(32);
+    auto writeIter = &outBuf[0];
+    auto es = msg.doWrite(writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    const std::uint8_t Buf[] = {
+        0x01, 0x02, 0x03, 0x04, /* F1 */
+        0x05, 'h', 'e', 'l', 'l', 'o',
+        0x00, 0x00
+    };
+    const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+    auto diff = static_cast<std::size_t>(std::distance(&outBuf[0], writeIter));
+    TS_ASSERT_EQUALS(diff, BufSize);
+    TS_ASSERT(std::equal(std::begin(Buf), std::end(Buf), outBuf.begin()));
+}
+
+void TestSuite::test3()
+{
+    using Field = test63::field::B2<>;
+    static_assert(Field::hasReadAlign(), "Option hasn't been applied");
+    static_assert(Field::hasWritePadAlign(), "Option hasn't been applied");
+
+    Field field;
+    field.field_f3().setValue("bla");
+    TS_ASSERT_EQUALS(field.length(), 8U);
+}

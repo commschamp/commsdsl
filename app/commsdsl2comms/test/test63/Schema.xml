@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test63" endian="big" displayName="Binary Encoding Test">
+    <description>
+        Testing alignment control of messages.
+        Bad encoding, not really protocol
+    </description>
+
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+
+        <bundle name="B2" forceGen="true" readAlign="4" writePadAlign="4" writePadInLength="true">
+            <set name="F1" length="1">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+                <mask name="M0" bits="B0 | B1" />
+            </set>
+            <enum name="F2" type="uint8">
+                <validValue name="v1" val="0" />
+                <validValue name="v2" val="1" />
+            </enum>
+            <string name="F3" />
+        </bundle>
+
+    </fields>
+
+    <message name="Msg1" id="MsgId.M1" readAlign="4" writePadAlign="4" writePadInLength="true">
+        <int name="F1" type="uint32" />
+        <string name="F2">
+            <lengthPrefix>
+                <int name="Length" type="uint8" />
+            </lengthPrefix>
+        </string>
+    </message>
+
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>
+</schema>

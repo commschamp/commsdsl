@@ -52,6 +52,7 @@ public:
     void test41();
     void test42();
     void test43();
+    void test44();
 };
 
 void IntTestSuite::setUp()
@@ -1917,4 +1918,47 @@ void IntTestSuite::test43()
         TS_ASSERT(sp1Iter != specials.end());
         TS_ASSERT_EQUALS(sp1Iter->second.m_value, 1U);
     } while (false);
+}
+
+void IntTestSuite::test44()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema44.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.parseName().empty());
+
+    auto fields = ns.parseFields();
+    TS_ASSERT_LESS_THAN_EQUALS(5U, fields.size());
+
+    auto& f1 = fields[0];
+    auto& f2 = fields[1];
+    auto& f3 = fields[2];
+    auto& f4 = fields[3];
+    auto& f5 = fields[4];
+
+    TS_ASSERT_EQUALS(f1.parseReadAlign(), 4U);
+    TS_ASSERT_EQUALS(f1.parseWritePadAlign(), 0U);
+    TS_ASSERT(!f1.parseWritePadInLength());
+
+    TS_ASSERT_EQUALS(f2.parseReadAlign(), 0U);
+    TS_ASSERT_EQUALS(f2.parseWritePadAlign(), 4U);
+    TS_ASSERT(!f2.parseWritePadInLength());
+
+    TS_ASSERT_EQUALS(f3.parseReadAlign(), 0U);
+    TS_ASSERT_EQUALS(f3.parseWritePadAlign(), 4U);
+    TS_ASSERT(f3.parseWritePadInLength());
+
+    TS_ASSERT_EQUALS(f4.parseReadAlign(), 0U);
+    TS_ASSERT_EQUALS(f4.parseWritePadAlign(), 0U);
+    TS_ASSERT(f4.parseWritePadInLength());
+
+    TS_ASSERT_EQUALS(f5.parseReadAlign(), 0U);
+    TS_ASSERT_EQUALS(f5.parseWritePadAlign(), 0U);
+    TS_ASSERT(f5.parseWritePadInLength());
 }

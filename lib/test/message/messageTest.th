@@ -43,6 +43,7 @@ public:
     void test32();
     void test33();
     void test34();
+    void test35();
 };
 
 void MessageTestSuite::setUp()
@@ -865,5 +866,51 @@ void MessageTestSuite::test34()
         auto validCond = msg.parseValidCond();
         TS_ASSERT(validCond.parseValid());
         TS_ASSERT_EQUALS(validCond.parseKind(), commsdsl::parse::ParseOptCond::ParseKind::Expr);
+    }
+}
+
+void MessageTestSuite::test35()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ParseErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema35.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->parseLastParsedSchema().parseNamespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.parseName().empty());
+
+    auto messages = ns.parseMessages();
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(1U, messages.size());
+        auto& msg1 = messages[0];
+        TS_ASSERT_EQUALS(msg1.parseReadAlign(), 4U);
+        TS_ASSERT_EQUALS(msg1.parseWritePadAlign(), 0U);
+        TS_ASSERT(!msg1.parseWritePadInLength());
+    }
+
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(2U, messages.size());
+        auto& msg2 = messages[1];
+        TS_ASSERT_EQUALS(msg2.parseReadAlign(), 0U);
+        TS_ASSERT_EQUALS(msg2.parseWritePadAlign(), 4U);
+        TS_ASSERT(!msg2.parseWritePadInLength());
+    }
+
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(3U, messages.size());
+        auto& msg3 = messages[2];
+        TS_ASSERT_EQUALS(msg3.parseReadAlign(), 0U);
+        TS_ASSERT_EQUALS(msg3.parseWritePadAlign(), 4U);
+        TS_ASSERT(msg3.parseWritePadInLength());
+    }
+
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(4U, messages.size());
+        auto& msg4 = messages[3];
+        TS_ASSERT_EQUALS(msg4.parseReadAlign(), 0U);
+        TS_ASSERT_EQUALS(msg4.parseWritePadAlign(), 0U);
+        TS_ASSERT(msg4.parseWritePadInLength());
     }
 }

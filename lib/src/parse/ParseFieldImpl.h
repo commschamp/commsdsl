@@ -169,6 +169,21 @@ public:
         return m_state.m_copyCodeFrom;
     }
 
+    [[nodiscard]] unsigned parseReadAlign() const
+    {
+        return m_state.m_readAlign;
+    }
+
+    [[nodiscard]] unsigned parseWritePadAlign() const
+    {
+        return m_state.m_writePadAlign;
+    }
+
+    [[nodiscard]] bool parseWritePadInLength() const
+    {
+        return m_state.m_writePadInLength;
+    }
+
     [[nodiscard]] std::size_t parseMinLength() const
     {
         return parseMinLengthImpl();
@@ -362,6 +377,7 @@ protected:
     void parseReportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
     void parseCheckAndReportDeprecatedPropertyValue(const std::string& propName);
     [[nodiscard]] bool parseValidateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
+    [[nodiscard]] bool parseValidateAndUpdateUnsignedPropValue(const std::string& propName, unsigned& value, bool mustHave = false);
     [[nodiscard]] bool parseValidateAndUpdateOverrideTypePropValue(const std::string& propName, ParseOverrideType& value);
 
     [[nodiscard]] static const ParseXmlWrap::ParseNamesList& parseCommonProps();
@@ -423,11 +439,14 @@ private:
         ParseOverrideType m_nameOverride = ParseOverrideType_Any;
         std::string m_copyCodeFrom;
         int m_validateMinLength = -1;
+        unsigned m_readAlign = 0;
+        unsigned m_writePadAlign = 0;
         bool m_pseudo = false;
         bool m_fixedValue = false;
         bool m_customizable = false;
         bool m_failOnInvalid = false;
         bool m_forceGen = false;
+        bool m_writePadInLength = false;
     };
 
     [[nodiscard]] bool parseCheckReuse();
@@ -453,6 +472,9 @@ private:
     [[nodiscard]] bool parseUpdateNameOverride();
     [[nodiscard]] bool parseUpdateCopyOverrideCodeFrom();
     [[nodiscard]] bool parseUpdateValidateMinLength();
+    [[nodiscard]] bool parseUpdateReadAlign();
+    [[nodiscard]] bool parseUpdateWritePadAlign();
+    [[nodiscard]] bool parseUpdateWritePadInLength();
     [[nodiscard]] bool parseUpdateExtraAttrs(const ParseXmlWrap::ParseNamesList& names);
     [[nodiscard]] bool parseUpdateExtraChildren(const ParseXmlWrap::ParseNamesList& names);
 

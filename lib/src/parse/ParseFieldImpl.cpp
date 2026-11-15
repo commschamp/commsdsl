@@ -159,7 +159,10 @@ bool ParseFieldImpl::parse()
         parseUpdateValidOverride() &&
         parseUpdateNameOverride() &&
         parseUpdateCopyOverrideCodeFrom() &&
-        parseUpdateValidateMinLength();
+        parseUpdateValidateMinLength() &&
+        parseUpdateReadAlign() &&
+        parseUpdateWritePadAlign() &&
+        parseUpdateWritePadInLength();
 
     if (!result) {
         return false;
@@ -643,7 +646,7 @@ bool ParseFieldImpl::parseStrToNumericImpl(
     [[maybe_unused]] bool& isBigUnsigned) const
 {
     if (parseProtocol().parseIsFieldValueReferenceSupported()) {
-        parseLogWarning() <<
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
             "Extracting integral numeric value from \"" << parseKindStr() <<
             "\" field is not supported.";
     }
@@ -827,6 +830,33 @@ bool ParseFieldImpl::parseValidateAndUpdateBoolPropValue(const std::string& prop
     return true;
 }
 
+bool ParseFieldImpl::parseValidateAndUpdateUnsignedPropValue(const std::string& propName, unsigned& value, bool mustHave)
+{
+    if (!parseValidateSinglePropInstance(propName, mustHave)) {
+        return false;
+    }
+
+    auto iter = m_props.find(propName);
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    if (!m_protocol.parseIsPropertySupported(propName)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
+            "Property \"" << propName << "\" is not available for DSL version " << parseProtocol().parseCurrSchema().parseDslVersion();
+        return true;
+    }
+
+    bool ok = false;
+    value = common::parseStrToUnsigned(iter->second, &ok);
+    if (!ok) {
+        parseReportUnexpectedPropertyValue(propName, iter->second);
+        return false;
+    }
+
+    return true;
+}
+
 bool ParseFieldImpl::parseValidateAndUpdateOverrideTypePropValue(const std::string& propName, ParseOverrideType& value)
 {
     if (!parseValidateSinglePropInstance(propName, false)) {
@@ -892,6 +922,9 @@ const ParseXmlWrap::ParseNamesList& ParseFieldImpl::parseCommonProps()
         common::parseCopyCodeFromStr(),
         common::parseReuseCodeStr(),
         common::parseValidateMinLengthStr(),
+        common::parseReadAlignStr(),
+        common::parseWritePadAlignStr(),
+        common::parseWritePadInLengthStr(),
     };
 
     return CommonNames;
@@ -1479,6 +1512,30 @@ bool ParseFieldImpl::parseUpdateValidateMinLength()
     if (!ok) {
         parseReportUnexpectedPropertyValue(propStr, iter->second);
         return false;
+    }
+    return true;
+}
+
+bool ParseFieldImpl::parseUpdateReadAlign()
+{
+    return parseValidateAndUpdateUnsignedPropValue(common::parseReadAlignStr(), m_state.m_readAlign);
+}
+
+bool ParseFieldImpl::parseUpdateWritePadAlign()
+{
+    return parseValidateAndUpdateUnsignedPropValue(common::parseWritePadAlignStr(), m_state.m_writePadAlign);
+}
+
+bool ParseFieldImpl::parseUpdateWritePadInLength()
+{
+    if (!parseValidateAndUpdateBoolPropValue(common::parseWritePadInLengthStr(), m_state.m_writePadInLength)) {
+        return false;
+    }
+
+    if (m_state.m_writePadInLength && (m_state.m_writePadAlign == 0U)) {
+        parseLogWarning() << ParseXmlWrap::parseLogPrefix(m_node) <<
+            "Property \"" << common::parseWritePadInLengthStr() <<
+            "\" has no effect without \"" << common::parseWritePadAlignStr() << "\".";
     }
     return true;
 }

@@ -81,6 +81,9 @@ public:
     [[nodiscard]] ParseOptCond parseConstruct() const;
     [[nodiscard]] ParseOptCond parseReadCond() const;
     [[nodiscard]] ParseOptCond parseValidCond() const;
+    [[nodiscard]] unsigned parseReadAlign() const;
+    [[nodiscard]] unsigned parseWritePadAlign() const;
+    [[nodiscard]] bool parseWritePadInLength() const;
 
     [[nodiscard]] const ParseAttributesMap& parseExtraAttributes() const;
     [[nodiscard]] const ParseElementsList& parseExtraElements() const;

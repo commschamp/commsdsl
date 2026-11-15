@@ -803,6 +803,7 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::GenStringsList& op
         util::genAddToStrList("comms::option::def::HasName", opts);
     }
 
+    auto parseObj = m_genField.genParseObj();
     do {
         auto checkFieldTypeFunc =
             [this, &opts]()
@@ -818,7 +819,7 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::GenStringsList& op
             break;
         }
 
-        if (!m_genField.genParseObj().parseIsFailOnInvalid()) {
+        if (!parseObj.parseIsFailOnInvalid()) {
             break;
         }
 
@@ -838,12 +839,29 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::GenStringsList& op
         util::genAddToStrList("comms::option::def::HasCustomWrite", opts);
     }
 
-    if (m_forcedPseudo || m_genField.genParseObj().parseIsPseudo()) {
+    if (m_forcedPseudo || parseObj.parseIsPseudo()) {
         util::genAddToStrList("comms::option::def::EmptySerialization", opts);
     }
 
-    if (m_genField.genParseObj().parseIsFixedValue()) {
+    if (parseObj.parseIsFixedValue()) {
         util::genAddToStrList("comms::option::def::FixedValue", opts);
+    }
+
+    if (parseObj.parseReadAlign() != 0U) {
+        util::genAddToStrList("comms::option::def::ReadAlign<" + std::to_string(parseObj.parseReadAlign()) + '>', opts);
+    }
+
+    if (parseObj.parseWritePadAlign() != 0U) {
+        static const std::string TrueComment = " /* Pad is in length */";
+        static const std::string FalseComment = " /* Pad is NOT in length */";
+        auto* comment = &FalseComment;
+        auto padInLength = parseObj.parseWritePadInLength();
+        if (padInLength) {
+            comment = &TrueComment;
+        }
+
+        auto params = std::to_string(parseObj.parseWritePadAlign()) + ", " + util::genBoolToString(padInLength) + *comment;
+        util::genAddToStrList("comms::option::def::WritePadAlign<" + params + '>', opts);
     }
 }
 

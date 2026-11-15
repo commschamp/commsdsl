@@ -196,6 +196,24 @@ ParseOptCond ParseMessage::parseValidCond() const
     return m_pImpl->parseValidCond();
 }
 
+unsigned ParseMessage::parseReadAlign() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->parseReadAlign();
+}
+
+unsigned ParseMessage::parseWritePadAlign() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->parseWritePadAlign();
+}
+
+bool ParseMessage::parseWritePadInLength() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->parseWritePadInLength();
+}
+
 const ParseMessage::ParseAttributesMap& ParseMessage::parseExtraAttributes() const
 {
     assert(m_pImpl != nullptr);

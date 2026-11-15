@@ -184,6 +184,9 @@ using ParsePropsMap = std::multimap<std::string, std::string>;
 [[nodiscard]] const std::string& parseSeekFieldStr();
 [[nodiscard]] const std::string& parseEscFieldStr();
 [[nodiscard]] const std::string& parseSystemStr();
+[[nodiscard]] const std::string& parseReadAlignStr();
+[[nodiscard]] const std::string& parseWritePadAlignStr();
+[[nodiscard]] const std::string& parseWritePadInLengthStr();
 
 [[nodiscard]] char parseSiblingRefPrefix();
 [[nodiscard]] char parseStringRefPrefix();

@@ -97,6 +97,9 @@ public:
     [[nodiscard]] ParseOverrideType parseNameOverride() const;
     [[nodiscard]] const std::string& parseCopyCodeFrom() const;
     [[nodiscard]] bool parseIsValidInnerRef(const std::string& refStr) const;
+    [[nodiscard]] unsigned parseReadAlign() const;
+    [[nodiscard]] unsigned parseWritePadAlign() const;
+    [[nodiscard]] bool parseWritePadInLength() const;
 
     [[nodiscard]] const ParseAttributesMap& parseExtraAttributes() const;
     [[nodiscard]] const ParseElementsList& parseExtraElements() const;

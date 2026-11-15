@@ -172,6 +172,21 @@ public:
         return ParseOptCond(m_state.m_validCond.get());
     }
 
+    [[nodiscard]] unsigned parseReadAlign() const
+    {
+        return m_state.m_readAlign;
+    }
+
+    [[nodiscard]] unsigned parseWritePadAlign() const
+    {
+        return m_state.m_writePadAlign;
+    }
+
+    [[nodiscard]] bool parseWritePadInLength() const
+    {
+        return m_state.m_writePadInLength;
+    }
+
 protected:
     virtual ParseObjKind parseObjKindImpl() const override;
 
@@ -184,6 +199,8 @@ private:
         std::uintmax_t m_id = 0;
         unsigned m_order = 0;
         int m_validateMinLength = -1;
+        unsigned m_readAlign = 0;
+        unsigned m_writePadAlign = 0;
         std::vector<ParseFieldImplPtr> m_fields;
         std::vector<ParseAliasImplPtr> m_aliases;
         ParsePlatformsList m_platforms;
@@ -200,6 +217,7 @@ private:
         ParseOptCondImplPtr m_validCond;
         bool m_customizable = false;
         bool m_failOnInvalid = false;
+        bool m_writePadInLength = false;
 
         ParseReusableState() = default;
         ParseReusableState(ParseReusableState&&) = default;
@@ -214,6 +232,8 @@ private:
                     m_id,
                     m_order,
                     m_validateMinLength,
+                    m_readAlign,
+                    m_writePadAlign,
                     // m_fields,
                     // m_aliases,
                     m_platforms,
@@ -229,7 +249,8 @@ private:
                     // m_readCond,
                     // m_validCond,
                     m_customizable,
-                    m_failOnInvalid
+                    m_failOnInvalid,
+                    m_writePadInLength
                 );
         }
 
@@ -284,6 +305,7 @@ private:
     [[nodiscard]] bool parseValidateAndUpdateStringPropValue(const std::string& str, std::string& value, bool mustHave = false, bool allowDeref = false);
     [[nodiscard]] bool parseValidateAndUpdateOverrideTypePropValue(const std::string& propName, ParseOverrideType& value);
     [[nodiscard]] bool parseValidateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
+    [[nodiscard]] bool parseValidateAndUpdateUnsignedPropValue(const std::string& propName, unsigned& value, bool mustHave = false);
     void parseReportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
     [[nodiscard]] bool parseCheckReuse();
     [[nodiscard]] bool parseUpdateName();
@@ -297,6 +319,9 @@ private:
     [[nodiscard]] bool parseUpdateSender();
     [[nodiscard]] bool parseUpdateValidateMinLength();
     [[nodiscard]] bool parseUpdateFailOnInvalid();
+    [[nodiscard]] bool parseUpdateReadAlign();
+    [[nodiscard]] bool parseUpdateWritePadAlign();
+    [[nodiscard]] bool parseUpdateWritePadInLength();
     [[nodiscard]] bool parseCopyFields();
     [[nodiscard]] bool parseCopyAliases();
     [[nodiscard]] bool parseReplaceFields();

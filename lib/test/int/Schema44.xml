@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema44" endian="big">
+    <fields>
+        <int name="F1" type="uint16" readAlign="4" />
+        <int name="F2" type="uint16" writePadAlign="4" />
+        <int name="F3" type="uint16" writePadAlign="4" writePadInLength="true" />
+        <int name="F4" type="uint16" writePadInLength="true" />
+        <int name="F5" reuse="F3" writePadAlign="0" />
+    </fields>
+</schema>

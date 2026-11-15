@@ -933,6 +933,24 @@ const std::string& parseSystemStr()
     return Str;
 }
 
+const std::string& parseReadAlignStr()
+{
+    static const std::string Str("readAlign");
+    return Str;
+}
+
+const std::string& parseWritePadAlignStr()
+{
+    static const std::string Str("writePadAlign");
+    return Str;
+}
+
+const std::string& parseWritePadInLengthStr()
+{
+    static const std::string Str("writePadInLength");
+    return Str;
+}
+
 char parseSiblingRefPrefix()
 {
     return '$';

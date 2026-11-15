@@ -181,6 +181,7 @@ std::string WiresharkMessage::wiresharkDissectBodyInternal() const
         "local next_offset = offset\n"
         "tree = tree:add(#^#PROTO#$#, #^#NAME#$#)\n"
         "#^#READ_COND#$#\n"
+        "#^#READ_ALIGN#$#\n"
         "#^#FIELDS#$#\n"
         "#^#VALID#$#\n"
         "return result, next_offset\n"
@@ -193,6 +194,7 @@ std::string WiresharkMessage::wiresharkDissectBodyInternal() const
         {"PROTO", Wireshark::wiresharkProtocolObjName(wiresharkGenerator)},
         {"VALID", wiresharkDissectValidCheckCodeInternal()},
         {"READ_COND", wiresharkDissectReadCondCheckCodeInternal()},
+        {"READ_ALIGN", wiresharkDissectReadAlignCodeInternal()},
     };
 
     return util::genProcessTemplate(Templ, repl);
@@ -407,6 +409,31 @@ std::string WiresharkMessage::wiresharkDissectReadCondCheckCodeInternal() const
         {"CONDS", WiresharkField::wiresharkDslCondToString(wiresharkGenerator, m_wiresharkFields, *iFace, readCond)},
         {"ERROR", Wireshark::wiresharkStatusCodeStr(wiresharkGenerator, Wireshark::WiresharkStatusCode::InvalidMsgData)},
         {"OFFSET", WiresharkField::wiresharkOffsetStr()},
+    };
+
+    return util::genProcessTemplate(Templ, repl);
+}
+
+std::string WiresharkMessage::wiresharkDissectReadAlignCodeInternal() const
+{
+    auto parseObj = genParseObj();
+    auto readAlign = parseObj.parseReadAlign();
+    if (readAlign == 0U) {
+        return strings::genEmptyString();
+    }
+
+    static const std::string Templ =
+        "local bit = #^#BIT_LIB#$#()\n"
+        "-- Align to #^#ALIGN#$# bytes\n"
+        "#^#NEXT_OFFSET#$# = bit.band(#^#NEXT_OFFSET#$# + #^#EXTRA#$#, bit.bnot(3))\n"
+        ;
+
+    auto& wiresharkGenerator = WiresharkGenerator::wiresharkCast(genGenerator());
+    util::GenReplacementMap repl = {
+        {"BIT_LIB", Wireshark::wiresharkBitLibAccFuncName(wiresharkGenerator)},
+        {"EXTRA", std::to_string(readAlign - 1)},
+        {"NEXT_OFFSET", WiresharkField::wiresharkNextOffsetStr()},
+        {"ALIGN", std::to_string(readAlign)},
     };
 
     return util::genProcessTemplate(Templ, repl);
